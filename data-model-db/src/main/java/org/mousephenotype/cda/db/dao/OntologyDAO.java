@@ -55,13 +55,17 @@ import java.util.Map.Entry;
  *                        self.
  * </pre>
  *
- * @author mrelac
+ * @authors mrelac, ckchen
  */
 public abstract class OntologyDAO {
 
     protected Map<String, OntologyTermBean>   allTermsMap = null;
-    protected Map<String, List<List<String>>> ancestorGraphsMap = null;
+
     protected final HashMap<Integer, String>  ancestorMap = new HashMap();
+    protected final HashMap<Integer, String>  selectedAncestorMap = new HashMap();
+    protected Map<String, List<List<String>>> ancestorGraphsMap = null;
+    protected Map<String, List<List<String>>> selectedAncestorGraphsMap = null;
+
     protected CommonUtils                     commonUtils = new CommonUtils();
     protected Connection                      connection;
     protected final Map<String, List<String>> id2nodesMap = new HashMap();
@@ -218,6 +222,45 @@ public abstract class OntologyDAO {
 
     /**
      * Returns a <code>List&lt;OntologyTerm&gt;</code> of <code>id</code>'s
+     * top-level terms at level <code>level</code>, exclusive of self, or an
+     * empty list if there are none.
+     *
+     * @param id id of top-level relative terms to return.
+     * @param level the 1-relative level below the top level (i.e. 1 = top
+     * level, 2 = top-level - 1, etc.)
+     *
+     * @return a <code>List&lt;OntologyTerm&gt;</code> of <code>id</code>'s
+     * top-level terms at level <code>level</code>, exclusive of self, or an
+     * empty list if there are none.
+     */
+
+    public List<OntologyTermBean> getSelectedTopLevel(String id, int level) {
+
+        // should be the first one in the graph, so level should be 1
+        if (level <= 0) {
+            throw new RuntimeException("Level must be > 0. level was " + level);
+        }
+
+        Set<OntologyTermBean> beans = new LinkedHashSet();
+        List<List<String>> selectedAncestorGraphsId = selectedAncestorGraphsMap.get(id);
+
+        if (selectedAncestorGraphsId != null) {
+            for (List<String> ancestorGraphId : selectedAncestorGraphsId) {
+                if (( ! ancestorGraphId.isEmpty()) && (ancestorGraphId.size() >= level)) {
+                    String topTermId = ancestorGraphId.get(level - 1);
+
+                    //if ( ! id.equals(topTermId)) {                              // Don't include self in top-level list.
+                    beans.add(allTermsMap.get(topTermId));
+                    //}
+                }
+            }
+        }
+
+        return new ArrayList(beans);
+    }
+
+    /**
+     * Returns a <code>List&lt;OntologyTerm&gt;</code> of <code>id</code>'s
      * top-level terms, exclusive of self, or an empty list if there are none.
      *
      * @param id id of top-level terms to return.
@@ -248,18 +291,21 @@ public abstract class OntologyDAO {
         }
         
         Set<OntologyTermBean> beans = new LinkedHashSet();
+
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
+
         if (ancestorGraphsId != null) {
             for (List<String> ancestorGraphId : ancestorGraphsId) {
                 if (( ! ancestorGraphId.isEmpty()) && (ancestorGraphId.size() >= level)) {
                     String topTermId = ancestorGraphId.get(level - 1);
+
                     //if ( ! id.equals(topTermId)) {                              // Don't include self in top-level list.
                         beans.add(allTermsMap.get(topTermId));
                     //}
                 }
             }
         }
-        
+
         return new ArrayList(beans);
     }
 
@@ -311,7 +357,9 @@ public abstract class OntologyDAO {
             for (List<String> ancestorGraphId : ancestorGraphsId) {
 	            if (ancestorGraphId.size() >= 1){
 	            	OntologyTermBean bean = allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 1));
-                    beans.add(bean);
+                    if ( bean !=  null) {
+                        beans.add(bean);
+                    }
 	            }
             }
         }
@@ -331,6 +379,7 @@ public abstract class OntologyDAO {
      * <code>id</code>'s parent terms, or an empty list if there are none.
      *
      */
+
     public List<OntologyTermBean> getIntermediates(String id) {
         Set<OntologyTermBean> beans = new LinkedHashSet();
 
@@ -457,6 +506,7 @@ public abstract class OntologyDAO {
      */
     protected final void populateAllTerms(String query) throws SQLException {
 
+        //System.out.println("POPULATE ALL TERMS: "+ query);
         // need to preserve oder of mysql query result so that ontologyBrowser.createTreeJson()
         // would work as it works from top of the tree, which corresponds to the order of the mysql query
         Map<String, OntologyTermBean> map = new LinkedHashMap();
@@ -482,15 +532,17 @@ public abstract class OntologyDAO {
 
                 // list of node IDs
                 List<Integer> nodeIds = new ArrayList<>();
-                List<String> ancestorPathNodeIds = Arrays.asList(resultSet.getString("nodes").split(","));
+                List<String> nodeIdsOfTerm = Arrays.asList(resultSet.getString("nodes").split(","));
                 List<Integer> iNodeIds = new ArrayList<>();
-                for (String sNodeId : ancestorPathNodeIds) {
+                for (String sNodeId : nodeIdsOfTerm) {
                     iNodeIds.add(Integer.parseInt(sNodeId));
                 }
                 bean.setNodeIds(iNodeIds);
 
-                map.put(mapKey, bean);            
-                id2nodesMap.put(mapKey, ancestorPathNodeIds);
+                map.put(mapKey, bean);
+
+                // key: termId, value:
+                id2nodesMap.put(mapKey, nodeIdsOfTerm);
             }
             
             ps.close();
@@ -508,28 +560,57 @@ public abstract class OntologyDAO {
      */
     protected final void populateAncestorGraph() {
         Map<String, List<List<String>>> ancestorsMap = new HashMap();
+        Map<String, List<List<String>>> selectedAncestorsMap = new HashMap();
+
         Set<Map.Entry<String, List<String>>> entrySet = id2nodesMap.entrySet();
         
         for (Map.Entry<String, List<String>> entry : entrySet) {
             List<List<String>> ancestorList = new ArrayList();
-            for (String sAncestorNodeId : entry.getValue()) {
-                List<String> nodeIds = new ArrayList();
-                Integer ancesterNodeId = commonUtils.tryParseInt(sAncestorNodeId);
-                String ancestorNodeIdConcat = ancestorMap.get(ancesterNodeId);
+            List<List<String>> selectedAncestorList = new ArrayList();
+
+            for (String sNodeId : entry.getValue()) {
+                List<String> topTermIds = new ArrayList();
+                List<String> selectedToptermIds = new ArrayList();
+                Integer nodeId = commonUtils.tryParseInt(sNodeId);
+
+                String ancestorNodeIdConcat = ancestorMap.get(nodeId);
+
                 if (ancestorNodeIdConcat !=  null) {
-                    String[] sNodeIds = ancestorMap.get(ancesterNodeId).split(" ");
-                        for (String sNodeId : sNodeIds) {
-                            if (commonUtils.tryParseInt(sNodeId) != 0) {
-                                nodeIds.add(node2termMap.get(sNodeId));
-                            }
+                    String[] sAncestorNodeIds = ancestorNodeIdConcat.split(" ");
+
+                    for (String sAncestorNodeId : sAncestorNodeIds) {
+                        if (commonUtils.tryParseInt(sAncestorNodeId) != 0) {
+
+                            topTermIds.add(node2termMap.get(sAncestorNodeId));
                         }
-                    ancestorList.add(nodeIds);
+                    }
+                    ancestorList.add(topTermIds);
                 }
+
+                String selectedAncestorNodeIdConcat = selectedAncestorMap.get(nodeId);
+                if (selectedAncestorNodeIdConcat !=  null) {
+
+                    String[] sSelectedAncestorNodeIds = selectedAncestorNodeIdConcat.split(" ");
+                    for (String sSelectedAncestorNodeId : sSelectedAncestorNodeIds) {
+                        if (commonUtils.tryParseInt(sSelectedAncestorNodeId) != 0) {
+
+                            selectedToptermIds.add(node2termMap.get(sSelectedAncestorNodeId));
+                        }
+                    }
+                    selectedAncestorList.add(selectedToptermIds);
+                }
+
             }
+
             ancestorsMap.put(entry.getKey(), ancestorList);
+
+            if ( selectedAncestorList.size() > 0) {
+                selectedAncestorsMap.put(entry.getKey(), selectedAncestorList);
+            }
         }
-        
+
         ancestorGraphsMap = ancestorsMap;
+        selectedAncestorGraphsMap = selectedAncestorsMap;
     }
     
     /**
@@ -548,6 +629,7 @@ public abstract class OntologyDAO {
             
             ps.close();
         }
+
     }
     
     /**

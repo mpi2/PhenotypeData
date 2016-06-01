@@ -141,6 +141,14 @@
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
 
+	<!-- used for concurrently loading the MA core -->
+	<bean id="anatomyIndexing"
+		  class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/anatomy" />
+		<constructor-arg index="1" value="100000" /> <!--Queue size -->
+		<constructor-arg index="2" value="5" /> <!--Num threads -->
+	</bean>
+
 	<!-- used for concurrently loading the disease core -->
 	<bean id="diseaseIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -277,6 +285,7 @@
 	<bean id="mpOntologyService" class="org.mousephenotype.cda.db.dao.MpOntologyDAO" />
 	<bean id="maOntologyDAO" class="org.mousephenotype.cda.db.dao.MaOntologyDAO" />
 	<bean id="emapOntologyDAO" class="org.mousephenotype.cda.db.dao.EmapOntologyDAO" />
+	<bean id="emapaOntologyDAO" class="org.mousephenotype.cda.db.dao.EmapaOntologyDAO" />
 	<bean id="gwasDao" class="org.mousephenotype.cda.db.dao.GwasDAO" />
 
 </beans>

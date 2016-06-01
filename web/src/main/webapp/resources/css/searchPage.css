@@ -26,7 +26,7 @@ span#rmFilters {
 span.ui-helper-hidden-accessible {
 	font-size: 14px;
 }
-span.gene, span.mp, span.ma, span.disease, span.hp {
+span.gene, span.mp, span.anatomy, span.disease, span.hp {
 	color: black;
 }
 b.sugTerm {
@@ -309,7 +309,7 @@ span.ellipse {
 	padding-top: 10px;
 }
 
-div.mpCol div.title a, div.maCol div.title a {
+div.mpCol div.title a, div.anatomyCol div.title a {
 	font-weight: normal !important;
 	font-size: 16px !important;
 	text-decoration: none !important;
@@ -464,4 +464,10 @@ div.hideme > .region-content {
 }
 span.expdata {
 	text-align: center;
+}
+div#anaSep {
+	margin: 5px 0;
+	width: 200px;
+	height: 1px;
+	border-bottom: 1px solid #777;
 }

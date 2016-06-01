@@ -59,10 +59,12 @@ public class OntologyBrowserGetter {
 						while (resultSet2.next()) {
 
 							JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
-
+							//System.out.println("THIS NODE: "+ thisNode);
 							if ( thisNode != null ) {
 								if (thisNode.getBoolean("children")) {
 									thisNode = fetchChildNodes(helper, thisNode, termId);
+									//System.out.println("CHILD TERM ID: "+thisNode.getString("term_id"));
+
 									if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
 										thisNode.accumulate("state", getState(false));
 									} else {
@@ -97,6 +99,7 @@ public class OntologyBrowserGetter {
 
 	public String getScrollTo(List<JSONObject> tree){
 
+		//System.out.println("TREE: " + tree);
 		for (JSONObject topLevel: tree){
 			if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
 				return topLevel.getString("id");
@@ -232,17 +235,17 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
-		//System.out.println("QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/anatomy");
+		nameMap.put("emapa", "/anatomy");
 		nameMap.put("mp", "/phenotypes");
+
 
 		String pageBaseUrl =  nameMap.get(ontologyName);
 
 		Set<String> pathNodes = new HashSet<>();
 		Set<String> expandNodeIds = new HashSet<>();
 		Map<String, List<Map<String, String>>> preOpenNodes = new HashMap<>();
-
 
 
 		try ( Connection conn = ontodbDataSource.getConnection();
@@ -260,9 +263,14 @@ public class OntologyBrowserGetter {
 				startNodeIndex = 1;
 				minPathLen = 3;
 			}
+			else if (ontologyName.equals("emapa")){
+				topIndex = 2; // 2nd in the fullpath is the one below the real root in obo
+				startNodeIndex = 1;
+				minPathLen = 3;
+			}
+
 			else if (ontologyName.equals("mp")){
-				topIndex = 1; // 2nd in the fullpath is the one below the real
-				// root in obo
+				topIndex = 1; // 2nd in the fullpath is the one below the real root in obo
 				startNodeIndex = 0;
 				minPathLen = 2;
 			}
@@ -279,6 +287,9 @@ public class OntologyBrowserGetter {
 
 					String topNodeId = nodes[topIndex]; // 2nd in fullpath
 					String endNodeId = nodes[nodes.length - 1]; // last in fullpath
+
+					//System.out.println("startnode index: "+startNodeIndex);
+					//System.out.println("topnode: "+topNodeId);
 
 					expandNodeIds.add(endNodeId);
 

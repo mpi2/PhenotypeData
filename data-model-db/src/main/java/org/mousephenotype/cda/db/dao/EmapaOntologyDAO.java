@@ -20,54 +20,53 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-
-
 /**
- * This class encapsulates the code and data necessary to serve a Mouse
- * Anatomy ontology.
- * 
- * @author mrelac
+ * This class encapsulates the code and data necessary to serve a EMAP ontology
+ *
+ *
+ * @author ckchen based on mrelac
  */
-public class MaOntologyDAO extends OntologyDAO {
-    
+public class EmapaOntologyDAO extends OntologyDAO {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Map<String, String> subsets = new HashMap();
     private Map<String, List<Integer>> term2NodesMap = null;
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
 
-    public MaOntologyDAO() throws SQLException {
-        
+    public EmapaOntologyDAO() throws SQLException {
+
     }
-    
+
     /**
      * Returns the set of descendent graphs for the given id.
-     * 
-     * @param id the ma id to query
-     * 
+     *
+     * @param id the emapa id to query
+     *
      * @return the set of descendent graphs for the given id.
      */
     @Override
     public final List<List<String>> getDescendentGraphs(String id) {
         String nodeIds = StringUtils.join(id2nodesMap.get(id), ",");
         String query =
-            "SELECT *\n"
-          + "FROM ma_node_subsumption_fullpath_concat\n"
-          + "WHERE node_id IN (" + nodeIds + ")\n";
-        
+                "SELECT *\n"
+                        + "FROM emapa_node_subsumption_fullpath_concat\n"
+                        + "WHERE node_id IN (" + nodeIds + ")\n";
+
         return getDescendentGraphsInternal(query);
     }
-    
+
     /**
      * Methods annotated with @PostConstruct are executed just after the constructor
      * is run and spring is initialised.
-     * 
+     *
      * @throws RuntimeException PostConstruct forbids throwing checked exceptions,
      * so SQLException is re-mapped to a RuntimeException if a failure occurs.
      */
@@ -75,7 +74,7 @@ public class MaOntologyDAO extends OntologyDAO {
     @PostConstruct
     public void initialize() throws RuntimeException {
         super.initialize();
-        
+
         try {
             populateSubsets();
         } catch (SQLException e) {
@@ -84,10 +83,10 @@ public class MaOntologyDAO extends OntologyDAO {
         }
     }
 
-    public List<Integer> getNodeIds(String maTermId){
-    	return term2NodesMap.get(maTermId);
+    public List<Integer> getNodeIds(String emapaTermId){
+        return term2NodesMap.get(emapaTermId);
     }
-    
+
     public boolean hasAncestorMapWarnings() {
         return hasAncestorMapWarnings;
     }
@@ -99,93 +98,93 @@ public class MaOntologyDAO extends OntologyDAO {
     public void setShowAncestorMapWarnings(boolean showAncestorMapWarnings) {
         this.showAncestorMapWarnings = showAncestorMapWarnings;
     }
-    
+
     /**
      * Returns a list of ma subsets, indexed by ma id.
-     * 
+     *
      * @return a list of ma subsets, indexed by ma id.
      */
     public Map<String, String> getSubsets() {
         return subsets;
     }
-    
+
     /**
-     * Returns the ma subset for the given id.
-     * 
-     * @param id the ma id to query
-     * 
-     * @return the ma subset for the given id.
+     * Returns the emapa subset for the given id.
+     *
+     * @param id the emapa id to query
+     *
+     * @return the emapa subset for the given id.
      */
     public String getSubset(String id) {
         return subsets.get(id);
     }
-    
+
     /**
-     * Returns the ma subset for the given id in the provided list.
-     * 
-     * @param id the ma id to query
-     * 
+     * Returns the emapa subset for the given id in the provided list.
+     *
+     * @param id the emapa id to query
+     *
      * @param list the list to which the subset is appended.
-     * 
-     * @return the ma subset for the given id.
+     *
+     * @return the emapa subset for the given id.
      */
     public List<String> getSubset(String id, List<String> list) {
         list.add(subsets.get(id));
-        
+
         return list;
     }
-    
-    
+
+
     // PROTECTED METHODS
-    
-    
+
+
     /**
      * Populate all terms, keyed by id.
-     * 
+     *
      * Side Effects: this method populates a map, indexed by id, of each id's 
      *               node ids, which is later used to create the ancestor list.
-     * 
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     @Override
     protected final void populateAllTerms() throws SQLException {
         String query =
-            "SELECT\n"
-                + "  n2t.term_id               AS termId\n"
-                + ", GROUP_CONCAT(n2t.node_id) AS nodes\n"
-                + ", ti.name                   AS termName \n"
-                + ", ti.definition             AS termDefinition\n"
-                + ", GROUP_CONCAT(DISTINCT alt.alt_id) AS alt_ids\n"
-        + "FROM ma_node2term n2t\n"
-                + "LEFT OUTER JOIN ma_term_infos ti ON ti.term_id = n2t.term_id\n"
-                + "LEFT OUTER JOIN ma_alt_ids alt ON ti.term_id = alt.term_id\n"
-                + "WHERE n2t.term_id != 'MA:0000001'\n"
-                + "GROUP BY n2t.term_id\n"
-                + "ORDER BY n2t.term_id, n2t.node_id\n";
+                "SELECT\n"
+                        + "  n2t.term_id               AS termId\n"
+                        + ", GROUP_CONCAT(n2t.node_id) AS nodes\n"
+                        + ", ti.name                   AS termName \n"
+                        + ", ti.definition             AS termDefinition\n"
+                        + ", GROUP_CONCAT(DISTINCT alt.alt_id) AS alt_ids\n"
+                        + "FROM emapa_node2term n2t\n"
+                        + "LEFT OUTER JOIN emapa_term_infos ti ON ti.term_id = n2t.term_id\n"
+                        + "LEFT OUTER JOIN emapa_alt_ids alt ON ti.term_id = alt.term_id\n"
+                        + "WHERE (n2t.term_id != 'EMAPA:0' AND n2t.term_id not like 'TS%')\n"
+                        + "GROUP BY n2t.term_id\n"
+                        + "ORDER BY n2t.term_id, n2t.node_id\n";
 
         populateAllTerms(query);
     }
-    
+
     /**
      * Populates each node's ancestor hash.
-     * 
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     @Override
     protected void populateAncestorMap() throws SQLException {
-        
+
         // Populate backtraceMap so the fullpath can be modified to contain the selected top-level terms.
-        String query =
-            "SELECT *\n"
-          + "FROM ma_node_backtrace_fullpath\n";
-        Map<Integer, String> backtraceMap = new HashMap();                      // key = nodeId. value = fullpath.
+        String query = "SELECT * FROM emapa_node_backtrace_fullpath\n";
+
+        Map<Integer, String> backtraceMap = new HashMap();  // key = nodeId. value = fullpath.
+
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 Integer nodeId = resultSet.getInt("node_id");
                 String fullpath = resultSet.getString("fullpath");
-                //fullpath += " " + nodeId;                                       // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
-                
+                //fullpath += " " + nodeId;            // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
+
                 backtraceMap.put(nodeId, fullpath);
 
                 // get a full ancestor map
@@ -195,32 +194,34 @@ public class MaOntologyDAO extends OntologyDAO {
             ps.close();
         }
 
-
         // Dump Terry's selected top-levels into a map keyed by node.
-        query =
-            "SELECT \n"
-          + "  node_id\n"
-          + ", top_level_node_id\n"
-          + "FROM ma_node_2_selected_top_level_mapping\n";
+        query = "SELECT \n"
+              + "  node_id\n"
+              + ", top_level_node_id\n"
+              + "FROM emapa_node_2_selected_top_level_mapping\n";
+
         HashMap<Integer, Integer> selectedTopLevelNodeMap = new HashMap();
+
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
+
                 int node = resultSet.getInt("node_id");
                 int selectedTopLevelNodeId = resultSet.getInt("top_level_node_id");
+
                 if (selectedTopLevelNodeId == 0) {
                     hasAncestorMapWarnings = true;
-                    logger.warn("node " + node + " in ma_node_2_selected_top_level_mapping has no top-level node.");
+                    logger.warn("node " + node + " in emapa_node_2_selected_top_level_mapping has no top-level node.");
                     continue;
                 }
                 selectedTopLevelNodeMap.put(node, selectedTopLevelNodeId);
             }
-            
+
             ps.close();
         }
-            
+
         populateTerm2NodesMap();
-        
+
         // For each term in node2term:
         // - For each of that term's nodes:
         //   - Look up the node in the selectedTopLevelNodeMap.
@@ -237,12 +238,12 @@ public class MaOntologyDAO extends OntologyDAO {
         //   - Do any child nodes have a selected top-level term?
         //     - Yes: Ok to ignore.
         //     - No:  Log a warning that this term has no selected top level. Terry needs to choose one.
-        
+
         Map<String, String> missingFromFullpathMap = new HashMap();
         Map<String, List<Integer>> missingFromFullPathNodesList = new HashMap();
         Map<String, String> needsReviewByTerryCountMap = new HashMap();
         Map<String, List<Integer>> needsReviewByTerryCountNodesMap = new HashMap();
-        
+
         for (OntologyTermBean otBean : allTermsMap.values()) {
             String termId = otBean.getId();
 
@@ -300,7 +301,7 @@ public class MaOntologyDAO extends OntologyDAO {
                         selectedAncestorMap.put(nodeId, Integer.toString(nodeId));
                     }
                 }
-                
+
                 if ( ! selectedTopLevelFound) {
 
                     if (getTopLevelTermIdCount(termId) <= 0) {
@@ -320,7 +321,7 @@ public class MaOntologyDAO extends OntologyDAO {
                 }
             }
         }
-        
+
         if (showAncestorMapWarnings) {
             List<String> ancestorTermIdList = Arrays.asList(missingFromFullpathMap.keySet().toArray(new String[0]));
             Collections.sort(ancestorTermIdList);
@@ -347,36 +348,36 @@ public class MaOntologyDAO extends OntologyDAO {
                 String nodes = StringUtils.join(ancestorNodeIdList, ",");
                 String ancestorTerm = needsReviewByTerryCountMap.get(ancestorTermId);
                 String s = ancestorTermId + " ('" + ancestorTerm + "', nodes " + nodes + ") needs to be reviewed by Terry for a selected top-level term.";
-                
+
                 hasAncestorMapWarnings = true;
                 logger.warn(s);
             }
         }
 
     }
-    
+
     /**
      * Executes a query that returns the count of all of <code>nodeId</code>'s
      * child nodes that have a selected top-level term.
-     * 
+     *
      * @param termId the term whose children are queried for selected top-level
      *               term count
-     * 
+     *
      * @return the count of selected top-level terms for all of <code>nodeId
      * </code>'s child nodes.
      */
     private int getTopLevelTermIdCount(String termId) {
         int retVal = 0;
-        
+
         String query =
-            "SELECT COUNT(DISTINCT top_level_term_id) AS topLevelTermIdCount\n"
-          + "FROM ontodb_komp2.ma_node_2_selected_top_level_mapping stlm\n"
-          + "WHERE node_id IN (\n"
-          + "        SELECT DISTINCT child_node_id FROM ontodb_komp2.ma_node_subsumption_fullpath sf\n"
-          + "    WHERE sf.node_id IN (\n"
-          + "        SELECT node_id FROM ma_node2term WHERE term_id = ?\n"
-          + "    )\n"
-          + ")\n";
+                "SELECT COUNT(DISTINCT top_level_term_id) AS topLevelTermIdCount\n"
+                        + "FROM emapa_node_2_selected_top_level_mapping stlm\n"
+                        + "WHERE node_id IN (\n"
+                        + "        SELECT DISTINCT child_node_id FROM emapa_node_subsumption_fullpath sf\n"
+                        + "    WHERE sf.node_id IN (\n"
+                        + "        SELECT node_id FROM emapa_node2term WHERE term_id = ?\n"
+                        + "    )\n"
+                        + ")\n";
 
         try {
             PreparedStatement ps = connection.prepareStatement(query);
@@ -385,7 +386,7 @@ public class MaOntologyDAO extends OntologyDAO {
             if (resultSet.next()) {
                 retVal = resultSet.getInt("topLevelTermIdCount");
             }
-            
+
             ps.close();
         } catch (SQLException sqle) {
             String errorMessage = "";
@@ -398,41 +399,42 @@ public class MaOntologyDAO extends OntologyDAO {
                     errorMessage += ex.getLocalizedMessage();
                 }
             }
-            
+
             logger.error("SQLException: " + errorMessage);
         }
-        
+
         return retVal;
     }
-    
+
     /**
      * Populates the node2term hash with the term matching each node.
-     * 
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     @Override
     protected void populateNode2TermMap() throws SQLException {
         String query =
-            "SELECT *\n"
-          + "FROM ma_node2term\n"
-          + "ORDER BY term_id\n";
-        
+                "SELECT *\n"
+                        + "FROM emapa_node2term\n"
+                        + "ORDER BY term_id\n";
+
         populateNode2TermMap(query);
     }
-    
+
     protected void populateTerm2NodesMap() throws SQLException {
         if (term2NodesMap == null) {
             term2NodesMap = new HashMap();
-            
-            String query =
-                "SELECT\n"
-              + "  term_id\n"
-              + ", GROUP_CONCAT(node_id) AS nodeIdList\n"
-              + "FROM ma_node2term\n"
-              + "WHERE term_id != 'MA:0000001'\n"
-              + "GROUP BY term_id\n"
-              + "ORDER BY term_id\n";
 
+            String query =
+                    "SELECT\n"
+                            + "  term_id\n"
+                            + ", GROUP_CONCAT(node_id) AS nodeIdList\n"
+                            + "FROM emapa_node2term\n"
+                            //+ "WHERE term_id != 'EMAPA:0'\n"
+                            + "GROUP BY term_id\n"
+                            + "ORDER BY term_id\n";
+
+            //System.out.println("TERM2NODE QUERY: "+query);
             try (final PreparedStatement ps = connection.prepareStatement(query)) {
                 ResultSet resultSet = ps.executeQuery();
                 while (resultSet.next()) {
@@ -449,7 +451,7 @@ public class MaOntologyDAO extends OntologyDAO {
             }
         }
     }
-    
+
     /**
      * Query the database, returning a map of all synonyms indexed by term id
      *
@@ -458,18 +460,18 @@ public class MaOntologyDAO extends OntologyDAO {
     @Override
     protected final void populateSynonyms() throws SQLException {
         String query =
-            "SELECT\n"
-          + "  term_id\n"
-          + ", syn_name\n"
-          + "FROM ma_synonyms";
-        
+                "SELECT\n"
+                        + "  term_id\n"
+                        + ", syn_name\n"
+                        + "FROM emapa_synonyms";
+
         populateSynonyms(query);
     }
 
-    
+
     // PRIVATE METHODS
-    
-   
+
+
     /**
      * Query the database, returning a map of all ma subsets, indexed by term id.
      *
@@ -477,16 +479,16 @@ public class MaOntologyDAO extends OntologyDAO {
      */
     private void populateSubsets() throws SQLException {
         String query =
-            "SELECT DISTINCT *\n"
-          + "FROM ma_term_subsets\n"
-          + "ORDER BY term_id\n";
-        
+                "SELECT DISTINCT *\n"
+                        + "FROM emapa_term_subsets\n"
+                        + "ORDER BY term_id\n";
+
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 subsets.put(resultSet.getString("term_id"), resultSet.getString("subset"));
             }
-            
+
             ps.close();
         }
     }

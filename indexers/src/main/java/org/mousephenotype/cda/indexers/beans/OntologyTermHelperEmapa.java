@@ -16,11 +16,11 @@
 
 package org.mousephenotype.cda.indexers.beans;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class encapsulates the methods necessary to serve up individual lists of
@@ -31,10 +31,10 @@ import org.mousephenotype.cda.db.dao.MaOntologyDAO;
  * 
  * @author mrelac
  */
-public class OntologyTermHelperMa extends OntologyTermHelper {
-    
-    public OntologyTermHelperMa(MaOntologyDAO maOntologyService, String id) {
-        super(maOntologyService, id);
-    }
+public class OntologyTermHelperEmapa extends OntologyTermHelper {
 
+    public OntologyTermHelperEmapa(EmapaOntologyDAO emapaOntologyService, String id) {
+        super(emapaOntologyService, id);
+    }
+    
 }
