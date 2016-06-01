@@ -59,9 +59,6 @@ public class OntologyBrowserController {
 
         model.addAttribute("termId", termId);
         if ( termId.startsWith("MA:")){
-
-            System.out.println("SCROLL_ID: " + maService.getMaTerm(termId).getScrollNode());
-            //model.addAttribute("scrollToNode", maService.getMaTerm(termId).getScrollNode());
             model.addAttribute("scrollToNode", "1");
         }
         else if (termId.startsWith("MP:")) {

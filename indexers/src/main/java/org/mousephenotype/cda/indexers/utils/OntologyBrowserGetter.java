@@ -1,13 +1,20 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import net.sf.json.JSONObject;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
+import net.sf.json.JSONObject;
 
 
 public class OntologyBrowserGetter {
@@ -24,6 +31,7 @@ public class OntologyBrowserGetter {
 
 		List<JSONObject> tn = new ArrayList<>();
 		String sql = fetchNextLevelChildrenSql(helper, rootNodeId, childNodeId);
+		//System.out.println("SQL1: "+ sql);
 		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
 			ResultSet resultSet = p.executeQuery();
@@ -31,6 +39,7 @@ public class OntologyBrowserGetter {
 			while (resultSet.next()) {
 
 				String nodeId = resultSet.getString("node_id");  // child_node_id
+				//System.out.println("open: " + helper.getPreOpenNodes() + " vs node id --- "+ nodeId);
 
 				if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching its children recursively
 					// the tree should be expanded until the query term eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
@@ -43,6 +52,7 @@ public class OntologyBrowserGetter {
 					}
 
 					String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
+					//System.out.println("SQL2: "+ thisSql);
 					try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
 
 						ResultSet resultSet2 = p2.executeQuery();
@@ -101,6 +111,7 @@ public class OntologyBrowserGetter {
 		String parentNodeId = nodeObj.getString("id");
 		String childNodeId = null;
 		String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
+		//System.out.println("CHILD NODE SQL: "+ sql);
 		List<JSONObject> children = new ArrayList<>();
 
 		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
@@ -210,6 +221,7 @@ public class OntologyBrowserGetter {
 				+ "AND n.node_id IN (" + subqry + ") "
 				+ "ORDER BY t.name";
 
+		//System.out.println("NEXT LVL SQL: " + sql);
 		return sql;
 	}
 
@@ -220,6 +232,7 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
+		//System.out.println("QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/anatomy");
 		nameMap.put("mp", "/phenotypes");
@@ -258,6 +271,7 @@ public class OntologyBrowserGetter {
 			while (resultSet.next()) {
 
 				String fullpath = resultSet.getString("path");
+				//System.out.println("Path: " + fullpath);
 				String[] nodes = fullpath.split(" ");
 
 				if ( nodes.length >= minPathLen ) {
@@ -268,16 +282,17 @@ public class OntologyBrowserGetter {
 
 					expandNodeIds.add(endNodeId);
 
+
 					if (!preOpenNodes.containsKey(topNodeId)) {
 						preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
 					}
 
 					Map<String, String> nodeStartEnd = new HashMap<>();
 
-					//nodeStartEnd.put(nodes[0], endNodeId);
 					nodeStartEnd.put(nodes[startNodeIndex], endNodeId);
 
 					preOpenNodes.get(topNodeId).add(nodeStartEnd);
+
 				}
 			}
 		}
@@ -323,7 +338,7 @@ public class OntologyBrowserGetter {
 		String nodeId = Integer.toString(resultSet.getInt("node_id"));
 
 		// for MP, helper.getExcludedNodeIds() will be null
-		if ( helper.getExcludedNodeIds() == null || !helper.getExcludedNodeIds().contains(nodeId) ) {
+		//if ( helper.getExcludedNodeIds() == null || !helper.getExcludedNodeIds().contains(nodeId) ) {
 
 			String termId = resultSet.getString("term_id");
 			String name = resultSet.getString("name");
@@ -343,10 +358,10 @@ public class OntologyBrowserGetter {
 			node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
 			node.put("href", helper.getPageBaseUrl() + "/" + termId);
 			node.put("hrefTarget", "_blank");
-		}
-		else {
-			return null;
-		}
+//		}
+//		else {
+//			return null;
+//		}
 		return node;
 	}
 

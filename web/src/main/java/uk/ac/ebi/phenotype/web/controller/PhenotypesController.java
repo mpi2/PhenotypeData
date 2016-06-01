@@ -235,14 +235,17 @@ public class PhenotypesController {
         
         return "phenotypes";
     }
+    
 
     private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
+    	
         Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
         for (String key : phenFacets.keySet()) {
             sortPhenFacets.put(key, new TreeMap<String, Integer>(phenFacets.get(key)));
         }
         return sortPhenFacets;
     }
+    
 
     /**
      *
@@ -303,21 +306,20 @@ public class PhenotypesController {
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
-            List<String> sex = new ArrayList<String>();
-            sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
             DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, false);
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr.hashCode())) {
+            	
                 pr = phenotypes.get(pr.hashCode());
-
                 // Use a tree set to maintain an alphabetical order (Female, Male)
                 TreeSet<String> sexes = new TreeSet<String>();
                 for (String s : pr.getSexes()) {
                     sexes.add(s);
                 }
                 sexes.add(pcs.getSex().toString());
+                
                 pr.setSexes(new ArrayList<String>(sexes));
             }
 

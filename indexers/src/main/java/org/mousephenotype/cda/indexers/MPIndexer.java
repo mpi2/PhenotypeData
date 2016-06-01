@@ -859,13 +859,16 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void addMpHpTerms(MpDTO mp, List<MPHPBean> hpBeans) {
-        if (hpBeans != null) {
+        
+    	if (hpBeans != null) {
             List<String> hpIds = new ArrayList<>(hpBeans.size());
             List<String> hpTerms = new ArrayList<>(hpBeans.size());
 
             for (MPHPBean bean : hpBeans) {
-                hpIds.add(bean.getHpId());
-                hpTerms.add(bean.getHpTerm());
+            	if (bean.getHpId() != null && bean.getHpTerm() != null && !bean.getHpId().equals("") && !bean.getHpTerm().equals("")){
+            		hpIds.add(bean.getHpId());
+                	hpTerms.add(bean.getHpTerm());
+            	}
             }
 
             if (mp.getHpId() == null) {

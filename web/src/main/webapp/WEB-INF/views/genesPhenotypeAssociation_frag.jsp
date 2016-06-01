@@ -198,6 +198,8 @@
   </c:otherwise>
 </c:choose>
 
+<div id="phenotypes"></div> <!-- Empty anchor for links, used for disease paper. Don't remove.  -->
+
 <c:if
         test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
   <!-- Associations table -->

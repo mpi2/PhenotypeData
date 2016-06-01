@@ -28,7 +28,7 @@
 					             	<c:if test="${row.gene.accessionId == null}">
 					            	 	&nbsp;control
 					             	</c:if>
-					             	</td>
+					            </td>
 					            <td>${row.expression}</td>
 					           	<td>${row.anatomyLinks}</td>
 					            <td>${row.zygosity}</td>
