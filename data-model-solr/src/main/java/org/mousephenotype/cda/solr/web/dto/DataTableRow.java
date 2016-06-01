@@ -112,10 +112,26 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         }
 
         this.buildEvidenceLink(baseUrl, hasImages);
+        this.adjustPhenotypeColumnIfNecessary();
         
     }
     
-    private void setTopLevelPhenotypeTerms(List<BasicBean> topLevelPhenotypeTerms) {
+    /**
+     * Currently as histopath data is set up differently in Impress we need to change the phenotype column to show the phenotype using the parameter name 
+     * rather than something too generic as it is by default like "developmental and structural abnormality" 
+     */
+    private void adjustPhenotypeColumnIfNecessary() {
+    	if ( procedure.getName().startsWith("Histopathology") ){
+    		BasicBean paramBean=new BasicBean();
+    		paramBean.setName(parameter.getName()+ " "+ this.phenotypeTerm.getName());
+    		
+           this.setPhenotypeTerm(paramBean);
+        	
+        }
+		
+	}
+
+	private void setTopLevelPhenotypeTerms(List<BasicBean> topLevelPhenotypeTerms) {
 		this.topLevelPhenotypeTerms=topLevelPhenotypeTerms;
 		
 	}
