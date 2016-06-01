@@ -38,6 +38,7 @@ public class AutosuggestBean {
 	public static final String HP_TERM_SYNONYM = "hp_term_synonym";
 	public static final String HPMP_ID = "hpmp_id";
 	public static final String HPMP_TERM = "hpmp_term";
+
 	public static final String MP_ID = "mp_id";
 	public static final String MP_TERM = "mp_term";
 	public static final String MP_TERM_SYNONYM = "mp_term_synonym";
@@ -45,22 +46,38 @@ public class AutosuggestBean {
 	public static final String CHILD_MP_ID = "child_mp_id";
 	public static final String CHILD_MP_TERM = "child_mp_term";
 	public static final String CHILD_MP_TERM_SYNONYM = "child_mp_term_synonym";
+	public static final String PARENT_MP_ID = "parent_mp_id";
+	public static final String PARENT_MP_TERM = "parent_mp_term";
+	public static final String PARENT_MP_TERM_SYNONYM = "parent_mp_term_synonym";
 	public static final String INTERMEDIATE_MP_ID = "intermediate_mp_id";
 	public static final String INTERMEDIATE_MP_TERM = "intermediate_mp_term";
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_term_synonym";
 	public static final String TOP_LEVEL_MP_ID = "top_level_mp_id";
 	public static final String TOP_LEVEL_MP_TERM = "top_level_mp_term";
 	public static final String TOP_LEVEL_MP_TERM_SYNONYM = "top_level_mp_term_synonym";
-	public static final String MA_ID = "ma_id";
-	public static final String MA_TERM = "ma_term";
-	public static final String MA_TERM_SYNONYM = "ma_term_synonym";
-	public static final String ALT_MA_ID = "alt_ma_id";
-	public static final String CHILD_MA_ID = "child_ma_id";
-	public static final String CHILD_MA_TERM = "child_ma_term";
-	public static final String CHILD_MA_TERM_SYNONYM = "child_ma_term_synonym";
-	public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
-	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
-	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "selected_top_level_ma_term_synonym";
+
+	// generic anatomy fields
+	public static final String ANATOMY_ID = "anatomy_id";
+	public static final String ANATOMY_TERM = "anatomy_term";
+	public static final String ANATOMY_TERM_SYNONYM = "anatomy_term_synonym";
+	public static final String ALT_ANATOMY_ID = "alt_anatomy_id";
+	public static final String CHILD_ANATOMY_ID = "child_anatomy_id";
+	public static final String CHILD_ANATOMY_TERM = "child_anatomy_term";
+	public static final String CHILD_ANATOMY_TERM_SYNONYM = "child_anatomy_term_synonym";
+	public static final String PARENT_ANATOMY_ID = "parent_anatomy_id";
+	public static final String PARENT_ANATOMY_TERM = "parent_anatomy_term";
+	public static final String PARENT_ANATOMY_TERM_SYNONYM = "parent_anatomy_term_synonym";
+	public static final String INTERMEDIATE_ANATOMY_ID = "intermediate_anatomy_id";
+	public static final String INTERMEDIATE_ANATOMY_TERM = "intermediate_anatomy_term";
+	public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM = "intermediate_anatomy_term_synonym";
+	public static final String TOP_LEVEL_ANATOMY_ID = "top_level_anatomy_id";
+	public static final String TOP_LEVEL_ANATOMY_TERM = "top_level_anatomy_term";
+	public static final String TOP_LEVEL_ANATOMY_TERM_SYNONYM = "top_level_anatomy_term_synonym";
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_ID = "selected_top_level_anatomy_id";
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM = "selected_top_level_anatomy_term";
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM = "selected_top_level_anatomy_term_synonym";
+
+
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_TERM = "disease_term";
 	public static final String DISEASE_ALTS = "disease_alts";
@@ -85,7 +102,7 @@ public class AutosuggestBean {
 	private String docType;
 
 	@Field(MGI_ACCESSION_ID)
-	private String mgiAccessionID;
+	private String mgiAccessionId;
 
 	@Field(MGI_ALLELE_ACCESSION_ID)
 	private List<String> mgiAlleleAccessionIds;
@@ -103,7 +120,7 @@ public class AutosuggestBean {
 	private String humanGeneSymbol;
 
 	@Field(HP_ID)
-	private String hpID;
+	private String hpId;
 
 	@Field(HP_TERM)
 	private String hpTerm;
@@ -115,16 +132,16 @@ public class AutosuggestBean {
 	private String hpTermSynonym;
 
 	@Field(HPMP_ID)
-	private String hpmpID;
+	private String hpmpId;
 
 	@Field(HPMP_TERM)
 	private String hpmpTerm;
 
 	@Field(ALT_MP_ID)
-	private String altMpID;
+	private String altMpId;
 
 	@Field(MP_ID)
-	private String mpID;
+	private String mpId;
 
 	@Field(MP_TERM)
 	private String mpTerm;
@@ -133,7 +150,7 @@ public class AutosuggestBean {
 	private String mpTermSynonym;
 
 	@Field(CHILD_MP_ID)
-	private String childMpID;
+	private String childMpId;
 
 	@Field(CHILD_MP_TERM)
 	private String childMpTerm;
@@ -141,8 +158,17 @@ public class AutosuggestBean {
 	@Field(CHILD_MP_TERM_SYNONYM)
 	private String childMpTermSynonym;
 
+	@Field(PARENT_MP_ID)
+	private String parentMpId;
+
+	@Field(PARENT_MP_TERM)
+	private String parentMpTerm;
+
+	@Field(PARENT_MP_TERM_SYNONYM)
+	private String parentMpTermSynonym;
+
 	@Field(INTERMEDIATE_MP_ID)
-	private String intermediateMpID;
+	private String intermediateMpId;
 
 	@Field(INTERMEDIATE_MP_TERM)
 	private String intermediateMpTerm;
@@ -151,7 +177,7 @@ public class AutosuggestBean {
 	private String intermediateMpTermSynonym;
 
 	@Field(TOP_LEVEL_MP_ID)
-	private String topLevelMpID;
+	private String topLevelMpId;
 
 	@Field(TOP_LEVEL_MP_TERM)
 	private String topLevelMpTerm;
@@ -159,38 +185,66 @@ public class AutosuggestBean {
 	@Field(TOP_LEVEL_MP_TERM_SYNONYM)
 	private String topLevelMpTermSynonym;
 
-	@Field(ALT_MA_ID)
-	private String altMaID;
+	// generic anatomy fields
+	@Field(ANATOMY_ID)
+	private String anatomyId;
 
-	@Field(MA_ID)
-	private String maID;
+	@Field(ALT_ANATOMY_ID)
+	private String altAnatomyId;
 
-	@Field(MA_TERM)
-	private String maTerm;
+	@Field(ANATOMY_TERM)
+	private String anatomyTerm;
 
-	@Field(MA_TERM_SYNONYM)
-	private String maTermSynonym;
+	@Field(ANATOMY_TERM_SYNONYM)
+	private String anatomyTermSynonym;
 
-	@Field(CHILD_MA_ID)
-	private String childMaID;
+	@Field(CHILD_ANATOMY_ID)
+	private String childAnatomyId;
 
-	@Field(CHILD_MA_TERM)
-	private String childMaTerm;
+	@Field(CHILD_ANATOMY_TERM)
+	private String childAnatomyTerm;
 
-	@Field(CHILD_MA_TERM_SYNONYM)
-	private String childMaTermSynonym;
+	@Field(CHILD_ANATOMY_TERM_SYNONYM)
+	private String childAnatomyTermSynonym;
 
-	@Field(SELECTED_TOP_LEVEL_MA_ID)
-	private String selectedTopLevelMaID;
+	@Field(PARENT_ANATOMY_ID)
+	private String parentAnatomyId;
 
-	@Field(SELECTED_TOP_LEVEL_MA_TERM)
-	private String selectedTopLevelMaTerm;
+	@Field(PARENT_ANATOMY_TERM)
+	private String parentAnatomyTerm;
 
-	@Field(SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
-	private String selectedTopLevelMaTermSynonym;
+	@Field(PARENT_ANATOMY_TERM_SYNONYM)
+	private String parentAnatomyTermSynonym;
+
+	@Field(INTERMEDIATE_ANATOMY_ID)
+	private String intermediateAnatomyId;
+
+	@Field(INTERMEDIATE_ANATOMY_TERM)
+	private String intermediateAnatomyTerm;
+
+	@Field(INTERMEDIATE_ANATOMY_TERM_SYNONYM)
+	private String intermediateAnatomyTermSynonym;
+
+	@Field(TOP_LEVEL_ANATOMY_ID)
+	private String topLevelAnatomyId;
+
+	@Field(TOP_LEVEL_ANATOMY_TERM)
+	private String topLevelAnatomyTerm;
+
+	@Field(TOP_LEVEL_ANATOMY_TERM_SYNONYM)
+	private String topLevelAnatomyTermSynonym;
+
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_ID)
+	private String selectedTopLevelAnatomyId;
+
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_TERM)
+	private String selectedTopLevelAnatomyTerm;
+
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM)
+	private String selectedTopLevelAnatomyTermSynonym;
 
 	@Field(DISEASE_ID)
-	private String diseaseID;
+	private String diseaseId;
 
 	@Field(DISEASE_TERM)
 	private String diseaseTerm;
@@ -236,475 +290,421 @@ public class AutosuggestBean {
 	
 	@Field(GWAS_SNP_ID)
 	private String gwasSnpId;
-	
-	
-	public String getDocType() {
 
+
+	public String getDocType() {
 		return docType;
 	}
 
-
 	public void setDocType(String docType) {
-
 		this.docType = docType;
 	}
 
-	public String getMgiAccessionID() {
-
-		return mgiAccessionID;
+	public String getMgiAccessionId() {
+		return mgiAccessionId;
 	}
 
-	public void setMgiAccessionID(String mgiAccessionID) {
-
-		this.mgiAccessionID = mgiAccessionID;
+	public void setMgiAccessionId(String mgiAccessionId) {
+		this.mgiAccessionId = mgiAccessionId;
 	}
 
 	public List<String> getMgiAlleleAccessionIds() {
-
 		return mgiAlleleAccessionIds;
 	}
 
 	public void setMgiAlleleAccessionIds(List<String> mgiAlleleAccessionIds) {
-
 		this.mgiAlleleAccessionIds = mgiAlleleAccessionIds;
 	}
-	
 
 	public String getMarkerSymbol() {
-
 		return markerSymbol;
 	}
 
-
 	public void setMarkerSymbol(String markerSymbol) {
-
 		this.markerSymbol = markerSymbol;
 	}
 
-
 	public String getMarkerName() {
-
 		return markerName;
 	}
 
-
 	public void setMarkerName(String markerName) {
-
 		this.markerName = markerName;
 	}
 
-
 	public String getMarkerSynonym() {
-
 		return markerSynonym;
 	}
 
-
 	public void setMarkerSynonym(String markerSynonym) {
-
 		this.markerSynonym = markerSynonym;
 	}
 
-
 	public String getHumanGeneSymbol() {
-
 		return humanGeneSymbol;
 	}
 
-
 	public void setHumanGeneSymbol(String humanGeneSymbol) {
-
 		this.humanGeneSymbol = humanGeneSymbol;
 	}
 
-
-	public String getHpID() {
-
-		return hpID;
+	public String getHpId() {
+		return hpId;
 	}
 
-
-	public void setHpID(String hpID) {
-
-		this.hpID = hpID;
+	public void setHpId(String hpId) {
+		this.hpId = hpId;
 	}
-
 
 	public String getHpTerm() {
-
 		return hpTerm;
 	}
 
-
 	public void setHpTerm(String hpTerm) {
-
 		this.hpTerm = hpTerm;
 	}
 
-
 	public String getHpSynonym() {
-
 		return hpSynonym;
 	}
 
-
 	public void setHpSynonym(String hpSynonym) {
-
 		this.hpSynonym = hpSynonym;
 	}
 
-
 	public String getHpTermSynonym() {
-
 		return hpTermSynonym;
 	}
 
-
 	public void setHpTermSynonym(String hpTermSynonym) {
-
 		this.hpTermSynonym = hpTermSynonym;
 	}
 
-
-	public String getHpmpID() {
-
-		return hpmpID;
+	public String getHpmpId() {
+		return hpmpId;
 	}
 
-
-	public void setHpmpID(String hpmpID) {
-
-		this.hpmpID = hpmpID;
+	public void setHpmpId(String hpmpId) {
+		this.hpmpId = hpmpId;
 	}
-
 
 	public String getHpmpTerm() {
-
 		return hpmpTerm;
 	}
 
-
 	public void setHpmpTerm(String hpmpTerm) {
-
 		this.hpmpTerm = hpmpTerm;
 	}
 
-	public String getAltMpID() {
-
-		return altMpID;
+	public String getAltMpId() {
+		return altMpId;
 	}
 
-	public void setAltMpID(String altMpID) {
-
-		this.altMpID = altMpID;
+	public void setAltMpId(String altMpId) {
+		this.altMpId = altMpId;
 	}
 
-	public void setMpID(String mpID) {
-
-		this.mpID = mpID;
+	public String getMpId() {
+		return mpId;
 	}
 
-
-	public String getMpID() {
-
-		return mpID;
+	public void setMpId(String mpId) {
+		this.mpId = mpId;
 	}
-
 
 	public String getMpTerm() {
-
 		return mpTerm;
 	}
 
-
 	public void setMpTerm(String mpTerm) {
-
 		this.mpTerm = mpTerm;
 	}
 
-
 	public String getMpTermSynonym() {
-
 		return mpTermSynonym;
 	}
 
-
 	public void setMpTermSynonym(String mpTermSynonym) {
-
 		this.mpTermSynonym = mpTermSynonym;
 	}
 
-
-	public String getChildMpID() {
-
-		return childMpID;
+	public String getChildMpId() {
+		return childMpId;
 	}
 
-
-	public void setChildMpID(String childMpID) {
-
-		this.childMpID = childMpID;
+	public void setChildMpId(String childMpId) {
+		this.childMpId = childMpId;
 	}
-
 
 	public String getChildMpTerm() {
-
 		return childMpTerm;
 	}
 
-
 	public void setChildMpTerm(String childMpTerm) {
-
 		this.childMpTerm = childMpTerm;
 	}
 
-
 	public String getChildMpTermSynonym() {
-
 		return childMpTermSynonym;
 	}
 
-
 	public void setChildMpTermSynonym(String childMpTermSynonym) {
-
 		this.childMpTermSynonym = childMpTermSynonym;
 	}
 
-
-	public String getIntermediateMpID() {
-
-		return intermediateMpID;
+	public String getParentMpId() {
+		return parentMpId;
 	}
 
-
-	public void setIntermediateMpID(String intermediateMpID) {
-
-		this.intermediateMpID = intermediateMpID;
+	public void setParentMpId(String parentMpId) {
+		this.parentMpId = parentMpId;
 	}
 
+	public String getParentMpTerm() {
+		return parentMpTerm;
+	}
+
+	public void setParentMpTerm(String parentMpTerm) {
+		this.parentMpTerm = parentMpTerm;
+	}
+
+	public String getParentMpTermSynonym() {
+		return parentMpTermSynonym;
+	}
+
+	public void setParentMpTermSynonym(String parentMpTermSynonym) {
+		this.parentMpTermSynonym = parentMpTermSynonym;
+	}
+
+	public String getIntermediateMpId() {
+		return intermediateMpId;
+	}
+
+	public void setIntermediateMpId(String intermediateMpId) {
+		this.intermediateMpId = intermediateMpId;
+	}
 
 	public String getIntermediateMpTerm() {
-
 		return intermediateMpTerm;
 	}
 
-
 	public void setIntermediateMpTerm(String intermediateMpTerm) {
-
 		this.intermediateMpTerm = intermediateMpTerm;
 	}
 
-
 	public String getIntermediateMpTermSynonym() {
-
 		return intermediateMpTermSynonym;
 	}
 
-
 	public void setIntermediateMpTermSynonym(String intermediateMpTermSynonym) {
-
 		this.intermediateMpTermSynonym = intermediateMpTermSynonym;
 	}
 
-
-	public String getTopLevelMpID() {
-
-		return topLevelMpID;
+	public String getTopLevelMpId() {
+		return topLevelMpId;
 	}
 
-
-	public void setTopLevelMpID(String topLevelMpID) {
-
-		this.topLevelMpID = topLevelMpID;
+	public void setTopLevelMpId(String topLevelMpId) {
+		this.topLevelMpId = topLevelMpId;
 	}
-
 
 	public String getTopLevelMpTerm() {
-
 		return topLevelMpTerm;
 	}
 
-
 	public void setTopLevelMpTerm(String topLevelMpTerm) {
-
 		this.topLevelMpTerm = topLevelMpTerm;
 	}
 
-
 	public String getTopLevelMpTermSynonym() {
-
 		return topLevelMpTermSynonym;
 	}
 
-
 	public void setTopLevelMpTermSynonym(String topLevelMpTermSynonym) {
-
 		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
 	}
 
-	public String getAltMaID() {
-
-		return altMaID;
+	public String getAnatomyId() {
+		return anatomyId;
 	}
 
-	public void setAltMaID(String altMaID) {
-
-		this.altMaID = altMaID;
+	public void setAnatomyId(String anatomyId) {
+		this.anatomyId = anatomyId;
 	}
 
-
-	public String getMaID() {
-
-		return maID;
+	public String getAltAnatomyId() {
+		return altAnatomyId;
 	}
 
-
-	public void setMaID(String maID) {
-
-		this.maID = maID;
+	public void setAltAnatomyId(String altAnatomyId) {
+		this.altAnatomyId = altAnatomyId;
 	}
 
-
-	public String getMaTerm() {
-
-		return maTerm;
+	public String getAnatomyTerm() {
+		return anatomyTerm;
 	}
 
-
-	public void setMaTerm(String maTerm) {
-
-		this.maTerm = maTerm;
+	public void setAnatomyTerm(String anatomyTerm) {
+		this.anatomyTerm = anatomyTerm;
 	}
 
-
-	public String getMaTermSynonym() {
-
-		return maTermSynonym;
+	public String getAnatomyTermSynonym() {
+		return anatomyTermSynonym;
 	}
 
-
-	public void setMaTermSynonym(String maTermSynonym) {
-
-		this.maTermSynonym = maTermSynonym;
+	public void setAnatomyTermSynonym(String anatomyTermSynonym) {
+		this.anatomyTermSynonym = anatomyTermSynonym;
 	}
 
-
-	public String getChildMaID() {
-
-		return childMaID;
+	public String getChildAnatomyId() {
+		return childAnatomyId;
 	}
 
-
-	public void setChildMaID(String childMaID) {
-
-		this.childMaID = childMaID;
+	public void setChildAnatomyId(String childAnatomyId) {
+		this.childAnatomyId = childAnatomyId;
 	}
 
-
-	public String getChildMaTerm() {
-
-		return childMaTerm;
+	public String getChildAnatomyTerm() {
+		return childAnatomyTerm;
 	}
 
-
-	public void setChildMaTerm(String childMaTerm) {
-
-		this.childMaTerm = childMaTerm;
+	public void setChildAnatomyTerm(String childAnatomyTerm) {
+		this.childAnatomyTerm = childAnatomyTerm;
 	}
 
-
-	public String getChildMaTermSynonym() {
-
-		return childMaTermSynonym;
+	public String getChildAnatomyTermSynonym() {
+		return childAnatomyTermSynonym;
 	}
 
-
-	public void setChildMaTermSynonym(String childMaTermSynonym) {
-
-		this.childMaTermSynonym = childMaTermSynonym;
+	public void setChildAnatomyTermSynonym(String childAnatomyTermSynonym) {
+		this.childAnatomyTermSynonym = childAnatomyTermSynonym;
 	}
 
-
-	public String getSelectedTopLevelMaID() {
-
-		return selectedTopLevelMaID;
+	public String getParentAnatomyId() {
+		return parentAnatomyId;
 	}
 
-
-	public void setSelectedTopLevelMaID(String selectedTopLevelMaID) {
-
-		this.selectedTopLevelMaID = selectedTopLevelMaID;
+	public void setParentAnatomyId(String parentAnatomyId) {
+		this.parentAnatomyId = parentAnatomyId;
 	}
 
-
-	public String getSelectedTopLevelMaTerm() {
-
-		return selectedTopLevelMaTerm;
+	public String getParentAnatomyTerm() {
+		return parentAnatomyTerm;
 	}
 
-
-	public void setSelectedTopLevelMaTerm(String selectedTopLevelMaTerm) {
-
-		this.selectedTopLevelMaTerm = selectedTopLevelMaTerm;
+	public void setParentAnatomyTerm(String parentAnatomyTerm) {
+		this.parentAnatomyTerm = parentAnatomyTerm;
 	}
 
-
-	public String getSelectedTopLevelMaTermSynonym() {
-
-		return selectedTopLevelMaTermSynonym;
+	public String getParentAnatomyTermSynonym() {
+		return parentAnatomyTermSynonym;
 	}
 
-
-	public void setSelectedTopLevelMaTermSynonym(String selectedTopLevelMaTermSynonym) {
-
-		this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
+	public void setParentAnatomyTermSynonym(String parentAnatomyTermSynonym) {
+		this.parentAnatomyTermSynonym = parentAnatomyTermSynonym;
 	}
 
-
-	public String getDiseaseID() {
-
-		return diseaseID;
+	public String getIntermediateAnatomyId() {
+		return intermediateAnatomyId;
 	}
 
-
-	public void setDiseaseID(String diseaseID) {
-
-		this.diseaseID = diseaseID;
+	public void setIntermediateAnatomyId(String intermediateAnatomyId) {
+		this.intermediateAnatomyId = intermediateAnatomyId;
 	}
 
+	public String getIntermediateAnatomyTerm() {
+		return intermediateAnatomyTerm;
+	}
+
+	public void setIntermediateAnatomyTerm(String intermediateAnatomyTerm) {
+		this.intermediateAnatomyTerm = intermediateAnatomyTerm;
+	}
+
+	public String getIntermediateAnatomyTermSynonym() {
+		return intermediateAnatomyTermSynonym;
+	}
+
+	public void setIntermediateAnatomyTermSynonym(String intermediateAnatomyTermSynonym) {
+		this.intermediateAnatomyTermSynonym = intermediateAnatomyTermSynonym;
+	}
+
+	public String getTopLevelAnatomyId() {
+		return topLevelAnatomyId;
+	}
+
+	public void setTopLevelAnatomyId(String topLevelAnatomyId) {
+		this.topLevelAnatomyId = topLevelAnatomyId;
+	}
+
+	public String getTopLevelAnatomyTerm() {
+		return topLevelAnatomyTerm;
+	}
+
+	public void setTopLevelAnatomyTerm(String topLevelAnatomyTerm) {
+		this.topLevelAnatomyTerm = topLevelAnatomyTerm;
+	}
+
+	public String getTopLevelAnatomyTermSynonym() {
+		return topLevelAnatomyTermSynonym;
+	}
+
+	public void setTopLevelAnatomyTermSynonym(String topLevelAnatomyTermSynonym) {
+		this.topLevelAnatomyTermSynonym = topLevelAnatomyTermSynonym;
+	}
+
+	public String getSelectedTopLevelAnatomyId() {
+		return selectedTopLevelAnatomyId;
+	}
+
+	public void setSelectedTopLevelAnatomyId(String selectedTopLevelAnatomyId) {
+		this.selectedTopLevelAnatomyId = selectedTopLevelAnatomyId;
+	}
+
+	public String getSelectedTopLevelAnatomyTerm() {
+		return selectedTopLevelAnatomyTerm;
+	}
+
+	public void setSelectedTopLevelAnatomyTerm(String selectedTopLevelAnatomyTerm) {
+		this.selectedTopLevelAnatomyTerm = selectedTopLevelAnatomyTerm;
+	}
+
+	public String getSelectedTopLevelAnatomyTermSynonym() {
+		return selectedTopLevelAnatomyTermSynonym;
+	}
+
+	public void setSelectedTopLevelAnatomyTermSynonym(String selectedTopLevelAnatomyTermSynonym) {
+		this.selectedTopLevelAnatomyTermSynonym = selectedTopLevelAnatomyTermSynonym;
+	}
+
+	public String getDiseaseId() {
+		return diseaseId;
+	}
+
+	public void setDiseaseId(String diseaseId) {
+		this.diseaseId = diseaseId;
+	}
 
 	public String getDiseaseTerm() {
-
 		return diseaseTerm;
 	}
 
-
 	public void setDiseaseTerm(String diseaseTerm) {
-
 		this.diseaseTerm = diseaseTerm;
 	}
 
-
 	public String getDiseaseAlts() {
-
 		return diseaseAlts;
 	}
 
-
 	public void setDiseaseAlts(String diseaseAlts) {
-
 		this.diseaseAlts = diseaseAlts;
 	}
 
-
 	public List<String> getAutosuggest() {
-
 		return autosuggest;
 	}
 
-
 	public void setAutosuggest(List<String> autosuggest) {
-
 		this.autosuggest = autosuggest;
 	}
 
@@ -806,325 +806,255 @@ public class AutosuggestBean {
 
 
 	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		AutosuggestBean that = (AutosuggestBean) o;
+
+		if (docType != null ? !docType.equals(that.docType) : that.docType != null) return false;
+		if (mgiAccessionId != null ? !mgiAccessionId.equals(that.mgiAccessionId) : that.mgiAccessionId != null)
+			return false;
+		if (mgiAlleleAccessionIds != null ? !mgiAlleleAccessionIds.equals(that.mgiAlleleAccessionIds) : that.mgiAlleleAccessionIds != null)
+			return false;
+		if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
+		if (markerName != null ? !markerName.equals(that.markerName) : that.markerName != null) return false;
+		if (markerSynonym != null ? !markerSynonym.equals(that.markerSynonym) : that.markerSynonym != null)
+			return false;
+		if (humanGeneSymbol != null ? !humanGeneSymbol.equals(that.humanGeneSymbol) : that.humanGeneSymbol != null)
+			return false;
+		if (hpId != null ? !hpId.equals(that.hpId) : that.hpId != null) return false;
+		if (hpTerm != null ? !hpTerm.equals(that.hpTerm) : that.hpTerm != null) return false;
+		if (hpSynonym != null ? !hpSynonym.equals(that.hpSynonym) : that.hpSynonym != null) return false;
+		if (hpTermSynonym != null ? !hpTermSynonym.equals(that.hpTermSynonym) : that.hpTermSynonym != null)
+			return false;
+		if (hpmpId != null ? !hpmpId.equals(that.hpmpId) : that.hpmpId != null) return false;
+		if (hpmpTerm != null ? !hpmpTerm.equals(that.hpmpTerm) : that.hpmpTerm != null) return false;
+		if (altMpId != null ? !altMpId.equals(that.altMpId) : that.altMpId != null) return false;
+		if (mpId != null ? !mpId.equals(that.mpId) : that.mpId != null) return false;
+		if (mpTerm != null ? !mpTerm.equals(that.mpTerm) : that.mpTerm != null) return false;
+		if (mpTermSynonym != null ? !mpTermSynonym.equals(that.mpTermSynonym) : that.mpTermSynonym != null)
+			return false;
+		if (childMpId != null ? !childMpId.equals(that.childMpId) : that.childMpId != null) return false;
+		if (childMpTerm != null ? !childMpTerm.equals(that.childMpTerm) : that.childMpTerm != null) return false;
+		if (childMpTermSynonym != null ? !childMpTermSynonym.equals(that.childMpTermSynonym) : that.childMpTermSynonym != null)
+			return false;
+		if (parentMpId != null ? !parentMpId.equals(that.parentMpId) : that.parentMpId != null) return false;
+		if (parentMpTerm != null ? !parentMpTerm.equals(that.parentMpTerm) : that.parentMpTerm != null) return false;
+		if (parentMpTermSynonym != null ? !parentMpTermSynonym.equals(that.parentMpTermSynonym) : that.parentMpTermSynonym != null)
+			return false;
+		if (intermediateMpId != null ? !intermediateMpId.equals(that.intermediateMpId) : that.intermediateMpId != null)
+			return false;
+		if (intermediateMpTerm != null ? !intermediateMpTerm.equals(that.intermediateMpTerm) : that.intermediateMpTerm != null)
+			return false;
+		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(that.intermediateMpTermSynonym) : that.intermediateMpTermSynonym != null)
+			return false;
+		if (topLevelMpId != null ? !topLevelMpId.equals(that.topLevelMpId) : that.topLevelMpId != null) return false;
+		if (topLevelMpTerm != null ? !topLevelMpTerm.equals(that.topLevelMpTerm) : that.topLevelMpTerm != null)
+			return false;
+		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(that.topLevelMpTermSynonym) : that.topLevelMpTermSynonym != null)
+			return false;
+		if (anatomyId != null ? !anatomyId.equals(that.anatomyId) : that.anatomyId != null) return false;
+		if (altAnatomyId != null ? !altAnatomyId.equals(that.altAnatomyId) : that.altAnatomyId != null) return false;
+		if (anatomyTerm != null ? !anatomyTerm.equals(that.anatomyTerm) : that.anatomyTerm != null) return false;
+		if (anatomyTermSynonym != null ? !anatomyTermSynonym.equals(that.anatomyTermSynonym) : that.anatomyTermSynonym != null)
+			return false;
+		if (childAnatomyId != null ? !childAnatomyId.equals(that.childAnatomyId) : that.childAnatomyId != null)
+			return false;
+		if (childAnatomyTerm != null ? !childAnatomyTerm.equals(that.childAnatomyTerm) : that.childAnatomyTerm != null)
+			return false;
+		if (childAnatomyTermSynonym != null ? !childAnatomyTermSynonym.equals(that.childAnatomyTermSynonym) : that.childAnatomyTermSynonym != null)
+			return false;
+		if (parentAnatomyId != null ? !parentAnatomyId.equals(that.parentAnatomyId) : that.parentAnatomyId != null)
+			return false;
+		if (parentAnatomyTerm != null ? !parentAnatomyTerm.equals(that.parentAnatomyTerm) : that.parentAnatomyTerm != null)
+			return false;
+		if (parentAnatomyTermSynonym != null ? !parentAnatomyTermSynonym.equals(that.parentAnatomyTermSynonym) : that.parentAnatomyTermSynonym != null)
+			return false;
+		if (intermediateAnatomyId != null ? !intermediateAnatomyId.equals(that.intermediateAnatomyId) : that.intermediateAnatomyId != null)
+			return false;
+		if (intermediateAnatomyTerm != null ? !intermediateAnatomyTerm.equals(that.intermediateAnatomyTerm) : that.intermediateAnatomyTerm != null)
+			return false;
+		if (intermediateAnatomyTermSynonym != null ? !intermediateAnatomyTermSynonym.equals(that.intermediateAnatomyTermSynonym) : that.intermediateAnatomyTermSynonym != null)
+			return false;
+		if (topLevelAnatomyId != null ? !topLevelAnatomyId.equals(that.topLevelAnatomyId) : that.topLevelAnatomyId != null)
+			return false;
+		if (topLevelAnatomyTerm != null ? !topLevelAnatomyTerm.equals(that.topLevelAnatomyTerm) : that.topLevelAnatomyTerm != null)
+			return false;
+		if (topLevelAnatomyTermSynonym != null ? !topLevelAnatomyTermSynonym.equals(that.topLevelAnatomyTermSynonym) : that.topLevelAnatomyTermSynonym != null)
+			return false;
+		if (selectedTopLevelAnatomyId != null ? !selectedTopLevelAnatomyId.equals(that.selectedTopLevelAnatomyId) : that.selectedTopLevelAnatomyId != null)
+			return false;
+		if (selectedTopLevelAnatomyTerm != null ? !selectedTopLevelAnatomyTerm.equals(that.selectedTopLevelAnatomyTerm) : that.selectedTopLevelAnatomyTerm != null)
+			return false;
+		if (selectedTopLevelAnatomyTermSynonym != null ? !selectedTopLevelAnatomyTermSynonym.equals(that.selectedTopLevelAnatomyTermSynonym) : that.selectedTopLevelAnatomyTermSynonym != null)
+			return false;
+		if (diseaseId != null ? !diseaseId.equals(that.diseaseId) : that.diseaseId != null) return false;
+		if (diseaseTerm != null ? !diseaseTerm.equals(that.diseaseTerm) : that.diseaseTerm != null) return false;
+		if (diseaseAlts != null ? !diseaseAlts.equals(that.diseaseAlts) : that.diseaseAlts != null) return false;
+		if (autosuggest != null ? !autosuggest.equals(that.autosuggest) : that.autosuggest != null) return false;
+		if (gwasMgiGeneId != null ? !gwasMgiGeneId.equals(that.gwasMgiGeneId) : that.gwasMgiGeneId != null)
+			return false;
+		if (gwasMgiGeneSymbol != null ? !gwasMgiGeneSymbol.equals(that.gwasMgiGeneSymbol) : that.gwasMgiGeneSymbol != null)
+			return false;
+		if (gwasMgiAlleleId != null ? !gwasMgiAlleleId.equals(that.gwasMgiAlleleId) : that.gwasMgiAlleleId != null)
+			return false;
+		if (gwasMgiAlleleName != null ? !gwasMgiAlleleName.equals(that.gwasMgiAlleleName) : that.gwasMgiAlleleName != null)
+			return false;
+		if (gwasMpTermId != null ? !gwasMpTermId.equals(that.gwasMpTermId) : that.gwasMpTermId != null) return false;
+		if (gwasMpTermName != null ? !gwasMpTermName.equals(that.gwasMpTermName) : that.gwasMpTermName != null)
+			return false;
+		if (gwasDiseaseTrait != null ? !gwasDiseaseTrait.equals(that.gwasDiseaseTrait) : that.gwasDiseaseTrait != null)
+			return false;
+		if (gwasReportedGene != null ? !gwasReportedGene.equals(that.gwasReportedGene) : that.gwasReportedGene != null)
+			return false;
+		if (gwasMappedGene != null ? !gwasMappedGene.equals(that.gwasMappedGene) : that.gwasMappedGene != null)
+			return false;
+		if (gwasUpstreamGene != null ? !gwasUpstreamGene.equals(that.gwasUpstreamGene) : that.gwasUpstreamGene != null)
+			return false;
+		if (gwasDownstreamGene != null ? !gwasDownstreamGene.equals(that.gwasDownstreamGene) : that.gwasDownstreamGene != null)
+			return false;
+		return !(gwasSnpId != null ? !gwasSnpId.equals(that.gwasSnpId) : that.gwasSnpId != null);
+
+	}
+
+	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((autosuggest == null) ? 0 : autosuggest.hashCode());
-		result = prime * result + ((childMaID == null) ? 0 : childMaID.hashCode());
-		result = prime * result + ((childMaTerm == null) ? 0 : childMaTerm.hashCode());
-		result = prime * result + ((childMaTermSynonym == null) ? 0 : childMaTermSynonym.hashCode());
-		result = prime * result + ((childMpID == null) ? 0 : childMpID.hashCode());
-		result = prime * result + ((childMpTerm == null) ? 0 : childMpTerm.hashCode());
-		result = prime * result + ((childMpTermSynonym == null) ? 0 : childMpTermSynonym.hashCode());
-		result = prime * result + ((diseaseAlts == null) ? 0 : diseaseAlts.hashCode());
-		result = prime * result + ((diseaseID == null) ? 0 : diseaseID.hashCode());
-		result = prime * result + ((diseaseTerm == null) ? 0 : diseaseTerm.hashCode());
-		result = prime * result + ((docType == null) ? 0 : docType.hashCode());
-		result = prime * result + ((gwasDiseaseTrait == null) ? 0 : gwasDiseaseTrait.hashCode());
-		result = prime * result + ((gwasDownstreamGene == null) ? 0 : gwasDownstreamGene.hashCode());
-		result = prime * result + ((gwasMappedGene == null) ? 0 : gwasMappedGene.hashCode());
-		result = prime * result + ((gwasMgiAlleleId == null) ? 0 : gwasMgiAlleleId.hashCode());
-		result = prime * result + ((gwasMgiAlleleName == null) ? 0 : gwasMgiAlleleName.hashCode());
-		result = prime * result + ((gwasMgiGeneId == null) ? 0 : gwasMgiGeneId.hashCode());
-		result = prime * result + ((gwasMgiGeneSymbol == null) ? 0 : gwasMgiGeneSymbol.hashCode());
-		result = prime * result + ((gwasMpTermId == null) ? 0 : gwasMpTermId.hashCode());
-		result = prime * result + ((gwasMpTermName == null) ? 0 : gwasMpTermName.hashCode());
-		result = prime * result + ((gwasReportedGene == null) ? 0 : gwasReportedGene.hashCode());
-		result = prime * result + ((gwasSnpId == null) ? 0 : gwasSnpId.hashCode());
-		result = prime * result + ((gwasUpstreamGene == null) ? 0 : gwasUpstreamGene.hashCode());
-		result = prime * result + ((hpID == null) ? 0 : hpID.hashCode());
-		result = prime * result + ((hpSynonym == null) ? 0 : hpSynonym.hashCode());
-		result = prime * result + ((hpTerm == null) ? 0 : hpTerm.hashCode());
-		result = prime * result + ((hpTermSynonym == null) ? 0 : hpTermSynonym.hashCode());
-		result = prime * result + ((hpmpID == null) ? 0 : hpmpID.hashCode());
-		result = prime * result + ((hpmpTerm == null) ? 0 : hpmpTerm.hashCode());
-		result = prime * result + ((humanGeneSymbol == null) ? 0 : humanGeneSymbol.hashCode());
-		result = prime * result + ((intermediateMpID == null) ? 0 : intermediateMpID.hashCode());
-		result = prime * result + ((intermediateMpTerm == null) ? 0 : intermediateMpTerm.hashCode());
-		result = prime * result + ((intermediateMpTermSynonym == null) ? 0 : intermediateMpTermSynonym.hashCode());
-		result = prime * result + ((maID == null) ? 0 : maID.hashCode());
-		result = prime * result + ((maTerm == null) ? 0 : maTerm.hashCode());
-		result = prime * result + ((maTermSynonym == null) ? 0 : maTermSynonym.hashCode());
-		result = prime * result + ((markerName == null) ? 0 : markerName.hashCode());
-		result = prime * result + ((markerSymbol == null) ? 0 : markerSymbol.hashCode());
-		result = prime * result + ((markerSynonym == null) ? 0 : markerSynonym.hashCode());
-		result = prime * result + ((mgiAccessionID == null) ? 0 : mgiAccessionID.hashCode());
-		result = prime * result + ((mgiAlleleAccessionIds == null) ? 0 : mgiAlleleAccessionIds.hashCode());
-		result = prime * result + ((mpID == null) ? 0 : mpID.hashCode());
-		result = prime * result + ((mpTerm == null) ? 0 : mpTerm.hashCode());
-		result = prime * result + ((mpTermSynonym == null) ? 0 : mpTermSynonym.hashCode());
-		result = prime * result + ((selectedTopLevelMaID == null) ? 0 : selectedTopLevelMaID.hashCode());
-		result = prime * result + ((selectedTopLevelMaTerm == null) ? 0 : selectedTopLevelMaTerm.hashCode());
-		result = prime * result + ((selectedTopLevelMaTermSynonym == null) ? 0 : selectedTopLevelMaTermSynonym.hashCode());
-		result = prime * result + ((topLevelMpID == null) ? 0 : topLevelMpID.hashCode());
-		result = prime * result + ((topLevelMpTerm == null) ? 0 : topLevelMpTerm.hashCode());
-		result = prime * result + ((topLevelMpTermSynonym == null) ? 0 : topLevelMpTermSynonym.hashCode());
+		int result = docType != null ? docType.hashCode() : 0;
+		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
+		result = 31 * result + (mgiAlleleAccessionIds != null ? mgiAlleleAccessionIds.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
+		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
+		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
+		result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
+		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
+		result = 31 * result + (hpSynonym != null ? hpSynonym.hashCode() : 0);
+		result = 31 * result + (hpTermSynonym != null ? hpTermSynonym.hashCode() : 0);
+		result = 31 * result + (hpmpId != null ? hpmpId.hashCode() : 0);
+		result = 31 * result + (hpmpTerm != null ? hpmpTerm.hashCode() : 0);
+		result = 31 * result + (altMpId != null ? altMpId.hashCode() : 0);
+		result = 31 * result + (mpId != null ? mpId.hashCode() : 0);
+		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
+		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
+		result = 31 * result + (childMpId != null ? childMpId.hashCode() : 0);
+		result = 31 * result + (childMpTerm != null ? childMpTerm.hashCode() : 0);
+		result = 31 * result + (childMpTermSynonym != null ? childMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (parentMpId != null ? parentMpId.hashCode() : 0);
+		result = 31 * result + (parentMpTerm != null ? parentMpTerm.hashCode() : 0);
+		result = 31 * result + (parentMpTermSynonym != null ? parentMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (intermediateMpId != null ? intermediateMpId.hashCode() : 0);
+		result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (topLevelMpId != null ? topLevelMpId.hashCode() : 0);
+		result = 31 * result + (topLevelMpTerm != null ? topLevelMpTerm.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (anatomyId != null ? anatomyId.hashCode() : 0);
+		result = 31 * result + (altAnatomyId != null ? altAnatomyId.hashCode() : 0);
+		result = 31 * result + (anatomyTerm != null ? anatomyTerm.hashCode() : 0);
+		result = 31 * result + (anatomyTermSynonym != null ? anatomyTermSynonym.hashCode() : 0);
+		result = 31 * result + (childAnatomyId != null ? childAnatomyId.hashCode() : 0);
+		result = 31 * result + (childAnatomyTerm != null ? childAnatomyTerm.hashCode() : 0);
+		result = 31 * result + (childAnatomyTermSynonym != null ? childAnatomyTermSynonym.hashCode() : 0);
+		result = 31 * result + (parentAnatomyId != null ? parentAnatomyId.hashCode() : 0);
+		result = 31 * result + (parentAnatomyTerm != null ? parentAnatomyTerm.hashCode() : 0);
+		result = 31 * result + (parentAnatomyTermSynonym != null ? parentAnatomyTermSynonym.hashCode() : 0);
+		result = 31 * result + (intermediateAnatomyId != null ? intermediateAnatomyId.hashCode() : 0);
+		result = 31 * result + (intermediateAnatomyTerm != null ? intermediateAnatomyTerm.hashCode() : 0);
+		result = 31 * result + (intermediateAnatomyTermSynonym != null ? intermediateAnatomyTermSynonym.hashCode() : 0);
+		result = 31 * result + (topLevelAnatomyId != null ? topLevelAnatomyId.hashCode() : 0);
+		result = 31 * result + (topLevelAnatomyTerm != null ? topLevelAnatomyTerm.hashCode() : 0);
+		result = 31 * result + (topLevelAnatomyTermSynonym != null ? topLevelAnatomyTermSynonym.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelAnatomyId != null ? selectedTopLevelAnatomyId.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelAnatomyTerm != null ? selectedTopLevelAnatomyTerm.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelAnatomyTermSynonym != null ? selectedTopLevelAnatomyTermSynonym.hashCode() : 0);
+		result = 31 * result + (diseaseId != null ? diseaseId.hashCode() : 0);
+		result = 31 * result + (diseaseTerm != null ? diseaseTerm.hashCode() : 0);
+		result = 31 * result + (diseaseAlts != null ? diseaseAlts.hashCode() : 0);
+		result = 31 * result + (autosuggest != null ? autosuggest.hashCode() : 0);
+		result = 31 * result + (gwasMgiGeneId != null ? gwasMgiGeneId.hashCode() : 0);
+		result = 31 * result + (gwasMgiGeneSymbol != null ? gwasMgiGeneSymbol.hashCode() : 0);
+		result = 31 * result + (gwasMgiAlleleId != null ? gwasMgiAlleleId.hashCode() : 0);
+		result = 31 * result + (gwasMgiAlleleName != null ? gwasMgiAlleleName.hashCode() : 0);
+		result = 31 * result + (gwasMpTermId != null ? gwasMpTermId.hashCode() : 0);
+		result = 31 * result + (gwasMpTermName != null ? gwasMpTermName.hashCode() : 0);
+		result = 31 * result + (gwasDiseaseTrait != null ? gwasDiseaseTrait.hashCode() : 0);
+		result = 31 * result + (gwasReportedGene != null ? gwasReportedGene.hashCode() : 0);
+		result = 31 * result + (gwasMappedGene != null ? gwasMappedGene.hashCode() : 0);
+		result = 31 * result + (gwasUpstreamGene != null ? gwasUpstreamGene.hashCode() : 0);
+		result = 31 * result + (gwasDownstreamGene != null ? gwasDownstreamGene.hashCode() : 0);
+		result = 31 * result + (gwasSnpId != null ? gwasSnpId.hashCode() : 0);
 		return result;
 	}
 
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AutosuggestBean other = (AutosuggestBean) obj;
-		if (autosuggest == null) {
-			if (other.autosuggest != null)
-				return false;
-		} else if (!autosuggest.equals(other.autosuggest))
-			return false;
-		if (childMaID == null) {
-			if (other.childMaID != null)
-				return false;
-		} else if (!childMaID.equals(other.childMaID))
-			return false;
-		if (childMaTerm == null) {
-			if (other.childMaTerm != null)
-				return false;
-		} else if (!childMaTerm.equals(other.childMaTerm))
-			return false;
-		if (childMaTermSynonym == null) {
-			if (other.childMaTermSynonym != null)
-				return false;
-		} else if (!childMaTermSynonym.equals(other.childMaTermSynonym))
-			return false;
-		if (childMpID == null) {
-			if (other.childMpID != null)
-				return false;
-		} else if (!childMpID.equals(other.childMpID))
-			return false;
-		if (childMpTerm == null) {
-			if (other.childMpTerm != null)
-				return false;
-		} else if (!childMpTerm.equals(other.childMpTerm))
-			return false;
-		if (childMpTermSynonym == null) {
-			if (other.childMpTermSynonym != null)
-				return false;
-		} else if (!childMpTermSynonym.equals(other.childMpTermSynonym))
-			return false;
-		if (diseaseAlts == null) {
-			if (other.diseaseAlts != null)
-				return false;
-		} else if (!diseaseAlts.equals(other.diseaseAlts))
-			return false;
-		if (diseaseID == null) {
-			if (other.diseaseID != null)
-				return false;
-		} else if (!diseaseID.equals(other.diseaseID))
-			return false;
-		if (diseaseTerm == null) {
-			if (other.diseaseTerm != null)
-				return false;
-		} else if (!diseaseTerm.equals(other.diseaseTerm))
-			return false;
-		if (docType == null) {
-			if (other.docType != null)
-				return false;
-		} else if (!docType.equals(other.docType))
-			return false;
-		if (gwasDiseaseTrait == null) {
-			if (other.gwasDiseaseTrait != null)
-				return false;
-		} else if (!gwasDiseaseTrait.equals(other.gwasDiseaseTrait))
-			return false;
-		if (gwasDownstreamGene == null) {
-			if (other.gwasDownstreamGene != null)
-				return false;
-		} else if (!gwasDownstreamGene.equals(other.gwasDownstreamGene))
-			return false;
-		if (gwasMappedGene == null) {
-			if (other.gwasMappedGene != null)
-				return false;
-		} else if (!gwasMappedGene.equals(other.gwasMappedGene))
-			return false;
-		if (gwasMgiAlleleId == null) {
-			if (other.gwasMgiAlleleId != null)
-				return false;
-		} else if (!gwasMgiAlleleId.equals(other.gwasMgiAlleleId))
-			return false;
-		if (gwasMgiAlleleName == null) {
-			if (other.gwasMgiAlleleName != null)
-				return false;
-		} else if (!gwasMgiAlleleName.equals(other.gwasMgiAlleleName))
-			return false;
-		if (gwasMgiGeneId == null) {
-			if (other.gwasMgiGeneId != null)
-				return false;
-		} else if (!gwasMgiGeneId.equals(other.gwasMgiGeneId))
-			return false;
-		if (gwasMgiGeneSymbol == null) {
-			if (other.gwasMgiGeneSymbol != null)
-				return false;
-		} else if (!gwasMgiGeneSymbol.equals(other.gwasMgiGeneSymbol))
-			return false;
-		if (gwasMpTermId == null) {
-			if (other.gwasMpTermId != null)
-				return false;
-		} else if (!gwasMpTermId.equals(other.gwasMpTermId))
-			return false;
-		if (gwasMpTermName == null) {
-			if (other.gwasMpTermName != null)
-				return false;
-		} else if (!gwasMpTermName.equals(other.gwasMpTermName))
-			return false;
-		if (gwasReportedGene == null) {
-			if (other.gwasReportedGene != null)
-				return false;
-		} else if (!gwasReportedGene.equals(other.gwasReportedGene))
-			return false;
-		if (gwasSnpId == null) {
-			if (other.gwasSnpId != null)
-				return false;
-		} else if (!gwasSnpId.equals(other.gwasSnpId))
-			return false;
-		if (gwasUpstreamGene == null) {
-			if (other.gwasUpstreamGene != null)
-				return false;
-		} else if (!gwasUpstreamGene.equals(other.gwasUpstreamGene))
-			return false;
-		if (hpID == null) {
-			if (other.hpID != null)
-				return false;
-		} else if (!hpID.equals(other.hpID))
-			return false;
-		if (hpSynonym == null) {
-			if (other.hpSynonym != null)
-				return false;
-		} else if (!hpSynonym.equals(other.hpSynonym))
-			return false;
-		if (hpTerm == null) {
-			if (other.hpTerm != null)
-				return false;
-		} else if (!hpTerm.equals(other.hpTerm))
-			return false;
-		if (hpTermSynonym == null) {
-			if (other.hpTermSynonym != null)
-				return false;
-		} else if (!hpTermSynonym.equals(other.hpTermSynonym))
-			return false;
-		if (hpmpID == null) {
-			if (other.hpmpID != null)
-				return false;
-		} else if (!hpmpID.equals(other.hpmpID))
-			return false;
-		if (hpmpTerm == null) {
-			if (other.hpmpTerm != null)
-				return false;
-		} else if (!hpmpTerm.equals(other.hpmpTerm))
-			return false;
-		if (humanGeneSymbol == null) {
-			if (other.humanGeneSymbol != null)
-				return false;
-		} else if (!humanGeneSymbol.equals(other.humanGeneSymbol))
-			return false;
-		if (intermediateMpID == null) {
-			if (other.intermediateMpID != null)
-				return false;
-		} else if (!intermediateMpID.equals(other.intermediateMpID))
-			return false;
-		if (intermediateMpTerm == null) {
-			if (other.intermediateMpTerm != null)
-				return false;
-		} else if (!intermediateMpTerm.equals(other.intermediateMpTerm))
-			return false;
-		if (intermediateMpTermSynonym == null) {
-			if (other.intermediateMpTermSynonym != null)
-				return false;
-		} else if (!intermediateMpTermSynonym.equals(other.intermediateMpTermSynonym))
-			return false;
-		if (maID == null) {
-			if (other.maID != null)
-				return false;
-		} else if (!maID.equals(other.maID))
-			return false;
-		if (maTerm == null) {
-			if (other.maTerm != null)
-				return false;
-		} else if (!maTerm.equals(other.maTerm))
-			return false;
-		if (maTermSynonym == null) {
-			if (other.maTermSynonym != null)
-				return false;
-		} else if (!maTermSynonym.equals(other.maTermSynonym))
-			return false;
-		if (markerName == null) {
-			if (other.markerName != null)
-				return false;
-		} else if (!markerName.equals(other.markerName))
-			return false;
-		if (markerSymbol == null) {
-			if (other.markerSymbol != null)
-				return false;
-		} else if (!markerSymbol.equals(other.markerSymbol))
-			return false;
-		if (markerSynonym == null) {
-			if (other.markerSynonym != null)
-				return false;
-		} else if (!markerSynonym.equals(other.markerSynonym))
-			return false;
-		if (mgiAccessionID == null) {
-			if (other.mgiAccessionID != null)
-				return false;
-		} else if (!mgiAccessionID.equals(other.mgiAccessionID))
-			return false;
-		if (mgiAlleleAccessionIds == null) {
-			if (other.mgiAlleleAccessionIds != null)
-				return false;
-		} else if (!mgiAlleleAccessionIds.equals(other.mgiAlleleAccessionIds))
-			return false;
-		if (mpID == null) {
-			if (other.mpID != null)
-				return false;
-		} else if (!mpID.equals(other.mpID))
-			return false;
-		if (mpTerm == null) {
-			if (other.mpTerm != null)
-				return false;
-		} else if (!mpTerm.equals(other.mpTerm))
-			return false;
-		if (mpTermSynonym == null) {
-			if (other.mpTermSynonym != null)
-				return false;
-		} else if (!mpTermSynonym.equals(other.mpTermSynonym))
-			return false;
-		if (selectedTopLevelMaID == null) {
-			if (other.selectedTopLevelMaID != null)
-				return false;
-		} else if (!selectedTopLevelMaID.equals(other.selectedTopLevelMaID))
-			return false;
-		if (selectedTopLevelMaTerm == null) {
-			if (other.selectedTopLevelMaTerm != null)
-				return false;
-		} else if (!selectedTopLevelMaTerm.equals(other.selectedTopLevelMaTerm))
-			return false;
-		if (selectedTopLevelMaTermSynonym == null) {
-			if (other.selectedTopLevelMaTermSynonym != null)
-				return false;
-		} else if (!selectedTopLevelMaTermSynonym.equals(other.selectedTopLevelMaTermSynonym))
-			return false;
-		if (topLevelMpID == null) {
-			if (other.topLevelMpID != null)
-				return false;
-		} else if (!topLevelMpID.equals(other.topLevelMpID))
-			return false;
-		if (topLevelMpTerm == null) {
-			if (other.topLevelMpTerm != null)
-				return false;
-		} else if (!topLevelMpTerm.equals(other.topLevelMpTerm))
-			return false;
-		if (topLevelMpTermSynonym == null) {
-			if (other.topLevelMpTermSynonym != null)
-				return false;
-		} else if (!topLevelMpTermSynonym.equals(other.topLevelMpTermSynonym))
-			return false;
-		return true;
+	public String toString() {
+		return "AutosuggestBean{" +
+				"docType='" + docType + '\'' +
+				", mgiAccessionId='" + mgiAccessionId + '\'' +
+				", mgiAlleleAccessionIds=" + mgiAlleleAccessionIds +
+				", markerSymbol='" + markerSymbol + '\'' +
+				", markerName='" + markerName + '\'' +
+				", markerSynonym='" + markerSynonym + '\'' +
+				", humanGeneSymbol='" + humanGeneSymbol + '\'' +
+				", hpId='" + hpId + '\'' +
+				", hpTerm='" + hpTerm + '\'' +
+				", hpSynonym='" + hpSynonym + '\'' +
+				", hpTermSynonym='" + hpTermSynonym + '\'' +
+				", hpmpId='" + hpmpId + '\'' +
+				", hpmpTerm='" + hpmpTerm + '\'' +
+				", altMpId='" + altMpId + '\'' +
+				", mpId='" + mpId + '\'' +
+				", mpTerm='" + mpTerm + '\'' +
+				", mpTermSynonym='" + mpTermSynonym + '\'' +
+				", childMpId='" + childMpId + '\'' +
+				", childMpTerm='" + childMpTerm + '\'' +
+				", childMpTermSynonym='" + childMpTermSynonym + '\'' +
+				", parentMpId='" + parentMpId + '\'' +
+				", parentMpTerm='" + parentMpTerm + '\'' +
+				", parentMpTermSynonym='" + parentMpTermSynonym + '\'' +
+				", intermediateMpId='" + intermediateMpId + '\'' +
+				", intermediateMpTerm='" + intermediateMpTerm + '\'' +
+				", intermediateMpTermSynonym='" + intermediateMpTermSynonym + '\'' +
+				", topLevelMpId='" + topLevelMpId + '\'' +
+				", topLevelMpTerm='" + topLevelMpTerm + '\'' +
+				", topLevelMpTermSynonym='" + topLevelMpTermSynonym + '\'' +
+				", anatomyId='" + anatomyId + '\'' +
+				", altAnatomyId='" + altAnatomyId + '\'' +
+				", anatomyTerm='" + anatomyTerm + '\'' +
+				", anatomyTermSynonym='" + anatomyTermSynonym + '\'' +
+				", childAnatomyId='" + childAnatomyId + '\'' +
+				", childAnatomyTerm='" + childAnatomyTerm + '\'' +
+				", childAnatomyTermSynonym='" + childAnatomyTermSynonym + '\'' +
+				", parentAnatomyId='" + parentAnatomyId + '\'' +
+				", parentAnatomyTerm='" + parentAnatomyTerm + '\'' +
+				", parentAnatomyTermSynonym='" + parentAnatomyTermSynonym + '\'' +
+				", intermediateAnatomyId='" + intermediateAnatomyId + '\'' +
+				", intermediateAnatomyTerm='" + intermediateAnatomyTerm + '\'' +
+				", intermediateAnatomyTermSynonym='" + intermediateAnatomyTermSynonym + '\'' +
+				", topLevelAnatomyId='" + topLevelAnatomyId + '\'' +
+				", topLevelAnatomyTerm='" + topLevelAnatomyTerm + '\'' +
+				", topLevelAnatomyTermSynonym='" + topLevelAnatomyTermSynonym + '\'' +
+				", selectedTopLevelAnatomyId='" + selectedTopLevelAnatomyId + '\'' +
+				", selectedTopLevelAnatomyTerm='" + selectedTopLevelAnatomyTerm + '\'' +
+				", selectedTopLevelAnatomyTermSynonym='" + selectedTopLevelAnatomyTermSynonym + '\'' +
+				", diseaseId='" + diseaseId + '\'' +
+				", diseaseTerm='" + diseaseTerm + '\'' +
+				", diseaseAlts='" + diseaseAlts + '\'' +
+				", autosuggest=" + autosuggest +
+				", gwasMgiGeneId='" + gwasMgiGeneId + '\'' +
+				", gwasMgiGeneSymbol='" + gwasMgiGeneSymbol + '\'' +
+				", gwasMgiAlleleId='" + gwasMgiAlleleId + '\'' +
+				", gwasMgiAlleleName='" + gwasMgiAlleleName + '\'' +
+				", gwasMpTermId='" + gwasMpTermId + '\'' +
+				", gwasMpTermName='" + gwasMpTermName + '\'' +
+				", gwasDiseaseTrait='" + gwasDiseaseTrait + '\'' +
+				", gwasReportedGene='" + gwasReportedGene + '\'' +
+				", gwasMappedGene='" + gwasMappedGene + '\'' +
+				", gwasUpstreamGene='" + gwasUpstreamGene + '\'' +
+				", gwasDownstreamGene='" + gwasDownstreamGene + '\'' +
+				", gwasSnpId='" + gwasSnpId + '\'' +
+				'}';
 	}
-
-	
-
 }

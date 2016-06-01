@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
@@ -83,9 +84,8 @@ public class QueryBrokerController {
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
 
-		String internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
 		String solrParams = "&rows=0&wt=json&&defType=edismax&qf=auto_suggest&facet.field=docType&facet=on&facet.limit=-1&facet.mincount=1";
-		String url = internalSolrUrl + "/autosuggest/select?q=" + query + solrParams;
+		String url = SolrUtils.getBaseURL(solrIndex.getSolrServer("autosuggest")) + "/select?q=" + query + solrParams;
 		JSONObject json = solrIndex.getResults(url);
 
 		JSONArray docCount = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("docType");
@@ -102,8 +102,8 @@ public class QueryBrokerController {
 			defaultCore = "mp";
 		} else if ( dc.containsKey("disease") ) {
 			defaultCore = "disease";
-		} else if ( dc.containsKey("ma") ) {
-			defaultCore = "ma";
+		} else if ( dc.containsKey("anatomy") ) {
+			defaultCore = "anatomy";
 		} else if ( dc.containsKey("impc_images") ) {
 			defaultCore = "impc_images";
 		} else if ( dc.containsKey("images") ) {
@@ -187,9 +187,7 @@ public class QueryBrokerController {
 			// Genes main facet count on default search page
 			//String solrCore = core.equals("gene2") ? "gene" : core;
 
-			String internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
-			//String url = internalSolrUrl + "/" + solrCore + "/select?" + param;
-			String url = internalSolrUrl + "/" + core + "/select?" + param;
+			String url =  SolrUtils.getBaseURL(solrIndex.getSolrServer(core)) + "/select?" + param;
 
 			String key = core+param;
 			Object o = cache.get(key);

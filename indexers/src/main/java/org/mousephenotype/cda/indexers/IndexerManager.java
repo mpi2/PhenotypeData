@@ -37,6 +37,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -282,7 +283,7 @@ public class IndexerManager {
         transactionManager.getTransaction(transactionAttribute);
     }
 
-    public void run() throws IndexerException, IOException, SolrServerException {
+    public void run() throws IndexerException, IOException, SolrServerException, SQLException {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
         logger.debug("IndexerManager: nodeps = " + nodeps);
@@ -645,14 +646,14 @@ public class IndexerManager {
         return options;
     }
 
-    public static void main(String[] args) throws IndexerException, IOException, SolrServerException {
+    public static void main(String[] args) throws IndexerException, IOException, SolrServerException, SQLException {
         int retVal = mainReturnsStatus(args);
         if (retVal != STATUS_OK) {
             throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
         }
     }
 
-    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException {
+    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException, SQLException {
         try {
             IndexerManager manager = new IndexerManager();
             manager.initialise(args);

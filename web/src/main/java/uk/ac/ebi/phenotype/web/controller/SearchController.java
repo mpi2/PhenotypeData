@@ -25,9 +25,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +42,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.util.SearchConfig;
+import uk.ac.ebi.phenotype.util.SolrUtils;
 
 
 @Controller
@@ -56,8 +61,6 @@ public class SearchController {
 		return "redirect:/search";
 	}
 
-	private String internalSolrUrl;
-
 	@Autowired
 	private SolrIndex solrIndex;
 
@@ -67,9 +70,10 @@ public class SearchController {
 	@Autowired
 	private DataTableController dataTableController;
 
-
 	@Autowired
 	private QueryBrokerController queryBrokerController;
+
+
 	/**
 	 * search page
 	 *
@@ -96,7 +100,7 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
-		System.out.println("path: /search/datatype");
+		System.out.println("path: /search/" + dataType);
 
 		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
 	}
@@ -110,17 +114,17 @@ public class SearchController {
 		String debug = request.getParameter("debug");
 
 		String paramString = request.getQueryString();
-		//System.out.println("***** paramstr: " + paramString);
+		//System.out.println("paramString " + paramString);
+		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 
-		JSONObject jr = fetchAllFacetCounts(dataType, query, fqStr, request, model);
-		model.addAttribute("facetCount", jr);
-
+		model.addAttribute("facetCount", facetCountJsonResponse);
 		model.addAttribute("searchQuery", query.replaceAll("\\\\",""));
 		model.addAttribute("dataType", dataType); // lowercase: core name
 		model.addAttribute("dataTypeParams", paramString);
-		JSONObject json = fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
 
+		JSONObject json = fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
 		model.addAttribute("jsonStr", convert2DataTableJson(request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
+
 		return "search";
 	}
 
@@ -147,16 +151,12 @@ public class SearchController {
 		model.addAttribute("gridHeaderListStr", StringUtils.join(searchConfig.getGridHeaders(dataType), ","));
 
 		// results on the right panel of search page
-		internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
 
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
-		String url = internalSolrUrl + "/" + dataType + "/select?" + solrParamStr;
-		//System.out.println("URL: " + url);
-		//JSONObject json = solrIndex.getResults(url);
-
+		//System.out.println("SearchController solrParamStr: " + solrParamStr);
 		String mode = dataType + "Grid";
 		JSONObject json = solrIndex.getQueryJson(query, dataType, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-		//System.out.println("JSON: " + json.toString());
+		//System.out.println("SearchController JSON: " + json.toString());
 		return json;
 	}
 
@@ -165,8 +165,8 @@ public class SearchController {
 			searchConfig.setQf("mgi_accession_id");
 		} else if (query.matches("MP:\\d+")) {
 			searchConfig.setQf("mp_id");
-		} else if (query.matches("MA:\\d+")) {
-			searchConfig.setQf("ma_id");
+		} else if (query.matches("MA:\\d+") || query.matches("EMAPA:\\d+")) {
+			searchConfig.setQf(AnatomyDTO.ANATOMY_ID);
 		}
 
 		String qfStr = searchConfig.getQfSolrStr();
@@ -179,8 +179,8 @@ public class SearchController {
 		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
 		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr;
 
-		if (dataType.equals("ma")) {
-			fqStr = fqStr == null ? "selected_top_level_ma_term:*" : fqStr;
+		if (dataType.equals("anatomy")) {
+			fqStr = fqStr == null ? AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM + ":*" : fqStr;
 		}
 		if (dataType.equals("mp")) {
 			fqStr = fqStr == null ? "top_level_mp_term:*" : fqStr;
@@ -189,11 +189,11 @@ public class SearchController {
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
+
 		return solrParamStr;
 	}
 
 	public JSONObject fetchAllFacetCounts(String dataType, String query, String fqStr, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
-		internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
 
 		JSONObject qryBrokerJson = new JSONObject();
 		String qStr = "q=" + query;
@@ -204,7 +204,7 @@ public class SearchController {
 
 		Map<String, String> coreFq = new HashMap<>();
 
-		List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "ma", "impc_images", "images"});
+		List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "images"});
 		for( int i=0; i<cores.size(); i++ ){
 			String thisCore = cores.get(i);
 			if ( dataType.equals(thisCore) ){
@@ -220,14 +220,14 @@ public class SearchController {
 		qryBrokerJson.put("gene", qStr + coreFq.get("gene") + qfDefTypeWt);
 		qryBrokerJson.put("mp", qStr + coreFq.get("mp") + qfDefTypeWt);
 		qryBrokerJson.put("disease", qStr + coreFq.get("disease") + qfDefTypeWt);
-		qryBrokerJson.put("ma", qStr + coreFq.get("ma") + qfDefTypeWt);
+		qryBrokerJson.put("anatomy", qStr + coreFq.get("anatomy") + qfDefTypeWt);
 		qryBrokerJson.put("images", 	qStr + coreFq.get("images") + qfDefTypeWt);
 		qryBrokerJson.put("impc_images", qStr + coreFq.get("impc_images") + qfDefTypeWt);
 
 //		System.out.println("gene: " + qStr + coreFq.get("gene") + qfDefTypeWt);
 //		System.out.println("mp: " + qStr + coreFq.get("mp") + qfDefTypeWt);
 //		System.out.println("disease: " + qStr + coreFq.get("disease") + qfDefTypeWt);
-//		System.out.println("ma: " + qStr + coreFq.get("ma") + qfDefTypeWt);
+//		System.out.println("anatomy: " + qStr + coreFq.get("anatomy") + qfDefTypeWt);
 //		System.out.println("impc_images: " + qStr + coreFq.get("impc_images") + qfDefTypeWt);
 //		System.out.println("images: " + qStr + coreFq.get("images") + qfDefTypeWt);
 

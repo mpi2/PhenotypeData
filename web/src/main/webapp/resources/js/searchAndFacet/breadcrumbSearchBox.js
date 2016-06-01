@@ -102,13 +102,13 @@ $(document).ready(function () {
 		'gene' : '*:*',
 		'mp'   : 'top_level_mp_term:*',
 		'disease' : '*:*',
-		'ma' : 'selected_top_level_ma_term:*',
+		'anatomy' : 'selected_top_level_anatomy_term:*',
 		'pipeline' : 'pipeline_stable_id:*',
 		'images' : '*:*'
 	};
 
 	// generic search input autocomplete javascript
-	var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^70 selected_top_level_ma_term:*^60";
+	var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 mp_term:*^90 mp_term_synonym:*^80 disease_term:*^70 anatomy_term:*^60 anatomy_term_synonym:*^50" ;
 
 
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
@@ -121,25 +121,27 @@ $(document).ready(function () {
 	$( "input#s" ).autocomplete({
 		source: function( request, response ) {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
+
 			$.ajax({
 				//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
 				url: solrUrl + "/autosuggest/select?fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq,
 				dataType: "jsonp",
 				'jsonp': 'json.wrf',
 				data: {
-					q: request.term
+					q: '"'+request.term+'"'
 				},
 				success: function( data ) {
 
 					matchedFacet = false; // reset
 					var docs = data.response.docs;
-					//console.log(docs);
 
 					var aKVtmp = {};
 					for ( var i=0; i<docs.length; i++ ){
-						var facet;
+						var facet = null;
+
 						for ( var key in docs[i] ){
-							//console.log('key: '+key);
+
+
 							if ( facet == 'hp' && (key == 'hpmp_id' || key == 'hpmp_term') ){
 								continue;
 							}
@@ -195,7 +197,7 @@ $(document).ready(function () {
 						}
 					}
 
-					response( dataTypeVal );
+					response( $.fn.getUnique(dataTypeVal) );
 				}
 			});
 		},
@@ -227,11 +229,14 @@ $(document).ready(function () {
 			}
 			q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
-			var fqStr = facet2Fq[facet];
-
 			// we are choosing value from drop-down list so need to double quote the value for SOLR query
 			//document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
-			document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=" + q + "&fq=" + fqStr;
+
+			var href = baseUrl + '/search/' + facet  + '?' + "kw=" + q;
+			if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
+				href += "&fq=" + facet2Fq[facet];
+			}
+			document.location.href = href;
 			// prevents escaped html tag displayed in input box
 			event.preventDefault(); return false;
 
