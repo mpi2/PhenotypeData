@@ -69,7 +69,7 @@ public class IndexerManager {
     public static final String IMAGES_CORE = "images";
     public static final String IMPC_IMAGES_CORE = "impc_images";
     public static final String MP_CORE = "mp";
-    public static final String MA_CORE = "ma";
+    public static final String ANATOMY_CORE = "anatomy";
     public static final String PIPELINE_CORE = "pipeline";
     public static final String GENE_CORE = "gene";
     public static final String DISEASE_CORE = "disease";
@@ -119,7 +119,7 @@ public class IndexerManager {
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
         , MP_CORE
-        , MA_CORE
+        , ANATOMY_CORE
         , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
@@ -134,7 +134,7 @@ public class IndexerManager {
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
         , MP_CORE
-        , MA_CORE
+        , ANATOMY_CORE
         , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
@@ -421,7 +421,7 @@ public class IndexerManager {
                 case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesIndexer));                           break;
                 case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesIndexer));                  break;
                 case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpIndexer));                                   break;
-                case MA_CORE:                   indexerItemList.add(new IndexerItem(MA_CORE, maIndexer));                                   break;
+                case ANATOMY_CORE:                   indexerItemList.add(new IndexerItem(ANATOMY_CORE, maIndexer));                                   break;
                 case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineIndexer));                       break;
                 case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneIndexer));                               break;
                 case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseIndexer));                         break;
