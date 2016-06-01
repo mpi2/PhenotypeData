@@ -55,11 +55,8 @@ public class SolrServerConfig {
 
 	//Autosuggest
 	@Bean(name = "autosuggestCore")
-//	HttpSolrServer getAutosuggestCore() {
-//		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
-//	}
 	HttpSolrServer getAutosuggestCore() {
-		return new HttpSolrServer("http:// localhost:8090/solr" + "/autosuggest");
+		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
 	}
 
 	//Disease
@@ -92,21 +89,12 @@ public class SolrServerConfig {
 
 	//MA
 	@Bean(name = "maCore")
-//	HttpSolrServer getMaCore() {
-//		return new HttpSolrServer(solrBaseUrl + "/ma");
-//	}
-	HttpSolrServer getMaCore() {
-		return new HttpSolrServer("http://localhost:8090/solr" + "/ma");
-	}
+	HttpSolrServer getMaCore() { return new HttpSolrServer(solrBaseUrl + "/ma"); }
 
 	//ANATOMY
 	@Bean(name = "anatomyCore")
-//	HttpSolrServer getMaCore() {
-//		return new HttpSolrServer(solrBaseUrl + "/anatomy");
-//	}
-	HttpSolrServer getAnatomyCore() {
-		return new HttpSolrServer("http://localhost:8090/solr" + "/anatomy");
-	}
+	HttpSolrServer getAnatomyCore() { return new HttpSolrServer(solrBaseUrl + "/anatomy"); }
+
 
 	//MP
 	@Bean(name = "mpCore")
