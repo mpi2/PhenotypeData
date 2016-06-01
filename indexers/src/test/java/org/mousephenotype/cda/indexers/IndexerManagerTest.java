@@ -729,7 +729,7 @@ public class IndexerManagerTest {
         , IndexerManager.IMAGES_CORE
         , IndexerManager.IMPC_IMAGES_CORE
         , IndexerManager.MP_CORE
-        , IndexerManager.MA_CORE
+        , IndexerManager.ANATOMY_CORE
         , IndexerManager.PIPELINE_CORE
         , IndexerManager.GENE_CORE
         , IndexerManager.DISEASE_CORE
@@ -845,7 +845,7 @@ public class IndexerManagerTest {
           IndexerManager.PIPELINE_CORE
         , IndexerManager.ALLELE_CORE
         , IndexerManager.IMPC_IMAGES_CORE
-        , IndexerManager.MA_CORE
+        , IndexerManager.ANATOMY_CORE
         , IndexerManager.DISEASE_CORE
         , IndexerManager.MP_CORE
         };
@@ -880,7 +880,7 @@ public class IndexerManagerTest {
         , IndexerManager.PREQC_CORE
         , IndexerManager.ALLELE_CORE
         , IndexerManager.IMPC_IMAGES_CORE
-        , IndexerManager.MA_CORE
+        , IndexerManager.ANATOMY_CORE
         , IndexerManager.DISEASE_CORE
         , IndexerManager.MP_CORE
         };
@@ -1016,7 +1016,7 @@ public class IndexerManagerTest {
         }
 
         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        String[] expectedCores = new String[] { IndexerManager.MA_CORE };
+        String[] expectedCores = new String[] { IndexerManager.ANATOMY_CORE};
         assertArrayEquals(expectedCores, actualCores);
 
         // Initialise, validate, and build the cores.
@@ -1078,7 +1078,7 @@ public class IndexerManagerTest {
         }
 
         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
-        String[] expectedCores = new String[] { IndexerManager.MA_CORE, IndexerManager.MA_CORE };
+        String[] expectedCores = new String[] { IndexerManager.ANATOMY_CORE, IndexerManager.ANATOMY_CORE};
         assertArrayEquals(expectedCores, actualCores);
 
         // Initialise, validate, and build the cores.
