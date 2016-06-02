@@ -106,9 +106,11 @@ public class QueryBrokerController {
 			defaultCore = "anatomy";
 		} else if ( dc.containsKey("impc_images") ) {
 			defaultCore = "impc_images";
-		} else if ( dc.containsKey("images") ) {
-			defaultCore = "images";
-		} else {
+		}
+//		else if ( dc.containsKey("images") ) {
+//			defaultCore = "images";
+//		}
+		else {
 			defaultCore = ""; // nothing found
 		}
 		//System.out.println("default core: " + defaultCore);
@@ -183,12 +185,8 @@ public class QueryBrokerController {
 			String param = jParams.getString(core);
 			//System.out.println(core + " -- " + param);
 
-			// gene2 is a pseudo core to get only protein coding genes count for
-			// Genes main facet count on default search page
-			//String solrCore = core.equals("gene2") ? "gene" : core;
-
 			String url =  SolrUtils.getBaseURL(solrIndex.getSolrServer(core)) + "/select?" + param;
-
+			//System.out.println("QueryBroker: "+url);
 			String key = core+param;
 			Object o = cache.get(key);
 

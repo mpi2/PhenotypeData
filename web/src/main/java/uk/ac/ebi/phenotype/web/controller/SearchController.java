@@ -136,6 +136,7 @@ public class SearchController {
 		Boolean legacyOnly = false;
 		String evidRank = "";
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
+		//System.out.println("solrParamStr: "+ solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 		//System.out.println("CONTENT: " + content);
 
@@ -179,13 +180,6 @@ public class SearchController {
 		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
 		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr;
 
-		if (dataType.equals("anatomy")) {
-			fqStr = fqStr == null ? AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM + ":*" : fqStr;
-		}
-		if (dataType.equals("mp")) {
-			fqStr = fqStr == null ? "top_level_mp_term:*" : fqStr;
-		}
-
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
@@ -204,7 +198,7 @@ public class SearchController {
 
 		Map<String, String> coreFq = new HashMap<>();
 
-		List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "images"});
+		List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images"});
 		for( int i=0; i<cores.size(); i++ ){
 			String thisCore = cores.get(i);
 			if ( dataType.equals(thisCore) ){
@@ -221,7 +215,7 @@ public class SearchController {
 		qryBrokerJson.put("mp", qStr + coreFq.get("mp") + qfDefTypeWt);
 		qryBrokerJson.put("disease", qStr + coreFq.get("disease") + qfDefTypeWt);
 		qryBrokerJson.put("anatomy", qStr + coreFq.get("anatomy") + qfDefTypeWt);
-		qryBrokerJson.put("images", 	qStr + coreFq.get("images") + qfDefTypeWt);
+		//qryBrokerJson.put("images", 	qStr + coreFq.get("images") + qfDefTypeWt);
 		qryBrokerJson.put("impc_images", qStr + coreFq.get("impc_images") + qfDefTypeWt);
 
 //		System.out.println("gene: " + qStr + coreFq.get("gene") + qfDefTypeWt);

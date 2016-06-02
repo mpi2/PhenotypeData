@@ -44,7 +44,7 @@ public class SearchConfig {
         sorting.put("disease", "&sort=disease_term asc");
         sorting.put("anatomy", "&sort=term asc");
         sorting.put("impc_images", "");  // these have multivalue fields, not sortable
-        sorting.put("images", "");  // these have multivalue fields, not sortable
+        //sorting.put("images", "");  // these have multivalue fields, not sortable
 
         return sorting.get(coreName);
     }
@@ -62,7 +62,7 @@ public class SearchConfig {
         coreDefault.put("disease", "*:*");
         coreDefault.put("anatomy", "selected_top_level_anatomy_term:*");
         coreDefault.put("impc_images", "*:*");
-        coreDefault.put("images", "*:*");
+        //coreDefault.put("images", "*:*");
 
         return coreDefault.get(coreName);
     }
@@ -124,7 +124,7 @@ public class SearchConfig {
         labelMap.put("disease", "Diseases");
         labelMap.put("anatomy", "Anatomy");
         labelMap.put("impc_images", "IMPC Images");
-        labelMap.put("images", "Images");
+        //labelMap.put("images", "Images");
     }
     public String getBreadcrumLabel(String coreName) {
       return labelMap.get(coreName);
@@ -184,23 +184,23 @@ public class SearchConfig {
                 "download_url",
                 "parameter_association_name",
                 "parameter_association_value"});
-        List<String> imagesFields = Arrays.asList(new String[]{"annotationTermId",
-                "annotationTermName",
-                "mpTermName",
-                "maTermName",
-                "expName",
-                "expName_exp",
-                "symbol",
-                "symbol_gene",
-                "smallThumbnailFilePath",
-                "largeThumbnailFilePath"});
+//        List<String> imagesFields = Arrays.asList(new String[]{"annotationTermId",
+//                "annotationTermName",
+//                "mpTermName",
+//                "maTermName",
+//                "expName",
+//                "expName_exp",
+//                "symbol",
+//                "symbol_gene",
+//                "smallThumbnailFilePath",
+//                "largeThumbnailFilePath"});
 
         fieldMap.put("gene", geneFields);
         fieldMap.put("mp", mpFields);
         fieldMap.put("disease", diseaseFields);
         fieldMap.put("anatomy", anatomyFields);
         fieldMap.put("impc_images", impc_imagesFields);
-        fieldMap.put("images", imagesFields);
+        //fieldMap.put("images", imagesFields);
 
     }
 
@@ -227,14 +227,14 @@ public class SearchConfig {
                 "mgi_predicted",
                 "mgi_novel_predicted_in_locus"});
         List<String> anatomyFacets =  Arrays.asList(new String[]{"selected_top_level_anatomy_term", "stage"});
-        List<String> imagesFacets =  Arrays.asList(new String[]{"procedure_name", "top_level_mp_term", "selected_top_level_ma_term", "marker_type"});
+        //List<String> imagesFacets =  Arrays.asList(new String[]{"procedure_name", "top_level_mp_term", "selected_top_level_ma_term", "marker_type"});
         List<String> impc_imagesFacets =  Arrays.asList(new String[]{"procedure_name", "selected_top_level_ma_term"});
 
         facetMap.put("gene", geneFacets);
         facetMap.put("mp", mpFacets);
         facetMap.put("disease", diseaseFacets);
         facetMap.put("anatomy", anatomyFacets);
-        facetMap.put("images", imagesFacets);
+        //facetMap.put("images", imagesFacets);
         facetMap.put("impc_images", impc_imagesFacets);
 
     }
@@ -245,7 +245,7 @@ public class SearchConfig {
         facetSortMap.put("disease", "count");
         facetSortMap.put("anatomy", "index");
         facetSortMap.put("impc_images", "index");
-        facetSortMap.put("images", "index");
+        //facetSortMap.put("images", "index");
     }
 
     public String getBqStr(String coreName, String q) {
@@ -288,11 +288,11 @@ public class SearchConfig {
             bqMap.put("impc_images", "procedure_name:(" + q + ")^500"
                     + " gene_symbol:(" + q + ")^500");
         }
-        else if (coreName.equals("images")) {
-            bqMap.put("images", "annotationTermName:(" + q + ")^500"
-                    + " expName:(" + q + ")^500"
-                    + " symbol:(" + q + ")^500");
-        }
+//        else if (coreName.equals("images")) {
+//            bqMap.put("images", "annotationTermName:(" + q + ")^500"
+//                    + " expName:(" + q + ")^500"
+//                    + " symbol:(" + q + ")^500");
+//        }
 
         return "&bq=" + bqMap.get(coreName);
 
