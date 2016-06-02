@@ -30,6 +30,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -67,8 +68,22 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected boolean isPreQc;
     protected String gid;
     protected String colonyId;
+	protected List<BasicBean> topLevelPhenotypeTerms;//keep the top level terms so we can display the correct icons next to them in the row
+	protected Set<String> topLevelMpGroups;
+	
+    public Set<String> getTopLevelMpGroups() {
+		return topLevelMpGroups;
+	}
 
-    public DataTableRow() { }       
+	public void setTopLevelMpGroups(Set<String> topLevelMpGroups) {
+		this.topLevelMpGroups = topLevelMpGroups;
+	}
+
+	public List<BasicBean> getTopLevelPhenotypeTerms() {
+		return topLevelPhenotypeTerms;
+	}
+
+	public DataTableRow() { }       
 
     public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, boolean hasImages) 
     throws UnsupportedEncodingException, SolrServerException {
@@ -91,16 +106,39 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.setParameter(pcs.getParameter());
         this.setPhenotypingCenter(pcs.getPhenotypingCenter());
         this.setColonyId(pcs.getColonyId());
+        this.setTopLevelPhenotypeTerms(pcs.getTopLevelPhenotypeTerms());
 
         if (pcs.getProject() != null && pcs.getProject().getId() != null) {
             this.setProjectId(new Integer(pcs.getProject().getId()));
         }
 
         this.buildEvidenceLink(baseUrl, hasImages);
+        this.adjustPhenotypeColumnIfNecessary();
         
     }
     
-    @Override
+    /**
+     * Currently as histopath data is set up differently in Impress we need to change the phenotype column to show the phenotype using the parameter name 
+     * rather than something too generic as it is by default like "developmental and structural abnormality" 
+     */
+    private void adjustPhenotypeColumnIfNecessary() {
+    	if ( procedure.getName().startsWith("Histopathology") ){
+    		BasicBean paramBean=new BasicBean();
+    		
+    		paramBean.setName(parameter.getName().replace("MPATH process term", "")+ " "+ this.phenotypeTerm.getName());
+    		
+           this.setPhenotypeTerm(paramBean);
+        	
+        }
+		
+	}
+
+	private void setTopLevelPhenotypeTerms(List<BasicBean> topLevelPhenotypeTerms) {
+		this.topLevelPhenotypeTerms=topLevelPhenotypeTerms;
+		
+	}
+
+	@Override
     public abstract int compareTo(DataTableRow o);
 
 

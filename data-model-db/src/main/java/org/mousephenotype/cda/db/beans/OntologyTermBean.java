@@ -156,4 +156,17 @@ public class OntologyTermBean {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "OntologyTermBean{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", definition='" + definition + '\'' +
+                ", synonyms=" + synonyms +
+                ", topLevelTermId='" + topLevelTermId + '\'' +
+                ", altIds=" + altIds +
+                ", nodeIds=" + nodeIds +
+                '}';
+    }
 }

@@ -19,6 +19,7 @@ package org.mousephenotype.cda.indexers.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 
 /**
@@ -36,8 +37,4 @@ public class OntologyTermHelperMa extends OntologyTermHelper {
         super(maOntologyService, id);
     }
 
-    public List<String> getSubsets() {
-        return ((MaOntologyDAO)ontologyService).getSubset(id, new ArrayList<String>());
-    }
-    
 }

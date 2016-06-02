@@ -59,7 +59,6 @@ public class SolrServerConfig {
 		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
 	}
 
-
 	//Disease
 	@Bean(name = "diseaseCore")
 	HttpSolrServer getDiseaseCore() {
@@ -90,9 +89,11 @@ public class SolrServerConfig {
 
 	//MA
 	@Bean(name = "maCore")
-	HttpSolrServer getMaCore() {
-		return new HttpSolrServer(solrBaseUrl + "/ma");
-	}
+	HttpSolrServer getMaCore() { return new HttpSolrServer(solrBaseUrl + "/ma"); }
+
+	//ANATOMY
+	@Bean(name = "anatomyCore")
+	HttpSolrServer getAnatomyCore() { return new HttpSolrServer(solrBaseUrl + "/anatomy"); }
 
 
 	//MP

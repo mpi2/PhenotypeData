@@ -53,6 +53,7 @@ import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.Anatomy;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
@@ -270,14 +271,14 @@ public class DataTableController {
     	dataTypeId.put("ensembl", "mgi_accession_id");
 
     	dataTypeId.put("mp", "mp_id");
-    	dataTypeId.put("ma", "ma_id");
+    	dataTypeId.put("anatomy", "id");
     	dataTypeId.put("hp", "hp_id");
     	dataTypeId.put("disease", "disease_id");
 
     	Map<String, String> dataTypePath = new HashMap<>();
     	dataTypePath.put("gene", "genes");
     	dataTypePath.put("mp", "phenotypes");
-    	dataTypePath.put("ma", "anatomy");
+    	dataTypePath.put("anatomy", "anatomy");
     	dataTypePath.put("disease", "disease");
 
     	JSONObject j = new JSONObject();
@@ -304,7 +305,7 @@ public class DataTableController {
 			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
 			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
 
-			if ( docMap.get("mgi_accession_id") != null && !( dataTypeName.equals("ma") || dataTypeName.equals("disease") ) ) {
+			if ( docMap.get("mgi_accession_id") != null && !( dataTypeName.equals("anatomy") || dataTypeName.equals("disease") ) ) {
 				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
 
 				for( Object acc : mgiGeneAccs ){
@@ -355,8 +356,8 @@ public class DataTableController {
 						qryField = "mgi_accession_id";
 						imgQryField = "gene_accession_id";
 					}
-					else if (dataTypeName.equals("ma") ){
-						qryField = "ma_id";
+					else if (dataTypeName.equals("anatomy") ){
+						qryField = "id";
 						imgQryField = "ma_id";
 					}
 
@@ -572,7 +573,17 @@ public class DataTableController {
         return responseHeaders;
     }
 
-    public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName, boolean legacyOnly, String evidRank) throws IOException, URISyntaxException {
+    public String fetchDataTableJson(HttpServletRequest request,
+									 JSONObject json,
+									 String mode,
+									 String query,
+									 String fqOri,
+									 int start,
+									 int length,
+									 String solrParams,
+									 boolean showImgView,
+									 String solrCoreName,
+									 boolean legacyOnly, String evidRank) throws IOException, URISyntaxException {
 
 		request.setAttribute("displayStart", start);
 		request.setAttribute("displayLength", length);
@@ -587,8 +598,8 @@ public class DataTableController {
             jsonStr = parseJsonforImageDataTable(json, solrParams, showImgView, request, query, fqOri, solrCoreName);
         } else if (mode.equals("mpGrid")) {
             jsonStr = parseJsonforMpDataTable(json, request, query, solrCoreName);
-        } else if (mode.equals("maGrid")) {
-            jsonStr = parseJsonforMaDataTable(json, request, query, solrCoreName);
+        } else if (mode.equals("anatomyGrid")) {
+            jsonStr = parseJsonforAnatomyDataTable(json, request, query, solrCoreName);
         } else if (mode.equals("diseaseGrid")) {
             jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName);
         } else if (mode.equals("gene2go")) {
@@ -944,9 +955,9 @@ public class DataTableController {
         return j.toString();
     }
 
-    public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws IOException, URISyntaxException {
+    public String parseJsonforAnatomyDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws IOException, URISyntaxException {
 
-        //String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
+		//String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -965,18 +976,18 @@ public class DataTableController {
 
             // array element is an alternate of facetField and facetCount
             JSONObject doc = docs.getJSONObject(i);
-            String maId = doc.getString("ma_id");
-            String maTerm = doc.getString("ma_term");
-            String maLink = "<a href='" + baseUrl + "/anatomy/" + maId + "'>" + maTerm + "</a>";
+            String anatomyId = doc.getString(AnatomyDTO.ANATOMY_ID);
+            String anatomyTerm = doc.getString(AnatomyDTO.ANATOMY_TERM);
+            String anatomylink = "<a href='" + baseUrl + "/anatomy/" + anatomyId + "'>" + anatomyTerm + "</a>";
 
 			// check has expression data
-			Anatomy ma = JSONMAUtils.getMA(maId, config);
+			//Anatomy ma = JSONMAUtils.getMA(anatomyId, config);
 
-            if (doc.containsKey("ma_term_synonym")) {
-                List<String> maSynonyms = doc.getJSONArray("ma_term_synonym");
+            if (doc.containsKey(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
+                List<String> anatomySynonyms = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
                 List<String> prefixSyns = new ArrayList();
 
-                for (String sn : maSynonyms) {
+                for (String sn : anatomySynonyms) {
                     prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
                 }
 
@@ -987,25 +998,28 @@ public class DataTableController {
                     syns = prefixSyns.get(0);
                 }
 
-                String maCol = "<div class='maCol'><div class='title'>"
-                        + maLink
+                String anatomyCol = "<div class='anatomyCol'><div class='title'>"
+                        + anatomylink
                         + "</div>"
                         + "<div class='subinfo'>"
                         + "<span class='label'>synonym: </span>" + syns
                         + "</div>";
-                rowData.add(maCol);
+                rowData.add(anatomyCol);
             } else {
-                rowData.add(maLink);
+                rowData.add(anatomylink);
             }
 
+			// developmental stage
+			rowData.add(doc.getString("stage"));
+
 			//get expression only images
-			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(maId, config, 1);
+			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomyId, config, 1);
 			JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 
-			rowData.add(expressionImageDocs.size() == 0 ? "No" : "<a href='" + baseUrl + "/anatomy/" + maId + "#maHasExp" + "'>Yes</a>");
+			rowData.add(expressionImageDocs.size() == 0 ? "No" : "<a href='" + baseUrl + "/anatomy/" + anatomyId + "#maHasExp" + "'>Yes</a>");
 
 			// link out to ontology browser page
-			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + maId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
+			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + anatomyId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
 			// some MP do not have definition
                 /*String mpDef = "not applicable";
              try {
