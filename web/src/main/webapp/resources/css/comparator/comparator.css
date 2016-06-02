@@ -11,28 +11,29 @@ width:100%;
 
 #control_box{
 	clear: right;
-	  height: 400px;
-        width: 500px;
+	/*  height: auto;
+     width: auto; */
 	
 }
 
 #mutant_box{
 	float: right;
-	height: 400px;
-        width: 500px;
+	/* height: 400px;
+    width: 500px; */
 }
 
 .half_box_left{
-	/* width: 49.6%; */
-	 height: 400px;
-        width: 500px;
+	width: 49.6%;
+	height: 400px;
+    height: auto;
+    /* width: auto; */
 	float: left;
 }
 
 .half_box_right{
-	/* width: 49.6%; */
-	 height: 400px;
-        width: 500px;
+	width: 49.6%;
+	/*  height: 400px; */
+       /*  width: 500px; */
 	float: right;
 }
 
