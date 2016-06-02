@@ -18,6 +18,8 @@ width:100%;
 
 #mutant_box{
 	float: right;
+	height: 400px;
+        width: 500px;
 }
 
 .half_box_left{
