@@ -26,10 +26,10 @@
         	<div class="node"> -->
         	<%--  mediaType: ${mediaType }
         	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
-	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_thumbnail"/>
+	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
 	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
-	        <c:set var="thumbnailSize" value="70"/>
+	        <c:set var="thumbnailSize" value="96"/>
 	       <%-- jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
 	        pdfWithoutId: ${pdfWithoutId} --%>
@@ -42,7 +42,7 @@
 	            	<div id="filters">Filter Images by gender: 
 	            	<%-- ${param.gender} --%>
 	            	<select name="gender">
-	            	<option value="both" <c:if test="${param.gender eq 'both'}">selected</c:if> >Both</option>
+	            	<option value="not applicable" <c:if test="${param.gender eq 'not applicable'}">selected</c:if> >All</option>
             			<option value="male" <c:if test="${param.gender eq 'male'}">selected</c:if> >Males</option>
             			<option value="female"  <c:if test="${param.gender eq 'female'}">selected</c:if>>Females</option>
             		</select>
@@ -86,8 +86,11 @@
 	            				<c:when test="${img.sex eq 'male' }">
 	            					clickbox_male"
 	            				</c:when>
+	            				<c:when test="${img.sex eq 'female' }">
+	            					clickbox_female"
+	            				</c:when>
 	            				<c:otherwise>
-	            					clickbox_female
+	            					clickbox_no_sex
 	            				</c:otherwise>
 	            			</c:choose>
 	            			">
@@ -96,7 +99,7 @@
 										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/${thumbnailSize}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            				</div>
@@ -137,8 +140,11 @@
 	            				<c:when test="${img.sex eq 'male' }">
 	            					clickbox_male"
 	            				</c:when>
+	            				<c:when test="${img.sex eq 'female' }">
+	            					clickbox_female"
+	            				</c:when>
 	            				<c:otherwise>
-	            					clickbox_female
+	            					clickbox_no_sex
 	            				</c:otherwise>
 	            			</c:choose>
 	            			">
@@ -147,7 +153,7 @@
 										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/${thumbnailSize}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            			</div>

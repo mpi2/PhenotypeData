@@ -16,11 +16,9 @@
 package org.mousephenotype.cda.solr.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -32,10 +30,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.HpDTO;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,61 +40,60 @@ import org.springframework.stereotype.Service;
 import net.sf.json.JSONObject;
 
 @Service
-public class MaService extends BasicService implements WebStatus {
+public class AnatomyService extends BasicService implements WebStatus {
 
 	@Autowired
-	@Qualifier("maCore")
+	@Qualifier("anatomyCore")
 	private HttpSolrServer solr;
 
 	@Autowired
 	@Qualifier("phenotypePipelineDAOImpl")
 	private PhenotypePipelineDAO pipelineDao;
 
-	public MaService() {
+	public AnatomyService() {
 	}
 
-	public MaService(String maServiceUrl) {
-		this.solr = new HttpSolrServer(maServiceUrl);
+	public AnatomyService(String anatomyServiceUrl) {
+		this.solr = new HttpSolrServer(anatomyServiceUrl);
 	}
 
 	/**
 	 * Return an MA term
 	 *
-	 * @return single MA term from the ma core.
+	 * @return single anatomy term from the anatomy core.
 	 * @throws SolrServerException
 	 */
-	public MaDTO getMaTerm(String id) throws SolrServerException {
+	public AnatomyDTO getTerm(String id) throws SolrServerException {
 
-		SolrQuery solrQuery = new SolrQuery().setQuery(MaDTO.MA_ID + ":\"" + id + "\"").setRows(1);
+		SolrQuery solrQuery = new SolrQuery().setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"").setRows(1);
 
 		QueryResponse rsp = solr.query(solrQuery);
-		List<MaDTO> mas = rsp.getBeans(MaDTO.class);
+		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
 
 		if (rsp.getResults().getNumFound() > 0) {
-			return mas.get(0);
+			return anas.get(0);
 		}
 
 		return null;
 	}
 
 	/**
-	 * Return all MA terms from the ma core.
+	 * Return all anatomy terms from the anatomy core.
 	 *
-	 * @return all MAs from the ma core.
+	 * @return all anas from the anatomy core.
 	 * @throws SolrServerException
 	 */
-	public List<MaDTO> getAllMaTerms() throws SolrServerException {
+	public List<AnatomyDTO> getAllMaTerms() throws SolrServerException {
 
 		//System.out.println("SOLR: " + solr.getBaseURL());
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(MaDTO.MA_ID + ":*");
-		// solrQuery.setFields(MpDTO.MA_ID);
+		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":*");
 		solrQuery.setRows(1000000);
 		QueryResponse rsp;
 		rsp = solr.query(solrQuery);
-		List<MaDTO> mas = rsp.getBeans(MaDTO.class);
+		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
 
-		return mas;
+		return anas;
 	}
 	
 	
@@ -114,18 +108,18 @@ public class MaService extends BasicService implements WebStatus {
 	throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MaDTO.MA_ID + ":\"" + id + "\"")
+			.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"")
 			.setRows(1);
 
 		QueryResponse rsp = solr.query(solrQuery);
-		List<MaDTO> mps = rsp.getBeans(MaDTO.class);
+		List<AnatomyDTO> mps = rsp.getBeans(AnatomyDTO.class);
 		List<OntologyBean> parents = new ArrayList<>();
 
 		if (mps.size() > 1){
-			throw new Error("More documents in MP core for the same MP id: " + id);
+			throw new Error("More documents in anatomy core for the same anatomy id: " + id);
 		}
 
-		if ((mps.get(0).getParentMaId() == null || mps.get(0).getParentMaId().size() == 0)){
+		if ((mps.get(0).getParentAnatomyId() == null || mps.get(0).getParentAnatomyId().size() == 0)){
 			if (mps.get(0).getTopLevelMpId() != null && mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
 				for (int i = 0; i < mps.get(0).getTopLevelMpId().size(); i++){
 					parents.add(new OntologyBean(mps.get(0).getTopLevelMpId().get(i), mps.get(0).getTopLevelMpTerm().get(i)));
@@ -134,12 +128,12 @@ public class MaService extends BasicService implements WebStatus {
 			return parents;
 		}
 
-		if (mps.get(0).getParentMaId().size() != mps.get(0).getParentMaTerm().size()){
-			throw new Error("Length of parent id list and parent term list does not match for MP id: " + id);
+		if (mps.get(0).getParentAnatomyId().size() != mps.get(0).getParentAnatomyTerm().size()){
+			throw new Error("Length of parent id list and parent term list does not match for anatomy id: " + id);
 		}
 
-		for (int i = 0; i < mps.get(0).getParentMaId().size(); i++){
-			parents.add(new OntologyBean(mps.get(0).getParentMaId().get(i),	mps.get(0).getParentMaTerm().get(i)));
+		for (int i = 0; i < mps.get(0).getParentAnatomyId().size(); i++){
+			parents.add(new OntologyBean(mps.get(0).getParentAnatomyId().get(i),	mps.get(0).getParentAnatomyTerm().get(i)));
 		}
 
 		return parents;
@@ -158,27 +152,27 @@ public class MaService extends BasicService implements WebStatus {
 	throws SolrServerException {
 
 			SolrQuery solrQuery = new SolrQuery()
-				.setQuery(MaDTO.MA_ID + ":\"" + id + "\"")
+				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"")
 				.setRows(1);
 
 			QueryResponse rsp = solr.query(solrQuery);
-			List<MaDTO> mps = rsp.getBeans(MaDTO.class);
+			List<AnatomyDTO> mps = rsp.getBeans(AnatomyDTO.class);
 			List<OntologyBean> children = new ArrayList<>();
 
 			if (mps.size() > 1){
-				throw new Error("More documents in MP core for the same MP id: " + id);
+				throw new Error("More documents in anatomy core for the same anatomy id: " + id);
 			}
 
-			if (mps.get(0).getChildMaId() == null || mps.get(0).getChildMaId().size() == 0){
+			if (mps.get(0).getChildAnatomyId() == null || mps.get(0).getChildAnatomyId().size() == 0){
 				return children;
 			}
 
-			if (mps.get(0).getChildMaTerm().size() != mps.get(0).getChildMaId().size()){
-				throw new Error("Length of children id list and children term list does not match for MP id: " + id);
+			if (mps.get(0).getChildAnatomyTerm().size() != mps.get(0).getChildAnatomyId().size()){
+				throw new Error("Length of children id list and children term list does not match for anatomy id: " + id);
 			}
 
-			for (int i = 0; i < mps.get(0).getChildMaId().size(); i++){
-				children.add(new OntologyBean(mps.get(0).getChildMaId().get(i), mps.get(0).getChildMaTerm().get(i)));
+			for (int i = 0; i < mps.get(0).getChildAnatomyId().size(); i++){
+				children.add(new OntologyBean(mps.get(0).getChildAnatomyId().get(i), mps.get(0).getChildAnatomyTerm().get(i)));
 			}
 
 			return children;
@@ -231,34 +225,34 @@ public class MaService extends BasicService implements WebStatus {
 
 	public AnatomogramDataBean getUberonIdAndTopLevelMaTerm(AnatomogramDataBean bean) throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(MaDTO.MA_ID + ":\"" + bean.getMaId() + "\"");
-		solrQuery.setFields(MaDTO.ALL_AE_MAPPED_UBERON_ID, MaDTO.SELECTED_TOP_LEVEL_MA_ID, MaDTO.SELECTED_TOP_LEVEL_MA_TERM);
+		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + bean.getMaId() + "\"");
+		solrQuery.setFields(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 
 		ArrayList<String> uberonIds = new ArrayList<String>();
 		if (res.getNumFound() > 1) {
-			System.err.println("Warning - more than 1 MA term found where we only expect one doc!");
+			System.err.println("Warning - more than 1 anatomy term found where we only expect one doc!");
 		}
 		for (SolrDocument doc : res) {
-			if (doc.containsKey(MaDTO.ALL_AE_MAPPED_UBERON_ID)) {
-				for (Object child : doc.getFieldValues(MaDTO.ALL_AE_MAPPED_UBERON_ID)) {
+			if (doc.containsKey(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID)) {
+				for (Object child : doc.getFieldValues(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID)) {
 					uberonIds.add((String) child);
 				}
 				bean.setUberonIds( uberonIds);
 			}
 			
-			if (doc.containsKey(MaDTO.SELECTED_TOP_LEVEL_MA_ID)) {
-				List<String> selectedTopLevelMas = (List<String>) doc.get(MaDTO.SELECTED_TOP_LEVEL_MA_ID);
-				bean.addTopLevelMaIds(selectedTopLevelMas); 
+			if (doc.containsKey(AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID)) {
+				List<String> selectedTopLevelAnas = (List<String>) doc.get(AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID);
+				bean.addTopLevelMaIds(selectedTopLevelAnas);
 			}
-			if (doc.containsKey(MaDTO.SELECTED_TOP_LEVEL_MA_TERM)) {
-				List<String> selectedTopLevelMaTerms = (List<String>) doc.get(MaDTO.SELECTED_TOP_LEVEL_MA_TERM);
+			if (doc.containsKey(AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM)) {
+				List<String> selectedTopLevelMaTerms = (List<String>) doc.get(AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 				bean.addTopLevelMaNames(selectedTopLevelMaTerms); 
 			}
 			
-			if (doc.containsKey(MaDTO.ALL_AE_MAPPED_EFO_ID)) {
-				List<String> efoIds = (List<String>) doc.get(MaDTO.ALL_AE_MAPPED_EFO_ID);
+			if (doc.containsKey(AnatomyDTO.ALL_AE_MAPPED_EFO_ID)) {
+				List<String> efoIds = (List<String>) doc.get(AnatomyDTO.ALL_AE_MAPPED_EFO_ID);
 				bean.addEfoIds(efoIds); 
 			}
 			
@@ -283,20 +277,21 @@ public class MaService extends BasicService implements WebStatus {
 
 	@Override
 	public String getServiceName() {
-		return "MA Service";
+		return "Anatomy Service";
 	}
 
 
-	public String getSearchTermJson(String maTermId)
+	public String getSearchTermJson(String anatomyTermId)
 			throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(MaDTO.MA_ID + ":\"" + maTermId + "\"")
+				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + anatomyTermId + "\"")
 				.setRows(1);
-		solrQuery.addField(MaDTO.SEARCH_TERM_JSON);
+		solrQuery.addField(AnatomyDTO.SEARCH_TERM_JSON);
 
 		QueryResponse rsp = solr.query(solrQuery);
-		List<MaDTO> mas = rsp.getBeans(MaDTO.class);
+
+		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
 
 		return (mas != null) ? mas.get(0).getSearchTermJson() : "";
 	}
@@ -305,12 +300,12 @@ public class MaService extends BasicService implements WebStatus {
 			throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(MaDTO.MA_NODE_ID + ":" + nodeId)
+				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId)
 				.setRows(1);
-		solrQuery.addField(MaDTO.CHILDREN_JSON);
+		solrQuery.addField(AnatomyDTO.CHILDREN_JSON);
 
 		QueryResponse rsp = solr.query(solrQuery);
-		List<MaDTO> mas = rsp.getBeans(MaDTO.class);
+		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
 
 		return (mas != null) ? mas.get(0).getChildrenJson() : "";
 	}

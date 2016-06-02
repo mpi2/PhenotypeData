@@ -33,7 +33,10 @@
 			 ontologyLabel = "Mammalian Phenotype Ontology (MP)";
 		 }
 		 if ( termId.indexOf("MA:") != -1){
-			 ontologyLabel = "Mouse Adult Gross Anatomy Ontology (MA)";
+			 ontologyLabel = "Adult: Mouse Adult Gross Anatomy Ontology (MA)";
+		 }
+		 if ( termId.indexOf("EMAPA:") != -1){
+			 ontologyLabel = "Embryo: Mouse gross anatomy and development, timed (EMAPA)";
 		 }
 		 $('#ontotree').text(ontologyLabel);
 

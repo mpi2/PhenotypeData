@@ -19,14 +19,12 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.service.MaService;
+import org.mousephenotype.cda.solr.service.AnatomyService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -50,7 +48,7 @@ public class OntologyBrowserController {
     @Autowired
     MpService mpService;
     @Autowired
-    MaService maService;
+    AnatomyService anatomyService;
     
     @RequestMapping(value = "/ontologyBrowser", method = RequestMethod.GET)
     public String getParams( @RequestParam(value = "termId", required = true) String termId, HttpServletRequest request, Model model)
@@ -58,7 +56,7 @@ public class OntologyBrowserController {
 
 
         model.addAttribute("termId", termId);
-        if ( termId.startsWith("MA:")){
+        if ( termId.startsWith("MA:") || termId.startsWith("EMAPA:")){
             model.addAttribute("scrollToNode", "1");
         }
         else if (termId.startsWith("MP:")) {
@@ -69,7 +67,8 @@ public class OntologyBrowserController {
 
 
     @RequestMapping(value = "/ontologyBrowser2", method = RequestMethod.GET)
-    public ResponseEntity<String> getTreeJson( @RequestParam(value = "node", required = true) String rootId, @RequestParam(value = "termId", required = true) String termId,
+    public ResponseEntity<String> getTreeJson( @RequestParam(value = "node", required = true) String rootId,
+                                               @RequestParam(value = "termId", required = true) String termId,
             @RequestParam(value = "expandNodeIds", required = false) List<String> expandNodes, HttpServletRequest request, Model model)
     throws IOException, URISyntaxException, SQLException, SolrServerException {
 
@@ -77,24 +76,24 @@ public class OntologyBrowserController {
 
         if (rootId.equalsIgnoreCase("src")) {
 
-            if ( termId.startsWith("MA:")) {
-                res = new ResponseEntity<String>(maService.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
+            if ( termId.startsWith("MA:") || termId.startsWith("EMAPA:")) {
+                res = new ResponseEntity<String>(anatomyService.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
             }
             else if (termId.startsWith("MP:")) {
                 res = new ResponseEntity<String>(mpService.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
             }
 
             return res;
-            //return new ResponseEntity<String>(service.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
         }
         else {
-            if (termId.startsWith("MA:")) {
-                res = new ResponseEntity<String>(maService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
+
+            if (termId.startsWith("MA:") || termId.startsWith("EMAPA:")) {
+                res = new ResponseEntity<String>(anatomyService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
             } else if (termId.startsWith("MP:")) {
                 res = new ResponseEntity<String>(mpService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
             }
+
             return res;
-            //return new ResponseEntity<String>(mpService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
         }
     }
 

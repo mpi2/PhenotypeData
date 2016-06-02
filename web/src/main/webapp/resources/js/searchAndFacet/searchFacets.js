@@ -45,8 +45,8 @@
 		else if ( core == "disease" ){
 			displayDiseaseFacet(json);
 		}
-		else if ( core == "ma" ){
-			displayMaFacet(json);
+		else if ( core == "anatomy" ){
+			displayAnatomyFacet(json);
 		}
 		else if ( core == "impc_images" ){
 			displayImpc_imagesFacet(json);
@@ -565,15 +565,41 @@
 		}
 	}
 
-	function displayMaFacet(json) {
+	function displayAnatomyFacet(json) {
 		console.log(json);
 
-		var facetField = "selected_top_level_ma_term"
-		var aTopLevelCount = json.facet_fields[facetField];
-		var maUlContainer = $("li#ma ul");
+		var core = "anatomy";
+		var topLevelField = "selected_top_level_anatomy_term";
+		var aTopLevelCount = json.facet_fields[topLevelField];
 
+		var stageField = "stage";
+		var aStageCount = json.facet_fields[stageField];
 
-		$('li#ma > span.fcount').text(json.iTotalRecords);
+		var maUlContainer = $("li#" + core + " ul");
+
+		$('li#' + core + ' > span.fcount').text(json.iTotalRecords);
+
+		// stages
+		for (var i = 0; i < aStageCount.length; i += 2) {
+
+			var liContainer = $("<li></li>").attr({'class': 'fcat'});
+
+			var count = aStageCount[i + 1];
+			var coreField = core + '|' + stageField + '|' + aStageCount[i] + '|' + count;
+			var isGrayout = count == 0 ? 'grayout' : '';
+			liContainer.removeClass('grayout').addClass(isGrayout);
+
+			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
+			var flabel = $('<span></span>').attr({'class': 'flabel'}).text(aStageCount[i]);
+			var fcount = $('<span></span>').attr({'class': 'fcount'}).text(count);
+			liContainer.append(chkbox, flabel, fcount);
+			maUlContainer.append(liContainer);
+		}
+
+		// filter separator
+		if (json.iTotalRecords > 0) {
+			maUlContainer.append("<li><div id='anaSep'>&nbsp;</div></li>");
+		}
 
 		// selected top level MA terms
 		for ( var i=0;  i<aTopLevelCount.length; i+=2 ){
@@ -581,7 +607,7 @@
 			var liContainer = $("<li></li>").attr({'class':'fcat'});
 
 			var count = aTopLevelCount[i+1];
-			var coreField = 'ma|'+ facetField + '|' + aTopLevelCount[i] + '|' + count;
+			var coreField = core + '|' + topLevelField + '|' + aTopLevelCount[i] + '|' + count;
 			var isGrayout = count == 0 ? 'grayout' : '';
 			liContainer.removeClass('grayout').addClass(isGrayout);
 
@@ -593,14 +619,14 @@
 		}
 
 		// update all subfacet counts of this facet
-		$('div.flist li#ma > ul').append(maUlContainer);
+		$('div.flist li#'+core+' > ul').append(maUlContainer);
 
 		// change cursor for grayout filter
-		$.fn.cursorUpdate('ma', 'not-allowed');
+		$.fn.cursorUpdate(core, 'not-allowed');
 
-		$.fn.initFacetToggles('ma');
+		$.fn.initFacetToggles(core);
 
-		$('li#ma li.fcat input').click(function(){
+		$('li#'+core+' li.fcat input').click(function(){
 
 			// highlight the item in facet
 			updateCheckedFilter($(this));

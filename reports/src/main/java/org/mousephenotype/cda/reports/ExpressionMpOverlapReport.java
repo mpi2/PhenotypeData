@@ -8,6 +8,7 @@ import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.web.dto.Anatomy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +44,9 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	private GeneService geneService;
 
 	@Autowired
-	private MaService maService;
+	private AnatomyService anatomyService;
 
-	private Map<String, MaDTO> maMap = new HashMap<>();
+	private Map<String, AnatomyDTO> maMap = new HashMap<>();
 
 	public ExpressionMpOverlapReport() {
 		super();
@@ -119,11 +120,11 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        		if (m1.getMgiAccession().equalsIgnoreCase(m2.getMgiAccession())){
 	        			CommonAncestor inCommon = getCommonClosestAncestor(getMa(m1.getMaId()), getMa(m2.getMaId()), 0);
 	        			if ( inCommon != null && inCommon.getLevel() >= 0){
-	        				for (MaDTO ancestor: inCommon.getAncestors()){
+	        				for (AnatomyDTO ancestor: inCommon.getAncestors()){
 	        		        	String geneSymbol = geneService.getGeneById(m1.getMgiAccession(), GeneDTO.MARKER_SYMBOL).getMarkerSymbol();
-	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.maId, getMa(m1.maId).getMaTerm(),
+	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.maId, getMa(m1.maId).getTerm(),
 	        							(m2.mpId != null) ? m2.mpId : "", (m2.mpId != null) ? mpService.getPhenotype(m2.mpId).getMpTerm() : "",
-	        							m2.maId, getMa(m2.getMaId()).getMaTerm(), ancestor.getMaId(), ancestor.getMaTerm(), "" + inCommon.getLevel() });
+	        							m2.maId, getMa(m2.getMaId()).getTerm(), ancestor.getId(), ancestor.getTerm(), "" + inCommon.getLevel() });
 	        				}
 	        			}
 	        		}
@@ -142,17 +143,17 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	}
 
 
-	public CommonAncestor getCommonClosestAncestor(MaDTO ma1, MaDTO ma2, Integer level)
+	public CommonAncestor getCommonClosestAncestor(AnatomyDTO ma1, AnatomyDTO ma2, Integer level)
 	throws SolrServerException{
 
-		if (ma1.getMaId().equalsIgnoreCase(ma2.getMaId())){
+		if (ma1.getId().equalsIgnoreCase(ma2.getId())){
 			return new CommonAncestor(level, ma1);
 		}
 
-		if (level > 7){return new CommonAncestor(-2, new MaDTO());}
+		if (level > 7){return new CommonAncestor(-2, new AnatomyDTO());}
 
-		List<String> parents1 = ma1.getParentMaId();
-		List<String> parents2 = ma2.getParentMaId();
+		List<String> parents1 = ma1.getParentId();
+		List<String> parents2 = ma2.getParentId();
 		level++;
 		if (parents1 == null){
 			parents1 = new ArrayList<>();
@@ -160,23 +161,23 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 		if (parents2 == null){
 			parents2 = new ArrayList<>();
 		}
-		if (parents1.contains(ma2.getMaId())){
+		if (parents1.contains(ma2.getId())){
 			return new CommonAncestor(level, ma2);
 		}
-		if (parents2.contains(ma1.getMaId())){
+		if (parents2.contains(ma1.getId())){
 			return new CommonAncestor(level, ma1);
 		}
 		if( inCommon(parents1, parents2).size() > 0){
 			return new CommonAncestor(level, inCommon(parents1, parents2));
 		}
 		for (String m1: parents1){
-			MaDTO ma1Dto = getMa(m1);
+			AnatomyDTO ma1Dto = getMa(m1);
 			CommonAncestor ancestor = getCommonClosestAncestor(ma1Dto, ma2, level);
 			if (ancestor.getLevel() >= 0 || ancestor.getLevel() != -2){ // We found something OR we already checked too many levels
 				return ancestor;
 			}
 			for (String m2: parents2){
-				MaDTO ma2Dto = getMa(m2);
+				AnatomyDTO ma2Dto = getMa(m2);
 				ancestor = getCommonClosestAncestor(ma1Dto, ma2Dto, level);
 				if (ancestor.getLevel() >= 0 || ancestor.getLevel() != -2){
 					return ancestor;
@@ -184,13 +185,13 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 			}
 		}
 		for (String m2: parents2){
-			MaDTO ma2Dto = getMa(m2);
+			AnatomyDTO ma2Dto = getMa(m2);
 			CommonAncestor ancestor = getCommonClosestAncestor(ma2Dto, ma1, level);
 			if (ancestor.getLevel() >= 0 || ancestor.getLevel() != -2){
 				return ancestor;
 			}
 		}
-		return new CommonAncestor(-1, new MaDTO());
+		return new CommonAncestor(-1, new AnatomyDTO());
 	}
 
 	public List<String>  inCommon (List<String> a, List<String>b){
@@ -200,10 +201,10 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 		return newList;
 	}
 
-	public MaDTO getMa(String maId)
+	public AnatomyDTO getMa(String maId)
 	throws SolrServerException{
 		if (!maMap.containsKey(maId)){
-			maMap.put(maId, maService.getMaTerm(maId));
+			maMap.put(maId, anatomyService.getTerm(maId));
 		}
 		return maMap.get(maId);
 	}
@@ -241,16 +242,16 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	private class CommonAncestor{
 
 		int level;
-		List<MaDTO> ancestors;
+		List<AnatomyDTO> ancestors;
 
 		public CommonAncestor(int level, String ancestorId)
 		throws SolrServerException{
 			this.level = level;
 			this.ancestors = new ArrayList<>();
-			this.ancestors.add(maService.getMaTerm(ancestorId));
+			this.ancestors.add(anatomyService.getTerm(ancestorId));
 		}
 
-		public CommonAncestor(int level, MaDTO ancestor) {
+		public CommonAncestor(int level, AnatomyDTO ancestor) {
 			this.level = level;
 			this.ancestors = new ArrayList<>();
 			this.ancestors.add(ancestor);
@@ -261,7 +262,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 			this.level = level;
 			this.ancestors = new ArrayList<>();
 			for (String a : ancestorIds){
-				this.ancestors.add(maService.getMaTerm(a));
+				this.ancestors.add(anatomyService.getTerm(a));
 			}
 		}
 
@@ -273,7 +274,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 			this.level = level;
 		}
 
-		public List<MaDTO>  getAncestors() {
+		public List<AnatomyDTO>  getAncestors() {
 			return ancestors;
 		}
 
