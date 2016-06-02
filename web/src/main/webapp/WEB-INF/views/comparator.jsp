@@ -10,17 +10,31 @@
  <jsp:attribute name="title">${gene.markerSymbol} Image Picker</jsp:attribute>
 <jsp:attribute name="header">
   
-  <%-- <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" /> --%>
- <link href="${baseUrl}/css/comparator/comparator.css" rel="stylesheet" type="text/css" />
-<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script> -->
-<script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
- 
- <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.css" type="text/css" rel="stylesheet"></link>  -->
+  <!-- This min.css contains all the smaller css files below... ->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.css" type="text/css" rel="stylesheet"></link> -->
+
+    <!-- But many of these can be removed if we limit the functionality of the viewer (E.g. no Channel sliders, color-pickers etc) -->
+
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/reset.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.body.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webclient/css/dusty.css" type="text/css" rel="stylesheet"></link> -->
+    <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.viewport.css" type="text/css" rel="stylesheet"></link>
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.toolbar.css" type="text/css" rel="stylesheet"></link> -->
+    <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link>
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/base.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.snippet_header_logo.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.postit.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.rangewidget.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/farbtastic-1.2/farbtastic.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.colorbtn.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/jquery-ui-1.10.4/themes/base/jquery-ui.all.css" type="text/css" rel="stylesheet"></link> -->
+    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/omero_image.css" type="text/css" rel="stylesheet"></link> -->
+    <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
+
+
     <script src="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.js" type="text/javascript"></script>
-     <link href="${baseUrl}/css/comparator/ome.viewport.css" rel="stylesheet" type="text/css" />
-     <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
-     <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link>
+
     <style type="text/css">
     .viewport {
         height: 400px;
@@ -32,22 +46,88 @@
         margin: 20px;
     }
     </style>
+    
+    <script>
+
+        $(function(){
+            /* Prepare the left viewport */
+            var viewport = $.WeblitzViewport($("#viewport"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
+                'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
+            });
+            /* Load the selected image into the viewport */
+            viewport.load(87269);
+
+
+            // Alternative for testing non-big image viewer
+            // viewport = $.WeblitzViewport($("#viewport"), "https://learning.openmicroscopy.org/dundee/webgateway/", {
+            //         'mediaroot': "https://learning.openmicroscopy.org/dundee/static/"
+            //     });
+            // viewport.load(1296);
+
+
+            /* Prepare right viewport */
+            var viewport2 = $.WeblitzViewport($("#viewport2"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
+                'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
+            });
+            /* Load the selected image into the viewport */
+            viewport2.load(87043);
+
+            $(".thumb").click(function(){
+                var iid = $(this).attr('data-id');
+                iid = parseInt(iid);
+                viewport.load(iid);
+            });
+
+            $(".thumb2").click(function(){
+                var iid = $(this).attr('data-id');
+                iid = parseInt(iid);
+                viewport2.load(iid);
+            });
+        });
+    </script>
+    
 </jsp:attribute>
 <jsp:body>
 
-<div class="region region-content">
+
+ <div class="thumbList" style="float:left">
+        <div id="viewport" class="viewport"></div>
+    </div>
+    <div class="thumbList" style="float:left">
+        <div id="viewport2" class="viewport"></div>
+    </div>
+
+    <div style="clear: both; height:40px"></div>
+    
+    <div class="thumbList">
+        <img class="thumb" data-id="86973" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86973/96/"/>
+
+        <img class="thumb" data-id="87133" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87133/96/"/>
+
+        <img class="thumb" data-id="86976" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86976/96/"/>
+    </div>
+    <div class="thumbList">
+        <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
+
+        <img class="thumb2" data-id="87015" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87015/96/"/>
+
+        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/>
+    </div>
+    
+    
+<%-- <div class="region region-content">
 	<div class="block">
     	<div class="content">
         	<div class="node"> 
-        	<%--  mediaType: ${mediaType }
-        	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
+        	 mediaType: ${mediaType }
+        	impcMediaBaseUrl: ${impcMediaBaseUrl } 
 	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
 	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
 	        <c:set var="thumbnailSize" value="96"/>
-	       <%-- jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
+	       jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
-	        pdfWithoutId: ${pdfWithoutId} --%>
+	        pdfWithoutId: ${pdfWithoutId}
             <form action="">
            
 	            <div id="comparator" class="section">
@@ -55,14 +135,14 @@
 	            <input type="hidden" name="mediaType" value="${mediaType}">
 	            </c:if>
 	            	<div id="filters">Filter Images by gender: 
-	            	<%-- ${param.gender} --%>
+	            	${param.gender}
 	            	<select name="gender">
 	            	<option value="not applicable" <c:if test="${param.gender eq 'not applicable'}">selected</c:if> >All</option>
             			<option value="male" <c:if test="${param.gender eq 'male'}">selected</c:if> >Males</option>
             			<option value="female"  <c:if test="${param.gender eq 'female'}">selected</c:if>>Females</option>
             		</select>
             		zygosity: 
-            		<%-- ${param.zygosity} --%>
+            		${param.zygosity}
              		<select name="zygosity">
              		<option value="not_applicable" <c:if test="${param.zygosity eq 'not_applicable'}">selected</c:if>>All</option>
             			<option value="heterozygote" <c:if test="${param.zygosity eq 'heterozygote'}">selected</c:if>>Het</option>
@@ -79,8 +159,8 @@
 											src="//docs.google.com/gview?url=${pdfWithoutId}/${controls[0].omero_id}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
-			            				<div id="control_frame" 
-												<%-- src="${jpegUrlDetailWithoutId}/${controls[0].omero_id }" --%>
+			            				<div id="control_frame" class="viewport" 
+												src="${jpegUrlDetailWithoutId}/${controls[0].omero_id }"
 												>
 										</div>
 			            			</c:otherwise>
@@ -188,7 +268,7 @@
 		
 			</div>
  		</div>
-	</div>
+	</div> --%>
 	
 	<script type='text/javascript'>
 	var jpegUrlDetailWithoutId = "${jpegUrlDetailWithoutId}";
