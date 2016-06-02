@@ -122,9 +122,9 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        			if ( inCommon != null && inCommon.getLevel() >= 0){
 	        				for (AnatomyDTO ancestor: inCommon.getAncestors()){
 	        		        	String geneSymbol = geneService.getGeneById(m1.getMgiAccession(), GeneDTO.MARKER_SYMBOL).getMarkerSymbol();
-	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.maId, getMa(m1.maId).getTerm(),
+	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.maId, getMa(m1.maId).getAnatomyTerm(),
 	        							(m2.mpId != null) ? m2.mpId : "", (m2.mpId != null) ? mpService.getPhenotype(m2.mpId).getMpTerm() : "",
-	        							m2.maId, getMa(m2.getMaId()).getTerm(), ancestor.getId(), ancestor.getTerm(), "" + inCommon.getLevel() });
+	        							m2.maId, getMa(m2.getMaId()).getAnatomyTerm(), ancestor.getAnatomyId(), ancestor.getAnatomyTerm(), "" + inCommon.getLevel() });
 	        				}
 	        			}
 	        		}
@@ -146,14 +146,14 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	public CommonAncestor getCommonClosestAncestor(AnatomyDTO ma1, AnatomyDTO ma2, Integer level)
 	throws SolrServerException{
 
-		if (ma1.getId().equalsIgnoreCase(ma2.getId())){
+		if (ma1.getAnatomyId().equalsIgnoreCase(ma2.getAnatomyId())){
 			return new CommonAncestor(level, ma1);
 		}
 
 		if (level > 7){return new CommonAncestor(-2, new AnatomyDTO());}
 
-		List<String> parents1 = ma1.getParentId();
-		List<String> parents2 = ma2.getParentId();
+		List<String> parents1 = ma1.getParentAnatomyId();
+		List<String> parents2 = ma2.getParentAnatomyId();
 		level++;
 		if (parents1 == null){
 			parents1 = new ArrayList<>();
@@ -161,10 +161,10 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 		if (parents2 == null){
 			parents2 = new ArrayList<>();
 		}
-		if (parents1.contains(ma2.getId())){
+		if (parents1.contains(ma2.getAnatomyId())){
 			return new CommonAncestor(level, ma2);
 		}
-		if (parents2.contains(ma1.getId())){
+		if (parents2.contains(ma1.getAnatomyId())){
 			return new CommonAncestor(level, ma1);
 		}
 		if( inCommon(parents1, parents2).size() > 0){
