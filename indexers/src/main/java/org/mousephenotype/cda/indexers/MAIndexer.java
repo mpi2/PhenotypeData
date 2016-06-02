@@ -315,7 +315,7 @@ public class MAIndexer extends AbstractIndexer {
                 TreeHelper helper2 = ontologyBrowser.getTreeHelper( "emapa", termId);
 
                 // for MP the root node id is 0 (MA is 1)
-                System.out.println("DO TREE");
+
                 List<JSONObject> searchTree2 = ontologyBrowser.createTreeJson(helper2, "1", null, termId);
                 emapa.setSearchTermJson(searchTree2.toString());
                 String emapaScrollNodeId = ontologyBrowser.getScrollTo(searchTree2);

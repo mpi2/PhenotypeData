@@ -82,7 +82,6 @@ public class AnatomyIndexer extends AbstractIndexer {
     SolrServer imagesCore;
 
     @Autowired
-    //@Qualifier("maIndexing")
     @Qualifier("anatomyIndexing")
     SolrServer anatomyCore;
 
