@@ -1021,10 +1021,10 @@ public class IndexerManagerTest {
 
         // Initialise, validate, and build the cores.
         try {
-            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
+            indexerManager.anatomyIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
             System.out.println("Command line = " + StringUtils.join(args, ","));
-            indexerManager.maIndexer.run();
-            indexerManager.maIndexer.validateBuild();
+            indexerManager.anatomyIndexer.run();
+            indexerManager.anatomyIndexer.validateBuild();
         } catch (IndexerException ie) {
             fail(ie.getLocalizedMessage());
         }
@@ -1083,9 +1083,9 @@ public class IndexerManagerTest {
 
         // Initialise, validate, and build the cores.
         try {
-            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
-            indexerManager.maIndexer.run();
-            indexerManager.maIndexer.validateBuild();
+            indexerManager.anatomyIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
+            indexerManager.anatomyIndexer.run();
+            indexerManager.anatomyIndexer.validateBuild();
         } catch (IndexerException ie) {
             fail(ie.getLocalizedMessage());
         }
