@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
@@ -28,6 +27,7 @@ import org.springframework.batch.core.JobInterruptedException;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 
-import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -54,12 +55,26 @@ public class StrainLoaderImsr implements Step, InitializingBean {
     private String sourceFilename;
 
     private FlatFileItemReader<Strain> imsrReader;
-    private StrainWriter               writer;
+    private JdbcTemplate               jdbcTemplate;
+    private List<Strain>               mgiStrainList = new ArrayList<>();
+    private int                        readIndex;
     private StepBuilderFactory         stepBuilderFactory;
+    private StrainWriter               writer;
+
+    // The following IMSR_ ints define the column offset of the given column in the report.txt file.
+    public final static int    STRAIN_STOCK_OFFSET  = 2;
+    public final static int    SYNONYMS_OFFSET      = 5;
+    public final static int    STRAINTYPE_OFFSET    = 6;
+
+    // The following  ints define the column offset of the given column in the report.txt file.
+    public final static String STRAIN_STOCK_HEADING = "Strain/Stock";
+    public final static String SYNONYMS_HEADING     = "Synonyms";
+    public final static String STRAINTYPE_HEADING   = "Type";
+    
 
     @Autowired
-    @Qualifier("komp2Loads")
-    private DataSource komp2Loads;
+    @Qualifier("sqlLoaderUtils")
+    private SqlLoaderUtils sqlLoaderUtils;
 
 
     public StrainLoaderImsr(String sourceFilename, StepBuilderFactory stepBuilderFactory, StrainWriter writer) throws CdaLoaderException {
@@ -67,47 +82,74 @@ public class StrainLoaderImsr implements Step, InitializingBean {
         this.stepBuilderFactory = stepBuilderFactory;
         this.writer = writer;
 
-        imsrReader = new FlatFileItemReader<>();
-        imsrReader.setResource(new FileSystemResource(sourceFilename));
-
-        // Skip the first line. It's a heading.
-
-        // Do some basic validation. The file format has changed drastically in the past.
-
-
-        imsrReader.setComments( new String[] {"#" });
-        imsrReader.setLineMapper((line, lineNumber) -> {
-            Strain strain = new Strain();
-
-            String[] values = line.split(Pattern.quote("\t"));
-            strain.setId(new DatasourceEntityId(values[0], DbIdType.MGI.intValue()));
-            strain.setName(values[1]);
-            strain.setBiotype(getBiotype(values[2]));
-
-            return strain;
-        });
-    }
-
-    private OntologyTerm getBiotype(String strainType) throws CdaLoaderException {
-        JdbcTemplate jdbcTemplate;
-        try {
-                jdbcTemplate = new JdbcTemplate(komp2Loads);
-            } catch (Exception e) {
-                throw new CdaLoaderException(e);
-            }
-
-        OntologyTerm term = SqlLoaderUtils.getOntologyTerm(jdbcTemplate, strainType);
-
-        if (term == null) {
-            throw new CdaLoaderException("No CV term found for strain biotype " + strainType);
-        }
-
-        return term;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
   	    Assert.notNull(sourceFilename, "sourceFilename must be set");
+        jdbcTemplate = sqlLoaderUtils.getJdbcTemplate();
+
+        imsrReader = new FlatFileItemReader<>();
+        imsrReader.setResource(new FileSystemResource(sourceFilename));
+        imsrReader.setLineMapper((line, lineNumber) -> {
+            Strain strain = new Strain();
+            String[] values = line.split(Pattern.quote("\t"));
+
+            // lineNumber is 1-relative. The heading is on line 1.
+            if (lineNumber == 1) {
+                // Do some basic validation. The file format has changed drastically in the past.
+                String expectedValue = STRAIN_STOCK_HEADING;
+                String actualValue = values[STRAIN_STOCK_OFFSET];
+                if ( ! expectedValue.equals(actualValue)) {
+                    throw new CdaLoaderException("Expected column " + STRAIN_STOCK_OFFSET
+                            + " to equal " + expectedValue + " but was " + actualValue);
+                }
+
+                expectedValue = SYNONYMS_HEADING;
+                actualValue = values[SYNONYMS_OFFSET];
+                if ( ! expectedValue.equals(actualValue)) {
+                    throw new CdaLoaderException("Expected column " + SYNONYMS_OFFSET
+                            + " to equal " + expectedValue + " but was " + actualValue);
+                }
+
+                expectedValue = STRAINTYPE_HEADING;
+                actualValue = values[STRAINTYPE_OFFSET];
+                if ( ! expectedValue.equals(actualValue)) {
+                    throw new CdaLoaderException("Expected column " + STRAINTYPE_OFFSET
+                            + " to equal " + expectedValue + " but was " + actualValue);
+                }
+            } else {
+                strain.setId(new DatasourceEntityId(values[STRAIN_STOCK_OFFSET], DbIdType.MGI.intValue()));
+                strain.setName(values[STRAIN_STOCK_OFFSET]);
+
+
+
+                try {
+                    strain.setBiotype(sqlLoaderUtils.getBiotype(values[STRAINTYPE_OFFSET]));
+                } catch (CdaLoaderException e) {
+                    System.out.println(e.getLocalizedMessage());
+                }
+            }
+
+            return strain;
+        });
+
+        // Populate mgi strain list.
+        mgiStrainList.addAll(sqlLoaderUtils.getStrains());
+
+        // Read the file.
+        imsrReader.open(new ExecutionContext());
+        int i = 0;
+        Strain strain;
+        while ((strain = imsrReader.read()) != null) {
+            if (i == 0)
+                continue;       // Skip over the heading. It is only used to validate the column names are as expected.
+
+            // Process a row.
+
+
+            i++;
+        }
     }
 
     /**

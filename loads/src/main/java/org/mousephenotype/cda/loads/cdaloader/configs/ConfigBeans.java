@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.configs;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.*;
+import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -185,6 +186,12 @@ public class ConfigBeans {
         return ontologyloaderList;
     }
 
+    @Bean(name = "strainLoaderImsr")
+    public StrainLoaderImsr strainLoaderImsr() throws CdaLoaderException {
+        DownloadFilename downloadFilename = downloadFilenameMap.get(DownloadFileEnum.report);
+        return new StrainLoaderImsr(downloadFilename.targetFilename, stepBuilderFactory, strainWriter());
+    }
+
     @Bean(name = "strainLoaderMgi")
     public StrainLoaderMgi strainLoaderMgi() throws CdaLoaderException {
         DownloadFilename downloadFilename = downloadFilenameMap.get(DownloadFileEnum.MGI_Strain);
@@ -203,5 +210,10 @@ public class ConfigBeans {
         StrainWriter writer = new StrainWriter();
 
         return writer;
+    }
+
+    @Bean(name = "sqlLoaderUtils")
+    public SqlLoaderUtils sqlLoaderUtils() {
+        return new SqlLoaderUtils();
     }
 }
