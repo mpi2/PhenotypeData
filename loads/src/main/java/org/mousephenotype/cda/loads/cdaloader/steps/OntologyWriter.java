@@ -73,7 +73,7 @@ public class OntologyWriter implements ItemWriter {
         for (Object term1 : items) {
             OntologyTerm term = (OntologyTerm) term1;
 
-            sqlUtils.loadOntologyTerm(jdbcTemplate, term);
+            sqlUtils.insertOntologyTerm(jdbcTemplate, term);
         }
     }
 }

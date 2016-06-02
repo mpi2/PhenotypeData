@@ -17,10 +17,7 @@
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.steps.DatabaseInitialiser;
-import org.mousephenotype.cda.loads.cdaloader.steps.Downloader;
-import org.mousephenotype.cda.loads.cdaloader.steps.OntologyLoader;
-import org.mousephenotype.cda.loads.cdaloader.steps.StrainLoaderMgi;
+import org.mousephenotype.cda.loads.cdaloader.steps.*;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
@@ -74,6 +71,9 @@ public class ConfigBatch {
 
     @Autowired
     public StrainLoaderMgi strainLoaderMgi;
+
+    @Autowired
+    public StrainLoaderImsr strainLoaderImsr;
 
 
 
@@ -145,6 +145,10 @@ public class ConfigBatch {
         // Strains
         flows.add(new FlowBuilder<Flow>("subflow_mgi_strains").from(strainLoaderMgi).end());
 
+        // imsr strains
+        Flow flowBuilderImsr = new FlowBuilder<Flow>("subflow_imsr_strains").from(strainLoaderImsr).end();
+
+
         // Parallelize the flows.
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
         for (int i = 1; i < flows.size(); i++) {
@@ -155,6 +159,7 @@ public class ConfigBatch {
         return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
                 .start(flowBuilder.build())
+                .next(flowBuilderImsr)
                 .end()
                 .build();
     }

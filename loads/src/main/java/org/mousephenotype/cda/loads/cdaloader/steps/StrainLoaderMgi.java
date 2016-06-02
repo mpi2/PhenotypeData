@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
@@ -33,10 +32,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 
-import javax.sql.DataSource;
 import java.util.regex.Pattern;
 
 /**
@@ -59,8 +56,8 @@ public class StrainLoaderMgi implements Step, InitializingBean {
     private StepBuilderFactory         stepBuilderFactory;
 
     @Autowired
-    @Qualifier("komp2Loads")
-    private DataSource komp2Loads;
+    @Qualifier("sqlLoaderUtils")
+    private SqlLoaderUtils sqlLoaderUtils;
 
 
     public StrainLoaderMgi(String sourceFilename, StepBuilderFactory stepBuilderFactory, StrainWriter writer) throws CdaLoaderException {
@@ -77,27 +74,10 @@ public class StrainLoaderMgi implements Step, InitializingBean {
             String[] values = line.split(Pattern.quote("\t"));
             strain.setId(new DatasourceEntityId(values[0], DbIdType.MGI.intValue()));
             strain.setName(values[1]);
-            strain.setBiotype(getBiotype(values[2]));
+            strain.setBiotype(sqlLoaderUtils.getBiotype(values[2]));
 
             return strain;
         });
-    }
-
-    private OntologyTerm getBiotype(String strainType) throws CdaLoaderException {
-        JdbcTemplate jdbcTemplate;
-        try {
-                jdbcTemplate = new JdbcTemplate(komp2Loads);
-            } catch (Exception e) {
-                throw new CdaLoaderException(e);
-            }
-
-        OntologyTerm term = SqlLoaderUtils.getOntologyTerm(jdbcTemplate, strainType);
-
-        if (term == null) {
-            throw new CdaLoaderException("No CV term found for strain biotype " + strainType);
-        }
-
-        return term;
     }
 
     @Override
