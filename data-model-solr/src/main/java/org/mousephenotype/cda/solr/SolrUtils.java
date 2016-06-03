@@ -114,6 +114,7 @@ public class SolrUtils {
                 ? (HttpSolrServer) solrServer
                         : getHttpSolrServer(solrServer));
         if (httpSolrServer != null) {
+            System.out.println("got server: "+ httpSolrServer.getBaseURL());
             return httpSolrServer.getBaseURL();
         }
 
