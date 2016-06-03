@@ -1049,7 +1049,6 @@ public class DataTableController {
         //String mediaBaseUrl = config.get("mediaBaseUrl");
         String mediaBaseUrl = baseUrl + "/impcImages/images?";
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
-        //System.out.println("baseurl: "+ baseUrl);
 
 		if (showImgView) {
 
@@ -1078,7 +1077,8 @@ public class DataTableController {
                 if (doc.containsKey("jpeg_url")) {
 
                     String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-                    String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
+
+					String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
                     String smallThumbNailPath = thumbnailPath + "/200/";  //width in pixel
                     String largeThumbNailPath = thumbnailPath + "/800/";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
