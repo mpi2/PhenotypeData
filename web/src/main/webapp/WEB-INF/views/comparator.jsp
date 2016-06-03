@@ -9,6 +9,7 @@
 
  <jsp:attribute name="title">${gene.markerSymbol} Image Picker</jsp:attribute>
 <jsp:attribute name="header">
+<script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
   <link href="${baseUrl}/css/comparator/comparator.css" rel="stylesheet" type="text/css" />
   <!-- This min.css contains all the smaller css files below... ->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.css" type="text/css" rel="stylesheet"></link> -->
@@ -49,44 +50,6 @@
     }
     </style>
     
-    <script>
-
-        $(function(){
-            /* Prepare the left viewport */
-            var viewport = $.WeblitzViewport($("#viewport"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
-                'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
-            });
-            /* Load the selected image into the viewport */
-            viewport.load(87269);
-
-
-            // Alternative for testing non-big image viewer
-            // viewport = $.WeblitzViewport($("#viewport"), "https://learning.openmicroscopy.org/dundee/webgateway/", {
-            //         'mediaroot': "https://learning.openmicroscopy.org/dundee/static/"
-            //     });
-            // viewport.load(1296);
-
-
-            /* Prepare right viewport */
-            var viewport2 = $.WeblitzViewport($("#viewport2"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
-                'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
-            });
-            /* Load the selected image into the viewport */
-            viewport2.load(87043);
-
-            $(".thumb").click(function(){
-                var iid = $(this).attr('data-id');
-                iid = parseInt(iid);
-                viewport.load(iid);
-            });
-
-            $(".thumb2").click(function(){
-                var iid = $(this).attr('data-id');
-                iid = parseInt(iid);
-                viewport2.load(iid);
-            });
-        });
-    </script>
     
 </jsp:attribute>
 <jsp:body>
@@ -97,7 +60,7 @@
         	<div class="node"> 
         	 mediaType: ${mediaType }
         	impcMediaBaseUrl: ${impcMediaBaseUrl } 
-	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
+	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_thumbnail"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
 	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
 	        <c:set var="thumbnailSize" value="96"/>
@@ -154,12 +117,27 @@
 	            		
 	            		</div>
 	            		<div class="thumbList">
+	            		<c:forEach var="img" items="${controls}" varStatus="controlLoop">
+	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
+	            			
+	            				<c:choose>
+									<c:when test="${mediaType eq 'pdf' }">
+										<img  src="../${pdfThumbnailUrl}" data-id="${img.omero_id}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+									</c:when>
+									<c:otherwise>
+	            						<img  class="thumb" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/96/">
+	            					</c:otherwise>
+	            				</c:choose>
+	            				
+	            			</c:forEach>
 	            		
-					        <img class="thumb" data-id="86973" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86973/96/"/>
+	            		   
+					        <img class="thumb" data-id="86973" src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86973/96/"/>
 					
 					        <img class="thumb" data-id="87133" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87133/96/"/>
 					
 					        <img class="thumb" data-id="86976" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86976/96/"/>
+					        <img class="thumb" data-id="20850" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/20850/96/"/>
 					    </div>
 	            	</div>
 	            		
@@ -196,31 +174,7 @@
 					    
 					    
 					    <div class="thumbList">
-					    <%-- <c:forEach var="img" items="${controls}" varStatus="controlLoop">
-	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
-	            			<div class="
-	            			<c:choose>
-	            				<c:when test="${img.sex eq 'male' }">
-	            					clickbox_male"
-	            				</c:when>
-	            				<c:when test="${img.sex eq 'female' }">
-	            					clickbox_female"
-	            				</c:when>
-	            				<c:otherwise>
-	            					clickbox_no_sex
-	            				</c:otherwise>
-	            			</c:choose>
-	            			">
-	            				<c:choose>
-									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
-									</c:when>
-									<c:otherwise>
-	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
-	            					</c:otherwise>
-	            				</c:choose>
-	            				</div>
-	            			</c:forEach> --%>
+					    
 					        <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
 					
 					        <img class="thumb2" data-id="87015" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87015/96/"/>
