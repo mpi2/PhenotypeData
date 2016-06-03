@@ -270,13 +270,52 @@ public class SqlLoaderUtils {
         }
     }
 
-    public List<Strain> getStrains() throws CdaLoaderException {
+    /**
+     * Returns the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
+     *
+     * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
+     *
+     * @throws CdaLoaderException
+     */
 
-        List<Strain> strains = getJdbcTemplate().query("SELECT * FROM strain", new StrainRowMapper());
+    /**
+     * Returns the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
+     *
+     * @param accessionId the desired accessino id
+     * @param dbId the desired db id
+     *
+     * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
+     *
+     * @throws CdaLoaderException
+     */
+    public Strain getStrain(String accessionId, int dbId) throws CdaLoaderException {
 
+        List<Strain> strains = getJdbcTemplate().query("SELECT * FROM strain WHERE acc = ? AND db_id = ?", new StrainRowMapper(), accessionId, dbId);
 
-        return strains;
+        return (strains.isEmpty() ? null : strains.get(0));
     }
+
+    /**
+     * Returns a {@List&lt;String&gt;} of strain names
+     *
+     * @return a {@List&lt;String&gt;} of strain names
+     *
+     * @throws CdaLoaderException
+     */
+    public List<String> getStrainAccessionIds() throws CdaLoaderException {
+
+        List<String> strainAccessionIds = getJdbcTemplate().queryForList("SELECT acc FROM strain", String.class);
+
+        return strainAccessionIds;
+    }
+
+//    public List<Strain> getStrains() throws CdaLoaderException {
+//
+//        List<Strain> strains = getJdbcTemplate().query("SELECT * FROM strain", new StrainRowMapper());
+//
+//
+//        return strains;
+//    }
 
     /**
      * Returns the {@code OntologyTerm} matching the strain type (e.g. "inbred strain", "coisogenic", "Not Applicable",

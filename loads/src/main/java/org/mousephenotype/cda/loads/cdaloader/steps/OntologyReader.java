@@ -18,7 +18,7 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.loads.cdaloader.OntologyParser;
+import org.mousephenotype.cda.loads.cdaloader.support.OntologyParser;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;

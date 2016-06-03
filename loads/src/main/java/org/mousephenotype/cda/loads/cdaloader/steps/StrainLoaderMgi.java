@@ -27,6 +27,7 @@ import org.springframework.batch.core.JobInterruptedException;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,23 +48,22 @@ import java.util.regex.Pattern;
 public class StrainLoaderMgi implements Step, InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    // Required for ItemReader
-    private String sourceFilename;
-
     private FlatFileItemReader<Strain> mgiReader;
-    private StrainWriter               writer;
-    private StepBuilderFactory         stepBuilderFactory;
+    private String sourceFilename;
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
 
-    public StrainLoaderMgi(String sourceFilename, StepBuilderFactory stepBuilderFactory, StrainWriter writer) throws CdaLoaderException {
+    @Autowired
+    private StrainWriter writer;
+
+
+    public StrainLoaderMgi(String sourceFilename) throws CdaLoaderException {
         this.sourceFilename = sourceFilename;
-        this.stepBuilderFactory = stepBuilderFactory;
-        this.writer = writer;
 
         mgiReader = new FlatFileItemReader<>();
         mgiReader.setResource(new FileSystemResource(sourceFilename));
