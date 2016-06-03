@@ -185,7 +185,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" Added total beans in {}", commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
     }
