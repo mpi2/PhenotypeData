@@ -79,7 +79,8 @@ public class SolrIndex {
 	@Qualifier("impcImagesCore")
 	HttpSolrServer impcImagesCore;
 
-
+	@NotNull
+	@Value("${impcMediaBaseUrl}")
 	private String impcMediaBaseUrl;
 
 	private List<String> phenoStatuses = new ArrayList<String>();

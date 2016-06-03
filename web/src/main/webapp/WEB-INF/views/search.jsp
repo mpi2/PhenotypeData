@@ -388,7 +388,7 @@
 						if ( query.indexOf(":") != -1 ){
 							query = query.replace(":", "\\%3A");
 						}
-console.log("search.jsp: " + baseUrl + '/search/' + thisId + '?kw=' + query)
+						console.log("search.jsp: " + baseUrl + '/search/' + thisId + '?kw=' + query)
 						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
 					}
 

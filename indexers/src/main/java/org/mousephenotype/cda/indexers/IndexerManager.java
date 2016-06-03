@@ -176,7 +176,7 @@ public class IndexerManager {
     MPIndexer mpIndexer;
 
     @Autowired
-    MAIndexer maIndexer;
+    AnatomyIndexer anatomyIndexer;
 
     @Autowired
     PipelineIndexer pipelineIndexer;
@@ -421,7 +421,7 @@ public class IndexerManager {
                 case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesIndexer));                           break;
                 case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesIndexer));                  break;
                 case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpIndexer));                                   break;
-                case ANATOMY_CORE:                   indexerItemList.add(new IndexerItem(ANATOMY_CORE, maIndexer));                                   break;
+                case ANATOMY_CORE:              indexerItemList.add(new IndexerItem(ANATOMY_CORE, anatomyIndexer));                         break;
                 case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineIndexer));                       break;
                 case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneIndexer));                               break;
                 case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseIndexer));                         break;
@@ -819,7 +819,7 @@ public class IndexerManager {
                     "   images\n" +
                     "   impc_images\n" +
                     "   mp\n" +
-                    "   ma\n" +
+                    "   anatomy\n" +
                     "   pipeline\n" +
                     "   gene\n" +
                     "   disease\n" +
