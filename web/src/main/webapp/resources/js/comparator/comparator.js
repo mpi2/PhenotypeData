@@ -71,6 +71,7 @@ $(document).ready(function(){
   	  previousMutantId=this.id;
   	  //change the text under the main image to be the same as the title
   	  $('#mutant_annotation').text($(this).attr('oldtitle'));
+  	viewport2.initialise();
     });
     
     
@@ -78,13 +79,16 @@ $(document).ready(function(){
 	  console.log('click on mutant only');
 	  $('#control_box').toggle('no_box');//need to set this to display none instead of hidden which still tatkes up space
 	  $('#mutant_box').toggleClass('half_box_right full_box');
-	  $('#mutant_frame').toggleClass('full_frame');
+	  $('#viewport2').toggleClass('full_frame');
+	  $('.thumbList').toggleClass('full_frame');
+	  $('.mutant_box').toggleClass('full_frame');
 	  if($('#mutant_only_button').text() === 'Display Mutant Only'){
 		  $('#mutant_only_button').text('Display WT and Mutant');
 	  }else{
 		  $('#mutant_only_button').text('Display Mutant Only');
 	  }
 	  console.log('mutant: '+$('#mutant_only_button').attr('value'));
+	  viewport2.refresh();
 	  //$('#mutant_only_button').toggleAttr('value','full_frame');
 	});
     

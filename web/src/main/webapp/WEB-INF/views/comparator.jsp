@@ -35,20 +35,6 @@
 
 
     <script src="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.js" type="text/javascript"></script>
-
-    <style type="text/css">
-    .viewport {
-    width: 560px;
-        height: 600px;
-        
-    }
-    .thumbList {
-       width: 560px;
-       /*  height: 600px; */
-        float: left;
-        margin: 20px;
-    }
-    </style>
     
     
 </jsp:attribute>
@@ -195,11 +181,11 @@
 					    
 					    <div class="thumbList">
 					    
-					        <!-- <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
+					        <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
 					
 					        <img class="thumb2" data-id="87015" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87015/96/"/>
 					
-					        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/> -->
+					        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/> 
 					        
 					        <c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
 	            			<c:set var="mutantText" value="Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
