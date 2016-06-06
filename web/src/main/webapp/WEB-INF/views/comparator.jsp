@@ -44,7 +44,7 @@
     }
     .thumbList {
        width: 560px;
-        height: 600px;
+       /*  height: 600px; */
         float: left;
         margin: 20px;
     }
@@ -68,7 +68,7 @@
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
 	        pdfWithoutId: ${pdfWithoutId}
             <form action="">
-            <div id="comparator">
+            <div id="comparator" class="section">
             	<c:if test="${mediaType !=null }">
 	            	<input type="hidden" name="mediaType" value="${mediaType}">
 	            </c:if>
@@ -233,6 +233,7 @@
 				</div>
 				
 				</form>
+				
 			</div>
 	</div>
 </div>
