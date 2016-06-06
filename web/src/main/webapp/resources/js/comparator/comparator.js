@@ -1,13 +1,20 @@
 $(document).ready(function(){						
 	
-	
 	 /* Prepare the left viewport */
     var viewport = $.WeblitzViewport($("#viewport"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
         'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
     });
     /* Load the selected image into the viewport */
-    var temp='208504';
-    viewport.load(temp);
+    var temp=$(".thumb").first();
+    var id=temp.attr('data-id');
+    $('#control_annotation').text(temp.attr('oldtitle'));
+    if(id){
+    	viewport.load(id);
+    	var previousControlId=id;
+    }
+    temp.toggleClass( "img_selected");
+    
+    
 
 
     // Alternative for testing non-big image viewer
@@ -22,27 +29,48 @@ $(document).ready(function(){
         'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
     });
     /* Load the selected image into the viewport */
-    viewport2.load(87043);
+    var temp2=$(".thumb2").first();
+    var id2=temp2.attr('data-id');
+    $('#mutant_annotation').text(temp2.attr('oldtitle'));
+    if(id2){
+    	viewport2.load(id2);
+    	var previousMutantId=id2;
+    }
+    temp2.toggleClass( "img_selected");
 
     $(".thumb").click(function(){
-//    	var previousControlId=$(".thumb").first().attr('data-id');
-//    	console.log('control prev'+previousControlId)
-//		if(previousControlId){
-//			$('#'+previousControlId).toggleClass( "img_selected");
-//		}
     	console.log('click');
         var iid = $(this).attr('data-id');
         //iid = parseInt(iid);
-        console.log('control id='+iid);
+//        console.log('control id='+iid);
+//        console.log('veiwport found='+$('#viewport-img-tiles').attr('class'));
+//        $("#viewport").empty();
+//        var viewport = $.WeblitzViewport($("#viewport"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
+//            'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
+//        });
         viewport.load(iid);
+		if(previousControlId){
+		$('#'+previousControlId).toggleClass( "img_selected");
+		}
+		
+        $('#'+this.id).toggleClass( "img_selected");
+		previousControlId=this.id;
+		$('#control_annotation').text($(this).attr('oldtitle'));
     });
 
     $(".thumb2").click(function(){
-    	var previousMutantId=$(".thumb2").first().attr('data-id');
         var iid = $(this).attr('data-id');
         iid = parseInt(iid);
         console.log('mutant id='+iid);
         viewport2.load(iid);
+        
+  	  if(previousMutantId){
+		  $('#'+previousMutantId).toggleClass( "img_selected");
+	  }
+  	  $('#'+this.id).toggleClass( "img_selected");
+  	  previousMutantId=this.id;
+  	  //change the text under the main image to be the same as the title
+  	  $('#mutant_annotation').text($(this).attr('oldtitle'));
     });
     
     

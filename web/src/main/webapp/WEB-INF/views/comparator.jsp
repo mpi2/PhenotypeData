@@ -119,27 +119,47 @@
 	            		<div class="thumbList">
 	            		<c:forEach var="img" items="${controls}" varStatus="controlLoop">
 	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
-	            			
+	            				<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
+	            			<div class="
+	            			<c:choose>
+	            				<c:when test="${img.sex eq 'male' }">
+	            					clickbox_male"
+	            				</c:when>
+	            				<c:when test="${img.sex eq 'female' }">
+	            					clickbox_female"
+	            				</c:when>
+	            				<c:otherwise>
+	            					clickbox_no_sex
+	            				</c:otherwise>
+	            			</c:choose>
+	            			">
 	            				<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img  src="../${pdfThumbnailUrl}" data-id="${img.omero_id}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+										<img  id="${img.omero_id}" src="../${pdfThumbnailUrl}" data-id="${img.omero_id}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 									</c:when>
 									<c:otherwise>
-	            						<img  class="thumb" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/96/">
+	            						<img  id="${img.omero_id}" class="thumb" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/96/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 	            					</c:otherwise>
 	            				</c:choose>
-	            				
+	            			</div> <!-- end of male female class -->
 	            			</c:forEach>
 	            		
 	            		   
-					        <img class="thumb" data-id="86973" src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86973/96/"/>
+					       <!--  <img class="thumb" data-id="86973" src="http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86973/96/"/>
 					
 					        <img class="thumb" data-id="87133" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87133/96/"/>
 					
 					        <img class="thumb" data-id="86976" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86976/96/"/>
-					        <img class="thumb" data-id="20850" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/20850/96/"/>
+					        <img class="thumb" data-id="20850" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/20850/96/"/> -->
 					    </div>
 	            	</div>
+	            		
+	            		
+	            		
+	            		
+	            		
+	            		
+	            		
 	            		
 					<div id="mutant_box" class="box half_box_right">
 						<%-- <c:choose>
@@ -175,11 +195,38 @@
 					    
 					    <div class="thumbList">
 					    
-					        <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
+					        <!-- <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
 					
 					        <img class="thumb2" data-id="87015" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87015/96/"/>
 					
-					        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/>
+					        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/> -->
+					        
+					        <c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
+	            			<c:set var="mutantText" value="Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
+	            			<div class="
+	            			<c:choose>
+	            				<c:when test="${img.sex eq 'male' }">
+	            					clickbox_male"
+	            				</c:when>
+	            				<c:when test="${img.sex eq 'female' }">
+	            					clickbox_female"
+	            				</c:when>
+	            				<c:otherwise>
+	            					clickbox_no_sex
+	            				</c:otherwise>
+	            			</c:choose>
+	            			">
+								<c:choose>
+									<c:when test="${mediaType eq 'pdf' }">
+										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+									</c:when>
+									<c:otherwise>
+	            						<img class="thumb2" id="${img.omero_id}" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/96/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	 
+	            					</c:otherwise>
+	            				</c:choose>
+	            			</div>
+	            			</c:forEach> 
 					    </div>
 					 </div>
 					    
