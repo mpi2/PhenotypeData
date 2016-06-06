@@ -51,9 +51,10 @@ public class SolrIndex {
 	@NotNull
 	@Value("${pdfThumbnailUrl}")
 	private String pdfThumbnailUrl;
-	
+
 	@NotNull
 	@Value("${impcMediaBaseUrl}")
+	private String impcMediaBaseUrl;
 
 	@Autowired
 	@Qualifier("autosuggestCore")
@@ -79,9 +80,6 @@ public class SolrIndex {
 	@Qualifier("impcImagesCore")
 	HttpSolrServer impcImagesCore;
 
-	@NotNull
-	@Value("${impcMediaBaseUrl}")
-	private String impcMediaBaseUrl;
 
 	private List<String> phenoStatuses = new ArrayList<String>();
 
