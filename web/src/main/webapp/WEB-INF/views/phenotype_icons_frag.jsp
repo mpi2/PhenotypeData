@@ -7,56 +7,56 @@
 		<div class="allicons"></div>
 	
 		<div class="no-sprite sprite_embryogenesis_phenotype" data-hasqtip="27"
-			title="embryogenesis phenotype"></div>
+			title="all ${gene.markerSymbol} embryogenesis phenotype measurements"></div>
 		<div class="no-sprite sprite_reproductive_system_phenotype"
-			data-hasqtip="27" title="reproductive system phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol}reproductive system phenotype measurments"></div>
 		<div class="no-sprite sprite_mortality_aging" data-hasqtip="27"
-			title="mortality/aging"></div>
+			title="all ${gene.markerSymbol} mortality/aging"></div>
 		<div class="no-sprite sprite_growth_size_body_region_phenotype"
-			data-hasqtip="27" title="growth/size/body region phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} growth/size/body region phenotype measurments"></div>
 		<div class="no-sprite sprite_homeostasis_metabolism_phenotype_or_adipose_tissue_phenotype"
-			data-hasqtip="27" title="homeostasis/metabolism phenotype or adipose tissue phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} homeostasis/metabolism phenotype or adipose tissue phenotype measurments"></div>
 		<div class="no-sprite sprite_behavior_neurological_phenotype_or_nervous_system_phenotype"
 			data-hasqtip="27"
-			title="behavior/neurological phenotype or nervous system phenotype"></div>
+			title="all ${gene.markerSymbol} behavior/neurological phenotype or nervous system phenotype measurments"></div>
 		<div class="no-sprite sprite_cardiovascular_system_phenotype"
-			data-hasqtip="27" title="cardiovascular system phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} cardiovascular system phenotype measurments"></div>
 		<div class="no-sprite sprite_respiratory_system_phenotype"
-			data-hasqtip="27" title="respiratory system phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} respiratory system phenotype measurments"></div>
 		<div class="no-sprite sprite_digestive_alimentary_phenotype_or_liver_biliary_system_phenotype"
 			data-hasqtip="27"
-			title="digestive/alimentary phenotype or liver/biliary system phenotype"></div>
+			title="all ${gene.markerSymbol} digestive/alimentary phenotype or liver/biliary system phenotype measurments"></div>
 		<div class="no-sprite sprite_renal_urinary_system_phenotype"
-			data-hasqtip="27" title="renal/urinary system phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} renal/urinary system phenotype measurments"></div>
 	
 		<div class="no-sprite sprite_limbs_digits_tail_phenotype"
-			data-hasqtip="27" title="limbs/digits/tail phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} limbs/digits/tail phenotype measurments"></div>
 		<div class="no-sprite sprite_skeleton_phenotype" data-hasqtip="27"
-			title="skeleton phenotype"></div>
+			title="all ${gene.markerSymbol} skeleton phenotype measurments"></div>
 		<div class="no-sprite sprite_immune_system_phenotype_or_hematopoietic_system_phenotype"
 			data-hasqtip="27"
-			title="immune system phenotype or hematopoietic system phenotype"></div>
+			title="all ${gene.markerSymbol} immune system phenotype or hematopoietic system phenotype measurments"></div>
 		<div class="no-sprite sprite_muscle_phenotype" data-hasqtip="27"
-			title="muscle phenotype"></div>
+			title="all ${gene.markerSymbol} muscle phenotype measurments"></div>
 		<div class="no-sprite sprite_integument_phenotype_or_pigmentation_phenotype"
 			data-hasqtip="27"
-			title="integument phenotype or pigmentation phenotype"></div>
+			title="all ${gene.markerSymbol} integument phenotype or pigmentation phenotype measurments"></div>
 	
 		<div class="no-sprite sprite_craniofacial_phenotype " data-hasqtip="27"
-			title="craniofacial phenotype"></div>
+			title="all ${gene.markerSymbol} craniofacial phenotype measurments"></div>
 		<div class="no-sprite sprite_hearing_vestibular_ear_phenotype "
-			data-hasqtip="27" title="hearing/vestibular/ear phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} hearing/vestibular/ear phenotype measurments"></div>
 		<div class="no-sprite sprite_taste_olfaction_phenotype "
-			data-hasqtip="27" title="taste/olfaction phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} taste/olfaction phenotype measurments"></div>
 		<div class="no-sprite sprite_endocrine_exocrine_gland_phenotype "
-			data-hasqtip="27" title="endocrine/exocrine gland phenotype"></div>
+			data-hasqtip="27" title="all ${gene.markerSymbol} endocrine/exocrine gland phenotype measurments"></div>
 		<div class="no-sprite sprite_vision_eye_phenotype" data-hasqtip="27"
-			title="vision/eye phenotype"></div>
+			title="all ${gene.markerSymbol} vision/eye phenotype measurments"></div>
 	
 		<c:forEach var="group" items="${significantTopLevelMpGroups.keySet()}">
 			<c:if test="${group != 'mammalian phenotype' }">
 				<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(group)}'>
-					<div class="sprite_orange sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
+					<div class="sprite_orange sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="all ${gene.markerSymbol} ${group} measurements"></div>
 				</a>
 			</c:if>		
 		</c:forEach>
@@ -64,7 +64,7 @@
 		<c:forEach var="group" items="${notsignificantTopLevelMpGroups.keySet()}">
 			<c:if test="${group != 'mammalian phenotype' }">
 				<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(group)}'>
-					<div class="sprite_blue sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="${group}"></div>
+					<div class="sprite_blue sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="all ${gene.markerSymbol} ${group} measurements"></div>
 				</a>
 			</c:if>		
 		</c:forEach>

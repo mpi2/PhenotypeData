@@ -60,6 +60,7 @@ import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
@@ -606,6 +607,16 @@ public class GenesController {
 				if (pr.getpValue() > pcs.getpValue()){
 					pr.setpValue(pcs.getpValue());
 				}
+			}
+			
+			if(pr.getTopLevelPhenotypeTerms()!=null){
+				Set<String>topLevelMpGroups=new TreeSet<>();
+				for(BasicBean topMp: pr.getTopLevelPhenotypeTerms()){
+					String group=PhenotypeSummaryType.getGroup(topMp.getName());
+					topLevelMpGroups.add(group);
+					
+				}
+				pr.setTopLevelMpGroups(topLevelMpGroups);
 			}
 
 			phenotypes.put(pr.hashCode(), pr);

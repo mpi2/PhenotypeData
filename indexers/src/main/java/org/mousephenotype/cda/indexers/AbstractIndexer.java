@@ -34,6 +34,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * @author Matt Pearce
@@ -54,7 +55,7 @@ public abstract class AbstractIndexer {
     // It is used for later validation by querying the core after the build.
     protected int documentCount = 0;
 
-    public abstract RunStatus run() throws IndexerException, IOException, SolrServerException;
+    public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException;
 
     public abstract RunStatus validateBuild() throws IndexerException;
 

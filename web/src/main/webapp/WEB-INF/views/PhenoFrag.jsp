@@ -6,6 +6,7 @@
 <c:set var="count" value="0" scope="page"/>
 <c:set var="maleCount" value="0" scope="page"/>
 <c:set var="femaleCount" value="0" scope="page"/>
+<c:set var="noSexCount" value="0" scope="page"/>
 <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
     <c:forEach var="sex" items="${phenotype.sexes}">
         <c:set var="count" value="${count + 1}" scope="page"/>
@@ -15,11 +16,14 @@
         <c:if test='${sex.equalsIgnoreCase("female")}'>
             <c:set var="femaleCount" value="${femaleCount + 1}" scope="page"/>
         </c:if>
+         <c:if test='${sex.equalsIgnoreCase("no_data")}'>
+            <c:set var="noSexCount" value="${noSexCount + 1}" scope="page"/>
+        </c:if>
     </c:forEach>
 </c:forEach>
 <p class="resultCount">
     <%-- Total number of significant genotype-phenotype associations: ${count} --%>
-    Total number of significant genotype-phenotype associations: female(${femaleCount}) , male(${maleCount})
+    Total number of significant genotype-phenotype associations: female(${femaleCount}) , male(${maleCount}), no sex(${noSexCount})
 </p>
 
 <script>
@@ -32,6 +36,7 @@
 <table id="genes" class="table tableSorter">
     <thead>
     <tr>
+    	<th class="headerSort">Icon</th>
         <th class="headerSort">Phenotype</th>
         <th class="headerSort">Allele</th>
         <th class="headerSort" title="Zygosity">Zyg</th>
@@ -47,7 +52,26 @@
     <tbody>
     <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
-        <tr title="title here">
+        <tr>
+        	<td>
+        		<div class="row_abnormalities">
+        		<c:set var="marginLeftCount" value="0"/>
+        		<c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">
+        		<c:choose>
+        		<c:when test="${topLevelMpGroup eq 'NA' }">
+        		<%-- <div title="${topLevelMpGroup}" >${topLevelMpGroup}</div> don't display a top level icon if there is no top level group for the top level mp term--%>
+				
+        		</c:when>
+        		<c:otherwise>
+        		<c:set var="marginLeft" value="${marginLeftCount * 40 }"/>
+        		<div class="sprite_orange sprite_row_${topLevelMpGroup.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelMpGroup}" style="margin: 0px 0px 0px ${marginLeft}px"></div>
+				<c:set var="marginLeftCount" value="${marginLeftCount+1 }"/>
+        		</c:otherwise>
+        		</c:choose>
+					
+        			</c:forEach>
+        		</div>
+        	</td>
             <td>
                 <c:if test="${fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
                     ${phenotype.phenotypeTerm.name}

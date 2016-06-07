@@ -39,11 +39,13 @@ public class OntologyDetail {
 
     public OntologyDetail(List<OntologyTermBean> beans) {
         for (OntologyTermBean bean : beans) {
-            definitions.add(bean.getDefinition());
-            ids.add(bean.getId());
-            names.add(bean.getName());
-            id_name_concatenations.add(bean.getId() + "__" + bean.getName());
-            synonyms = bean.getSynonyms();
+            if ( bean != null ) {
+                definitions.add(bean.getDefinition());
+                ids.add(bean.getId());
+                names.add(bean.getName());
+                id_name_concatenations.add(bean.getId() + "__" + bean.getName());
+                synonyms = bean.getSynonyms();
+            }
         }
     }
 

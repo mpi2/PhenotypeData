@@ -22,12 +22,16 @@ import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -43,22 +47,57 @@ public class SolrIndex {
 	public static final String IMG_NOT_FOUND = "No information available";
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-
-	@NotNull
-	@Value("${internalSolrUrl}")
-	private String internalSolrUrl;
 	
 	@NotNull
 	@Value("${pdfThumbnailUrl}")
 	private String pdfThumbnailUrl;
-	
+
 	@NotNull
 	@Value("${impcMediaBaseUrl}")
 	private String impcMediaBaseUrl;
 
+	@Autowired
+	@Qualifier("autosuggestCore")
+	HttpSolrServer autosuggestCore;
+
+	@Autowired
+	@Qualifier("mpCore")
+	HttpSolrServer mpCore;
+
+	@Autowired
+	@Qualifier("geneCore")
+	HttpSolrServer geneCore;
+
+	@Autowired
+	@Qualifier("diseaseCore")
+	HttpSolrServer diseaseCore;
+
+	@Autowired
+	@Qualifier("anatomyCore")
+	HttpSolrServer anatomyCore;
+
+	@Autowired
+	@Qualifier("impcImagesCore")
+	HttpSolrServer impcImagesCore;
+
+
 	private List<String> phenoStatuses = new ArrayList<String>();
 
 	private Object Json;
+
+
+	public SolrServer getSolrServer(String corename){
+
+		switch (corename){
+			case "autosuggest" : return autosuggestCore;
+			case "gene" : return geneCore;
+			case "mp" : return mpCore;
+			case "disease" : return diseaseCore;
+			case "anatomy" : return anatomyCore;
+			case "impc_images" : return impcImagesCore;
+		}
+		return geneCore;
+	}
 
     public static Map<Integer, String> getGomapCategory(){
 
@@ -80,7 +119,7 @@ public class SolrIndex {
 		map.put("gene", "mgi_accession_id");
 		map.put("ensembl", "ensembl_gene_id");
 		map.put("mp", "mp_id");
-		map.put("ma", "ma_id");
+		map.put("anatomy", "id");
 		map.put("disease", "disease_id");
 		map.put("hp", "hp_id");
 		map.put("phenodigm", "hp_id");
@@ -150,23 +189,24 @@ public class SolrIndex {
 
 	public QueryResponse getBatchQueryJson(String idlist, String fllist, String dataTypeName) throws SolrServerException {
 
-		HttpSolrServer server = null;
+		SolrServer server = null;
 
 		Map<String, String> coreIdQMap = coreIdQMap();
 		String qField = coreIdQMap.get(dataTypeName);
 
 		if ( dataTypeName.equals("phenodigm") ){
-			//server = new HttpSolrServer("http://solrcloudlive.sanger.ac.uk/solr/phenodigm");
-			//server = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
+			//server = getSolrServer("disease");
 		}
 		else if ( dataTypeName.equals("hp") ){
-			server = new HttpSolrServer(internalSolrUrl + "/mp");
+
+			server = getSolrServer("mp");
 		}
 		else if ( dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")){
-			server = new HttpSolrServer(internalSolrUrl + "/gene");
+
+			server = getSolrServer("gene");
 		}
 		else {
-			server = new HttpSolrServer(internalSolrUrl + "/" + dataTypeName);
+			server = getSolrServer(dataTypeName);
 		}
 		//System.out.println("solrurl: " + server.toString());
 
@@ -251,7 +291,7 @@ public class SolrIndex {
 			core = "gene"; // use gene core to fetch dataset via ensembl identifiers
 		}
 
-		String url = internalSolrUrl + "/" + core + "/select?";
+		String url = SolrUtils.getBaseURL(getSolrServer(core)) + "/select?";
 
 		url += "q=" + qField + ":(" + idList + ")";
 		url += "&start=0&rows=999999&wt=json&fl=" + gridFields;
@@ -286,9 +326,9 @@ public class SolrIndex {
 			String gridSolrParams, Integer iDisplayStart,
 			Integer iDisplayLength, boolean showImgView) {
 
-		String url = internalSolrUrl + "/" + core + "/select?";
+		String url = SolrUtils.getBaseURL(getSolrServer(core)) + "/select?";
 
-//		System.out.println(("BASEURL: " + url));
+		//System.out.println(("SolrIndex BASEURL: " + url));
 
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
@@ -319,10 +359,10 @@ public class SolrIndex {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 //			System.out.println("MP PARAMS: " + url);
-		} else if (mode.equals("maGrid")) {
+		} else if (mode.equals("anatomyGrid")) {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
-//			System.out.println("MA PARAMS: " + url);
+//			System.out.println("ANATOMY PARAMS: " + url);
 		} else if ( mode.equals("diseaseGrid") ){
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
@@ -347,6 +387,7 @@ public class SolrIndex {
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
 		}
 		// OTHER solrCoreNames to be added here
+		//System.out.println("SolrIndex url: " +  url);
 		return url;
 	}
 
@@ -403,7 +444,7 @@ public class SolrIndex {
 		//String mediaBaseUrl = config.get("mediaBaseUrl");
         final int maxNum = 4; // max num of images to display in grid column
 
-		String qryBaseUrl = internalSolrUrl + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
+		String qryBaseUrl = SolrUtils.getBaseURL(getSolrServer("impc_images")) + "/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
 				+ "&" + fqStr + "&rows=";
 
         String queryUrl = qryBaseUrl + maxNum;
@@ -587,8 +628,8 @@ public class SolrIndex {
 	public String getGeneStatus(String accession) throws IOException,
 			URISyntaxException {
 
-		String url = internalSolrUrl
-				+ "/gene/select?wt=json&q=mgi_accession_id:"
+		String url = SolrUtils.getBaseURL(getSolrServer("gene"))
+				+ "/select?wt=json&q=mgi_accession_id:"
 				+ accession.replace(":", "\\:");
 
 		log.info("url for geneDao=" + url);
@@ -676,8 +717,8 @@ public class SolrIndex {
 	public JSONObject getImageInfo(int imageId) throws SolrServerException,
 			IOException, URISyntaxException {
 
-		String url = internalSolrUrl
-				+ "/images/select?wt=json&q=id:" + imageId;
+		String url = SolrUtils.getBaseURL(getSolrServer("images"))
+				+ "/select?wt=json&q=id:" + imageId;
 		JSONObject json = getResults(url);
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
@@ -809,7 +850,7 @@ public class SolrIndex {
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
 		String flParam = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,pfama_json";
-		String internalBaseSolrUrl = internalSolrUrl + "/allele/select?wt=json";
+		String internalBaseSolrUrl = SolrUtils.getBaseURL(getSolrServer("allele")) + "/select?wt=json";
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 
 		String url = internalBaseSolrUrl + qParam + flParam;
@@ -895,7 +936,7 @@ public class SolrIndex {
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
 		String flParam = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,pfama_json";
-		String internalBaseSolrUrl = internalSolrUrl + "/gene/select?wt=json&rows=999999&fq=mp_id:*";
+		String internalBaseSolrUrl = SolrUtils.getBaseURL(getSolrServer("gene")) + "/select?wt=json&rows=999999&fq=mp_id:*";
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
 
 		String url = internalBaseSolrUrl + qParam + flParam;
@@ -997,7 +1038,7 @@ public class SolrIndex {
 	}
 
 	public String getGO2ImpcGeneAnnotationTable(String baseUrl) throws IOException, URISyntaxException {
-		String internalBaseSolrUrl = internalSolrUrl + "/gene/select?";
+		String internalBaseSolrUrl = SolrUtils.getBaseURL(getSolrServer("gene")) + "/select?";
 		String flStr = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_domain,go_term_name";
 		String queryParams = "q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\" OR (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=10&fq=mp_id:*";
 
@@ -1069,7 +1110,7 @@ public class SolrIndex {
 	}
 
 	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
-		String internalBaseSolrUrl = internalSolrUrl + "/gene/select?";
+		String internalBaseSolrUrl = SolrUtils.getBaseURL(getSolrServer("gene")) + "/select?";
 
 		Map<String, Map<String, Map<String, JSONArray>>> statusEvidCount = new LinkedHashMap<>();
 
