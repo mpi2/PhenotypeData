@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
 
 import javax.validation.constraints.NotNull;
 
@@ -29,15 +31,6 @@ public class SolrServerConfig {
 	public static final int THREAD_COUNT = 3;
 
 
-	@NotNull
-	@Value("${phenodigm.solrserver}")
-	private String phenodigmSolrUrl;
-	
-	//Phenodigm server for our Web Status currently only
-	@Bean(name = "phenodigmCore")
-	public HttpSolrServer getPhenodigmCore() {
-		return new HttpSolrServer(phenodigmSolrUrl);
-	}
 
 	@NotNull
 	@Value("${solr.host}")
@@ -46,15 +39,33 @@ public class SolrServerConfig {
 	@Autowired
 	PhenotypePipelineDAO ppDao;
 
+	@NotNull
+	@Value("${phenodigm.solrserver}")
+	private String phenodigmSolrUrl;
+
+
+	// Required for SolrCrudRepositories to work
+	@Bean
+	public SolrServer solrServer() throws Exception
+	{
+		HttpSolrServerFactoryBean f = new HttpSolrServerFactoryBean();
+		f.setUrl(solrBaseUrl);
+		f.afterPropertiesSet();
+		return f.getSolrServer();
+	}
+
+	@Bean
+	public SolrTemplate solrTemplate(SolrServer solrServer) throws Exception
+	{
+		return new SolrTemplate(solrServer());
+	}
+
 
 	// Read only solr servers
 
-	// PhenoDigm solr server configuration
-	@Bean(name = "solrServer")
-	HttpSolrServer getSolServerPhenodigm() {
-		return new HttpSolrServer(phenodigmSolrUrl);
-	}
-
+	//Phenodigm server for our Web Status currently only
+	@Bean(name = "phenodigmCore")
+	public HttpSolrServer getPhenodigmCore() { return new HttpSolrServer(phenodigmSolrUrl);	}
 
 	//Allele
 	@Bean(name = "alleleCore")

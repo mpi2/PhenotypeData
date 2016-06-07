@@ -55,7 +55,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Autowired
     @Qualifier("preqcIndexing")
-    SolrServer preqcCore;
+    SolrServer preqcIndexing;
 
 
     @Autowired
@@ -100,7 +100,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	@Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(preqcCore);
+        return super.validateBuild(preqcIndexing);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             doOntologyMapping();
             populatePostQcData();
             populateResourceMap();
-            preqcCore.deleteByQuery("*:*");
+            preqcIndexing.deleteByQuery("*:*");
 
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(preqcXmlFilename));
 
@@ -339,12 +339,12 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     o.setId(count ++);
                     o.setSex(SexType.female.getName());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcIndexing.addBean(o);
 
                     o.setId(count ++);
                     o.setSex(SexType.male.getName());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcIndexing.addBean(o);
 
                 } else {
 
@@ -361,11 +361,11 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                     o.setSex(sex.toLowerCase());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcIndexing.addBean(o);
                 }
             }
 
-            preqcCore.commit();
+            preqcIndexing.commit();
 
         } catch (Exception e) {
             throw new IndexerException(e);

@@ -55,7 +55,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
 	@Autowired
     @Qualifier("mgiPhenotypeIndexing")
-    SolrServer mgiSolrServer;
+    SolrServer mgiPhenotypeIndexing;
 
     @Autowired
     MpOntologyDAO mpOntologyService;
@@ -65,7 +65,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(mgiSolrServer);
+        return super.validateBuild(mgiPhenotypeIndexing);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
 	    int count = 1;
 
-        mgiSolrServer.deleteByQuery("*:*");
+        mgiPhenotypeIndexing.deleteByQuery("*:*");
 
         String query="SELECT DISTINCT CONCAT_WS(\"-\", bm.id, gf.acc, bmp.phenotype_acc) as id, bm.zygosity, org.short_name AS project_name, " +
 	        "org.name as project_fullname, gf.acc AS marker_accession_id, gf.symbol as marker_symbol, " +
@@ -215,7 +215,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
                 doc.setLifeStageName(developmentalStageName);
 
                 documentCount++;
-                mgiSolrServer.addBean(doc, 30000);
+                mgiPhenotypeIndexing.addBean(doc, 30000);
                 count ++;
 
 	            if (count % 100000 == 0) {
@@ -224,7 +224,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
             }
 
             // Final commit to save the rest of the docs
-            mgiSolrServer.commit();
+            mgiPhenotypeIndexing.commit();
 
         } catch (Exception e) {
             runStatus.addError(" Big error " + e.getMessage());

@@ -37,8 +37,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
@@ -77,7 +75,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	@Autowired
 	@Qualifier("impcImagesIndexing")
-	SolrServer impcImagesCore;
+	SolrServer impcImagesIndexing;
 
 	@Autowired
 	@Qualifier("alleleCore")
@@ -122,13 +120,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(impcImagesCore);
+		return super.validateBuild(impcImagesIndexing);
 	}
 
 	public static void main(String[] args) throws IndexerException, SQLException {
-
 		SpringApplication.run(ImpcImagesIndexer.class, args);
-
 	}
 
 	@Override
@@ -190,7 +186,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		try {
 
-			impcImagesCore.deleteByQuery("*:*");
+			impcImagesIndexing.deleteByQuery("*:*");
 
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 
@@ -268,13 +264,13 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					addOntology(runStatus, imageDTO, parameterStableIdToEmapTermIdMap, emapService);
 					addOntology(runStatus, imageDTO, parameterStableIdToMpTermIdMap, mpService);
 
-					impcImagesCore.addBean(imageDTO);
+					impcImagesIndexing.addBean(imageDTO);
 
 					documentCount++;
 				}
 			}
 
-			impcImagesCore.commit();
+			impcImagesIndexing.commit();
 
 		} catch (SolrServerException | IOException e) {
 			throw new IndexerException(e);

@@ -69,15 +69,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private String phenodigmSolrServer;
 
     @Autowired
-    @Qualifier("alleleIndexing")
+    @Qualifier("alleleCore")
     private SolrServer alleleCore;
 
     @Autowired
-    @Qualifier("preqcIndexing")
+    @Qualifier("preqcCore")
     private SolrServer preqcCore;
 
     @Autowired
-    @Qualifier("genotypePhenotypeIndexing")
+    @Qualifier("genotypePhenotypeCore")
     private SolrServer genotypePhenotypeCore;
 
     @Autowired
@@ -88,20 +88,17 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
 
-
-    @Autowired
-    MpOntologyDAO mpOntologyService;
-
     /**
      * Destination Solr core
      */
     @Autowired
     @Qualifier("mpIndexing")
-    private SolrServer mpCore;
-
-
-
+    private SolrServer mpIndexing;
+    
     private SolrServer phenodigmCore;
+    @Autowired
+    MpOntologyDAO mpOntologyService;
+    
 
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
@@ -145,7 +142,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(mpCore);
+        return super.validateBuild(mpIndexing);
     }
 
     @Override
@@ -175,8 +172,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         	//populateGene2MpCalls();
 
             // Delete the documents in the core if there are any.
-            mpCore.deleteByQuery("*:*");
-            mpCore.commit();
+            mpIndexing.deleteByQuery("*:*");
+            mpIndexing.commit();
 
             // Loop through the mp_term_infos
             //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
@@ -232,15 +229,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 count ++;
 
                 documentCount++;
-                mpCore.addBean(mp, 60000);
+                mpIndexing.addBean(mp, 60000);
 
                 if (documentCount % 100 == 0){
-                	mpCore.commit();
+                	mpIndexing.commit();
                 }
             }
 
             // Send a final commit
-            mpCore.commit();
+            mpIndexing.commit();
 
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
