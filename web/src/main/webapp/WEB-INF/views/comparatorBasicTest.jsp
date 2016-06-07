@@ -28,7 +28,7 @@
             'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
         });
         /* Load the selected image into the viewport */
-        viewport.load(87269);
+        viewport.load(18271);
 
 
         // Alternative for testing non-big image viewer
@@ -43,7 +43,7 @@
             'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
         });
         /* Load the selected image into the viewport */
-        viewport2.load(87043);
+        viewport2.load(17867);
 
         $(".thumb").click(function(){
             var iid = $(this).attr('data-id');
