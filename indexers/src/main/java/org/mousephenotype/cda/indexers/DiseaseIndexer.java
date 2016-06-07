@@ -57,12 +57,12 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
     private String phenodigmSolrServer;
 
     @Autowired
-    @Qualifier("geneIndexing")
+    @Qualifier("geneCore")
     private SolrServer geneCore;
 
     @Autowired
     @Qualifier("diseaseIndexing")
-    private SolrServer diseaseCore;
+    private SolrServer diseaseIndexing;
 
 
 
@@ -79,7 +79,7 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(diseaseCore);
+        return super.validateBuild(diseaseIndexing);
     }
 
     @Override
@@ -101,8 +101,8 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
         try {
             initializeSolrCores();
             populateGenesLookup();
-            diseaseCore.deleteByQuery("*:*");
-            diseaseCore.commit();
+            diseaseIndexing.deleteByQuery("*:*");
+            diseaseIndexing.commit();
 
             // Fields from the phenodigm core to bring back
             String fields = StringUtils.join(Arrays.asList(DiseaseBean.DISEASE_ID,
@@ -181,12 +181,12 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
                 }
 
                 documentCount++;
-                diseaseCore.addBean(disease, 60000);
+                diseaseIndexing.addBean(disease, 60000);
 
                 count ++;
             }
 
-            diseaseCore.commit();
+            diseaseIndexing.commit();
 
         } catch (SolrServerException | IOException e) {
 

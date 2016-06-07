@@ -11,6 +11,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
+import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -43,10 +45,6 @@ import java.util.Properties;
         "org.mousephenotype.cda.utilities"})
 public class IndexerConfig {
 
-
-    // solr server connections for writing
-
-
     public static final int QUEUE_SIZE = 10000;
     public static final int THREAD_COUNT = 3;
 
@@ -55,6 +53,9 @@ public class IndexerConfig {
     private String writeSolrBaseUrl;
 
 
+
+
+    // Indexers for writing
     @Bean
     SolrServer observationIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/experiment", QUEUE_SIZE, THREAD_COUNT);

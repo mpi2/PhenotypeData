@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -61,16 +60,16 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	DataSource ontodbDataSource;
 
 	@Autowired
-	@Qualifier("solrServer")
-	SolrServer phenodigmServer;
+	@Qualifier("phenodigmCore")
+	SolrServer phenodigmCore;
 
 	@Autowired
-	@Qualifier("alleleIndexing")
+	@Qualifier("alleleCore")
 	SolrServer alleleCore;
 
 	@Autowired
 	@Qualifier("sangerImagesIndexing")
-	SolrServer sangerImagesCore;
+	SolrServer sangerImagesIndexing;
 
 	private Map<Integer, DcfBean> dcfMap = new HashMap<>();
 	private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
@@ -110,7 +109,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(sangerImagesCore);
+		return super.validateBuild(sangerImagesIndexing);
 	}
 
 	@Override
@@ -221,7 +220,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
 				java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
-			sangerImagesCore.deleteByQuery("*:*");
+			sangerImagesIndexing.deleteByQuery("*:*");
 
 			p.setFetchSize(Integer.MIN_VALUE);
 
@@ -520,7 +519,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 				}
 
 				documentCount++;
-				sangerImagesCore.addBean(o, 10000);
+				sangerImagesIndexing.addBean(o, 10000);
 
 				count++;
 			}
@@ -533,7 +532,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
             }
 
 			// Final commit to save the rest of the docs
-			sangerImagesCore.commit();
+			sangerImagesIndexing.commit();
 
 		} catch (Exception e) {
 			throw new IndexerException(e.getMessage());
@@ -1328,7 +1327,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	// need hp mapping from phenodign core
 	private void populateMpToHpTermsMap() throws IndexerException {
 
-		mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmServer);
+		mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmCore);
 	}
 
 }

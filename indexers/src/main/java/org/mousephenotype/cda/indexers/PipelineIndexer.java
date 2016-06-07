@@ -51,12 +51,12 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	DataSource komp2DataSource;
 
 	@Autowired
-	@Qualifier("mpIndexing")
+	@Qualifier("mpCore")
 	SolrServer mpCore;
 
 	@Autowired
 	@Qualifier("pipelineIndexing")
-	SolrServer pipelineCore;
+	SolrServer pipelineIndexing;
 
 
 	private Map<String, ParameterDTO> paramIdToParameter;
@@ -79,7 +79,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	@Override
 	public RunStatus validateBuild()	throws IndexerException {
-		return super.validateBuild(pipelineCore);
+		return super.validateBuild(pipelineIndexing);
 	}
 
 	@Override
@@ -126,8 +126,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 		try {
 			initialiseSupportingBeans(runStatus);
-			pipelineCore.deleteByQuery("*:*");
-			pipelineCore.commit();
+			pipelineIndexing.deleteByQuery("*:*");
+			pipelineIndexing.commit();
 
 			for (PipelineDTO pipeline : pipelines.values()) {
 
@@ -232,7 +232,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								doc.setEmapTerm(param.getEmapName());
 							}
 						}
-						pipelineCore.addBean(doc);
+						pipelineIndexing.addBean(doc);
 						documentCount++;
 					}
 				}
@@ -244,7 +244,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
                 runStatus.addWarning( "No mp term for " + mpId);
 			}
 
-			pipelineCore.commit();
+			pipelineIndexing.commit();
 
 		} catch (IOException | SolrServerException e) {
 			e.printStackTrace();

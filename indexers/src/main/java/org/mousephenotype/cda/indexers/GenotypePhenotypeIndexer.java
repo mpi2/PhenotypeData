@@ -78,7 +78,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer implements Command
 
     @Autowired
     @Qualifier("genotypePhenotypeIndexing")
-    SolrServer gpSolrServer;
+    SolrServer genotypePhenotypeIndexing;
 
     @Autowired
     MpOntologyDAO mpOntologyService;
@@ -99,7 +99,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer implements Command
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(gpSolrServer);
+        return super.validateBuild(genotypePhenotypeIndexing);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer implements Command
 
         int count = 0;
 
-        gpSolrServer.deleteByQuery("*:*");
+        genotypePhenotypeIndexing.deleteByQuery("*:*");
 
         // conditions of WHERE clauses
         /*
@@ -389,13 +389,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer implements Command
 	           }
 
                 documentCount++;
-                gpSolrServer.addBean(doc, 30000);
+                genotypePhenotypeIndexing.addBean(doc, 30000);
 
                 count ++;
             }
 
             // Final commit to save the rest of the docs
-            gpSolrServer.commit();
+            genotypePhenotypeIndexing.commit();
 
         } catch (Exception e) {
             runStatus.addError(" Big error " + e.getMessage());

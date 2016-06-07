@@ -57,7 +57,7 @@ public class GwasIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Autowired
     @Qualifier("gwasIndexing")
-    SolrServer gwasCore;
+    SolrServer gwasIndexing;
 
     private List<GwasDTO> gwasMappings = new ArrayList<>();
 
@@ -116,8 +116,8 @@ public class GwasIndexer extends AbstractIndexer implements CommandLineRunner {
         long start = System.currentTimeMillis();
 
         try {
-            gwasCore.deleteByQuery("*:*");
-            gwasCore.commit();
+            gwasIndexing.deleteByQuery("*:*");
+            gwasIndexing.commit();
 
             //initialiseSupportingBeans();
 
@@ -135,7 +135,7 @@ public class GwasIndexer extends AbstractIndexer implements CommandLineRunner {
                 if (gwasBatch.size() == BATCH_SIZE) {
                     // Update the batch, clear the list
                     documentCount += gwasBatch.size();
-                    gwasCore.addBeans(gwasBatch, 60000);
+                    gwasIndexing.addBeans(gwasBatch, 60000);
                     gwasBatch.clear();
                 }
             }
@@ -143,12 +143,12 @@ public class GwasIndexer extends AbstractIndexer implements CommandLineRunner {
             // Make sure the last batch is indexed
             if (gwasBatch.size() > 0) {
                 documentCount += gwasBatch.size();
-                gwasCore.addBeans(gwasBatch, 60000);
+                gwasIndexing.addBeans(gwasBatch, 60000);
                 count += gwasBatch.size();
             }
 
             // Send a final commit
-            gwasCore.commit();
+            gwasIndexing.commit();
 
         } catch (SQLException | SolrServerException| IOException e) {
             throw new IndexerException(e);
@@ -165,7 +165,7 @@ public class GwasIndexer extends AbstractIndexer implements CommandLineRunner {
     @Override
     protected void printConfiguration() {
         if (logger.isDebugEnabled()) {
-            logger.debug(" WRITING Gwas     CORE TO: " + SolrUtils.getBaseURL(gwasCore));
+            logger.debug(" WRITING Gwas     CORE TO: " + SolrUtils.getBaseURL(gwasIndexing));
         }
     }
 
