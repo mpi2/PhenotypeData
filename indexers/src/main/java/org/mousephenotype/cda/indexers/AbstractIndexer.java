@@ -25,7 +25,9 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -39,6 +41,10 @@ import java.sql.SQLException;
 /**
  * @author Matt Pearce
  */
+
+@SpringBootApplication
+@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+
 public abstract class AbstractIndexer {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

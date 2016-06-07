@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.mousephenotype.cda.solr.web.dto.Anatomy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,8 +82,20 @@ public class ImageDTO extends ObservationDTO {
 	public final static String WEIGHT_DAYS_OLD = ObservationDTO.WEIGHT_DAYS_OLD;
 	public final static String WEIGHT = ObservationDTO.WEIGHT;
 
+	public static final String ANATOMY_ID = ObservationDTO.ANATOMY_ID;
+	public static final String ANATOMY_TERM = ObservationDTO.ANATOMY_TERM;
+	public static final String ANATOMY_ID_TERM = "anatomy_id_term";
+	public static final String ANATOMY_TERM_SYNONYM = ObservationDTO.ANATOMY_TERM_SYNONYM;
+	public static final String INTERMEDIATE_ANATOMY_ID = ObservationDTO.INTERMEDIATE_ANATOMY_ID;
+	public static final String INTERMEDIATE_ANATOMY_TERM = ObservationDTO.INTERMEDIATE_ANATOMY_TERM;
+	public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_ANATOMY_TERM_SYNONYM;
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_ID = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID;
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM;
+
 	public static final String MA_ID = ObservationDTO.MA_ID;
 	public static final String MA_TERM = ObservationDTO.MA_TERM;
+	public static final String MA_ID_TERM = "ma_id_term";
 	public static final String MA_TERM_SYNONYM = ObservationDTO.MA_TERM_SYNONYM;
 	public static final String INTERMEDIATE_MA_ID = ObservationDTO.INTERMEDIATE_MA_ID;
 	public static final String INTERMEDIATE_MA_TERM = ObservationDTO.INTERMEDIATE_MA_TERM;
@@ -93,6 +106,7 @@ public class ImageDTO extends ObservationDTO {
 
 	public static final String EMAP_ID = ObservationDTO.EMAP_ID;
 	public static final String EMAP_TERM = ObservationDTO.EMAP_TERM;
+	public static final String EMAP_ID_TERM = "emap_id_term";
 	public static final String EMAP_TERM_SYNONYM = ObservationDTO.EMAP_TERM_SYNONYM;
 	public static final String INTERMEDIATE_EMAP_ID = ObservationDTO.INTERMEDIATE_EMAP_ID;
 	public static final String INTERMEDIATE_EMAP_TERM = ObservationDTO.INTERMEDIATE_EMAP_TERM;
@@ -130,12 +144,23 @@ public class ImageDTO extends ObservationDTO {
 	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
 
-	public static final String MA_ID_TERM = "ma_id_term";
-
-	public static final String EMAP_ID_TERM = "emap_id_term";
 	public static final String MP_ID_TERM = "mp_id_term";
 
 	public static final String INCREMENT_VALUE="increment_value";
+
+
+	@Field(ANATOMY_ID)
+	private ArrayList<String> anatomyId;
+
+	@Field(ANATOMY_TERM)
+	private List<String> anatomyTerm;
+
+	@Field(ANATOMY_ID_TERM)
+	private List<String> anatomyIdTerm;
+
+	@Field(ANATOMY_TERM_SYNONYM)
+	private List<String> anatomyTermSynonym;
+
 
 	@Field(MA_ID_TERM)
 	private List<String> maIdTerm;
@@ -143,13 +168,11 @@ public class ImageDTO extends ObservationDTO {
 	@Field(EMAP_ID_TERM)
 	private List<String> emapIdTerm;
 
-
 	@Field(MpDTO.MP_ID)
 	private ArrayList<String> mpTermIds;
 
 	@Field(MpDTO.MP_TERM)
 	private List<String> mpTerm;
-
 
 	@Field(MP_ID_TERM)
 	private List<String> mpIdTerm;

@@ -93,6 +93,19 @@ public class ObservationDTOBase {
 	public static final String SUB_TERM_DESCRIPTION = "sub_term_description";
 	public static final String SEQUENCE_ID = "sequence_id";
 
+	public static final String ANATOMY_ID = "anatomy_id";
+	public static final String ANATOMY_TERM = "anatomy_term";
+	public static final String ANATOMY_TERM_SYNONYM = "anatomy_term_synonym";
+	public static final String TOP_LEVEL_ANATOMY_ID = "top_level_anatomy_id";
+	public static final String TOP_LEVEL_ANATOMY_TERM = "top_level_anatomy_term";
+	public static final String TOP_LEVEL_ANATOMY_TERM_SYNONYM = "top_level_anatomy_term_synonym";
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_ID = "selected_top_level_anatomy_id";
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM = "selected_top_level_anatomy_term";
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM = "selected_top_level_anatomy_term_synonym";
+	public static final String INTERMEDIATE_ANATOMY_ID = "intermediate_anatomy_id";
+	public static final String INTERMEDIATE_ANATOMY_TERM = "intermediate_anatomy_term";
+	public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM = "intermediate_anatomy_term_synonym";
+
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
 	public static final String MA_TERM_SYNONYM = "ma_term_synonym";

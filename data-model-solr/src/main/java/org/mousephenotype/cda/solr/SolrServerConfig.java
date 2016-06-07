@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.solr;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
@@ -14,13 +16,18 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Solr server bean configuration
+ * Read only Solr server bean configuration
+ * The writable Solr servers are configured in IndexerConfig.java of the indexer module
  */
 
 @Configuration
 @ComponentScan("org.mousephenotype.cda.solr")
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class SolrServerConfig {
+
+	public static final int QUEUE_SIZE = 10000;
+	public static final int THREAD_COUNT = 3;
+
 
 	@NotNull
 	@Value("${phenodigm.solrserver}")
@@ -38,6 +45,9 @@ public class SolrServerConfig {
 
 	@Autowired
 	PhenotypePipelineDAO ppDao;
+
+
+	// Read only solr servers
 
 	// PhenoDigm solr server configuration
 	@Bean(name = "solrServer")
@@ -79,12 +89,9 @@ public class SolrServerConfig {
 		return new HttpSolrServer(solrBaseUrl + "/genotype-phenotype");
 	}
 
-
-	//ImpcImages
+	// Impc images core
 	@Bean(name = "impcImagesCore")
-	HttpSolrServer getImpcImagesCore() {
-		return new HttpSolrServer(solrBaseUrl + "/impc_images");
-	}
+	HttpSolrServer getImpcImagesCore() { return new HttpSolrServer(solrBaseUrl + "/impc_images"); }
 
 
 	//MA
@@ -107,9 +114,8 @@ public class SolrServerConfig {
 	HttpSolrServer getEmapCore() {
 		return new HttpSolrServer(solrBaseUrl + "/emap");
 	}
-	
 
-	//Observation
+
 	@Bean(name = "experimentCore")
 	HttpSolrServer getExperimentCore() {
 		return new HttpSolrServer(solrBaseUrl + "/experiment");
@@ -148,7 +154,6 @@ public class SolrServerConfig {
 	PhenotypeCenterService phenotypeCenterService() {
 		return new PhenotypeCenterService(solrBaseUrl + "/experiment", ppDao);
 	}
-
 
 	@Bean(name = "preQcPhenotypeCenterService")
 	PhenotypeCenterService preQcPhenotypeCenterService() {

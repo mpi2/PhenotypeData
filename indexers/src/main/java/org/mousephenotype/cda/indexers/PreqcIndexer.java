@@ -17,6 +17,7 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
@@ -26,30 +27,36 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
-@Component
-public class PreqcIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     private CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @NotNull
+    @Value("${preqcXmlFilename}")
+    private String preqcXmlFilename;
 
     @Autowired
     @Qualifier("preqcIndexing")
     SolrServer preqcCore;
 
-    @Resource(name = "globalConfiguration")
-    Map<String, String> config;
 
     @Autowired
     @Qualifier("ontodbDataSource")
@@ -97,7 +104,17 @@ public class PreqcIndexer extends AbstractIndexer {
     }
 
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+        try {
+            run("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void run(String... strings) throws Exception {
         int count = 1;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -112,7 +129,6 @@ public class PreqcIndexer extends AbstractIndexer {
 
             conn_komp2 = komp2DataSource.getConnection();
             conn_ontodb = ontodbDataSource.getConnection();
-	        String preqcXmlFilename = config.get("preqcXmlFilename");
 
             doGeneSymbol2IdMapping();
             doAlleleSymbol2NameIdMapping();
@@ -239,8 +255,8 @@ public class PreqcIndexer extends AbstractIndexer {
                 // i.e. IMPC_BWT_001_001 => IMPC_BWT
                 String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
                 if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
-                    o.setResourceName(StatisticalResultIndexer.RESOURCE_3I.toUpperCase());
-                    o.setResourceFullname(resourceMap.get(StatisticalResultIndexer.RESOURCE_3I.toUpperCase()));
+                    o.setResourceName(StatisticalResultsIndexer.RESOURCE_3I.toUpperCase());
+                    o.setResourceFullname(resourceMap.get(StatisticalResultsIndexer.RESOURCE_3I.toUpperCase()));
 
                 } else {
                     o.setResourceName(datasource);
@@ -366,7 +382,6 @@ public class PreqcIndexer extends AbstractIndexer {
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
-        return runStatus;
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {
@@ -795,10 +810,6 @@ public class PreqcIndexer extends AbstractIndexer {
     }
 
     public static void main(String[] args) throws IndexerException {
-
-        PreqcIndexer main = new PreqcIndexer();
-        main.initialise(args);
-        main.run();
-        main.validateBuild();
+        SpringApplication.run(PreqcIndexer.class, args);
     }
 }

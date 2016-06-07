@@ -31,6 +31,9 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -46,8 +49,8 @@ import java.util.stream.Collectors;
 /**
  * Load documents into the statistical-results SOLR core
  */
-@Component
-public class StatisticalResultIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class StatisticalResultsIndexer extends AbstractIndexer implements CommandLineRunner {
 	private CommonUtils commonUtils = new CommonUtils();
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -66,7 +69,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 	@Autowired
 	@Qualifier("statisticalResultsIndexing")
-	SolrServer statResultCore;
+	SolrServer statisticalResultsIndexing;
 
 	@Autowired
 	MpOntologyDAO mpOntologyService;
@@ -83,7 +86,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	private Map<String, String> embryoSignificantResults = new HashMap<>();
 	private List<String> shouldHaveAdded = new ArrayList<>();
 
-	public StatisticalResultIndexer() {
+	public StatisticalResultsIndexer() {
 
 	}
 
@@ -105,7 +108,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(statResultCore);
+		return super.validateBuild(statisticalResultsIndexing);
 	}
 
 	@Override
@@ -135,15 +138,22 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	}
 
 	public static void main(String[] args) throws IndexerException {
+		SpringApplication.run(StatisticalResultsIndexer.class, args);
+	}
 
-		StatisticalResultIndexer main = new StatisticalResultIndexer();
-		main.initialise(args);
-		main.run();
-		main.validateBuild();
+
+	@Override
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException{
+		try {
+			run("");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override
-	public RunStatus run() throws IndexerException {
+	public void run(String... strings) throws Exception {
 
 		long start = System.currentTimeMillis();
 		RunStatus runStatus = new RunStatus();
@@ -152,7 +162,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 
-		return runStatus;
 	}
 
 	private int populateStatisticalResultsSolrCore() throws IndexerException {
@@ -160,7 +169,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		try {
 
-			statResultCore.deleteByQuery("*:*");
+			statisticalResultsIndexing.deleteByQuery("*:*");
 
 			List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
 				getViabilityResults(),
@@ -178,8 +187,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 					List<StatisticalResultDTO> documents = r.call();
 					count += documents.size();
-					statResultCore.addBeans(documents);
-					statResultCore.commit(true, true);
+					statisticalResultsIndexing.addBeans(documents);
+					statisticalResultsIndexing.commit(true, true);
 					checkSolrCount(count);
 
 				} catch (Exception e) {
@@ -219,7 +228,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("*:*").setRows(0);
-		QueryResponse response = statResultCore.query(query);
+		QueryResponse response = statisticalResultsIndexing.query(query);
 		Long solrCount = response.getResults().getNumFound();
 
 		logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrCount, count, count - solrCount);

@@ -30,7 +30,7 @@ public class StatisticalResultIndexerTest {
 	DataSource komp2DataSource;
 
 	@Autowired
-	StatisticalResultIndexer statisticalResultIndexer;
+	StatisticalResultsIndexer statisticalResultIndexer;
 
 	@PostConstruct
 	void postConstruct() {

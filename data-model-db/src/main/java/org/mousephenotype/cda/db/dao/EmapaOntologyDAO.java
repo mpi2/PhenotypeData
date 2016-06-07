@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.sql.PreparedStatement;
@@ -33,6 +34,8 @@ import java.util.*;
  *
  * @author ckchen based on mrelac
  */
+
+@Repository
 public class EmapaOntologyDAO extends OntologyDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +44,7 @@ public class EmapaOntologyDAO extends OntologyDAO {
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
 
-    public EmapaOntologyDAO() throws SQLException {
+    public EmapaOntologyDAO() {
 
     }
 
