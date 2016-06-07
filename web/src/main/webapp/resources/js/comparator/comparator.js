@@ -6,13 +6,7 @@ $(document).ready(function(){
     /* Load the selected image into the viewport */
     var temp=$(".thumb").first();
     var id=temp.attr('data-id');
-    if(temp.attr('src').indexOf('_pdf')>-1){
-    	 /* Prepare the left viewport */
-       console.log('control pdf here');
-       var url=googlePdf.replace('replace',pdfWithoutId+'/'+this.id);
-       console.log('url='+url);
-		$('#viewport').attr('src',url);
-    }else{
+    
     	 $('#control_annotation').text(temp.attr('oldtitle'));
     	    if(id){
     	    	 var viewport = $.WeblitzViewport($("#viewport"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
@@ -24,7 +18,7 @@ $(document).ready(function(){
     	    temp.toggleClass( "img_selected");
     	    
     	   
-    }
+    
     
    
     
@@ -34,14 +28,7 @@ $(document).ready(function(){
     var temp2=$(".thumb2").first();
     var id2=temp2.attr('data-id');
     
-    if(temp2.attr('src').indexOf('_pdf')>-1){
-   	 /* Prepare the left viewport */
-    	console.log('mutant  pdf here');
-    	var url=googlePdf.replace('replace',pdfWithoutId+'/'+this.id);
-    	
-		$('#viewport2').attr('src',url);
-      
-    }else{
+    
     	$('#mutant_annotation').text(temp2.attr('oldtitle'));
     	if(id2){
     		/* Prepare right viewport */
@@ -52,10 +39,6 @@ $(document).ready(function(){
     		var previousMutantId=id2;
     	}
     	temp2.toggleClass( "img_selected");
-
-    	
-    /* Load the selected image into the viewport */
-   }
     
     
     
@@ -66,12 +49,9 @@ $(document).ready(function(){
     	console.log('click');
         var iid = $(this).attr('data-id');
        
-		if(this.src.indexOf('_pdf')>-1){
-			var url=googlePdf.replace('replace',pdfWithoutId+'/'+this.id);
-			$('#viewport').attr('src',url);
-		}else{
+		
 			viewport.load(iid);
-		}
+		
 		if(previousControlId){
 		$('#'+previousControlId).toggleClass( "img_selected");
 		}
@@ -89,12 +69,10 @@ $(document).ready(function(){
     $(".thumb2").click(function(){
         var iid = $(this).attr('data-id');
         iid = parseInt(iid);
-        if(this.src.indexOf('_pdf')>-1){
-        	$('#viewport2').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));
-        }else{
+        
         	 console.log('mutant id='+iid);
              viewport2.load(iid);
-        }
+       
        
         
   	  if(previousMutantId){
