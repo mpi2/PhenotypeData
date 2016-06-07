@@ -65,8 +65,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private SolrServer diseaseCore;
 
     @Autowired
-    @Qualifier("maIndexing")
-    private SolrServer maCore;
+    @Qualifier("anatomyIndexing")
+    private SolrServer anatomyCore;
+
 
     @Autowired
    	private GwasDAO gwasDao;
@@ -100,11 +101,11 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> diseaseTermSet = new HashSet();
     Set<String> diseaseAltsSet = new HashSet();
 
-    // ma
-    Set<String> maIdSet = new HashSet();
-    Set<String> maTermSet = new HashSet();
-    Set<String> maTermSynonymSet = new HashSet();
-    Set<String> maAltIdSet = new HashSet();
+    // anatomy
+    Set<String> anatomyIdSet = new HashSet();
+    Set<String> anatomyTermSet = new HashSet();
+    Set<String> anatomyTermSynonymSet = new HashSet();
+    Set<String> anatomyAltIdSet = new HashSet();
 
     // hp
     Set<String> hpIdSet = new HashSet();
@@ -173,7 +174,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             populateGeneAutosuggestTerms();
             populateMpAutosuggestTerms();
             populateDiseaseAutosuggestTerms();
-            populateMaAutosuggestTerms();
+            populateAnatomyAutosuggestTerms();
             populateHpAutosuggestTerms();
             populateGwasAutosuggestTerms();
 
@@ -184,7 +185,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" Added total beans in {}", commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
     }
@@ -212,7 +213,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case GeneDTO.MGI_ACCESSION_ID:
                         mapKey = gene.getMgiAccessionId();
                         if (mgiAccessionIdSet.add(mapKey)) {
-                            a.setMgiAccessionID(gene.getMgiAccessionId());
+                            a.setMgiAccessionId(gene.getMgiAccessionId());
                             beans.add(a);
                         }
                         break;
@@ -283,7 +284,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<String> mpFields = Arrays.asList(
                 MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.ALT_MP_ID, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
-                MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM,
+                MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM, MpDTO.PARENT_MP_ID, MpDTO.PARENT_MP_TERM, MpDTO.PARENT_MP_TERM_SYNONYM,
                 MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM);
 
         SolrQuery query = new SolrQuery()
@@ -304,7 +305,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case MpDTO.MP_ID:
                         mapKey = mp.getMpId();
                         if (mpIdSet.add(mapKey)) {
-                            a.setMpID(mp.getMpId());
+                            a.setMpId(mp.getMpId());
                             beans.add(a);
                         }
                         break;
@@ -337,7 +338,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 logger.debug("GOT ALT MP ID: " + mapKey);
                                 if (mpAltIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setAltMpID(s);
+                                    asyn.setMpId(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -350,7 +351,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setTopLevelMpID(s);
+                                    asyn.setMpId(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -363,7 +364,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setTopLevelMpTerm(s);
+                                    asyn.setMpTerm(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -376,7 +377,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setTopLevelMpTermSynonym(s);
+                                    asyn.setMpTermSynonym(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -389,7 +390,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setIntermediateMpID(s);
+                                    asyn.setMpId(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -402,7 +403,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setIntermediateMpTerm(s);
+                                    asyn.setMpTerm(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -415,7 +416,34 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setIntermediateMpTermSynonym(s);
+                                    asyn.setMpTermSynonym(s);
+                                    asyn.setDocType("mp");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MpDTO.PARENT_MP_ID:
+                        mapKey = mp.getMpId();
+                        if (mpIdSet.add(mapKey)) {
+                            a.setMpId(mp.getMpId());
+                            beans.add(a);
+                        }
+                        break;
+                    case MpDTO.PARENT_MP_TERM:
+                        mapKey = mp.getMpTerm();
+                        if (mpTermSet.add(mapKey)) {
+                            a.setMpTerm(mp.getMpTerm());
+                            beans.add(a);
+                        }
+                        break;
+                    case MpDTO.PARENT_MP_TERM_SYNONYM:
+                        if (mp.getMpTermSynonym() != null) {
+                            for (String s : mp.getMpTermSynonym()) {
+                                mapKey = s;
+                                if (mpTermSynonymSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setMpTermSynonym(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -428,7 +456,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setChildMpID(s);
+                                    asyn.setMpId(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -441,7 +469,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setChildMpTerm(s);
+                                    asyn.setMpTerm(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -454,7 +482,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 mapKey = s;
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setChildMpTermSynonym(s);
+                                    asyn.setMpTermSynonym(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -494,7 +522,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case DiseaseDTO.DISEASE_ID:
                         mapKey = disease.getDiseaseId();
                         if (diseaseIdSet.add(mapKey)) {
-                            a.setDiseaseID(disease.getDiseaseId());
+                            a.setDiseaseId(disease.getDiseaseId());
                             beans.add(a);
                         }
                         break;
@@ -529,142 +557,267 @@ public class AutosuggestIndexer extends AbstractIndexer {
         }
     }
 
-    private void populateMaAutosuggestTerms() throws SolrServerException, IOException {
+    private void populateAnatomyAutosuggestTerms() throws SolrServerException, IOException {
 
-        List<String> maFields = Arrays.asList(
-                MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.ALT_MA_ID, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
-                MaDTO.CHILD_MA_TERM_SYNONYM, MaDTO.SELECTED_TOP_LEVEL_MA_ID,
-                MaDTO.SELECTED_TOP_LEVEL_MA_TERM, MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM);
+        // since we use anatomyIdSet, anatomyTermSet and anatomyTermSynonymSet to get only unique data,
+        // there is no need to distinguish hierarchy of terms (child, parent, top_level) as a term which gets added to eg, anatomyIdSet
+        // can be parent, child, top_level... etc.
+        // so the setter needed are just setAnatomyId, setAnatomyTerm, setAnatomyTerm_synonym
+
+        List<String> anatomyFields = Arrays.asList(
+                AnatomyDTO.ANATOMY_ID, AnatomyDTO.ANATOMY_TERM, AnatomyDTO.ANATOMY_TERM_SYNONYM, AnatomyDTO.ALT_ANATOMY_ID, AnatomyDTO.CHILD_ANATOMY_ID, AnatomyDTO.CHILD_ANATOMY_TERM,
+                AnatomyDTO.CHILD_ANATOMY_TERM_SYNONYM, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID,
+                AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM);
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
-            .setFields(StringUtils.join(maFields, ","))
+            .setFields(StringUtils.join(anatomyFields, ","))
             .setRows(Integer.MAX_VALUE);
 
-        List<MaDTO> mas = maCore.query(query).getBeans(MaDTO.class);
-        for (MaDTO ma : mas) {
+
+        List<AnatomyDTO> anatomies = anatomyCore.query(query).getBeans(AnatomyDTO.class);
+
+        for (AnatomyDTO anatomy : anatomies) {
 
             Set<AutosuggestBean> beans = new HashSet<>();
-            for (String field : maFields) {
+
+            for (String field : anatomyFields) {
 
                 AutosuggestBean a = new AutosuggestBean();
-                a.setDocType("ma");
+                a.setDocType("anatomy");
 
                 switch (field) {
-                    case MaDTO.MA_ID:
-                        mapKey = ma.getMaId();
-                        if (maIdSet.add(mapKey)) {
-                            a.setMaID(ma.getMaId());
+                    case AnatomyDTO.ANATOMY_ID:
+                        mapKey = anatomy.getAnatomyId();
+                        if (anatomyIdSet.add(mapKey)) {
+                            a.setAnatomyId(anatomy.getAnatomyId());
                             beans.add(a);
                         }
                         break;
-                    case MaDTO.MA_TERM:
-                        mapKey = ma.getMaTerm();
-                        if (maTermSet.add(mapKey)) {
-                            a.setMaTerm(ma.getMaTerm());
+                    case AnatomyDTO.ANATOMY_TERM:
+                        mapKey = anatomy.getAnatomyTerm();
+                        if (anatomyTermSet.add(mapKey)) {
+                            a.setAnatomyTerm(anatomy.getAnatomyTerm());
                             beans.add(a);
                         }
                         break;
-                    case MaDTO.MA_TERM_SYNONYM:
-                        if (ma.getMaTermSynonym() != null) {
-                            for (String s : ma.getMaTermSynonym()) {
+                    case AnatomyDTO.ANATOMY_TERM_SYNONYM:
+                        if (anatomy.getAnatomyTermSynonym() != null) {
+                            for (String s : anatomy.getAnatomyTermSynonym()) {
                                 mapKey = s;
-                                if (maTermSynonymSet.add(mapKey)) {
+                                if (anatomyTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setMaTermSynonym(s);
-                                    asyn.setDocType("ma");
+                                    asyn.setAnatomyTermSynonym(s);
+                                    asyn.setDocType("anatomy");
                                     beans.add(asyn);
                                 }
                             }
                         }
                         break;
-                    case MaDTO.ALT_MA_ID:
-                        if ( ma.getAltMaIds() != null ) {
-                            for (String s : ma.getAltMaIds()) {
+                    case AnatomyDTO.ALT_ANATOMY_ID:
+                        if ( anatomy.getAltAnatomyIds() != null ) {
+                            for (String s : anatomy.getAltAnatomyIds()) {
                                 mapKey = s;
 
-                                if (maAltIdSet.add(mapKey)) {
+                                if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setAltMaID(s);
-                                    asyn.setDocType("ma");
+                                    asyn.setAnatomyId(s);
+                                    asyn.setDocType("anatomy");
                                     beans.add(asyn);
                                 }
                             }
                         }
                         break;
-                    case MaDTO.CHILD_MA_ID:
-                        if (ma.getChildMaId() != null) {
-                            for (String s : ma.getChildMaId()) {
+                    case AnatomyDTO.CHILD_ANATOMY_ID:
+                        if (anatomy.getChildAnatomyId() != null) {
+                            for (String s : anatomy.getChildAnatomyId()) {
                                 mapKey = s;
-                                if (maIdSet.add(mapKey)) {
+                                if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setChildMaID(s);
-                                    asyn.setDocType("ma");
+                                    asyn.setAnatomyId(s);
+                                    asyn.setDocType("anatomy");
                                     beans.add(asyn);
                                 }
                             }
                         }
                         break;
-                    case MaDTO.CHILD_MA_TERM:
-                        if (ma.getChildMaTerm() != null) {
-                            for (String s : ma.getChildMaTerm()) {
+                    case AnatomyDTO.CHILD_ANATOMY_TERM:
+                        if (anatomy.getChildAnatomyTerm() != null) {
+                            for (String s : anatomy.getChildAnatomyTerm()) {
                                 mapKey = s;
-                                if (maTermSet.add(mapKey)) {
+                                if (anatomyTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setChildMaTerm(s);
-                                    asyn.setDocType("ma");
+                                    asyn.setAnatomyTerm(s);
+                                    asyn.setDocType("anatomy");
                                     beans.add(asyn);
                                 }
                             }
                         }
                         break;
-                    case MaDTO.CHILD_MA_TERM_SYNONYM:
-                        if (ma.getChildMaTermSynonym() != null) {
-                            for (String s : ma.getChildMaTermSynonym()) {
+                    case AnatomyDTO.CHILD_ANATOMY_TERM_SYNONYM:
+                        if (anatomy.getChildAnatomyTermSynonym() != null) {
+                            for (String s : anatomy.getChildAnatomyTermSynonym()) {
                                 mapKey = s;
-                                if (maTermSynonymSet.add(mapKey)) {
+                                if (anatomyTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setChildMaTermSynonym(s);
-                                    asyn.setDocType("ma");
+                                    asyn.setAnatomyTermSynonym(s);
+                                    asyn.setDocType("anatomy");
                                     beans.add(asyn);
                                 }
                             }
                         }
                         break;
-                    case MaDTO.SELECTED_TOP_LEVEL_MA_ID:
-                        if (ma.getSelectedTopLevelMaId() != null) {
-                            for (String s : ma.getSelectedTopLevelMaId()) {
+                    case AnatomyDTO.PARENT_ANATOMY_ID:
+                        if (anatomy.getChildAnatomyId() != null) {
+                            for (String s : anatomy.getChildAnatomyId()) {
                                 mapKey = s;
-                                if (maIdSet.add(mapKey)) {
+                                if (anatomyIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setSelectedTopLevelMaID(s);
-                                    asyn.setDocType("ma");
+                                    asyn.setAnatomyId(s);
+                                    asyn.setDocType("anatomy");
                                     beans.add(asyn);
                                 }
                             }
                         }
                         break;
-                    case MaDTO.SELECTED_TOP_LEVEL_MA_TERM:
-                        if (ma.getSelectedTopLevelMaTerm() != null) {
-                            for (String s : ma.getSelectedTopLevelMaTerm()) {
+                    case AnatomyDTO.PARENT_ANATOMY_TERM:
+                        if (anatomy.getChildAnatomyTerm() != null) {
+                            for (String s : anatomy.getChildAnatomyTerm()) {
                                 mapKey = s;
-                                if (maTermSet.add(mapKey)) {
+                                if (anatomyTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setSelectedTopLevelMaTerm(s);
-                                    asyn.setDocType("ma");
+                                    asyn.setAnatomyTerm(s);
+                                    asyn.setDocType("anatomy");
                                     beans.add(asyn);
                                 }
                             }
                         }
                         break;
-                    case MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM:
-                        if (ma.getSelectedTopLevelMaTermSynonym() != null) {
-                            for (String s : ma.getSelectedTopLevelMaTermSynonym()) {
+                    case AnatomyDTO.PARENT_ANATOMY_TERM_SYNONYM:
+                        if (anatomy.getChildAnatomyTermSynonym() != null) {
+                            for (String s : anatomy.getChildAnatomyTermSynonym()) {
                                 mapKey = s;
-                                if (maTermSynonymSet.add(mapKey)) {
+                                if (anatomyTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setSelectedTopLevelMaTermSynonym(s);
-                                    asyn.setDocType("ma");
+                                    asyn.setAnatomyTermSynonym(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.INTERMEDIATE_ANATOMY_ID:
+                        if (anatomy.getChildAnatomyId() != null) {
+                            for (String s : anatomy.getChildAnatomyId()) {
+                                mapKey = s;
+                                if (anatomyIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyId(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.INTERMEDIATE_ANATOMY_TERM:
+                        if (anatomy.getChildAnatomyTerm() != null) {
+                            for (String s : anatomy.getChildAnatomyTerm()) {
+                                mapKey = s;
+                                if (anatomyTermSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyTerm(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.INTERMEDIATE_ANATOMY_TERM_SYNONYM:
+                        if (anatomy.getChildAnatomyTermSynonym() != null) {
+                            for (String s : anatomy.getChildAnatomyTermSynonym()) {
+                                mapKey = s;
+                                if (anatomyTermSynonymSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyTermSynonym(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.TOP_LEVEL_ANATOMY_ID:
+                        if (anatomy.getSelectedTopLevelAnatomyId() != null) {
+                            for (String s : anatomy.getSelectedTopLevelAnatomyId()) {
+                                mapKey = s;
+                                if (anatomyIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyId(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.TOP_LEVEL_ANATOMY_TERM:
+                        if (anatomy.getSelectedTopLevelAnatomyTerm() != null) {
+                            for (String s : anatomy.getSelectedTopLevelAnatomyTerm()) {
+                                mapKey = s;
+                                if (anatomyTermSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyTerm(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.TOP_LEVEL_ANATOMY_TERM_SYNONYM:
+                        if (anatomy.getSelectedTopLevelAnatomyTermSynonym() != null) {
+                            for (String s : anatomy.getSelectedTopLevelAnatomyTermSynonym()) {
+                                mapKey = s;
+                                if (anatomyTermSynonymSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyTermSynonym(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID:
+                        if (anatomy.getSelectedTopLevelAnatomyId() != null) {
+                            for (String s : anatomy.getSelectedTopLevelAnatomyId()) {
+                                mapKey = s;
+                                if (anatomyIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyId(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM:
+                        if (anatomy.getSelectedTopLevelAnatomyTerm() != null) {
+                            for (String s : anatomy.getSelectedTopLevelAnatomyTerm()) {
+                                mapKey = s;
+                                if (anatomyTermSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyTerm(s);
+                                    asyn.setDocType("anatomy");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM:
+                        if (anatomy.getSelectedTopLevelAnatomyTermSynonym() != null) {
+                            for (String s : anatomy.getSelectedTopLevelAnatomyTermSynonym()) {
+                                mapKey = s;
+                                if (anatomyTermSynonymSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAnatomyTermSynonym(s);
+                                    asyn.setDocType("anatomy");
                                     beans.add(asyn);
                                 }
                             }
@@ -805,7 +958,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(hpFields, ","))
             .addFilterQuery("type:hp_mp")
             .setRows(PHENODIGM_CORE_MAX_RESULTS);
-        //System.out.println("QRY: "+ query);
+
         QueryResponse r = phenodigmCore.query(query);
         List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
 
@@ -820,9 +973,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     if (hpSynonymSet.add(mapKey)) {
                         AutosuggestBean asyn = new AutosuggestBean();
                         asyn.setDocType("hp");
-                        asyn.setHpID(hp.getHpId());
+                        asyn.setHpId(hp.getHpId());
+                        asyn.setHpTerm(hp.getHpTerm());
                         asyn.setHpSynonym(s);
-                        asyn.setHpmpID(hp.getMpId());
+                        asyn.setHpmpId(hp.getMpId());
                         asyn.setHpmpTerm(hp.getMpTerm());
 
                         beans.add(asyn);
@@ -833,8 +987,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 if (hpIdSet.add(mapKey)) {
                     AutosuggestBean a = new AutosuggestBean();
                     a.setDocType("hp");
-                    a.setHpID(hp.getHpId());
-                    a.setHpmpID(hp.getMpId());
+                    a.setHpId(hp.getHpId());
+                    a.setHpTerm(hp.getHpTerm());
+                    a.setHpmpId(hp.getMpId());
                     a.setHpmpTerm(hp.getMpTerm());
                     beans.add(a);
                 }

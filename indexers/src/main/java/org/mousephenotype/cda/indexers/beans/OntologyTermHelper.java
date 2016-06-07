@@ -56,6 +56,30 @@ public class OntologyTermHelper {
         return null;
     }
 
+    /**
+     * Returns this term's selected-top-level terms.
+     *
+     * @return this term's selected-top-level terms.
+     */
+    public OntologyDetail getSelectedTopLevels() {
+        int level = 1;
+        List<OntologyTermBean> beans = ontologyService.getSelectedTopLevel(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+
+        return detail;
+    }
+
+    /**
+     * Returns this term's top-level terms.
+     *
+     * @return this term's top-level terms.
+     */
+    public OntologyDetail getTopLevels(Integer level) {
+        List<OntologyTermBean> beans = ontologyService.getTopLevel(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+
+        return detail;
+    }
 
     /**
      * Returns this term's top-level terms.
@@ -65,7 +89,7 @@ public class OntologyTermHelper {
     public OntologyDetail getTopLevels() {
         List<OntologyTermBean> beans = ontologyService.getTopLevel(id);
         OntologyDetail detail = new OntologyDetail(beans);
-        
+
         return detail;
     }
     
