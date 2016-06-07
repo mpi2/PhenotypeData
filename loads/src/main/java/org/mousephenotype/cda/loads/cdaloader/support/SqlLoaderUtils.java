@@ -18,8 +18,11 @@ package org.mousephenotype.cda.loads.cdaloader.support;
 
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -32,6 +35,8 @@ import java.util.List;
  * Created by mrelac on 27/05/16.
  */
 public class SqlLoaderUtils {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("komp2Loads")
@@ -74,7 +79,7 @@ public class SqlLoaderUtils {
             retVal = termList.get(0);
 
             retVal.setConsiderIds(getConsiderIs(jdbcTemplate, retVal.getId().getAccession()));
-            retVal.setSynonyms(getSynonyms(jdbcTemplate, retVal.getId().getAccession(), retVal.getId().getDatabaseId()));
+            retVal.setSynonyms(getSynonyms(jdbcTemplate, retVal.getId().getAccession()));
         }
 
         return retVal;
@@ -97,7 +102,7 @@ public class SqlLoaderUtils {
             retVal = termList.get(0);
 
             retVal.setConsiderIds(getConsiderIs(jdbcTemplate, retVal.getId().getAccession()));
-            retVal.setSynonyms(getSynonyms(jdbcTemplate, retVal.getId().getAccession(), retVal.getId().getDatabaseId()));
+            retVal.setSynonyms(getSynonyms(jdbcTemplate, retVal.getId().getAccession()));
         }
 
         return retVal;
@@ -136,16 +141,36 @@ public class SqlLoaderUtils {
      *
      * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
      * @param accessionId the desired term's accession id
-     * @param dbId the desired term's db id
      *
      * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
      *         found; an empty list otherwise
      */
-    public List<Synonym> getSynonyms(JdbcTemplate jdbcTemplate, String accessionId, int dbId) {
+    public List<Synonym> getSynonyms(JdbcTemplate jdbcTemplate, String accessionId) {
 
-        List<Synonym> termList = jdbcTemplate.query("SELECT * FROM synonym WHERE acc = ? AND db_id = ?", new SynonymRowMapper(), accessionId, dbId);
+        List<Synonym> termList = jdbcTemplate.query("SELECT * FROM synonym WHERE acc = ?", new SynonymRowMapper(), accessionId);
 
         return termList;
+    }
+
+    /**
+     * Return the matching synonym if found; null otherwise
+     *
+     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
+     * @param accessionId the desired term's accession id
+     * @param symbol the desired synonym term
+     *
+     * @return the matching synonym if found; null otherwise
+     */
+    public Synonym getSynonym(JdbcTemplate jdbcTemplate, String accessionId, String symbol) {
+        Synonym synonym = null;
+
+        List<Synonym> synonyms = jdbcTemplate.query("SELECT * FROM synonym WHERE acc = ? AND symbol = ?", new SynonymRowMapper(), accessionId, symbol);
+
+        if ( ! synonyms.isEmpty()) {
+            synonym = synonyms.get(0);
+        }
+
+        return synonym;
     }
 
     public class StrainRowMapper implements RowMapper<Strain> {
@@ -170,7 +195,7 @@ public class SqlLoaderUtils {
                 strain.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
                 strain.setName(rs.getString("name"));
 
-                strain.setSynonyms(getSynonyms(getJdbcTemplate(), rs.getString("acc"), rs.getInt("db_id")));
+                strain.setSynonyms(getSynonyms(getJdbcTemplate(), rs.getString("acc")));
 
             } catch (Exception e) {
 
@@ -198,7 +223,6 @@ public class SqlLoaderUtils {
         public Synonym mapRow(ResultSet rs, int rowNum) throws SQLException {
             Synonym term = new Synonym();
 
-            term.setId(rs.getInt("id"));
             term.setSymbol(rs.getString("symbol"));
 
             return term;
@@ -245,28 +269,31 @@ public class SqlLoaderUtils {
     }
 
     /**
-     * Insert { @code Strain} into the {@code strain} table. Synonyms are not loaded.
+     * Insert { @code Strain} into the {@code strain} table.
      *
      * @param jdbcTemplate a valid {@code JdbcTemplate} instance
      * @param strain the {@code Strain} instance to be inserted
      */
-    public void insertStrain(JdbcTemplate jdbcTemplate, Strain strain) {
-        // Insert Strain terms.
-        jdbcTemplate.update("INSERT INTO strain (acc, db_id, biotype_acc, biotype_db_id, name) VALUES (?, ?, ?, ?, ?)",
-                strain.getId().getAccession(), strain.getId().getDatabaseId(), strain.getBiotype().getId().getAccession(), strain.getBiotype().getId().getDatabaseId(), strain.getName());
-    }
+    public void insertOrUpdateStrain(JdbcTemplate jdbcTemplate, Strain strain) throws CdaLoaderException {
+        // Insert Strain term if it does not exist.
+        if (getStrain(strain.getId().getAccession()) == null) {
 
-    /**
-     * Insert the list of {@code List&ld;Synonym&gt;} into the {@code synonym} table. The strain must already exist.
-     *
-     * @param jdbcTemplate a valid {@code JdbcTemplate} instance
-     * @param strain the {@code Strain} instance containing the list of synonyms to be inserted. The strain is not changed.
-     */
-    public void insertStrainSynonym(JdbcTemplate jdbcTemplate, Strain strain) {
+            try {
+                jdbcTemplate.update("INSERT INTO strain (acc, db_id, biotype_acc, biotype_db_id, name) VALUES (?, ?, ?, ?, ?)",
+                        strain.getId().getAccession(), strain.getId().getDatabaseId(), strain.getBiotype().getId().getAccession(), strain.getBiotype().getId().getDatabaseId(), strain.getName());
 
-        for (Synonym synonym : strain.getSynonyms()) {
-            jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                    strain.getId().getAccession(), strain.getId().getDatabaseId(), synonym.getSymbol());
+            } catch (DuplicateKeyException e) {
+                logger.warn("Duplicate strain entry. Accession id: " + strain.getId().getAccession() + ". Strain: " + strain.getName()  + ". Strain not added.");
+            }
+        }
+
+        // Insert synonyms if they do not already exist.
+        List<Synonym> synonyms = strain.getSynonyms();
+        for (Synonym synonym : synonyms) {
+            if (getSynonym(jdbcTemplate, strain.getId().getAccession(), synonym.getSymbol()) == null) {
+                jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
+                        strain.getId().getAccession(), strain.getId().getDatabaseId(), synonym.getSymbol());
+            }
         }
     }
 
@@ -282,40 +309,22 @@ public class SqlLoaderUtils {
      * Returns the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
      *
      * @param accessionId the desired accessino id
-     * @param dbId the desired db id
      *
      * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
      *
      * @throws CdaLoaderException
      */
-    public Strain getStrain(String accessionId, int dbId) throws CdaLoaderException {
+    public Strain getStrain(String accessionId) throws CdaLoaderException {
 
-        List<Strain> strains = getJdbcTemplate().query("SELECT * FROM strain WHERE acc = ? AND db_id = ?", new StrainRowMapper(), accessionId, dbId);
+        List<Strain> strainList = getJdbcTemplate().query("SELECT * FROM strain WHERE acc = ?", new StrainRowMapper(), accessionId);
 
-        return (strains.isEmpty() ? null : strains.get(0));
+        return (strainList.isEmpty() ? null : strainList.get(0));
     }
 
-    /**
-     * Returns a {@List&lt;String&gt;} of strain names
-     *
-     * @return a {@List&lt;String&gt;} of strain names
-     *
-     * @throws CdaLoaderException
-     */
-    public List<String> getStrainAccessionIds() throws CdaLoaderException {
+    public List<Strain> getStrainList() throws CdaLoaderException {
 
-        List<String> strainAccessionIds = getJdbcTemplate().queryForList("SELECT acc FROM strain", String.class);
-
-        return strainAccessionIds;
+        return getJdbcTemplate().query("SELECT * FROM strain", new StrainRowMapper());
     }
-
-//    public List<Strain> getStrains() throws CdaLoaderException {
-//
-//        List<Strain> strains = getJdbcTemplate().query("SELECT * FROM strain", new StrainRowMapper());
-//
-//
-//        return strains;
-//    }
 
     /**
      * Returns the {@code OntologyTerm} matching the strain type (e.g. "inbred strain", "coisogenic", "Not Applicable",

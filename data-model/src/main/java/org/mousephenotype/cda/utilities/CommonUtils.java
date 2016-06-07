@@ -190,6 +190,28 @@ public class CommonUtils {
     }
 
     /**
+     * Given two dates (in any order), returns a <code>String</code> in the
+     * format "xxx days, yyy hours, zzz minutes, nnn seconds" that equals
+     * the absolute value of the time difference between the two days.
+     * @param date1 the first operand
+     * @param date2 the second operand
+     * @return a <code>String</code> in the format "dd:hh:mm:ss" that equals the
+     * absolute value of the time difference between the two date.
+     */
+    public String formatDateDifference(Date date1, Date date2) {
+        long lower = Math.min(date1.getTime(), date2.getTime());
+        long upper = Math.max(date1.getTime(), date2.getTime());
+        long diff = upper - lower;
+
+        long days = diff / (24 * 60 * 60 * 1000);
+        long hours = diff / (60 * 60 * 1000) % 24;
+        long minutes = diff / (60 * 1000) % 60;
+        long seconds = diff / 1000 % 60;
+
+        return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
+    }
+
+    /**
      * Returns a string containing the date represented by <code>date</code> in the format <i>yyyy/MM/dd HH:mm:ss</i>
      * @param date The date to be formatted
      * @return a string containing the formatted date

@@ -21,13 +21,11 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.JobInterruptedException;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +33,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 /**
@@ -47,7 +47,9 @@ import java.util.regex.Pattern;
  */
 public class StrainLoaderMgi implements Step, InitializingBean {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private       CommonUtils commonUtils      = new CommonUtils();
+    private       int         addedStrainCount = 0;
+    private final Logger      logger           = LoggerFactory.getLogger(this.getClass());
     private FlatFileItemReader<Strain> mgiReader;
     private String sourceFilename;
 
@@ -75,6 +77,8 @@ public class StrainLoaderMgi implements Step, InitializingBean {
             strain.setId(new DatasourceEntityId(values[0], DbIdType.MGI.intValue()));
             strain.setName(values[1]);
             strain.setBiotype(sqlLoaderUtils.getBiotype(values[2]));
+            strain.setSynonyms(new ArrayList<>());
+            addedStrainCount++;
 
             return strain;
         });
@@ -122,10 +126,49 @@ public class StrainLoaderMgi implements Step, InitializingBean {
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
         stepBuilderFactory.get("strainLoaderStep")
+                .listener(new StrainLoaderStepListener())
                 .chunk(100)
                 .reader(mgiReader)
                 .writer(writer)
                 .build()
                 .execute(stepExecution);
+    }
+
+    public class StrainLoaderStepListener implements StepExecutionListener {
+        private Date start;
+        private Date stop;
+
+        /**
+         * Initialize the state of the listener with the {@link StepExecution} from
+         * the current scope.
+         *
+         * @param stepExecution
+         */
+        @Override
+        public void beforeStep(StepExecution stepExecution) {
+            start = new Date();
+        }
+
+        /**
+         * Give a listener a chance to modify the exit status from a step. The value
+         * returned will be combined with the normal exit status using
+         * {@link ExitStatus#and(ExitStatus)}.
+         * <p/>
+         * Called after execution of step's processing logic (both successful or
+         * failed). Throwing exception in this method has no effect, it will only be
+         * logged.
+         *
+         * @param stepExecution
+         * @return an {@link ExitStatus} to combine with the normal value. Return
+         * null to leave the old value unchanged.
+         */
+        @Override
+        public ExitStatus afterStep(StepExecution stepExecution) {
+            stop = new Date();
+
+            logger.info("Added {} strains (with no synonyms) in {}", addedStrainCount, commonUtils.formatDateDifference(start, stop));
+
+            return ExitStatus.COMPLETED;
+        }
     }
 }

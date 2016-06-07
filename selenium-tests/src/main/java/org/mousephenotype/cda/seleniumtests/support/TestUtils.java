@@ -728,7 +728,7 @@ public class TestUtils {
 
         stop = new Date();
         String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
-        System.out.println(dateFormat.format(stop) + ": " + status.successCount + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + formatDateDifference(start, stop) + ".");
+        System.out.println(dateFormat.format(stop) + ": " + status.successCount + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + commonUtils.formatDateDifference(start, stop) + ".");
         if (status.hasErrors()) {
             fail("ERRORS: " + status.getErrorMessages().size());
         }
@@ -779,28 +779,6 @@ public class TestUtils {
 
     // PRIVATE METHODS
 
-
-    /**
-     * Given two dates (in any order), returns a <code>String</code> in the
-     * format "xxx days, yyy hours, zzz minutes, nnn seconds" that equals
-     * the absolute value of the time difference between the two days.
-     * @param date1 the first operand
-     * @param date2 the second operand
-     * @return a <code>String</code> in the format "dd:hh:mm:ss" that equals the
-     * absolute value of the time difference between the two date.
-     */
-    private String formatDateDifference(Date date1, Date date2) {
-        long lower = Math.min(date1.getTime(), date2.getTime());
-        long upper = Math.max(date1.getTime(), date2.getTime());
-        long diff = upper - lower;
-
-        long days = diff / (24 * 60 * 60 * 1000);
-        long hours = diff / (60 * 60 * 1000) % 24;
-        long minutes = diff / (60 * 1000) % 60;
-        long seconds = diff / 1000 % 60;
-
-        return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
-    }
 
     /**
      * Removes the protocol and double slashes from the url string

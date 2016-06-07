@@ -53,9 +53,16 @@ public class StrainWriter implements ItemWriter {
     public void write(List items) throws Exception {
 
         for (Object strain1 : items) {
-            Strain strain = (Strain) strain1;
+            if (strain1 instanceof List) {
+                List<Strain> strains = (List<Strain>) strain1;
 
-            sqlLoaderUtils.insertStrain(sqlLoaderUtils.getJdbcTemplate(), strain);
+                for (Strain strain : strains) {
+                    sqlLoaderUtils.insertOrUpdateStrain(sqlLoaderUtils.getJdbcTemplate(), strain);
+                }
+            } else {
+                Strain strain = (Strain) strain1;
+                sqlLoaderUtils.insertOrUpdateStrain(sqlLoaderUtils.getJdbcTemplate(), strain);
+            }
         }
     }
 }

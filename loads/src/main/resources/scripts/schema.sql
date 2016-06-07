@@ -387,14 +387,12 @@ CREATE TABLE genomic_feature (
 
 CREATE TABLE synonym (
 
-	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	acc                        VARCHAR(20) NOT NULL,
 	db_id                      INT(10) NOT NULL,
 	symbol                     VARCHAR(8192) NOT NULL,
 
-	PRIMARY KEY (id),
-	KEY genomic_feature_idx (acc, db_id),
-	KEY genomic_feature_acc_idx (acc),
+	PRIMARY KEY (acc, db_id),
+	UNIQUE KEY genomic_feature_acc_idx (acc),
 	KEY synonym_symbol_idx (symbol(333))
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -452,7 +450,8 @@ CREATE TABLE strain (
 
 	PRIMARY KEY (acc, db_id),
 	KEY biotype_idx (biotype_acc, biotype_db_id),
-	KEY name_idx (name)
+	UNIQUE KEY name_idx (name),
+	UNIQUE KEY (acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 

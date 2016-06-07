@@ -29,7 +29,6 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class Synonym {
 
-	private int id;
 	private String symbol;
 
 	public Synonym() {
@@ -50,20 +49,11 @@ public class Synonym {
 		this.symbol = symbol;
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	/* (non-Javadoc)
          * @see java.lang.Object#toString()
          */
 	@Override
 	public String toString() {
-		return "Synonym [id=" + id + ", symbol=" + symbol + "]";
+		return "Synonym [symbol=" + symbol + "]";
 	}
-
 }
