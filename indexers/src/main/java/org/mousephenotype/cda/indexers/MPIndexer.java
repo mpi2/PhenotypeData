@@ -40,10 +40,13 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -56,10 +59,14 @@ import java.util.*;
  * @author ilinca
  *
  */
-@Component
-public class MPIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     CommonUtils commonUtils = new CommonUtils();
+
+    @NotNull
+    @Value("${phenodigm.solrserver}")
+    private String phenodigmSolrServer;
 
     @Autowired
     @Qualifier("alleleIndexing")
@@ -92,8 +99,7 @@ public class MPIndexer extends AbstractIndexer {
     @Qualifier("mpIndexing")
     private SolrServer mpCore;
 
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
+
 
     private SolrServer phenodigmCore;
 
@@ -143,7 +149,17 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+        try {
+            run("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void run(String... strings) throws Exception {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -231,8 +247,6 @@ public class MPIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
-        return runStatus;
     }
 
 
@@ -302,7 +316,7 @@ public class MPIndexer extends AbstractIndexer {
      */
     private void initializeSolrCores() {
 
-        final String PHENODIGM_URL = config.get("phenodigm.solrserver");
+        final String PHENODIGM_URL = phenodigmSolrServer;
 
         // Use system proxy if set for external solr servers
         if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
@@ -1258,11 +1272,7 @@ public class MPIndexer extends AbstractIndexer {
 
 
     public static void main(String[] args) throws IndexerException {
-
-        MPIndexer main = new MPIndexer();
-        main.initialise(args);
-        main.run();
-        main.validateBuild();
+        SpringApplication.run(MPIndexer.class, args);
     }
 
 }

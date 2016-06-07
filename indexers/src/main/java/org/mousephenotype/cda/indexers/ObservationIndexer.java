@@ -39,7 +39,9 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -55,8 +57,8 @@ import java.util.*;
 /**
  * Populate the experiment core
  */
-@Component
-public class ObservationIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class ObservationIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
@@ -116,12 +118,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	}
 
 	public static void main(String[] args) throws IndexerException {
-
-		ObservationIndexer main = new ObservationIndexer();
-		main.initialise(args);
-		main.run();
-		main.validateBuild();
-
+		SpringApplication.run(ObservationIndexer.class, args);
 	}
 
 	@Override
@@ -186,7 +183,17 @@ public class ObservationIndexer extends AbstractIndexer {
 	}
 
 	@Override
-	public RunStatus run() throws IndexerException {
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+		try {
+			run("");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public void run(String... strings) throws Exception {
 		long count = 0;
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
@@ -202,7 +209,6 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
-		return runStatus;
 	}
 
 	public long populateObservationSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {

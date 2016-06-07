@@ -28,6 +28,7 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 /**
  * This class encapsulates the code and data necessary to serve a EMAP ontology
@@ -35,6 +36,8 @@ import org.springframework.stereotype.Component;
  * 
  * @author ckchen based on mrelac
  */
+
+@Repository
 public class EmapOntologyDAO extends OntologyDAO {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,7 +46,7 @@ public class EmapOntologyDAO extends OntologyDAO {
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
 
-    public EmapOntologyDAO() throws SQLException {
+    public EmapOntologyDAO() {
         
     }
 

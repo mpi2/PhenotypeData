@@ -28,6 +28,9 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -40,7 +43,8 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 /**
  * Populate the GWAS core
  */
-public class GwasIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class GwasIndexer extends AbstractIndexer implements CommandLineRunner {
     CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -96,7 +100,17 @@ public class GwasIndexer extends AbstractIndexer {
     }
 
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException{
+        try {
+            run("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void run(String... strings) throws Exception {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -142,7 +156,6 @@ public class GwasIndexer extends AbstractIndexer {
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
-        return runStatus;
     }
 
 
@@ -163,10 +176,6 @@ public class GwasIndexer extends AbstractIndexer {
     private final Integer MAX_ITERATIONS = 2;                                   // Set to non-null value > 0 to limit max_iterations.
 
     public static void main(String[] args) throws IndexerException, SQLException {
-
-        GwasIndexer indexer = new GwasIndexer();
-        indexer.initialise(args);
-        indexer.run();
-        indexer.validateBuild();
+        SpringApplication.run(AlleleIndexer.class, args);
     }
 }

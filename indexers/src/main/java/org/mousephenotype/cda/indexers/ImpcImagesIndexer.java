@@ -34,10 +34,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,22 +57,31 @@ import java.util.Map;
  *
  * @author jwarren
  */
-@Component
-public class ImpcImagesIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRunner {
 	CommonUtils commonUtils = new CommonUtils();
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
+	@NotNull
+	@Value("${impcMediaBaseUrl}")
+	private String impcMediaBaseUrl;
+
+	@NotNull
+	@Value("${pdfThumbnailUrl}")
+	private String pdfThumbnailUrl;
+
 	@Autowired
-	@Qualifier("observationIndexing")
-	private SolrServer observationCore;
+	@Qualifier("experimentCore")
+	SolrServer observationCore;
 
 	@Autowired
 	@Qualifier("impcImagesIndexing")
 	SolrServer impcImagesCore;
 
 	@Autowired
-	@Qualifier("alleleIndexing")
-	SolrServer alleleIndexing;
+	@Qualifier("alleleCore")
+	SolrServer alleleCore;
 
 	@Autowired
 	@Qualifier("komp2DataSource")
@@ -83,9 +96,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	@Autowired
 	MpOntologyDAO mpService;
 
-	@Resource(name = "globalConfiguration")
-	private Map<String, String> config;
-
 	@Value("classpath:uberonEfoMa_mappings.txt")
 	org.springframework.core.io.Resource resource;
 
@@ -95,7 +105,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 
-	private String impcMediaBaseUrl;
+
 	private String impcAnnotationBaseUrl;
 
 	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap(); // key:
@@ -117,14 +127,22 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	public static void main(String[] args) throws IndexerException, SQLException {
 
-		ImpcImagesIndexer main = new ImpcImagesIndexer();
-		main.initialise(args);
-		main.run();
-		main.validateBuild();
+		SpringApplication.run(ImpcImagesIndexer.class, args);
+
 	}
 
 	@Override
 	public RunStatus run() throws IndexerException {
+		try {
+			run("");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public void run(String... strings) throws Exception {
 
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
@@ -160,8 +178,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		this.alleles = populateAlleles();
 		// logger.info(" Added {} total allele beans", alleles.size());
 
-		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
-		String pdfThumbnailUrl = config.get("pdfThumbnailUrl");
+
 		// logger.info(" omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl = impcMediaBaseUrl.replace("webgateway", "webclient");
 
@@ -266,7 +283,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		logger.info(" Added {} total beans in {}", documentCount,
 				commonUtils.msToHms(System.currentTimeMillis() - start));
 
-		return runStatus;
+//		return runStatus;
 	}
 
 	private void addOntology(RunStatus runStatus, ImageDTO imageDTO, Map<String, String> stableIdToTermIdMap,
@@ -532,6 +549,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	    return true;
 	}
 
+
+
 	private class ImageBean {
 		Integer increment=0;
 		int omeroId;
@@ -541,7 +560,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	public Map<String, List<AlleleDTO>> populateAlleles() throws IndexerException {
 
-		return IndexerMap.getGeneToAlleles(alleleIndexing);
+		return IndexerMap.getGeneToAlleles(alleleCore);
 	}
 
 	private void populateImageDtoStatuses(ImageDTO img, String geneAccession) {

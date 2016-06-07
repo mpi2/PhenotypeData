@@ -158,7 +158,7 @@ public class IndexerManager {
 
 
     @Autowired
-    StatisticalResultIndexer statisticalResultIndexer;
+    StatisticalResultsIndexer statisticalResultIndexer;
 
     @Autowired
     PreqcIndexer preqcIndexer;

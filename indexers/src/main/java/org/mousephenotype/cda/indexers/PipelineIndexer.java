@@ -26,7 +26,9 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -37,8 +39,8 @@ import java.sql.SQLException;
 import java.util.*;
 
 
-@Component
-public class PipelineIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class PipelineIndexer extends AbstractIndexer implements CommandLineRunner {
     private CommonUtils commonUtils = new CommonUtils();
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -70,13 +72,8 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 
-	public static void main(String[] args)
-	throws IndexerException {
-
-		PipelineIndexer indexer = new PipelineIndexer();
-		indexer.initialise(args);
-		indexer.run();
-		indexer.validateBuild();
+	public static void main(String[] args) throws IndexerException {
+		SpringApplication.run(PipelineIndexer.class, args);
 	}
 
 
@@ -111,8 +108,17 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	@Override
-	public RunStatus run()
-	throws IndexerException {
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+		try {
+			run("");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public void run(String... strings) throws Exception {
         documentCount = 0;
         Set<String> noTermSet = new HashSet<>();
         RunStatus runStatus = new RunStatus();
@@ -253,7 +259,6 @@ public class PipelineIndexer extends AbstractIndexer {
 
         logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 
-        return runStatus;
 	}
 
     /**

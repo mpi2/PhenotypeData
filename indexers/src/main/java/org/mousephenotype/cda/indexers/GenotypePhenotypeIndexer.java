@@ -35,7 +35,9 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -48,8 +50,8 @@ import java.util.*;
 /**
  * Populate the Genotype-Phenotype core
  */
-@Component
-public class GenotypePhenotypeIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class GenotypePhenotypeIndexer extends AbstractIndexer implements CommandLineRunner {
     CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -123,16 +125,23 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         printConfiguration();
     }
 
-    public static void main(String[] args) throws IndexerException, SolrServerException, SQLException, IOException {
+    public static void main(String[] args) throws IndexerException {
+        SpringApplication.run(GenotypePhenotypeIndexer.class, args);
+    }
 
-        GenotypePhenotypeIndexer main = new GenotypePhenotypeIndexer();
-        main.initialise(args);
-        main.run();
-        main.validateBuild();
+
+    @Override
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+        try {
+            run("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
-    public RunStatus run() throws IndexerException {
+    public void run(String... strings) throws Exception {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -149,7 +158,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
-        return runStatus;
     }
 
     public void doLiveStageLookup(RunStatus runStatus) throws SQLException {

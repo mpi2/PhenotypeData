@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyUtils;
@@ -28,9 +29,13 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,8 +45,8 @@ import java.util.*;
 /**
  * Populate the experiment core
  */
-@Component
-public class SangerImagesIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class SangerImagesIndexer extends AbstractIndexer implements CommandLineRunner {
     private CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Connection komp2DbConnection;
@@ -151,15 +156,22 @@ public class SangerImagesIndexer extends AbstractIndexer {
 	}
 
 	public static void main(String[] args) throws IndexerException {
+		SpringApplication.run(SangerImagesIndexer.class, args);
+	}
 
-		SangerImagesIndexer main = new SangerImagesIndexer();
-		main.initialise(args);
-		main.run();
-		main.validateBuild();
+
+	@Override
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+		try {
+			run("");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override
-	public RunStatus run() throws IndexerException {
+	public void run(String... strings) throws Exception {
         long count = 0;
         RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
@@ -173,7 +185,6 @@ public class SangerImagesIndexer extends AbstractIndexer {
             logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         }
 
-		return runStatus;
 	}
 
 	public int populateSangerImagesCore(RunStatus runStatus) throws IndexerException {
