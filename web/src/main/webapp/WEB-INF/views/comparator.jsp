@@ -121,7 +121,7 @@
 	            			">
 	            				<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img  id="${img.omero_id}" src="../${pdfThumbnailUrl}" data-id="${img.omero_id}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+										<img  id="${img.omero_id}" src="../${pdfThumbnailUrl}" data-id="${img.omero_id}" style="width:${thumbnailSize}px" class="thumb <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 									</c:when>
 									<c:otherwise>
 	            						<img  id="${img.omero_id}" class="thumb" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/96/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
@@ -181,11 +181,11 @@
 					    
 					    <div class="thumbList">
 					    
-					        <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
+					       <!--  <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
 					
 					        <img class="thumb2" data-id="87015" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87015/96/"/>
 					
-					        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/> 
+					        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/>  -->
 					        
 					        <c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
 	            			<c:set var="mutantText" value="Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
@@ -204,7 +204,7 @@
 	            			">
 								<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="thumb2 <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 									</c:when>
 									<c:otherwise>
 	            						<img class="thumb2" id="${img.omero_id}" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/96/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">

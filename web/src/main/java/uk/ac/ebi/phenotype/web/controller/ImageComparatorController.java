@@ -116,9 +116,13 @@ public class ImageComparatorController {
 		model.addAttribute("mutants", filteredMutants);
 		System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
-		return "comparator";
+		if(mediaType!=null && mediaType.equals("pdf")){//we need iframes to load google pdf viewer so switch to this view for the pdfs.
+			return "comparatorFrames";
+		}
+		return "comparator";//js viewport used to view images in this view.
 	}
-
+	
+	
 	private SolrDocumentList filterImagesByZygosity(SolrDocumentList imageDocs, List<ZygosityType> zygosityTypes) {
 		SolrDocumentList filteredImages=new SolrDocumentList();
 		if(zygosityTypes.get(0).getName().equals("not_applicable")){//just return don't filter if not applicable default is found
