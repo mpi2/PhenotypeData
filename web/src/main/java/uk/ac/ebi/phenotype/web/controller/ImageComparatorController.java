@@ -122,6 +122,12 @@ public class ImageComparatorController {
 		return "comparator";//js viewport used to view images in this view.
 	}
 	
+	@RequestMapping("/imageComparatorTest")
+	public String imageCompBrowser(){
+		return "comparatorBasicTest";
+		
+	}
+	
 	
 	private SolrDocumentList filterImagesByZygosity(SolrDocumentList imageDocs, List<ZygosityType> zygosityTypes) {
 		SolrDocumentList filteredImages=new SolrDocumentList();
