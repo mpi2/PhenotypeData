@@ -1,44 +1,44 @@
 $(document).ready(function(){						
+	var omeroStaticUrl=impcMediaBaseUrl.replace('/omero/webgateway', '/static/');
+	
+	var previousControlId;
+	var previousMutantId;
+	var viewport = $.WeblitzViewport($("#viewport"), impcMediaBaseUrl, {
+        'mediaroot': omeroStaticUrl
+    });
 	
 	
-	
+	  var temp=$(".thumb").first();
+	    var id=temp.attr('data-id');
+	$('#control_annotation').text(temp.attr('oldtitle'));
+    if(id){
+    	
+    	viewport.load(id);
+    	previousControlId=id;
+    }
+    temp.toggleClass( "img_selected");
+    
+
+	/* Prepare right viewport */
+	var viewport2 = $.WeblitzViewport($("#viewport2"), impcMediaBaseUrl, {
+    'mediaroot': omeroStaticUrl
+	});
 	
     /* Load the selected image into the viewport */
-    var temp=$(".thumb").first();
-    var id=temp.attr('data-id');
+	  
+	    
     
-    	 $('#control_annotation').text(temp.attr('oldtitle'));
-    	    if(id){
-    	    	 var viewport = $.WeblitzViewport($("#viewport"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
-    	                'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
-    	            });
-    	    	viewport.load(id);
-    	    	var previousControlId=id;
-    	    }
-    	    temp.toggleClass( "img_selected");
-    	    
-    	   
-    
-    
-   
-    
-    
-
-
-    var temp2=$(".thumb2").first();
-    var id2=temp2.attr('data-id');
-    
-    
-    	$('#mutant_annotation').text(temp2.attr('oldtitle'));
-    	if(id2){
-    		/* Prepare right viewport */
-        	var viewport2 = $.WeblitzViewport($("#viewport2"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
-            'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
-        	});
-    		viewport2.load(id2);
-    		var previousMutantId=id2;
-    	}
-    	temp2.toggleClass( "img_selected");
+	    var temp2=$(".thumb2").first();
+	    var id2=temp2.attr('data-id');
+	    
+	    
+	    	$('#mutant_annotation').text(temp2.attr('oldtitle'));
+	    	if(id2){
+	    		
+	    		viewport2.load(id2);
+	    		var previousMutantId=id2;
+	    	}
+	    	temp2.toggleClass( "img_selected");
     
     
     
@@ -82,7 +82,7 @@ $(document).ready(function(){
   	  previousMutantId=this.id;
   	  //change the text under the main image to be the same as the title
   	  $('#mutant_annotation').text($(this).attr('oldtitle'));
-  	viewport2.initialise();
+  	//viewport2.initialise();
     });
     
     
