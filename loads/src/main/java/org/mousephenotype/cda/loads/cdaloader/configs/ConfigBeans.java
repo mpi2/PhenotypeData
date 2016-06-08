@@ -21,6 +21,8 @@ import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.*;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -221,4 +223,18 @@ public class ConfigBeans {
     public StrainProcessorImsr strainProcessorImsr() {
         return new StrainProcessorImsr();
     }
+
+    /**
+     * ******** DO NOT DELETE. JUST UNCOMMENT IF YOU NEED THE SPRING BATCH TABLES REBUILT ********
+     * Using this home-grown jobRepository correctly recreates the spring batch tables. Without it, you have to
+     * recreate the tables manually after dropping them.
+     */
+//    @Bean(name = "jobRepository")
+//    public JobRepository jobRepository() throws Exception {
+//        MapJobRepositoryFactoryBean b = new MapJobRepositoryFactoryBean();
+//
+//        JobRepository jobRepository = b.getObject();
+//
+//        return jobRepository;
+//    }
 }

@@ -32,6 +32,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -161,6 +162,14 @@ public class StrainLoaderImsr implements Step, InitializingBean {
             stop = new Date();
 
             logger.info("Added {} strains and {} synonyms in {}", addedStrainCount, addedSynonymCount, commonUtils.formatDateDifference(start, stop));
+
+            Set<String> errMessages = ((StrainProcessorImsr)strainProcessorImsr).errMessages;
+            if (! errMessages.isEmpty()) {
+                logger.warn("CV TERMS NOT FOUND:");
+                for (String s : ((StrainProcessorImsr) strainProcessorImsr).errMessages) {
+                    logger.warn("\t" + s);
+                }
+            }
 
             return ExitStatus.COMPLETED;
         }

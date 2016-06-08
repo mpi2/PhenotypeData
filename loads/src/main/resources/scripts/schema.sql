@@ -391,8 +391,8 @@ CREATE TABLE synonym (
 	db_id                      INT(10) NOT NULL,
 	symbol                     VARCHAR(8192) NOT NULL,
 
-	PRIMARY KEY (acc, db_id),
-	UNIQUE KEY genomic_feature_acc_idx (acc),
+	PRIMARY KEY (acc, db_id, symbol(300)),
+	KEY genomic_feature_acc_idx (acc),
 	KEY synonym_symbol_idx (symbol(333))
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -450,7 +450,7 @@ CREATE TABLE strain (
 
 	PRIMARY KEY (acc, db_id),
 	KEY biotype_idx (biotype_acc, biotype_db_id),
-	UNIQUE KEY name_idx (name),
+  UNIQUE KEY name_idx (name),
 	UNIQUE KEY (acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -2315,6 +2315,9 @@ INSERT INTO participant(project_id, organisation_id, role)
   INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000026', 3, 'recombinant congenic (RC)', 'recombinant congenic (RC)');
   INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000027', 3, 'recombinant inbred (RI)', 'recombinant inbred (RI)');
   INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000028', 3, 'mutant strain', 'mutant strain as defined in IMSR');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000029', 3, 'unclassified', 'unclassified');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000030', 3, 'segregating inbred', 'segregating inbred as defined in IMSR');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000031', 3, 'mutant stock', 'mutant stock as defined in IMSR');
 
   INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000050', 3, 'EuroPhenome mutant strain', 'mutant strain as defined in EuroPhenome');
   INSERT INTO ontology_term (acc, db_id, name, description)
