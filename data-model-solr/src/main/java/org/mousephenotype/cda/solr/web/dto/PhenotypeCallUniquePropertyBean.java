@@ -13,7 +13,10 @@ public class PhenotypeCallUniquePropertyBean {
 	private ImpressBaseDTO parameter;
 	private ImpressBaseDTO pipeline;
 	private MarkerBean allele;
+	private String phenotypingCenters;
 	
+	
+
 	public PhenotypeCallUniquePropertyBean(){
 		
 	}
@@ -69,10 +72,24 @@ public class PhenotypeCallUniquePropertyBean {
 		this.allele = allele;
 	}
 	
+	public String getPhenotypingCenters() {
+		return phenotypingCenters;
+	}
+
+
+	public void setPhenotypingCenters(String phenotypingCenters) {
+		this.phenotypingCenters = phenotypingCenters;
+	}
+
+
 	@Override
 	public String toString() {
 		return "PhenotypeCallUniquePropertyBean [project=" + project + ", procedure=" + procedure + ", parameter="
-				+ parameter + ", pipeline=" + pipeline + ", allele=" + allele + "]";
+				+ parameter + ", pipeline=" + pipeline + ", allele=" + allele + ", phenotypingCenter="
+				+ phenotypingCenters + "]";
 	}
+
+	
+	
 
 }

@@ -615,14 +615,15 @@ public class GenesController {
 				if (pcs.getProject() != null && pcs.getProject().getId() != null) {
 					propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
 				}
-				//pr.getProjectId()
+				propBean.setProject(pr.getProjectId());
 		        //phenotypingCenter
+				propBean.setPhenotypingCenters(pr.getPhenotypingCenter());
 		        //procedure.hashCode() 
 				propBean.setProcedure(pcs.getProcedure());
 		        // parameter
 				propBean.setParameter(pcs.getParameter());
 		        //dataSourceName
-				//pr.addPipeline(pcs.getPipeline());
+				propBean.setPipeline(pcs.getPipeline());
 		       // pipeline
 				//allele_accession_id
 				propBean.setAllele(pcs.getAllele());
