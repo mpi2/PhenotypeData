@@ -26,7 +26,7 @@
              items="${impcFacetToDocs[entry.name]}">
     
     	<ul>
-    	<c:set var="label" value="${doc.parameter_name}"/>
+    	<c:set var="label" value="${doc.procedure_name}: ${doc.parameter_name}"/>
        	<c:if test="${doc.parameter_name eq 'Images'}">
            		<c:set var="label" value="${doc.procedure_name}"/>
         </c:if>

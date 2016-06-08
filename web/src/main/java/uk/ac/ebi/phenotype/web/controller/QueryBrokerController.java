@@ -84,11 +84,10 @@ public class QueryBrokerController {
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
 
-		String internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
 		String solrParams = "&rows=0&wt=json&&defType=edismax&qf=auto_suggest&facet.field=docType&facet=on&facet.limit=-1&facet.mincount=1";
 
-		//String solrurl = SolrUtils.getBaseURL(solrIndex.getSolrServer("autosuggest")) + "/select?q=" + query + solrParams; // not working, points to omero image baseurl
-		String solrurl = internalSolrUrl + "/autosuggest/select?q=" + query + solrParams;
+		String solrurl = SolrUtils.getBaseURL(solrIndex.getSolrServer("autosuggest")) + "/select?q=" + query + solrParams; // not working, points to omero image baseurl
+
 		//System.out.println("QueryBroker url: "+ solrurl);
 		JSONObject json = solrIndex.getResults(solrurl);
 

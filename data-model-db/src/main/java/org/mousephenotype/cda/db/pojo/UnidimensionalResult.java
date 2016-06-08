@@ -136,7 +136,33 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
 
 	private String mpTermName;
 
-    /**
+	// For reference range plus results
+	private Double genotypePvalueLowVsNormalHigh;
+	private Double genotypePvalueLowNormalVsHigh;
+	private Double genotypeEffectSizeLowVsNormalHigh;
+	private Double genotypeEffectSizeLowNormalVsHigh;
+
+	private Double femalePvalueLowVsNormalHigh;
+	private Double femalePvalueLowNormalVsHigh;
+	private Double femaleEffectSizeLowVsNormalHigh;
+	private Double femaleEffectSizeLowNormalVsHigh;
+
+	private Double malePvalueLowVsNormalHigh;
+	private Double malePvalueLowNormalVsHigh;
+	private Double maleEffectSizeLowVsNormalHigh;
+	private Double maleEffectSizeLowNormalVsHigh;
+
+	private String classification;
+
+	public String getClassification() {
+		return classification;
+	}
+
+	public void setClassification(String classification) {
+		this.classification = classification;
+	}
+
+	/**
      * pValue is reported by the mixed model code as the nullTestSignificance
      * Rather than store pValue twice, just alias the getter/setter
      *
@@ -411,7 +437,104 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
         this.genderMaleKoPValue = genderMaleKoPValue;
     }
 
-    @Override
+
+	public Double getGenotypePvalueLowVsNormalHigh() {
+		return genotypePvalueLowVsNormalHigh;
+	}
+
+	public void setGenotypePvalueLowVsNormalHigh(Double genotypePvalueLowVsNormalHigh) {
+		this.genotypePvalueLowVsNormalHigh = genotypePvalueLowVsNormalHigh;
+	}
+
+	public Double getGenotypePvalueLowNormalVsHigh() {
+		return genotypePvalueLowNormalVsHigh;
+	}
+
+	public void setGenotypePvalueLowNormalVsHigh(Double genotypePvalueLowNormalVsHigh) {
+		this.genotypePvalueLowNormalVsHigh = genotypePvalueLowNormalVsHigh;
+	}
+
+	public Double getGenotypeEffectSizeLowVsNormalHigh() {
+		return genotypeEffectSizeLowVsNormalHigh;
+	}
+
+	public void setGenotypeEffectSizeLowVsNormalHigh(Double genotypeEffectSizeLowVsNormalHigh) {
+		this.genotypeEffectSizeLowVsNormalHigh = genotypeEffectSizeLowVsNormalHigh;
+	}
+
+	public Double getGenotypeEffectSizeLowNormalVsHigh() {
+		return genotypeEffectSizeLowNormalVsHigh;
+	}
+
+	public void setGenotypeEffectSizeLowNormalVsHigh(Double genotypeEffectSizeLowNormalVsHigh) {
+		this.genotypeEffectSizeLowNormalVsHigh = genotypeEffectSizeLowNormalVsHigh;
+	}
+
+	public Double getFemalePvalueLowVsNormalHigh() {
+		return femalePvalueLowVsNormalHigh;
+	}
+
+	public void setFemalePvalueLowVsNormalHigh(Double femalePvalueLowVsNormalHigh) {
+		this.femalePvalueLowVsNormalHigh = femalePvalueLowVsNormalHigh;
+	}
+
+	public Double getFemalePvalueLowNormalVsHigh() {
+		return femalePvalueLowNormalVsHigh;
+	}
+
+	public void setFemalePvalueLowNormalVsHigh(Double femalePvalueLowNormalVsHigh) {
+		this.femalePvalueLowNormalVsHigh = femalePvalueLowNormalVsHigh;
+	}
+
+	public Double getFemaleEffectSizeLowVsNormalHigh() {
+		return femaleEffectSizeLowVsNormalHigh;
+	}
+
+	public void setFemaleEffectSizeLowVsNormalHigh(Double femaleEffectSizeLowVsNormalHigh) {
+		this.femaleEffectSizeLowVsNormalHigh = femaleEffectSizeLowVsNormalHigh;
+	}
+
+	public Double getFemaleEffectSizeLowNormalVsHigh() {
+		return femaleEffectSizeLowNormalVsHigh;
+	}
+
+	public void setFemaleEffectSizeLowNormalVsHigh(Double femaleEffectSizeLowNormalVsHigh) {
+		this.femaleEffectSizeLowNormalVsHigh = femaleEffectSizeLowNormalVsHigh;
+	}
+
+	public Double getMalePvalueLowVsNormalHigh() {
+		return malePvalueLowVsNormalHigh;
+	}
+
+	public void setMalePvalueLowVsNormalHigh(Double malePvalueLowVsNormalHigh) {
+		this.malePvalueLowVsNormalHigh = malePvalueLowVsNormalHigh;
+	}
+
+	public Double getMalePvalueLowNormalVsHigh() {
+		return malePvalueLowNormalVsHigh;
+	}
+
+	public void setMalePvalueLowNormalVsHigh(Double malePvalueLowNormalVsHigh) {
+		this.malePvalueLowNormalVsHigh = malePvalueLowNormalVsHigh;
+	}
+
+	public Double getMaleEffectSizeLowVsNormalHigh() {
+		return maleEffectSizeLowVsNormalHigh;
+	}
+
+	public void setMaleEffectSizeLowVsNormalHigh(Double maleEffectSizeLowVsNormalHigh) {
+		this.maleEffectSizeLowVsNormalHigh = maleEffectSizeLowVsNormalHigh;
+	}
+
+	public Double getMaleEffectSizeLowNormalVsHigh() {
+		return maleEffectSizeLowNormalVsHigh;
+	}
+
+	public void setMaleEffectSizeLowNormalVsHigh(Double maleEffectSizeLowNormalVsHigh) {
+		this.maleEffectSizeLowNormalVsHigh = maleEffectSizeLowNormalVsHigh;
+	}
+
+	@Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
