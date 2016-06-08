@@ -28,7 +28,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,7 +61,7 @@ public class ExpressionService extends BasicService {
 	ImpressService impressService;
 
 	@Autowired
-	private MaService maService;
+	private AnatomyService anatomyService;
 
 	// @Autowired
 	// MaService maService;
@@ -75,12 +74,12 @@ public class ExpressionService extends BasicService {
 	}
 
 	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl, String impressServiceUrl,
-			String maServiceUrl) {
+			String anatomyServiceUrl) {
 
 		experimentSolr = new HttpSolrServer(experimentSolrUrl);
 		imagesSolr = new HttpSolrServer(imagesSolrUrl);
 		impressService = new ImpressService(impressServiceUrl);
-		maService = new MaService(maServiceUrl);
+		anatomyService = new AnatomyService(anatomyServiceUrl);
 	}
 
 	@PostConstruct
@@ -498,7 +497,7 @@ public class ExpressionService extends BasicService {
 				// we get the associated intermediate terms so we include
 				// all possible uberon ids
 				// higher up the tree to display on the anatomogram
-				bean = maService.getUberonIdAndTopLevelMaTerm(bean);
+				bean = anatomyService.getUberonIdAndTopLevelMaTerm(bean);
 				anatomogramDataBeans.add(bean);
 			}
 		}

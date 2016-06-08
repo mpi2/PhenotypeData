@@ -20,7 +20,7 @@ import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.MaService;
+import org.mousephenotype.cda.solr.service.AnatomyService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.web.dto.Anatomy;
@@ -52,7 +52,7 @@ public class AnatomyController {
 	ImageService is;
 
 	@Autowired
-	MaService maService;
+	AnatomyService anatomyService;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -92,10 +92,10 @@ public class AnatomyController {
         model.addAttribute("phenoFacets", getFacets(anatomy_id));
 
         // Stuff for parent-child display
-        model.addAttribute("hasChildren", maService.getChildren(anatomy_id).size() > 0 ? true : false);
-        model.addAttribute("hasParents", maService.getParents(anatomy_id).size() > 0 ? true : false);
+        model.addAttribute("hasChildren", anatomyService.getChildren(anatomy_id).size() > 0 ? true : false);
+        model.addAttribute("hasParents", anatomyService.getParents(anatomy_id).size() > 0 ? true : false);
 
-        System.out.println(" --- " + maService.getChildren(anatomy_id) + " " + maService.getParents(anatomy_id));
+        System.out.println(" --- " + anatomyService.getChildren(anatomy_id) + " " + anatomyService.getParents(anatomy_id));
 
         return "anatomy";
 
@@ -122,7 +122,7 @@ public class AnatomyController {
 	    	data.element("id", maId);
 	    	JSONArray nodes = new JSONArray();
 
-	    	for (OntologyBean term : maService.getParents(maId)){
+	    	for (OntologyBean term : anatomyService.getParents(maId)){
 	    		nodes.add(term.toJson());
 	    	}
 
@@ -135,7 +135,7 @@ public class AnatomyController {
         	data.element("id", maId);
         	JSONArray nodes = new JSONArray();
 
-        	for (OntologyBean term : maService.getChildren(maId)){
+        	for (OntologyBean term : anatomyService.getChildren(maId)){
 	    		nodes.add(term.toJson());
 	    	}
 

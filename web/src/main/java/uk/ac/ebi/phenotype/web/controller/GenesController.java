@@ -620,7 +620,7 @@ public class GenesController {
 			}
 			
 			if(pr.getTopLevelPhenotypeTerms()!=null){
-				List<String>topLevelMpGroups=new ArrayList<>();
+				Set<String>topLevelMpGroups=new TreeSet<>();
 				for(BasicBean topMp: pr.getTopLevelPhenotypeTerms()){
 					String group=PhenotypeSummaryType.getGroup(topMp.getName());
 					topLevelMpGroups.add(group);

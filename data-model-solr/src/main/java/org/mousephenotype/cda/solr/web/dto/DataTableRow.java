@@ -30,6 +30,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -68,13 +69,13 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected String gid;
     protected String colonyId;
 	protected List<BasicBean> topLevelPhenotypeTerms;//keep the top level terms so we can display the correct icons next to them in the row
-	protected List<String> topLevelMpGroups;
+	protected Set<String> topLevelMpGroups;
 	
-    public List<String> getTopLevelMpGroups() {
+    public Set<String> getTopLevelMpGroups() {
 		return topLevelMpGroups;
 	}
 
-	public void setTopLevelMpGroups(List<String> topLevelMpGroups) {
+	public void setTopLevelMpGroups(Set<String> topLevelMpGroups) {
 		this.topLevelMpGroups = topLevelMpGroups;
 	}
 
@@ -112,10 +113,27 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         }
 
         this.buildEvidenceLink(baseUrl, hasImages);
+        this.adjustPhenotypeColumnIfNecessary();
         
     }
     
-    private void setTopLevelPhenotypeTerms(List<BasicBean> topLevelPhenotypeTerms) {
+    /**
+     * Currently as histopath data is set up differently in Impress we need to change the phenotype column to show the phenotype using the parameter name 
+     * rather than something too generic as it is by default like "developmental and structural abnormality" 
+     */
+    private void adjustPhenotypeColumnIfNecessary() {
+    	if ( procedure.getName().startsWith("Histopathology") ){
+    		BasicBean paramBean=new BasicBean();
+    		
+    		paramBean.setName(parameter.getName().replace("MPATH process term", "")+ " "+ this.phenotypeTerm.getName());
+    		
+           this.setPhenotypeTerm(paramBean);
+        	
+        }
+		
+	}
+
+	private void setTopLevelPhenotypeTerms(List<BasicBean> topLevelPhenotypeTerms) {
 		this.topLevelPhenotypeTerms=topLevelPhenotypeTerms;
 		
 	}
