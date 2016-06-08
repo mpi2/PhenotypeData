@@ -70,6 +70,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected String colonyId;
 	protected List<BasicBean> topLevelPhenotypeTerms;//keep the top level terms so we can display the correct icons next to them in the row
 	protected Set<String> topLevelMpGroups;
+	private List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans=new ArrayList<>();
 	
     public Set<String> getTopLevelMpGroups() {
 		return topLevelMpGroups;
@@ -452,7 +453,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         int result = config != null ? config.hashCode() : 0;
         result = 31 * result + (phenotypeTerm != null ? phenotypeTerm.hashCode() : 0);
         result = 31 * result + (gene != null ? gene.hashCode() : 0);
-        result = 31 * result + (allele != null ? allele.hashCode() : 0);
+        //result = 31 * result + (allele != null ? allele.hashCode() : 0);
  //       result = 31 * result + (sexes != null ? sexes.hashCode() : 0);
         result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
         result = 31 * result + (lifeStageName != null ? lifeStageName.hashCode() : 0);
@@ -473,7 +474,9 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
    
 
-    @Override
+    
+
+	@Override
 	public String toString() {
 		return "DataTableRow [config=" + config + ", phenotypeTerm=" + phenotypeTerm + ", gene=" + gene + ", allele="
 				+ allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ", lifeStageName=" + lifeStageName
@@ -481,7 +484,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 				+ phenotypingCenter + ", procedure=" + procedure + ", parameter=" + parameter + ", dataSourceName="
 				+ dataSourceName + ", evidenceLink=" + evidenceLink + ", pipeline=" + pipeline + ", pValue=" + pValue
 				+ ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" + colonyId + ", topLevelPhenotypeTerms="
-				+ topLevelPhenotypeTerms + ", topLevelMpGroups=" + topLevelMpGroups + "]";
+				+ topLevelPhenotypeTerms + ", topLevelMpGroups=" + topLevelMpGroups
+				+ ",\n phenotypeCallUniquePropertyBeans=" + phenotypeCallUniquePropertyBeans + "\n]";
 	}
 
 	public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, String metadataGroup, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
@@ -519,5 +523,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
         return url;
     }
+
+	public void addPhenotypeCallUniqueProperties(PhenotypeCallUniquePropertyBean propBean) {
+		this.phenotypeCallUniquePropertyBeans.add(propBean);
+		
+	}
     
 }

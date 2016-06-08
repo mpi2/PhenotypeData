@@ -66,6 +66,7 @@ import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallUniquePropertyBean;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
@@ -608,14 +609,25 @@ public class GenesController {
 					pr.setpValue(pcs.getpValue());
 				}
 				
-				//now we severely collapsing rows by 
+				//now we severely collapsing rows by so we need to store these as an list
 				 //projectId;
+				PhenotypeCallUniquePropertyBean propBean=new PhenotypeCallUniquePropertyBean();
+				if (pcs.getProject() != null && pcs.getProject().getId() != null) {
+					propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
+				}
 				//pr.getProjectId()
 		        //phenotypingCenter
 		        //procedure.hashCode() 
+				propBean.setProcedure(pcs.getProcedure());
 		        // parameter
+				propBean.setParameter(pcs.getParameter());
 		        //dataSourceName
+				//pr.addPipeline(pcs.getPipeline());
 		       // pipeline
+				//allele_accession_id
+				propBean.setAllele(pcs.getAllele());
+				pr.addPhenotypeCallUniqueProperties(propBean);
+				
 				
 			}
 			
@@ -634,9 +646,9 @@ public class GenesController {
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
-		for(GenePageTableRow row:l){
-			System.out.println("row="+row);
-		}
+//		for(GenePageTableRow row:l){
+//			System.out.println("row="+row);
+//		}
 		model.addAttribute("phenotypes", l);
 
 	}
