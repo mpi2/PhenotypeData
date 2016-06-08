@@ -98,7 +98,7 @@
                     </c:if>
                 </c:forEach>
             </td>
-            <td>${phenotype.lifeStageName}</td>
+            <td>${phenotype.lifeStageName} ${phenotype}</td>
 
             
             
@@ -130,6 +130,7 @@
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
 					<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
 				</c:if>
+				
 			</c:if>
 			<c:if test="${phenotype.isPreQc()}">
 				<i class="fa fa-exclamation" ></i> </span>
