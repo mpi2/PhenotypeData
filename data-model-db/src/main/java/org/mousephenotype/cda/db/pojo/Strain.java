@@ -148,12 +148,6 @@ public class Strain {
 		this.name = name;
 	}
 
-
-//	public String toString() {
-//		return "Id: " + id + "; Name: " + name + ";";
-//	}
-
-
 	@Override
 	public String toString() {
 

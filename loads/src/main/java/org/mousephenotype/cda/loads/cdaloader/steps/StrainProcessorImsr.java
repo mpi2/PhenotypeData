@@ -31,10 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Contains the business processing rules for loading the imsr strains.
@@ -44,6 +41,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
 
     private       int                 addedEucommStrainCount     = 0;
     private       int                 addedSynonymCount          = 0;
+    public final  Set<String>         errMessages                = new HashSet<>();
     private       int                 lineNumber                 = 0;
     private final Logger              logger                     = LoggerFactory.getLogger(this.getClass());
     private       Map<String, Strain> strainsMap                 = new HashMap<>();     // Key = accession id. Value = Strain instance.
@@ -152,8 +150,12 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
             return null;
         }
 
-        // Sometimes the report.txt file incorrectly reports a strain as a synonym. Fix this by walking each synonym, comparing it against the MGI_Strain.rpt's 'name' field and,
-        // if a match is found, and the synonym does not yet exist, insert it into the synonym table of the strain accession id matching the 'name' field.
+        // Sometimes the report.txt file incorrectly reports a strain name as a synonym. Fix this by comparing each
+        // synonym with the strainNameToAccessionIdMap key and, if there is a match:
+        //    if the strain/stock name does not yet exist as a synonym:
+        //       create a synonym from the strain/stock value
+        //       add the Synonym instance to this strain's list of synonyms.
+        //       add the strain containing the new Synonym instance to the list of returned strains
         synonymCell = values[OFFSET_SYNONYMS];
         String[] synonymNames = synonymCell.split(",");
         try {
@@ -168,17 +170,17 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
                     String strainAccessionId = strainNameToAccessionIdMap.get(synonymName);
                     Strain strain = strainsMap.get(strainAccessionId);
 
-                    if (strain.getSynonym(synonymName) == null) {               // If strain.synonyms does NOT contain the symbol ...
-                                                                                // Add the synonym to the strainsMap.
+                    if (strain.getSynonym(values[OFFSET_NAME]) == null) {
                         Synonym synonym = new Synonym();
-                        synonym.setSymbol(synonymName);
+                        synonym.setSymbol(values[OFFSET_NAME]);
                         strain.getSynonyms().add(synonym);
                         if (strains == null) {
                             strains = new ArrayList<>();
                         }
                         strains.add(strain);                                    // Add the modified strain to the returned strain list.
+                        strainsMap.put(strain.getId().getAccession(), strain);  // Update the strainsMap with the strain with the newly added synonym.
 
-                        logger.info("[{}] Adding synonym '{}' to {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
+                        logger.info("[{}] Creating synonym '{}' for {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
                         synonymFound = true;
                         addedSynonymCount++;
                     }
@@ -195,9 +197,10 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
         }
 
         // If we got here, it's because no synonyms were found.
-        // If report.txt strainStock contains the string "EUCOMM", and the report.txt strainStock value is not in strainsMap,
-        // add the strain and its synonyms to the database and the strain to strainsMap.
-        if ((values[OFFSET_NAME]).contains("EUCOMM") && ( ! strainsMap.containsKey(values[OFFSET_NAME]))) {
+        // If report.txt strainStock contains the string "EUCOMM", and the report.txt strainStock value is not in strainNameToAccessionIdMap,
+        // add the strain and its synonyms to the database and to strainsMap and the strain name to strainNameToAccessionIdMap.
+
+        if ((values[OFFSET_NAME]).contains("EUCOMM") && ( ! strainNameToAccessionIdMap.containsKey(values[OFFSET_NAME]))) {
             Strain strain = new Strain();
             try {
                 strain.setBiotype(sqlLoaderUtils.getBiotype(values[OFFSET_STRAINTYPE]));
@@ -213,18 +216,27 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
                     }
 
                     Synonym synonym = new Synonym();
-                    synonym.setSymbol("IMSR_EUCOMM_" + addedEucommStrainCount);
                     synonym.setSymbol(synonymName);
+                    synonyms.add(synonym);
+
+                    logger.info("[{}] Creating synonym '{}' for {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
+
                     addedSynonymCount++;
                 }
 
+                if (strains == null) {
+                    strains = new ArrayList<>();
+                }
+                strains.add(strain);
+                strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
                 strainsMap.put(strain.getId().getAccession(), strain);
 
-                logger.info("[{}] Creating EUCOMM strain {} with synonyms '[{}]'", lineNumber, strain.getName(), strain.toStringSynonyms());
+                logger.info("[{}] Creating EUCOMM strain for {} with name '{}' and synonyms '[{}]'", lineNumber, strain.getId().getAccession(), strain.getName(), strain.toStringSynonyms());
                 addedEucommStrainCount++;
 
             } catch (CdaLoaderException e) {
                 System.out.println(e.getLocalizedMessage());
+                errMessages.add(e.getLocalizedMessage());
             }
         }
 

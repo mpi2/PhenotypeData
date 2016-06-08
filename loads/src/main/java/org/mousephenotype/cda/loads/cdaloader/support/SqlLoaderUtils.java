@@ -337,6 +337,7 @@ public class SqlLoaderUtils {
      */
     public OntologyTerm getBiotype(String strainType) throws CdaLoaderException {
 
+        strainType = getMappedStrainType(strainType);
         OntologyTerm term = getOntologyTerm(getJdbcTemplate(), strainType);
 
         if (term == null) {
@@ -360,5 +361,25 @@ public class SqlLoaderUtils {
         }
 
         return jdbcTemplate;
+    }
+
+
+    // PRIVATE METHODS
+
+
+    private final String[][] mappedStrainTypes = new String[][] {
+              { "congenic strain",   "congenic" }
+            , { "coisogenic strain", "coisogenic" }
+    };
+    public String getMappedStrainType(String strainType) {
+        String retVal = strainType;
+        for (int i = 0; i < mappedStrainTypes.length; i++) {
+            if (strainType.equals(mappedStrainTypes[i][0])) {
+                retVal = mappedStrainTypes[i][1];
+                break;
+            }
+        }
+
+        return retVal;
     }
 }
