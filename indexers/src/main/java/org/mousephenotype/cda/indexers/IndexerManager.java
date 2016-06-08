@@ -37,6 +37,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -68,7 +69,7 @@ public class IndexerManager {
     public static final String IMAGES_CORE = "images";
     public static final String IMPC_IMAGES_CORE = "impc_images";
     public static final String MP_CORE = "mp";
-    public static final String MA_CORE = "ma";
+    public static final String ANATOMY_CORE = "anatomy";
     public static final String PIPELINE_CORE = "pipeline";
     public static final String GENE_CORE = "gene";
     public static final String DISEASE_CORE = "disease";
@@ -109,7 +110,8 @@ public class IndexerManager {
           // In dependency order. These are built only for a new data release.
           OBSERVATION_CORE
         , GENOTYPE_PHENOTYPE_CORE
-        , STATSTICAL_RESULT_CORE
+	    , STATSTICAL_RESULT_CORE
+	    , MGI_PHENOTYPE_CORE
 
           // These are built daily.
         , PREQC_CORE
@@ -117,7 +119,7 @@ public class IndexerManager {
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
         , MP_CORE
-        , MA_CORE
+        , ANATOMY_CORE
         , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
@@ -132,7 +134,7 @@ public class IndexerManager {
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
         , MP_CORE
-        , MA_CORE
+        , ANATOMY_CORE
         , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
@@ -174,7 +176,7 @@ public class IndexerManager {
     MPIndexer mpIndexer;
 
     @Autowired
-    MAIndexer maIndexer;
+    AnatomyIndexer anatomyIndexer;
 
     @Autowired
     PipelineIndexer pipelineIndexer;
@@ -282,7 +284,7 @@ public class IndexerManager {
         transactionManager.getTransaction(transactionAttribute);
     }
 
-    public void run() throws IndexerException, IOException, SolrServerException {
+    public void run() throws IndexerException, IOException, SolrServerException, SQLException {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
         logger.debug("IndexerManager: nodeps = " + nodeps);
@@ -411,7 +413,7 @@ public class IndexerManager {
             switch (core) {
                 case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
                 case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
-                case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeIndexer));    break;
+                case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeIndexer));              break;
                 case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
 
                 case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcIndexer));                             break;
@@ -419,7 +421,7 @@ public class IndexerManager {
                 case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesIndexer));                           break;
                 case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesIndexer));                  break;
                 case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpIndexer));                                   break;
-                case MA_CORE:                   indexerItemList.add(new IndexerItem(MA_CORE, maIndexer));                                   break;
+                case ANATOMY_CORE:              indexerItemList.add(new IndexerItem(ANATOMY_CORE, anatomyIndexer));                         break;
                 case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineIndexer));                       break;
                 case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneIndexer));                               break;
                 case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseIndexer));                         break;
@@ -645,14 +647,14 @@ public class IndexerManager {
         return options;
     }
 
-    public static void main(String[] args) throws IndexerException, IOException, SolrServerException {
+    public static void main(String[] args) throws IndexerException, IOException, SolrServerException, SQLException {
         int retVal = mainReturnsStatus(args);
         if (retVal != STATUS_OK) {
             throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
         }
     }
 
-    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException {
+    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException, SQLException {
         try {
             IndexerManager manager = new IndexerManager();
             manager.initialise(args);
@@ -810,13 +812,14 @@ public class IndexerManager {
                     "Core list (in priority build order):\n" +
                     "   experiment\n" +
                     "   genotype-phenotype\n" +
-                    "   statistical-result\n" +
+	                "   statistical-result\n" +
+	                "   mgi-phenotype\n" +
                     "   preqc\n" +
                     "   allele\n" +
                     "   images\n" +
                     "   impc_images\n" +
                     "   mp\n" +
-                    "   ma\n" +
+                    "   anatomy\n" +
                     "   pipeline\n" +
                     "   gene\n" +
                     "   disease\n" +
