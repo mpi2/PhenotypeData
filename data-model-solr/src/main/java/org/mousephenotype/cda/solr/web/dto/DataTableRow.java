@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
+import org.apache.hadoop.mapred.gethistory_jsp;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -75,7 +76,16 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 														// correct icons next to
 														// them in the row
 	protected Set<String> topLevelMpGroups;
-	private List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans = new ArrayList<>();
+	private List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans=new ArrayList<>();
+
+	public List<PhenotypeCallUniquePropertyBean> getPhenotypeCallUniquePropertyBeans() {
+		return phenotypeCallUniquePropertyBeans;
+	}
+
+	public void setPhenotypeCallUniquePropertyBeans(
+			List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans) {
+		this.phenotypeCallUniquePropertyBeans = phenotypeCallUniquePropertyBeans;
+	}
 
 	public Set<String> getTopLevelMpGroups() {
 		return topLevelMpGroups;
@@ -119,8 +129,35 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			this.setProjectId(new Integer(pcs.getProject().getId()));
 		}
 
-		this.buildEvidenceLink(baseUrl, hasImages);
+		
 		this.adjustPhenotypeColumnIfNecessary();
+		//phenotypeCallUniquePropertyBeans = new ArrayList<>();
+		PhenotypeCallUniquePropertyBean propBean=new PhenotypeCallUniquePropertyBean();
+		if (pcs.getProject() != null && pcs.getProject().getId() != null) {
+			propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
+		}
+		if(pcs.getPhenotypingCenter()!=null){
+		propBean.setPhenotypingCenters(pcs.getPhenotypingCenter());
+		}
+        //procedure.hashCode() 
+		if(pcs.getProcedure()!=null){
+		propBean.setProcedure(pcs.getProcedure());
+		}
+        // parameter
+		if(pcs.getParameter()!=null){
+		propBean.setParameter(pcs.getParameter());
+		}
+        //dataSourceName
+		if(pcs.getPipeline()!=null){
+		propBean.setPipeline(pcs.getPipeline());
+		}
+       // pipeline
+		//allele_accession_id
+		if(pcs.getAllele()!=null){
+		propBean.setAllele(pcs.getAllele());
+		}
+		phenotypeCallUniquePropertyBeans.add(propBean);
+		this.buildEvidenceLink(baseUrl, hasImages);
 
 	}
 
@@ -290,19 +327,20 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 																		// this.colonyId);
 				evidenceLink.setDisplay(true);
 			} else {
-
-				url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), this.getAlleleIds(), null, zygosity,
-						this.getParameterStableIds(), this.getPipelineStableIds(), this.getPhenotypingCenters());
-				evidenceLink.setAlt("Graph");
-				evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
-				if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")
-						|| parameter.getStableId().contains("IMPC_EVP_001")
-						|| parameter.getStableId().contains("IMPC_EVO_001_")
-						|| parameter.getStableId().contains("IMPC_EVM_001_")) {
-					evidenceLink.setDisplay(false);
-				} else {
-					evidenceLink.setDisplay(true);
-				}
+				
+					url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), this.getAlleleIds(), null, zygosity,
+							this.getParameterStableIds(), this.getPipelineStableIds(), this.getPhenotypingCenters());
+					evidenceLink.setAlt("Graph");
+					evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
+					if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")
+							|| parameter.getStableId().contains("IMPC_EVP_001")
+							|| parameter.getStableId().contains("IMPC_EVO_001_")
+							|| parameter.getStableId().contains("IMPC_EVM_001_")) {
+						evidenceLink.setDisplay(false);
+					} else {
+						evidenceLink.setDisplay(true);
+					}
+				
 			}
 		} else {
 			// Need to use the drupal base url because phenoview is not mapped
@@ -336,9 +374,11 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	}
 
 	private Set<String> getAlleleIds() {
+		System.out.println("prop beans size="+this.phenotypeCallUniquePropertyBeans.size());
 		Set<String> alleleIds = new TreeSet<>();
 		for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
 			alleleIds.add(propBean.getAllele().getAccessionId());
+			System.out.println("added allele="+propBean.getAllele().getAccessionId());
 		}
 		return alleleIds;
 	}
@@ -545,16 +585,23 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 	@Override
 	public String toString() {
-		return "DataTableRow ["+
-//config=" + config + ", phenotypeTerm=" + phenotypeTerm + ", gene=" + gene + ", allele="
-//				+ allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ", lifeStageName=" + lifeStageName
-//				+ ", lifeStageAcc=" + lifeStageAcc + ", projectId=" + projectId + ", phenotypingCenter="
-//				+ phenotypingCenter + ", procedure=" + procedure + ", parameter=" + parameter + ", dataSourceName="
-//				+ dataSourceName + ", evidenceLink=" + evidenceLink + ", pipeline=" + pipeline + ", pValue=" + pValue
-//				+ ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" + colonyId + ", topLevelPhenotypeTerms="
-//				+ topLevelPhenotypeTerms + ", topLevelMpGroups=" + topLevelMpGroups
-//				+
-				",\n phenotypeCallUniquePropertyBeans=" + phenotypeCallUniquePropertyBeans + "\n]";
+		return "DataTableRow [" +
+				// config=" + config + ", phenotypeTerm=" + phenotypeTerm + ",
+				// gene=" + gene + ", allele="
+				// + allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ",
+				// lifeStageName=" + lifeStageName
+				// + ", lifeStageAcc=" + lifeStageAcc + ", projectId=" +
+				// projectId + ", phenotypingCenter="
+				// + phenotypingCenter + ", procedure=" + procedure + ",
+				// parameter=" + parameter + ", dataSourceName="
+				// + dataSourceName + ", evidenceLink=" + evidenceLink + ",
+				// pipeline=" + pipeline + ", pValue=" + pValue
+				// + ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" +
+				// colonyId + ", topLevelPhenotypeTerms="
+				// + topLevelPhenotypeTerms + ", topLevelMpGroups=" +
+				// topLevelMpGroups
+				// +
+		",\n phenotypeCallUniquePropertyBeans=" + phenotypeCallUniquePropertyBeans + "\n]";
 	}
 
 	public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, Set<String> alleleAccs,
@@ -562,12 +609,12 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			Set<String> pipelineStableIds, Set<String> phenotypingCenters) {
 		String url = baseUrl;
 		url += "/charts?accession=" + geneAcc;
-		if(alleleAccs !=null){
-			for(String alleleAcc: alleleAccs){
-			url += "&allele_accession_id=" + alleleAcc;
+		if (alleleAccs != null) {
+			for (String alleleAcc : alleleAccs) {
+				url += "&allele_accession_id=" + alleleAcc;
 			}
 		}
-		
+
 		if (metadataGroup != null) {
 			for (String meta : metadataGroup) {
 				url += "&metadata_group=" + meta;
@@ -612,9 +659,5 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		return url;
 	}
 
-	public void addPhenotypeCallUniqueProperties(PhenotypeCallUniquePropertyBean propBean) {
-		this.phenotypeCallUniquePropertyBeans.add(propBean);
-
-	}
-
+	
 }

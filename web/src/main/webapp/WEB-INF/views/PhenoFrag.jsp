@@ -98,7 +98,7 @@
                     </c:if>
                 </c:forEach>
             </td>
-            <td>${phenotype.lifeStageName} ${phenotype}</td>
+            <td>${phenotype.lifeStageName} length= ${phenotype.phenotypeCallUniquePropertyBeans}</td>
 
             
             
