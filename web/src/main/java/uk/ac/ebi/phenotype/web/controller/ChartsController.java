@@ -15,18 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -57,22 +45,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import uk.ac.ebi.phenotype.chart.AbrChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
-import uk.ac.ebi.phenotype.chart.ChartColors;
-import uk.ac.ebi.phenotype.chart.ChartData;
-import uk.ac.ebi.phenotype.chart.GraphUtils;
-import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
-import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
-import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
-import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
+import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
+
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class ChartsController {
@@ -216,7 +197,7 @@ public class ChartsController {
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
-        
+
         boolean statsError = false;
 
         if (parameterStableId.startsWith("IMPC_FER_")) {
@@ -365,17 +346,17 @@ public class ChartsController {
                             model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber));
                             break;
 
-                        case UNIDIMENSIONAL_BOX_PLOT:
+	                    case UNIDIMENSIONAL_BOX_PLOT:
 
-                            unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
-                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+		                    unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
+		                    model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 
-                            scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber, expBiologicalModel);
-                            model.addAttribute("scatterChartAndData", scatterChartAndData);
+		                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber, expBiologicalModel);
+		                    model.addAttribute("scatterChartAndData", scatterChartAndData);
 
-                            break;
+		                    break;
 
-                        case CATEGORICAL_STACKED_COLUMN:
+	                    case CATEGORICAL_STACKED_COLUMN:
 
                             categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
                             model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
@@ -505,7 +486,7 @@ public class ChartsController {
     @ExceptionHandler(GenomicFeatureNotFoundException.class)
     public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
 
-        log.error(exception.getMessage());
+        log.error(ExceptionUtils.getFullStackTrace(exception));
 
         ModelAndView mv = new ModelAndView("identifierError");
         mv.addObject("errorMessage", exception.getMessage());
@@ -525,7 +506,7 @@ public class ChartsController {
     @ExceptionHandler(ParameterNotFoundException.class)
     public ModelAndView handleParameterNotFoundException(ParameterNotFoundException exception) {
 
-        log.error(exception.getMessage());
+	    log.error(ExceptionUtils.getFullStackTrace(exception));
 
         ModelAndView mv = new ModelAndView("identifierError");
         mv.addObject("errorMessage", exception.getMessage());
@@ -545,7 +526,7 @@ public class ChartsController {
     @ExceptionHandler(SpecificExperimentException.class)
     public ModelAndView handleSpecificExperimentException(ParameterNotFoundException exception) {
 
-        log.error(exception.getMessage());
+	    log.error(ExceptionUtils.getFullStackTrace(exception));
 
         ModelAndView mv = new ModelAndView("Specific Experiment Not Found Error");
         mv.addObject("errorMessage", exception.getMessage());
@@ -572,7 +553,7 @@ public class ChartsController {
         }
         return paramIds;
     }
-    
+
     @RequestMapping("/colors")
     public String colors(Model model) {
     	System.out.println("calling colors page");
