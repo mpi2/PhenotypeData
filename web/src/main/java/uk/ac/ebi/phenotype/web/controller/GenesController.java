@@ -611,23 +611,33 @@ public class GenesController {
 				
 				//now we severely collapsing rows by so we need to store these as an list
 				 //projectId;
+				List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans=pr.getPhenotypeCallUniquePropertyBeans();
 				PhenotypeCallUniquePropertyBean propBean=new PhenotypeCallUniquePropertyBean();
 				if (pcs.getProject() != null && pcs.getProject().getId() != null) {
 					propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
 				}
-				propBean.setProject(pr.getProjectId());
-		        //phenotypingCenter
-				propBean.setPhenotypingCenters(pr.getPhenotypingCenter());
+				if(pcs.getPhenotypingCenter()!=null){
+				propBean.setPhenotypingCenters(pcs.getPhenotypingCenter());
+				}
 		        //procedure.hashCode() 
+				if(pcs.getProcedure()!=null){
 				propBean.setProcedure(pcs.getProcedure());
+				}
 		        // parameter
+				if(pcs.getParameter()!=null){
 				propBean.setParameter(pcs.getParameter());
+				}
 		        //dataSourceName
+				if(pcs.getPipeline()!=null){
 				propBean.setPipeline(pcs.getPipeline());
+				}
 		       // pipeline
 				//allele_accession_id
+				if(pcs.getAllele()!=null){
 				propBean.setAllele(pcs.getAllele());
-				pr.addPhenotypeCallUniqueProperties(propBean);
+				}
+				phenotypeCallUniquePropertyBeans.add(propBean);
+				pr.setPhenotypeCallUniquePropertyBeans(phenotypeCallUniquePropertyBeans);
 				
 				
 			}
@@ -641,7 +651,9 @@ public class GenesController {
 				}
 				pr.setTopLevelMpGroups(topLevelMpGroups);
 			}
-
+System.out.println("pr size beans"+pr.getPhenotypeCallUniquePropertyBeans().size());
+pr.buildEvidenceLink(request.getAttribute("baseUrl").toString(),  imageService.hasImages(pcs.getGene().getAccessionId(), 
+					pcs.getProcedure().getName(), pcs.getColonyId()));
 			phenotypes.put(pr.hashCode(), pr);
 		}
 		
