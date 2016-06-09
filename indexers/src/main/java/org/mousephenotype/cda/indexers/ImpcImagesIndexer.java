@@ -285,16 +285,23 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			ArrayList<String> intermediateLevelIds = new ArrayList<>();
 			ArrayList<String> intermediateLevelTerm = new ArrayList<>();
 			ArrayList<String> intermediateLevelTermSynonym = new ArrayList<>();
+
 			for (String paramString : imageDTO.getParameterAssociationStableId()) {
 				if (stableIdToTermIdMap.containsKey(paramString)) {
 					String maTermId = stableIdToTermIdMap.get(paramString);
 					termIds.add(maTermId);
 
+					int level = 1;
+					if ( maTermId.startsWith("MA:") || maTermId.startsWith("EMAP:") ){
+						level = 2;
+					}
+
+
 					OntologyTermBean maTermBean = ontologyDAO.getTerm(maTermId);
 					if (maTermBean != null) {
 						terms.add(maTermBean.getName());
 						termSynonyms.addAll(maTermBean.getSynonyms());
-						List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(maTermId);
+						List<OntologyTermBean> topLevels = ontologyDAO.getSelectedTopLevel(maTermId, level);
 						for (OntologyTermBean topLevel : topLevels) {
 							if (!topLevelIds.contains(topLevel.getId())) {
 								topLevelIds.add(topLevel.getId());
