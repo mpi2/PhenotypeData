@@ -17,9 +17,11 @@
 package org.mousephenotype.cda.db.dao;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -36,6 +38,7 @@ import java.util.*;
  */
 
 @Repository
+@ComponentScanNonParticipant
 public class EmapaOntologyDAO extends OntologyDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

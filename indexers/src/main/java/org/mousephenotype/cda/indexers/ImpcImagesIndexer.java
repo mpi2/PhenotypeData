@@ -19,10 +19,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDAO;
+import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -86,10 +83,14 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	DataSource komp2DataSource;
 
 	@Autowired
+	@Qualifier("ontodbDataSource")
+	DataSource ontodbDataSource;
+
+	@Autowired
 	MaOntologyDAO maService;
 
 	@Autowired
-	EmapOntologyDAO emapService;
+	EmapaOntologyDAO emapaService;
 
 	@Autowired
 	MpOntologyDAO mpService;
@@ -102,17 +103,14 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	String excludeProcedureStableId = "";
 
 	private Map<String, String> parameterStableIdToMaTermIdMap;
-
+	private Map<String, String> parameterStableIdToEmapaTermIdMap = new HashMap(); // key: EMAPA id;
+	private Map<String, String> parameterStableIdToMpTermIdMap;
+	private Map<String, String> emap2EmapaMap;
 
 	private String impcAnnotationBaseUrl;
 
-	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap(); // key:
-																					// MA
-																					// id
-	private Map<String, String> parameterStableIdToEmapTermIdMap = new HashMap(); // key:
-																					// EMAP
-																					// id;
-	private Map<String, String> parameterStableIdToMpTermIdMap;
+	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap(); // key: MA id
+
 
 	public ImpcImagesIndexer() {
 		super();
@@ -158,7 +156,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		try {
-			parameterStableIdToEmapTermIdMap = this.populateParameterStableIdToEmapIdMap();
+			emap2EmapaMap = this.populateEmap2EmapaMap();
+			parameterStableIdToEmapaTermIdMap = this.populateParameterStableIdToEmapaIdMap();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -261,7 +260,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					}
 
 					addOntology(runStatus, imageDTO, parameterStableIdToMaTermIdMap, maService);
-					addOntology(runStatus, imageDTO, parameterStableIdToEmapTermIdMap, emapService);
+					addOntology(runStatus, imageDTO, parameterStableIdToEmapaTermIdMap, emapaService);
 					addOntology(runStatus, imageDTO, parameterStableIdToMpTermIdMap, mpService);
 
 					impcImagesIndexing.addBean(imageDTO);
@@ -291,23 +290,40 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			ArrayList<String> termIds = new ArrayList<>();
 			ArrayList<String> terms = new ArrayList<>();
 			ArrayList<String> termSynonyms = new ArrayList<>();
+
 			ArrayList<String> topLevelIds = new ArrayList<>();
 			ArrayList<String> topLevelTerm = new ArrayList<>();
 			ArrayList<String> topLevelTermSynonym = new ArrayList<>();
 
+			ArrayList<String> selectedTopLevelIds = new ArrayList<>();
+			ArrayList<String> selectedTopLevelTerm = new ArrayList<>();
+			ArrayList<String> selectedTopLevelTermSynonym = new ArrayList<>();
+
 			ArrayList<String> intermediateLevelIds = new ArrayList<>();
 			ArrayList<String> intermediateLevelTerm = new ArrayList<>();
 			ArrayList<String> intermediateLevelTermSynonym = new ArrayList<>();
+
 			for (String paramString : imageDTO.getParameterAssociationStableId()) {
 				if (stableIdToTermIdMap.containsKey(paramString)) {
-					String maTermId = stableIdToTermIdMap.get(paramString);
-					termIds.add(maTermId);
+					String thisTermId = stableIdToTermIdMap.get(paramString);
 
-					OntologyTermBean maTermBean = ontologyDAO.getTerm(maTermId);
+					int level = 0; // use to determine top level and selected top levels: differs from ontology to ontology
+					if ( thisTermId.startsWith("MA:") || thisTermId.startsWith("EMAPA:") ){
+						level = 2;
+					}
+					if (thisTermId.startsWith("MP:")){
+						level = 1;
+					}
+
+					termIds.add(thisTermId);
+
+
+					OntologyTermBean maTermBean = ontologyDAO.getTerm(thisTermId);
 					if (maTermBean != null) {
+
 						terms.add(maTermBean.getName());
 						termSynonyms.addAll(maTermBean.getSynonyms());
-						List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(maTermId);
+						List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(thisTermId, level);
 						for (OntologyTermBean topLevel : topLevels) {
 							if (!topLevelIds.contains(topLevel.getId())) {
 								topLevelIds.add(topLevel.getId());
@@ -316,7 +332,16 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 							}
 						}
 
-						List<OntologyTermBean> intermediateLevels = ontologyDAO.getIntermediates(maTermId);
+						List<OntologyTermBean> selectedTopLevels = ontologyDAO.getSelectedTopLevel(thisTermId, level);
+						for (OntologyTermBean selectedTopLevel : selectedTopLevels) {
+							if (!topLevelIds.contains(selectedTopLevel.getId())) {
+								selectedTopLevelIds.add(selectedTopLevel.getId());
+								selectedTopLevelTerm.add(selectedTopLevel.getName());
+								selectedTopLevelTermSynonym.addAll(selectedTopLevel.getSynonyms());
+							}
+						}
+
+						List<OntologyTermBean> intermediateLevels = ontologyDAO.getIntermediates(thisTermId);
 						for (OntologyTermBean intermediateLevel : intermediateLevels) {
 							// System.out.println(topLevel.getName());
 							if (!intermediateLevelIds.contains(intermediateLevel.getId())) {
@@ -342,54 +367,63 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				// IndexerMap.get
 			}
 
-			if (ontologyDAO instanceof EmapOntologyDAO) {
+			if (ontologyDAO instanceof EmapaOntologyDAO) {
 				if (!termIds.isEmpty()) {
-					imageDTO.setEmapId(termIds);
+					imageDTO.setAnatomyId(termIds);
 
-					ArrayList<String> emapIdTerms = new ArrayList<>();
+					ArrayList<String> emapaIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
-						String emapId = termIds.get(i);
+						String emapaId = termIds.get(i);
 
 						try {
-							String emapTerm = terms.get(i);
-							emapIdTerms.add(emapId + "_" + emapTerm);
+							String emapaTerm = terms.get(i);
+							emapaIdTerms.add(emapaId + "_" + emapaTerm);
 						} catch (Exception e) {
-							runStatus.addWarning(" Could not find term when indexing EMAP " + emapId + ". Exception: "
+							runStatus.addWarning(" Could not find term when indexing EMAPA " + emapaId + ". Exception: "
 									+ e.getLocalizedMessage());
 						}
 					}
-					imageDTO.setEmapIdTerm(emapIdTerms);
+					imageDTO.setAnatomyIdTerm(emapaIdTerms);
 				}
 				if (!terms.isEmpty()) {
-					imageDTO.setEmapTerm(terms);
+					imageDTO.setAnatomyTerm(terms);
 				}
-
 				if (!termSynonyms.isEmpty()) {
-					imageDTO.setEmapTermSynonym(termSynonyms);
+					imageDTO.setAnatomyTermSynonym(termSynonyms);
 				}
 				if (!topLevelIds.isEmpty()) {
-					imageDTO.setSelectedTopLevelEmapId(topLevelIds);
+					imageDTO.setTopLevelAnatomyId(topLevelIds);
 				}
 				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setSelectedTopLevelEmapTerm(topLevelTerm);
+					imageDTO.setTopLevelAnatomyTerm(topLevelTerm);
 				}
 				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setSelectedTopLevelEmapTermSynonym(topLevelTermSynonym);
+					imageDTO.setTopLevelAnatomyTermSynonym(topLevelTermSynonym);
+				}
+				if (!selectedTopLevelIds.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyId(selectedTopLevelIds);
+				}
+				if (!selectedTopLevelTerm.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTerm(selectedTopLevelTerm);
+				}
+				if (!selectedTopLevelTermSynonym.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevelTermSynonym);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
-					imageDTO.setIntermediateEmapId(intermediateLevelIds);
+					imageDTO.setIntermediateAnatomyId(intermediateLevelIds);
 				}
 				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateEmapTerm(intermediateLevelTerm);
+					imageDTO.setIntermediateAnatomyTerm(intermediateLevelTerm);
 				}
 				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateEmapTermSynonym(intermediateLevelTermSynonym);
+					imageDTO.setIntermediateAnatomyTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
 
 			if (ontologyDAO instanceof MaOntologyDAO) {
+
 				if (!termIds.isEmpty()) {
-					imageDTO.setMaId(termIds);
+					imageDTO.setAnatomyId(termIds);
 
 					ArrayList<String> maIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
@@ -419,32 +453,41 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 									+ e.getLocalizedMessage());
 						}
 					}
-					imageDTO.setMaIdTerm(maIdTerms);
-				}
-				if (!terms.isEmpty()) {
-					imageDTO.setMaTerm(terms);
+					imageDTO.setAnatomyIdTerm(maIdTerms);
 				}
 
+				if (!terms.isEmpty()) {
+					imageDTO.setAnatomyTerm(terms);
+				}
 				if (!termSynonyms.isEmpty()) {
-					imageDTO.setMaTermSynonym(termSynonyms);
+					imageDTO.setAnatomyTermSynonym(termSynonyms);
 				}
 				if (!topLevelIds.isEmpty()) {
-					imageDTO.setSelectedTopLevelMaId(topLevelIds);
+					imageDTO.setTopLevelAnatomyId(topLevelIds);
 				}
 				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setSelectedTopLevelMaTerm(topLevelTerm);
+					imageDTO.setTopLevelAnatomyTerm(topLevelTerm);
 				}
 				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setSelectedTopLevelMaTermSynonym(topLevelTermSynonym);
+					imageDTO.setTopLevelAnatomyTermSynonym(topLevelTermSynonym);
+				}
+				if (!selectedTopLevelIds.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyId(selectedTopLevelIds);
+				}
+				if (!selectedTopLevelTerm.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTerm(selectedTopLevelTerm);
+				}
+				if (!selectedTopLevelTermSynonym.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevelTermSynonym);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
-					imageDTO.setIntermediateMaId(intermediateLevelIds);
+					imageDTO.setIntermediateAnatomyId(intermediateLevelIds);
 				}
 				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateMaTerm(intermediateLevelTerm);
+					imageDTO.setIntermediateAnatomyTerm(intermediateLevelTerm);
 				}
 				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateMaTermSynonym(intermediateLevelTermSynonym);
+					imageDTO.setIntermediateAnatomyTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
 
@@ -459,9 +502,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 						String mpId = termIds.get(i);
 
 						try {
-
-
-
 							String mpTerm = terms.get(i);
 							mpIdTerms.add(mpId + "_" + mpTerm);
 						} catch (Exception e) {
@@ -697,26 +737,43 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		logger.debug(" paramToMp size = " + paramToMp.size());
 		return paramToMp;
 	}
+
+	public Map<String, String> populateEmap2EmapaMap() throws SQLException {
+		Map<String, String> emap2emapaIdMap = new HashMap<String, String>();
+		String query = " SELECT emapa_term_id,emap_term_id FROM emapa_2emap";
+		try (PreparedStatement statement = ontodbDataSource.getConnection().prepareStatement(query)) {
+			ResultSet resultSet = statement.executeQuery();
+
+			while (resultSet.next()) {
+				String emapaTermId = resultSet.getString("emapa_term_id");
+				String emapTermId = resultSet.getString("emap_term_id");
+				emap2emapaIdMap.put(emapTermId, emapaTermId);
+			}
+		}
+		return emap2emapaIdMap;
+	}
+
 	// SELECT * FROM phenotype_parameter pp INNER JOIN
 	// phenotype_parameter_lnk_ontology_annotation pploa ON
 	// pp.id=pploa.parameter_id INNER JOIN
 	// phenotype_parameter_ontology_annotation ppoa ON
 	// ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=14 LIMIT 100000
 
-	public Map<String, String> populateParameterStableIdToEmapIdMap() throws SQLException {
-		Map<String, String> paramToEmap = new HashMap<String, String>();
+	// we then map EMAP to EMAPA using the mapping file from PURL
+	public Map<String, String> populateParameterStableIdToEmapaIdMap() throws SQLException {
+		Map<String, String> paramToEmapa = new HashMap<String, String>();
 		String query = "SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=14 LIMIT 1000000";
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
 				String parameterStableId = resultSet.getString("stable_id");
-				String emapAcc = resultSet.getString("ontology_acc");
-				paramToEmap.put(parameterStableId, emapAcc);
+				String emapaAcc = emap2EmapaMap.get(resultSet.getString("ontology_acc"));
+				paramToEmapa.put(parameterStableId, emapaAcc);
 			}
 		}
-		logger.debug(" paramToMa size = " + paramToEmap.size());
-		return paramToEmap;
+		logger.debug(" paramToMa size = " + paramToEmapa.size());
+		return paramToEmapa;
 	}
 
 }

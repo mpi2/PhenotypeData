@@ -193,7 +193,7 @@ public class ExpressionService extends BasicService {
 		return response;
 	}
 
-	private QueryResponse getLaczImageFacetsForGene(String mgiAccession, String... fields) throws SolrServerException {
+	private QueryResponse getAdultLaczImageFacetsForGene(String mgiAccession, String... fields) throws SolrServerException {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -210,7 +210,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
-		solrQuery.addFacetField("selected_top_level_ma_term");
+		solrQuery.addFacetField("selected_top_level_anatomy_term");
 		solrQuery.setRows(100000);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
@@ -286,7 +286,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
-		solrQuery.addFacetField("selected_top_level_emap_term");
+		solrQuery.addFacetField("selected_top_level_anatomy_term");
 		solrQuery.setRows(100000);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
@@ -328,34 +328,34 @@ public class ExpressionService extends BasicService {
 														// emap or nothing is
 														// assigned but we know
 														// they are embryo so
-														// assing this id to
+														// assign this id to
 														// unassigned
-			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
-			termIdField = ImageDTO.EMAP_ID;
+			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
+			termIdField = ImageDTO.ANATOMY_ID;
 			if (imagesOverview) {
 				laczResponse = getEmbryoLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
-						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.EMAP_ID,
-						ImageDTO.EMAP_TERM);
+						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ANATOMY_ID,
+						ImageDTO.ANATOMY_TERM);
 			} else {
 				laczResponse = getEmbryoLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
 						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 						ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
-						ImageDTO.EMAP_ID, ImageDTO.EMAP_TERM);
+						ImageDTO.ANATOMY_ID, ImageDTO.ANATOMY_TERM);
 			}
 
 		} else {
 			noTopTermId = "Unassigned Top Level MA";
-			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_MA_TERM;
-			termIdField = ImageDTO.MA_ID;
+			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
+			termIdField = ImageDTO.ANATOMY_ID;
 			if (imagesOverview) {
-				laczResponse = getLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
-						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.MA_ID,
+				laczResponse = getAdultLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
+						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ANATOMY_ID,
 						ImageDTO.UBERON_ID, ImageDTO.EFO_ID);
 			} else {
-				laczResponse = getLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
+				laczResponse = getAdultLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
 						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 						ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
-						ImageDTO.MA_ID, ImageDTO.UBERON_ID, ImageDTO.EFO_ID);
+						ImageDTO.ANATOMY_ID, ImageDTO.UBERON_ID, ImageDTO.EFO_ID);
 			}
 
 		}
@@ -393,42 +393,42 @@ public class ExpressionService extends BasicService {
 		}
 
 		
-		List<Count> topLevelMaTerms = new ArrayList<>();
-		List<Count> filteredTopLevelMaTerms = new ArrayList<>();
+		List<Count> topLevelAnatomyTerms = new ArrayList<>();
+		List<Count> filteredTopLevelAnatomyTerms = new ArrayList<>();
 		// if (fields.get(0).getValues().size() > 0) {
 
-		topLevelMaTerms.addAll(fields.get(0).getValues());
+		topLevelAnatomyTerms.addAll(fields.get(0).getValues());
 		if (expFacetToDocs.get(noTopTermId).size() > 0) {// only add this
 															// facet for no
 															// top levels
 															// found if
 															// there are any
-			Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
+			Count dummyCountForImagesWithNoHigherLevelAnatomy = new Count(new FacetField(noTopTermId), noTopTermId,
 					expFacetToDocs.get(noTopTermId).size());
-			topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
+			topLevelAnatomyTerms.add(dummyCountForImagesWithNoHigherLevelAnatomy);
 		}
 
 		if (topMaNameFilter != null) {
-			for (Count topLevel : topLevelMaTerms) {
+			for (Count topLevel : topLevelAnatomyTerms) {
 				if (topLevel.getName().equals(topMaNameFilter)) {
-					filteredTopLevelMaTerms.add(topLevel);
+					filteredTopLevelAnatomyTerms.add(topLevel);
 				}
 			}
 		} else {
-			filteredTopLevelMaTerms = topLevelMaTerms;
+			filteredTopLevelAnatomyTerms = topLevelAnatomyTerms;
 		}
 
-		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
+		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelAnatomyTerms);
 		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 
-		System.out.println("Check Top level MA terms: " + filteredTopLevelMaTerms);
+		System.out.println("Check Top level anatomy terms: " + filteredTopLevelAnatomyTerms);
 		if (embryoOnly) {
-			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelMaTerms);
+			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelAnatomyTerms);
 			model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
 
 		} else {
-			model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
-			model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
+			model.addAttribute("impcAdultExpressionImageFacets", filteredTopLevelAnatomyTerms);
+			model.addAttribute("impcAdultExpressionFacetToDocs", expFacetToDocs);
 		}
 		// }
 	}
@@ -685,10 +685,10 @@ public class ExpressionService extends BasicService {
 						}
 
 						if (ontologyBean != null) {
-							row.setAbnormalMaId(ontologyBean.getId());
-							row.setMaName(StringUtils.capitalize(ontologyBean.getName()));
+							row.setAbnormalAnatomyId(ontologyBean.getId());
+							row.setAbnormalAnatomyName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
-							System.out.println("no ma id for anatomy term=" +
+							System.out.println("no anatomy id for anatomy term=" +
 							 anatomy+" and param id:"+parameterStableId);
 						}
 					}
@@ -818,8 +818,8 @@ public class ExpressionService extends BasicService {
 	public class ExpressionRowBean {
 		@Override
 		public String toString() {
-			return "ExpressionRowBean [anatomy=" + anatomy + ", abnormalMaId=" + abnormalMaId + ", numberOfImages="
-					+ numberOfImages + ", parameterStableId=" + parameterStableId + ", abnormalMaName=" + abnormalMaName
+			return "ExpressionRowBean [anatomy=" + anatomy + ", abnormalAnatomyId=" + abnormalAnatomyId + ", numberOfImages="
+					+ numberOfImages + ", parameterStableId=" + parameterStableId + ", abnormalAnatomyName=" + abnormalAnatomyName
 					+ ", homImages=" + homImages + ", wildTypeExpression=" + wildTypeExpression + ", expression="
 					+ expression + ", notExpressed=" + notExpressed + ", noTissueAvailable=" + noTissueAvailable
 					+ ", imagesAvailable=" + imagesAvailable + ", specimenExpressed=" + specimenExpressed
@@ -829,15 +829,15 @@ public class ExpressionService extends BasicService {
 		}
 
 		String anatomy;
-		String abnormalMaId;
+		String abnormalAnatomyId;
 		private int numberOfImages;
 
 		public int getNumberOfImages() {
 			return numberOfImages;
 		}
 
-		public String getAbnormalMaId() {
-			return abnormalMaId;
+		public String getAbnormalAnatomyId() {
+			return abnormalAnatomyId;
 		}
 
 		public void setNumberOfImages(int numberOfImages) {
@@ -845,27 +845,27 @@ public class ExpressionService extends BasicService {
 
 		}
 
-		public void setAbnormalMaId(String abnormalMaId) {
-			this.abnormalMaId = abnormalMaId;
+		public void setAbnormalAnatomyId(String abnormalAnatomyId) {
+			this.abnormalAnatomyId = abnormalAnatomyId;
 		}
 
 		private String parameterStableId;
-		private String abnormalMaName;
+		private String abnormalAnatomyName;
 
-		public String getAbnormalMaName() {
-			return abnormalMaName;
+		public String getAbnormalAnatomyName() {
+			return abnormalAnatomyName;
 		}
 
-		public void setAbnormalMaName(String abnormalMaName) {
-			this.abnormalMaName = abnormalMaName;
+		public void setAbnormalAnatomyName(String abnormalAnatomyName) {
+			this.abnormalAnatomyName = abnormalAnatomyName;
 		}
 
 		public String getParameterStableId() {
 			return parameterStableId;
 		}
 
-		public void setMaName(String abnormalMaName) {
-			this.abnormalMaName = abnormalMaName;
+		public void setAnatomyName(String anatomyNameName) {
+			this.abnormalAnatomyName = anatomyNameName;
 
 		}
 

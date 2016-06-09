@@ -96,6 +96,7 @@ public class ObservationDTOBase {
 	public static final String ANATOMY_ID = "anatomy_id";
 	public static final String ANATOMY_TERM = "anatomy_term";
 	public static final String ANATOMY_TERM_SYNONYM = "anatomy_term_synonym";
+	public static final String ANATOMY_ID_TERM = "anatomy_id_term";
 	public static final String TOP_LEVEL_ANATOMY_ID = "top_level_anatomy_id";
 	public static final String TOP_LEVEL_ANATOMY_TERM = "top_level_anatomy_term";
 	public static final String TOP_LEVEL_ANATOMY_TERM_SYNONYM = "top_level_anatomy_term_synonym";
@@ -313,6 +314,46 @@ public class ObservationDTOBase {
 	@Field(SEQUENCE_ID)
 	private Integer sequenceId;
 
+	@Field(ANATOMY_ID)
+	List<String> anatomyId;
+
+	@Field(ANATOMY_TERM)
+	List<String> anatomyTerm;
+
+	@Field(ANATOMY_ID_TERM)
+	List<String> anatomyIdTerm;
+
+	@Field(ANATOMY_TERM_SYNONYM)
+	List<String> anatomyTermSynonym;
+
+	@Field(INTERMEDIATE_ANATOMY_ID)
+	List<String> intermediateAnatomyId;
+
+	@Field(INTERMEDIATE_ANATOMY_TERM)
+	List<String> intermediateAnatomyTerm;
+
+	@Field(INTERMEDIATE_ANATOMY_TERM_SYNONYM)
+	List<String> intermediateAnatomyTermSynonym;
+
+	@Field(TOP_LEVEL_ANATOMY_ID)
+	List<String> topLevelAnatomyId;
+
+	@Field(TOP_LEVEL_ANATOMY_TERM)
+	List<String> topLevelAnatomyTerm;
+
+	@Field(TOP_LEVEL_ANATOMY_TERM_SYNONYM)
+	List<String> topLevelAnatomyTermSynonym;
+
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_ID)
+	List<String> selectedTopLevelAnatomyId;
+
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_TERM)
+	List<String> selectedTopLevelAnatomyTerm;
+
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM)
+	List<String> selectedTopLevelAnatomyTermSynonym;
+
+
 	@Field(MA_ID)
 	List<String> maId;
 
@@ -339,6 +380,7 @@ public class ObservationDTOBase {
 
 	@Field(SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	List<String> selectedTopLevelMaTermSynonym;
+
 
 	@Field(EMAP_ID)
 	List<String> emapId;
@@ -367,7 +409,109 @@ public class ObservationDTOBase {
 	@Field(SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM)
 	List<String> selectedTopLevelEmapTermSynonym;
 
+			public List<String> getAnatomyId() {
+		return anatomyId;
+	}
 
+	public void setAnatomyId(List<String> anatomyId) {
+		this.anatomyId = anatomyId;
+	}
+
+	public List<String> getAnatomyTerm() {
+		return anatomyTerm;
+	}
+
+	public void setAnatomyTerm(List<String> anatomyTerm) {
+		this.anatomyTerm = anatomyTerm;
+	}
+
+	public List<String> getAnatomyIdTerm() {
+		return anatomyIdTerm;
+	}
+
+	public void setAnatomyIdTerm(List<String> anatomyIdTerm) {
+		this.anatomyIdTerm = anatomyIdTerm;
+	}
+
+	public List<String> getAnatomyTermSynonym() {
+		return anatomyTermSynonym;
+	}
+
+	public void setAnatomyTermSynonym(List<String> anatomyTermSynonym) {
+		this.anatomyTermSynonym = anatomyTermSynonym;
+	}
+
+	public List<String> getIntermediateAnatomyId() {
+		return intermediateAnatomyId;
+	}
+
+	public void setIntermediateAnatomyId(List<String> intermediateAnatomyId) {
+		this.intermediateAnatomyId = intermediateAnatomyId;
+	}
+
+	public List<String> getIntermediateAnatomyTerm() {
+		return intermediateAnatomyTerm;
+	}
+
+	public void setIntermediateAnatomyTerm(List<String> intermediateAnatomyTerm) {
+		this.intermediateAnatomyTerm = intermediateAnatomyTerm;
+	}
+
+	public List<String> getIntermediateAnatomyTermSynonym() {
+		return intermediateAnatomyTermSynonym;
+	}
+
+	public void setIntermediateAnatomyTermSynonym(List<String> intermediateAnatomyTermSynonym) {
+		this.intermediateAnatomyTermSynonym = intermediateAnatomyTermSynonym;
+	}
+
+	public List<String> getTopLevelAnatomyId() {
+		return topLevelAnatomyId;
+	}
+
+	public void setTopLevelAnatomyId(List<String> topLevelAnatomyId) {
+		this.topLevelAnatomyId = topLevelAnatomyId;
+	}
+
+	public List<String> getTopLevelAnatomyTerm() {
+		return topLevelAnatomyTerm;
+	}
+
+	public void setTopLevelAnatomyTerm(List<String> topLevelAnatomyTerm) {
+		this.topLevelAnatomyTerm = topLevelAnatomyTerm;
+	}
+
+	public List<String> getTopLevelAnatomyTermSynonym() {
+		return topLevelAnatomyTermSynonym;
+	}
+
+	public void setTopLevelAnatomyTermSynonym(List<String> topLevelAnatomyTermSynonym) {
+		this.topLevelAnatomyTermSynonym = topLevelAnatomyTermSynonym;
+	}
+
+	public List<String> getSelectedTopLevelAnatomyId() {
+		return selectedTopLevelAnatomyId;
+	}
+
+	public void setSelectedTopLevelAnatomyId(List<String> selectedTopLevelAnatomyId) {
+		this.selectedTopLevelAnatomyId = selectedTopLevelAnatomyId;
+	}
+
+	public List<String> getSelectedTopLevelAnatomyTerm() {
+		return selectedTopLevelAnatomyTerm;
+	}
+
+	public void setSelectedTopLevelAnatomyTerm(List<String> selectedTopLevelAnatomyTerm) {
+		this.selectedTopLevelAnatomyTerm = selectedTopLevelAnatomyTerm;
+	}
+
+	public List<String> getSelectedTopLevelAnatomyTermSynonym() {
+		return selectedTopLevelAnatomyTermSynonym;
+	}
+
+	public void setSelectedTopLevelAnatomyTermSynonym(List<String> selectedTopLevelAnatomyTermSynonym) {
+		this.selectedTopLevelAnatomyTermSynonym = selectedTopLevelAnatomyTermSynonym;
+	}
 
 	public Integer getSequenceId() {
 		return sequenceId;
@@ -596,32 +740,109 @@ public class ObservationDTOBase {
                 + " ]";
     }
 
-    /**
-     * end helper methods
-     */
+	/**
+	 * end helper methods
+	 */
+	@Override
+	public String toString() {
+		return "ObservationDTOBase{" +
+				"id=" + id +
+				", dataSourceId=" + dataSourceId +
+				", dataSourceName='" + dataSourceName + '\'' +
+				", projectId=" + projectId +
+				", projectName='" + projectName + '\'' +
+				", pipelineName='" + pipelineName + '\'' +
+				", pipelineStableId='" + pipelineStableId + '\'' +
+				", procedureStableId='" + procedureStableId + '\'' +
+				", procedureGroup='" + procedureGroup + '\'' +
+				", parameterStableId='" + parameterStableId + '\'' +
+				", pipelineId=" + pipelineId +
+				", procedureId=" + procedureId +
+				", parameterId=" + parameterId +
+				", strainAccessionId='" + strainAccessionId + '\'' +
+				", strainName='" + strainName + '\'' +
+				", geneticBackground='" + geneticBackground + '\'' +
+				", experimentSourceId='" + experimentSourceId + '\'' +
+				", geneSymbol='" + geneSymbol + '\'' +
+				", geneAccession='" + geneAccession + '\'' +
+				", experimentId=" + experimentId +
+				", phenotypingCenterId=" + phenotypingCenterId +
+				", phenotypingCenter='" + phenotypingCenter + '\'' +
+				", productionCenterId=" + productionCenterId +
+				", productionCenter='" + productionCenter + '\'' +
+				", litterId='" + litterId + '\'' +
+				", observationType='" + observationType + '\'' +
+				", colonyId='" + colonyId + '\'' +
+				", biologicalSampleId=" + biologicalSampleId +
+				", biologicalModelId=" + biologicalModelId +
+				", zygosity='" + zygosity + '\'' +
+				", sex='" + sex + '\'' +
+				", group='" + group + '\'' +
+				", category='" + category + '\'' +
+				", dataPoint=" + dataPoint +
+				", orderIndex=" + orderIndex +
+				", dimension='" + dimension + '\'' +
+				", timePoint='" + timePoint + '\'' +
+				", discretePoint=" + discretePoint +
+				", externalSampleId='" + externalSampleId + '\'' +
+				", parameterName='" + parameterName + '\'' +
+				", procedureName='" + procedureName + '\'' +
+				", metadataGroup='" + metadataGroup + '\'' +
+				", metadata=" + metadata +
+				", alleleAccession='" + alleleAccession + '\'' +
+				", alleleSymbol='" + alleleSymbol + '\'' +
+				", downloadFilePath='" + downloadFilePath + '\'' +
+				", fileType='" + fileType + '\'' +
+				", parameterAssociationStableId=" + parameterAssociationStableId +
+				", parameterAssociationSequenceId=" + parameterAssociationSequenceId +
+				", parameterAssociationDimId=" + parameterAssociationDimId +
+				", parameterAssociationName=" + parameterAssociationName +
+				", parameterAssociationValue=" + parameterAssociationValue +
+				", weightParameterStableId='" + weightParameterStableId + '\'' +
+				", weightDaysOld=" + weightDaysOld +
+				", weight=" + weight +
+				", developmentalStageAcc='" + developmentalStageAcc + '\'' +
+				", developmentalStageName='" + developmentalStageName + '\'' +
+				", textValue='" + textValue + '\'' +
+				", subTermName=" + subTermName +
+				", subTermId=" + subTermId +
+				", subTermDescription=" + subTermDescription +
+				", sequenceId=" + sequenceId +
+				", anatomyId=" + anatomyId +
+				", anatomyTerm=" + anatomyTerm +
+				", anatomyIdTerm=" + anatomyIdTerm +
+				", anatomyTermSynonym=" + anatomyTermSynonym +
+				", intermediateAnatomyId=" + intermediateAnatomyId +
+				", intermediateAnatomyTerm=" + intermediateAnatomyTerm +
+				", intermediateAnatomyTermSynonym=" + intermediateAnatomyTermSynonym +
+				", topLevelAnatomyId=" + topLevelAnatomyId +
+				", topLevelAnatomyTerm=" + topLevelAnatomyTerm +
+				", topLevelAnatomyTermSynonym=" + topLevelAnatomyTermSynonym +
+				", selectedTopLevelAnatomyId=" + selectedTopLevelAnatomyId +
+				", selectedTopLevelAnatomyTerm=" + selectedTopLevelAnatomyTerm +
+				", selectedTopLevelAnatomyTermSynonym=" + selectedTopLevelAnatomyTermSynonym +
+				", maId=" + maId +
+				", maTerm=" + maTerm +
+				", maTermSynonym=" + maTermSynonym +
+				", intermediateMaID=" + intermediateMaID +
+				", intermediateMaTerm=" + intermediateMaTerm +
+				", intermediateMaTermSynonym=" + intermediateMaTermSynonym +
+				", selectedTopLevelMaID=" + selectedTopLevelMaID +
+				", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm +
+				", selectedTopLevelMaTermSynonym=" + selectedTopLevelMaTermSynonym +
+				", emapId=" + emapId +
+				", emapTerm=" + emapTerm +
+				", emapTermSynonym=" + emapTermSynonym +
+				", intermediateEmapID=" + intermediateEmapID +
+				", intermediateEmapTerm=" + intermediateEmapTerm +
+				", intermediateEmapTermSynonym=" + intermediateEmapTermSynonym +
+				", selectedTopLevelEmapID=" + selectedTopLevelEmapID +
+				", selectedTopLevelEmapTerm=" + selectedTopLevelEmapTerm +
+				", selectedTopLevelEmapTermSynonym=" + selectedTopLevelEmapTermSynonym +
+				'}';
+	}
 
-    @Override
-    public String toString() {
-        return "id=" + id
-	        + ", procedure=" + procedureGroup
-                + ", parameterId=" + parameterId
-                + ", phenotypingCenterId=" + phenotypingCenterId
-                + ", biologicalModelId=" + biologicalModelId
-                + ", zygosity=" + zygosity
-                + ", sex=" + sex
-                + ", group=" + group
-                + ", colonyId=" + colonyId
-                + ", metadataGroup=" + metadataGroup
-                + ", dataPoint=" + dataPoint
-                + ", category=" + category
-                + ", orderIndex=" + orderIndex
-                + ", dimension=" + dimension
-                + ", timePoint=" + timePoint
-                + ", discretePoint=" + discretePoint
-                + ", externalSampleId=" + externalSampleId;
-    }
-
-    /**
+	/**
      * @return the id
      */
     public Integer getId() {
