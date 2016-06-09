@@ -636,6 +636,11 @@ public class GenesController {
 				if(pcs.getAllele()!=null){
 				propBean.setAllele(pcs.getAllele());
 				}
+				System.out.println("gene="+pcs.getGene().getSymbol());
+				if(pcs.getgId()!=null){
+					System.out.println("gid="+pcs.getgId());
+					propBean.setgId(pcs.getgId());
+				}
 				phenotypeCallUniquePropertyBeans.add(propBean);
 				pr.setPhenotypeCallUniquePropertyBeans(phenotypeCallUniquePropertyBeans);
 				
@@ -651,8 +656,9 @@ public class GenesController {
 				}
 				pr.setTopLevelMpGroups(topLevelMpGroups);
 			}
-System.out.println("pr size beans"+pr.getPhenotypeCallUniquePropertyBeans().size());
-pr.buildEvidenceLink(request.getAttribute("baseUrl").toString(),  imageService.hasImages(pcs.getGene().getAccessionId(), 
+			
+			//We need to build the urls now we have more parameters for multiple graphs
+			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString(),  imageService.hasImages(pcs.getGene().getAccessionId(), 
 					pcs.getProcedure().getName(), pcs.getColonyId()));
 			phenotypes.put(pr.hashCode(), pr);
 		}
