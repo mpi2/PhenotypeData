@@ -21,7 +21,7 @@
 				margin: 20px 0 50px 0;
 			}
 			div#alleleRef_filter {
-				float: right;
+				float: left;
 			}
 			form#allele {
 				position: absolute;
