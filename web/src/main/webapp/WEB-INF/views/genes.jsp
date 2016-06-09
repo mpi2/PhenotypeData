@@ -430,7 +430,7 @@
 								</h2>
 
 								<div class="inner" style="display: block;">
-									<c:if test="${empty impcExpressionImageFacets
+									<c:if test="${empty impcAdultExpressionImageFacets
 										and empty expressionAnatomyToRow
 										and empty impcEmbryoExpressionImageFacets
 										and empty embryoExpressionAnatomyToRow
@@ -439,7 +439,7 @@
 									</c:if>
 
 
-									<c:if test="${not empty impcExpressionImageFacets
+									<c:if test="${not empty impcAdultExpressionImageFacets
 										or not empty expressionAnatomyToRow
 										or not empty impcEmbryoExpressionImageFacets
 										or not empty embryoExpressionAnatomyToRow}">
@@ -454,7 +454,7 @@
 														<%--<li><a href="#tabs-1">Adult Expression</a></li>--%>
 													<%--</c:if>--%>
 
-													<%--<c:if test="${not empty impcExpressionImageFacets}">--%>
+													<%--<c:if test="${not empty impcAdultExpressionImageFacets}">--%>
 														<li><a href="#tabs-3">Adult Expression Image</a></li>
 													<%--</c:if>--%>
 
@@ -490,14 +490,14 @@
 
 												<!-- section for expression data here -->
 												<c:choose>
-													<c:when test="${not empty impcExpressionImageFacets}">
+													<c:when test="${not empty impcAdultExpressionImageFacets}">
 														<div id="tabs-3">
 															<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
 														</div>
 													</c:when>
 													<c:otherwise>
 														<div id="tabs-3">
-															No expression data was found
+															No expression image was found
 														</div>
 													</c:otherwise>
 												</c:choose>
@@ -522,7 +522,7 @@
 													</c:when>
 													<c:otherwise>
 														<div id="tabs-5">
-															No expression data was found
+															No expression image was found
 														</div>
 													</c:otherwise>
 												</c:choose>
@@ -531,7 +531,7 @@
 											</div><!-- end of tabs -->
 									</c:if>
 
-									<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets
+									<c:if test="${not empty expressionFacets and (not empty impcAdultExpressionImageFacets
 										or not empty expressionAnatomyToRow
 										or not empty impcEmbryoExpressionImageFacets
 										or not empty embryoExpressionAnatomyToRow)}">
@@ -717,7 +717,7 @@
 				}
 
 				// invoke anatomogram only when
-				// this check is not empty: impcExpressionImageFacets
+				// this check is not empty: impcAdultExpressionImageFacets
 				if ($('div#anatomogramContainer').size() == 1) {
 
 					// anatomogram stuff

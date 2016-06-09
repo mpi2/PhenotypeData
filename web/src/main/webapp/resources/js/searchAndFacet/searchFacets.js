@@ -645,7 +645,7 @@
 
 		// appearance order of subfacets
 		//var aSubFacetNames = ['top_level_mp_term','selected_top_level_ma_term','procedure_name','marker_type'];
-		var aSubFacetNames = ['procedure_name', 'selected_top_level_ma_term'];
+		var aSubFacetNames = ['procedure_name', 'selected_top_level_anatomy_term'];
 
 		var displayLabel = {
 			/*annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
@@ -655,7 +655,7 @@
 			 */
 			//top_level_mp_term: 'Phenotype',
 			procedure_name : 'Procedure',
-			selected_top_level_ma_term: 'Anatomy'
+			selected_top_level_anatomy_term: 'Anatomy'
 		};
 
 		for ( var n=0; n<aSubFacetNames.length; n++){

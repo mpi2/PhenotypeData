@@ -52,9 +52,9 @@
 <bean id="admintoolsDataSource" destroy-method="close"
   class="org.apache.commons.dbcp.BasicDataSource">
     <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-    <property name="url" value="${admintoolsurl}"/>
-    <property name="username" value="${admintoolsusername}"/>
-    <property name="password" value="${admintoolspassword}"/>
+    <property name="url" value="${datasource.admintools.url}"/>
+    <property name="username" value="${datasource.admintools.username}"/>
+    <property name="password" value="${datasource.admintools.password}"/>
     <property name="initialSize" value="3"/>
     <property name="testOnBorrow" value="true" />
     <property name="validationQuery" value="SELECT 1" />
@@ -62,7 +62,6 @@
     <property name="removeAbandonedTimeout" value="60"/>
     <property name="logAbandoned" value="true"/>
 </bean>
-
 
 
 	<!-- Spring annotated objects -->
@@ -103,7 +102,8 @@
 				<!--<entry key="version" value="${pom.version}" />-->
 				<entry key="baseUrl" value="${baseUrl}" />
 				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
-				<entry key="solrUrl" value="${solrUrl}" />
+				<!--<entry key="solrUrl" value="${solrUrl}" />-->
+				<entry key="solrUrl" value="${solr.host}" />
 				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
 				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />

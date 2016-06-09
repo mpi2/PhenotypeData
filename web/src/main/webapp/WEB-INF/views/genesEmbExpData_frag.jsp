@@ -59,7 +59,7 @@
         <tr>
             <td><%-- <a
                     href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}"> --%>
-                    ${fn:replace(mapEntry.value.abnormalMaName, "TS20 ","")}
+                    ${fn:replace(mapEntry.value.abnormalAnatomyName, "TS20 ","")}
                    <!--  </a> -->
                 </td>
             <td><span

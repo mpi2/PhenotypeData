@@ -213,11 +213,6 @@
         <field name="skullShape"      type="string"   indexed="true"  stored="true"  multiValued="false"/> -->
 
 
-
-
-
-
-
         <!-- from experiment schema as many fields are now the same with new image data -->
 
         <field name="_version_"                         type="long"   indexed="true" stored="true"/>

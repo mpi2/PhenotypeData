@@ -166,7 +166,7 @@
    	        	"processing": true,
    	        	"serverSide": true,  
    	            //"sDom": "<lr><'#caption'>tip",
-   	         	"sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
+   	         	"sDom": "<<'#exportSpinner'>l<f>r>tip",
    	            "sPaginationType": "bootstrap",
    	            "searchHighlight": true,
    	         	"oLanguage": {
