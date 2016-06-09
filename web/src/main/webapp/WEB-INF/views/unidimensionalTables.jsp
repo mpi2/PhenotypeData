@@ -11,8 +11,9 @@
     </div>
 </c:if>
         <%-- Display result of a mixed model calculation --%>
+        <!-- Statistical Result docId: ${data.result.id} -->
 
-        <c:if test="${data.result.statisticalMethod!=null and  data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction'}">
+        <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction' and data.result.statisticalMethod!='Reference Ranges Plus framework'}">
 
 
 
@@ -135,6 +136,54 @@
             </table>
         </c:if>
 
+        <%-- Display result of a reference range plus calculation --%>
+
+        <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod=='Reference Ranges Plus framework'}">
+            <table class="globalTest">
+                <thead>
+                <tr>
+                    <th>Sex</th>
+                    <th>Decreased P Value</th>
+                    <th>Decreased Effect Size</th>
+                    <th>Increased P Value</th>
+                    <th>Increased Effect Size</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <c:if test="${data.result.femalePvalueLowVsNormalHigh!=null or data.result.femalePvalueLowNormalVsHigh!=null}">
+
+                <tr>
+                    <td>Females</td>
+                    <td><t:formatScientific>${data.result.femalePvalueLowVsNormalHigh }</t:formatScientific></td>
+                    <td>${data.result.femaleEffectSizeLowVsNormalHigh}<c:if test="${data.result.femaleEffectSizeLowVsNormalHigh!=null}">%</c:if></td>
+                    <td><t:formatScientific>${data.result.femalePvalueLowNormalVsHigh }</t:formatScientific></td>
+                    <td>${data.result.femaleEffectSizeLowNormalVsHigh}<c:if test="${data.result.femaleEffectSizeLowNormalVsHigh!=null}">%</c:if></td>
+                </tr>
+
+                </c:if>
+                <c:if test="${data.result.malePvalueLowVsNormalHigh!=null or data.result.malePvalueLowNormalVsHigh!=null}">
+
+                <tr>
+                    <td>Males</td>
+                    <td><t:formatScientific>${data.result.malePvalueLowVsNormalHigh }</t:formatScientific></td>
+                    <td>${data.result.maleEffectSizeLowVsNormalHigh}<c:if test="${data.result.maleEffectSizeLowVsNormalHigh!=null}">%</c:if></td>
+                    <td><t:formatScientific>${data.result.malePvalueLowNormalVsHigh }</t:formatScientific></td>
+                    <td>${data.result.maleEffectSizeLowNormalVsHigh}<c:if test="${data.result.maleEffectSizeLowNormalVsHigh!=null}">%</c:if></td>
+                </tr>
+                </c:if>
+
+                <tr>
+                    <td>Both</td>
+                    <td><t:formatScientific>${data.result.genotypePvalueLowVsNormalHigh }</t:formatScientific></td>
+                    <td>${data.result.genotypeEffectSizeLowVsNormalHigh}%</td>
+                    <td><t:formatScientific>${data.result.genotypePvalueLowNormalVsHigh }</t:formatScientific></td>
+                    <td>${data.result.genotypeEffectSizeLowNormalVsHigh}%</td>
+                </tr>
+
+                </tbody>
+            </table>
+        </c:if>
 
 
         <%-- always print the summary statistics table --%>
