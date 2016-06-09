@@ -29,8 +29,6 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
@@ -65,8 +63,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
     private SqlLoaderUtils sqlLoaderUtils;
 
 
-    @PostConstruct
-    public void initialise() throws Exception {
+    private void initialise() throws Exception {
 
         // Populate mgi strain list.
         List<Strain> strains = sqlLoaderUtils.getStrainList();
@@ -91,11 +88,15 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
     public List<Strain> process(FieldSet item) throws Exception {
         String accessionId;
         String synonymCell;
-        String strainType;
 
         List<Strain> strains = null;
 
         lineNumber++;
+
+        // Initialise maps on first call to process().
+        if (strainsMap.isEmpty()) {
+            initialise();
+        }
 
         String[] values = item.getValues();
 

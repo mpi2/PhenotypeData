@@ -219,6 +219,8 @@ public class ConfigBeans {
         return new SqlLoaderUtils();
     }
 
+    // NOTE: Using @Lazy here and in the @Autowire to postpone creation of this bean (so that @PostConstruct can be used)
+    //       doesn't delay invocation of the @PostConstruct as we would like, so we shant use it.
     @Bean(name = "strainProcessorImsr")
     public StrainProcessorImsr strainProcessorImsr() {
         return new StrainProcessorImsr();
