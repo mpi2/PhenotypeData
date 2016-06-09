@@ -636,9 +636,9 @@ public class GenesController {
 				if(pcs.getAllele()!=null){
 				propBean.setAllele(pcs.getAllele());
 				}
-				System.out.println("gene="+pcs.getGene().getSymbol());
+				//System.out.println("gene="+pcs.getGene().getSymbol());
 				if(pcs.getgId()!=null){
-					System.out.println("gid="+pcs.getgId());
+					//System.out.println("gid="+pcs.getgId());
 					propBean.setgId(pcs.getgId());
 				}
 				phenotypeCallUniquePropertyBeans.add(propBean);
