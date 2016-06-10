@@ -15,16 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.mapred.gethistory_jsp;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.MarkerBean;
-import org.neo4j.cypher.internal.compiler.v2_2.planner.logical.steps.allNodesLeafPlanner;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -34,6 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 
 /**
  *
