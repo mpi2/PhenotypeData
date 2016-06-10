@@ -75,6 +75,15 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 														// them in the row
 	protected Set<String> topLevelMpGroups;
 	private List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans = new ArrayList<>();
+	private EvidenceLink imagesEvidenceLink;
+
+	public EvidenceLink getImagesEvidenceLink() {
+		return imagesEvidenceLink;
+	}
+
+	public void setImagesEvidenceLink(EvidenceLink imagesEvidenceLink) {
+		this.imagesEvidenceLink = imagesEvidenceLink;
+	}
 
 	public List<PhenotypeCallUniquePropertyBean> getPhenotypeCallUniquePropertyBeans() {
 		return phenotypeCallUniquePropertyBeans;
