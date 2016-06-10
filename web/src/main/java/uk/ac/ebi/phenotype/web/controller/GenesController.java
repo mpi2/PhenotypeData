@@ -63,6 +63,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.EvidenceLink;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
@@ -659,7 +660,11 @@ public class GenesController {
 			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString());
 			
 			if(imageService.hasImages(pcs.getGene().getAccessionId(),pcs.getProcedure().getName(), pcs.getColonyId())){
-				
+				EvidenceLink imageLink=new EvidenceLink();
+				imageLink.setDisplay(true);
+				imageLink.setIconType(EvidenceLink.IconType.IMAGE);
+				imageLink.setUrl("blah");
+				pr.setImagesEvidenceLink(imageLink);
 			}
 			phenotypes.put(pr.hashCode(), pr);
 		}

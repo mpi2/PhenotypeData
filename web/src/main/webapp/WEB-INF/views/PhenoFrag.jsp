@@ -124,6 +124,13 @@
                    </c:if>
 			</c:if>
 			
+			<c:if test="${phenotype.getImagesEvidenceLink().getDisplay()}">
+				<c:if test='${phenotype.getImagesEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
+					<a href="${phenotype.getImagesEvidenceLink().getUrl() }"><i title="${phenotype.procedureNames}" class="fa fa-image" alt="${phenotype.getImagesEvidenceLink().getAlt()}"></i></a>
+				</c:if>
+				
+			</c:if>
+			
 			<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
 					<i class="fa fa-image" title="No images available."></i>
