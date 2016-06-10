@@ -14,7 +14,7 @@ public class PhenotypeCallUniquePropertyBean {
 	private ImpressBaseDTO pipeline;
 	private MarkerBean allele;
 	private String gId;//phenoDCCs internal id that doesn't represent a gene id as they are different for the same mgi gene accession
-	private String phenotypingCenters;
+	private String phenotypingCenter;
 	
 	
 
@@ -73,13 +73,13 @@ public class PhenotypeCallUniquePropertyBean {
 		this.allele = allele;
 	}
 	
-	public String getPhenotypingCenters() {
-		return phenotypingCenters;
+	public String getPhenotypingCenter() {
+		return phenotypingCenter;
 	}
 
 
-	public void setPhenotypingCenters(String phenotypingCenters) {
-		this.phenotypingCenters = phenotypingCenters;
+	public void setPhenotypingCenter(String phenotypingCenters) {
+		this.phenotypingCenter = phenotypingCenters;
 	}
 	
 	public String getgId() {
@@ -96,7 +96,7 @@ public class PhenotypeCallUniquePropertyBean {
 	public String toString() {
 		return "PhenotypeCallUniquePropertyBean [project=" + project + ", procedure=" + procedure + ", parameter="
 				+ parameter + ", pipeline=" + pipeline + ", allele=" + allele + ", phenotypingCenter="
-				+ phenotypingCenters + " gid="+gId+"]";
+				+ phenotypingCenter + " gid="+gId+"]";
 	}
 
 	
