@@ -17,6 +17,7 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -44,6 +45,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
     private CommonUtils commonUtils = new CommonUtils();
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	private Connection komp2DbConnection;
 
 	@Autowired
@@ -58,12 +60,17 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineIndexing;
 
+	@Autowired
+	EmapaOntologyDAO emapaService;
 
 	private Map<String, ParameterDTO> paramIdToParameter;
 	private Map<String, ProcedureDTO> procedureIdToProcedure;
 	private Map<String, PipelineDTO> pipelines;
 	private Map<String, MpDTO> mpIdToMp;
 	private Map<String, ObservationType> parameterToObservationTypeMap;
+	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
+
+
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
 
@@ -96,29 +103,26 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	}
 
 	private void initialiseSupportingBeans(RunStatus runStatus)
-	throws IndexerException {
+			throws IndexerException, SQLException {
 
 		parameterToObservationTypeMap = getObservationTypeMap(runStatus);
 		paramIdToParameter = populateParamIdToParameterMap(runStatus);
 		procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
 		pipelines = populatePipelineList();
+		emap2EmapaMap = emapaService.populateEmap2EmapaMap();
+
 		addAbnormalMaOntology();
 		addAbnormalEmapOntology();
 		mpIdToMp = populateMpIdToMp();
 	}
 
 	@Override
-	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-		try {
-			run("");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+	public void run(String... strings) throws Exception {
+		run();
 	}
 
 	@Override
-	public void run(String... strings) throws Exception {
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         documentCount = 0;
         Set<String> noTermSet = new HashSet<>();
         RunStatus runStatus = new RunStatus();
@@ -227,9 +231,13 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
 						if(param.getEmapId()!=null){
-							doc.setEmapId(param.getEmapId());
+							String emapId = param.getEmapId();
+							doc.setEmapId(emapId);
+							doc.setAnatomyId(emap2EmapaMap.get(emapId).getEmapaId());
 							if(param.getEmapName()!=null){
-								doc.setEmapTerm(param.getEmapName());
+								String emapName = param.getEmapName();
+								doc.setEmapTerm(emapName);
+								doc.setAnatomyTerm(emap2EmapaMap.get(emapId).getEmapaTerm());
 							}
 						}
 						pipelineIndexing.addBean(doc);
@@ -258,7 +266,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
         }
 
         logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
-
+		return runStatus;
 	}
 
     /**
@@ -551,12 +559,17 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				+ " WHERE ppoa.ontology_db_id=8 LIMIT 10000";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
-
+			System.out.println("MA SQL: "+sqlQuery);
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
 				paramIdToParameter.get(parameterId).setMaId(resultSet.getString("ontology_acc"));
 				paramIdToParameter.get(parameterId).setMaName(resultSet.getString("name"));
+
+				String maId = resultSet.getString("ontology_acc");
+				String maTerm = resultSet.getString("name");
+				System.out.println("ID: "+maId + " -- "+ maTerm);
+
 			}
 
 		} catch (Exception e) {
@@ -573,13 +586,21 @@ protected void addAbnormalEmapOntology(){
 				+ " INNER JOIN ontology_term ot ON ot.acc = ppoa.ontology_acc "
 				+ " WHERE ppoa.ontology_db_id=14";
 		//14 db id is emap
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
 
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
+			System.out.println("EMAP SQL: "+sqlQuery);
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
-				paramIdToParameter.get(parameterId).setEmapId(resultSet.getString("ontology_acc"));
-				paramIdToParameter.get(parameterId).setEmapName(resultSet.getString("name"));
+
+//				paramIdToParameter.get(parameterId).setEmapId(resultSet.getString("ontology_acc"));
+//				paramIdToParameter.get(parameterId).setEmapName(resultSet.getString("name"));
+
+				String ontoId = resultSet.getString("ontology_acc");
+				String ontoTerm = resultSet.getString("name");
+				System.out.println("ID: "+ontoId + " -- "+ ontoTerm);
+
+
 			}
 
 		} catch (Exception e) {

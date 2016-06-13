@@ -172,17 +172,12 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     }
 
     @Override
-    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-        try {
-            run("");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void run(String... strings) throws Exception {
+        run();
     }
 
     @Override
-    public void run(String... strings) throws Exception {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
@@ -206,7 +201,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         }
 
         logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
-
+        return runStatus;
     }
 
 

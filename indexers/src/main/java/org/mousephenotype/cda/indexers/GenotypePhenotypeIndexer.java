@@ -131,17 +131,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer implements Command
 
 
     @Override
-    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-        try {
-            run("");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void run(String... strings) throws Exception {
+        run();
     }
 
     @Override
-    public void run(String... strings) throws Exception {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -157,7 +152,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer implements Command
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
+        return runStatus;
     }
 
     public void doLiveStageLookup(RunStatus runStatus) throws SQLException {

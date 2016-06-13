@@ -82,17 +82,12 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
 
     @Override
-    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException{
-        try {
-            run("");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void run(String... strings) throws Exception {
+        run();
     }
 
     @Override
-    public void run(String... strings) throws Exception {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 
 
         int count = 0;
@@ -108,7 +103,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
 	    CommonUtils commonUtils = new CommonUtils();
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
+        return runStatus;
     }
 
 

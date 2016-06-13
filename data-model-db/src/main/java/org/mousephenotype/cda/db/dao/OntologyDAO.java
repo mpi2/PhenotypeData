@@ -113,10 +113,10 @@ public abstract class OntologyDAO {
     protected abstract List<List<String>> getDescendentGraphs(String id);
 
     protected abstract void populateAllTerms()      throws SQLException;
-    protected abstract void populateAncestorMap()  throws SQLException;
-    protected abstract void populateNode2TermMap() throws SQLException;
+    protected abstract void populateAncestorMap()   throws SQLException;
+    protected abstract void populateNode2TermMap()  throws SQLException;
     protected abstract void populateSynonyms()      throws SQLException;
-    
+
     /**
      * Methods annotated with @PostConstruct are executed just after the constructor
      * is run and spring is initialised.
@@ -146,7 +146,7 @@ public abstract class OntologyDAO {
             throw new RuntimeException(e);
         }
     }
-    
+
     public List<OntologyTermBean> getAllTerms() {
         return new ArrayList(allTermsMap.values());
     }

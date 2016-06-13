@@ -683,7 +683,7 @@ public class ExpressionService extends BasicService {
 							ontologyBean = abnormalMaFromImpress.get(parameterStableId);
 
 						}
-
+						System.out.println("BEAN: " + ontologyBean.toString());
 						if (ontologyBean != null) {
 							row.setAbnormalAnatomyId(ontologyBean.getId());
 							row.setAbnormalAnatomyName(StringUtils.capitalize(ontologyBean.getName()));
