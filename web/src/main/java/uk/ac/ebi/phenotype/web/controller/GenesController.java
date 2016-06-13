@@ -612,6 +612,7 @@ public class GenesController {
 				//now we severely collapsing rows by so we need to store these as an list
 				 //projectId;
 				List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans=pr.getPhenotypeCallUniquePropertyBeans();
+				//keep the set of properties as a set so we can generate unique graph urls if necessary
 				PhenotypeCallUniquePropertyBean propBean=new PhenotypeCallUniquePropertyBean();
 				if (pcs.getProject() != null && pcs.getProject().getId() != null) {
 					propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
@@ -659,7 +660,8 @@ public class GenesController {
 			//We need to build the urls now we have more parameters for multiple graphs
 			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString());
 			
-			if(imageService.hasImages(pcs.getGene().getAccessionId(),pcs.getProcedure().getName(), pcs.getColonyId())){
+			
+			if(imageService.hasImagesWithMP(pcs.getGene().getAccessionId(),pcs.getProcedure().getName(), pcs.getColonyId(), pcs.getPhenotypeTerm().getName())){
 				EvidenceLink imageLink=new EvidenceLink();
 				imageLink.setDisplay(true);
 				imageLink.setIconType(EvidenceLink.IconType.IMAGE);
