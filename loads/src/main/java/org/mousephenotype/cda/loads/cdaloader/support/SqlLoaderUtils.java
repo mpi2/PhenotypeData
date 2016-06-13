@@ -51,19 +51,10 @@ public class SqlLoaderUtils {
 
         // Write synonym items.
         for (Synonym synonym : term.getSynonyms()) {
-
-
-            try {
-
-
+            if (getSynonym(jdbcTemplate, term.getId().getAccession(), synonym.getSymbol()) == null) {
                 jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
                         term.getId().getAccession(), term.getId().getDatabaseId(), synonym.getSymbol());
-
-
-            } catch (DuplicateKeyException e) {
-                logger.warn("Duplicate synonym: " + "acc = '" + term.getId().getAccession() + "'. db_id = '" + term.getId().getDatabaseId() + "'. symbol = '" + synonym.getSymbol() + "'. Skipped...");
             }
-
         }
 
         // Write consider_id items.

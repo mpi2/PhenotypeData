@@ -1624,7 +1624,7 @@ CREATE TABLE stat_result_phenotype_call_summary (
   rrplus_result_id          INT(10) UNSIGNED DEFAULT NULL,
 	phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
 
-	PRIMARY KEY (phenotype_call_summary_id),
+	PRIMARY KEY (categorical_result_id, unidimensional_result_id, rrplus_result_id, phenotype_call_summary_id),
 	INDEX srpcs_categorical_result_id_idx (categorical_result_id),
 	Index srpcs_unidimensional_result_id_idx (unidimensional_result_id)
 

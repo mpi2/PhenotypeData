@@ -19,6 +19,8 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.SequenceRegion;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.transform.FieldSet;
 
@@ -31,11 +33,12 @@ import java.util.Set;
  */
 class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, GenomicFeature> {
 
-    private      int                             addedGenomicFeaturesCount = 0;
-    public final Set<String>                     errMessages               = new HashSet<>();
+    private       int                             addedGenomicFeaturesCount = 0;
+    public final  Set<String>                     errMessages               = new HashSet<>();
 //    private      HashMap<String, OntologyTerm>   featureTypes              = null;
-    private      int                             lineNumber                = 0;
-    private      HashMap<String, SequenceRegion> sequenceRegions           = null;
+    private       int                             lineNumber                = 0;
+    private final Logger                          logger                    = LoggerFactory.getLogger(this.getClass());
+    private       HashMap<String, SequenceRegion> sequenceRegions           = null;
 
     // The following ints define the column offset of the given column in the GENE_TYPES file.
     public final static int OFFSET_SEQ_REGION = 0;
@@ -62,7 +65,12 @@ class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, GenomicFeature
         String         end       = item.getValues()[OFFSET_END];
         int            strand    = (item.getValues()[OFFSET_STRAND].equals("+") ? 1 : -1);
 
-        ParsedComment parsedComment = new ParsedComment(item.getValues()[OFFSET_COMMENTS]);
+        ParsedComment parsedComment = null;
+        try {
+            parsedComment = new ParsedComment(item.getValues()[OFFSET_COMMENTS]);
+        } catch (CdaLoaderException e) {
+            logger.error(e.getLocalizedMessage());
+        }
 
         accessionId = parsedComment.getId();
 
