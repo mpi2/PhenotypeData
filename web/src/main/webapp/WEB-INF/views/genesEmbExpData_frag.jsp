@@ -57,10 +57,11 @@
     <c:forEach var="mapEntry"
                items="${embryoExpressionAnatomyToRow}">
         <tr>
-            <td><%-- <a
-                    href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}"> --%>
-                    ${fn:replace(mapEntry.value.abnormalAnatomyName, "TS20 ","")}
-                   <!--  </a> -->
+            <td><a
+                    href="${baseUrl}/anatomy/${mapEntry.value.abnormalAnatomyId}"> ${mapEntry.value.abnormalAnatomyName}
+                    <%--${fn:replace(mapEntry.value.abnormalAnatomyName, "TS20 ","")}--%>
+
+                    </a>
                 </td>
             <td><span
                     title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span>

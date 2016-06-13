@@ -139,8 +139,11 @@ public class SolrServerConfig {
 
 	//Pipeline
 	@Bean(name = "pipelineCore")
+	//HttpSolrServer getPipelineCore() {
+	//	return new HttpSolrServer(solrBaseUrl + "/pipeline");
+	//}
 	HttpSolrServer getPipelineCore() {
-		return new HttpSolrServer(solrBaseUrl + "/pipeline");
+		return new HttpSolrServer("http://localhost:8090/solr" + "/pipeline");
 	}
 
 	//Preqc
