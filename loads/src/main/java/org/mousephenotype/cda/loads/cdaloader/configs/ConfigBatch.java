@@ -75,6 +75,9 @@ public class ConfigBatch {
     @Autowired
     public StrainLoaderImsr strainLoaderImsr;
 
+    @Autowired
+    public MarkerLoader markerLoader;
+
 
 
     @Bean
@@ -148,6 +151,9 @@ public class ConfigBatch {
         // imsr strains
         Flow flowBuilderImsr = new FlowBuilder<Flow>("subflow_imsr_strains").from(strainLoaderImsr).end();
 
+        // Allele Markers
+        Flow flowBuilderAlleleMarkers = new FlowBuilder<Flow>("subflow_marker_loader").from(markerLoader).end();
+
 
         // Parallelize the flows.
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
@@ -160,6 +166,7 @@ public class ConfigBatch {
                 .incrementer(new RunIdIncrementer())
                 .start(flowBuilder.build())
                 .next(flowBuilderImsr)
+                .next(flowBuilderAlleleMarkers)
                 .end()
                 .build();
     }

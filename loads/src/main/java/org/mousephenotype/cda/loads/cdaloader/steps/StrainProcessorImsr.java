@@ -22,7 +22,9 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.support.FileHeading;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -57,6 +59,13 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
     public final static String HEADING_NAME         = "Strain/Stock";
     public final static String HEADING_SYNONYMS     = "Synonyms";
     public final static String HEADING_STRAINTYPE   = "Type";
+
+    public FileHeading[] fileHeadings = new FileHeading[] {
+              new FileHeading(OFFSET_ACCESSION_ID, HEADING_ACCESSION_ID)
+            , new FileHeading(OFFSET_NAME, HEADING_NAME)
+            , new FileHeading(OFFSET_SYNONYMS, HEADING_SYNONYMS)
+            , new FileHeading(OFFSET_STRAINTYPE, HEADING_STRAINTYPE)
+    };
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
@@ -100,35 +109,11 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
 
         String[] values = item.getValues();
 
+        // Do some basic validation. The file format has changed drastically in the past.
         if (lineNumber == 1) {
-
-            // Do some basic validation. The file format has changed drastically in the past.
-            String expectedValue = HEADING_ACCESSION_ID;
-            String actualValue   = values[OFFSET_ACCESSION_ID];
-            if (!expectedValue.equals(actualValue)) {
-                throw new CdaLoaderException("Expected column " + OFFSET_ACCESSION_ID
-                        + " to equal " + expectedValue + " but was " + actualValue);
-            }
-
-            expectedValue = HEADING_NAME;
-            actualValue   = values[OFFSET_NAME];
-            if (!expectedValue.equals(actualValue)) {
-                throw new CdaLoaderException("Expected column " + OFFSET_NAME
-                        + " to equal " + expectedValue + " but was " + actualValue);
-            }
-
-            expectedValue = HEADING_SYNONYMS;
-            actualValue = values[OFFSET_SYNONYMS];
-            if (!expectedValue.equals(actualValue)) {
-                throw new CdaLoaderException("Expected column " + OFFSET_SYNONYMS
-                        + " to equal " + expectedValue + " but was " + actualValue);
-            }
-
-            expectedValue = HEADING_STRAINTYPE;
-            actualValue = values[OFFSET_STRAINTYPE];
-            if (!expectedValue.equals(actualValue)) {
-                throw new CdaLoaderException("Expected column " + OFFSET_STRAINTYPE
-                        + " to equal " + expectedValue + " but was " + actualValue);
+            RunStatus status = sqlLoaderUtils.validateHeadings(item.getValues(),fileHeadings);
+            if (status.hasErrors()) {
+                throw new CdaLoaderException(status.toStringErrorMessages());
             }
 
             return null;
@@ -205,7 +190,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
             Strain strain = new Strain();
             try {
                 strain.setBiotype(sqlLoaderUtils.getBiotype(values[OFFSET_STRAINTYPE]));
-                strain.setId(new DatasourceEntityId("IMSR_EUCOMM_" + addedEucommStrainCount, DbIdType.MGI.intValue()));
+                strain.setId(new DatasourceEntityId("IMSR_EUCOMM:" + addedEucommStrainCount, DbIdType.MGI.intValue()));
                 strain.setName(values[OFFSET_NAME]);
                 List<Synonym> synonyms = new ArrayList<>();
                 strain.setSynonyms(synonyms);

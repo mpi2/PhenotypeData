@@ -200,6 +200,18 @@ public class ConfigBeans {
         return new StrainLoaderMgi(downloadFilename.targetFilename);
     }
 
+    @Bean(name = "markerLoader")
+    public MarkerLoader markerLoader() throws CdaLoaderException {
+        Map<MarkerLoader.MarkerFilenameKeys, String> markerKeys = new HashMap<>();
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.GENE_TYPES, cdaWorkspace + "/MGI_GTGUP.gff");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.MARKER_LIST, cdaWorkspace + "/MRK_List1.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.VEGA_MODELS, cdaWorkspace + "/MRK_VEGA.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENSEMBL_MODELS, cdaWorkspace + "/MRK_ENSEMBL.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENTREZ_GENE_MODELS, cdaWorkspace + "/MGI_EntrezGene.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.CCDS_MODELS, cdaWorkspace + "/MGI_AllGenes.rpt");
+        return new MarkerLoader(markerKeys);
+    }
+
     @Bean(name = "ontologyWriter")
     public OntologyWriter ontologyWriter() {
         OntologyWriter writer = new OntologyWriter();
