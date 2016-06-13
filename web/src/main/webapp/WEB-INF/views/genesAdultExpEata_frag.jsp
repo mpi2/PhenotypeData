@@ -61,7 +61,7 @@
                items="${expressionAnatomyToRow}">
         <tr>
             <td><a
-                    href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}">${mapEntry.value.abnormalAnatomyName}</a>
+                    href="${baseUrl}/anatomy/${mapEntry.value.abnormalAnatomyId}">${mapEntry.value.abnormalAnatomyName}</a>
                 </td>
             <td><span
                     title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span>
@@ -140,7 +140,7 @@
                 <c:if
                         test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
                     <a
-                            href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_id:"${mapEntry.value.abnormalMaId}" AND marker_symbol:"${gene.markerSymbol}")'><i
+                            href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_id:"${mapEntry.value.abnormalAnatomyId}" AND marker_symbol:"${gene.markerSymbol}")'><i
                             title="Images available (click on this icon to view images)"
                             class="fa fa-image"
                             alt="Images">(${mutantImagesAnatomyToRow[mapEntry.key].numberOfImages})</i>
