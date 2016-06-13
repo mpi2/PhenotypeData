@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.cdaloader.support;
 
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +51,19 @@ public class SqlLoaderUtils {
 
         // Write synonym items.
         for (Synonym synonym : term.getSynonyms()) {
-            jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                    term.getId().getAccession(), term.getId().getDatabaseId(), synonym.getSymbol());
+
+
+            try {
+
+
+                jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
+                        term.getId().getAccession(), term.getId().getDatabaseId(), synonym.getSymbol());
+
+
+            } catch (DuplicateKeyException e) {
+                logger.warn("Duplicate synonym: " + "acc = '" + term.getId().getAccession() + "'. db_id = '" + term.getId().getDatabaseId() + "'. symbol = '" + synonym.getSymbol() + "'. Skipped...");
+            }
+
         }
 
         // Write consider_id items.
@@ -381,5 +393,28 @@ public class SqlLoaderUtils {
         }
 
         return retVal;
+    }
+
+    public RunStatus validateHeadings(String[] headingRow, FileHeading[] headings) {
+        String    actualValue   = "";
+        String    expectedValue = "";
+        int       offset        = 0;
+        RunStatus status        = new RunStatus();
+
+        try {
+            for (int i = 0; i < headings.length; i++) {
+                offset = headings[i].offset;
+                expectedValue = headings[i].heading;
+                actualValue = headingRow[offset];
+                if ( ! expectedValue.equals(actualValue)) {
+                    status.addError("Expected column " + offset
+                            + " to equal " + expectedValue + " but was " + actualValue);
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            status.addError("Index out of bounds. Expected column " + expectedValue + " at offset " + offset + ". Heading row = " + headingRow);
+        }
+
+        return status;
     }
 }

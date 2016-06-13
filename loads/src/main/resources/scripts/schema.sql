@@ -46,6 +46,7 @@ DROP TABLE IF EXISTS experiment;
 DROP TABLE IF EXISTS experiment_observation;
 DROP TABLE IF EXISTS external_db;
 DROP TABLE IF EXISTS genomic_feature;
+DROP TABLE IF EXISTS higher_level_annotation;
 DROP TABLE IF EXISTS ilar;
 DROP TABLE IF EXISTS image_record_observation;
 DROP TABLE IF EXISTS live_sample;
@@ -2112,6 +2113,12 @@ CREATE TABLE mts_mouse_allele_mv (
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
+CREATE TABLE higher_level_annotation (
+  term_id varchar(128) NOT NULL DEFAULT '',
+  PRIMARY KEY    (term_id)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 
 /**
  * External resources / database to populate
@@ -2140,7 +2147,7 @@ insert into external_db(id, name, short_name, version, version_date) values(21, 
 insert into external_db(id, name, short_name, version, version_date) values(22, 'International Mouse Phenotyping Consortium', 'IMPC', '2010-11-15', '2010-11-15');
 insert into external_db(id, name, short_name, version, version_date) values(23, 'Immunology', '3i', '2014-11-07', '2014-11-07');
 insert into external_db(id, name, short_name, version, version_date) values(24, 'Mouse pathology', 'MPATH', '2013-08-12', '2013-08-12');
-insert into external_db(id, name, short_name, version, version_date) values(25, 'Mouse gross anatomy and development, timed', 'EMAPA', '2016-05-13', '2016-05-13');
+insert into external_db(id, name, short_name, version, version_date) values(26, 'Mouse gross anatomy and development, timed', 'EMAPA', '2016-05-13', '2016-05-13');
 
 
 
@@ -2274,52 +2281,251 @@ INSERT INTO participant(project_id, organisation_id, role)
   SELECT p.id, o.id, 'part_of'
   FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'BCM';
 
-  /**
-   * MGI allele types
-   */
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000001', 3, 'Chemically and radiation induced', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000002', 3, 'Chemically induced (ENU)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000003', 3, 'Chemically induced (other)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000004', 3, 'Gene trapped', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000005', 3, 'Not Applicable', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000006', 3, 'Not Specified', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000007', 3, 'QTL', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000008', 3, 'Radiation induced', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000009', 3, 'Spontaneous', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000010', 3, 'Targeted (Floxed/Frt)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000011', 3, 'Targeted (Reporter)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000012', 3, 'Targeted (knock-in)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000013', 3, 'Targeted (knock-out)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000014', 3, 'Targeted (other)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000015', 3, 'Transgenic (Cre/Flp)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000016', 3, 'Transgenic (Reporter)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000017', 3, 'Transgenic (Transposase)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000018', 3, 'Transgenic (random, expressed)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000019', 3, 'Transgenic (random, gene disruption)', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000020', 3, 'Transposon induced', '');
-
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000101', 3, 'Targeted', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000102', 3, 'Transgenic', '');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000103', 3, 'Endonuclease-mediated', '');
 
 
-  /**
-   * MGI strain classification
-   */
+/*
+** FOR MARKER REGION LOADING (from AdminTools seq_region.sql
+ */
+insert into coord_system(name, db_id, strain_db_id, strain_acc) values('chromosome', 1, 3, 'MGI:3028467');
+insert into coord_system(name, db_id, strain_db_id, strain_acc) values('par', 4, NULL, NULL);
 
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000021', 3, 'coisogenic', 'coisogenic strain');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000022', 3, 'congenic', 'congenic strain');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000023', 3, 'conplastic', 'conplastic strain');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000024', 3, 'consomic', 'consomic strain');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000025', 3, 'inbred strain', 'inbred strain');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000026', 3, 'recombinant congenic (RC)', 'recombinant congenic (RC)');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000027', 3, 'recombinant inbred (RI)', 'recombinant inbred (RI)');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000028', 3, 'mutant strain', 'mutant strain as defined in IMSR');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000029', 3, 'unclassified', 'unclassified');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000030', 3, 'segregating inbred', 'segregating inbred as defined in IMSR');
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000031', 3, 'mutant stock', 'mutant stock as defined in IMSR');
+insert into seq_region(name, coord_system_id, length) values('1', 1, 195471971);
+insert into seq_region(name, coord_system_id, length) values('2', 1, 182113224);
+insert into seq_region(name, coord_system_id, length) values('3', 1, 160039680);
+insert into seq_region(name, coord_system_id, length) values('4', 1, 156508116);
+insert into seq_region(name, coord_system_id, length) values('5', 1, 151834684);
+insert into seq_region(name, coord_system_id, length) values('6', 1, 149736546);
+insert into seq_region(name, coord_system_id, length) values('7', 1, 145441459);
+insert into seq_region(name, coord_system_id, length) values('8', 1, 129401213);
+insert into seq_region(name, coord_system_id, length) values('9', 1, 124595110);
+insert into seq_region(name, coord_system_id, length) values('10', 1, 130694993);
+insert into seq_region(name, coord_system_id, length) values('11', 1, 122082543);
+insert into seq_region(name, coord_system_id, length) values('12', 1, 120129022);
+insert into seq_region(name, coord_system_id, length) values('13', 1, 120421639);
+insert into seq_region(name, coord_system_id, length) values('14', 1, 124902244);
+insert into seq_region(name, coord_system_id, length) values('15', 1, 104043685);
+insert into seq_region(name, coord_system_id, length) values('16', 1, 98207768);
+insert into seq_region(name, coord_system_id, length) values('17', 1, 94987271);
+insert into seq_region(name, coord_system_id, length) values('18', 1, 90702639);
+insert into seq_region(name, coord_system_id, length) values('19', 1, 61431566);
+insert into seq_region(name, coord_system_id, length) values('X', 1, 171031299);
+insert into seq_region(name, coord_system_id, length) values('Y', 1, 91744698);
+insert into seq_region(name, coord_system_id, length) values('MT', 1, 16299);
+insert into seq_region(name, coord_system_id, length) values('XY', 2, 0);
+insert into seq_region(name, coord_system_id, length) values('MG153_PATCH', 1, 61431565);
+insert into seq_region(name, coord_system_id, length) values('MG3835_PATCH', 1, 90835696);
+insert into seq_region(name, coord_system_id, length) values('MG4136_PATCH', 1, 156508116);
+insert into seq_region(name, coord_system_id, length) values('MG4151_PATCH', 1, 145439975);
+insert into seq_region(name, coord_system_id, length) values('MG4209_PATCH', 1, 91793962);
+insert into seq_region(name, coord_system_id, length) values('MG4211_PATCH', 1, 91797447);
+insert into seq_region(name, coord_system_id, length) values('MG4212_PATCH', 1, 151862668);
+insert into seq_region(name, coord_system_id, length) values('MG4213_PATCH', 1, 91736668);
+insert into seq_region(name, coord_system_id, length) values('MG4214_PATCH', 1, 171031749);
 
-  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000050', 3, 'EuroPhenome mutant strain', 'mutant strain as defined in EuroPhenome');
-  INSERT INTO ontology_term (acc, db_id, name, description)
-  VALUES ('CV:00000051', 3, 'IMPC uncharacterized background strain', 'background strain used in IMPC');
 
+/*
+** FOR MARKER TYPES LOADING (from AdminTools mgi_marker_types.sql)
+*/
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '1', db.id, 'Gene', 'A region (or regions) that include all of the sequence elements necessary to encode a functional transcript. A gene may include regulatory regions, transcribed regions, and/or other functional sequence regions.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '2', db.id, 'protein coding gene', 'A gene that produces at least one transcript that is translated into a protein.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '3', db.id, 'non-coding RNA gene', 'A gene that produces an RNA transcript that functions as the gene product.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '4', db.id, 'rRNA gene', 'A gene that encodes ribosomal RNA.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '5', db.id, 'tRNA gene', 'A gene that encodes Transfer RNA.  ' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '6', db.id, 'snRNA gene', 'A gene that encodes a Small Nuclear RNA.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '7', db.id, 'snoRNA gene', 'A gene that encodes for Small Nucleolar RNA.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '8', db.id, 'miRNA gene', 'A gene that encodes for microRNA.  ' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '9', db.id, 'scRNA gene', 'A gene that encodes for Small Cytoplasmic RNA.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '10', db.id, 'lincRNA gene', 'A gene that encodes large intervening non-coding RNA.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '11', db.id, 'RNase P RNA gene', 'A gene that encodes RNase P RNA, the RNA component of Ribonuclease P (RNase P).' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '12', db.id, 'RNase MRP RNA gene', 'A gene that encodes RNase MRP RNA.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '13', db.id, 'telomerase RNA gene', 'A non-coding RNA gene, the RNA product of which is a component of telomerase.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '14', db.id, 'Unclassified non-coding RNA gene', 'A non-coding RNA gene not classified The RNA product of this non-coding is a component of telomerase.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '15', db.id, 'heritable phenotypic marker', 'A biological region characterized as a single heritable trait in a phenotype screen. The heritable phenotype may be mapped to a chromosome but generally has not been characterized to a specific gene locus.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '16', db.id, 'gene segment', 'A gene component region which acts as a recombinational unit of a gene whose functional form is generated through somatic recombination.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '17', db.id, 'unclassified gene', 'A region of the genome associated with transcript and/or prediction evidence but where feature classification is imprecise.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '18', db.id, 'other feature types', 'MGI markers that are not classified as gene including pseudogenes, QTL, transgenes, gene clusters, cytogenetic markers, & unclassified genome features.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '19', db.id, 'QTL', 'A quantitative trait locus (QTL) is a polymorphic locus which contains alleles that differentially affect the expression of a continuously distributed phenotypic trait. Usually it is a marker described by statistical association to quantitative variation in the particular phenotypic trait that is thought to be controlled by the cumulative action of alleles at multiple loci.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '20', db.id, 'Transgene', 'A gene that has been transferred naturally or by any of a number of genetic engineering techniques from one organism to another.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '21', db.id, 'Complex/Cluster/Region', 'A group of linked markers characterized by related sequence and/or function where the precise location or identity of the individual components is obscure.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '22', db.id, 'Cytogenetic Marker', 'A structure within a chromosome or a chromosomal rearrangement that is visible by microscopic examination.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '23', db.id, 'chromosomal deletion', 'An incomplete chromosome.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '24', db.id, 'insertion', 'The sequence of one or more nucleotides added between two adjacent nucleotides in the sequence.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '25', db.id, 'chromosomal inversion', 'An interchromosomal mutation where a region of the chromosome is inverted with respect to wild type.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '26', db.id, 'Robertsonian fusion', 'A non reciprocal translocation whereby the participating chromosomes break at their centromeres and the long arms fuse to form a single chromosome with a single centromere.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '27', db.id, 'reciprocal chromosomal translocation', 'A chromosomal translocation with two breaks; two chromosome segments have simply been exchanged.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '28', db.id, 'chromosomal translocation', 'An interchromosomal mutation. Rearrangements that alter the pairing of telomeres are classified as translocations.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '29', db.id, 'chromosomal duplication', 'An extra chromosome.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '30', db.id, 'chromosomal transposition', 'A chromosome structure variant whereby a region of a chromosome has been transferred to another position. Among interchromosomal rearrangements, the term transposition is reserved for that class in which the telomeres of the chromosomes involved are coupled (that is to say, form the two ends of a single DNA molecule) as in wild-type.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '31', db.id, 'unclassified cytogenetic marker', 'A cytogenetic marker not classifiable within current cytogenetic subcategories.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '32', db.id, 'BAC/YAC end', 'A region of sequence from the end of a BAC or YAC clone used as a reagent in mapping and genome assembly.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '33', db.id, 'Other Genome Feature', 'A region of the genome associated with biological interest (includes regulatory regions, conserved regions and related sequences, repetitive sequences, and viral integrations).' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '34', db.id, 'DNA Segment', 'A region of the genome associated with experimental interest, often used as a reagent for genetic mapping. Includes RFLP and other hybridization probes, sequence-tagged sites (STS), and regions defined by PCR primer pairs such as microsatellite markers).' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '35', db.id, 'pseudogenic region', 'A non-functional descendant of a functional entity.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '36', db.id, 'Pseudogene', 'A sequence that closely resembles a known functional gene, at another locus within the genome, that is non-functional a consequence of (usually several) mutations that prevent either its transcription or translation (or both). In general, pseudogenes result from either reverse transcription of a transcript of their normal paralog, in which case the pseudogene typically lacks introns and includes a poly(A) tail, or from recombination, in which case the pseudogene is typically a tandem duplication of its normal paralog.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '37', db.id, 'pseudogenic gene segment', 'A recombinational unit of a gene which when incorporated by somatic recombination in the final gene transcript results in a nonfunctional product.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '38', db.id, 'polymorphic pseudogene', 'Pseudogene owing to a SNP/DIP but in other individuals/haplotypes/strains the gene is translated.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '39', db.id, 'SRP RNA gene', 'A gene that encodes signal recognition particle RNA.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+-- it's a hack for SOLR indexing
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '40', db.id, 'unknown', 'A gene with no subtype.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+
+
+/*
+** FOR ALLELE TYPES LOADING (from AdminTools mgi_allele_types.sql)
+*/
+/**
+ * MGI allele type
+ */
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000001', 3, 'Chemically and radiation induced', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000002', 3, 'Chemically induced (ENU)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000003', 3, 'Chemically induced (other)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000004', 3, 'Gene trapped', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000005', 3, 'Not Applicable', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000006', 3, 'Not Specified', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000007', 3, 'QTL', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000008', 3, 'Radiation induced', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000009', 3, 'Spontaneous', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000010', 3, 'Targeted (Floxed/Frt)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000011', 3, 'Targeted (Reporter)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000012', 3, 'Targeted (knock-in)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000013', 3, 'Targeted (knock-out)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000014', 3, 'Targeted (other)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000015', 3, 'Transgenic (Cre/Flp)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000016', 3, 'Transgenic (Reporter)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000017', 3, 'Transgenic (Transposase)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000018', 3, 'Transgenic (random, expressed)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000019', 3, 'Transgenic (random, gene disruption)', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000020', 3, 'Transposon induced', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000101', 3, 'Targeted', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000102', 3, 'Transgenic', '');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000103', 3, 'Endonuclease-mediated', '');
+/**
+ ** MGI strain classification
+ */
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000021', 3, 'coisogenic', 'coisogenic strain');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000022', 3, 'congenic', 'congenic strain');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000023', 3, 'conplastic', 'conplastic strain');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000024', 3, 'consomic', 'consomic strain');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000025', 3, 'inbred strain', 'inbred strain');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000026', 3, 'recombinant congenic (RC)', 'recombinant congenic (RC)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000027', 3, 'recombinant inbred (RI)', 'recombinant inbred (RI)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000028', 3, 'mutant strain', 'mutant strain as defined in IMSR');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000029', 3, 'unclassified', 'unclassified');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000030', 3, 'segregating inbred', 'segregating inbred as defined in IMSR');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000031', 3, 'mutant stock', 'mutant stock as defined in IMSR');
+
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000050', 3, 'EuroPhenome mutant strain', 'mutant strain as defined in EuroPhenome');
+INSERT INTO ontology_term (acc, db_id, name, description)
+VALUES ('CV:00000051', 3, 'IMPC uncharacterized background strain', 'background strain used in IMPC');
+
+
+
+ /*
+ ** FOR META INFO LOADING
+ */
+insert into meta_info(property_key, property_value, description) values('code_version', 'beta-release-0_1_4', '');
+insert into meta_info(property_key, property_value, description) values('assembly_version', 'GRCm38', 'Genome Reference Consortium GRCm38');
+insert into meta_info(property_key, property_value, description) values('species', 'Mus musculus', 'Mus musculus phenotype database');
+
+
+ /*
+ ** FOR HIGHER LEVEL ANNOTATION LOADING
+  */
+INSERT INTO higher_level_annotation VALUES
+ ('MA:0000004')
+,('MA:0000007')
+,('MA:0000009')
+,('MA:0000010')
+,('MA:0002418')
+,('MA:0000012')
+,('MA:0002711')
+,('MA:0002411')
+,('MA:0000014')
+,('MA:0000016')
+,('MA:0000327')
+,('MA:0002431')
+,('MA:0000325')
+,('MA:0000326')
+,('MA:0000017');
+
+INSERT INTO higher_level_annotation VALUES
+ ('EMAP:31887')
+,('EMAP:31902')
+,('EMAP:33590')
+,('EMAP:33659')
+,('EMAP:3981')
+,('EMAP:3987')
+,('EMAP:4011')
+,('EMAP:4103')
+,('EMAP:4109')
+,('EMAP:4636')
+,('EMAP:4651')
+;
+
+
+
+ /*
+ ** FOR IMPC STATUS CODE LOADING
+  */
+/**
+ * status code information about experiments, procedures or parameters from the DCC
+ */
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_001', 22, 'Mouse died', 'Found dead');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_001', 22, 'Mouse died', 'Found dead');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_002', 22, 'Mouse culled', 'Culled for welfare reasons');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_002', 22, 'Mouse culled', 'Culled for welfare reasons');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_003', 22, 'Single procedure not performed - welfare', 'Because of animal welfare');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_003', 22, 'Single procedure not performed - welfare', 'Because of animal welfare');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_004', 22, 'Single procedure not performed - schedule', 'Mouse missed test date, e.g. no phenotyper available');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_004', 22, 'Single procedure not performed - schedule', 'Mouse missed test date, e.g. no phenotyper available');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_005', 22, 'Pipeline stopped - welfare', 'Because of animal welfare');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_005', 22, 'Pipeline stopped - welfare', 'Because of animal welfare');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_006', 22, 'Pipeline stopped - scheduling', 'Mouse missed more than one test so pipeline stopped');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_006', 22, 'Pipeline stopped - scheduling', 'Mouse missed more than one test so pipeline stopped');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_007', 22, 'Procedure Failed - Equipment Failed', 'Issue with the phenotyping equipment, hardware/software (but not LIMS)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_007', 22, 'Procedure Failed - Equipment Failed', 'Issue with the phenotyping equipment, hardware/software (but not LIMS)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_008', 22, 'Procedure Failed - Sample Lost', 'Procedure Failed - Sample Lost');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_008', 22, 'Procedure Failed - Sample Lost', 'Procedure Failed - Sample Lost');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_009', 22, 'Procedure Failed - Insufficient Sample', 'Error/failure in any step of the procedure (e.g.: glucose injection in IPGTT gone wrong)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_009', 22, 'Procedure Failed - Insufficient Sample', 'Error/failure in any step of the procedure (e.g.: glucose injection in IPGTT gone wrong)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PSC_010', 22, 'Procedure Failed - Process Failed', 'Error/failure in any step of the procedure (e.g.: glucose injection in IPGTT gone wrong)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_010', 22, 'Procedure Failed - Process Failed', 'Error/failure in any step of the procedure (e.g.: glucose injection in IPGTT gone wrong)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_011', 22, 'Procedure QC Failed', 'Procedure QC Failed');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_012', 22, 'LIMS not ready yet', 'LIMS is undergoing updates and is unable to collect the data, for the moment; e.g.: manage a mandatory procedure still not yet added to the LIMS');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_013', 22, 'Software failure', 'LIMS says no');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_014', 22, 'Uncooperative mouse', 'Mouse is refusing to comply to the test (e.g.: not griping the grid in Grip Strength)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PSC_015', 22, 'Free Text of Issues', 'Info about a procedure that could not be completed for any other reason (submitted like IMPC_PSC_015:laboratory destroyed by flood)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PARAMSC_001', 22, 'Parameter not measured - Equipment Failed', 'Issue with the phenotyping equipment, hardware/software (but not LIMS)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_001', 22, 'Parameter not measured - Equipment Failed', 'Issue with the phenotyping equipment, hardware/software (but not LIMS)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PARAMSC_002', 22, 'Parameter not measured - Sample Lost', 'Parameter not measured - Sample Lost');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_002', 22, 'Parameter not measured - Sample Lost', 'Parameter not measured - Sample Lost');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PARAMSC_003', 22, 'Parameter not measured - Insufficient sample', 'Blood sample was enough for one Clinical chemistry but not for Hematology');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_003', 22, 'Parameter not measured - Insufficient sample', 'Blood sample was enough for one Clinical chemistry but not for Hematology');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PARAMSC_004', 22, 'Parameter not recorded - welfare issue', 'Single parameter not recorded because of mouse welfare reasons');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_004', 22, 'Parameter not recorded - welfare issue', 'Single parameter not recorded because of mouse welfare reasons');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PARAMSC_005', 22, 'Free Text of Issues', 'Info about a parameter e.g the mouse moved, the power went off (submitted like IMPC_PARAMSC_004:the mouse moved)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_005', 22, 'Free Text of Issues', 'Info about a parameter e.g the mouse moved, the power went off (submitted like IMPC_PARAMSC_004:the mouse moved)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PARAMSC_006', 22, 'Extra Information', 'e.g. For media parameters a link to the parameter associated with the picture (submitted like IMPC_PARAMSC_006: IMPC_013_001_014)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_006', 22,  'Extra Information', 'e.g. For media parameters a link to the parameter associated with the picture (submitted like IMPC_PARAMSC_006: IMPC_013_001_014)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('ESLIM_PARAMSC_007', 22,'Parameter not measured - not in SOP', 'Not in center specific SOP at time of measurement');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_007', 22, 'Parameter not measured - not in SOP', 'Not in center specific SOP at time of measurement');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_008', 22, 'Above upper limit of quantitation', 'Above upper limit of quantitation');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_009', 22, 'Below lower limit of quantitation', 'Below lower limit of quantitation');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_010', 22, 'Parameter QC Failed', 'Parameter QC Failed');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_011', 22, 'LIMS not ready yet', 'LIMS is undergoing updates and is unable to collect the data, for the moment; e.g.: manage mandatory parameters added to procedure after experiment performed but before data exported');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_012', 22, 'Software failure', 'LIMS says no');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_013', 22, 'Uncooperative mouse', 'Mouse is refusing to comply to the test (e.g.: not griping the grid in Grip Strength)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_PARAMSC_014', 22, 'Parameter not measured - Equipment Incompatible', 'The phenotyping equipment can not be used to measure a mandatory parameter');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_001', 22, 'Genotyping failed', 'Genotyping failed');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_002', 22, 'Health Issue', 'Mouse withdrawn because of health issue not related to the targeted mutation; all data to be removed; (ex: health issue discovered during gross pathology, justifying rare values throughout the pipeline)');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_003', 22, 'Free Text of Issues', 'Info about a specimen that was removed, not covered by the other specimen status codes; e.g.: duplicated specimen entries (submitted like IMPC_SSC_003:duplicated specimen entry)');
+
+
+
+ /*
+ ** FOR SECONDARY PROJECT GENES LOADING
+  */
+  LOCK TABLES `genes_secondary_project` WRITE;
+
+  INSERT INTO `genes_secondary_project` VALUES ('MGI:2441809','idg'),('MGI:1098687','idg'),('MGI:1197518','idg'),('MGI:87860','idg'),('MGI:1919363','idg'),('MGI:1889336','idg'),('MGI:1914676','idg'),('MGI:1924139','idg'),('MGI:2679274','idg'),('MGI:2143103','idg'),('MGI:2387214','idg'),('MGI:3613666','idg'),('MGI:2443344','idg'),('MGI:3576659','idg'),('MGI:3052714','idg'),('MGI:2687327','idg'),('MGI:1918595','idg'),('MGI:1913583','idg'),('MGI:2664636','idg'),('MGI:2652846','idg'),('MGI:1933736','idg'),('MGI:2451244','idg'),('MGI:2441837','idg'),('MGI:2385307','idg'),('MGI:2652869','idg'),('MGI:2155456','idg'),('MGI:2685946','idg'),('MGI:2388073','idg'),('MGI:2384296','idg'),('MGI:2179947','idg'),('MGI:2387404','idg'),('MGI:1924106','idg'),('MGI:3043288','idg'),('MGI:2441841','idg'),('MGI:2136459','idg'),('MGI:2652845','idg'),('MGI:2448549','idg'),('MGI:97516','idg'),('MGI:97517','idg'),('MGI:97518','idg'),('MGI:1916931','idg'),('MGI:2388268','idg'),('MGI:3587025','idg'),('MGI:88399','idg'),('MGI:109248','idg'),('MGI:1202403','idg'),('MGI:1347049','idg'),('MGI:1352754','idg'),('MGI:1917912','idg'),('MGI:2146607','idg'),('MGI:1353562','idg'),('MGI:2660884','idg'),('MGI:1920014','idg'),('MGI:1917675','idg'),('MGI:1918012','idg'),('MGI:1925064','idg'),('MGI:1330301','idg'),('MGI:1330300','idg'),('MGI:1330292','idg'),('MGI:1196464','idg'),('MGI:3586824','idg'),('MGI:108034','idg'),('MGI:1346832','idg'),('MGI:1913837','idg'),('MGI:108460','idg'),('MGI:1329003','idg'),('MGI:95722','idg'),('MGI:95723','idg'),('MGI:2153060','idg'),('MGI:2153041','idg'),('MGI:2444990','idg'),('MGI:1923993','idg'),('MGI:95750','idg'),('MGI:3643324','idg'),('MGI:3644318','idg'),('MGI:2685557','idg'),('MGI:3643198','idg'),('MGI:2685211','idg'),('MGI:1924846','idg'),('MGI:2685213','idg'),('MGI:2685887','idg'),('MGI:2685955','idg'),('MGI:1925499','idg'),('MGI:2182928','idg'),('MGI:101909','idg'),('MGI:1925810','idg'),('MGI:1917943','idg'),('MGI:1916151','idg'),('MGI:2441732','idg'),('MGI:3041203','idg'),('MGI:2685341','idg'),('MGI:2441872','idg'),('MGI:1916157','idg'),('MGI:2653880','idg'),('MGI:1315214','idg'),('MGI:1918021','idg'),('MGI:2442034','idg'),('MGI:892973','idg'),('MGI:2441803','idg'),('MGI:2441890','idg'),('MGI:1920260','idg'),('MGI:2686146','idg'),('MGI:1346334','idg'),('MGI:1918361','idg'),('MGI:2441992','idg'),('MGI:2135882','idg'),('MGI:1333877','idg'),('MGI:3643278','idg'),('MGI:2155249','idg'),('MGI:2441719','idg'),('MGI:3525078','idg'),('MGI:2135884','idg'),('MGI:2446854','idg'),('MGI:108031','idg'),('MGI:2441763','idg'),('MGI:2441843','idg'),('MGI:2441734','idg'),('MGI:1934129','idg'),('MGI:1927851','idg'),('MGI:1934133','idg'),('MGI:1927653','idg'),('MGI:2429498','idg'),('MGI:95812','idg'),('MGI:106025','idg'),('MGI:1314873','idg'),('MGI:2685008','idg'),('MGI:1353604','idg'),('MGI:1861899','idg'),('MGI:2429603','idg'),('MGI:96664','idg'),('MGI:96668','idg'),('MGI:96669','idg'),('MGI:3694646','idg'),('MGI:2663923','idg'),('MGI:1913983','idg'),('MGI:2384820','idg'),('MGI:1310000','idg'),('MGI:1314842','idg'),('MGI:108007','idg'),('MGI:2684043','idg'),('MGI:2384976','idg'),('MGI:1921821','idg'),('MGI:1197019','idg'),('MGI:1197011','idg'),('MGI:1098804','idg'),('MGI:1202300','idg'),('MGI:2670981','idg'),('MGI:1197517','idg'),('MGI:3036247','idg'),('MGI:3039582','idg'),('MGI:1925384','idg'),('MGI:2685918','idg'),('MGI:1914418','idg'),('MGI:2448588','idg'),('MGI:1855691','idg'),('MGI:2449952','idg'),('MGI:1920955','idg'),('MGI:96918','idg'),('MGI:1861901','idg'),('MGI:894676','idg'),('MGI:2683541','idg'),('MGI:1918885','idg'),('MGI:1915529','idg'),('MGI:1890500','idg'),('MGI:894279','idg'),('MGI:1921818','idg'),('MGI:3033095','idg'),('MGI:3033115','idg'),('MGI:2441674','idg'),('MGI:3033142','idg'),('MGI:2441884','idg'),('MGI:3033145','idg'),('MGI:3033139','idg'),('MGI:3643758','idg'),('MGI:2183924','idg'),('MGI:2448580','idg'),('MGI:2444306','idg'),('MGI:2685128','idg'),('MGI:1344371','idg'),('MGI:2142824','idg'),('MGI:1890645','idg'),('MGI:2387995','idg'),('MGI:891989','idg'),('MGI:2685082','idg'),('MGI:1860130','idg'),('MGI:2449205','idg'),('MGI:1352465','idg'),('MGI:1352466','idg'),('MGI:1100526','idg'),('MGI:1346317','idg'),('MGI:1352453','idg'),('MGI:2183436','idg'),('MGI:2385017','idg'),('MGI:1925226','idg'),('MGI:1921387','idg'),('MGI:2681862','idg'),('MGI:2685145','idg'),('MGI:1926076','idg'),('MGI:1921441','idg'),('MGI:2679420','idg'),('MGI:1890615','idg'),('MGI:1918881','idg'),('MGI:2385213','idg'),('MGI:2384308','idg'),('MGI:1916211','idg'),('MGI:1858231','idg'),('MGI:2388285','idg'),('MGI:1347357','idg'),('MGI:1918202','idg'),('MGI:97594','idg'),('MGI:3528383','idg'),('MGI:2180917','idg'),('MGI:2677633','idg'),('MGI:1918590','idg'),('MGI:1914295','idg'),('MGI:1914128','idg'),('MGI:1343464','idg'),('MGI:1914321','idg'),('MGI:2443413','idg'),('MGI:2441827','idg'),('MGI:2182926','idg'),('MGI:1333809','idg'),('MGI:2150641','idg'),('MGI:2685925','idg'),('MGI:106921','idg'),('MGI:1351318','idg'),('MGI:2182368','idg'),('MGI:2445031','idg'),('MGI:3037705','idg'),('MGI:3693943','idg'),('MGI:3036233','idg'),('MGI:108104','idg'),('MGI:106908','idg'),('MGI:1201408','idg'),('MGI:1891338','idg'),('MGI:1313271','idg'),('MGI:2138162','idg'),('MGI:1924735','idg'),('MGI:2442403','idg'),('MGI:1927552','idg'),('MGI:2385336','idg'),('MGI:2152419','idg'),('MGI:1914583','idg'),('MGI:2144047','idg'),('MGI:1934135','idg'),('MGI:2685076','idg'),('MGI:2681171','idg'),('MGI:1890257','idg'),('MGI:2681195','idg'),('MGI:2681207','idg'),('MGI:2681216','idg'),('MGI:2681218','idg'),('MGI:1890258','idg'),('MGI:2681253','idg'),('MGI:2681256','idg'),('MGI:2681259','idg'),('MGI:2681273','idg'),('MGI:2681280','idg'),('MGI:2681302','idg'),('MGI:2681304','idg'),('MGI:2681306','idg'),('MGI:2681308','idg'),('MGI:2445052','idg'),('MGI:1201675','idg'),('MGI:2385204','idg'),('MGI:1933227','idg'),('MGI:1924261','idg'),('MGI:1930958','idg'),('MGI:2182472','idg'),('MGI:2385297','idg'),('MGI:2145021','idg'),('MGI:1914050','idg'),('MGI:1929914','idg'),('MGI:2148775','idg'),('MGI:1918992','idg'),('MGI:1261847','idg'),('MGI:1917172','idg'),('MGI:2182465','idg'),('MGI:3027899','idg'),('MGI:2652875','idg'),('MGI:1346338','idg'),('MGI:1194498','idg'),('MGI:2441731','idg'),('MGI:1918473','idg'),('MGI:2442043','idg'),('MGI:2661081','idg'),('MGI:1276121','idg'),('MGI:2387588','idg'),('MGI:3580298','idg'),('MGI:2442013','idg'),('MGI:2442190','idg'),('MGI:1098802','idg'),('MGI:894318','idg'),('MGI:1925584','idg'),('MGI:1916704','idg'),('MGI:1098669','idg'),('MGI:1098670','idg'),('MGI:1098551','idg'),('MGI:1355272','idg'),('MGI:1196223','idg'),('MGI:1339969','idg'),('MGI:2384150','idg'),('MGI:1277167','idg'),('MGI:1933113','idg'),('MGI:2685858','idg'),('MGI:107859','idg'),('MGI:1202299','idg'),('MGI:1929509','idg'),('MGI:1927596','idg'),('MGI:3037820','idg'),('MGI:99632','idg'),('MGI:3584508','idg'),('MGI:2685627','idg'),('MGI:1891468','idg'),('MGI:2441950','idg'),('MGI:2652894','idg'),('MGI:2442276','idg'),('MGI:1920334','idg'),('MGI:97579','idg'),('MGI:3026984','idg'),('MGI:97600','idg'),('MGI:1097709','idg'),('MGI:1918882','idg'),('MGI:1920831','idg'),('MGI:2441683','idg'),('MGI:1916264','idg'),('MGI:2443397','idg'),('MGI:1918349','idg'),('MGI:1352758','idg'),('MGI:1921622','idg');
+
+  UNLOCK TABLES;
