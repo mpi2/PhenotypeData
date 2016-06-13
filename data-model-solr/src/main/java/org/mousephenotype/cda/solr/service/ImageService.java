@@ -27,6 +27,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
@@ -896,6 +897,29 @@ public class ImageService implements WebStatus{
 		if ( response.getResults().getNumFound() == 0 ){
 			return false;
 		}
+		return true;
+
+	}
+	
+	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpTerm) throws SolrServerException {
+		System.out.println("looking for mp term="+mpTerm);
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*")
+				.addFilterQuery(
+						"(" + ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAccessionId + "\" AND "
+								+ ImageDTO.PROCEDURE_NAME + ":\"" + procedureName + "\" AND "
+//								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\" AND "
+								+ MpDTO.MP_TERM + ":\"" + mpTerm + "\")")
+				.setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		if ( response.getResults().getNumFound() == 0 ){
+			return false;
+		}
+		System.out.println("returning true");
 		return true;
 
 	}

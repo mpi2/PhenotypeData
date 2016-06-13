@@ -307,10 +307,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 	public void buildEvidenceLink(String baseGraphUrl) throws UnsupportedEncodingException {
 
-		this.evidenceLink = buildGraphUrl(baseGraphUrl);
+		this.evidenceLink = buildEvidenceUrl(baseGraphUrl);
 	}
 
-	public EvidenceLink buildGraphUrl(String baseUrl) throws UnsupportedEncodingException {
+	public EvidenceLink buildEvidenceUrl(String baseUrl) throws UnsupportedEncodingException {
 
 		String url = baseUrl;
 		EvidenceLink evidenceLink = new EvidenceLink();
