@@ -902,14 +902,14 @@ public class ImageService implements WebStatus{
 	}
 	
 	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpTerm) throws SolrServerException {
-		System.out.println("looking for mp term="+mpTerm);
+		System.out.println("looking for mp term="+mpTerm +"  colony Id="+colonyId);
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*")
 				.addFilterQuery(
 						"(" + ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAccessionId + "\" AND "
 								+ ImageDTO.PROCEDURE_NAME + ":\"" + procedureName + "\" AND "
-//								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\" AND "
+								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\" AND "
 								+ MpDTO.MP_TERM + ":\"" + mpTerm + "\")")
 				.setRows(0);
 
@@ -921,7 +921,6 @@ public class ImageService implements WebStatus{
 		}
 		System.out.println("returning true");
 		return true;
-
 	}
 
 	public long getWebStatus() throws SolrServerException {
