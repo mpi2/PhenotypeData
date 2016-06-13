@@ -183,17 +183,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	}
 
 	@Override
-	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-		try {
-			run("");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+	public void run(String... strings) throws Exception {
+		run();
 	}
 
 	@Override
-	public void run(String... strings) throws Exception {
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 		long count = 0;
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
@@ -208,7 +203,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		}
 
 		logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
+		return runStatus;
 	}
 
 	public long populateObservationSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {

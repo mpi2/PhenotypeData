@@ -143,17 +143,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 
 	@Override
-	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException{
-		try {
-			run("");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+	public void run(String... strings) throws Exception {
+		run();
 	}
 
 	@Override
-	public void run(String... strings) throws Exception {
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 
 		long start = System.currentTimeMillis();
 		RunStatus runStatus = new RunStatus();
@@ -161,7 +156,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		documentCount = populateStatisticalResultsSolrCore();
 
 		logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
-
+		return runStatus;
 	}
 
 	private int populateStatisticalResultsSolrCore() throws IndexerException {

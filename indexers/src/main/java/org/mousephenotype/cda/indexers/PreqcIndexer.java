@@ -104,17 +104,12 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     @Override
-    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-        try {
-            run("");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void run(String... strings) throws Exception {
+        run();
     }
 
     @Override
-    public void run(String... strings) throws Exception {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 1;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -381,7 +376,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
+        return runStatus;
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {

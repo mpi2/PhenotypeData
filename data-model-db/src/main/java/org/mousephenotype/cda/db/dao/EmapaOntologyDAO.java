@@ -50,6 +50,53 @@ public class EmapaOntologyDAO extends OntologyDAO {
     public EmapaOntologyDAO() {
 
     }
+    public class Emapa {
+        public String emapaId = null;
+        public String emapaTerm = null;
+
+        public void setEmapaId(String emapaId){
+            this.emapaId = emapaId;
+        }
+
+        public String getEmapaId() {
+            return emapaId;
+        }
+
+        public String getEmapaTerm() {
+            return emapaTerm;
+        }
+
+        public void setEmapaTerm(String emapaTerm) {
+            this.emapaTerm = emapaTerm;
+        }
+    }
+    /**
+     * Returns an id/term map of emap to emapa
+     * @return an id/term map of emap to emapa
+     * @throws SQLException
+     */
+    public Map<String, Emapa> populateEmap2EmapaMap() throws SQLException {
+        Map<String, Emapa> emap2emapaIdMap = new HashMap<>();
+
+        //String query = " SELECT emapa_term_id,emap_term_id FROM emapa_2emap";
+        String query = "SELECT DISTINCT m.emapa_term_id, emap_term_id, i.name AS emapa_term "
+        + "FROM emapa_2emap m, emapa_term_infos i "
+        + "WHERE m.emapa_term_id=i.term_id";
+        try (PreparedStatement statement = ontodbDataSource.getConnection().prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String emapaTermId = resultSet.getString("emapa_term_id");
+                String emapTermId = resultSet.getString("emap_term_id");
+                String emapaTerm = resultSet.getString("emapa_term");
+                Emapa emapa = new Emapa();
+                emapa.setEmapaId(emapaTermId);
+                emapa.setEmapaTerm(emapaTerm);
+                emap2emapaIdMap.put(emapTermId, emapa);
+            }
+        }
+        return emap2emapaIdMap;
+    }
 
     /**
      * Returns the set of descendent graphs for the given id.

@@ -105,7 +105,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 	private Map<String, String> parameterStableIdToEmapaTermIdMap = new HashMap(); // key: EMAPA id;
 	private Map<String, String> parameterStableIdToMpTermIdMap;
-	private Map<String, String> emap2EmapaMap;
+	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
 
 	private String impcAnnotationBaseUrl;
 
@@ -126,17 +126,12 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	}
 
 	@Override
-	public RunStatus run() throws IndexerException {
-		try {
-			run("");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+	public void run(String... strings) throws Exception {
+		run();
 	}
 
 	@Override
-	public void run(String... strings) throws Exception {
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
@@ -148,30 +143,32 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		try {
-			logger.info(" Building parameter to abnormal mp map");
+			logger.info("Building parameter to abnormal mp map");
 			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
-			logger.info(" Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
+			logger.info("Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 		try {
-			emap2EmapaMap = this.populateEmap2EmapaMap();
+			logger.info("Started emap mapping...");
+			emap2EmapaMap = emapaService.populateEmap2EmapaMap();
+			logger.info("Done {} EMAP to EMAPA mappings", emap2EmapaMap.size());
 			parameterStableIdToEmapaTermIdMap = this.populateParameterStableIdToEmapaIdMap();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 		imageBeans = populateImageUrls();
-		// logger.info(" added {} total Image URL beans", imageBeans.size());
+		logger.info("Added {} total Image URL beans", imageBeans.size());
 
 		if (imageBeans.size() < 100) {
 			runStatus.addError(
-					" Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
+					"Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
 		}
 
 		this.alleles = populateAlleles();
-		// logger.info(" Added {} total allele beans", alleles.size());
+		logger.info("Added {} total allele beans", alleles.size());
 
 
 		// logger.info(" omeroRootUrl=" + impcMediaBaseUrl);
@@ -184,7 +181,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		try {
-
+			logger.info("Starting indexing.....");
 			impcImagesIndexing.deleteByQuery("*:*");
 
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
@@ -278,7 +275,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		logger.info(" Added {} total beans in {}", documentCount,
 				commonUtils.msToHms(System.currentTimeMillis() - start));
 
-//		return runStatus;
+		return runStatus;
 	}
 
 	private void addOntology(RunStatus runStatus, ImageDTO imageDTO, Map<String, String> stableIdToTermIdMap,
@@ -318,11 +315,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					termIds.add(thisTermId);
 
 
-					OntologyTermBean maTermBean = ontologyDAO.getTerm(thisTermId);
-					if (maTermBean != null) {
+					OntologyTermBean termBean = ontologyDAO.getTerm(thisTermId);
+					if (termBean != null) {
 
-						terms.add(maTermBean.getName());
-						termSynonyms.addAll(maTermBean.getSynonyms());
+						terms.add(termBean.getName());
+						termSynonyms.addAll(termBean.getSynonyms());
 						List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(thisTermId, level);
 						for (OntologyTermBean topLevel : topLevels) {
 							if (!topLevelIds.contains(topLevel.getId())) {
@@ -368,6 +365,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			}
 
 			if (ontologyDAO instanceof EmapaOntologyDAO) {
+
 				if (!termIds.isEmpty()) {
 					imageDTO.setAnatomyId(termIds);
 
@@ -738,21 +736,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		return paramToMp;
 	}
 
-	public Map<String, String> populateEmap2EmapaMap() throws SQLException {
-		Map<String, String> emap2emapaIdMap = new HashMap<String, String>();
-		String query = " SELECT emapa_term_id,emap_term_id FROM emapa_2emap";
-		try (PreparedStatement statement = ontodbDataSource.getConnection().prepareStatement(query)) {
-			ResultSet resultSet = statement.executeQuery();
-
-			while (resultSet.next()) {
-				String emapaTermId = resultSet.getString("emapa_term_id");
-				String emapTermId = resultSet.getString("emap_term_id");
-				emap2emapaIdMap.put(emapTermId, emapaTermId);
-			}
-		}
-		return emap2emapaIdMap;
-	}
-
 	// SELECT * FROM phenotype_parameter pp INNER JOIN
 	// phenotype_parameter_lnk_ontology_annotation pploa ON
 	// pp.id=pploa.parameter_id INNER JOIN
@@ -766,11 +749,21 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 
+			int counter = 0;
 			while (resultSet.next()) {
+
 				String parameterStableId = resultSet.getString("stable_id");
-				String emapaAcc = emap2EmapaMap.get(resultSet.getString("ontology_acc"));
-				paramToEmapa.put(parameterStableId, emapaAcc);
+				String acc = resultSet.getString("ontology_acc");
+				if (emap2EmapaMap.get(acc) != null) {
+					String emapaAcc = emap2EmapaMap.get(acc).getEmapaId();
+					//System.out.println(acc + " mapped to " + emapaAcc);
+					paramToEmapa.put(parameterStableId, emapaAcc);
+				}
+				else {
+					counter++;
+				}
 			}
+			logger.info("MISSED: " + counter);
 		}
 		logger.debug(" paramToMa size = " + paramToEmapa.size());
 		return paramToEmapa;

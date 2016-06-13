@@ -86,13 +86,11 @@ public class SolrServerConfig {
 		return new HttpSolrServer(solrBaseUrl + "/disease");
 	}
 
-
 	//Gene
 	@Bean(name = "geneCore")
 	HttpSolrServer getGeneCore() {
 		return new HttpSolrServer(solrBaseUrl + "/gene");
 	}
-
 
 	//GenotypePhenotype
 	@Bean(name = "genotypePhenotypeCore")
@@ -105,6 +103,11 @@ public class SolrServerConfig {
 	//HttpSolrServer getImpcImagesCore() { return new HttpSolrServer(solrBaseUrl + "/impc_images"); }
 	HttpSolrServer getImpcImagesCore() { return new HttpSolrServer("http://localhost:8090/solr"+ "/impc_images"); }
 
+	//SangerImages
+	@Bean(name = "sangerImagesCore")
+	HttpSolrServer getImagesCore() {
+		return new HttpSolrServer(solrBaseUrl + "/images");
+	}
 
 	//MA
 	@Bean(name = "maCore")
@@ -113,7 +116,6 @@ public class SolrServerConfig {
 	//ANATOMY
 	@Bean(name = "anatomyCore")
 	HttpSolrServer getAnatomyCore() { return new HttpSolrServer(solrBaseUrl + "/anatomy"); }
-
 
 	//MP
 	@Bean(name = "mpCore")
@@ -130,12 +132,10 @@ public class SolrServerConfig {
 		return new HttpSolrServer("http://localhost:8090/solr" + "/emap");
 	}
 
-
 	@Bean(name = "experimentCore")
 	HttpSolrServer getExperimentCore() {
 		return new HttpSolrServer(solrBaseUrl + "/experiment");
 	}
-
 
 	//Pipeline
 	@Bean(name = "pipelineCore")
@@ -143,27 +143,17 @@ public class SolrServerConfig {
 		return new HttpSolrServer(solrBaseUrl + "/pipeline");
 	}
 
-
 	//Preqc
 	@Bean(name = "preQcCore")
 	HttpSolrServer getPreQcCore() {
 		return new HttpSolrServer(solrBaseUrl + "/preqc");
 	}
 
-
-	//SangerImages
-	@Bean(name = "sangerImagesCore")
-	HttpSolrServer getImagesCore() {
-		return new HttpSolrServer(solrBaseUrl + "/images");
-	}
-
-
 	//StatisticalResult
 	@Bean(name = "statisticalResultCore")
 	HttpSolrServer getStatisticalResultCore() {
 		return new HttpSolrServer(solrBaseUrl + "/statistical-result");
 	}
-
 
 	@Bean(name = "phenotypeCenterService")
 	PhenotypeCenterService phenotypeCenterService() {
