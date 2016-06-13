@@ -2147,6 +2147,7 @@ insert into external_db(id, name, short_name, version, version_date) values(21, 
 insert into external_db(id, name, short_name, version, version_date) values(22, 'International Mouse Phenotyping Consortium', 'IMPC', '2010-11-15', '2010-11-15');
 insert into external_db(id, name, short_name, version, version_date) values(23, 'Immunology', '3i', '2014-11-07', '2014-11-07');
 insert into external_db(id, name, short_name, version, version_date) values(24, 'Mouse pathology', 'MPATH', '2013-08-12', '2013-08-12');
+insert into external_db(id, name, short_name, version, version_date) values(25, 'Mouse Developmental Stages', 'MMUSDV', '2016-05-13', '2016-05-13');
 insert into external_db(id, name, short_name, version, version_date) values(26, 'Mouse gross anatomy and development, timed', 'EMAPA', '2016-05-13', '2016-05-13');
 
 
@@ -2184,6 +2185,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(1, 'CHORI', "Childr
 INSERT INTO organisation(id, name, fullname, country) VALUES(2, 'UC Davis', 'University of California at Davis School of Veterinary Medicine', 'USA');
 INSERT INTO organisation(id, name, fullname, country) VALUES(3, 'WTSI', 'Wellcome Trust Sanger Institute', 'UK');
 INSERT INTO organisation(id, name, fullname, country) VALUES(4, 'Regeneron', 'Regeneron Pharmaceuticals, Inc.', 'USA');
+INSERT INTO organisation(id, name, fullname, country) VALUES(5, 'EBI', 'European Bioinformatics Institute', 'UK');
 INSERT INTO organisation(id, name, fullname, country) VALUES(6, 'JAX', 'Jackson Laboratory', 'USA');
 INSERT INTO organisation(id, name, fullname, country) VALUES(7, 'MRC Harwell', 'Medical Research Council centre for mouse genetics', 'UK');
 INSERT INTO organisation(id, name, fullname, country) VALUES(8, 'ICS', 'Institut Clinique de la Souris', 'France');
