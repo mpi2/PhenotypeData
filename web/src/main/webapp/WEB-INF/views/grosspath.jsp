@@ -104,14 +104,9 @@
 									
 									
 									<td>
-										<c:forEach var="textParam" items="${histRow.textParameters}">
-										<%-- <c:if test="${textParam.parameter.name eq parameterName }"> --%>
 										
-											 Parameter:${textParam.parameter.name} Text: ${textParam.textValue }
+										${histRow.textValue}
 										
-										<%-- </c:if> --%>
-										
-										</c:forEach>
 									</td>
 									
 									<td>
