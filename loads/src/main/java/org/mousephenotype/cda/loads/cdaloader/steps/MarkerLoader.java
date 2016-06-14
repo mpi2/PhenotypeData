@@ -24,17 +24,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.FlowStep;
+import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.Executors;
 
 /**
  * Loads the markers from the MGI_GTGUP.gff file into the strain and synonym tables of the target database.
@@ -43,33 +48,37 @@ import java.util.Set;
  * Created by mrelac on 13/04/2016.
  *
  */
-public class MarkerLoader implements Step, InitializingBean {
+public class MarkerLoader implements InitializingBean, Step {
 
     private       CommonUtils                     commonUtils         = new CommonUtils();
     private final Logger                          logger              = LoggerFactory.getLogger(this.getClass());
     public        Map<MarkerFilenameKeys, String> markerKeys          = new HashMap<>();
+
+    private       FlatFileItemReader<FieldSet>    ccdsModelsReader    = new FlatFileItemReader<>();
+    private       FlatFileItemReader<FieldSet>    ensemblModelsReader = new FlatFileItemReader<>();
+    private       FlatFileItemReader<FieldSet>    entrezGeneReader    = new FlatFileItemReader<>();
     private       FlatFileItemReader<FieldSet>    geneTypesReader     = new FlatFileItemReader<>();
     private       FlatFileItemReader<FieldSet>    markerListReader    = new FlatFileItemReader<>();
     private       FlatFileItemReader<FieldSet>    vegaModelsReader    = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    ensemblModelsReader = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    entrezGeneReader    = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    ccdsModelsReader    = new FlatFileItemReader<>();
 
 
     public enum MarkerFilenameKeys {
-          GENE_TYPES
-        , MARKER_LIST
-        , VEGA_MODELS
+          CCDS_MODELS
         , ENSEMBL_MODELS
         , ENTREZ_GENE_MODELS
-        , CCDS_MODELS
+        , GENE_TYPES
+        , MARKER_LIST
+        , VEGA_MODELS
     }
 
     @Autowired
-    private StepBuilderFactory stepBuilderFactory;
+    private ItemProcessor markerProcessorGeneTypes;
 
     @Autowired
-    private ItemProcessor markerProcessorGeneTypes;
+    private ItemProcessor markerProcessorMarkerList;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
 
 
     public MarkerLoader(Map<MarkerFilenameKeys, String> markerKeys) throws CdaLoaderException {
@@ -138,99 +147,118 @@ public class MarkerLoader implements Step, InitializingBean {
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
 
-        stepBuilderFactory.get("markerLoaderStep")
-                .listener(new MarkerLoaderStepListener())
-                .chunk(100)
+        Step loadGeneTypesStep = stepBuilderFactory.get("markerLoadGeneTypesStep")
+                .listener(new MarkerLoaderGeneTypesStepListener())
+                .chunk(1000)
                 .reader(geneTypesReader)
                 .processor(markerProcessorGeneTypes)
+                .build();
 
-//                .reader(markerListReader)
-//                .processor((ItemProcessor)new MarkerListProcessor())
+        Step loadMarkerListStep = stepBuilderFactory.get("markerLoadMarkerListStep")
+                .listener(new MarkerLoaderMarkerListStepListener())
+                .chunk(1000)
+                .reader(markerListReader)
+                .processor(markerProcessorMarkerList)
+                .build();
+
+        List<Flow> flows = new ArrayList<>();
+        flows.add(new FlowBuilder<Flow>("markerLoadGeneTypesFlow")
+                .from(loadGeneTypesStep).end());
+        flows.add(new FlowBuilder<Flow>("markerLoadMarkerListFlow")
+                .from(loadMarkerListStep).end());
+
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
+        for (int i = 1; i < flows.size(); i++) {
+            TaskExecutor executor = new SyncTaskExecutor();
+            flowBuilder.next(flows.get(i));
+        }
+
+
+
+
+
+
+
+        stepBuilderFactory.get("markerLoaderStep")
+                .flow(flowBuilder.build())
+//                .listener(new MarkerLoaderGeneTypesStepListener())
+//                .chunk(100)
+//                .reader(geneTypesReader)
+//                .processor(markerProcessorGeneTypes)
 //
+//                .reader(markerListReader)
+//                .processor(markerProcessorMarkerList)
+
 //                .reader(vegaModelsReader)
-//                .processor((ItemProcessor)new ModelsProcessor())
+//                .processor((ItemPrmor)new ModelsPVegarocessor())
 //
 //                .reader(ensemblModelsReader)
-//                .processor((ItemProcessor)new ModelsProcessor())
+//                .processor((ItemPrmor)new ModelsPEnsemblrocessor())
 //
 //                .reader(entrezGeneReader)
-//                .processor((ItemProcessor)new ModelsProcessor())
+//                .processor((ItemPrmor)new ModelsPEntrezrocessor())
 //
 //                .reader(ccdsModelsReader)
-//                .processor((ItemProcessor)new ModelsProcessor())
+//                .processor((ItemPrmor)new ModelsPCcdsrocessor())
 
                 .build()
                 .execute(stepExecution);
     }
 
+    public abstract class MarkerLoaderStepListener implements StepExecutionListener {
+        protected Date start;
+        protected Date stop;
 
-    /*
-    ** ITEM PROCESSORS - This is where the business/parsing rules get applied for each file format. Each class updates
-    ** the genomicFeatures map in preparation for INSERTing into the genomic_features table.
-     */
+        protected abstract void logStatus();
 
-
-    private class MarkerListProcessor implements ItemProcessor<FieldSet, FieldSet> {
-
-        @Override
-        public FieldSet process(FieldSet item) throws Exception {
-            return null;
-        }
-    }
-
-    private class ModelsProcessor implements ItemProcessor<FieldSet, FieldSet> {
-
-        @Override
-        public FieldSet process(FieldSet item) throws Exception {
-            return null;
-        }
-    }
-
-
-    public class MarkerLoaderStepListener implements StepExecutionListener {
-        private Date start;
-        private Date stop;
-
-        /**
-         * Initialize the state of the listener with the {@link StepExecution} from
-         * the current scope.
-         *
-         * @param stepExecution
-         */
         @Override
         public void beforeStep(StepExecution stepExecution) {
             start = new Date();
         }
 
-        /**
-         * Give a listener a chance to modify the exit status from a step. The value
-         * returned will be combined with the normal exit status using
-         * {@link ExitStatus#and(ExitStatus)}.
-         * <p/>
-         * Called after execution of step's processing logic (both successful or
-         * failed). Throwing exception in this method has no effect, it will only be
-         * logged.
-         *
-         * @param stepExecution
-         * @return an {@link ExitStatus} to combine with the normal value. Return
-         * null to leave the old value unchanged.
-         */
         @Override
         public ExitStatus afterStep(StepExecution stepExecution) {
-            Map<String, GenomicFeature> genomicFeaturesMap = ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getGenomicFeatures();
             stop = new Date();
 
-            logger.info("Added {} Marker gene types in {}", genomicFeaturesMap.size(), commonUtils.formatDateDifference(start, stop));
+            logStatus();
 
-            Set<String> errMessages = ((MarkerProcessorGeneTypes)markerProcessorGeneTypes).getErrMessages();
+            commonUtils.formatDateDifference(start, stop);
+            return ExitStatus.COMPLETED;
+        }
+    }
+
+    public class MarkerLoaderGeneTypesStepListener extends MarkerLoaderStepListener {
+        @Override
+        protected void logStatus() {
+            logger.info("MARKER LOADER GENE TYPES: Added {} new Marker gene types from file {} in {}",
+                    ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getAddedGeneTypesCount(),
+                    markerKeys.get(MarkerFilenameKeys.GENE_TYPES),
+                    commonUtils.formatDateDifference(start, stop));
+            Set<String> errMessages = ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getErrMessages();
             if ( ! errMessages.isEmpty()) {
                 logger.warn("WARNINGS:");
                 for (String s : ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).errMessages) {
                     logger.warn("\t" + s);
                 }
             }
+        }
+    }
 
-            return ExitStatus.COMPLETED;
+    public class MarkerLoaderMarkerListStepListener extends MarkerLoaderStepListener {
+        @Override
+        protected void logStatus() {
+            logger.info("MARKER LOADER MARKER LIST: Added {} new Marker gene types and updated {} Marker gene types from file {} in {}",
+                    ((MarkerProcessorMarkerList) markerProcessorMarkerList).getAddedMarkerListCount(),
+                    ((MarkerProcessorMarkerList) markerProcessorMarkerList).getUpdatedMarkerListCount(),
+                    markerKeys.get(MarkerFilenameKeys.MARKER_LIST),
+                    commonUtils.formatDateDifference(start, stop));
+            Set<String> errMessages = ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
+            if (!errMessages.isEmpty()) {
+                logger.warn("WARNINGS:");
+                for (String s : ((MarkerProcessorMarkerList) markerProcessorMarkerList).errMessages) {
+                    logger.warn("\t" + s);
+                }
+            }
         }
     }
 }

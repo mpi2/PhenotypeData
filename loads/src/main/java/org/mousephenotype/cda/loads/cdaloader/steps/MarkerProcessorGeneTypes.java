@@ -16,10 +16,7 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
-import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.SequenceRegion;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
@@ -30,22 +27,20 @@ import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by mrelac on 09/06/16.
  */
 public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, GenomicFeature> {
 
-    public final  Set<String>                 errMessages     = new HashSet<>();
-    private       Map<String, OntologyTerm>   featureTypes    = null;
-    private       Map<String, GenomicFeature> genomicFeatures = new HashMap<>();
-    private       int                         lineNumber      = 0;
-    private final Logger                      logger          = LoggerFactory.getLogger(this.getClass());
-    private       Map<String, SequenceRegion> sequenceRegions = null;
+    private       int                         addedGeneTypesCount = 0;
+    public final  Set<String>                 errMessages         = new HashSet<>();
+    private       Map<String, OntologyTerm>   featureTypes;
+    private       Map<String, GenomicFeature> genomicFeatures;
+    private       int                         lineNumber          = 0;
+    private final Logger                      logger              = LoggerFactory.getLogger(this.getClass());
+    private       Map<String, SequenceRegion> sequenceRegions;
 
     // The following ints define the column offset of the given column in the GENE_TYPES file.
     public final static int OFFSET_SEQ_REGION = 0;
@@ -60,17 +55,29 @@ public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, Genomic
     private SqlLoaderUtils sqlLoaderUtils;
 
 
+    private void initialise() throws Exception {
+        featureTypes.putAll(sqlLoaderUtils.getOntologyTerms(sqlLoaderUtils.getJdbcTemplate(), DbIdType.Genome_Feature_Type.intValue()));
+        sequenceRegions.putAll(sqlLoaderUtils.getSequenceRegions(sqlLoaderUtils.getJdbcTemplate()));
+    }
+
+    public MarkerProcessorGeneTypes(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes, Map<String, SequenceRegion> sequenceRegions) {
+        this.genomicFeatures = genomicFeatures;
+        this.featureTypes = featureTypes;
+        this.sequenceRegions = sequenceRegions;
+    }
+
     @Override
     public GenomicFeature process(FieldSet item) throws Exception {
 
         lineNumber++;
 
-        if (featureTypes == null) {
-            featureTypes = sqlLoaderUtils.getOntologyTerms(sqlLoaderUtils.getJdbcTemplate(), DbIdType.Genome_Feature_Type.intValue());
-            sequenceRegions = sqlLoaderUtils.getSequenceRegions(sqlLoaderUtils.getJdbcTemplate());
+
+        // Initialise maps on first call to process().
+        if (featureTypes.isEmpty()) {
+            initialise();
         }
 
-        GenomicFeature feature   = null;
+        GenomicFeature feature  = null;
 
         /*
         * Fields within MGI_GTGUP.gff:
@@ -120,6 +127,7 @@ public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, Genomic
             feature.setSymbol(symbol);
 
             genomicFeatures.put(accessionId, feature);
+            addedGeneTypesCount++;
         }
 
         return feature;
@@ -133,7 +141,11 @@ public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, Genomic
         return genomicFeatures;
     }
 
-// PRIVATE CLASSES
+    public int getAddedGeneTypesCount() {
+        return addedGeneTypesCount;
+    }
+
+    // PRIVATE CLASSES
 
 
     private class ParsedComment {
