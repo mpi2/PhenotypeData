@@ -104,14 +104,9 @@
 									
 									
 									<td>
-										<c:forEach var="textParam" items="${histRow.textParameters}">
-										<%-- <c:if test="${textParam.parameter.name eq parameterName }"> --%>
 										
-											 Parameter:${textParam.parameter.name} Text: ${textParam.textValue }
+										${histRow.textValue}
 										
-										<%-- </c:if> --%>
-										
-										</c:forEach>
 									</td>
 									
 									<td>
@@ -154,7 +149,7 @@
       <script> 
         $(document).ready(function() {
     $('#histopath').DataTable(
-    		{"paging":   false, "searching": false, "order": [[ 2, "desc" ]]});
+    		{"paging":   false, "searching": false, "order": [[ 2, "asc" ]]});
 } );
         </script> 
     </jsp:body>
