@@ -139,15 +139,15 @@ public class ConfigBeans {
             , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
 
             // OWL ontologies
-            , new DownloadOntologyFilename(DownloadFileEnum.eco, "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdaWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.efo, "http://www.ebi.ac.uk/efo/efo.owl", cdaWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.emap, "http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.emapa, "http://www.berkeleybop.org/ontologies/emapa.owl", cdaWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.ma, "http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.MmusDv, "http://www.berkeleybop.org/ontologies/MmusDv.owl", cdaWorkspace + "/MmusDv.owl", DbIdType.MmusDv.intValue(), DbIdType.MmusDv.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.mp, "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.mpath, "http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.pato, "https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.PATO.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.eco, "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdaWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.efo, "http://www.ebi.ac.uk/efo/efo.owl", cdaWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.emap, "http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.emapa, "http://www.berkeleybop.org/ontologies/emapa.owl", cdaWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.ma, "http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.MmusDv, "http://www.berkeleybop.org/ontologies/MmusDv.owl", cdaWorkspace + "/MmusDv.owl", DbIdType.MmusDv.intValue(), DbIdType.MmusDv.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.mp, "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.mpath, "http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
+//            , new DownloadOntologyFilename(DownloadFileEnum.pato, "https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.PATO.getName())
         };
 
         for (DownloadFilename downloadFilename : filenames) {
@@ -229,6 +229,12 @@ public class ConfigBeans {
     @Bean(name = "sqlLoaderUtils")
     public SqlLoaderUtils sqlLoaderUtils() {
         return new SqlLoaderUtils();
+    }
+
+
+    @Bean(name = "markerProcessorGeneTypes")
+    public MarkerProcessorGeneTypes markerProcessorGeneTypes() {
+        return new MarkerProcessorGeneTypes();
     }
 
     // NOTE: Using @Lazy here and in the @Autowire to postpone creation of this bean (so that @PostConstruct can be used)
