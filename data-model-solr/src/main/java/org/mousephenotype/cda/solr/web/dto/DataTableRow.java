@@ -356,16 +356,16 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			// under the /data url
 			url = config.get("drupalBaseUrl");
 			url += "/../phenoview/?gid=";
-			if (this.getgIds() != null) {				
-				url +=StringUtils.join(this.getgIds(), ",");
+			if (this.getgIds() != null) {
+				url += StringUtils.join(this.getgIds(), ",");
 			}
-			
-			url+="&qeid=";
 
-			if (this.getParameterStableIds() != null) {				
-						url +=StringUtils.join(this.getParameterStableIds(), ",");
+			url += "&qeid=";
+
+			if (this.getParameterStableIds() != null) {
+				url += StringUtils.join(this.getParameterStableIds(), ",");
 			}
-			
+
 			evidenceLink.setAlt("Graph");
 			evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
 			if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")
@@ -390,27 +390,42 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	}
 
 	private Set<String> getParameterStableIds() {
+
 		Set<String> parameterStableIds = new TreeSet<>();
-		for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
-			parameterStableIds.add(propBean.getParameter().getStableId());
+		// if row not being collapsed then just return the default single value
+		if (this.phenotypeCallUniquePropertyBeans.isEmpty()) {
+			parameterStableIds.add(this.getParameter().getStableId());
+			return parameterStableIds;
+		} else {
+			for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
+				parameterStableIds.add(propBean.getParameter().getStableId());
+			}
 		}
 		return parameterStableIds;
 	}
 
 	private Set<String> getAlleleIds() {
-		//System.out.println("prop beans size=" + this.phenotypeCallUniquePropertyBeans.size());
+		// System.out.println("prop beans size=" +
+		// this.phenotypeCallUniquePropertyBeans.size());
 		Set<String> alleleIds = new TreeSet<>();
-		for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
-			alleleIds.add(propBean.getAllele().getAccessionId());
-			//System.out.println("added allele=" + propBean.getAllele().getAccessionId());
+		if (this.phenotypeCallUniquePropertyBeans.isEmpty() && this.getAllele()!=null) {
+			alleleIds.add(this.getAllele().getAccessionId());
+		} else {
+			for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
+				alleleIds.add(propBean.getAllele().getAccessionId());
+			}
 		}
 		return alleleIds;
 	}
 
 	private Set<String> getPipelineStableIds() {
 		Set<String> pipes = new TreeSet<>();
-		for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
-			pipes.add(propBean.getPipeline().getStableId());
+		if (this.phenotypeCallUniquePropertyBeans.isEmpty() && this.getPipeline()!=null) {
+			pipes.add(this.getPipeline().getStableId());
+		} else {
+			for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
+				pipes.add(propBean.getPipeline().getStableId());
+			}
 		}
 		return pipes;
 	}
@@ -429,8 +444,14 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 	private Set<String> getPhenotypingCenters() {
 		Set<String> centers = new TreeSet<>();
-		for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
-			centers.add(propBean.getPhenotypingCenter());
+
+		if (this.phenotypeCallUniquePropertyBeans.isEmpty() && this.getPhenotypingCenter()!=null) {
+			centers.add(this.getPhenotypingCenter());
+		} else {
+			for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
+				centers.add(propBean.getPhenotypingCenter());
+			}
+
 		}
 		return centers;
 	}
@@ -612,7 +633,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		// result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
 		// result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
 		result = 31 * result + (isPreQc ? 1 : 0);
-		//result = 31 * result + (gid != null ? gid.hashCode() : 0);
+		// result = 31 * result + (gid != null ? gid.hashCode() : 0);
 		// result = 31 * result + (topLevelPhenotypeTerms != null ?
 		// topLevelPhenotypeTerms.hashCode() : 0);
 

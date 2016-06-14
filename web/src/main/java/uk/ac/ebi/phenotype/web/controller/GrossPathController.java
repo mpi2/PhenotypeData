@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -39,23 +40,9 @@ public class GrossPathController {
 		model.addAttribute("gene", gene);
 		
 		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
-		System.out.println("all observations="+allObservations);
-		List<ObservationDTO> extSampleIdToObservations = grossPathService.screenOutObservationsThatAreNormal(allObservations);
-		List<GrossPathPageTableRow> grossPathRows = grossPathService.getTableData(extSampleIdToObservations);
-		Set<String> parameterNames=new TreeSet<>();
-		
-		//chop the parameter names so we have just the beginning as we have parameter names like "Brain - Description" and "Brain - MPATH Diagnostic Term" we want to lump all into Brain related
-		
-		for(GrossPathPageTableRow row: grossPathRows){
-			parameterNames.addAll(row.getParameterNames());
-			
-			
-		}
-		
-
+		List<GrossPathPageTableRow> grossPathRows = grossPathService.getTableData(allObservations);
 		model.addAttribute("histopathRows", grossPathRows);
-		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
-		model.addAttribute("parameterNames", parameterNames);
+		model.addAttribute("extSampleIdToObservations", allObservations);
 		return "grosspath";	
 	}
 }
