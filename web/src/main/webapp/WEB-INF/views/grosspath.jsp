@@ -149,7 +149,7 @@
       <script> 
         $(document).ready(function() {
     $('#histopath').DataTable(
-    		{"paging":   false, "searching": false, "order": [[ 2, "desc" ]]});
+    		{"paging":   false, "searching": false, "order": [[ 2, "asc" ]]});
 } );
         </script> 
     </jsp:body>
