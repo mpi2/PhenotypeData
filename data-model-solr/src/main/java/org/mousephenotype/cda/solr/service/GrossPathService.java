@@ -75,35 +75,25 @@ public class GrossPathService {
 
 				for (ObservationDTO obs : sampleToObservations.get(sampleId)) {
 					// a row is a unique sampleId and anatomy combination
-					if (obs.getSequenceId() != null) {
-						// System.out.println("sequenceId="+obs.getSequenceId());
-						row.setSequenceId(obs.getSequenceId());
-					} else {
-						//System.out.println("sequence_id is null");
-					}
-
 					if (this.getAnatomyStringFromObservation(obs) != null
 							&& this.getAnatomyStringFromObservation(obs).equals(anatomyName)) {
 
 						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
 								obs.getParameterName());
 						parameterNames.add(obs.getParameterName());
-						//System.out.println("obs.getObservationType()="+obs.getObservationType());
+						
 						if (obs.getObservationType().equalsIgnoreCase("ontological")) {
 
 							if (obs.getSubTermName() != null) {
 								for (int i = 0; i < obs.getSubTermId().size(); i++) {
 									if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
-									System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
-											+ obs.getSubTermName().get(i)+" sampleId="+obs.getExternalSampleId());
+									
 									abnormalAnatomyMapPerSampleId.add(anatomyName);
 									}
 
 									OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
 											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
-									
 									row.addOntologicalParam(parameter, subOntologyBean);
-
 								}
 							}else{
 								System.out.println("subterms are null for ontological data="+obs);
@@ -133,7 +123,7 @@ public class GrossPathService {
 						
 					}
 					if (obs.getObservationType().equalsIgnoreCase("text")) {
-						System.out.println("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
+						//System.out.println("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
 						textValuesForSampleId.add(obs.getTextValue());
 					}
 
@@ -148,27 +138,35 @@ public class GrossPathService {
 				
 
 			}
-			if(!abnormalAnatomyMapPerSampleId.isEmpty()){//only bother checking if we have abnormal phenotypes for this sampleId
-			for (GrossPathPageTableRow row : rows) {
-				if(row.getSampleId().equals(sampleId)){//filter by sample id as well
-				System.out.println("checking rows with size="+rows.size()+" abnormal phenotypes with size="+abnormalAnatomyMapPerSampleId.size());
-				if(abnormalAnatomyMapPerSampleId.contains(row.getAnatomyName())){
-					for(String text:textValuesForSampleId){
-						//System.out.println("Text="+text);
-						String[] words=text.split(" ");
-						for(String word:words){
-							//System.out.println("word="+word);
-							for(String anatomyWord:row.getAnatomyName().split(" ")){
-								if(anatomyWord.equalsIgnoreCase(word)){
-									System.out.println("Text matches row!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-									row.setTextValue(text);
+			if (!abnormalAnatomyMapPerSampleId.isEmpty()) {// only bother
+															// checking if we
+															// have abnormal
+															// phenotypes for
+															// this sampleId
+				for (GrossPathPageTableRow row : rows) {
+					if (row.getSampleId().equals(sampleId)) {// filter by sample
+																// id as well
+						// System.out.println("checking rows with
+						// size="+rows.size()+" abnormal phenotypes with
+						// size="+abnormalAnatomyMapPerSampleId.size());
+						if (abnormalAnatomyMapPerSampleId.contains(row.getAnatomyName())) {
+							for (String text : textValuesForSampleId) {
+								// System.out.println("Text="+text);
+								String[] words = text.split(" ");
+								for (String word : words) {
+									// System.out.println("word="+word);
+									for (String anatomyWord : row.getAnatomyName().split(" ")) {
+										if (anatomyWord.equalsIgnoreCase(word)) {
+											// System.out.println("Text matches
+											// row!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+											row.setTextValue(text);
+										}
+									}
 								}
 							}
 						}
 					}
 				}
-			}
-			}
 			}
 		}
 
@@ -218,41 +216,6 @@ public class GrossPathService {
 				ObservationDTO.CATEGORY, ObservationDTO.VALUE, ObservationDTO.DOWNLOAD_FILE_PATH,
 				ObservationDTO.PARAMETER_ASSOCIATION_SEQUENCE_ID, ObservationDTO.SEQUENCE_ID);
 		return observations;
-	}
-
-	public List<ObservationDTO> screenOutObservationsThatAreNormal(List<ObservationDTO> observations) {
-
-		List<ObservationDTO> filteredObservations = new ArrayList<>();
-		for (ObservationDTO obs : observations) {
-			String externalSampeId = obs.getExternalSampleId();
-
-			boolean addObservation = true;
-			if (obs.getObservationType().equalsIgnoreCase("categorical")) {
-				if (obs.getCategory().equalsIgnoreCase("0")) {
-					addObservation = false;
-					// System.out.println("setting obs to false");
-
-				}
-
-			}
-			if (obs.getObservationType().equalsIgnoreCase("ontological")) {
-				if (obs.getSubTermName() != null) {
-					for (String name : obs.getSubTermName()) {
-						if (name.equalsIgnoreCase("normal"))
-							addObservation = false;
-						// System.out.println("setting obs to false");
-
-					}
-				}
-
-			}
-
-			if (addObservation) {
-				filteredObservations.add(obs);
-			}
-
-		}
-		return filteredObservations;
 	}
 
 	public Map<String, List<ObservationDTO>> getObservations() {
