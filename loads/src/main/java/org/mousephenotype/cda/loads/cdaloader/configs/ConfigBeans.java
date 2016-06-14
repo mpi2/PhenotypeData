@@ -125,25 +125,25 @@ public class ConfigBeans {
               new DownloadFilename(DownloadFileEnum.report, "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdaWorkspace + "/report.txt", DbIdType.IMSR.intValue())
 
               // mgi reports
-            , new DownloadFilename(DownloadFileEnum.ES_CellLine, "ftp://ftp.informatics.jax.org/pub/reports/ES_CellLine.rpt", cdaWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.EUCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/EUCOMM_Allele.rpt", cdaWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype, "ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdaWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_EntrezGene, "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt", cdaWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_GenePheno, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_GTGUP, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_PhenoGenoMP, "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenoGenoMP.rpt", cdaWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_PhenotypicAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenotypicAllele.rpt", cdaWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_QTLAllele.rpt", cdaWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_Strain, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Strain.rpt", cdaWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_ENSEMBL, "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt", cdaWorkspace + "/MRK_ENSEMBL.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_List1, "ftp://ftp.informatics.jax.org/pub/reports/MRK_List1.rpt", cdaWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_List2, "ftp://ftp.informatics.jax.org/pub/reports/MRK_List2.rpt", cdaWorkspace + "/MRK_List2.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_Reference, "ftp://ftp.informatics.jax.org/pub/reports/MRK_Reference.rpt", cdaWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_Sequence, "ftp://ftp.informatics.jax.org/pub/reports/MRK_Sequence.rpt", cdaWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_SwissProt, "ftp://ftp.informatics.jax.org/pub/reports/MRK_SwissProt.rpt", cdaWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_VEGA, "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt", cdaWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.ES_CellLine, "ftp://ftp.informatics.jax.org/pub/reports/ES_CellLine.rpt", cdaWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.EUCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/EUCOMM_Allele.rpt", cdaWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype, "ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdaWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_EntrezGene, "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt", cdaWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_GenePheno, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_GTGUP, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_PhenoGenoMP, "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenoGenoMP.rpt", cdaWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_PhenotypicAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenotypicAllele.rpt", cdaWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_QTLAllele.rpt", cdaWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_Strain, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Strain.rpt", cdaWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_ENSEMBL, "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt", cdaWorkspace + "/MRK_ENSEMBL.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_List1, "ftp://ftp.informatics.jax.org/pub/reports/MRK_List1.rpt", cdaWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_List2, "ftp://ftp.informatics.jax.org/pub/reports/MRK_List2.rpt", cdaWorkspace + "/MRK_List2.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_Reference, "ftp://ftp.informatics.jax.org/pub/reports/MRK_Reference.rpt", cdaWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_Sequence, "ftp://ftp.informatics.jax.org/pub/reports/MRK_Sequence.rpt", cdaWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_SwissProt, "ftp://ftp.informatics.jax.org/pub/reports/MRK_SwissProt.rpt", cdaWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_VEGA, "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt", cdaWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
 
             // OWL ontologies
 //            , new DownloadOntologyFilename(DownloadFileEnum.eco, "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdaWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
@@ -151,7 +151,7 @@ public class ConfigBeans {
 //            , new DownloadOntologyFilename(DownloadFileEnum.emap, "http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
 //            , new DownloadOntologyFilename(DownloadFileEnum.emapa, "http://www.berkeleybop.org/ontologies/emapa.owl", cdaWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
 //            , new DownloadOntologyFilename(DownloadFileEnum.ma, "http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
-//            , new DownloadOntologyFilename(DownloadFileEnum.MmusDv, "http://www.berkeleybop.org/ontologies/MmusDv.owl", cdaWorkspace + "/MmusDv.owl", DbIdType.MmusDv.intValue(), DbIdType.MmusDv.getName())
+            , new DownloadOntologyFilename(DownloadFileEnum.MmusDv, "http://www.berkeleybop.org/ontologies/MmusDv.owl", cdaWorkspace + "/MmusDv.owl", DbIdType.MmusDv.intValue(), DbIdType.MmusDv.getName())
 //            , new DownloadOntologyFilename(DownloadFileEnum.mp, "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
 //            , new DownloadOntologyFilename(DownloadFileEnum.mpath, "http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
 //            , new DownloadOntologyFilename(DownloadFileEnum.pato, "https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.PATO.getName())
@@ -184,12 +184,12 @@ public class ConfigBeans {
     @Bean(name = "markerLoader")
     public MarkerLoader markerLoader() throws CdaLoaderException {
         Map<MarkerLoader.MarkerFilenameKeys, String> markerKeys = new HashMap<>();
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.GENE_TYPES, cdaWorkspace + "/MGI_GTGUP.gff");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.MARKER_LIST, cdaWorkspace + "/MRK_List1.rpt");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.VEGA_MODELS, cdaWorkspace + "/MRK_VEGA.rpt");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENSEMBL_MODELS, cdaWorkspace + "/MRK_ENSEMBL.rpt");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENTREZ_GENE_MODELS, cdaWorkspace + "/MGI_EntrezGene.rpt");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.CCDS_MODELS, cdaWorkspace + "/MGI_AllGenes.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.GENE_TYPES, downloadFilenameMap.get(DownloadFileEnum.MGI_GTGUP).targetFilename);
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.VEGA_MODELS, downloadFilenameMap.get(DownloadFileEnum.MRK_VEGA).targetFilename);
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENSEMBL_MODELS, downloadFilenameMap.get(DownloadFileEnum.MRK_ENSEMBL).targetFilename);
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENTREZ_GENE_MODELS, downloadFilenameMap.get(DownloadFileEnum.MGI_EntrezGene).targetFilename);
+//        markerKeys.put(MarkerLoader.MarkerFilenameKeys.CCDS_MODELS, cdaWorkspace + "/MGI_AllGenes.rpt");
         return new MarkerLoader(markerKeys);
     }
 
@@ -229,16 +229,13 @@ public class ConfigBeans {
         return new SqlLoaderUtils();
     }
 
-    @Bean(name = "strainLoaderImsr")
-    public StrainLoaderImsr strainLoaderImsr() throws CdaLoaderException {
-        DownloadFilename downloadFilename = downloadFilenameMap.get(DownloadFileEnum.report);
-        return new StrainLoaderImsr(downloadFilename.targetFilename);
-    }
+    @Bean(name = "strainLoader")
+    public StrainLoader strainLoader() throws CdaLoaderException {
+        Map<StrainLoader.StrainFilenameKeys, String> strainKeys = new HashMap<>();
+        strainKeys.put(StrainLoader.StrainFilenameKeys.MGI, downloadFilenameMap.get(DownloadFileEnum.MGI_Strain).targetFilename);
+        strainKeys.put(StrainLoader.StrainFilenameKeys.IMSR, downloadFilenameMap.get(DownloadFileEnum.report).targetFilename);
 
-    @Bean(name = "strainLoaderMgi")
-    public StrainLoaderMgi strainLoaderMgi() throws CdaLoaderException {
-        DownloadFilename downloadFilename = downloadFilenameMap.get(DownloadFileEnum.MGI_Strain);
-        return new StrainLoaderMgi(downloadFilename.targetFilename);
+        return new StrainLoader(strainKeys);
     }
 
     @Bean(name = "strainProcessorImsr")

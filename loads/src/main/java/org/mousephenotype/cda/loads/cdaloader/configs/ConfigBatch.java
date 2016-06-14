@@ -70,10 +70,7 @@ public class ConfigBatch {
     public List<OntologyLoader> ontologyLoaderList;
 
     @Autowired
-    public StrainLoaderMgi strainLoaderMgi;
-
-    @Autowired
-    public StrainLoaderImsr strainLoaderImsr;
+    public StrainLoader strainLoader;
 
     @Autowired
     public MarkerLoader markerLoader;
@@ -83,9 +80,9 @@ public class ConfigBatch {
     @Bean
     public Job[] runJobs() throws CdaLoaderException {
         Job[] jobs = new Job[] {
-//                  databaseInitialiserJob()
+                  databaseInitialiserJob()
 //                , downloaderJob()
-                  dbLoaderJob()
+                  , dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -94,7 +91,7 @@ public class ConfigBatch {
             Job job = jobs[i];
             try {
                 JobInstance instance = jobRepository.createJobInstance("flow_" + now + "_" + i, new JobParameters());
-                JobExecution execution = jobRepository.createJobExecution(instance, new JobParameters(), "xxx_" + now + "_" + i);
+                JobExecution execution = jobRepository.createJobExecution(instance, new JobParameters(), "jobExec_" + now + "_" + i);
                 job.execute(execution);
             } catch (Exception e) {
 
@@ -145,35 +142,31 @@ public class ConfigBatch {
             parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i).from(ontologyLoader).end());
         }
 
-        // Strains - mgi
-        parallelFlows.add(new FlowBuilder<Flow>("subflow_mgi_strains").from(strainLoaderMgi).end());
-
-        // Strains - imsr
-        Flow flowBuilderImsr = new FlowBuilder<Flow>("subflow_imsr_strains").from(strainLoaderImsr).end();
+        // Strains - mgi, imsr (the order is important)
+        Flow flowBuilderStrains = new FlowBuilder<Flow>("subflowStrainLoader").from(strainLoader).end();
 
         // Markers - Gene types and subtypes, marker lists, VEGA, Ensembl, EntrezGene, and cCDS models
-        Flow flowBuilderAlleleMarkers = new FlowBuilder<Flow>("subflow_marker_loader").from(markerLoader).end();
+        Flow flowBuilderAlleleMarkers = new FlowBuilder<Flow>("subflowMarkerLoader").from(markerLoader).end();
 
 
         // Parallelize the parallelizable flows.
-        FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(parallelFlows.get(0));
+        FlowBuilder<Flow> flowBuilderParallel = new FlowBuilder<Flow>("splitflow").start(parallelFlows.get(0));
         for (int i = 1; i < parallelFlows.size(); i++) {
             SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
-            flowBuilder.split(executor).add(parallelFlows.get(i));
+            flowBuilderParallel.split(executor).add(parallelFlows.get(i));
         }
-
-//        return jobBuilderFactory.get("dbLoaderJob")
-//                .incrementer(new RunIdIncrementer())
-//                .start(flowBuilder.build())
-//                .next(flowBuilderImsr)
-//                .next(flowBuilderAlleleMarkers)
-//                .end()
-//                .build();
 
         return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
-                .start(flowBuilderAlleleMarkers)
+                .start(flowBuilderStrains)
+                .next(flowBuilderAlleleMarkers)
                 .end()
                 .build();
+
+//        return jobBuilderFactory.get("dbLoaderJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(flowBuilderAlleleMarkers)
+//                .end()
+//                .build();
     }
 }

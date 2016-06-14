@@ -163,10 +163,10 @@ public class StrainLoaderImsr implements Step, InitializingBean {
 
             logger.info("Added {} strains and {} synonyms in {}", addedStrainCount, addedSynonymCount, commonUtils.formatDateDifference(start, stop));
 
-            Set<String> errMessages = ((StrainProcessorImsr)strainProcessorImsr).errMessages;
-            if (! errMessages.isEmpty()) {
+            Set<String> errMessages = ((StrainProcessorImsr)strainProcessorImsr).errorMessages;
+            if ( ! errMessages.isEmpty()) {
                 logger.warn("CV TERMS NOT FOUND:");
-                for (String s : ((StrainProcessorImsr) strainProcessorImsr).errMessages) {
+                for (String s : ((StrainProcessorImsr) strainProcessorImsr).errorMessages) {
                     logger.warn("\t" + s);
                 }
             }
