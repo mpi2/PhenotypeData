@@ -41,7 +41,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
 
     private       int                 addedEucommStrainCount     = 0;
     private       int                 addedSynonymCount          = 0;
-    public final  Set<String>         errMessages                = new HashSet<>();
+    public final  Set<String>         errorMessages              = new HashSet<>();
     private       int                 lineNumber                 = 0;
     private final Logger              logger                     = LoggerFactory.getLogger(this.getClass());
     private       Map<String, Strain> strainsMap                 = new HashMap<>();     // Key = accession id. Value = Strain instance.
@@ -166,7 +166,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
                         strains.add(strain);                                    // Add the modified strain to the returned strain list.
                         strainsMap.put(strain.getId().getAccession(), strain);  // Update the strainsMap with the strain with the newly added synonym.
 
-                        logger.info("[{}] Creating synonym '{}' for {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
+                        logger.debug("[{}] Creating synonym '{}' for {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
                         synonymFound = true;
                         addedSynonymCount++;
                     }
@@ -205,7 +205,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
                     synonym.setSymbol(synonymName);
                     synonyms.add(synonym);
 
-                    logger.info("[{}] Creating synonym '{}' for {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
+                    logger.debug("[{}] Creating synonym '{}' for {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
 
                     addedSynonymCount++;
                 }
@@ -217,12 +217,12 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
                 strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
                 strainsMap.put(strain.getId().getAccession(), strain);
 
-                logger.info("[{}] Creating EUCOMM strain for {} with name '{}' and synonyms '[{}]'", lineNumber, strain.getId().getAccession(), strain.getName(), strain.toStringSynonyms());
+                logger.debug("[{}] Creating EUCOMM strain for {} with name '{}' and synonyms '[{}]'", lineNumber, strain.getId().getAccession(), strain.getName(), strain.toStringSynonyms());
                 addedEucommStrainCount++;
 
             } catch (CdaLoaderException e) {
                 System.out.println(e.getLocalizedMessage());
-                errMessages.add(e.getLocalizedMessage());
+                errorMessages.add(e.getLocalizedMessage());
             }
         }
 
@@ -235,5 +235,9 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
 
     public int getAddedSynonymCount() {
         return addedSynonymCount;
+    }
+
+    public Set<String> getErrorMessages() {
+        return errorMessages;
     }
 }

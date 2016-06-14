@@ -16,9 +16,9 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.LineMapperFieldSet;
+import org.mousephenotype.cda.loads.cdaloader.support.LogStatusStepListener;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,20 +26,16 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.job.flow.FlowStep;
-import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
 import java.util.*;
-import java.util.concurrent.Executors;
 
 /**
  * Loads the markers from the MGI_GTGUP.gff file into the strain and synonym tables of the target database.
@@ -102,8 +98,8 @@ public class MarkerLoader implements InitializingBean, Step {
         entrezGeneReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.ENTREZ_GENE_MODELS)));
         entrezGeneReader.setLineMapper(new LineMapperFieldSet());
 
-        ccdsModelsReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.CCDS_MODELS)));
-        ccdsModelsReader.setLineMapper(new LineMapperFieldSet());
+//        ccdsModelsReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.CCDS_MODELS)));
+//        ccdsModelsReader.setLineMapper(new LineMapperFieldSet());
     }
 
 
@@ -147,14 +143,14 @@ public class MarkerLoader implements InitializingBean, Step {
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
 
-        Step loadGeneTypesStep = stepBuilderFactory.get("markerLoadGeneTypesStep")
+        Step loadGeneTypesStep = stepBuilderFactory.get("markerLoaderGeneTypesStep")
                 .listener(new MarkerLoaderGeneTypesStepListener())
                 .chunk(1000)
                 .reader(geneTypesReader)
                 .processor(markerProcessorGeneTypes)
                 .build();
 
-        Step loadMarkerListStep = stepBuilderFactory.get("markerLoadMarkerListStep")
+        Step loadMarkerListStep = stepBuilderFactory.get("markerLoaderMarkerListStep")
                 .listener(new MarkerLoaderMarkerListStepListener())
                 .chunk(1000)
                 .reader(markerListReader)
@@ -167,7 +163,7 @@ public class MarkerLoader implements InitializingBean, Step {
         flows.add(new FlowBuilder<Flow>("markerLoadMarkerListFlow")
                 .from(loadMarkerListStep).end());
 
-        FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("markerLoaderFlows").start(flows.get(0));
         for (int i = 1; i < flows.size(); i++) {
             TaskExecutor executor = new SyncTaskExecutor();
             flowBuilder.next(flows.get(i));
@@ -205,60 +201,30 @@ public class MarkerLoader implements InitializingBean, Step {
                 .execute(stepExecution);
     }
 
-    public abstract class MarkerLoaderStepListener implements StepExecutionListener {
-        protected Date start;
-        protected Date stop;
-
-        protected abstract void logStatus();
+    public class MarkerLoaderGeneTypesStepListener extends LogStatusStepListener {
 
         @Override
-        public void beforeStep(StepExecution stepExecution) {
-            start = new Date();
-        }
-
-        @Override
-        public ExitStatus afterStep(StepExecution stepExecution) {
-            stop = new Date();
-
-            logStatus();
-
-            commonUtils.formatDateDifference(start, stop);
-            return ExitStatus.COMPLETED;
-        }
-    }
-
-    public class MarkerLoaderGeneTypesStepListener extends MarkerLoaderStepListener {
-        @Override
-        protected void logStatus() {
-            logger.info("MARKER LOADER GENE TYPES: Added {} new Marker gene types from file {} in {}",
+        protected Set<String> logStatus() {
+            logger.info("GENE TYPES: Added {} new Marker gene types from file {} in {}",
                     ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getAddedGeneTypesCount(),
                     markerKeys.get(MarkerFilenameKeys.GENE_TYPES),
                     commonUtils.formatDateDifference(start, stop));
-            Set<String> errMessages = ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getErrMessages();
-            if ( ! errMessages.isEmpty()) {
-                logger.warn("WARNINGS:");
-                for (String s : ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).errMessages) {
-                    logger.warn("\t" + s);
-                }
-            }
+
+            return ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getErrMessages();
         }
     }
 
-    public class MarkerLoaderMarkerListStepListener extends MarkerLoaderStepListener {
+    public class MarkerLoaderMarkerListStepListener extends LogStatusStepListener {
+
         @Override
-        protected void logStatus() {
-            logger.info("MARKER LOADER MARKER LIST: Added {} new Marker gene types and updated {} Marker gene types from file {} in {}",
+        protected Set<String> logStatus() {
+            logger.info("MARKER LIST: Added {} new Marker gene types and updated {} Marker gene types from file {} in {}",
                     ((MarkerProcessorMarkerList) markerProcessorMarkerList).getAddedMarkerListCount(),
                     ((MarkerProcessorMarkerList) markerProcessorMarkerList).getUpdatedMarkerListCount(),
                     markerKeys.get(MarkerFilenameKeys.MARKER_LIST),
                     commonUtils.formatDateDifference(start, stop));
-            Set<String> errMessages = ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
-            if (!errMessages.isEmpty()) {
-                logger.warn("WARNINGS:");
-                for (String s : ((MarkerProcessorMarkerList) markerProcessorMarkerList).errMessages) {
-                    logger.warn("\t" + s);
-                }
-            }
+
+            return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
         }
     }
 }
