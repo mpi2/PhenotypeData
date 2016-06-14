@@ -30,7 +30,9 @@ import org.springframework.jdbc.core.RowMapper;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mrelac on 27/05/16.
@@ -89,6 +91,60 @@ public class SqlLoaderUtils {
     }
 
     /**
+     * Return a map of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by ontology name
+     *
+     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
+     * @param dbId the dbId of the desired terms
+     *
+     * @return a map of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by ontology name
+     */
+    public Map<String, OntologyTerm> getOntologyTerms(JdbcTemplate jdbcTemplate, int dbId) {
+        Map<String, OntologyTerm> retVal = new HashMap<>();
+
+        List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term WHERE db_id = ?", new OntologyTermRowMapper(), dbId);
+
+        for (OntologyTerm term : termList) {
+            term.setConsiderIds(getConsiderIs(jdbcTemplate, term.getId().getAccession()));
+            term.setSynonyms(getSynonyms(jdbcTemplate, term.getId().getAccession()));
+            retVal.put(term.getName(), term);
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Return a map of <code>SequenceRegion</code>s , indexed by region name
+     *
+     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
+     *
+     * @return a map of <code>SequenceRegion</code>s, indexed by region name
+     */
+    public Map<String, SequenceRegion> getSequenceRegions(JdbcTemplate jdbcTemplate) {
+        Map<String, SequenceRegion> retVal = new HashMap<>();
+        String query =
+          "SELECT\n" +
+                  "  s.id AS seq_id\n" +
+                  ", s.name AS seq_name\n" +
+                  ", s.coord_system_id AS seq_coord_system_id\n" +
+                  ", s.length AS seq_length\n" +
+                  ", c.id AS coord_system_id\n" +
+                  ", c.name AS coord_system_name\n" +
+                  ", c.strain_acc AS coord_system_strain_acc\n" +
+                  ", c.strain_db_id as coord_system_strain_db_id\n" +
+                  ", c.db_id AS coord_system_db_id\n" +
+                  "FROM seq_region s\n" +
+                  "JOIN coord_system c ON c.id = s.coord_system_id;";
+
+        List<SequenceRegion> sequenceRegionList = jdbcTemplate.query(query, new SequenceRegionRowMapper());
+
+        for (SequenceRegion sequenceRegion : sequenceRegionList) {
+            retVal.put(sequenceRegion.getName(), sequenceRegion);
+        }
+
+        return retVal;
+    }
+
+    /**
      * Return the <code>OntologyTerm</code> matching the given {@code name}
      *
      * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
@@ -136,6 +192,47 @@ public class SqlLoaderUtils {
             term.setReplacementAcc(rs.getString("replacement_acc"));
 
             return term;
+        }
+    }
+
+    public class SequenceRegionRowMapper implements RowMapper<SequenceRegion> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public SequenceRegion mapRow(ResultSet rs, int rowNum) throws SQLException {
+            SequenceRegion region = new SequenceRegion();
+
+            Datasource datasource = new Datasource();
+            datasource.setId(rs.getInt("coord_system_db_id"));
+
+            Strain strain = null;
+            try {
+                strain = getStrain(rs.getString("coord_system_strain_acc"));
+            } catch (Exception e) {
+                logger.error("EXCEPTION: " + e.getLocalizedMessage());
+            }
+
+            CoordinateSystem coordinateSystem = new CoordinateSystem();
+            coordinateSystem.setDatasource(datasource);
+            coordinateSystem.setName(rs.getString("coord_system_name"));
+            coordinateSystem.setId(rs.getInt("coord_system_id"));
+            coordinateSystem.setStrain(strain);
+
+            region.setCoordinateSystem(coordinateSystem);
+            region.setName(rs.getString("seq_name"));
+            region.setId(rs.getInt("seq_id"));
+
+            return region;
         }
     }
 

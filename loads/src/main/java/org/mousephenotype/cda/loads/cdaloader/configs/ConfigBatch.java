@@ -83,9 +83,9 @@ public class ConfigBatch {
     @Bean
     public Job[] runJobs() throws CdaLoaderException {
         Job[] jobs = new Job[] {
-                  databaseInitialiserJob()
+//                  databaseInitialiserJob()
 //                , downloaderJob()
-                , dbLoaderJob()
+                  dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -146,10 +146,10 @@ public class ConfigBatch {
         }
 
         // Strains
-//        flows.add(new FlowBuilder<Flow>("subflow_mgi_strains").from(strainLoaderMgi).end());
+        flows.add(new FlowBuilder<Flow>("subflow_mgi_strains").from(strainLoaderMgi).end());
 
         // imsr strains
-//        Flow flowBuilderImsr = new FlowBuilder<Flow>("subflow_imsr_strains").from(strainLoaderImsr).end();
+        Flow flowBuilderImsr = new FlowBuilder<Flow>("subflow_imsr_strains").from(strainLoaderImsr).end();
 
         // Allele Markers
         Flow flowBuilderAlleleMarkers = new FlowBuilder<Flow>("subflow_marker_loader").from(markerLoader).end();
@@ -162,11 +162,17 @@ public class ConfigBatch {
             flowBuilder.split(executor).add(flows.get(i));
         }
 
+//        return jobBuilderFactory.get("dbLoaderJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(flowBuilder.build())
+//                .next(flowBuilderImsr)
+//                .next(flowBuilderAlleleMarkers)
+//                .end()
+//                .build();
+
         return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
-                .start(flowBuilder.build())
-//                .next(flowBuilderImsr)
-                .next(flowBuilderAlleleMarkers)
+                .start(flowBuilderAlleleMarkers)
                 .end()
                 .build();
     }

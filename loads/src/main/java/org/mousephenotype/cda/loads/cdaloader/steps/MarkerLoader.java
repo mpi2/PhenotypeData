@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.LineMapperFieldSet;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -30,7 +31,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Loads the markers from the MGI_GTGUP.gff file into the strain and synonym tables of the target database.
@@ -63,6 +67,9 @@ public class MarkerLoader implements Step, InitializingBean {
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private ItemProcessor markerProcessorGeneTypes;
 
 
     public MarkerLoader(Map<MarkerFilenameKeys, String> markerKeys) throws CdaLoaderException {
@@ -135,7 +142,7 @@ public class MarkerLoader implements Step, InitializingBean {
                 .listener(new MarkerLoaderStepListener())
                 .chunk(100)
                 .reader(geneTypesReader)
-                .processor((ItemProcessor)new MarkerProcessorGeneTypes())
+                .processor(markerProcessorGeneTypes)
 
 //                .reader(markerListReader)
 //                .processor((ItemProcessor)new MarkerListProcessor())
@@ -210,19 +217,18 @@ public class MarkerLoader implements Step, InitializingBean {
          */
         @Override
         public ExitStatus afterStep(StepExecution stepExecution) {
-//            int addedStrainCount = ((StrainProcessorImsr)strainProcessorImsr).getAddedEucommStrainCount();
-//            int addedSynonymCount = ((StrainProcessorImsr)strainProcessorImsr).getAddedSynonymCount();
-//            stop = new Date();
-//
-//            logger.info("Added {} strains and {} synonyms in {}", addedStrainCount, addedSynonymCount, commonUtils.formatDateDifference(start, stop));
-//
-//            Set<String> errMessages = ((StrainProcessorImsr)strainProcessorImsr).errMessages;
-//            if (! errMessages.isEmpty()) {
-//                logger.warn("CV TERMS NOT FOUND:");
-//                for (String s : ((StrainProcessorImsr) strainProcessorImsr).errMessages) {
-//                    logger.warn("\t" + s);
-//                }
-//            }
+            Map<String, GenomicFeature> genomicFeaturesMap = ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getGenomicFeatures();
+            stop = new Date();
+
+            logger.info("Added {} Marker gene types in {}", genomicFeaturesMap.size(), commonUtils.formatDateDifference(start, stop));
+
+            Set<String> errMessages = ((MarkerProcessorGeneTypes)markerProcessorGeneTypes).getErrMessages();
+            if ( ! errMessages.isEmpty()) {
+                logger.warn("WARNINGS:");
+                for (String s : ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).errMessages) {
+                    logger.warn("\t" + s);
+                }
+            }
 
             return ExitStatus.COMPLETED;
         }
