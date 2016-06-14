@@ -497,6 +497,7 @@ public class ExpressionService extends BasicService {
 				// all possible uberon ids
 				// higher up the tree to display on the anatomogram
 				bean = anatomyService.getUberonIdAndTopLevelMaTerm(bean);
+
 				anatomogramDataBeans.add(bean);
 			}
 		}
@@ -677,11 +678,9 @@ public class ExpressionService extends BasicService {
 						row.setParameterStableId(parameterStableId);
 						OntologyBean ontologyBean = null;
 						if (embryo) {
-							System.out.println("HERE.......");
 							ontologyBean = abnormalEmapaFromImpress.get(parameterStableId);
 						} else {
 							ontologyBean = abnormalMaFromImpress.get(parameterStableId);
-
 						}
 
 						if (ontologyBean != null) {

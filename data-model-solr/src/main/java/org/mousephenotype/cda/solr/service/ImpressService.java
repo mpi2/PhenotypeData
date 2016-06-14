@@ -462,13 +462,12 @@ public class ImpressService implements WebStatus {
 			.setFields(ImpressDTO.ANATOMY_ID, ImpressDTO.ANATOMY_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
 		QueryResponse response=null;
 
-		System.out.println("SQL CHECK: "+query);
 		try {
 			response = solr.query(query);
 			pipelineDtos = response.getBeans(ImpressDTO.class);
 			for(ImpressDTO pipe:pipelineDtos){
 				if(!idToAbnormalEmapaId.containsKey(pipe.getParameterStableId())){
-					idToAbnormalEmapaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getEmapId(),pipe.getEmapTerm()));
+					idToAbnormalEmapaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getAnatomyId(),pipe.getAnatomyTerm()));
 				}
 			}
 		} catch (SolrServerException e) {
@@ -477,27 +476,6 @@ public class ImpressService implements WebStatus {
 		return idToAbnormalEmapaId;
 	}
 
-//	public Map<String,OntologyBean> getParameterStableIdToAbnormalEmapMap() {
-//		Map<String,OntologyBean> idToAbnormalEmapId=new HashMap<>();
-//		List<ImpressDTO> pipelineDtos=null;
-//		SolrQuery query = new SolrQuery()
-//				.setQuery(ImpressDTO.EMAP_ID + ":*" )
-//				.setFields(ImpressDTO.EMAP_ID, ImpressDTO.EMAP_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
-//		QueryResponse response=null;
-//
-//		try {
-//			response = solr.query(query);
-//			pipelineDtos = response.getBeans(ImpressDTO.class);
-//			for(ImpressDTO pipe:pipelineDtos){
-//				if(!idToAbnormalEmapId.containsKey(pipe.getParameterStableId())){
-//					idToAbnormalEmapId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getEmapId(),pipe.getEmapTerm()));
-//				}
-//			}
-//		} catch (SolrServerException e) {
-//			e.printStackTrace();
-//		}
-//		return idToAbnormalEmapId;
-//	}
 	
 	/**
 	 * @author tudose
