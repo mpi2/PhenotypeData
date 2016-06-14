@@ -54,7 +54,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
     public final static int OFFSET_STRAINTYPE   = 6;                    // type           /   type (column 2)
     public final static int OFFSET_MAX          = OFFSET_STRAINTYPE;    // Points to the highest value offset.
 
-    // The following  ints define the column offset of the given column in the report.txt file.
+    // The following  strings define the column headings in the report.txt file.
     public final static String HEADING_ACCESSION_ID = "Strain ID";
     public final static String HEADING_NAME         = "Strain/Stock";
     public final static String HEADING_SYNONYMS     = "Synonyms";
@@ -109,7 +109,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
 
         String[] values = item.getValues();
 
-        // Do some basic validation. The file format has changed drastically in the past.
+        // Validate the columns using the heading names.
         if (lineNumber == 1) {
             RunStatus status = sqlLoaderUtils.validateHeadings(item.getValues(),fileHeadings);
             if (status.hasErrors()) {

@@ -16,6 +16,9 @@
 
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.SequenceRegion;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.*;
@@ -38,6 +41,10 @@ import java.util.Map;
  */
 @Configuration
 public class ConfigBeans {
+
+    private Map<String, OntologyTerm>   featureTypes    = new HashMap<>();
+    private Map<String, GenomicFeature> genomicFeatures = new HashMap<>();
+    private Map<String, SequenceRegion> sequenceRegions = new HashMap<>();
 
     @NotNull
     @Value("${cdaload.workspace}")
@@ -174,6 +181,28 @@ public class ConfigBeans {
         return downloaderList;
     }
 
+    @Bean(name = "markerLoader")
+    public MarkerLoader markerLoader() throws CdaLoaderException {
+        Map<MarkerLoader.MarkerFilenameKeys, String> markerKeys = new HashMap<>();
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.GENE_TYPES, cdaWorkspace + "/MGI_GTGUP.gff");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.MARKER_LIST, cdaWorkspace + "/MRK_List1.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.VEGA_MODELS, cdaWorkspace + "/MRK_VEGA.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENSEMBL_MODELS, cdaWorkspace + "/MRK_ENSEMBL.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENTREZ_GENE_MODELS, cdaWorkspace + "/MGI_EntrezGene.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.CCDS_MODELS, cdaWorkspace + "/MGI_AllGenes.rpt");
+        return new MarkerLoader(markerKeys);
+    }
+
+    @Bean(name = "markerProcessorGeneTypes")
+    public MarkerProcessorGeneTypes markerProcessorGeneTypes() {
+        return new MarkerProcessorGeneTypes(genomicFeatures, featureTypes, sequenceRegions);
+    }
+
+    @Bean(name = "markerProcessorMarkerList")
+    public MarkerProcessorMarkerList markerProcessorMarkerList() {
+        return new MarkerProcessorMarkerList(genomicFeatures, featureTypes, sequenceRegions);
+    }
+
     @Bean(name = "ontologyLoaderList")
     public List<OntologyLoader> ontologyLoader() throws CdaLoaderException {
         List<OntologyLoader> ontologyloaderList = new ArrayList<>();
@@ -188,6 +217,18 @@ public class ConfigBeans {
         return ontologyloaderList;
     }
 
+    @Bean(name = "ontologyWriter")
+    public OntologyWriter ontologyWriter() {
+        OntologyWriter writer = new OntologyWriter();
+
+        return writer;
+    }
+
+    @Bean(name = "sqlLoaderUtils")
+    public SqlLoaderUtils sqlLoaderUtils() {
+        return new SqlLoaderUtils();
+    }
+
     @Bean(name = "strainLoaderImsr")
     public StrainLoaderImsr strainLoaderImsr() throws CdaLoaderException {
         DownloadFilename downloadFilename = downloadFilenameMap.get(DownloadFileEnum.report);
@@ -200,23 +241,9 @@ public class ConfigBeans {
         return new StrainLoaderMgi(downloadFilename.targetFilename);
     }
 
-    @Bean(name = "markerLoader")
-    public MarkerLoader markerLoader() throws CdaLoaderException {
-        Map<MarkerLoader.MarkerFilenameKeys, String> markerKeys = new HashMap<>();
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.GENE_TYPES, cdaWorkspace + "/MGI_GTGUP.gff");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.MARKER_LIST, cdaWorkspace + "/MRK_List1.rpt");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.VEGA_MODELS, cdaWorkspace + "/MRK_VEGA.rpt");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENSEMBL_MODELS, cdaWorkspace + "/MRK_ENSEMBL.rpt");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENTREZ_GENE_MODELS, cdaWorkspace + "/MGI_EntrezGene.rpt");
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.CCDS_MODELS, cdaWorkspace + "/MGI_AllGenes.rpt");
-        return new MarkerLoader(markerKeys);
-    }
-
-    @Bean(name = "ontologyWriter")
-    public OntologyWriter ontologyWriter() {
-        OntologyWriter writer = new OntologyWriter();
-
-        return writer;
+    @Bean(name = "strainProcessorImsr")
+    public StrainProcessorImsr strainProcessorImsr() {
+        return new StrainProcessorImsr();
     }
 
     @Bean(name = "strainWriter")
@@ -226,24 +253,9 @@ public class ConfigBeans {
         return writer;
     }
 
-    @Bean(name = "sqlLoaderUtils")
-    public SqlLoaderUtils sqlLoaderUtils() {
-        return new SqlLoaderUtils();
-    }
-
-
-    @Bean(name = "markerProcessorGeneTypes")
-    public MarkerProcessorGeneTypes markerProcessorGeneTypes() {
-        return new MarkerProcessorGeneTypes();
-    }
 
     // NOTE: Using @Lazy here and in the @Autowire to postpone creation of this bean (so that @PostConstruct can be used)
     //       doesn't delay invocation of the @PostConstruct as we would like, so we shant use it.
-    @Bean(name = "strainProcessorImsr")
-    public StrainProcessorImsr strainProcessorImsr() {
-        return new StrainProcessorImsr();
-    }
-
     /**
      * ******** DO NOT DELETE. JUST UNCOMMENT IF YOU NEED THE SPRING BATCH TABLES REBUILT ********
      * Using this home-grown jobRepository correctly recreates the spring batch tables. Without it, you have to

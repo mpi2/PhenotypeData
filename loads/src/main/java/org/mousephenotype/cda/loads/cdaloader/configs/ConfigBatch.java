@@ -137,29 +137,29 @@ public class ConfigBatch {
     }
 
     public Job dbLoaderJob() throws CdaLoaderException {
-        List<Flow> flows = new ArrayList<>();
+        List<Flow> parallelFlows = new ArrayList<>();
 
         // Ontologies
         for (int i = 0; i < ontologyLoaderList.size(); i++) {
             OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
-            flows.add(new FlowBuilder<Flow>("subflow_" + i).from(ontologyLoader).end());
+            parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i).from(ontologyLoader).end());
         }
 
-        // Strains
-        flows.add(new FlowBuilder<Flow>("subflow_mgi_strains").from(strainLoaderMgi).end());
+        // Strains - mgi
+        parallelFlows.add(new FlowBuilder<Flow>("subflow_mgi_strains").from(strainLoaderMgi).end());
 
-        // imsr strains
+        // Strains - imsr
         Flow flowBuilderImsr = new FlowBuilder<Flow>("subflow_imsr_strains").from(strainLoaderImsr).end();
 
-        // Allele Markers
+        // Markers - Gene types and subtypes, marker lists, VEGA, Ensembl, EntrezGene, and cCDS models
         Flow flowBuilderAlleleMarkers = new FlowBuilder<Flow>("subflow_marker_loader").from(markerLoader).end();
 
 
-        // Parallelize the flows.
-        FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
-        for (int i = 1; i < flows.size(); i++) {
+        // Parallelize the parallelizable flows.
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(parallelFlows.get(0));
+        for (int i = 1; i < parallelFlows.size(); i++) {
             SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
-            flowBuilder.split(executor).add(flows.get(i));
+            flowBuilder.split(executor).add(parallelFlows.get(i));
         }
 
 //        return jobBuilderFactory.get("dbLoaderJob")
