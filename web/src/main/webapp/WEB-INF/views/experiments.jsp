@@ -29,9 +29,9 @@
 		                        </c:forEach>
 							 data for ${allelePageDTO.getGeneSymbol()}</h1>
 						</c:if>
-						<c:if test="${phenotypeFilters == null || phenotypeFilters.size() == 0}">
+						<%-- <c:if test="${phenotypeFilters == null || phenotypeFilters.size() == 0}">
 							<h1 id="top">All data for ${allelePageDTO.getGeneSymbol()}</h1>
-						</c:if>
+						</c:if> --%>
 							<div class="section">
 							
 								<div class="inner">
