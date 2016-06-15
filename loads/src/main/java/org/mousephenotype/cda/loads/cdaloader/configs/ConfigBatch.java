@@ -142,12 +142,13 @@ public class ConfigBatch {
             parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i).from(ontologyLoader).end());
         }
 
-        // Strains - mgi, imsr (the order is important)
-        Flow flowBuilderStrains = new FlowBuilder<Flow>("subflowStrainLoader").from(strainLoader).end();
-
         // Markers - Gene types and subtypes, marker lists, VEGA, Ensembl, EntrezGene, and cCDS models
         Flow flowBuilderAlleleMarkers = new FlowBuilder<Flow>("subflowMarkerLoader").from(markerLoader).end();
 
+        // Alleles
+
+        // Strains - mgi, imsr (the order is important)
+        Flow flowBuilderStrains = new FlowBuilder<Flow>("subflowStrainLoader").from(strainLoader).end();
 
         // Parallelize the parallelizable flows.
         FlowBuilder<Flow> flowBuilderParallel = new FlowBuilder<Flow>("splitflow").start(parallelFlows.get(0));

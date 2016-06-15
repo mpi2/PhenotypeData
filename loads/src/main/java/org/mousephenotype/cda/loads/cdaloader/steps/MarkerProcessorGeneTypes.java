@@ -122,6 +122,7 @@ public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, Genomic
             feature.setEnd(Integer.parseInt(end));
             feature.setSequenceRegion(sequenceRegion);
             feature.setStart(Integer.parseInt(start));
+            feature.setStatus(MarkerLoader.ACTIVE_STATUS);
             feature.setStrand(strand);
             feature.setSubtype(subtypeTerm);
             feature.setSymbol(symbol);
