@@ -32,8 +32,8 @@ import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,7 +62,9 @@ import java.util.*;
 @EnableAutoConfiguration
 public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner {
 
-    @NotNull
+	private final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
+
+	@NotNull
     @Value("${imits.solr.host}")
     private String imitsSolrHost;
 
@@ -75,8 +77,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private String human2mouseFilename;
 
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    protected CommonUtils commonUtils = new CommonUtils();
     public static final int PHENODIGM_BATCH_SIZE = 50000;
     private static Connection connection;
     private static final int BATCH_SIZE = 2500;
@@ -170,15 +170,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         return super.validateBuild(alleleIndexing);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
-    }
 
-    @Override
-    public void run(String... strings) throws Exception {
-        run();
-    }
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {

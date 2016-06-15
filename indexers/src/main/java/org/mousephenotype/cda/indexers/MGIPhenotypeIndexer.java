@@ -43,9 +43,10 @@ import java.sql.SQLException;
  */
 @EnableAutoConfiguration
 public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineRunner {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
+	private final Logger logger = LoggerFactory.getLogger(MGIPhenotypeIndexer.class);
+
+	@Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
@@ -68,23 +69,11 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
         return super.validateBuild(mgiPhenotypeIndexing);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-
-        super.initialise(args);
-
-        printConfiguration();
-    }
 
     public static void main(String[] args) throws IndexerException {
         SpringApplication.run(MGIPhenotypeIndexer.class, args);
     }
 
-
-    @Override
-    public void run(String... strings) throws Exception {
-        run();
-    }
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {

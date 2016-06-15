@@ -1020,14 +1020,14 @@ public class IndexerManagerTest {
         assertArrayEquals(expectedCores, actualCores);
 
         // Initialise, validate, and build the cores.
-        try {
-            indexerManager.anatomyIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
-            System.out.println("Command line = " + StringUtils.join(args, ","));
-            indexerManager.anatomyIndexer.run();
-            indexerManager.anatomyIndexer.validateBuild();
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
+//        try {
+//            indexerManager.anatomyIndexer.initialise();
+//            System.out.println("Command line = " + StringUtils.join(args, ","));
+//            indexerManager.anatomyIndexer.run();
+//            indexerManager.anatomyIndexer.validateBuild();
+//        } catch (IndexerException ie) {
+//            fail(ie.getLocalizedMessage());
+//        }
      }
 
      /**
@@ -1082,13 +1082,13 @@ public class IndexerManagerTest {
         assertArrayEquals(expectedCores, actualCores);
 
         // Initialise, validate, and build the cores.
-        try {
-            indexerManager.anatomyIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
-            indexerManager.anatomyIndexer.run();
-            indexerManager.anatomyIndexer.validateBuild();
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
+//        try {
+//            indexerManager.anatomyIndexer.initialise();
+//            indexerManager.anatomyIndexer.run();
+//            indexerManager.anatomyIndexer.validateBuild();
+//        } catch (IndexerException ie) {
+//            fail(ie.getLocalizedMessage());
+//        }
      }
 
 	@Ignore

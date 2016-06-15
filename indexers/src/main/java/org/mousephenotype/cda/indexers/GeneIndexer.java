@@ -28,13 +28,12 @@ import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -54,8 +53,8 @@ import java.util.*;
  */
 @EnableAutoConfiguration
 public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private final Logger logger = LoggerFactory.getLogger(GeneIndexer.class);
 
     private Connection komp2DbConnection;
 
@@ -112,14 +111,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         return super.validateBuild(geneIndexing);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-    }
-
-    @Override
-    public void run(String... strings) throws Exception {
-        run();
-    }
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {

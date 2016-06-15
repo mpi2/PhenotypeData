@@ -30,8 +30,8 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,10 +61,10 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 
 @Deprecated
 public class MAIndexer extends AbstractIndexer implements CommandLineRunner {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("classpath:uberonEfoMa_mappings.txt")
+	private final Logger logger = LoggerFactory.getLogger(MAIndexer.class);
+
+	@Value("classpath:uberonEfoMa_mappings.txt")
 	Resource resource;
 
     @Autowired
@@ -117,15 +117,6 @@ public class MAIndexer extends AbstractIndexer implements CommandLineRunner {
         return super.validateBuild(maCore);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
-    }
-
-    @Override
-    public void run(String... strings) throws Exception {
-        run();
-    }
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {

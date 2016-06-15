@@ -28,8 +28,8 @@ import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,8 +48,7 @@ import java.util.*;
  */
 @EnableAutoConfiguration
 public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner {
-    private CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(DiseaseIndexer.class);
 
 
     @NotNull
@@ -82,10 +81,6 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
         return super.validateBuild(diseaseIndexing);
     }
 
-    @Override
-    public void run(String... strings) throws Exception {
-        run();
-    }
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {

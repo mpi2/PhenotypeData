@@ -19,14 +19,17 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,8 +57,8 @@ import java.util.Map;
  */
 @EnableAutoConfiguration
 public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRunner {
-	CommonUtils commonUtils = new CommonUtils();
-	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private final Logger logger = LoggerFactory.getLogger(ImpcImagesIndexer.class);
 
 
 	@NotNull
@@ -125,10 +128,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		SpringApplication.run(ImpcImagesIndexer.class, args);
 	}
 
-	@Override
-	public void run(String... strings) throws Exception {
-		run();
-	}
+
 
 	@Override
 	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {

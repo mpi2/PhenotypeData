@@ -1,7 +1,6 @@
 package org.mousephenotype.cda.solr;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
@@ -144,8 +143,8 @@ public class SolrServerConfig {
 	}
 
 	//Preqc
-	@Bean(name = "preQcCore")
-	HttpSolrServer getPreQcCore() {
+	@Bean(name = "preqcCore")
+	HttpSolrServer getPreqcCore() {
 		return new HttpSolrServer(solrBaseUrl + "/preqc");
 	}
 
