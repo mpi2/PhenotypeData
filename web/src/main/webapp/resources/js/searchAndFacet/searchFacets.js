@@ -566,7 +566,6 @@
 	}
 
 	function displayAnatomyFacet(json) {
-		console.log(json);
 
 		var core = "anatomy";
 		var topLevelField = "selected_top_level_anatomy_term";
@@ -668,9 +667,39 @@
 
 			var thisUlContainer = $("<ul></ul>");
 
+			// add stage for Anatomy
+			if (facetName == 'selected_top_level_anatomy_term'){
+
+				var aStgFields = ["adult", "embryo"];
+
+				for( var s=0; s<aStgFields.length; s++) {
+
+					var liContainer = $("<li></li>").attr({'class':'fcat ' + "stage"});
+					if (s==1){s+=1;}
+					var fieldName = aFacetFields["stage"][s];
+					var count = aFacetFields["stage"][s + 1];
+
+					var isGrayout = count == 0 ? 'grayout' : '';
+					liContainer.removeClass('grayout').addClass(isGrayout);
+
+					var coreField = 'impc_images|' + "stage" + '|' + fieldName + '|' + count + '|' + facetName;
+					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
+					var flabel = $('<span></span>').attr({'class': 'flabel'}).text(fieldName);
+					var fcount = $('<span></span>').attr({'class': 'fcount'}).text(count);
+
+					thisUlContainer.append(liContainer.append(chkbox, flabel, fcount));
+				}
+
+				// filter separator
+				if (json.iTotalRecords > 0) {
+					thisUlContainer.append("<li><div id='anaSep'>&nbsp;</div></li>");
+				}
+			}
+
 			for ( var i=0; i<aFacetFields[facetName].length; i+=2){
 				//console.log("field name: " + aFacetFields[facetName][i]);
 				//console.log(typeof aFacetFields[facetName][i]);
+
 				if (typeof aFacetFields[facetName][i] == 'string') {
 					var liContainer = $("<li></li>").attr({'class':'fcat ' + facetName});
 
@@ -679,6 +708,8 @@
 					var count = aFacetFields[facetName][i + 1];
 					var label = displayLabel[facetName];
 					foundMatch[label]++;
+
+
 
 					var isGrayout = count == 0 ? 'grayout' : '';
 					liContainer.removeClass('grayout').addClass(isGrayout);

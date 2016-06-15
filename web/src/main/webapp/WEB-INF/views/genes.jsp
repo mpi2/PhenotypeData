@@ -710,7 +710,7 @@
 
 
 			$(document).ready(function () {
-				alert("ready");
+
 				for (var i = 0; i < diseaseTables.length; i++) {
 					var diseaseTable = diseaseTables[i];
 					var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
@@ -729,7 +729,6 @@
 					var uberon2MaIdMap = expData.uberon2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
-					console.log(expData);
 					//console.log("no expression: ")
 					//console.log(expData.noExpression);
 					//console.log("all paths: ")
@@ -779,14 +778,14 @@
 					$("ul#expList li a").on("mouseover", function() {
 						var topname = $(this).text();
 						var maIds = topLevelName2maIdMap[topname];
-						console.log(topname + " - " + maIds);
+						//log(topname + " - " + maIds);
 						var uberonIds = [];
 						for( var a=0; a<maIds.length; a++){
 							uberonIds = uberonIds.concat(maId2UberonMap[maIds[a]]);
 						}
 						uberonIds = $.fn.getUnique(uberonIds);
 
-						console.log(topname + " : " + uberonIds);
+						//console.log(topname + " : " + uberonIds);
 
 						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
 						//eventEmitter.emit("gxaHeatmapColumnHoverChange", "UBERON_0000955"); // test for brain
@@ -796,7 +795,7 @@
 
 					// anatomogram tissue talks to MA list
 					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
-						console.log(e)
+						//console.log(e)
 
 						var maIds = uberon2MaIdMap[e];
 						var topLevelNames = [];

@@ -140,7 +140,7 @@
                 <c:if
                         test="${embryoMutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
                     <a
-                            href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Embryo LacZ" AND emap_id:"${mapEntry.value.abnormalMaId}" AND marker_symbol:"${gene.markerSymbol}")'><i
+                            href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Embryo LacZ" AND anatomy_id:"${mapEntry.value.abnormalAnatomyId}" AND marker_symbol:"${gene.markerSymbol}")'><i
                             title="Images available (click on this icon to view images)"
                             class="fa fa-image"
                             alt="Images">(${embryoMutantImagesAnatomyToRow[mapEntry.key].numberOfImages})</i>
