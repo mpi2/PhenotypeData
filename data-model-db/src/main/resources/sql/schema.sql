@@ -2121,6 +2121,7 @@ insert into external_db(id, name, short_name, version, version_date) values(21, 
 insert into external_db(id, name, short_name, version, version_date) values(22, 'International Mouse Phenotyping Consortium', 'IMPC', '2010-11-15', '2010-11-15');
 insert into external_db(id, name, short_name, version, version_date) values(23, 'Immunology', '3i', '2014-11-07', '2014-11-07');
 insert into external_db(id, name, short_name, version, version_date) values(24, 'Mouse pathology', 'MPATH', '2013-08-12', '2013-08-12');
+insert into external_db(id, name, short_name, version, version_date) values(25, 'Mouse Developmental Stages', 'MMUSDV', '2016-05-13', '2016-05-13');
 
 
 

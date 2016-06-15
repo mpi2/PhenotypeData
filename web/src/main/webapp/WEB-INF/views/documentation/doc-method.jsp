@@ -32,7 +32,33 @@
     <h1>IMPC data portal documentation</h1>
     <div><i class="fleft fa fa-line-chart fa-4x"></i><div class="fleft">Methods</div></div>
 
-    <%--<span id="areaMsg"></span>--%>
+
+      <div id="tabs">
+          <ul>
+              <li><a href="#tabs-1">Statistics</a></li>
+              <li><a href="#tabs-2">Tools</a></li>
+
+          </ul>
+
+
+          <div id="tabs-1" class="srchdocTab">
+              <%@ include file="doc-methods-statistics.jsp" %>
+          </div>
+          <div id="tabs-2" class="srchdocTab">
+              <%@ include file="doc-methods-tools.jsp" %>
+          </div>
+
+      </div>
+
+      <script>
+          $(function() {
+              $( "#tabs" ).tabs({ active: 0 });
+          });
+      </script>
+
+
+
+      <%--<span id="areaMsg"></span>--%>
     <%--<img src="${baseUrl}/documentation/img/data_flow_v2.png" alt="" usemap="#Map" />--%>
     <%--<map name="Map" id="Map">--%>
       <%--<!-- if title is NOT empty it will trigger tooltip from default.js -->--%>
@@ -61,18 +87,18 @@
       <%--});--%>
 
     <%--</script>--%>
-    <p class="sectBr"></p>
-    <h3>Statistics</h3>
-      <ul class="subUl">
-          <li><a href="http://www.mousephenotype.org/data/documentation/statistics-help">About how IMPC uses statistics</a></li>
-      </ul>
-    <p class="intraSectBr"></p>
-    <h3>Tools</h3>
-    <ul class="subUl">
-        <li><a href="https://dev.mousephenotype.org/data/gene2go">GO lookup tool: GO annotations to phenotyped IMPC genes</a></li>
-        <li><a href="https://dev.mousephenotype.org/data/alleleref">Paper lookup tool: References using IKMC and IMPC resources</a></li>
-        <li><a href="http://www.mousephenotype.org/data/documentation/parallel-help">Parallel coordinate</a></li>
-    </ul>
+    <%--<p class="sectBr"></p>--%>
+    <%--<h3>Statistics</h3>--%>
+      <%--<ul class="subUl">--%>
+          <%--<li><a href="http://www.mousephenotype.org/data/documentation/statistics-help">About how IMPC uses statistics</a></li>--%>
+      <%--</ul>--%>
+    <%--<p class="intraSectBr"></p>--%>
+    <%--<h3>Tools</h3>--%>
+    <%--<ul class="subUl">--%>
+        <%--<li><a href="https://dev.mousephenotype.org/data/gene2go">GO lookup tool: GO annotations to phenotyped IMPC genes</a></li>--%>
+        <%--<li><a href="https://dev.mousephenotype.org/data/alleleref">Paper lookup tool: References using IKMC and IMPC resources</a></li>--%>
+        <%--<li><a href="http://www.mousephenotype.org/data/documentation/parallel-help">Parallel coordinate</a></li>--%>
+    <%--</ul>--%>
 
 
   </jsp:body>
