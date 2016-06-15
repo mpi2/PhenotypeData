@@ -551,7 +551,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				+ " WHERE ppoa.ontology_db_id=8 LIMIT 10000";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
-			System.out.println("PipelineIndexer: sql= " + sqlQuery);
+
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
