@@ -17,9 +17,12 @@
 package org.mousephenotype.cda.db.dao;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.sql.PreparedStatement;
@@ -33,6 +36,9 @@ import java.util.*;
  *
  * @author ckchen based on mrelac
  */
+
+@Repository
+@ComponentScanNonParticipant
 public class EmapaOntologyDAO extends OntologyDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,8 +47,55 @@ public class EmapaOntologyDAO extends OntologyDAO {
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
 
-    public EmapaOntologyDAO() throws SQLException {
+    public EmapaOntologyDAO() {
 
+    }
+    public class Emapa {
+        public String emapaId = null;
+        public String emapaTerm = null;
+
+        public void setEmapaId(String emapaId){
+            this.emapaId = emapaId;
+        }
+
+        public String getEmapaId() {
+            return emapaId;
+        }
+
+        public String getEmapaTerm() {
+            return emapaTerm;
+        }
+
+        public void setEmapaTerm(String emapaTerm) {
+            this.emapaTerm = emapaTerm;
+        }
+    }
+    /**
+     * Returns an id/term map of emap to emapa
+     * @return an id/term map of emap to emapa
+     * @throws SQLException
+     */
+    public Map<String, Emapa> populateEmap2EmapaMap() throws SQLException {
+        Map<String, Emapa> emap2emapaIdMap = new HashMap<>();
+
+        //String query = " SELECT emapa_term_id,emap_term_id FROM emapa_2emap";
+        String query = "SELECT DISTINCT m.emapa_term_id, emap_term_id, i.name AS emapa_term "
+        + "FROM emapa_2emap m, emapa_term_infos i "
+        + "WHERE m.emapa_term_id=i.term_id";
+        try (PreparedStatement statement = ontodbDataSource.getConnection().prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String emapaTermId = resultSet.getString("emapa_term_id");
+                String emapTermId = resultSet.getString("emap_term_id");
+                String emapaTerm = resultSet.getString("emapa_term");
+                Emapa emapa = new Emapa();
+                emapa.setEmapaId(emapaTermId);
+                emapa.setEmapaTerm(emapaTerm);
+                emap2emapaIdMap.put(emapTermId, emapa);
+            }
+        }
+        return emap2emapaIdMap;
     }
 
     /**

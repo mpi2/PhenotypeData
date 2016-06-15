@@ -234,21 +234,5 @@ public class TestConfigIndexers {
 	}
 
 
-	@Bean(name = "globalConfiguration")
-	public Map<String, String> globalConfiguration() {
-
-		Map<String, String> gc = new HashMap<>();
-		gc.put("baseUrl", "${baseUrl}");
-		gc.put("drupalBaseUrl", "${drupalBaseUrl}");
-		gc.put("solrUrl", "${solrUrl}");
-		gc.put("internalSolrUrl", "${internalSolrUrl}");
-		gc.put("mediaBaseUrl", "${mediaBaseUrl}");
-		gc.put("impcMediaBaseUrl", "${impcMediaBaseUrl}");
-		gc.put("pdfThumbnailUrl", "${pdfThumbnailUrl}");
-		gc.put("googleAnalytics", "${googleAnalytics}");
-		gc.put("liveSite", "${liveSite}");
-
-		return gc;
-	}
 
 }

@@ -49,15 +49,8 @@
 	};
 
 	$.fn.initFacetToggles = function(facet) {
-		// console.log('init toggle facet');
-		// toggle Main Categories
-		/*
-		 * $('div.flist li#' + facet + ' > .flabel').click(function() {
-		 * alert('1'); if ($(this).parent('.fmcat').hasClass('open')) {
-		 * $(this).parent('.fmcat').removeClass('open'); } else {
-		 * $('.fmcat').removeClass('open');
-		 * $(this).parent('.fmcat').addClass('open'); } });
-		 */
+
+		// main facet
 		$('div.flist >ul li#' + facet).click(function() {
 
 			if ($(this).find('span.fcount').text() == 0) {
@@ -65,8 +58,13 @@
 								// nothing
 			} else if ($(this).hasClass('open')) {
 				$(this).removeClass('open');
+				$('div#anaSep').hide();
 			} else {
 				$(this).addClass('open');
+				if ( facet != 'impc_images') {
+					// for anatomy adult/embryo separator
+					$('div#anaSep').show();
+				}
 			}
 		});
 
@@ -75,57 +73,28 @@
 			$('div.flist li#' + facet + ' > .flabel').click();
 		}
 
+		// subfacet
 		$('div.flist ul li#' + facet)
 				.find('li.fcatsection')
 				.click(
 						function(e) {
 
-							// when subfacet opens, tick checkbox facet filter
-							// if there is matching summary facet filter
-							// (created from url on page load)
-							if ($('ul#facetFilter li.' + facet + ' li.ftag')
-									.size() != 0) {
-								$('ul#facetFilter li.ftag a').each(
-										function() {
-											var aVals = $(this).attr('rel')
-													.split('|');
-											var ffacet = aVals[0];
-											var kv = aVals[1] + '|' + aVals[2];
-
-
-											// tick only filters in opening
-											// facet
-											if (ffacet == facet) {
-												$('div.flist li.fcat').find(
-														'input[rel*="' + kv
-																+ '"]').prop(
-														'checked', true)
-														.siblings('.flabel')
-														.addClass('highlight');
-											}
-										});
-							}
-
 							e.stopPropagation();
 
 							if ($(this).parent().parent().find('span.fcount')
 									.text() == 0) {
+								$('div#anaSep').hide();
 								return false; // for facet having no matches,
 												// a click does nothing
-							} else if (MPI2.searchAndFacetConfig.update.filterChange) {
-								MPI2.searchAndFacetConfig.update.filterChange = false; // reset,
-																						// as
-																						// this
-																						// is
-																						// used
-																						// as a
-																						// checkpoint
-																						// for
-																						// opening/closing
-																						// a
-																						// subfacet
-							} else {
+							}
+							else {
 								$(this).toggleClass('open');
+								$('div#anaSep').show();
+
+							}
+
+							if ( !$(this).hasClass("open") ) {
+								$('div#anaSep').hide();
 							}
 
 						});

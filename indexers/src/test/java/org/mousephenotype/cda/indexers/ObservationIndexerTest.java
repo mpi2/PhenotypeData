@@ -49,8 +49,7 @@ public class ObservationIndexerTest {
     @Test
 //@Ignore
     public void testPopulateBiologicalDataMap() throws Exception {
-        String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise();
 
         observationIndexer.populateBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
@@ -63,8 +62,7 @@ public class ObservationIndexerTest {
     @Test
 //@Ignore
     public void testPopulateLineBiologicalDataMap() throws Exception {
-        String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise();
 
         observationIndexer.populateLineBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getLineBiologicalData();
@@ -78,8 +76,7 @@ public class ObservationIndexerTest {
 	@Test
 	//@Ignore
 	public void testPopulateWeightMap() throws Exception {
-		String args[] = { "--context=index-config_DEV.xml" };
-		observationIndexer.initialise(args);
+		observationIndexer.initialise();
 
 		observationIndexer.populateWeightMap();
 		Map<Integer, List<ObservationIndexer.WeightBean>> weightMap = observationIndexer.getWeightMap();
@@ -121,8 +118,7 @@ public class ObservationIndexerTest {
     @Test
 //@Ignore
     public void testDatasourceDataMaps() throws Exception {
-        String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise();
 
         observationIndexer.populateDatasourceDataMap();
         Map<Integer, ObservationIndexer.DatasourceBean> bioDataMap;
@@ -142,8 +138,7 @@ public class ObservationIndexerTest {
     @Test
 //@Ignore
     public void testpopulateCategoryNamesDataMap() throws Exception {
-        String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise();
 
         observationIndexer.populateCategoryNamesDataMap();
         Map<String, Map<String, String>> bioDataMap = observationIndexer.getTranslateCategoryNames();
