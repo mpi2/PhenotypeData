@@ -82,7 +82,7 @@ public class ConfigBatch {
         Job[] jobs = new Job[] {
                   databaseInitialiserJob()
 //                , downloaderJob()
-                  , dbLoaderJob()
+                , dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -156,17 +156,17 @@ public class ConfigBatch {
             flowBuilderParallel.split(executor).add(parallelFlows.get(i));
         }
 
-        return jobBuilderFactory.get("dbLoaderJob")
-                .incrementer(new RunIdIncrementer())
-                .start(flowBuilderStrains)
-                .next(flowBuilderAlleleMarkers)
-                .end()
-                .build();
-
 //        return jobBuilderFactory.get("dbLoaderJob")
 //                .incrementer(new RunIdIncrementer())
-//                .start(flowBuilderAlleleMarkers)
+//                .start(flowBuilderStrains)
+//                .next(flowBuilderAlleleMarkers)
 //                .end()
 //                .build();
+
+        return jobBuilderFactory.get("dbLoaderJob")
+                .incrementer(new RunIdIncrementer())
+                .start(flowBuilderAlleleMarkers)
+                .end()
+                .build();
     }
 }

@@ -88,7 +88,7 @@ public class ConfigBeans {
         , ES_CellLine
         , EUCOMM_Allele
         , HMD_HumanPhenotype
-        , MGI_EntrezGene
+        , MGI_Gene
         , MGI_Gene_Model_Coord
         , MGI_GenePheno
         , MGI_GTGUP
@@ -96,13 +96,11 @@ public class ConfigBeans {
         , MGI_PhenotypicAllele
         , MGI_QTLAllele
         , MGI_Strain
-        , MRK_ENSEMBL
         , MRK_List1
         , MRK_List2
         , MRK_Reference
         , MRK_Sequence
         , MRK_SwissProt
-        , MRK_VEGA
         , NorCOMM_Allele
         , eco
         , efo
@@ -128,7 +126,7 @@ public class ConfigBeans {
                 , new DownloadFilename(DownloadFileEnum.ES_CellLine, "ftp://ftp.informatics.jax.org/pub/reports/ES_CellLine.rpt", cdaWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.EUCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/EUCOMM_Allele.rpt", cdaWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype, "ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdaWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
-                , new DownloadFilename(DownloadFileEnum.MGI_EntrezGene, "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt", cdaWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_Gene, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene.rpt", cdaWorkspace + "/MGI_Gene.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_GenePheno, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_GTGUP, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff", DbIdType.MGI.intValue())
@@ -136,13 +134,11 @@ public class ConfigBeans {
                 , new DownloadFilename(DownloadFileEnum.MGI_PhenotypicAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenotypicAllele.rpt", cdaWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_QTLAllele.rpt", cdaWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_Strain, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Strain.rpt", cdaWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
-                , new DownloadFilename(DownloadFileEnum.MRK_ENSEMBL, "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt", cdaWorkspace + "/MRK_ENSEMBL.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_List1, "ftp://ftp.informatics.jax.org/pub/reports/MRK_List1.rpt", cdaWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_List2, "ftp://ftp.informatics.jax.org/pub/reports/MRK_List2.rpt", cdaWorkspace + "/MRK_List2.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_Reference, "ftp://ftp.informatics.jax.org/pub/reports/MRK_Reference.rpt", cdaWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_Sequence, "ftp://ftp.informatics.jax.org/pub/reports/MRK_Sequence.rpt", cdaWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_SwissProt, "ftp://ftp.informatics.jax.org/pub/reports/MRK_SwissProt.rpt", cdaWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
-                , new DownloadFilename(DownloadFileEnum.MRK_VEGA, "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt", cdaWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
 
             // OWL ontologies
@@ -186,10 +182,7 @@ public class ConfigBeans {
         Map<MarkerLoader.MarkerFilenameKeys, String> markerKeys = new HashMap<>();
         markerKeys.put(MarkerLoader.MarkerFilenameKeys.GENE_TYPES, downloadFilenameMap.get(DownloadFileEnum.MGI_GTGUP).targetFilename);
         markerKeys.put(MarkerLoader.MarkerFilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.VEGA_MODELS, downloadFilenameMap.get(DownloadFileEnum.MRK_VEGA).targetFilename);
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENSEMBL_MODELS, downloadFilenameMap.get(DownloadFileEnum.MRK_ENSEMBL).targetFilename);
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.ENTREZ_GENE_MODELS, downloadFilenameMap.get(DownloadFileEnum.MGI_EntrezGene).targetFilename);
-//        markerKeys.put(MarkerLoader.MarkerFilenameKeys.CCDS_MODELS, cdaWorkspace + "/MGI_AllGenes.rpt");
+        markerKeys.put(MarkerLoader.MarkerFilenameKeys.XREFS, downloadFilenameMap.get(DownloadFileEnum.MGI_Gene).targetFilename);
         return new MarkerLoader(markerKeys);
     }
 
@@ -201,6 +194,11 @@ public class ConfigBeans {
     @Bean(name = "markerProcessorMarkerList")
     public MarkerProcessorMarkerList markerProcessorMarkerList() {
         return new MarkerProcessorMarkerList(genomicFeatures, featureTypes, sequenceRegions);
+    }
+
+    @Bean(name = "markerProcessorXrefs")
+    public MarkerProcessorXrefs markerProcessorXrefs() {
+        return new MarkerProcessorXrefs(genomicFeatures);
     }
 
     @Bean(name = "ontologyLoaderList")

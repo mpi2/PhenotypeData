@@ -46,25 +46,18 @@ import java.util.*;
  */
 public class MarkerLoader implements InitializingBean, Step {
 
-    private       CommonUtils                     commonUtils         = new CommonUtils();
-    private final Logger                          logger              = LoggerFactory.getLogger(this.getClass());
-    public        Map<MarkerFilenameKeys, String> markerKeys          = new HashMap<>();
-
-    private       FlatFileItemReader<FieldSet>    ccdsModelsReader    = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    ensemblModelsReader = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    entrezGeneReader    = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    geneTypesReader     = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    markerListReader    = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    vegaModelsReader    = new FlatFileItemReader<>();
+    private       CommonUtils                     commonUtils      = new CommonUtils();
+    private final Logger                          logger           = LoggerFactory.getLogger(this.getClass());
+    public        Map<MarkerFilenameKeys, String> markerKeys       = new HashMap<>();
+    private       FlatFileItemReader<FieldSet>    geneTypesReader  = new FlatFileItemReader<>();
+    private       FlatFileItemReader<FieldSet>    markerListReader = new FlatFileItemReader<>();
+    private       FlatFileItemReader<FieldSet>    xrefsReader      = new FlatFileItemReader<>();
 
 
     public enum MarkerFilenameKeys {
-          CCDS_MODELS
-        , ENSEMBL_MODELS
-        , ENTREZ_GENE_MODELS
-        , GENE_TYPES
+          GENE_TYPES
         , MARKER_LIST
-        , VEGA_MODELS
+        , XREFS
     }
 
     @Autowired
@@ -72,6 +65,9 @@ public class MarkerLoader implements InitializingBean, Step {
 
     @Autowired
     private ItemProcessor markerProcessorMarkerList;
+
+    @Autowired
+    private ItemProcessor markerProcessorXrefs;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
@@ -89,17 +85,8 @@ public class MarkerLoader implements InitializingBean, Step {
         markerListReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.MARKER_LIST)));
         markerListReader.setLineMapper(new LineMapperFieldSet());
 
-        vegaModelsReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.VEGA_MODELS)));
-        vegaModelsReader.setLineMapper(new LineMapperFieldSet());
-
-        ensemblModelsReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.ENSEMBL_MODELS)));
-        ensemblModelsReader.setLineMapper(new LineMapperFieldSet());
-
-        entrezGeneReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.ENTREZ_GENE_MODELS)));
-        entrezGeneReader.setLineMapper(new LineMapperFieldSet());
-
-//        ccdsModelsReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.CCDS_MODELS)));
-//        ccdsModelsReader.setLineMapper(new LineMapperFieldSet());
+        xrefsReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.XREFS)));
+        xrefsReader.setLineMapper(new LineMapperFieldSet());
     }
 
 
@@ -157,46 +144,28 @@ public class MarkerLoader implements InitializingBean, Step {
                 .processor(markerProcessorMarkerList)
                 .build();
 
+        Step loadXrefsStep = stepBuilderFactory.get("markerLoaderXrefsListStep")
+                .listener(new MarkerLoaderXrefsStepListener())
+                .chunk(1000)
+                .reader(xrefsReader)
+                .processor(markerProcessorXrefs)
+                .build();
+
         List<Flow> flows = new ArrayList<>();
         flows.add(new FlowBuilder<Flow>("markerLoadGeneTypesFlow")
                 .from(loadGeneTypesStep).end());
         flows.add(new FlowBuilder<Flow>("markerLoadMarkerListFlow")
                 .from(loadMarkerListStep).end());
+        flows.add(new FlowBuilder<Flow>("markerLoadXrefsFlow")
+                .from(loadXrefsStep).end());
 
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("markerLoaderFlows").start(flows.get(0));
         for (int i = 1; i < flows.size(); i++) {
-            TaskExecutor executor = new SyncTaskExecutor();
             flowBuilder.next(flows.get(i));
         }
 
-
-
-
-
-
-
         stepBuilderFactory.get("markerLoaderStep")
                 .flow(flowBuilder.build())
-//                .listener(new MarkerLoaderGeneTypesStepListener())
-//                .chunk(100)
-//                .reader(geneTypesReader)
-//                .processor(markerProcessorGeneTypes)
-//
-//                .reader(markerListReader)
-//                .processor(markerProcessorMarkerList)
-
-//                .reader(vegaModelsReader)
-//                .processor((ItemPrmor)new ModelsPVegarocessor())
-//
-//                .reader(ensemblModelsReader)
-//                .processor((ItemPrmor)new ModelsPEnsemblrocessor())
-//
-//                .reader(entrezGeneReader)
-//                .processor((ItemPrmor)new ModelsPEntrezrocessor())
-//
-//                .reader(ccdsModelsReader)
-//                .processor((ItemPrmor)new ModelsPCcdsrocessor())
-
                 .build()
                 .execute(stepExecution);
     }
@@ -222,6 +191,23 @@ public class MarkerLoader implements InitializingBean, Step {
                     ((MarkerProcessorMarkerList) markerProcessorMarkerList).getAddedMarkerListCount(),
                     ((MarkerProcessorMarkerList) markerProcessorMarkerList).getUpdatedMarkerListCount(),
                     markerKeys.get(MarkerFilenameKeys.MARKER_LIST),
+                    commonUtils.formatDateDifference(start, stop));
+
+            return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
+        }
+    }
+
+    public class MarkerLoaderXrefsStepListener extends LogStatusStepListener {
+        @Override
+        protected Set<String> logStatus() {
+            Map<Integer, MarkerProcessorXrefs.XrefNode> xrefNodeMap = ((MarkerProcessorXrefs) markerProcessorXrefs).getXrefNodesMap();
+
+            logger.info("XREF: Added {} new EntrezGene, {} new Ensembl, {} new VEGA, and {} new cCDS Xrefs from file {} in {}",
+                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENTREZ_GENE_ID).getCount(),
+                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENSEMBL_GENE_ID).getCount(),
+                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_VEGA_GENE_ID).getCount(),
+                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_CCDS_ID).getCount(),
+                    markerKeys.get(MarkerFilenameKeys.XREFS),
                     commonUtils.formatDateDifference(start, stop));
 
             return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
