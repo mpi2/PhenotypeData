@@ -272,7 +272,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			throw new IndexerException(e);
 		}
 
-		logger.info(" Added {} total beans in {}", documentCount,
+		logger.info("Added {} total beans in {}", documentCount,
 				commonUtils.msToHms(System.currentTimeMillis() - start));
 
 		return runStatus;
@@ -373,6 +373,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					for (int i = 0; i < termIds.size(); i++) {
 						String emapaId = termIds.get(i);
 
+						imageDTO.setStage("embryo");
 						try {
 							String emapaTerm = terms.get(i);
 							emapaIdTerms.add(emapaId + "_" + emapaTerm);
@@ -426,6 +427,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					ArrayList<String> maIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
 						String maId = termIds.get(i);
+
+						imageDTO.setStage("adult");
 
 						try {
 

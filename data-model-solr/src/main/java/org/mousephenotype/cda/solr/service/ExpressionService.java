@@ -66,9 +66,8 @@ public class ExpressionService extends BasicService {
 	// @Autowired
 	// MaService maService;
 
+	Map<String, OntologyBean> abnormalEmapaFromImpress = null;
 	Map<String, OntologyBean> abnormalMaFromImpress = null;
-
-	Map<String, OntologyBean> abnormalEmapFromImpress = null;
 
 	public ExpressionService() {
 	}
@@ -85,7 +84,7 @@ public class ExpressionService extends BasicService {
 	@PostConstruct
 	public void initialiseAbnormalOntologyMaps() {
 		abnormalMaFromImpress = impressService.getParameterStableIdToAbnormalMaMap();
-		abnormalEmapFromImpress = impressService.getParameterStableIdToAbnormalEmapMap();
+		abnormalEmapaFromImpress = impressService.getParameterStableIdToAbnormalEmapaMap();
 
 	}
 
@@ -498,6 +497,7 @@ public class ExpressionService extends BasicService {
 				// all possible uberon ids
 				// higher up the tree to display on the anatomogram
 				bean = anatomyService.getUberonIdAndTopLevelMaTerm(bean);
+
 				anatomogramDataBeans.add(bean);
 			}
 		}
@@ -678,18 +678,16 @@ public class ExpressionService extends BasicService {
 						row.setParameterStableId(parameterStableId);
 						OntologyBean ontologyBean = null;
 						if (embryo) {
-							ontologyBean = abnormalEmapFromImpress.get(parameterStableId);
+							ontologyBean = abnormalEmapaFromImpress.get(parameterStableId);
 						} else {
 							ontologyBean = abnormalMaFromImpress.get(parameterStableId);
-
 						}
-						System.out.println("BEAN: " + ontologyBean.toString());
+
 						if (ontologyBean != null) {
 							row.setAbnormalAnatomyId(ontologyBean.getId());
 							row.setAbnormalAnatomyName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
-							System.out.println("no anatomy id for anatomy term=" +
-							 anatomy+" and param id:"+parameterStableId);
+							System.out.println("no anatomy id for param id: " + parameterStableId);
 						}
 					}
 					row = getExpressionCountForAnatomyTerm(anatomy, row, doc);

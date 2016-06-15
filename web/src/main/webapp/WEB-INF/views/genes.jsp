@@ -377,9 +377,9 @@
 												href='' id='phenoAssocSection' class="fa fa-question-circle pull-right"></a></span>
 									<!--  this works, but need js to drive tip position -->
 								</h2>
-	
+
 								<div class="inner">
-									
+
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
 								</div>
 
@@ -683,7 +683,7 @@
 
 		<script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>
 		<script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>
-			
+
 		<%--reinvoke this when atlas people are ready--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>--%>
@@ -710,6 +710,7 @@
 
 
 			$(document).ready(function () {
+
 				for (var i = 0; i < diseaseTables.length; i++) {
 					var diseaseTable = diseaseTables[i];
 					var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
@@ -718,6 +719,7 @@
 
 				// invoke anatomogram only when
 				// this check is not empty: impcAdultExpressionImageFacets
+
 				if ($('div#anatomogramContainer').size() == 1) {
 
 					// anatomogram stuff
@@ -727,7 +729,6 @@
 					var uberon2MaIdMap = expData.uberon2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
-					//console.log(expData);
 					//console.log("no expression: ")
 					//console.log(expData.noExpression);
 					//console.log("all paths: ")
@@ -777,14 +778,14 @@
 					$("ul#expList li a").on("mouseover", function() {
 						var topname = $(this).text();
 						var maIds = topLevelName2maIdMap[topname];
-						console.log(topname + " - " + maIds);
+						//log(topname + " - " + maIds);
 						var uberonIds = [];
 						for( var a=0; a<maIds.length; a++){
 							uberonIds = uberonIds.concat(maId2UberonMap[maIds[a]]);
 						}
 						uberonIds = $.fn.getUnique(uberonIds);
 
-						console.log(topname + " : " + uberonIds);
+						//console.log(topname + " : " + uberonIds);
 
 						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
 						//eventEmitter.emit("gxaHeatmapColumnHoverChange", "UBERON_0000955"); // test for brain
@@ -794,7 +795,7 @@
 
 					// anatomogram tissue talks to MA list
 					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
-						console.log(e)
+						//console.log(e)
 
 						var maIds = uberon2MaIdMap[e];
 						var topLevelNames = [];
