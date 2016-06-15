@@ -21,7 +21,7 @@
 				margin: 20px 0 50px 0;
 			}
 			div#alleleRef_filter {
-				float: right;
+				float: left;
 			}
 			form#allele {
 				position: absolute;
@@ -166,7 +166,8 @@
    	        	"processing": true,
    	        	"serverSide": true,  
    	            //"sDom": "<lr><'#caption'>tip",
-   	         	"sDom": "<<'#exportSpinner'>l<f>r>tip",
+   	         	//"sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
+		        "sDom": "<<'#exportSpinner'>l<f>r>tip",
    	            "sPaginationType": "bootstrap",
    	            "searchHighlight": true,
    	         	"oLanguage": {
