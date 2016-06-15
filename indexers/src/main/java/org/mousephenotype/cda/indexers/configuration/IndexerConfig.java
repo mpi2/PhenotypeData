@@ -2,31 +2,22 @@ package org.mousephenotype.cda.indexers.configuration;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.mousephenotype.cda.db.dao.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
-import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
-import java.sql.SQLException;
 import java.util.Properties;
 
 
@@ -43,6 +34,7 @@ import java.util.Properties;
         "org.mousephenotype.cda.db",
         "org.mousephenotype.cda.solr",
         "org.mousephenotype.cda.utilities"})
+@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 public class IndexerConfig {
 
     public static final int QUEUE_SIZE = 10000;
@@ -149,7 +141,6 @@ public class IndexerConfig {
         return DataSourceBuilder.create().build();
     }
 
-
     @Bean
     @ConfigurationProperties(prefix = "datasource.pfam")
     public DataSource pfamDataSource() {
@@ -192,7 +183,7 @@ public class IndexerConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(komp2DataSource());
-        emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.dao"});
+        emf.setPackagesToScan("org.mousephenotype.cda.db.pojo");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         emf.setJpaVendorAdapter(vendorAdapter);
@@ -214,16 +205,16 @@ public class IndexerConfig {
         return hibernateProperties;
     }
 
-    @Bean
-    @Primary
-    @PersistenceContext(name="komp2Context")
-    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
-        return builder
-                .dataSource(komp2DataSource())
-                .packages("org.mousephenotype.cda.db")
-                .persistenceUnit("komp2")
-                .build();
-    }
+//    @Bean
+//    @Primary
+//    @PersistenceContext(name="komp2Context")
+//    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
+//        return builder
+//                .dataSource(komp2DataSource())
+//                .packages("org.mousephenotype.cda.db")
+//                .persistenceUnit("komp2")
+//                .build();
+//    }
 
     @Bean(name = "sessionFactory")
     public LocalSessionFactoryBean sessionFactory() {

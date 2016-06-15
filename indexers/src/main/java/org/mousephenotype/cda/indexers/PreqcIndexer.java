@@ -22,8 +22,8 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,10 +46,10 @@ import java.util.*;
 
 @EnableAutoConfiguration
 public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
-    private CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @NotNull
+	private final Logger logger = LoggerFactory.getLogger(PreqcIndexer.class);
+
+	@NotNull
     @Value("${preqcXmlFilename}")
     private String preqcXmlFilename;
 
@@ -101,11 +101,6 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 	@Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(preqcIndexing);
-    }
-
-    @Override
-    public void run(String... strings) throws Exception {
-        run();
     }
 
     @Override
@@ -799,10 +794,6 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
-    }
 
     public static void main(String[] args) throws IndexerException {
         SpringApplication.run(PreqcIndexer.class, args);

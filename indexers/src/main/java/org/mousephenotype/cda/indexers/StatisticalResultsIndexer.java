@@ -26,15 +26,14 @@ import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -51,8 +50,8 @@ import java.util.stream.Collectors;
  */
 @EnableAutoConfiguration
 public class StatisticalResultsIndexer extends AbstractIndexer implements CommandLineRunner {
-	private CommonUtils commonUtils = new CommonUtils();
-	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexer.class);
 
 	private Connection connection;
 
@@ -111,10 +110,17 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		return super.validateBuild(statisticalResultsIndexing);
 	}
 
-	@Override
-	public void initialise(String[] args) throws IndexerException {
 
-		super.initialise(args);
+	public static void main(String[] args) throws IndexerException {
+		SpringApplication.run(StatisticalResultsIndexer.class, args);
+	}
+
+
+	@Override
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+
+		long start = System.currentTimeMillis();
+		RunStatus runStatus = new RunStatus();
 
 		try {
 
@@ -133,25 +139,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		} catch (SQLException e) {
 			throw new IndexerException(e);
 		}
-
-		printConfiguration();
-	}
-
-	public static void main(String[] args) throws IndexerException {
-		SpringApplication.run(StatisticalResultsIndexer.class, args);
-	}
-
-
-	@Override
-	public void run(String... strings) throws Exception {
-		run();
-	}
-
-	@Override
-	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-
-		long start = System.currentTimeMillis();
-		RunStatus runStatus = new RunStatus();
 
 		documentCount = populateStatisticalResultsSolrCore();
 

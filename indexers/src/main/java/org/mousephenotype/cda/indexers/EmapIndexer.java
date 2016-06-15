@@ -23,8 +23,8 @@ import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmap;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,10 +47,10 @@ import static org.mousephenotype.cda.indexers.utils.IndexerMap.getGeneToAlleles;
  *
  */
 public class EmapIndexer extends AbstractIndexer implements CommandLineRunner {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
+	private final Logger logger = LoggerFactory.getLogger(EmapIndexer.class);
+
+	@Autowired
     @Qualifier("alleleIndexing")
     private SolrServer alleleCore;
 
@@ -136,7 +136,7 @@ public class EmapIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        run();
+	    super.run(new String[0]);
     }
 
     @Override

@@ -33,8 +33,8 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,13 +61,10 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
  * @author ckchen based on the old MAIndexer
  */
 
-//@Component
-//@SpringBootApplication
-//@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @EnableAutoConfiguration
 public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private final Logger logger = LoggerFactory.getLogger(AnatomyIndexer.class);
 
     @Value("classpath:uberonEfoMa_mappings.txt")
 	Resource resource;
@@ -123,15 +120,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
         return super.validateBuild(anatomyIndexing);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
-    }
-
-    @Override
-    public void run(String... strings) throws Exception {
-        run();
-    }
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {

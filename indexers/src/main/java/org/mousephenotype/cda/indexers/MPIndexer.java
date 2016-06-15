@@ -35,8 +35,8 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,10 +61,10 @@ import java.util.*;
  */
 @EnableAutoConfiguration
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    CommonUtils commonUtils = new CommonUtils();
 
-    @NotNull
+	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
+
+	@NotNull
     @Value("${phenodigm.solrserver}")
     private String phenodigmSolrServer;
 
@@ -94,11 +94,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("mpIndexing")
     private SolrServer mpIndexing;
-    
+
     private SolrServer phenodigmCore;
     @Autowired
     MpOntologyDAO mpOntologyService;
-    
+
 
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
@@ -145,10 +145,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return super.validateBuild(mpIndexing);
     }
 
-    @Override
-    public void run(String... strings) throws Exception {
-        run();
-    }
+
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {

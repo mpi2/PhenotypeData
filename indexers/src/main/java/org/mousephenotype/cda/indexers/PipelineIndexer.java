@@ -22,8 +22,8 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,9 +42,8 @@ import java.util.*;
 
 @EnableAutoConfiguration
 public class PipelineIndexer extends AbstractIndexer implements CommandLineRunner {
-    private CommonUtils commonUtils = new CommonUtils();
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(PipelineIndexer.class);
 
 	private Connection komp2DbConnection;
 
@@ -89,18 +88,6 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		return super.validateBuild(pipelineIndexing);
 	}
 
-	@Override
-	public void initialise(String[] args)
-	throws IndexerException {
-
-		super.initialise(args);
-
-		try {
-			this.komp2DbConnection = komp2DataSource.getConnection();
-		} catch (SQLException sqle) {
-			throw new IndexerException(sqle);
-		}
-	}
 
 	private void initialiseSupportingBeans(RunStatus runStatus)
 			throws IndexerException, SQLException {
@@ -116,10 +103,6 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		mpIdToMp = populateMpIdToMp();
 	}
 
-	@Override
-	public void run(String... strings) throws Exception {
-		run();
-	}
 
 	@Override
 	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
@@ -129,6 +112,9 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		long start = System.currentTimeMillis();
 
 		try {
+
+			this.komp2DbConnection = komp2DataSource.getConnection();
+
 			initialiseSupportingBeans(runStatus);
 			pipelineIndexing.deleteByQuery("*:*");
 			pipelineIndexing.commit();

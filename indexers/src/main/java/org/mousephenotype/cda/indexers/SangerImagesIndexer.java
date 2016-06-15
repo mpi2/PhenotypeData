@@ -24,8 +24,8 @@ import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
 import org.mousephenotype.cda.solr.bean.GenomicFeatureBean;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,8 +46,9 @@ import java.util.*;
  */
 @EnableAutoConfiguration
 public class SangerImagesIndexer extends AbstractIndexer implements CommandLineRunner {
-    private CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
+
 	private Connection komp2DbConnection;
 	private Connection ontoDbConnection;
 
@@ -112,10 +113,18 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		return super.validateBuild(sangerImagesIndexing);
 	}
 
-	@Override
-	public void initialise(String[] args) throws IndexerException {
 
-		super.initialise(args);
+	public static void main(String[] args) throws IndexerException {
+		SpringApplication.run(SangerImagesIndexer.class, args);
+	}
+
+
+
+	@Override
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+        long count = 0;
+        RunStatus runStatus = new RunStatus();
+		long start = System.currentTimeMillis();
 
 		try {
 
@@ -147,30 +156,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 			populateAlleles();
 			populateMpToHpTermsMap();
 
-		} catch (SQLException e) {
-			throw new IndexerException(e);
-		}
-
-		printConfiguration();
-	}
-
-	public static void main(String[] args) throws IndexerException {
-		SpringApplication.run(SangerImagesIndexer.class, args);
-	}
-
-
-	@Override
-	public void run(String... strings) throws Exception {
-		run();
-	}
-
-	@Override
-	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-        long count = 0;
-        RunStatus runStatus = new RunStatus();
-		long start = System.currentTimeMillis();
-
-		try {
 			count = populateSangerImagesCore(runStatus);
 		} catch (Exception e) {
 			e.printStackTrace();

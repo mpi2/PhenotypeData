@@ -34,8 +34,8 @@ import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,11 +60,11 @@ import java.util.*;
 @EnableAutoConfiguration
 public class ObservationIndexer extends AbstractIndexer implements CommandLineRunner {
 
+	private final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
+
 	final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
-	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 	private static Connection connection;
-	CommonUtils commonUtils = new CommonUtils();
 
 	@Autowired
 	SqlUtils sqlUtils;
@@ -121,12 +121,15 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		SpringApplication.run(ObservationIndexer.class, args);
 	}
 
-	@Override
-	public void initialise(String[] args) throws IndexerException {
 
-		super.initialise(args);
+	@Override
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+		long count = 0;
+		RunStatus runStatus = new RunStatus();
+		long start = System.currentTimeMillis();
 
 		try {
+
 
 			connection = komp2DataSource.getConnection();
 
@@ -173,27 +176,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			logger.info("maps populated");
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new IndexerException(e);
-		}
-
-		printConfiguration();
-
-	}
-
-	@Override
-	public void run(String... strings) throws Exception {
-		run();
-	}
-
-	@Override
-	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-		long count = 0;
-		RunStatus runStatus = new RunStatus();
-		long start = System.currentTimeMillis();
-
-		try {
 
 			count = populateObservationSolrCore(runStatus);
 
