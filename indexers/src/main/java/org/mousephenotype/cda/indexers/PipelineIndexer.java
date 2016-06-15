@@ -219,11 +219,17 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						if(param.getEmapId()!=null){
 							String emapId = param.getEmapId();
 							doc.setEmapId(emapId);
-							doc.setAnatomyId(emap2EmapaMap.get(emapId).getEmapaId());
-							if(param.getEmapName()!=null){
-								String emapName = param.getEmapName();
-								doc.setEmapTerm(emapName);
-								doc.setAnatomyTerm(emap2EmapaMap.get(emapId).getEmapaTerm());
+
+							if ( emap2EmapaMap.get(emapId) != null) {
+								doc.setAnatomyId(emap2EmapaMap.get(emapId).getEmapaId());
+								if (param.getEmapName() != null) {
+									String emapName = param.getEmapName();
+									doc.setEmapTerm(emapName);
+									doc.setAnatomyTerm(emap2EmapaMap.get(emapId).getEmapaTerm());
+								}
+							}
+							else {
+								logger.debug("EMAP Id {} is not mapped to an EMAPA Id", emapId);
 							}
 						}
 						pipelineIndexing.addBean(doc);
@@ -545,17 +551,12 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				+ " WHERE ppoa.ontology_db_id=8 LIMIT 10000";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
-			System.out.println("MA SQL: "+sqlQuery);
+			System.out.println("PipelineIndexer: sql= " + sqlQuery);
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
 				paramIdToParameter.get(parameterId).setMaId(resultSet.getString("ontology_acc"));
 				paramIdToParameter.get(parameterId).setMaName(resultSet.getString("name"));
-
-				String maId = resultSet.getString("ontology_acc");
-				String maTerm = resultSet.getString("name");
-				System.out.println("ID: "+maId + " -- "+ maTerm);
-
 			}
 
 		} catch (Exception e) {
@@ -574,18 +575,13 @@ protected void addAbnormalEmapOntology(){
 		//14 db id is emap
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
-			System.out.println("EMAP SQL: "+sqlQuery);
+
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
 
-//				paramIdToParameter.get(parameterId).setEmapId(resultSet.getString("ontology_acc"));
-//				paramIdToParameter.get(parameterId).setEmapName(resultSet.getString("name"));
-
-				String ontoId = resultSet.getString("ontology_acc");
-				String ontoTerm = resultSet.getString("name");
-				System.out.println("ID: "+ontoId + " -- "+ ontoTerm);
-
+				paramIdToParameter.get(parameterId).setEmapId(resultSet.getString("ontology_acc"));
+				paramIdToParameter.get(parameterId).setEmapName(resultSet.getString("name"));
 
 			}
 
