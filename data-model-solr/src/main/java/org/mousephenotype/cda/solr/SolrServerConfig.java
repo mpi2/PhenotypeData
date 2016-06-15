@@ -99,8 +99,7 @@ public class SolrServerConfig {
 
 	// Impc images core
 	@Bean(name = "impcImagesCore")
-	//HttpSolrServer getImpcImagesCore() { return new HttpSolrServer(solrBaseUrl + "/impc_images"); }
-	HttpSolrServer getImpcImagesCore() { return new HttpSolrServer("http://localhost:8090/solr"+ "/impc_images"); }
+	HttpSolrServer getImpcImagesCore() { return new HttpSolrServer(solrBaseUrl + "/impc_images"); }
 
 	//SangerImages
 	@Bean(name = "sangerImagesCore")
@@ -124,11 +123,8 @@ public class SolrServerConfig {
 
 	//EMAP
 	@Bean(name = "emapCore")
-//	HttpSolrServer getEmapCore() {
-//		return new HttpSolrServer(solrBaseUrl + "/emap");
-//	}
 	HttpSolrServer getEmapCore() {
-		return new HttpSolrServer("http://localhost:8090/solr" + "/emap");
+		return new HttpSolrServer(solrBaseUrl + "/emap");
 	}
 
 	@Bean(name = "experimentCore")
@@ -138,12 +134,10 @@ public class SolrServerConfig {
 
 	//Pipeline
 	@Bean(name = "pipelineCore")
-	//HttpSolrServer getPipelineCore() {
-	//	return new HttpSolrServer(solrBaseUrl + "/pipeline");
-	//}
 	HttpSolrServer getPipelineCore() {
-		return new HttpSolrServer("http://localhost:8090/solr" + "/pipeline");
+		return new HttpSolrServer(solrBaseUrl + "/pipeline");
 	}
+
 
 	//Preqc
 	@Bean(name = "preqcCore")

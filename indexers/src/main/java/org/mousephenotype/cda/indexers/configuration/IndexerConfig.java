@@ -45,8 +45,6 @@ public class IndexerConfig {
     private String writeSolrBaseUrl;
 
 
-
-
     // Indexers for writing
     @Bean
     SolrServer observationIndexing() {
@@ -153,29 +151,6 @@ public class IndexerConfig {
         return DataSourceBuilder.create().build();
     }
 
-//    <!--&lt;!&ndash; used for concurrently loading the impc_images core &ndash;&gt;-->
-//    <!--<bean id="mpOntologyService" class="org.mousephenotype.cda.db.dao.MpOntologyDAO" />-->
-//    <!--<bean id="maOntologyDAO" class="org.mousephenotype.cda.db.dao.MaOntologyDAO" />-->
-//    <!--<bean id="emapOntologyDAO" class="org.mousephenotype.cda.db.dao.EmapOntologyDAO" />-->
-//    <!--<bean id="emapaOntologyDAO" class="org.mousephenotype.cda.db.dao.EmapaOntologyDAO" />-->
-//    <!--<bean id="gwasDao" class="org.mousephenotype.cda.db.dao.GwasDAO" />-->
-
-
-//    @Bean
-//    public MaOntologyDAO maOntologyDAO() {
-//        return new MaOntologyDAO();
-//    }
-
-//    @Bean
-//    public EmapOntologyDAO emapOntologyDAO() {
-//        return new EmapOntologyDAO();
-//    }
-
-//    @Bean
-//    public EmapaOntologyDAO emapaOntologyDAO() {
-//        return new EmapaOntologyDAO();
-//    }
-
 
 
     // support beans for hibernate wiring
@@ -205,16 +180,6 @@ public class IndexerConfig {
         return hibernateProperties;
     }
 
-//    @Bean
-//    @Primary
-//    @PersistenceContext(name="komp2Context")
-//    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
-//        return builder
-//                .dataSource(komp2DataSource())
-//                .packages("org.mousephenotype.cda.db")
-//                .persistenceUnit("komp2")
-//                .build();
-//    }
 
     @Bean(name = "sessionFactory")
     public LocalSessionFactoryBean sessionFactory() {
@@ -226,9 +191,6 @@ public class IndexerConfig {
 
     @Bean(name = "komp2TxManager")
     @Primary
-//	public PlatformTransactionManager txManager() {
-//		return new DataSourceTransactionManager(komp2DataSource());
-//	}
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         JpaTransactionManager tm = new JpaTransactionManager();
         tm.setEntityManagerFactory(emf);
