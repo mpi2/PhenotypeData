@@ -63,6 +63,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.EvidenceLink;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
@@ -225,7 +226,7 @@ public class GenesController {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            GenePageTableRow pr = new GenePageTableRow(pcs, url, config, false);
+            GenePageTableRow pr = new GenePageTableRow(pcs, url, config);
             phenotypes.add(pr);
         } 
         
@@ -592,8 +593,7 @@ public class GenesController {
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService.hasImages(pcs.getGene().getAccessionId(), 
-					pcs.getProcedure().getName(), pcs.getColonyId()));
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 			
 			// Collapse rows on sex	and p-value		
 			if (phenotypes.containsKey(pr.hashCode())) {
@@ -612,12 +612,13 @@ public class GenesController {
 				//now we severely collapsing rows by so we need to store these as an list
 				 //projectId;
 				List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans=pr.getPhenotypeCallUniquePropertyBeans();
+				//keep the set of properties as a set so we can generate unique graph urls if necessary
 				PhenotypeCallUniquePropertyBean propBean=new PhenotypeCallUniquePropertyBean();
 				if (pcs.getProject() != null && pcs.getProject().getId() != null) {
 					propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
 				}
 				if(pcs.getPhenotypingCenter()!=null){
-				propBean.setPhenotypingCenters(pcs.getPhenotypingCenter());
+				propBean.setPhenotypingCenter(pcs.getPhenotypingCenter());
 				}
 		        //procedure.hashCode() 
 				if(pcs.getProcedure()!=null){
@@ -656,10 +657,19 @@ public class GenesController {
 				}
 				pr.setTopLevelMpGroups(topLevelMpGroups);
 			}
-			
 			//We need to build the urls now we have more parameters for multiple graphs
-			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString(),  imageService.hasImages(pcs.getGene().getAccessionId(), 
-					pcs.getProcedure().getName(), pcs.getColonyId()));
+			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString());
+			
+			
+			if(imageService.hasImagesWithMP(pcs.getGene().getAccessionId(),pcs.getProcedure().getName(), pcs.getColonyId(), pcs.getPhenotypeTerm().getId())){
+				EvidenceLink imageLink=new EvidenceLink();
+				imageLink.setDisplay(true);
+				imageLink.setIconType(EvidenceLink.IconType.IMAGE);
+				//http://localhost:8080/phenotype-archive/impcImages/images?q=gene_accession_id:MGI:109331&fq=mp_term:%22abnormal%20cranium%20morphology%22
+				 String url=request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+pcs.getGene().getAccessionId()+"&fq=mp_id:\""+pcs.getPhenotypeTerm().getId()+"\"";
+				imageLink.setUrl(url);
+				pr.setImagesEvidenceLink(imageLink);
+			}
 			phenotypes.put(pr.hashCode(), pr);
 		}
 		

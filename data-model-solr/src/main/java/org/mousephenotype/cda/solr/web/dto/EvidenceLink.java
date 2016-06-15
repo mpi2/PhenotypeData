@@ -33,7 +33,7 @@ public class EvidenceLink {
 		}	
 
     
-    enum IconType{
+    public enum IconType{
     	IMAGE, GRAPH, TABLE;
     }
 }

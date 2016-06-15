@@ -1,3 +1,4 @@
+
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -121,6 +122,14 @@
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
                        <a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
                    </c:if>
+			</c:if>
+			
+			<c:if test="${phenotype.getImagesEvidenceLink().getDisplay()}">
+				<c:if test='${phenotype.getImagesEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
+				<!-- request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+pr.getGene().getAccessionId()+"&fq=mp_id:\""+pr.getPhenotypeTerm().getId()+"\""; -->
+					<a href='${baseUrl}/impcImages/images?q=gene_accession_id:${acc}&fq=(mp_id:"${phenotype.phenotypeTerm.id}" AND colony_id:${phenotype.colonyId})'><i title="${phenotype.procedureNames}" class="fa fa-image" alt="${phenotype.getImagesEvidenceLink().getAlt()}"></i></a>
+				</c:if>
+				${phenotype}
 			</c:if>
 			
 			<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
