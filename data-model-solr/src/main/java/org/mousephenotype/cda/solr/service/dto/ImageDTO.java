@@ -149,7 +149,8 @@ public class ImageDTO extends ObservationDTO {
 
 	public static final String MP_ID_TERM = "mp_id_term";
 
-	public static final String INCREMENT_VALUE="increment_value";
+	public static final String INCREMENT_VALUE = "increment_value";
+	public static final String STAGE = "stage";
 
 
 //	@Field(ANATOMY_ID)
@@ -300,6 +301,16 @@ public class ImageDTO extends ObservationDTO {
 	@Field(INCREMENT_VALUE)
 	private Integer increment;
 
+	@Field(STAGE)
+	private String stage;
+
+	public String getStage() {
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
 
 	public int getIncrement() {
 		return increment;
@@ -581,7 +592,6 @@ public class ImageDTO extends ObservationDTO {
 
 	}
 
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -590,13 +600,6 @@ public class ImageDTO extends ObservationDTO {
 		ImageDTO imageDTO = (ImageDTO) o;
 
 		if (omeroId != imageDTO.omeroId) return false;
-		if (anatomyId != null ? !anatomyId.equals(imageDTO.anatomyId) : imageDTO.anatomyId != null) return false;
-		if (anatomyTerm != null ? !anatomyTerm.equals(imageDTO.anatomyTerm) : imageDTO.anatomyTerm != null)
-			return false;
-		if (anatomyIdTerm != null ? !anatomyIdTerm.equals(imageDTO.anatomyIdTerm) : imageDTO.anatomyIdTerm != null)
-			return false;
-		if (anatomyTermSynonym != null ? !anatomyTermSynonym.equals(imageDTO.anatomyTermSynonym) : imageDTO.anatomyTermSynonym != null)
-			return false;
 		if (mpTermIds != null ? !mpTermIds.equals(imageDTO.mpTermIds) : imageDTO.mpTermIds != null) return false;
 		if (mpTerm != null ? !mpTerm.equals(imageDTO.mpTerm) : imageDTO.mpTerm != null) return false;
 		if (mpIdTerm != null ? !mpIdTerm.equals(imageDTO.mpIdTerm) : imageDTO.mpIdTerm != null) return false;
@@ -636,17 +639,14 @@ public class ImageDTO extends ObservationDTO {
 		if (symbol != null ? !symbol.equals(imageDTO.symbol) : imageDTO.symbol != null) return false;
 		if (subtype != null ? !subtype.equals(imageDTO.subtype) : imageDTO.subtype != null) return false;
 		if (increment != null ? !increment.equals(imageDTO.increment) : imageDTO.increment != null) return false;
+		if (stage != null ? !stage.equals(imageDTO.stage) : imageDTO.stage != null) return false;
 		return !(latestPhenotypeStatus != null ? !latestPhenotypeStatus.equals(imageDTO.latestPhenotypeStatus) : imageDTO.latestPhenotypeStatus != null);
 
 	}
 
 	@Override
 	public int hashCode() {
-		int result = anatomyId != null ? anatomyId.hashCode() : 0;
-		result = 31 * result + (anatomyTerm != null ? anatomyTerm.hashCode() : 0);
-		result = 31 * result + (anatomyIdTerm != null ? anatomyIdTerm.hashCode() : 0);
-		result = 31 * result + (anatomyTermSynonym != null ? anatomyTermSynonym.hashCode() : 0);
-		result = 31 * result + (mpTermIds != null ? mpTermIds.hashCode() : 0);
+		int result = mpTermIds != null ? mpTermIds.hashCode() : 0;
 		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
 		result = 31 * result + (mpIdTerm != null ? mpIdTerm.hashCode() : 0);
 		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
@@ -674,6 +674,7 @@ public class ImageDTO extends ObservationDTO {
 		result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
 		result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
 		result = 31 * result + (increment != null ? increment.hashCode() : 0);
+		result = 31 * result + (stage != null ? stage.hashCode() : 0);
 		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
 		return result;
 	}
@@ -681,11 +682,7 @@ public class ImageDTO extends ObservationDTO {
 	@Override
 	public String toString() {
 		return "ImageDTO{" +
-				"anatomyId=" + anatomyId +
-				", anatomyTerm=" + anatomyTerm +
-				", anatomyIdTerm=" + anatomyIdTerm +
-				", anatomyTermSynonym=" + anatomyTermSynonym +
-				", mpTermIds=" + mpTermIds +
+				"mpTermIds=" + mpTermIds +
 				", mpTerm=" + mpTerm +
 				", mpIdTerm=" + mpIdTerm +
 				", mpTermSynonym=" + mpTermSynonym +
@@ -713,6 +710,7 @@ public class ImageDTO extends ObservationDTO {
 				", symbol='" + symbol + '\'' +
 				", subtype='" + subtype + '\'' +
 				", increment=" + increment +
+				", stage='" + stage + '\'' +
 				", latestPhenotypeStatus=" + latestPhenotypeStatus +
 				'}';
 	}
