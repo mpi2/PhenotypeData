@@ -127,6 +127,8 @@ public class MarkerProcessorXrefs implements ItemProcessor<FieldSet, GenomicFeat
                     feature = genomicFeatures.get(mgiAccessionId);
                     if (feature != null) {
                         Xref xref = new Xref();
+                        xref.setAccession(mgiAccessionId);
+                        xref.setDatabaseId(DbIdType.MGI.intValue());
                         xref.setXrefAccession(id);
                         xref.setXrefDatabaseId(xrefNode.dbIdType.intValue());
                         feature.addXref(xref);

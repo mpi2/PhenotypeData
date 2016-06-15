@@ -53,6 +53,7 @@ public class MarkerLoader implements InitializingBean, Step {
     private       FlatFileItemReader<FieldSet>    markerListReader = new FlatFileItemReader<>();
     private       FlatFileItemReader<FieldSet>    xrefsReader      = new FlatFileItemReader<>();
 
+    public static final  String                   ACTIVE_STATUS    = "active";
 
     public enum MarkerFilenameKeys {
           GENE_TYPES
@@ -71,6 +72,9 @@ public class MarkerLoader implements InitializingBean, Step {
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private MarkerWriter writer;
 
 
     public MarkerLoader(Map<MarkerFilenameKeys, String> markerKeys) throws CdaLoaderException {
@@ -149,6 +153,7 @@ public class MarkerLoader implements InitializingBean, Step {
                 .chunk(1000)
                 .reader(xrefsReader)
                 .processor(markerProcessorXrefs)
+                .writer(writer)
                 .build();
 
         List<Flow> flows = new ArrayList<>();

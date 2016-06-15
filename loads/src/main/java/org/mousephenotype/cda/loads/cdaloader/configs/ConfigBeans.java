@@ -215,11 +215,14 @@ public class ConfigBeans {
         return ontologyloaderList;
     }
 
+    @Bean(name = "markerWriter")
+    public MarkerWriter markerWriter() {
+        return new MarkerWriter();
+    }
+
     @Bean(name = "ontologyWriter")
     public OntologyWriter ontologyWriter() {
-        OntologyWriter writer = new OntologyWriter();
-
-        return writer;
+        return new OntologyWriter();
     }
 
     @Bean(name = "sqlLoaderUtils")
@@ -243,9 +246,7 @@ public class ConfigBeans {
 
     @Bean(name = "strainWriter")
     public StrainWriter strainWriter() {
-        StrainWriter writer = new StrainWriter();
-
-        return writer;
+       return new StrainWriter();
     }
 
 
