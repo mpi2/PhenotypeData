@@ -127,7 +127,7 @@
 			<c:if test="${phenotype.getImagesEvidenceLink().getDisplay()}">
 				<c:if test='${phenotype.getImagesEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
 				<!-- request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+pr.getGene().getAccessionId()+"&fq=mp_id:\""+pr.getPhenotypeTerm().getId()+"\""; -->
-					<a href='${baseUrl}/impcImages/images?q=gene_accession_id:${acc}&fq=mp_id:"${phenotype.phenotypeTerm.id}"'><i title="${phenotype.procedureNames}" class="fa fa-image" alt="${phenotype.getImagesEvidenceLink().getAlt()}"></i></a>
+					<a href='${baseUrl}/impcImages/images?q=gene_accession_id:${acc}&fq=(mp_id:"${phenotype.phenotypeTerm.id}" AND colony_id:${phenotype.colonyId})'><i title="${phenotype.procedureNames}" class="fa fa-image" alt="${phenotype.getImagesEvidenceLink().getAlt()}"></i></a>
 				</c:if>
 				${phenotype}
 			</c:if>

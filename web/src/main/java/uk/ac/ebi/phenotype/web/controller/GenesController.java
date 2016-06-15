@@ -661,12 +661,12 @@ public class GenesController {
 			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString());
 			
 			
-			if(imageService.hasImagesWithMP(pcs.getGene().getAccessionId(),pcs.getProcedure().getName(), pcs.getColonyId(), pcs.getPhenotypeTerm().getName())){
+			if(imageService.hasImagesWithMP(pcs.getGene().getAccessionId(),pcs.getProcedure().getName(), pcs.getColonyId(), pcs.getPhenotypeTerm().getId())){
 				EvidenceLink imageLink=new EvidenceLink();
 				imageLink.setDisplay(true);
 				imageLink.setIconType(EvidenceLink.IconType.IMAGE);
 				//http://localhost:8080/phenotype-archive/impcImages/images?q=gene_accession_id:MGI:109331&fq=mp_term:%22abnormal%20cranium%20morphology%22
-				 String url=request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+pr.getGene().getAccessionId()+"&fq=mp_id:\""+pr.getPhenotypeTerm().getId()+"\"";
+				 String url=request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+pcs.getGene().getAccessionId()+"&fq=mp_id:\""+pcs.getPhenotypeTerm().getId()+"\"";
 				imageLink.setUrl(url);
 				pr.setImagesEvidenceLink(imageLink);
 			}

@@ -933,25 +933,25 @@ public class ImageService implements WebStatus{
 
 	}
 	
-	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpTerm) throws SolrServerException {
-		System.out.println("looking for mp term="+mpTerm +"  colony Id="+colonyId);
+	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpId) throws SolrServerException {
+		//System.out.println("looking for mp term="+mpTerm +"  colony Id="+colonyId);
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*")
 				.addFilterQuery(
 						"(" + ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAccessionId + "\" AND "
 								+ ImageDTO.PROCEDURE_NAME + ":\"" + procedureName + "\" AND "
-								//+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\" AND "
-								+ MpDTO.MP_TERM + ":\"" + mpTerm + "\")")
+								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\" AND "
+								+ MpDTO.MP_ID + ":\"" + mpId + "\")")
 				.setRows(0);
 
-		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
 			return false;
 		}
-		System.out.println("returning true");
+		//System.out.println("returning true");
 		return true;
 	}
 
