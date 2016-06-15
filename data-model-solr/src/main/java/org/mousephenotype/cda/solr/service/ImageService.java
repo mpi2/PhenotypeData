@@ -399,6 +399,38 @@ public class ImageService implements WebStatus{
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
+	
+	public QueryResponse getImagesForGeneByProcedure(String mgiAccession,
+			String procedureStableId, String experimentOrControl,
+			int numberOfImagesToRetrieve, SexType sex, String metadataGroup,
+			String strain) throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
+				+ experimentOrControl);
+		if (StringUtils.isNotEmpty(metadataGroup)) {
+			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":"
+					+ metadataGroup);
+		}
+		if (StringUtils.isNotEmpty(strain)) {
+			solrQuery.addFilterQuery(ObservationDTO.STRAIN_NAME + ":" + strain);
+		}
+		if (sex != null) {
+			solrQuery.addFilterQuery("sex:" + sex.name());
+		}
+		if (StringUtils.isNotEmpty(procedureStableId)) {
+			solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_STABLE_ID + ":"
+					+ procedureStableId);
+		}
+		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
+		// procedure_name + "\"");
+		solrQuery.setRows(numberOfImagesToRetrieve);
+		logger.debug("images experimental query: {}/select?{}",
+				solr.getBaseURL(), solrQuery);
+		QueryResponse response = solr.query(solrQuery);
+		return response;
+	}
 
 	/**
 	 *
@@ -909,11 +941,11 @@ public class ImageService implements WebStatus{
 				.addFilterQuery(
 						"(" + ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAccessionId + "\" AND "
 								+ ImageDTO.PROCEDURE_NAME + ":\"" + procedureName + "\" AND "
-								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\" AND "
+								//+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\" AND "
 								+ MpDTO.MP_TERM + ":\"" + mpTerm + "\")")
 				.setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
