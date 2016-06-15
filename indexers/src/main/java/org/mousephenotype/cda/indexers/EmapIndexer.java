@@ -23,13 +23,14 @@ import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmap;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -45,11 +46,11 @@ import static org.mousephenotype.cda.indexers.utils.IndexerMap.getGeneToAlleles;
  * @author ckchen based on mike relac's MaIndexer
  *
  */
-public class EmapIndexer extends AbstractIndexer {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+public class EmapIndexer extends AbstractIndexer implements CommandLineRunner {
 
-    @Autowired
+	private final Logger logger = LoggerFactory.getLogger(EmapIndexer.class);
+
+	@Autowired
     @Qualifier("alleleIndexing")
     private SolrServer alleleCore;
 
@@ -78,9 +79,6 @@ public class EmapIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("emapIndexing")
     private SolrServer emapCore;
-
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
 
 
     private static Connection komp2DbConnection;
@@ -137,7 +135,12 @@ public class EmapIndexer extends AbstractIndexer {
     }
 
     @Override
-    public RunStatus run() throws IndexerException, IOException, SolrServerException {
+    public void run(String... strings) throws Exception {
+	    super.run(new String[0]);
+    }
+
+    @Override
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -266,7 +269,6 @@ public class EmapIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
         return runStatus;
     }
 
@@ -740,10 +742,6 @@ public class EmapIndexer extends AbstractIndexer {
 
 
     public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
-
-        EmapIndexer main = new EmapIndexer();
-        main.initialise(args);
-        main.run();
-        main.validateBuild();
+        SpringApplication.run(EmapIndexer.class, args);
     }
 }

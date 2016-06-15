@@ -233,8 +233,10 @@
                                     <p><i id='sicon' class='fa fa-search'></i></p>
                                     <div class='ui-widget'>
                                         <input id='s' value="search">
+                                        <i id='clearIcon' class='fa fa-times'></i>
                                         <a><i class='fa fa-question-circle fa-2x searchExample'></i></a>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
