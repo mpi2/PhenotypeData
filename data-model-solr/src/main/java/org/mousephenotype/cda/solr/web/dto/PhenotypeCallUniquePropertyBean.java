@@ -16,7 +16,6 @@ public class PhenotypeCallUniquePropertyBean {
 	private String gId;//phenoDCCs internal id that doesn't represent a gene id as they are different for the same mgi gene accession
 	private String phenotypingCenter;
 	
-	
 
 	public PhenotypeCallUniquePropertyBean(){
 		
@@ -91,13 +90,15 @@ public class PhenotypeCallUniquePropertyBean {
 		this.gId = gId;
 	}
 
-
 	@Override
 	public String toString() {
 		return "PhenotypeCallUniquePropertyBean [project=" + project + ", procedure=" + procedure + ", parameter="
 				+ parameter + ", pipeline=" + pipeline + ", allele=" + allele + ", phenotypingCenter="
 				+ phenotypingCenter + " gid="+gId+"]";
 	}
+
+
+	
 
 	
 	

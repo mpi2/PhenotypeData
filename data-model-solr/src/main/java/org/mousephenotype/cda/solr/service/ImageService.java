@@ -945,13 +945,13 @@ public class ImageService implements WebStatus{
 								+ MpDTO.MP_ID + ":\"" + mpId + "\")")
 				.setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
 			return false;
 		}
-		//System.out.println("returning true");
+		System.out.println("returning true");
 		return true;
 	}
 
@@ -988,6 +988,27 @@ public class ImageService implements WebStatus{
 		//System.out.println("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
 		return img;
 
+	}
+
+
+	public void getImagePropertiesThatHaveMp(String acc) throws SolrServerException {
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery(ImageDTO.GENE_ACCESSION_ID+":\""+acc+"\"").setRows(100000000);
+		query.addFilterQuery(ImageDTO.MP_ID_TERM);
+		//query.addField(ImageDTO.INCREMENT_VALUE);
+		//query.addField(ImageDTO.DOWNLOAD_URL);
+		//query.addField(ImageDTO.EXTERNAL_SAMPLE_ID);
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		long numberFound = response.getResults().getNumFound();
+		System.out.println("number found="+numberFound);
+		//ImageDTO image = response.get(0);
+		//System.out.println("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
+		
+		
 	}
 
 
