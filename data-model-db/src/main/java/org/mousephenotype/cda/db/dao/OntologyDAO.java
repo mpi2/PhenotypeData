@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.dao;
 
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
@@ -57,6 +58,7 @@ import java.util.Map.Entry;
  *
  * @authors mrelac, ckchen
  */
+@ComponentScanNonParticipant
 public abstract class OntologyDAO {
 
     protected Map<String, OntologyTermBean>   allTermsMap = null;
@@ -80,6 +82,7 @@ public abstract class OntologyDAO {
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
+
 
     public OntologyDAO() {
         
@@ -110,10 +113,10 @@ public abstract class OntologyDAO {
     protected abstract List<List<String>> getDescendentGraphs(String id);
 
     protected abstract void populateAllTerms()      throws SQLException;
-    protected abstract void populateAncestorMap()  throws SQLException;
-    protected abstract void populateNode2TermMap() throws SQLException;
+    protected abstract void populateAncestorMap()   throws SQLException;
+    protected abstract void populateNode2TermMap()  throws SQLException;
     protected abstract void populateSynonyms()      throws SQLException;
-    
+
     /**
      * Methods annotated with @PostConstruct are executed just after the constructor
      * is run and spring is initialised.
@@ -143,7 +146,7 @@ public abstract class OntologyDAO {
             throw new RuntimeException(e);
         }
     }
-    
+
     public List<OntologyTermBean> getAllTerms() {
         return new ArrayList(allTermsMap.values());
     }

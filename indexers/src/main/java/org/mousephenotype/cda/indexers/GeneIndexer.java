@@ -28,16 +28,19 @@ import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.annotation.Resource;
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,30 +51,35 @@ import java.util.*;
 /**
  * Populate the gene core
  */
-@Component
-public class GeneIndexer extends AbstractIndexer {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+@EnableAutoConfiguration
+public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
+
+	private final Logger logger = LoggerFactory.getLogger(GeneIndexer.class);
+
     private Connection komp2DbConnection;
+
+    @NotNull
+    @Value("${embryoRestUrl}")
+    private String embryoRestUrl;
 
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
     @Autowired
-    @Qualifier("alleleIndexing")
+    @Qualifier("alleleCore")
     SolrServer alleleCore;
 
     @Autowired
     @Qualifier("geneIndexing")
-    SolrServer geneCore;
+    SolrServer geneIndexing;
 
     @Autowired
-    @Qualifier("mpIndexing")
+    @Qualifier("mpCore")
     SolrServer mpCore;
 
     @Autowired
-    @Qualifier("sangerImagesIndexing")
+    @Qualifier("sangerImagesCore")
     SolrServer imagesCore;
 
     @Autowired
@@ -87,8 +95,12 @@ public class GeneIndexer extends AbstractIndexer {
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
     Map<String, List<EmbryoStrain>> embryoRestData=null;
 
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
+
+    @PostConstruct
+    public void initConn() throws SQLException {
+        komp2DbConnection = komp2DataSource.getConnection();
+    }
+
 
     public GeneIndexer() {
 
@@ -96,27 +108,12 @@ public class GeneIndexer extends AbstractIndexer {
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(geneCore);
+        return super.validateBuild(geneIndexing);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-
-        super.initialise(args);
-        applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
-        try {
-
-            komp2DbConnection = komp2DataSource.getConnection();
-
-        } catch (SQLException sqle) {
-            throw new IndexerException(sqle);
-        }
-
-    }
 
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -130,7 +127,7 @@ public class GeneIndexer extends AbstractIndexer {
             initialiseSupportingBeans();
 
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
-            geneCore.deleteByQuery("*:*");
+            geneIndexing.deleteByQuery("*:*");
 
             for (AlleleDTO allele : alleles) {
                 //System.out.println("allele="+allele.getMarkerSymbol());
@@ -590,11 +587,11 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym())));
 
                 documentCount++;
-                geneCore.addBean(gene, 60000);
+                geneIndexing.addBean(gene, 60000);
                 count ++;
             }
 
-            geneCore.commit();
+            geneIndexing.commit();
 
         } catch (IOException | SolrServerException e) {
             e.printStackTrace();
@@ -616,7 +613,7 @@ public class GeneIndexer extends AbstractIndexer {
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
 //        logger.info(" mgiAccessionToMP size=" + mgiAccessionToMP.size());
-        embryoRestData=IndexerMap.populateEmbryoData(config.get("embryoRestUrl"));
+        embryoRestData=IndexerMap.populateEmbryoData(embryoRestUrl);
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
     }
@@ -755,10 +752,6 @@ public class GeneIndexer extends AbstractIndexer {
 
 
     public static void main(String[] args) throws IndexerException {
-
-        GeneIndexer indexer = new GeneIndexer();
-        indexer.initialise(args);
-        indexer.run();
-        indexer.validateBuild();
+        SpringApplication.run(GeneIndexer.class, args);
     }
 }
