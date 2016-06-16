@@ -22,6 +22,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.indexers.configuration.IndexerConfig;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -300,7 +301,7 @@ public class IndexerManager  {
     protected ApplicationContext loadApplicationContext() {
 
 	    AnnotationConfigApplicationContext appContext;
-	    appContext = new AnnotationConfigApplicationContext("org.mousephenotype.cda");
+	    appContext = new AnnotationConfigApplicationContext(IndexerConfig.class);
 
          if (appContext == null) {
             logger.error("Unable to load context. Exiting...");
