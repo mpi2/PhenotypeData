@@ -29,12 +29,14 @@ import java.util.Properties;
 @Configuration
 @EnableAutoConfiguration
 @EnableTransactionManagement
-@ComponentScan(basePackages = {
+@ComponentScan(
+	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.solr.service.*", "org.mousephenotype.cda.solr.generic.util.*"}),
+	basePackages = {
 	"org.mousephenotype.cda.indexers",
 	"org.mousephenotype.cda.db",
 	"org.mousephenotype.cda.solr",
-	"org.mousephenotype.cda.utilities"},
-	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "org.mousephenotype.cda.solr.service.*"))
+	"org.mousephenotype.cda.utilities"}
+)
 @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 public class IndexerConfig {
 
