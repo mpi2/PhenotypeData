@@ -330,6 +330,22 @@ public class SqlLoaderUtils {
      * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
      *         found; an empty list otherwise
      */
+    public Xref getXref(JdbcTemplate jdbcTemplate, String accessionId, String xrefAccessionId) {
+
+        List<Xref> xrefList = jdbcTemplate.query("SELECT * FROM xref WHERE acc = ? AND xref_acc = ?", new XrefRowMapper(), accessionId, xrefAccessionId);
+
+        return (xrefList.isEmpty() ? null : xrefList.get(0));
+    }
+
+    /**
+     * Return the list of xrefs matching the given {@code accesionId}
+     *
+     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
+     * @param accessionId the desired term's accession id
+     *
+     * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
+     *         found; an empty list otherwise
+     */
     public List<Xref> getXrefs(JdbcTemplate jdbcTemplate, String accessionId) {
 
         List<Xref> xrefList = jdbcTemplate.query("SELECT * FROM xref WHERE acc = ?", new XrefRowMapper(), accessionId);
@@ -526,7 +542,7 @@ public class SqlLoaderUtils {
         // Insert xrefs if they do not already exist.
         List<Xref> xrefs = genomicFeature.getXrefs();
         for (Xref xref : xrefs) {
-            if (getXrefs(getJdbcTemplate(), genomicFeature.getId().getAccession()) == null) {
+            if (getXref(getJdbcTemplate(), xref.getAccession(), xref.getXrefAccession()) == null) {
                 jdbcTemplate.update("INSERT INTO xref (acc, db_id, xref_acc, xref_db_id) VALUES(?, ?, ?, ?)",
                         xref.getAccession(), xref.getDatabaseId(), xref.getXrefAccession(), xref.getXrefDatabaseId());
             }
