@@ -81,6 +81,9 @@ public class ImpressDTO {
 	public static final String EMAP_ID = "emap_id";
 	public static final String EMAP_TERM = "emap_term";
 
+	public static final String ANATOMY_ID = "anatomy_id";
+	public static final String ANATOMY_TERM = "anatomy_term";
+
 	@Field(INCREASED_MP_ID)
 	List<String> increasedMpId;
 
@@ -231,6 +234,35 @@ public class ImpressDTO {
 	@Field(EMAP_ID)
 	private String emapId;
 
+	@Field(EMAP_TERM)
+	private String emapTerm;
+
+	@Field(ANATOMY_ID)
+	private String anatomyId;
+
+	@Field(ANATOMY_TERM)
+	private String anatomyTerm;
+
+	public boolean isHasOptions() {
+		return hasOptions;
+	}
+
+	public String getAnatomyId() {
+		return anatomyId;
+	}
+
+	public void setAnatomyId(String anatomyId) {
+		this.anatomyId = anatomyId;
+	}
+
+	public String getAnatomyTerm() {
+		return anatomyTerm;
+	}
+
+	public void setAnatomyTerm(String anatomyTerm) {
+		this.anatomyTerm = anatomyTerm;
+	}
+
 	public String getEmapId() {
 		return emapId;
 	}
@@ -297,8 +329,7 @@ public class ImpressDTO {
 		this.emapTerm = emapTerm;
 	}
 
-	@Field(EMAP_TERM)
-	private String emapTerm;
+
 
 
 
@@ -946,310 +977,195 @@ public class ImpressDTO {
 		return maId;
 	}
 
-
 	@Override
-	public String toString() {
-		return "PipelineDTO [unit=" + unit + ", increment=" + increment + ", metadata=" + metadata + ", hasOptions="
-				+ hasOptions + ", derived=" + derived + ", media=" + media + ", required=" + required + ", description="
-				+ description + ", observationType=" + observationType + ", parameterId="
-				+ parameterId + ", parameterStableId=" + parameterStableId + ", parameterName=" + parameterName
-				+ ", parameterStableKey=" + parameterStableKey + ", procedureId=" + procedureId + ", procedureStableId="
-				+ procedureStableId + ", procedureName=" + procedureName + ", procedureStableKey=" + procedureStableKey
-				+ ", pipelineId=" + pipelineId + ", pipelineStableId=" + pipelineStableId + ", pipelineStableKey="
-				+ pipelineStableKey + ", pipelineName=" + pipelineName + ", ididid=" + ididid + ", mpId=" + mpId
-				+ ", mpTerm=" + mpTerm + ", mpTermSynonym=" + mpTermSynonym + ", topLevelMpId=" + topLevelMpId
-				+ ", topLevelMpTerm=" + topLevelMpTerm + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym
-				+ ", intermediateMpId=" + intermediateMpId + ", intermediateMpTerm=" + intermediateMpTerm
-				+ ", intermediateMpTermSynonym=" + intermediateMpTermSynonym + ", inferredMaId=" + inferredMaId
-				+ ", inferredMaTermSynonym=" + inferredMaTermSynonym + ", selectedTopLevelMaId=" + selectedTopLevelMaId
-				+ ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm
-				+ ", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym
-				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maId=" + maId + ", maTerm="
-				+ maTerm + "]";
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ImpressDTO that = (ImpressDTO) o;
+
+		if (increment != that.increment) return false;
+		if (metadata != that.metadata) return false;
+		if (hasOptions != that.hasOptions) return false;
+		if (derived != that.derived) return false;
+		if (media != that.media) return false;
+		if (annotate != that.annotate) return false;
+		if (required != that.required) return false;
+		if (parameterId != that.parameterId) return false;
+		if (parameterStableKey != that.parameterStableKey) return false;
+		if (procedureStableKey != that.procedureStableKey) return false;
+		if (pipelineId != that.pipelineId) return false;
+		if (pipelineStableKey != that.pipelineStableKey) return false;
+		if (increasedMpId != null ? !increasedMpId.equals(that.increasedMpId) : that.increasedMpId != null)
+			return false;
+		if (abnormalMpId != null ? !abnormalMpId.equals(that.abnormalMpId) : that.abnormalMpId != null) return false;
+		if (decreasedMpId != null ? !decreasedMpId.equals(that.decreasedMpId) : that.decreasedMpId != null)
+			return false;
+		if (increasedMpTerm != null ? !increasedMpTerm.equals(that.increasedMpTerm) : that.increasedMpTerm != null)
+			return false;
+		if (abnormalMpTerm != null ? !abnormalMpTerm.equals(that.abnormalMpTerm) : that.abnormalMpTerm != null)
+			return false;
+		if (decreasedMpTerm != null ? !decreasedMpTerm.equals(that.decreasedMpTerm) : that.decreasedMpTerm != null)
+			return false;
+		if (catgories != null ? !catgories.equals(that.catgories) : that.catgories != null) return false;
+		if (unit != null ? !unit.equals(that.unit) : that.unit != null) return false;
+		if (description != null ? !description.equals(that.description) : that.description != null) return false;
+		if (observationType != null ? !observationType.equals(that.observationType) : that.observationType != null)
+			return false;
+		if (parameterStableId != null ? !parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null)
+			return false;
+		if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null)
+			return false;
+		if (procedureId != null ? !procedureId.equals(that.procedureId) : that.procedureId != null) return false;
+		if (procedureStableId != null ? !procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null)
+			return false;
+		if (procedureName != null ? !procedureName.equals(that.procedureName) : that.procedureName != null)
+			return false;
+		if (pipelineStableId != null ? !pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null)
+			return false;
+		if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
+		if (ididid != null ? !ididid.equals(that.ididid) : that.ididid != null) return false;
+		if (mpId != null ? !mpId.equals(that.mpId) : that.mpId != null) return false;
+		if (mpTerm != null ? !mpTerm.equals(that.mpTerm) : that.mpTerm != null) return false;
+		if (mpTermSynonym != null ? !mpTermSynonym.equals(that.mpTermSynonym) : that.mpTermSynonym != null)
+			return false;
+		if (topLevelMpId != null ? !topLevelMpId.equals(that.topLevelMpId) : that.topLevelMpId != null) return false;
+		if (topLevelMpTerm != null ? !topLevelMpTerm.equals(that.topLevelMpTerm) : that.topLevelMpTerm != null)
+			return false;
+		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(that.topLevelMpTermSynonym) : that.topLevelMpTermSynonym != null)
+			return false;
+		if (intermediateMpId != null ? !intermediateMpId.equals(that.intermediateMpId) : that.intermediateMpId != null)
+			return false;
+		if (intermediateMpTerm != null ? !intermediateMpTerm.equals(that.intermediateMpTerm) : that.intermediateMpTerm != null)
+			return false;
+		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(that.intermediateMpTermSynonym) : that.intermediateMpTermSynonym != null)
+			return false;
+		if (inferredMaId != null ? !inferredMaId.equals(that.inferredMaId) : that.inferredMaId != null) return false;
+		if (inferredMaTermSynonym != null ? !inferredMaTermSynonym.equals(that.inferredMaTermSynonym) : that.inferredMaTermSynonym != null)
+			return false;
+		if (selectedTopLevelMaId != null ? !selectedTopLevelMaId.equals(that.selectedTopLevelMaId) : that.selectedTopLevelMaId != null)
+			return false;
+		if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(that.inferredSelectedTopLevelMaTerm) : that.inferredSelectedTopLevelMaTerm != null)
+			return false;
+		if (inferredSelectedToLevelMaTermSynonym != null ? !inferredSelectedToLevelMaTermSynonym.equals(that.inferredSelectedToLevelMaTermSynonym) : that.inferredSelectedToLevelMaTermSynonym != null)
+			return false;
+		if (inferredSelectedTopLevelMaId != null ? !inferredSelectedTopLevelMaId.equals(that.inferredSelectedTopLevelMaId) : that.inferredSelectedTopLevelMaId != null)
+			return false;
+		if (maId != null ? !maId.equals(that.maId) : that.maId != null) return false;
+		if (maTerm != null ? !maTerm.equals(that.maTerm) : that.maTerm != null) return false;
+		if (emapId != null ? !emapId.equals(that.emapId) : that.emapId != null) return false;
+		if (emapTerm != null ? !emapTerm.equals(that.emapTerm) : that.emapTerm != null) return false;
+		if (anatomyId != null ? !anatomyId.equals(that.anatomyId) : that.anatomyId != null) return false;
+		return !(anatomyTerm != null ? !anatomyTerm.equals(that.anatomyTerm) : that.anatomyTerm != null);
+
 	}
 
-	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((abnormalMpId == null) ? 0 : abnormalMpId.hashCode());
-		result = prime * result + ((abnormalMpTerm == null) ? 0 : abnormalMpTerm.hashCode());
-		result = prime * result + (annotate ? 1231 : 1237);
-		result = prime * result + ((catgories == null) ? 0 : catgories.hashCode());
-		result = prime * result + ((decreasedMpId == null) ? 0 : decreasedMpId.hashCode());
-		result = prime * result + ((decreasedMpTerm == null) ? 0 : decreasedMpTerm.hashCode());
-		result = prime * result + (derived ? 1231 : 1237);
-		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((emapId == null) ? 0 : emapId.hashCode());
-		result = prime * result + ((emapTerm == null) ? 0 : emapTerm.hashCode());
-		result = prime * result + (hasOptions ? 1231 : 1237);
-		result = prime * result + ((ididid == null) ? 0 : ididid.hashCode());
-		result = prime * result + ((increasedMpId == null) ? 0 : increasedMpId.hashCode());
-		result = prime * result + ((increasedMpTerm == null) ? 0 : increasedMpTerm.hashCode());
-		result = prime * result + (increment ? 1231 : 1237);
-		result = prime * result + ((inferredMaId == null) ? 0 : inferredMaId.hashCode());
-		result = prime * result + ((inferredMaTermSynonym == null) ? 0 : inferredMaTermSynonym.hashCode());
-		result = prime * result + ((inferredSelectedToLevelMaTermSynonym == null) ? 0
-				: inferredSelectedToLevelMaTermSynonym.hashCode());
-		result = prime * result
-				+ ((inferredSelectedTopLevelMaId == null) ? 0 : inferredSelectedTopLevelMaId.hashCode());
-		result = prime * result
-				+ ((inferredSelectedTopLevelMaTerm == null) ? 0 : inferredSelectedTopLevelMaTerm.hashCode());
-		result = prime * result + ((intermediateMpId == null) ? 0 : intermediateMpId.hashCode());
-		result = prime * result + ((intermediateMpTerm == null) ? 0 : intermediateMpTerm.hashCode());
-		result = prime * result + ((intermediateMpTermSynonym == null) ? 0 : intermediateMpTermSynonym.hashCode());
-		result = prime * result + ((maId == null) ? 0 : maId.hashCode());
-		result = prime * result + ((maTerm == null) ? 0 : maTerm.hashCode());
-		result = prime * result + (media ? 1231 : 1237);
-		result = prime * result + (metadata ? 1231 : 1237);
-		result = prime * result + ((mpId == null) ? 0 : mpId.hashCode());
-		result = prime * result + ((mpTerm == null) ? 0 : mpTerm.hashCode());
-		result = prime * result + ((mpTermSynonym == null) ? 0 : mpTermSynonym.hashCode());
-		result = prime * result + ((observationType == null) ? 0 : observationType.hashCode());
-		result = prime * result + parameterId;
-		result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());
-		result = prime * result + ((parameterStableId == null) ? 0 : parameterStableId.hashCode());
-		result = prime * result + parameterStableKey;
-		result = prime * result + pipelineId;
-		result = prime * result + ((pipelineName == null) ? 0 : pipelineName.hashCode());
-		result = prime * result + ((pipelineStableId == null) ? 0 : pipelineStableId.hashCode());
-		result = prime * result + pipelineStableKey;
-		result = prime * result + ((procedureId == null) ? 0 : procedureId.hashCode());
-		result = prime * result + ((procedureName == null) ? 0 : procedureName.hashCode());
-		result = prime * result + ((procedureStableId == null) ? 0 : procedureStableId.hashCode());
-		result = prime * result + procedureStableKey;
-		result = prime * result + (required ? 1231 : 1237);
-		result = prime * result + ((selectedTopLevelMaId == null) ? 0 : selectedTopLevelMaId.hashCode());
-		result = prime * result + ((topLevelMpId == null) ? 0 : topLevelMpId.hashCode());
-		result = prime * result + ((topLevelMpTerm == null) ? 0 : topLevelMpTerm.hashCode());
-		result = prime * result + ((topLevelMpTermSynonym == null) ? 0 : topLevelMpTermSynonym.hashCode());
-		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
+		int result = increasedMpId != null ? increasedMpId.hashCode() : 0;
+		result = 31 * result + (abnormalMpId != null ? abnormalMpId.hashCode() : 0);
+		result = 31 * result + (decreasedMpId != null ? decreasedMpId.hashCode() : 0);
+		result = 31 * result + (increasedMpTerm != null ? increasedMpTerm.hashCode() : 0);
+		result = 31 * result + (abnormalMpTerm != null ? abnormalMpTerm.hashCode() : 0);
+		result = 31 * result + (decreasedMpTerm != null ? decreasedMpTerm.hashCode() : 0);
+		result = 31 * result + (catgories != null ? catgories.hashCode() : 0);
+		result = 31 * result + (unit != null ? unit.hashCode() : 0);
+		result = 31 * result + (increment ? 1 : 0);
+		result = 31 * result + (metadata ? 1 : 0);
+		result = 31 * result + (hasOptions ? 1 : 0);
+		result = 31 * result + (derived ? 1 : 0);
+		result = 31 * result + (media ? 1 : 0);
+		result = 31 * result + (annotate ? 1 : 0);
+		result = 31 * result + (required ? 1 : 0);
+		result = 31 * result + (description != null ? description.hashCode() : 0);
+		result = 31 * result + (observationType != null ? observationType.hashCode() : 0);
+		result = 31 * result + parameterId;
+		result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
+		result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
+		result = 31 * result + parameterStableKey;
+		result = 31 * result + (procedureId != null ? procedureId.hashCode() : 0);
+		result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
+		result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
+		result = 31 * result + procedureStableKey;
+		result = 31 * result + pipelineId;
+		result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
+		result = 31 * result + pipelineStableKey;
+		result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
+		result = 31 * result + (ididid != null ? ididid.hashCode() : 0);
+		result = 31 * result + (mpId != null ? mpId.hashCode() : 0);
+		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
+		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
+		result = 31 * result + (topLevelMpId != null ? topLevelMpId.hashCode() : 0);
+		result = 31 * result + (topLevelMpTerm != null ? topLevelMpTerm.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (intermediateMpId != null ? intermediateMpId.hashCode() : 0);
+		result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
+		result = 31 * result + (inferredMaTermSynonym != null ? inferredMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredSelectedToLevelMaTermSynonym != null ? inferredSelectedToLevelMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
+		result = 31 * result + (maId != null ? maId.hashCode() : 0);
+		result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
+		result = 31 * result + (emapId != null ? emapId.hashCode() : 0);
+		result = 31 * result + (emapTerm != null ? emapTerm.hashCode() : 0);
+		result = 31 * result + (anatomyId != null ? anatomyId.hashCode() : 0);
+		result = 31 * result + (anatomyTerm != null ? anatomyTerm.hashCode() : 0);
 		return result;
 	}
 
-
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ImpressDTO other = (ImpressDTO) obj;
-		if (abnormalMpId == null) {
-			if (other.abnormalMpId != null)
-				return false;
-		} else if (!abnormalMpId.equals(other.abnormalMpId))
-			return false;
-		if (abnormalMpTerm == null) {
-			if (other.abnormalMpTerm != null)
-				return false;
-		} else if (!abnormalMpTerm.equals(other.abnormalMpTerm))
-			return false;
-		if (annotate != other.annotate)
-			return false;
-		if (catgories == null) {
-			if (other.catgories != null)
-				return false;
-		} else if (!catgories.equals(other.catgories))
-			return false;
-		if (decreasedMpId == null) {
-			if (other.decreasedMpId != null)
-				return false;
-		} else if (!decreasedMpId.equals(other.decreasedMpId))
-			return false;
-		if (decreasedMpTerm == null) {
-			if (other.decreasedMpTerm != null)
-				return false;
-		} else if (!decreasedMpTerm.equals(other.decreasedMpTerm))
-			return false;
-		if (derived != other.derived)
-			return false;
-		if (description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
-		if (emapId == null) {
-			if (other.emapId != null)
-				return false;
-		} else if (!emapId.equals(other.emapId))
-			return false;
-		if (emapTerm == null) {
-			if (other.emapTerm != null)
-				return false;
-		} else if (!emapTerm.equals(other.emapTerm))
-			return false;
-		if (hasOptions != other.hasOptions)
-			return false;
-		if (ididid == null) {
-			if (other.ididid != null)
-				return false;
-		} else if (!ididid.equals(other.ididid))
-			return false;
-		if (increasedMpId == null) {
-			if (other.increasedMpId != null)
-				return false;
-		} else if (!increasedMpId.equals(other.increasedMpId))
-			return false;
-		if (increasedMpTerm == null) {
-			if (other.increasedMpTerm != null)
-				return false;
-		} else if (!increasedMpTerm.equals(other.increasedMpTerm))
-			return false;
-		if (increment != other.increment)
-			return false;
-		if (inferredMaId == null) {
-			if (other.inferredMaId != null)
-				return false;
-		} else if (!inferredMaId.equals(other.inferredMaId))
-			return false;
-		if (inferredMaTermSynonym == null) {
-			if (other.inferredMaTermSynonym != null)
-				return false;
-		} else if (!inferredMaTermSynonym.equals(other.inferredMaTermSynonym))
-			return false;
-		if (inferredSelectedToLevelMaTermSynonym == null) {
-			if (other.inferredSelectedToLevelMaTermSynonym != null)
-				return false;
-		} else if (!inferredSelectedToLevelMaTermSynonym.equals(other.inferredSelectedToLevelMaTermSynonym))
-			return false;
-		if (inferredSelectedTopLevelMaId == null) {
-			if (other.inferredSelectedTopLevelMaId != null)
-				return false;
-		} else if (!inferredSelectedTopLevelMaId.equals(other.inferredSelectedTopLevelMaId))
-			return false;
-		if (inferredSelectedTopLevelMaTerm == null) {
-			if (other.inferredSelectedTopLevelMaTerm != null)
-				return false;
-		} else if (!inferredSelectedTopLevelMaTerm.equals(other.inferredSelectedTopLevelMaTerm))
-			return false;
-		if (intermediateMpId == null) {
-			if (other.intermediateMpId != null)
-				return false;
-		} else if (!intermediateMpId.equals(other.intermediateMpId))
-			return false;
-		if (intermediateMpTerm == null) {
-			if (other.intermediateMpTerm != null)
-				return false;
-		} else if (!intermediateMpTerm.equals(other.intermediateMpTerm))
-			return false;
-		if (intermediateMpTermSynonym == null) {
-			if (other.intermediateMpTermSynonym != null)
-				return false;
-		} else if (!intermediateMpTermSynonym.equals(other.intermediateMpTermSynonym))
-			return false;
-		if (maId == null) {
-			if (other.maId != null)
-				return false;
-		} else if (!maId.equals(other.maId))
-			return false;
-		if (maTerm == null) {
-			if (other.maTerm != null)
-				return false;
-		} else if (!maTerm.equals(other.maTerm))
-			return false;
-		if (media != other.media)
-			return false;
-		if (metadata != other.metadata)
-			return false;
-		if (mpId == null) {
-			if (other.mpId != null)
-				return false;
-		} else if (!mpId.equals(other.mpId))
-			return false;
-		if (mpTerm == null) {
-			if (other.mpTerm != null)
-				return false;
-		} else if (!mpTerm.equals(other.mpTerm))
-			return false;
-		if (mpTermSynonym == null) {
-			if (other.mpTermSynonym != null)
-				return false;
-		} else if (!mpTermSynonym.equals(other.mpTermSynonym))
-			return false;
-		if (observationType == null) {
-			if (other.observationType != null)
-				return false;
-		} else if (!observationType.equals(other.observationType))
-			return false;
-		if (parameterId != other.parameterId)
-			return false;
-		if (parameterName == null) {
-			if (other.parameterName != null)
-				return false;
-		} else if (!parameterName.equals(other.parameterName))
-			return false;
-		if (parameterStableId == null) {
-			if (other.parameterStableId != null)
-				return false;
-		} else if (!parameterStableId.equals(other.parameterStableId))
-			return false;
-		if (parameterStableKey != other.parameterStableKey)
-			return false;
-		if (pipelineId != other.pipelineId)
-			return false;
-		if (pipelineName == null) {
-			if (other.pipelineName != null)
-				return false;
-		} else if (!pipelineName.equals(other.pipelineName))
-			return false;
-		if (pipelineStableId == null) {
-			if (other.pipelineStableId != null)
-				return false;
-		} else if (!pipelineStableId.equals(other.pipelineStableId))
-			return false;
-		if (pipelineStableKey != other.pipelineStableKey)
-			return false;
-		if (procedureId == null) {
-			if (other.procedureId != null)
-				return false;
-		} else if (!procedureId.equals(other.procedureId))
-			return false;
-		if (procedureName == null) {
-			if (other.procedureName != null)
-				return false;
-		} else if (!procedureName.equals(other.procedureName))
-			return false;
-		if (procedureStableId == null) {
-			if (other.procedureStableId != null)
-				return false;
-		} else if (!procedureStableId.equals(other.procedureStableId))
-			return false;
-		if (procedureStableKey != other.procedureStableKey)
-			return false;
-		if (required != other.required)
-			return false;
-		if (selectedTopLevelMaId == null) {
-			if (other.selectedTopLevelMaId != null)
-				return false;
-		} else if (!selectedTopLevelMaId.equals(other.selectedTopLevelMaId))
-			return false;
-		if (topLevelMpId == null) {
-			if (other.topLevelMpId != null)
-				return false;
-		} else if (!topLevelMpId.equals(other.topLevelMpId))
-			return false;
-		if (topLevelMpTerm == null) {
-			if (other.topLevelMpTerm != null)
-				return false;
-		} else if (!topLevelMpTerm.equals(other.topLevelMpTerm))
-			return false;
-		if (topLevelMpTermSynonym == null) {
-			if (other.topLevelMpTermSynonym != null)
-				return false;
-		} else if (!topLevelMpTermSynonym.equals(other.topLevelMpTermSynonym))
-			return false;
-		if (unit == null) {
-			if (other.unit != null)
-				return false;
-		} else if (!unit.equals(other.unit))
-			return false;
-		return true;
+	public String toString() {
+		return "ImpressDTO{" +
+				"catgories=" + catgories +
+				", unit='" + unit + '\'' +
+				", increment=" + increment +
+				", metadata=" + metadata +
+				", hasOptions=" + hasOptions +
+				", derived=" + derived +
+				", media=" + media +
+				", annotate=" + annotate +
+				", required=" + required +
+				", description='" + description + '\'' +
+				", observationType='" + observationType + '\'' +
+				", parameterId=" + parameterId +
+				", parameterStableId='" + parameterStableId + '\'' +
+				", parameterName='" + parameterName + '\'' +
+				", parameterStableKey=" + parameterStableKey +
+				", procedureId=" + procedureId +
+				", procedureStableId='" + procedureStableId + '\'' +
+				", procedureName='" + procedureName + '\'' +
+				", procedureStableKey=" + procedureStableKey +
+				", pipelineId=" + pipelineId +
+				", pipelineStableId='" + pipelineStableId + '\'' +
+				", pipelineStableKey=" + pipelineStableKey +
+				", pipelineName='" + pipelineName + '\'' +
+				", ididid='" + ididid + '\'' +
+				", mpId=" + mpId +
+				", mpTerm=" + mpTerm +
+				", mpTermSynonym=" + mpTermSynonym +
+				", topLevelMpId=" + topLevelMpId +
+				", topLevelMpTerm=" + topLevelMpTerm +
+				", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
+				", intermediateMpId=" + intermediateMpId +
+				", intermediateMpTerm=" + intermediateMpTerm +
+				", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
+				", inferredMaId=" + inferredMaId +
+				", inferredMaTermSynonym=" + inferredMaTermSynonym +
+				", selectedTopLevelMaId=" + selectedTopLevelMaId +
+				", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm +
+				", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym +
+				", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId +
+				", maId='" + maId + '\'' +
+				", maTerm='" + maTerm + '\'' +
+				", emapId='" + emapId + '\'' +
+				", emapTerm='" + emapTerm + '\'' +
+				", anatomyId='" + anatomyId + '\'' +
+				", anatomyTerm='" + anatomyTerm + '\'' +
+				'}';
 	}
-
 
 	public ImpressDTO(){
 

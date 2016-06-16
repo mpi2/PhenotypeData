@@ -16,11 +16,6 @@
 
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -35,12 +30,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service("preqcService")
 public class PreQcService extends AbstractGenotypePhenotypeService implements WebStatus {
 
     @Autowired
-    @Qualifier("preQcCore")
+    @Qualifier("preqcCore")
     HttpSolrServer solr;
 
     public PreQcService() {
@@ -115,7 +114,7 @@ public class PreQcService extends AbstractGenotypePhenotypeService implements We
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();
 	}
-	
+
 	public String getServiceName(){
 		return "preQc";
 	}

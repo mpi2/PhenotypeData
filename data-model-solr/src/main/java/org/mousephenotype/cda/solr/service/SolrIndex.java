@@ -346,7 +346,7 @@ public class SolrIndex {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
 			if (!showImgView) {
-				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.mincount=0&facet.limit=-1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=anatomy_id_term&facet.mincount=0&facet.limit=-1";
 			}
 		} else if (mode.equals("imagesGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="

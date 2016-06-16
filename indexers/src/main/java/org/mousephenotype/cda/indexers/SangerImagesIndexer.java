@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyUtils;
@@ -23,14 +24,17 @@ import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
 import org.mousephenotype.cda.solr.bean.GenomicFeatureBean;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,10 +44,11 @@ import java.util.*;
 /**
  * Populate the experiment core
  */
-@Component
-public class SangerImagesIndexer extends AbstractIndexer {
-    private CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+@EnableAutoConfiguration
+public class SangerImagesIndexer extends AbstractIndexer implements CommandLineRunner {
+
+	private final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
+
 	private Connection komp2DbConnection;
 	private Connection ontoDbConnection;
 
@@ -56,16 +61,16 @@ public class SangerImagesIndexer extends AbstractIndexer {
 	DataSource ontodbDataSource;
 
 	@Autowired
-	@Qualifier("solrServer")
-	SolrServer phenodigmServer;
+	@Qualifier("phenodigmCore")
+	SolrServer phenodigmCore;
 
 	@Autowired
-	@Qualifier("alleleIndexing")
+	@Qualifier("alleleCore")
 	SolrServer alleleCore;
 
 	@Autowired
 	@Qualifier("sangerImagesIndexing")
-	SolrServer sangerImagesCore;
+	SolrServer sangerImagesIndexing;
 
 	private Map<Integer, DcfBean> dcfMap = new HashMap<>();
 	private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
@@ -105,13 +110,21 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(sangerImagesCore);
+		return super.validateBuild(sangerImagesIndexing);
 	}
 
-	@Override
-	public void initialise(String[] args) throws IndexerException {
 
-		super.initialise(args);
+	public static void main(String[] args) throws IndexerException {
+		SpringApplication.run(SangerImagesIndexer.class, args);
+	}
+
+
+
+	@Override
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+        long count = 0;
+        RunStatus runStatus = new RunStatus();
+		long start = System.currentTimeMillis();
 
 		try {
 
@@ -143,28 +156,6 @@ public class SangerImagesIndexer extends AbstractIndexer {
 			populateAlleles();
 			populateMpToHpTermsMap();
 
-		} catch (SQLException e) {
-			throw new IndexerException(e);
-		}
-
-		printConfiguration();
-	}
-
-	public static void main(String[] args) throws IndexerException {
-
-		SangerImagesIndexer main = new SangerImagesIndexer();
-		main.initialise(args);
-		main.run();
-		main.validateBuild();
-	}
-
-	@Override
-	public RunStatus run() throws IndexerException {
-        long count = 0;
-        RunStatus runStatus = new RunStatus();
-		long start = System.currentTimeMillis();
-
-		try {
 			count = populateSangerImagesCore(runStatus);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -172,7 +163,6 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		} finally {
             logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         }
-
 		return runStatus;
 	}
 
@@ -210,7 +200,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
 				java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
-			sangerImagesCore.deleteByQuery("*:*");
+			sangerImagesIndexing.deleteByQuery("*:*");
 
 			p.setFetchSize(Integer.MIN_VALUE);
 
@@ -509,7 +499,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 				}
 
 				documentCount++;
-				sangerImagesCore.addBean(o, 10000);
+				sangerImagesIndexing.addBean(o, 10000);
 
 				count++;
 			}
@@ -522,7 +512,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
             }
 
 			// Final commit to save the rest of the docs
-			sangerImagesCore.commit();
+			sangerImagesIndexing.commit();
 
 		} catch (Exception e) {
 			throw new IndexerException(e.getMessage());
@@ -1317,7 +1307,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 	// need hp mapping from phenodign core
 	private void populateMpToHpTermsMap() throws IndexerException {
 
-		mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmServer);
+		mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmCore);
 	}
 
 }
