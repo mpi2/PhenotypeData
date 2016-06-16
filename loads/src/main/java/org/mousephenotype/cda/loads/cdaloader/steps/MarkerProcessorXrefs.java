@@ -30,10 +30,7 @@ import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by mrelac on 09/06/16.
@@ -126,14 +123,19 @@ public class MarkerProcessorXrefs implements ItemProcessor<FieldSet, GenomicFeat
                 for (String id : ids) {
                     feature = genomicFeatures.get(mgiAccessionId);
                     if (feature != null) {
-                        Xref xref = new Xref();
-                        xref.setAccession(mgiAccessionId);
-                        xref.setDatabaseId(DbIdType.MGI.intValue());
-                        xref.setXrefAccession(id);
-                        xref.setXrefDatabaseId(xrefNode.dbIdType.intValue());
-                        feature.addXref(xref);
+                        if (feature.getXrefs() == null) {
+                            feature.setXrefs(new LinkedList<>());               // Make sure xrefs list is not null.
+                        }                                                       // mgi sometimes fills null ids with the string "null".
+                        if ((id != null) && ( ! id.isEmpty()) && ( ! id.toLowerCase().equals("null"))) {
+                            Xref xref = new Xref();
+                            xref.setAccession(mgiAccessionId);
+                            xref.setDatabaseId(DbIdType.MGI.intValue());
+                            xref.setXrefAccession(id);
+                            xref.setXrefDatabaseId(xrefNode.dbIdType.intValue());
+                            feature.addXref(xref);
 
-                        xrefNode.count++;
+                            xrefNode.count++;
+                        }
                     }
                 }
             }
