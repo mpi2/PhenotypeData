@@ -77,6 +77,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	private List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans = new ArrayList<>();
 	private EvidenceLink imagesEvidenceLink;
 
+	
+
 	public EvidenceLink getImagesEvidenceLink() {
 		return imagesEvidenceLink;
 	}
@@ -643,21 +645,17 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	@Override
 	public String toString() {
 		return "DataTableRow [" +
-				// config=" + config + ", phenotypeTerm=" + phenotypeTerm + ",
-				// gene=" + gene + ", allele="
-				// + allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ",
-				// lifeStageName=" + lifeStageName
-				// + ", lifeStageAcc=" + lifeStageAcc + ", projectId=" +
-				// projectId + ", phenotypingCenter="
-				// + phenotypingCenter + ", procedure=" + procedure + ",
-				// parameter=" + parameter + ", dataSourceName="
-				// + dataSourceName + ", evidenceLink=" + evidenceLink + ",
-				// pipeline=" + pipeline + ", pValue=" + pValue
-				// + ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" +
-				// colonyId + ", topLevelPhenotypeTerms="
-				// + topLevelPhenotypeTerms + ", topLevelMpGroups=" +
-				// topLevelMpGroups
-				// +
+				 "config=" + config + ", phenotypeTerm=" + phenotypeTerm + ",gene=" + gene + ", allele="
+				 + allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ",	 lifeStageName=" + lifeStageName
+				 + ", lifeStageAcc=" + lifeStageAcc + ", projectId=" +
+				 projectId + ", phenotypingCenter="
+				 + phenotypingCenter + ", procedure=" + procedure + ",	 parameter=" + parameter + ", dataSourceName="
+				 + dataSourceName + ", evidenceLink=" + evidenceLink + ",	 pipeline=" + pipeline + ", pValue=" + pValue
+				 + ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" +
+				 colonyId + ", topLevelPhenotypeTerms="
+				 + topLevelPhenotypeTerms + ", topLevelMpGroups=" +
+				 topLevelMpGroups
+				 +
 		",\n phenotypeCallUniquePropertyBeans=" + phenotypeCallUniquePropertyBeans + "\n]";
 	}
 
