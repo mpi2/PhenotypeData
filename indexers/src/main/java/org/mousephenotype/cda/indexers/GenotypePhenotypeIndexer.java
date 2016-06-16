@@ -30,12 +30,13 @@ import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -48,10 +49,10 @@ import java.util.*;
 /**
  * Populate the Genotype-Phenotype core
  */
-@Component
+@EnableAutoConfiguration
 public class GenotypePhenotypeIndexer extends AbstractIndexer {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
 
 	private Integer EFO_DB_ID = 15; // default as of 2016-05-06
 
@@ -76,7 +77,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     @Autowired
     @Qualifier("genotypePhenotypeIndexing")
-    SolrServer gpSolrServer;
+    SolrServer genotypePhenotypeIndexing;
 
     @Autowired
     MpOntologyDAO mpOntologyService;
@@ -97,47 +98,32 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(gpSolrServer);
+        return super.validateBuild(genotypePhenotypeIndexing);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-
-        super.initialise(args);
-
-        try {
-
-            connection = komp2DataSource.getConnection();
-
-            pipelineMap = IndexerMap.getImpressPipelines(connection);
-            procedureMap = IndexerMap.getImpressProcedures(connection);
-            parameterMap = IndexerMap.getImpressParameters(connection);
-
-	        // Override the EFO db_id with the current term from the database
-	        EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
-
-        } catch (SQLException e) {
-            throw new IndexerException(e);
-        }
-
-        printConfiguration();
+    public static void main(String[] args) throws IndexerException {
+        SpringApplication.run(GenotypePhenotypeIndexer.class, args);
     }
 
-    public static void main(String[] args) throws IndexerException, SolrServerException, SQLException, IOException {
 
-        GenotypePhenotypeIndexer main = new GenotypePhenotypeIndexer();
-        main.initialise(args);
-        main.run();
-        main.validateBuild();
-    }
-
-    @Override
-    public RunStatus run() throws IndexerException {
+	@Override
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         try {
+
+
+	        connection = komp2DataSource.getConnection();
+
+	        pipelineMap = IndexerMap.getImpressPipelines(connection);
+	        procedureMap = IndexerMap.getImpressProcedures(connection);
+	        parameterMap = IndexerMap.getImpressParameters(connection);
+
+	        // Override the EFO db_id with the current term from the database
+	        EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
+
             // prepare a live stage lookup
             doLiveStageLookup(runStatus);
 
@@ -148,7 +134,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
         return runStatus;
     }
 
@@ -203,7 +188,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         int count = 0;
 
-        gpSolrServer.deleteByQuery("*:*");
+        genotypePhenotypeIndexing.deleteByQuery("*:*");
 
         // conditions of WHERE clauses
         /*
@@ -381,13 +366,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 	           }
 
                 documentCount++;
-                gpSolrServer.addBean(doc, 30000);
+                genotypePhenotypeIndexing.addBean(doc, 30000);
 
                 count ++;
             }
 
             // Final commit to save the rest of the docs
-            gpSolrServer.commit();
+            genotypePhenotypeIndexing.commit();
 
         } catch (Exception e) {
             runStatus.addError(" Big error " + e.getMessage());

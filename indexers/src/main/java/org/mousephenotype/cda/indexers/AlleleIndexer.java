@@ -32,15 +32,18 @@ import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -56,11 +59,24 @@ import java.util.*;
  * @author jmason
  *
  */
-@Component
-public class AlleleIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner {
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    protected CommonUtils commonUtils = new CommonUtils();
+	private final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
+
+	@NotNull
+    @Value("${imits.solr.host}")
+    private String imitsSolrHost;
+
+    @NotNull
+    @Value("${phenodigm.solrserver}")
+    private String phenodigmSolrServer;
+
+    @NotNull
+    @Value("${human2mouseFilename}")
+    private String human2mouseFilename;
+
+
     public static final int PHENODIGM_BATCH_SIZE = 50000;
     private static Connection connection;
     private static final int BATCH_SIZE = 2500;
@@ -142,10 +158,8 @@ public class AlleleIndexer extends AbstractIndexer {
 
     @Autowired
     @Qualifier("alleleIndexing")
-    private SolrServer alleleCore;
+    private SolrServer alleleIndexing;
 
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
 
     public AlleleIndexer() {
 
@@ -153,11 +167,13 @@ public class AlleleIndexer extends AbstractIndexer {
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(alleleCore);
+        return super.validateBuild(alleleIndexing);
     }
 
+
+
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         long rows = 0;
         RunStatus runStatus = new RunStatus();
@@ -205,8 +221,8 @@ public class AlleleIndexer extends AbstractIndexer {
             //logger.info(" Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
 //            logger.info(" Populated uniprot to pfamA lookup is skipped for now");
 
-            alleleCore.deleteByQuery("*:*");
-            alleleCore.commit();
+            alleleIndexing.deleteByQuery("*:*");
+            alleleIndexing.commit();
 
             while (count <= rows) {
                 query.setStart(count);
@@ -250,21 +266,20 @@ public class AlleleIndexer extends AbstractIndexer {
                 count += BATCH_SIZE;
             }
 
-            alleleCore.commit();
+            alleleIndexing.commit();
 
         } catch (SQLException | SolrServerException | IOException | ClassNotFoundException e) {
             throw new IndexerException(e);
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
         return runStatus;
     }
 
     private void initializeSolrCores() {
 
-        final String SANGER_ALLELE_URL = config.get("imits.solr.host")+"/allele2";
-        final String PHENODIGM_URL = config.get("phenodigm.solrserver");
+        final String SANGER_ALLELE_URL = imitsSolrHost +"/allele2";
+        final String PHENODIGM_URL = phenodigmSolrServer;
 
         // Use system proxy if set for external solr servers
         if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
@@ -819,7 +834,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
     private void populateHumanSymbolLookup() throws IOException {
 
-        File file = new File(config.get("human2mouseFilename"));
+        File file = new File(human2mouseFilename);
         List<String> lines = FileUtils.readLines(file, "UTF-8");
 
         for (String line : lines) {
@@ -1219,14 +1234,10 @@ public class AlleleIndexer extends AbstractIndexer {
 
     private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {
 
-        alleleCore.addBeans(alleles.values(), 60000);
+        alleleIndexing.addBeans(alleles.values(), 60000);
     }
 
     public static void main(String[] args) throws IndexerException {
-
-        AlleleIndexer main = new AlleleIndexer();
-        main.initialise(args);
-        main.run();
-        main.validateBuild();
+        SpringApplication.run(AlleleIndexer.class, args);
     }
 }

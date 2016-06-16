@@ -22,7 +22,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyDetail;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmapa;
@@ -33,22 +32,21 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -63,10 +61,10 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
  * @author ckchen based on the old MAIndexer
  */
 
-@Component
-public class AnatomyIndexer extends AbstractIndexer {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+@EnableAutoConfiguration
+public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner {
+
+	private final Logger logger = LoggerFactory.getLogger(AnatomyIndexer.class);
 
     @Value("classpath:uberonEfoMa_mappings.txt")
 	Resource resource;
@@ -78,12 +76,12 @@ public class AnatomyIndexer extends AbstractIndexer {
     private static Connection ontoDbConnection;
 
     @Autowired
-    @Qualifier("sangerImagesIndexing")
+    @Qualifier("sangerImagesCore")
     SolrServer imagesCore;
 
     @Autowired
     @Qualifier("anatomyIndexing")
-    SolrServer anatomyCore;
+    SolrServer anatomyIndexing;
 
     @Autowired
     MaOntologyDAO maOntologyService;
@@ -119,13 +117,9 @@ public class AnatomyIndexer extends AbstractIndexer {
     }
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(anatomyCore);
+        return super.validateBuild(anatomyIndexing);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
-    }
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
@@ -140,8 +134,8 @@ public class AnatomyIndexer extends AbstractIndexer {
     	try {
 
             // Delete the documents in the core if there are any.
-            anatomyCore.deleteByQuery("*:*");
-            anatomyCore.commit();
+            anatomyIndexing.deleteByQuery("*:*");
+            anatomyIndexing.commit();
 
             logger.info(" Source of images core: " + SolrUtils.getBaseURL(imagesCore) );
             initialiseSupportingBeans();
@@ -310,15 +304,15 @@ public class AnatomyIndexer extends AbstractIndexer {
 //                if (maBatch.size() == BATCH_SIZE) {
 //                    // Update the batch, clear the list
 //                    documentCount += maBatch.size();
-//                    anatomyCore.addBeans(maBatch, 60000);
+//                    anatomyIndexing.addBeans(maBatch, 60000);
 //                    maBatch.clear();
 //                }
 
                 documentCount++;
-                anatomyCore.addBean(ma, 60000);
+                anatomyIndexing.addBean(ma, 60000);
 
                 if (documentCount % 100 == 0){
-                    anatomyCore.commit();
+                    anatomyIndexing.commit();
                 }
             }
 
@@ -411,14 +405,14 @@ public class AnatomyIndexer extends AbstractIndexer {
 //                if (maBatch.size() == BATCH_SIZE) {
 //                    // Update the batch, clear the list
 //                    documentCount += maBatch.size();
-//                    anatomyCore.addBeans(maBatch, 60000);
+//                    anatomyIndexing.addBeans(maBatch, 60000);
 //                    maBatch.clear();
 //                }
                 documentCount++;
-                anatomyCore.addBean(emapa, 60000);
+                anatomyIndexing.addBean(emapa, 60000);
 
                 if (documentCount % 100 == 0){
-                    anatomyCore.commit();
+                    anatomyIndexing.commit();
                 }
 
             }
@@ -426,18 +420,17 @@ public class AnatomyIndexer extends AbstractIndexer {
             // Make sure the last batch is indexed
 //            if (maBatch.size() > 0) {
 //                documentCount += maBatch.size();
-//                anatomyCore.addBeans(maBatch, 60000);
+//                anatomyIndexing.addBeans(maBatch, 60000);
 //            }
 
             // Send a final commit
-            anatomyCore.commit();
+            anatomyIndexing.commit();
 
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
         return runStatus;
     }
 
@@ -448,7 +441,7 @@ public class AnatomyIndexer extends AbstractIndexer {
 //    @Override
 //    protected void printConfiguration() {
 //        if (logger.isDebugEnabled()) {
-//            logger.debug(" WRITING ma     CORE TO: " + SolrUtils.getBaseURL(anatomyCore));
+//            logger.debug(" WRITING ma     CORE TO: " + SolrUtils.getBaseURL(anatomyIndexing));
 //            logger.debug(" USING   images CORE AT: " + SolrUtils.getBaseURL(imagesCore));
 //        }
 //    }
@@ -469,10 +462,6 @@ public class AnatomyIndexer extends AbstractIndexer {
     }
 
     public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
-
-        AnatomyIndexer indexer = new AnatomyIndexer();
-        indexer.initialise(args);
-        indexer.run();
-        indexer.validateBuild();
+        SpringApplication.run(AnatomyIndexer.class, args);
     }
 }

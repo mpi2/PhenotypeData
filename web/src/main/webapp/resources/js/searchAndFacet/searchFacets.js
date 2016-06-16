@@ -566,7 +566,6 @@
 	}
 
 	function displayAnatomyFacet(json) {
-		console.log(json);
 
 		var core = "anatomy";
 		var topLevelField = "selected_top_level_anatomy_term";

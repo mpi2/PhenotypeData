@@ -30,14 +30,15 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -57,13 +58,13 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
  * @see org.mousephenotype.cda.indexers.AnatomyIndexer Anatomy Indexer
  *
  */
-@Component
-@Deprecated
-public class MAIndexer extends AbstractIndexer {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("classpath:uberonEfoMa_mappings.txt")
+@Deprecated
+public class MAIndexer extends AbstractIndexer implements CommandLineRunner {
+
+	private final Logger logger = LoggerFactory.getLogger(MAIndexer.class);
+
+	@Value("classpath:uberonEfoMa_mappings.txt")
 	Resource resource;
 
     @Autowired
@@ -116,10 +117,6 @@ public class MAIndexer extends AbstractIndexer {
         return super.validateBuild(maCore);
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
-    }
 
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
@@ -417,7 +414,6 @@ public class MAIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
         return runStatus;
     }
 
@@ -585,10 +581,6 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
-
-        MAIndexer indexer = new MAIndexer();
-        indexer.initialise(args);
-        indexer.run();
-        indexer.validateBuild();
+        SpringApplication.run(MAIndexer.class, args);
     }
 }

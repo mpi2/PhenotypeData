@@ -17,8 +17,11 @@
 package org.mousephenotype.cda.db.dao;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -29,12 +32,15 @@ import java.util.List;
  * 
  * @author mrelac
  */
+@Repository
+@Transactional
+@ComponentScanNonParticipant
 public class MpOntologyDAO extends OntologyDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass()); 
 
     
-    public MpOntologyDAO() throws SQLException {
+    public MpOntologyDAO() {
         
     }
     
