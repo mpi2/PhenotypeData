@@ -17,9 +17,12 @@
 package org.mousephenotype.cda.db.dao;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
 import javax.annotation.PostConstruct;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,6 +37,8 @@ import java.util.*;
  * 
  * @author mrelac
  */
+@Repository
+@ComponentScanNonParticipant
 public class MaOntologyDAO extends OntologyDAO {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +47,7 @@ public class MaOntologyDAO extends OntologyDAO {
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
 
-    public MaOntologyDAO() throws SQLException {
+    public MaOntologyDAO() {
         
     }
     
