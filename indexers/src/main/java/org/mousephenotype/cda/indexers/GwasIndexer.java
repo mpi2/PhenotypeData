@@ -23,11 +23,14 @@ import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -40,11 +43,12 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 /**
  * Populate the GWAS core
  */
-public class GwasIndexer extends AbstractIndexer {
-    CommonUtils commonUtils = new CommonUtils();
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+@EnableAutoConfiguration
+public class GwasIndexer extends AbstractIndexer implements CommandLineRunner {
 
-    @Autowired
+	private final Logger logger = LoggerFactory.getLogger(GwasIndexer.class);
+
+	@Autowired
 	@Qualifier("admintoolsDataSource")
 	private DataSource admintoolsDataSource;
 
@@ -53,7 +57,7 @@ public class GwasIndexer extends AbstractIndexer {
 
     @Autowired
     @Qualifier("gwasIndexing")
-    SolrServer gwasCore;
+    SolrServer gwasIndexing;
 
     private List<GwasDTO> gwasMappings = new ArrayList<>();
 
@@ -90,20 +94,16 @@ public class GwasIndexer extends AbstractIndexer {
     	return rows;
     }
 
-    @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
-    }
 
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         try {
-            gwasCore.deleteByQuery("*:*");
-            gwasCore.commit();
+            gwasIndexing.deleteByQuery("*:*");
+            gwasIndexing.commit();
 
             //initialiseSupportingBeans();
 
@@ -121,7 +121,7 @@ public class GwasIndexer extends AbstractIndexer {
                 if (gwasBatch.size() == BATCH_SIZE) {
                     // Update the batch, clear the list
                     documentCount += gwasBatch.size();
-                    gwasCore.addBeans(gwasBatch, 60000);
+                    gwasIndexing.addBeans(gwasBatch, 60000);
                     gwasBatch.clear();
                 }
             }
@@ -129,19 +129,18 @@ public class GwasIndexer extends AbstractIndexer {
             // Make sure the last batch is indexed
             if (gwasBatch.size() > 0) {
                 documentCount += gwasBatch.size();
-                gwasCore.addBeans(gwasBatch, 60000);
+                gwasIndexing.addBeans(gwasBatch, 60000);
                 count += gwasBatch.size();
             }
 
             // Send a final commit
-            gwasCore.commit();
+            gwasIndexing.commit();
 
         } catch (SQLException | SolrServerException| IOException e) {
             throw new IndexerException(e);
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
         return runStatus;
     }
 
@@ -152,7 +151,7 @@ public class GwasIndexer extends AbstractIndexer {
     @Override
     protected void printConfiguration() {
         if (logger.isDebugEnabled()) {
-            logger.debug(" WRITING Gwas     CORE TO: " + SolrUtils.getBaseURL(gwasCore));
+            logger.debug(" WRITING Gwas     CORE TO: " + SolrUtils.getBaseURL(gwasIndexing));
         }
     }
 
@@ -163,10 +162,6 @@ public class GwasIndexer extends AbstractIndexer {
     private final Integer MAX_ITERATIONS = 2;                                   // Set to non-null value > 0 to limit max_iterations.
 
     public static void main(String[] args) throws IndexerException, SQLException {
-
-        GwasIndexer indexer = new GwasIndexer();
-        indexer.initialise(args);
-        indexer.run();
-        indexer.validateBuild();
+        SpringApplication.run(AlleleIndexer.class, args);
     }
 }

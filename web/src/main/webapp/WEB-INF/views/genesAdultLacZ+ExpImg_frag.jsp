@@ -17,7 +17,7 @@
      style="display: block;">
 
     <a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
-    <c:forEach var="entry" items="${impcExpressionImageFacets}"
+    <c:forEach var="entry" items="${impcAdultExpressionImageFacets}"
                varStatus="status">
 
         <c:set var="href"
@@ -26,7 +26,7 @@
         <ul>
             <t:impcimgdisplay2
                     category="${entry.name}(${entry.count})" href="${href}"
-                    img="${impcExpressionFacetToDocs[entry.name][0]}"
+                    img="${impcAdultExpressionFacetToDocs[entry.name][0]}"
                     impcMediaBaseUrl="${impcMediaBaseUrl}">
             </t:impcimgdisplay2>
         </ul>

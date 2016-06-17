@@ -239,7 +239,6 @@ public class GrossPathPageTableRow {
 	}
 	
 	public void addImage(SolrDocument image) {
-		System.out.println("adding image param");
 			this.imageList.add(image);
 			
 		

@@ -27,7 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -39,11 +41,12 @@ import java.sql.SQLException;
 /**
  * Populate the MGI-Phenotype core - currently only for internal EBI consumption
  */
-@Component
-public class MGIPhenotypeIndexer extends AbstractIndexer {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+@EnableAutoConfiguration
+public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineRunner {
 
-    @Autowired
+	private final Logger logger = LoggerFactory.getLogger(MGIPhenotypeIndexer.class);
+
+	@Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
@@ -53,7 +56,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
 
 	@Autowired
     @Qualifier("mgiPhenotypeIndexing")
-    SolrServer mgiSolrServer;
+    SolrServer mgiPhenotypeIndexing;
 
     @Autowired
     MpOntologyDAO mpOntologyService;
@@ -63,27 +66,18 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(mgiSolrServer);
+        return super.validateBuild(mgiPhenotypeIndexing);
     }
+
+
+    public static void main(String[] args) throws IndexerException {
+        SpringApplication.run(MGIPhenotypeIndexer.class, args);
+    }
+
 
     @Override
-    public void initialise(String[] args) throws IndexerException {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 
-        super.initialise(args);
-
-        printConfiguration();
-    }
-
-    public static void main(String[] args) throws IndexerException, SolrServerException, SQLException, IOException {
-
-        MGIPhenotypeIndexer main = new MGIPhenotypeIndexer();
-        main.initialise(args);
-        main.run();
-        main.validateBuild();
-    }
-
-    @Override
-    public RunStatus run() throws IndexerException {
 
         int count = 0;
         RunStatus runStatus = new RunStatus();
@@ -98,7 +92,6 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
 
 	    CommonUtils commonUtils = new CommonUtils();
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
         return runStatus;
     }
 
@@ -111,7 +104,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
 
 	    int count = 1;
 
-        mgiSolrServer.deleteByQuery("*:*");
+        mgiPhenotypeIndexing.deleteByQuery("*:*");
 
         String query="SELECT DISTINCT CONCAT_WS(\"-\", bm.id, gf.acc, bmp.phenotype_acc) as id, bm.zygosity, org.short_name AS project_name, " +
 	        "org.name as project_fullname, gf.acc AS marker_accession_id, gf.symbol as marker_symbol, " +
@@ -206,7 +199,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
                 doc.setLifeStageName(developmentalStageName);
 
                 documentCount++;
-                mgiSolrServer.addBean(doc, 30000);
+                mgiPhenotypeIndexing.addBean(doc, 30000);
                 count ++;
 
 	            if (count % 100000 == 0) {
@@ -215,7 +208,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
             }
 
             // Final commit to save the rest of the docs
-            mgiSolrServer.commit();
+            mgiPhenotypeIndexing.commit();
 
         } catch (Exception e) {
             runStatus.addError(" Big error " + e.getMessage());
