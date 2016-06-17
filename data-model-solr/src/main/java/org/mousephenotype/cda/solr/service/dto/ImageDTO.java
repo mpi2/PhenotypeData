@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.mousephenotype.cda.solr.web.dto.Anatomy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,25 +82,41 @@ public class ImageDTO extends ObservationDTO {
 	public final static String WEIGHT_DAYS_OLD = ObservationDTO.WEIGHT_DAYS_OLD;
 	public final static String WEIGHT = ObservationDTO.WEIGHT;
 
-	public static final String MA_ID = ObservationDTO.MA_ID;
-	public static final String MA_TERM = ObservationDTO.MA_TERM;
-	public static final String MA_TERM_SYNONYM = ObservationDTO.MA_TERM_SYNONYM;
-	public static final String INTERMEDIATE_MA_ID = ObservationDTO.INTERMEDIATE_MA_ID;
-	public static final String INTERMEDIATE_MA_TERM = ObservationDTO.INTERMEDIATE_MA_TERM;
-	public static final String INTERMEDIATE_MA_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_MA_TERM_SYNONYM;
-	public static final String SELECTED_TOP_LEVEL_MA_ID = ObservationDTO.SELECTED_TOP_LEVEL_MA_ID;
-	public static final String SELECTED_TOP_LEVEL_MA_TERM = ObservationDTO.SELECTED_TOP_LEVEL_MA_TERM;
-	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
+//	public static final String ANATOMY_ID = ObservationDTO.ANATOMY_ID;
+//	public static final String ANATOMY_TERM = ObservationDTO.ANATOMY_TERM;
+//	public static final String ANATOMY_ID_TERM = ObservationDTO.ANATOMY_ID_TERM;
+//	public static final String ANATOMY_TERM_SYNONYM = ObservationDTO.ANATOMY_TERM_SYNONYM;
+//	public static final String INTERMEDIATE_ANATOMY_ID = ObservationDTO.INTERMEDIATE_ANATOMY_ID;
+//	public static final String INTERMEDIATE_ANATOMY_TERM = ObservationDTO.INTERMEDIATE_ANATOMY_TERM;
+//	public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_ANATOMY_TERM_SYNONYM;
+//	public static final String TOP_LEVEL_ANATOMY_ID = ObservationDTO.TOP_LEVEL_ANATOMY_ID;
+//	public static final String TOP_LEVEL_ANATOMY_TERM = ObservationDTO.TOP_LEVEL_ANATOMY_TERM;
+//	public static final String TOP_LEVEL_ANATOMY_TERM_SYNONYM = ObservationDTO.TOP_LEVEL_ANATOMY_TERM_SYNONYM;
+//	public static final String SELECTED_TOP_LEVEL_ANATOMY_ID = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID;
+//	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
+//	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM;
 
-	public static final String EMAP_ID = ObservationDTO.EMAP_ID;
-	public static final String EMAP_TERM = ObservationDTO.EMAP_TERM;
-	public static final String EMAP_TERM_SYNONYM = ObservationDTO.EMAP_TERM_SYNONYM;
-	public static final String INTERMEDIATE_EMAP_ID = ObservationDTO.INTERMEDIATE_EMAP_ID;
-	public static final String INTERMEDIATE_EMAP_TERM = ObservationDTO.INTERMEDIATE_EMAP_TERM;
-	public static final String INTERMEDIATE_EMAP_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_EMAP_TERM_SYNONYM;
-	public static final String SELECTED_TOP_LEVEL_EMAP_ID = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_ID;
-	public static final String SELECTED_TOP_LEVEL_EMAP_TERM = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
-	public static final String SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM;
+//	public static final String MA_ID = ObservationDTO.MA_ID;
+//	public static final String MA_TERM = ObservationDTO.MA_TERM;
+//	public static final String MA_ID_TERM = "ma_id_term";
+//	public static final String MA_TERM_SYNONYM = ObservationDTO.MA_TERM_SYNONYM;
+//	public static final String INTERMEDIATE_MA_ID = ObservationDTO.INTERMEDIATE_MA_ID;
+//	public static final String INTERMEDIATE_MA_TERM = ObservationDTO.INTERMEDIATE_MA_TERM;
+//	public static final String INTERMEDIATE_MA_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_MA_TERM_SYNONYM;
+//	public static final String SELECTED_TOP_LEVEL_MA_ID = ObservationDTO.SELECTED_TOP_LEVEL_MA_ID;
+//	public static final String SELECTED_TOP_LEVEL_MA_TERM = ObservationDTO.SELECTED_TOP_LEVEL_MA_TERM;
+//	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
+//
+//	public static final String EMAP_ID = ObservationDTO.EMAP_ID;
+//	public static final String EMAP_TERM = ObservationDTO.EMAP_TERM;
+//	public static final String EMAP_ID_TERM = "emap_id_term";
+//	public static final String EMAP_TERM_SYNONYM = ObservationDTO.EMAP_TERM_SYNONYM;
+//	public static final String INTERMEDIATE_EMAP_ID = ObservationDTO.INTERMEDIATE_EMAP_ID;
+//	public static final String INTERMEDIATE_EMAP_TERM = ObservationDTO.INTERMEDIATE_EMAP_TERM;
+//	public static final String INTERMEDIATE_EMAP_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_EMAP_TERM_SYNONYM;
+//	public static final String SELECTED_TOP_LEVEL_EMAP_ID = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_ID;
+//	public static final String SELECTED_TOP_LEVEL_EMAP_TERM = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
+//	public static final String SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM;
 
 
 	public static final String FULL_RESOLUTION_FILE_PATH="full_resolution_file_path";
@@ -130,26 +147,36 @@ public class ImageDTO extends ObservationDTO {
 	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
 
-	public static final String MA_ID_TERM = "ma_id_term";
-
-	public static final String EMAP_ID_TERM = "emap_id_term";
 	public static final String MP_ID_TERM = "mp_id_term";
 
-	public static final String INCREMENT_VALUE="increment_value";
+	public static final String INCREMENT_VALUE = "increment_value";
+	public static final String STAGE = "stage";
 
-	@Field(MA_ID_TERM)
-	private List<String> maIdTerm;
 
-	@Field(EMAP_ID_TERM)
-	private List<String> emapIdTerm;
+//	@Field(ANATOMY_ID)
+//	private ArrayList<String> anatomyId;
+//
+//	@Field(ANATOMY_TERM)
+//	private List<String> anatomyTerm;
+//
+//	@Field(ANATOMY_ID_TERM)
+//	private List<String> anatomyIdTerm;
+//
+//	@Field(ANATOMY_TERM_SYNONYM)
+//	private List<String> anatomyTermSynonym;
 
+
+//	@Field(MA_ID_TERM)
+//	private List<String> maIdTerm;
+//
+//	@Field(EMAP_ID_TERM)
+//	private List<String> emapIdTerm;
 
 	@Field(MpDTO.MP_ID)
 	private ArrayList<String> mpTermIds;
 
 	@Field(MpDTO.MP_TERM)
 	private List<String> mpTerm;
-
 
 	@Field(MP_ID_TERM)
 	private List<String> mpIdTerm;
@@ -165,13 +192,13 @@ public class ImageDTO extends ObservationDTO {
 		this.mpIdTerm = mpIdTerm;
 	}
 
-	public List<String> getEmapIdTerm() {
-		return emapIdTerm;
-	}
-
-	public void setEmapIdTerm(List<String> emapIdTerm) {
-		this.emapIdTerm = emapIdTerm;
-	}
+//	public List<String> getEmapIdTerm() {
+//		return emapIdTerm;
+//	}
+//
+//	public void setEmapIdTerm(List<String> emapIdTerm) {
+//		this.emapIdTerm = emapIdTerm;
+//	}
 
 	public ArrayList<String> getMpTermIds() {
 		return mpTermIds;
@@ -274,7 +301,16 @@ public class ImageDTO extends ObservationDTO {
 	@Field(INCREMENT_VALUE)
 	private Integer increment;
 
+	@Field(STAGE)
+	private String stage;
 
+	public String getStage() {
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
 
 	public int getIncrement() {
 		return increment;
@@ -368,15 +404,15 @@ public class ImageDTO extends ObservationDTO {
 		this.uberonId.add(id);
 	}
 
-	public List<String> getMaIdTerm() {
-
-		return maIdTerm;
-	}
-
-	public void setMaIdTerm(List<String> maIdTerms) {
-
-		this.maIdTerm = maIdTerms;
-	}
+//	public List<String> getMaIdTerm() {
+//
+//		return maIdTerm;
+//	}
+//
+//	public void setMaIdTerm(List<String> maIdTerms) {
+//
+//		this.maIdTerm = maIdTerms;
+//	}
 
 	public String getDownloadUrl() {
 
@@ -533,21 +569,21 @@ public class ImageDTO extends ObservationDTO {
 
 	}
 
-	public List<String> getMaTerm() {
-		return maTerm;
-	}
-
-	public void setMaTerm(List<String> maTerm) {
-		this.maTerm = maTerm;
-	}
-
-	public List<String> getMaTermSynonym() {
-		return maTermSynonym;
-	}
-
-	public void setMaTermSynonym(List<String> maTermSynonym) {
-		this.maTermSynonym = maTermSynonym;
-	}
+//	public List<String> getMaTerm() {
+//		return maTerm;
+//	}
+//
+//	public void setMaTerm(List<String> maTerm) {
+//		this.maTerm = maTerm;
+//	}
+//
+//	public List<String> getMaTermSynonym() {
+//		return maTermSynonym;
+//	}
+//
+//	public void setMaTermSynonym(List<String> maTermSynonym) {
+//		this.maTermSynonym = maTermSynonym;
+//	}
 
 	public String getExpression(String maId){
 
@@ -556,202 +592,127 @@ public class ImageDTO extends ObservationDTO {
 
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
+		ImageDTO imageDTO = (ImageDTO) o;
 
+		if (omeroId != imageDTO.omeroId) return false;
+		if (mpTermIds != null ? !mpTermIds.equals(imageDTO.mpTermIds) : imageDTO.mpTermIds != null) return false;
+		if (mpTerm != null ? !mpTerm.equals(imageDTO.mpTerm) : imageDTO.mpTerm != null) return false;
+		if (mpIdTerm != null ? !mpIdTerm.equals(imageDTO.mpIdTerm) : imageDTO.mpIdTerm != null) return false;
+		if (mpTermSynonym != null ? !mpTermSynonym.equals(imageDTO.mpTermSynonym) : imageDTO.mpTermSynonym != null)
+			return false;
+		if (fullResolutionFilePath != null ? !fullResolutionFilePath.equals(imageDTO.fullResolutionFilePath) : imageDTO.fullResolutionFilePath != null)
+			return false;
+		if (downloadUrl != null ? !downloadUrl.equals(imageDTO.downloadUrl) : imageDTO.downloadUrl != null)
+			return false;
+		if (imageLink != null ? !imageLink.equals(imageDTO.imageLink) : imageDTO.imageLink != null) return false;
+		if (jpegUrl != null ? !jpegUrl.equals(imageDTO.jpegUrl) : imageDTO.jpegUrl != null) return false;
+		if (efoId != null ? !efoId.equals(imageDTO.efoId) : imageDTO.efoId != null) return false;
+		if (uberonId != null ? !uberonId.equals(imageDTO.uberonId) : imageDTO.uberonId != null) return false;
+		if (symbolGene != null ? !symbolGene.equals(imageDTO.symbolGene) : imageDTO.symbolGene != null) return false;
+		if (status != null ? !status.equals(imageDTO.status) : imageDTO.status != null) return false;
+		if (imitsPhenotypeStarted != null ? !imitsPhenotypeStarted.equals(imageDTO.imitsPhenotypeStarted) : imageDTO.imitsPhenotypeStarted != null)
+			return false;
+		if (imitsPhenotypeComplete != null ? !imitsPhenotypeComplete.equals(imageDTO.imitsPhenotypeComplete) : imageDTO.imitsPhenotypeComplete != null)
+			return false;
+		if (imitsPhenotypeStatus != null ? !imitsPhenotypeStatus.equals(imageDTO.imitsPhenotypeStatus) : imageDTO.imitsPhenotypeStatus != null)
+			return false;
+		if (legacyPhenotypeStatus != null ? !legacyPhenotypeStatus.equals(imageDTO.legacyPhenotypeStatus) : imageDTO.legacyPhenotypeStatus != null)
+			return false;
+		if (latestProductionCentre != null ? !latestProductionCentre.equals(imageDTO.latestProductionCentre) : imageDTO.latestProductionCentre != null)
+			return false;
+		if (latestPhenotypingCentre != null ? !latestPhenotypingCentre.equals(imageDTO.latestPhenotypingCentre) : imageDTO.latestPhenotypingCentre != null)
+			return false;
+		if (alleleName != null ? !alleleName.equals(imageDTO.alleleName) : imageDTO.alleleName != null) return false;
+		if (markerSymbol != null ? !markerSymbol.equals(imageDTO.markerSymbol) : imageDTO.markerSymbol != null)
+			return false;
+		if (markerName != null ? !markerName.equals(imageDTO.markerName) : imageDTO.markerName != null) return false;
+		if (markerSynonym != null ? !markerSynonym.equals(imageDTO.markerSynonym) : imageDTO.markerSynonym != null)
+			return false;
+		if (markerType != null ? !markerType.equals(imageDTO.markerType) : imageDTO.markerType != null) return false;
+		if (humanGeneSymbol != null ? !humanGeneSymbol.equals(imageDTO.humanGeneSymbol) : imageDTO.humanGeneSymbol != null)
+			return false;
+		if (symbol != null ? !symbol.equals(imageDTO.symbol) : imageDTO.symbol != null) return false;
+		if (subtype != null ? !subtype.equals(imageDTO.subtype) : imageDTO.subtype != null) return false;
+		if (increment != null ? !increment.equals(imageDTO.increment) : imageDTO.increment != null) return false;
+		if (stage != null ? !stage.equals(imageDTO.stage) : imageDTO.stage != null) return false;
+		return !(latestPhenotypeStatus != null ? !latestPhenotypeStatus.equals(imageDTO.latestPhenotypeStatus) : imageDTO.latestPhenotypeStatus != null);
+
+	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((alleleName == null) ? 0 : alleleName.hashCode());
-		result = prime * result + ((downloadUrl == null) ? 0 : downloadUrl.hashCode());
-		result = prime * result + ((efoId == null) ? 0 : efoId.hashCode());
-		result = prime * result + ((fullResolutionFilePath == null) ? 0 : fullResolutionFilePath.hashCode());
-		result = prime * result + ((humanGeneSymbol == null) ? 0 : humanGeneSymbol.hashCode());
-		result = prime * result + ((imageLink == null) ? 0 : imageLink.hashCode());
-		result = prime * result + ((imitsPhenotypeComplete == null) ? 0 : imitsPhenotypeComplete.hashCode());
-		result = prime * result + ((imitsPhenotypeStarted == null) ? 0 : imitsPhenotypeStarted.hashCode());
-		result = prime * result + ((imitsPhenotypeStatus == null) ? 0 : imitsPhenotypeStatus.hashCode());
-		result = prime * result + ((jpegUrl == null) ? 0 : jpegUrl.hashCode());
-		result = prime * result + ((latestPhenotypeStatus == null) ? 0 : latestPhenotypeStatus.hashCode());
-		result = prime * result + ((latestPhenotypingCentre == null) ? 0 : latestPhenotypingCentre.hashCode());
-		result = prime * result + ((latestProductionCentre == null) ? 0 : latestProductionCentre.hashCode());
-		result = prime * result + ((legacyPhenotypeStatus == null) ? 0 : legacyPhenotypeStatus.hashCode());
-		result = prime * result + ((maIdTerm == null) ? 0 : maIdTerm.hashCode());
-		result = prime * result + ((maTerm == null) ? 0 : maTerm.hashCode());
-		result = prime * result + ((maId == null) ? 0 : maId.hashCode());
-		result = prime * result + ((maTermSynonym == null) ? 0 : maTermSynonym.hashCode());
-		result = prime * result + ((markerName == null) ? 0 : markerName.hashCode());
-		result = prime * result + ((markerSymbol == null) ? 0 : markerSymbol.hashCode());
-		result = prime * result + ((markerSynonym == null) ? 0 : markerSynonym.hashCode());
-		result = prime * result + ((markerType == null) ? 0 : markerType.hashCode());
-		result = prime * result + omeroId;
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((subtype == null) ? 0 : subtype.hashCode());
-		result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
-		result = prime * result + ((symbolGene == null) ? 0 : symbolGene.hashCode());
-		result = prime * result + ((uberonId == null) ? 0 : uberonId.hashCode());
+		int result = mpTermIds != null ? mpTermIds.hashCode() : 0;
+		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
+		result = 31 * result + (mpIdTerm != null ? mpIdTerm.hashCode() : 0);
+		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
+		result = 31 * result + (fullResolutionFilePath != null ? fullResolutionFilePath.hashCode() : 0);
+		result = 31 * result + omeroId;
+		result = 31 * result + (downloadUrl != null ? downloadUrl.hashCode() : 0);
+		result = 31 * result + (imageLink != null ? imageLink.hashCode() : 0);
+		result = 31 * result + (jpegUrl != null ? jpegUrl.hashCode() : 0);
+		result = 31 * result + (efoId != null ? efoId.hashCode() : 0);
+		result = 31 * result + (uberonId != null ? uberonId.hashCode() : 0);
+		result = 31 * result + (symbolGene != null ? symbolGene.hashCode() : 0);
+		result = 31 * result + (status != null ? status.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeStatus != null ? imitsPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (legacyPhenotypeStatus != null ? legacyPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (latestProductionCentre != null ? latestProductionCentre.hashCode() : 0);
+		result = 31 * result + (latestPhenotypingCentre != null ? latestPhenotypingCentre.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
+		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
+		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
+		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
+		result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
+		result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
+		result = 31 * result + (increment != null ? increment.hashCode() : 0);
+		result = 31 * result + (stage != null ? stage.hashCode() : 0);
+		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ImageDTO other = (ImageDTO) obj;
-		if (alleleName == null) {
-			if (other.alleleName != null)
-				return false;
-		} else if (!alleleName.equals(other.alleleName))
-			return false;
-		if (downloadUrl == null) {
-			if (other.downloadUrl != null)
-				return false;
-		} else if (!downloadUrl.equals(other.downloadUrl))
-			return false;
-		if (efoId == null) {
-			if (other.efoId != null)
-				return false;
-		} else if (!efoId.equals(other.efoId))
-			return false;
-		if (fullResolutionFilePath == null) {
-			if (other.fullResolutionFilePath != null)
-				return false;
-		} else if (!fullResolutionFilePath.equals(other.fullResolutionFilePath))
-			return false;
-		if (humanGeneSymbol == null) {
-			if (other.humanGeneSymbol != null)
-				return false;
-		} else if (!humanGeneSymbol.equals(other.humanGeneSymbol))
-			return false;
-		if (imageLink == null) {
-			if (other.imageLink != null)
-				return false;
-		} else if (!imageLink.equals(other.imageLink))
-			return false;
-		if (imitsPhenotypeComplete == null) {
-			if (other.imitsPhenotypeComplete != null)
-				return false;
-		} else if (!imitsPhenotypeComplete.equals(other.imitsPhenotypeComplete))
-			return false;
-		if (imitsPhenotypeStarted == null) {
-			if (other.imitsPhenotypeStarted != null)
-				return false;
-		} else if (!imitsPhenotypeStarted.equals(other.imitsPhenotypeStarted))
-			return false;
-		if (imitsPhenotypeStatus == null) {
-			if (other.imitsPhenotypeStatus != null)
-				return false;
-		} else if (!imitsPhenotypeStatus.equals(other.imitsPhenotypeStatus))
-			return false;
-		if (jpegUrl == null) {
-			if (other.jpegUrl != null)
-				return false;
-		} else if (!jpegUrl.equals(other.jpegUrl))
-			return false;
-		if (latestPhenotypeStatus == null) {
-			if (other.latestPhenotypeStatus != null)
-				return false;
-		} else if (!latestPhenotypeStatus.equals(other.latestPhenotypeStatus))
-			return false;
-		if (latestPhenotypingCentre == null) {
-			if (other.latestPhenotypingCentre != null)
-				return false;
-		} else if (!latestPhenotypingCentre.equals(other.latestPhenotypingCentre))
-			return false;
-		if (latestProductionCentre == null) {
-			if (other.latestProductionCentre != null)
-				return false;
-		} else if (!latestProductionCentre.equals(other.latestProductionCentre))
-			return false;
-		if (legacyPhenotypeStatus == null) {
-			if (other.legacyPhenotypeStatus != null)
-				return false;
-		} else if (!legacyPhenotypeStatus.equals(other.legacyPhenotypeStatus))
-			return false;
-		if (maIdTerm == null) {
-			if (other.maIdTerm != null)
-				return false;
-		} else if (!maIdTerm.equals(other.maIdTerm))
-			return false;
-		if (maTerm == null) {
-			if (other.maTerm != null)
-				return false;
-		} else if (!maTerm.equals(other.maTerm))
-			return false;
-		if (maTermSynonym == null) {
-			if (other.maTermSynonym != null)
-				return false;
-		} else if (!maTermSynonym.equals(other.maTermSynonym))
-			return false;
-		if (markerName == null) {
-			if (other.markerName != null)
-				return false;
-		} else if (!markerName.equals(other.markerName))
-			return false;
-		if (markerSymbol == null) {
-			if (other.markerSymbol != null)
-				return false;
-		} else if (!markerSymbol.equals(other.markerSymbol))
-			return false;
-		if (markerSynonym == null) {
-			if (other.markerSynonym != null)
-				return false;
-		} else if (!markerSynonym.equals(other.markerSynonym))
-			return false;
-		if (markerType == null) {
-			if (other.markerType != null)
-				return false;
-		} else if (!markerType.equals(other.markerType))
-			return false;
-		if (omeroId != other.omeroId)
-			return false;
-		if (status == null) {
-			if (other.status != null)
-				return false;
-		} else if (!status.equals(other.status))
-			return false;
-		if (subtype == null) {
-			if (other.subtype != null)
-				return false;
-		} else if (!subtype.equals(other.subtype))
-			return false;
-		if (symbol == null) {
-			if (other.symbol != null)
-				return false;
-		} else if (!symbol.equals(other.symbol))
-			return false;
-		if (symbolGene == null) {
-			if (other.symbolGene != null)
-				return false;
-		} else if (!symbolGene.equals(other.symbolGene))
-			return false;
-		if (uberonId == null) {
-			if (other.uberonId != null)
-				return false;
-		} else if (!uberonId.equals(other.uberonId))
-			return false;
-		return true;
-	}
-
-	@Override
 	public String toString() {
-		return "ImageDTO [fullResolutionFilePath=" + fullResolutionFilePath + ", omeroId=" + omeroId + ", downloadUrl="
-				+ downloadUrl + ", imageLink=" + imageLink + ", jpegUrl=" + jpegUrl
-				+ ", efoId=" + efoId + ", uberonId=" + uberonId + ", maTerm=" + maTerm + ", maIdTerm=" + maIdTerm
-				+ ", maTermSynonym=" + maTermSynonym + ", topLevelMaIds=" + ", symbolGene=" + symbolGene
-				+ ", status=" + status + ", imitsPhenotypeStarted=" + imitsPhenotypeStarted
-				+ ", imitsPhenotypeComplete=" + imitsPhenotypeComplete + ", imitsPhenotypeStatus="
-				+ imitsPhenotypeStatus + ", legacyPhenotypeStatus=" + legacyPhenotypeStatus
-				+ ", latestProductionCentre=" + latestProductionCentre + ", latestPhenotypingCentre="
-				+ latestPhenotypingCentre + ", alleleName=" + alleleName + ", markerSymbol=" + markerSymbol
-				+ ", markerName=" + markerName + ", markerSynonym=" + markerSynonym + ", markerType=" + markerType
-				+ ", humanGeneSymbol=" + humanGeneSymbol + ", symbol=" + symbol + ", subtype=" + subtype
-				+ ", latestPhenotypeStatus=" + latestPhenotypeStatus + "]";
+		return "ImageDTO{" +
+				"mpTermIds=" + mpTermIds +
+				", mpTerm=" + mpTerm +
+				", mpIdTerm=" + mpIdTerm +
+				", mpTermSynonym=" + mpTermSynonym +
+				", fullResolutionFilePath='" + fullResolutionFilePath + '\'' +
+				", omeroId=" + omeroId +
+				", downloadUrl='" + downloadUrl + '\'' +
+				", imageLink='" + imageLink + '\'' +
+				", jpegUrl='" + jpegUrl + '\'' +
+				", efoId=" + efoId +
+				", uberonId=" + uberonId +
+				", symbolGene='" + symbolGene + '\'' +
+				", status=" + status +
+				", imitsPhenotypeStarted=" + imitsPhenotypeStarted +
+				", imitsPhenotypeComplete=" + imitsPhenotypeComplete +
+				", imitsPhenotypeStatus=" + imitsPhenotypeStatus +
+				", legacyPhenotypeStatus=" + legacyPhenotypeStatus +
+				", latestProductionCentre=" + latestProductionCentre +
+				", latestPhenotypingCentre=" + latestPhenotypingCentre +
+				", alleleName=" + alleleName +
+				", markerSymbol=" + markerSymbol +
+				", markerName=" + markerName +
+				", markerSynonym=" + markerSynonym +
+				", markerType='" + markerType + '\'' +
+				", humanGeneSymbol=" + humanGeneSymbol +
+				", symbol='" + symbol + '\'' +
+				", subtype='" + subtype + '\'' +
+				", increment=" + increment +
+				", stage='" + stage + '\'' +
+				", latestPhenotypeStatus=" + latestPhenotypeStatus +
+				'}';
 	}
 
 

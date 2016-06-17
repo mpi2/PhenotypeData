@@ -101,7 +101,7 @@ public class SecondaryProjectController {
     SecondaryProjectService threeI;
 
     @Autowired
-    @Qualifier("solrServer")
+    @Qualifier("phenodigmCore")
     SolrServer phenodigmCore;
 
     private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
