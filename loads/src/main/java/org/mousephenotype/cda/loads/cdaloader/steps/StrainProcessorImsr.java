@@ -109,7 +109,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
 
         String[] values = item.getValues();
 
-        // Validate the columns using the heading names.
+        // Validate the file using the heading names.
         if (lineNumber == 1) {
             RunStatus status = sqlLoaderUtils.validateHeadings(item.getValues(),fileHeadings);
             if (status.hasErrors()) {

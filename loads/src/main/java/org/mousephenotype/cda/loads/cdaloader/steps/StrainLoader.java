@@ -52,14 +52,14 @@ import java.util.regex.Pattern;
  */
 public class StrainLoader implements InitializingBean, Step {
 
-    private       int                             addedMgiStrainCount = 0;
-    private final Logger                          logger              = LoggerFactory.getLogger(this.getClass());
-    public        Map<StrainFilenameKeys, String> strainKeys          = new HashMap<>();
-    private      FlatFileItemReader<Strain>       mgiReader;
-    private      FlatFileItemReader<FieldSet>     imsrReader;
+    private       int                       addedMgiStrainCount = 0;
+    private final Logger                    logger              = LoggerFactory.getLogger(this.getClass());
+    public        Map<FilenameKeys, String> strainKeys          = new HashMap<>();
+    private FlatFileItemReader<Strain>      mgiReader;
+    private FlatFileItemReader<FieldSet>    imsrReader;
 
 
-    public enum StrainFilenameKeys {
+    public enum FilenameKeys {
           MGI
         , IMSR
     }
@@ -78,7 +78,7 @@ public class StrainLoader implements InitializingBean, Step {
     private StrainWriter writer;
 
 
-    public StrainLoader(Map<StrainFilenameKeys, String> markerKeys) throws CdaLoaderException {
+    public StrainLoader(Map<FilenameKeys, String> markerKeys) throws CdaLoaderException {
         this.strainKeys = markerKeys;
     }
 
@@ -86,7 +86,7 @@ public class StrainLoader implements InitializingBean, Step {
     public void afterPropertiesSet() throws Exception {
 
         mgiReader = new FlatFileItemReader<>();
-        mgiReader.setResource(new FileSystemResource(strainKeys.get(StrainFilenameKeys.MGI)));
+        mgiReader.setResource(new FileSystemResource(strainKeys.get(FilenameKeys.MGI)));
         mgiReader.setComments( new String[] { "#" });
         mgiReader.setLineMapper((line, lineNumber) -> {
             Strain strain = new Strain();
@@ -102,7 +102,7 @@ public class StrainLoader implements InitializingBean, Step {
         });
 
         imsrReader = new FlatFileItemReader<>();
-        imsrReader.setResource(new FileSystemResource(strainKeys.get(StrainFilenameKeys.IMSR)));
+        imsrReader.setResource(new FileSystemResource(strainKeys.get(FilenameKeys.IMSR)));
         imsrReader.setLineMapper((line, lineNumber) -> {
             FieldSet fieldset = new DefaultFieldSet(line.split(Pattern.quote("\t")));
             return fieldset;
@@ -188,7 +188,7 @@ public class StrainLoader implements InitializingBean, Step {
         protected Set<String> logStatus() {
             logger.info("MGI: Added {} strains (with no synonyms) from file {} in {}",
                     addedMgiStrainCount,
-                    strainKeys.get(StrainFilenameKeys.MGI),
+                    strainKeys.get(FilenameKeys.MGI),
                     commonUtils.formatDateDifference(start, stop));
 
             return new HashSet<>();
@@ -202,7 +202,7 @@ public class StrainLoader implements InitializingBean, Step {
             logger.info("IMSR: Added {} strains and {} synonyms from file {} in {}",
                     ((StrainProcessorImsr)strainProcessorImsr).getAddedEucommStrainCount(),
                     ((StrainProcessorImsr)strainProcessorImsr).getAddedSynonymCount(),
-                    strainKeys.get(StrainFilenameKeys.IMSR),
+                    strainKeys.get(FilenameKeys.IMSR),
                     commonUtils.formatDateDifference(start, stop));
 
             return ((StrainProcessorImsr) strainProcessorImsr).getErrorMessages();
