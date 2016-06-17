@@ -15,13 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -34,14 +27,14 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 
 /**
@@ -52,7 +45,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-public class ImpressService implements WebStatus {
+public class ImpressService extends BasicService implements WebStatus {
 
 	@Value("${drupalBaseUrl}")
 	public String DRUPAL_BASE_URL;
@@ -60,8 +53,8 @@ public class ImpressService implements WebStatus {
 	@Autowired
 	@Qualifier("pipelineCore")
 	private HttpSolrServer solr;
-	
-	
+
+
 
 	public ImpressService(String solr) {
 		super();
@@ -80,13 +73,13 @@ public class ImpressService implements WebStatus {
 	 * @since 2015/07/17
 	 * @author tudose
 	 * @param procedureStableIdRegex
-	 * @return 
+	 * @return
 	 */
-	
+
 	public List<ProcedureDTO> getProceduresByPipeline(String pipelineStableId){
-		
+
 		List<ProcedureDTO> procedures = new ArrayList<>();
-		
+
 		try {
 			SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
@@ -100,13 +93,13 @@ public class ImpressService implements WebStatus {
 			query.set("group.limit", 1);
 
 			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
-			
+
 			QueryResponse response = solr.query(query);
-			
+
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 				ProcedureDTO procedure = new ProcedureDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString()),
-						Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()), 
-						group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString(), 
+						Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()),
+						group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString(),
 						group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_NAME).toString());
 				procedures.add(procedure);
 			}
@@ -114,14 +107,14 @@ public class ImpressService implements WebStatus {
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
-		
+
 		return procedures;
 	}
-	
-	
-	
+
+
+
 	public Set<ImpressDTO> getProceduresByMpTerm(String mpTermId){
-		
+
 		try {
 			SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.MP_ID + ":\"" + mpTermId +"\"")
@@ -129,37 +122,37 @@ public class ImpressService implements WebStatus {
 				.addField(ImpressDTO.PROCEDURE_NAME)
 				.addField(ImpressDTO.PROCEDURE_STABLE_ID)
 				.addField(ImpressDTO.PROCEDURE_STABLE_KEY);
-			// Adding another field in here such as pipeline will require some code changes to avoid multiple procedures on mp page. 
+			// Adding another field in here such as pipeline will require some code changes to avoid multiple procedures on mp page.
 			// As it is now (only mp and procedure fields) the equal method will ignore the non existing pipeline id field.
-			
+
 			query.setRows(1000000);
 
 			QueryResponse response = solr.query(query);
-			
+
 			HashMap<Integer, ImpressDTO> res = new HashMap<>();
 			for (ImpressDTO bean: response.getBeans(ImpressDTO.class)){
 				res.put(bean.hashCode(), bean);
 			}
-			
+
 			return new HashSet<>(res.values());
-			
+
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * @author tudose
 	 * @since 2015/09/25
 	 * @return List< [(Procedure, parameter, observationNumber)]>
 	 */
 	public List<String[]> getProcedureParameterList(){
-		
+
 		List<String[]> result = new ArrayList<>();
 		SolrQuery q = new SolrQuery();
-        
+
     	q.setQuery("*:*");
         q.setFacet(true);
         q.setFacetLimit(-1);
@@ -167,34 +160,34 @@ public class ImpressService implements WebStatus {
 
         String pivotFacet =  ImpressDTO.PROCEDURE_STABLE_ID  + "," + ImpressDTO.PARAMETER_STABLE_ID;
 		q.set("facet.pivot", pivotFacet);
-        
+
         try {
         	QueryResponse res = solr.query(q);
-        	
+
         	for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
     			for (PivotField parameter : pivot.getPivot()){
     				String[] row = {pivot.getValue().toString(), parameter.getValue().toString()};
     				result.add(row);
     			}
     		}
-            
+
         } catch (SolrServerException e) {
             e.printStackTrace();
         }
-        
+
         return result;
 	}
-	
-	
+
+
 	/**
 	 * @date 2015/07/08
 	 * @author tudose
 	 * @return List of procedures in a pipeline
 	 */
 	public List<ProcedureDTO> getProcedures(String pipelineStableId){
-		
+
 		List<ProcedureDTO> procedures = new ArrayList<>();
-		
+
 		try {
 			SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
@@ -212,20 +205,20 @@ public class ImpressService implements WebStatus {
 			query.set("group.limit", 10000);
 
 			QueryResponse response = solr.query(query);
-			
+
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
-				
+
 				ProcedureDTO procedure = new ProcedureDTO();
 				procedure.setId(Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString()));
 				procedure.setName(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_NAME).toString());
 				procedure.setStableId(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString());
 				procedure.setStableKey(	Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()));
-				
+
 				for (SolrDocument doc : group.getResult()){
 					ParameterDTO parameter = new ParameterDTO();
 					parameter.setId((Integer)doc.getFirstValue(ImpressDTO.PARAMETER_ID));
 					parameter.setStableKey(	Integer.getInteger(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_KEY).toString()));
-					parameter.setStableId(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_ID).toString()); 
+					parameter.setStableId(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_ID).toString());
 					parameter.setName(doc.getFirstValue(ImpressDTO.PARAMETER_NAME).toString());
 					procedure.addParameter(parameter);
 				}
@@ -234,21 +227,21 @@ public class ImpressService implements WebStatus {
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
-		
+
 		return procedures;
 	}
-	
-	
+
+
 	/**
 	 * @date 2015/07/08
 	 * @author tudose
 	 * @param pipelineStableId
 	 * @return Pipeline in an object of type ImpressBean
 	 * @throws SolrServerException
-	 */	
-	public ImpressBaseDTO getPipeline(String pipelineStableId) 
+	 */
+	public ImpressBaseDTO getPipeline(String pipelineStableId)
 	throws SolrServerException{
-		
+
 		SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
 				.addField(ImpressDTO.PIPELINE_STABLE_ID)
@@ -257,29 +250,29 @@ public class ImpressService implements WebStatus {
 				.addField(ImpressDTO.PIPELINE_ID)
 				.setRows(1);
 		SolrDocument doc = solr.query(query).getResults().get(0);
-		
-		return new ImpressBaseDTO((Integer)doc.getFirstValue(ImpressDTO.PIPELINE_ID), 
-				Integer.getInteger(doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_KEY).toString()), 
-				doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_ID).toString(), 
+
+		return new ImpressBaseDTO((Integer)doc.getFirstValue(ImpressDTO.PIPELINE_ID),
+				Integer.getInteger(doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_KEY).toString()),
+				doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_ID).toString(),
 				doc.getFirstValue(ImpressDTO.PIPELINE_NAME).toString());
-	
+
 	}
-	
+
 	public ProcedureDTO getProcedureByStableKey(String procedureStableKey) {
-		
+
 		ProcedureDTO procedure = new ProcedureDTO();
 		try {
 			SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PROCEDURE_STABLE_KEY + ":\"" + procedureStableKey + "\"")
-				.setFields(ImpressDTO.PROCEDURE_ID, 
-						ImpressDTO.PROCEDURE_NAME, 
-						ImpressDTO.PROCEDURE_STABLE_ID, 
+				.setFields(ImpressDTO.PROCEDURE_ID,
+						ImpressDTO.PROCEDURE_NAME,
+						ImpressDTO.PROCEDURE_STABLE_ID,
 						ImpressDTO.PROCEDURE_STABLE_KEY);
 
 			QueryResponse response = solr.query(query);
 
 			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
-			
+
 			procedure.setStableId(imd.getProcedureStableId().toString());
 			procedure.setName(imd.getProcedureName().toString());
 			return procedure;
@@ -291,7 +284,7 @@ public class ImpressService implements WebStatus {
 		return null;
 	}
 
-	
+
 	public Integer getParameterIdByStableKey(String parameterStableKey) {
 
 		try {
@@ -341,9 +334,9 @@ public class ImpressService implements WebStatus {
 	public List<ParameterDTO> getParametersByProcedure(List<String> procedureStableIds, String observationType)
 	throws SolrServerException{
 
-		List<ParameterDTO> parameters = new ArrayList<>(); 
+		List<ParameterDTO> parameters = new ArrayList<>();
 		SolrQuery query = new SolrQuery().setQuery("*:*");
-		
+
 		if (procedureStableIds != null){
 			query.setFilterQueries(ImpressDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedureStableIds, "* OR " + ImpressDTO.PROCEDURE_STABLE_ID + ":") + "*");
 		}
@@ -353,7 +346,7 @@ public class ImpressService implements WebStatus {
 			query.addFilterQuery(ImpressDTO.OBSERVATION_TYPE + ":" + observationType);
 		}
 		query.setRows(1000000);
-		
+
 		QueryResponse response = solr.query(query);
 
 		for (ImpressDTO doc: response.getBeans(ImpressDTO.class)){
@@ -366,11 +359,11 @@ public class ImpressService implements WebStatus {
 			param.setRequired(doc.isRequired());
 			parameters.add(param);
 		}
-		
+
 		return parameters;
 	}
-	
-	
+
+
 	public Integer getPipelineStableKey(String pipelineStableId) {
 
 		try {
@@ -408,7 +401,7 @@ public class ImpressService implements WebStatus {
 	 * @return a string that either has the name of the procedure or and HTML
 	 *         anchor tag to be used by the chart
 	 */
-	
+
 	public String getAnchorForProcedure(String procedureName, String procedureStableId) {
 
 		String anchor = procedureName;
@@ -431,14 +424,14 @@ public class ImpressService implements WebStatus {
 
 
 	public Map<String,OntologyBean> getParameterStableIdToAbnormalMaMap(){
-	
+
 		Map<String,OntologyBean> idToAbnormalMaId=new HashMap<>();
 		List<ImpressDTO> pipelineDtos=null;
 		SolrQuery query = new SolrQuery()
 			.setQuery(ImpressDTO.MA_ID + ":*" )
 			.setFields(ImpressDTO.MA_ID, ImpressDTO.MA_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
 		QueryResponse response=null;
-		
+
 		try {
 			response = solr.query(query);
 			pipelineDtos = response.getBeans(ImpressDTO.class);
@@ -452,9 +445,9 @@ public class ImpressService implements WebStatus {
 		}
 		return idToAbnormalMaId;
 	}
-	
+
 	public Map<String,OntologyBean> getParameterStableIdToAbnormalEmapaMap(){
-		
+
 		Map<String,OntologyBean> idToAbnormalEmapaId=new HashMap<>();
 		List<ImpressDTO> pipelineDtos=null;
 		SolrQuery query = new SolrQuery()
@@ -476,17 +469,17 @@ public class ImpressService implements WebStatus {
 		return idToAbnormalEmapaId;
 	}
 
-	
+
 	/**
 	 * @author tudose
 	 * @since 2015/08/20
 	 * @param stableId
 	 * @return
-	 * @throws SolrServerException 
+	 * @throws SolrServerException
 	 */
-	public ParameterDTO getParameterByStableId(String stableId) 
+	public ParameterDTO getParameterByStableId(String stableId)
 	throws SolrServerException{
-		
+
 		ParameterDTO param = new ParameterDTO();
 		SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
@@ -499,10 +492,40 @@ public class ImpressService implements WebStatus {
 		param.setStableKey(dto.getParameterStableKey());
 		param.setName(dto.getParameterName());
 		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
-		
+
 		return param;
 	}
-	
+
+
+	public Map<String, Set<String>> getMpsForProcedures() throws SolrServerException {
+
+		Map<String, Set<String>> mpsByProcedure = new HashMap<>();
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.setFields(ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_STABLE_KEY, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.OBSERVATION_TYPE)
+			.addFacetPivotField(ImpressDTO.PROCEDURE_STABLE_ID + "," + ImpressDTO.MP_ID)
+			.setFacetLimit(-1)
+			.setRows(0);
+
+		QueryResponse response = solr.query(query);
+
+		List<Map<String, String>> pivots = getFacetPivotResults(response, true);
+
+		for (Map<String, String> pivot : pivots ) {
+			String procedure = pivot.get(ImpressDTO.PROCEDURE_STABLE_ID);
+			String mpId = pivot.get(ImpressDTO.MP_ID);
+
+			if ( ! mpsByProcedure.containsKey(procedure)) {
+				mpsByProcedure.put(procedure, new TreeSet<>());
+			}
+
+			mpsByProcedure.get(procedure).add(mpId);
+
+		}
+
+		return mpsByProcedure;
+	}
 
 	@Override
 	public long getWebStatus() throws SolrServerException {
@@ -519,5 +542,5 @@ public class ImpressService implements WebStatus {
 	public String getServiceName(){
 		return "ImpressService (pipeline core)";
 	}
-	
+
 }
