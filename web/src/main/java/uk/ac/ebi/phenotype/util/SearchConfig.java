@@ -178,8 +178,8 @@ public class SearchConfig {
                 "procedure_name",
                 "gene_symbol",
                 "gene_accession_id",
-                "ma_term",
-                "ma_id",
+                "anatomy_term",
+                "anatomy_id",
                 "jpeg_url",
                 "download_url",
                 "parameter_association_name",
@@ -227,8 +227,8 @@ public class SearchConfig {
                 "mgi_predicted",
                 "mgi_novel_predicted_in_locus");
         List<String> anatomyFacets =  Arrays.asList("selected_top_level_anatomy_term", "stage");
-        //List<String> imagesFacets =  Arrays.asList("procedure_name", "top_level_mp_term", "selected_top_level_ma_term", "marker_type");
-        List<String> impc_imagesFacets =  Arrays.asList("procedure_name", "selected_top_level_ma_term");
+        //List<String> imagesFacets =  Arrays.asList("procedure_name", "top_level_mp_term", "selected_top_level_anatomy_term", "marker_type");
+        List<String> impc_imagesFacets =  Arrays.asList("procedure_name", "selected_top_level_anatomy_term", "stage");
 
         facetMap.put("gene", geneFacets);
         facetMap.put("mp", mpFacets);
