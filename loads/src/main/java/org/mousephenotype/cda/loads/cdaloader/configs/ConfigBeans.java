@@ -26,8 +26,10 @@ import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
@@ -88,6 +90,7 @@ public class ConfigBeans {
         , ES_CellLine
         , EUCOMM_Allele
         , HMD_HumanPhenotype
+        , KOMP_Allele
         , MGI_Gene
         , MGI_Gene_Model_Coord
         , MGI_GenePheno
@@ -126,6 +129,7 @@ public class ConfigBeans {
                 , new DownloadFilename(DownloadFileEnum.ES_CellLine, "ftp://ftp.informatics.jax.org/pub/reports/ES_CellLine.rpt", cdaWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.EUCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/EUCOMM_Allele.rpt", cdaWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype, "ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdaWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.KOMP_Allele, "ftp://ftp.informatics.jax.org/pub/reports/KOMP_Allele.rpt", cdaWorkspace + "/KOMP_Allele.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_Gene, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene.rpt", cdaWorkspace + "/MGI_Gene.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_GenePheno, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
@@ -177,13 +181,47 @@ public class ConfigBeans {
         return downloaderList;
     }
 
+    @Bean(name = "sqlLoaderUtils")
+    public SqlLoaderUtils sqlLoaderUtils() {
+        return new SqlLoaderUtils();
+    }
+
+
+    // LOADERS, PROCESSORS, AND WRITERS
+
+
+    @Bean(name = "alleleProcessorPhenotypic")
+    public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
+        return new AlleleProcessorPhenotypic(genomicFeatures, featureTypes, sequenceRegions);
+    }
+
+    @Bean(name = "alleleProcessorQtl")
+    public AlleleProcessorQtl alleleProcessorQtl() {
+        return new AlleleProcessorQtl(genomicFeatures, featureTypes, sequenceRegions);
+    }
+
+    @Bean(name = "alleleLoader")
+    public AlleleLoader alleleLoader() throws CdaLoaderException {
+        Map<AlleleLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
+        filenameKeys.put(AlleleLoader.FilenameKeys.EUCOMM, downloadFilenameMap.get(DownloadFileEnum.EUCOMM_Allele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.GENOPHENO, downloadFilenameMap.get(DownloadFileEnum.MGI_GenePheno).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.KOMP, downloadFilenameMap.get(DownloadFileEnum.KOMP_Allele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.NORCOM, downloadFilenameMap.get(DownloadFileEnum.NorCOMM_Allele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.PHENOTYPIC, downloadFilenameMap.get(DownloadFileEnum.MGI_PhenotypicAllele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.QTL, downloadFilenameMap.get(DownloadFileEnum.MGI_QTLAllele).targetFilename);
+
+        return new AlleleLoader(filenameKeys);
+    }
+
+
     @Bean(name = "markerLoader")
     public MarkerLoader markerLoader() throws CdaLoaderException {
-        Map<MarkerLoader.MarkerFilenameKeys, String> markerKeys = new HashMap<>();
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.GENE_TYPES, downloadFilenameMap.get(DownloadFileEnum.MGI_GTGUP).targetFilename);
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
-        markerKeys.put(MarkerLoader.MarkerFilenameKeys.XREFS, downloadFilenameMap.get(DownloadFileEnum.MGI_Gene).targetFilename);
-        return new MarkerLoader(markerKeys);
+        Map<MarkerLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
+        filenameKeys.put(MarkerLoader.FilenameKeys.GENE_TYPES, downloadFilenameMap.get(DownloadFileEnum.MGI_GTGUP).targetFilename);
+        filenameKeys.put(MarkerLoader.FilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
+        filenameKeys.put(MarkerLoader.FilenameKeys.XREFS, downloadFilenameMap.get(DownloadFileEnum.MGI_Gene).targetFilename);
+
+        return new MarkerLoader(filenameKeys);
     }
 
     @Bean(name = "markerProcessorGeneTypes")
@@ -201,6 +239,12 @@ public class ConfigBeans {
         return new MarkerProcessorXrefs(genomicFeatures);
     }
 
+    @Bean(name = "markerWriter")
+    public MarkerWriter markerWriter() {
+        return new MarkerWriter();
+    }
+
+
     @Bean(name = "ontologyLoaderList")
     public List<OntologyLoader> ontologyLoader() throws CdaLoaderException {
         List<OntologyLoader> ontologyloaderList = new ArrayList<>();
@@ -215,28 +259,19 @@ public class ConfigBeans {
         return ontologyloaderList;
     }
 
-    @Bean(name = "markerWriter")
-    public MarkerWriter markerWriter() {
-        return new MarkerWriter();
-    }
-
     @Bean(name = "ontologyWriter")
     public OntologyWriter ontologyWriter() {
         return new OntologyWriter();
     }
 
-    @Bean(name = "sqlLoaderUtils")
-    public SqlLoaderUtils sqlLoaderUtils() {
-        return new SqlLoaderUtils();
-    }
 
     @Bean(name = "strainLoader")
     public StrainLoader strainLoader() throws CdaLoaderException {
-        Map<StrainLoader.StrainFilenameKeys, String> strainKeys = new HashMap<>();
-        strainKeys.put(StrainLoader.StrainFilenameKeys.MGI, downloadFilenameMap.get(DownloadFileEnum.MGI_Strain).targetFilename);
-        strainKeys.put(StrainLoader.StrainFilenameKeys.IMSR, downloadFilenameMap.get(DownloadFileEnum.report).targetFilename);
+        Map<StrainLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
+        filenameKeys.put(StrainLoader.FilenameKeys.MGI, downloadFilenameMap.get(DownloadFileEnum.MGI_Strain).targetFilename);
+        filenameKeys.put(StrainLoader.FilenameKeys.IMSR, downloadFilenameMap.get(DownloadFileEnum.report).targetFilename);
 
-        return new StrainLoader(strainKeys);
+        return new StrainLoader(filenameKeys);
     }
 
     @Bean(name = "strainProcessorImsr")

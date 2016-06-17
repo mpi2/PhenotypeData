@@ -70,10 +70,13 @@ public class ConfigBatch {
     public List<OntologyLoader> ontologyLoaderList;
 
     @Autowired
-    public StrainLoader strainLoader;
+    public AlleleLoader alleleLoader;
 
     @Autowired
     public MarkerLoader markerLoader;
+
+    @Autowired
+    public StrainLoader strainLoader;
 
 
 
@@ -146,6 +149,7 @@ public class ConfigBatch {
         Flow flowBuilderAlleleMarkers = new FlowBuilder<Flow>("subflowMarkerLoader").from(markerLoader).end();
 
         // Alleles
+        Flow flowBuilderAlleles = new FlowBuilder<Flow>("subflowAlleleLoader").from(alleleLoader).end();
 
         // Strains - mgi, imsr (the order is important)
         Flow flowBuilderStrains = new FlowBuilder<Flow>("subflowStrainLoader").from(strainLoader).end();
@@ -166,7 +170,7 @@ public class ConfigBatch {
 
         return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
-                .start(flowBuilderAlleleMarkers)
+                .start(flowBuilderAlleles)
                 .end()
                 .build();
     }

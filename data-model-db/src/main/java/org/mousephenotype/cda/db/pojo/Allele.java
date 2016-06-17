@@ -23,7 +23,11 @@ package org.mousephenotype.cda.db.pojo;
  * @since February 2012
  */
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
+import java.util.List;
 
 
 @Entity
@@ -41,6 +45,13 @@ public class Allele {
 
 	@OneToOne
 	@JoinColumns({
+		@JoinColumn(name = "biotype_acc"),
+		@JoinColumn(name = "biotype_db_id"),
+	})
+	private OntologyTerm biotype;
+
+	@OneToOne
+	@JoinColumns({
 	@JoinColumn(name = "gf_acc"),
 	@JoinColumn(name = "gf_db_id"),
 	})
@@ -52,6 +63,13 @@ public class Allele {
 	@Column(name = "symbol")
 	private String symbol;
 
+	@ElementCollection(fetch= FetchType.EAGER)//JW made eager for the indexing of images and rest service - will this cause problems elsewhere?
+	@Fetch(value = FetchMode.SELECT)
+	@CollectionTable(name="synonym",
+	joinColumns= {@JoinColumn(name="acc"),@JoinColumn(name="db_id")}
+			)
+	private List<Synonym> synonyms;
+
 	public Allele() {
 		super();
 	}
@@ -61,6 +79,14 @@ public class Allele {
 	 */
 	public DatasourceEntityId getId() {
 		return id;
+	}
+
+	public OntologyTerm getBiotype() {
+		return biotype;
+	}
+
+	public void setBiotype(OntologyTerm biotype) {
+		this.biotype = biotype;
 	}
 
 	/**
@@ -110,6 +136,14 @@ public class Allele {
 	 */
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
+	}
+
+	public List<Synonym> getSynonyms() {
+		return synonyms;
+	}
+
+	public void setSynonyms(List<Synonym> synonyms) {
+		this.synonyms = synonyms;
 	}
 
 	@Override

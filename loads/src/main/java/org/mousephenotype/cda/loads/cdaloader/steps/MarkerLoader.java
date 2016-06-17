@@ -19,7 +19,6 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.LineMapperFieldSet;
 import org.mousephenotype.cda.loads.cdaloader.support.LogStatusStepListener;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
@@ -32,30 +31,26 @@ import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 
 import java.util.*;
 
 /**
- * Loads the markers from the MGI_GTGUP.gff file into the strain and synonym tables of the target database.
- * As of 31-May-2016, the report.txt file's first line is a heading that must be skipped.
+ * Loads the markers from the mgi report files.
  *
  * Created by mrelac on 13/04/2016.
  *
  */
 public class MarkerLoader implements InitializingBean, Step {
 
-    private       CommonUtils                     commonUtils      = new CommonUtils();
-    private final Logger                          logger           = LoggerFactory.getLogger(this.getClass());
-    public        Map<MarkerFilenameKeys, String> markerKeys       = new HashMap<>();
-    private       FlatFileItemReader<FieldSet>    geneTypesReader  = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    markerListReader = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet>    xrefsReader      = new FlatFileItemReader<>();
+    private final Logger                       logger           = LoggerFactory.getLogger(this.getClass());
+    public        Map<FilenameKeys, String>    markerKeys       = new HashMap<>();
+    private       FlatFileItemReader<FieldSet> geneTypesReader  = new FlatFileItemReader<>();
+    private       FlatFileItemReader<FieldSet> markerListReader = new FlatFileItemReader<>();
+    private       FlatFileItemReader<FieldSet> xrefsReader      = new FlatFileItemReader<>();
 
-    public static final  String                   ACTIVE_STATUS    = "active";
+    public static final  String                ACTIVE_STATUS    = "active";
 
-    public enum MarkerFilenameKeys {
+    public enum FilenameKeys {
           GENE_TYPES
         , MARKER_LIST
         , XREFS
@@ -77,19 +72,19 @@ public class MarkerLoader implements InitializingBean, Step {
     private MarkerWriter writer;
 
 
-    public MarkerLoader(Map<MarkerFilenameKeys, String> markerKeys) throws CdaLoaderException {
+    public MarkerLoader(Map<FilenameKeys, String> markerKeys) throws CdaLoaderException {
         this.markerKeys = markerKeys;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        geneTypesReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.GENE_TYPES)));
+        geneTypesReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.GENE_TYPES)));
         geneTypesReader.setLineMapper(new LineMapperFieldSet());
 
-        markerListReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.MARKER_LIST)));
+        markerListReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.MARKER_LIST)));
         markerListReader.setLineMapper(new LineMapperFieldSet());
 
-        xrefsReader.setResource(new FileSystemResource(markerKeys.get(MarkerFilenameKeys.XREFS)));
+        xrefsReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.XREFS)));
         xrefsReader.setLineMapper(new LineMapperFieldSet());
     }
 
@@ -148,7 +143,7 @@ public class MarkerLoader implements InitializingBean, Step {
                 .processor(markerProcessorMarkerList)
                 .build();
 
-        Step loadXrefsStep = stepBuilderFactory.get("markerLoaderXrefsListStep")
+        Step loadXrefsStep = stepBuilderFactory.get("markerLoaderXrefsStep")
                 .listener(new MarkerLoaderXrefsStepListener())
                 .chunk(1000)
                 .reader(xrefsReader)
@@ -157,11 +152,11 @@ public class MarkerLoader implements InitializingBean, Step {
                 .build();
 
         List<Flow> flows = new ArrayList<>();
-        flows.add(new FlowBuilder<Flow>("markerLoadGeneTypesFlow")
+        flows.add(new FlowBuilder<Flow>("markerLoaderGeneTypesFlow")
                 .from(loadGeneTypesStep).end());
-        flows.add(new FlowBuilder<Flow>("markerLoadMarkerListFlow")
+        flows.add(new FlowBuilder<Flow>("markerLoaderMarkerListFlow")
                 .from(loadMarkerListStep).end());
-        flows.add(new FlowBuilder<Flow>("markerLoadXrefsFlow")
+        flows.add(new FlowBuilder<Flow>("markerLoaderXrefsFlow")
                 .from(loadXrefsStep).end());
 
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("markerLoaderFlows").start(flows.get(0));
@@ -181,7 +176,7 @@ public class MarkerLoader implements InitializingBean, Step {
         protected Set<String> logStatus() {
             logger.info("GENE TYPES: Added {} new Marker gene types from file {} in {}",
                     ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getAddedGeneTypesCount(),
-                    markerKeys.get(MarkerFilenameKeys.GENE_TYPES),
+                    markerKeys.get(FilenameKeys.GENE_TYPES),
                     commonUtils.formatDateDifference(start, stop));
 
             return ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getErrMessages();
@@ -195,7 +190,7 @@ public class MarkerLoader implements InitializingBean, Step {
             logger.info("MARKER LIST: Added {} new Marker gene types and updated {} Marker gene types from file {} in {}",
                     ((MarkerProcessorMarkerList) markerProcessorMarkerList).getAddedMarkerListCount(),
                     ((MarkerProcessorMarkerList) markerProcessorMarkerList).getUpdatedMarkerListCount(),
-                    markerKeys.get(MarkerFilenameKeys.MARKER_LIST),
+                    markerKeys.get(FilenameKeys.MARKER_LIST),
                     commonUtils.formatDateDifference(start, stop));
 
             return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
@@ -212,7 +207,7 @@ public class MarkerLoader implements InitializingBean, Step {
                     xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENSEMBL_GENE_ID).getCount(),
                     xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_VEGA_GENE_ID).getCount(),
                     xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_CCDS_ID).getCount(),
-                    markerKeys.get(MarkerFilenameKeys.XREFS),
+                    markerKeys.get(FilenameKeys.XREFS),
                     commonUtils.formatDateDifference(start, stop));
 
             return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
