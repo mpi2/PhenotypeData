@@ -17,10 +17,7 @@
 package org.mousephenotype.cda.db;
 
 import org.hibernate.SessionFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -44,7 +41,9 @@ import java.util.Properties;
  */
 
 @Configuration
-@ComponentScan("org.mousephenotype.cda.db")
+@ComponentScan(value = "org.mousephenotype.cda.db",
+	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
+)
 @EnableTransactionManagement
 @EnableJpaRepositories
 public class TestConfig {
