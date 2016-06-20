@@ -2,7 +2,7 @@ package org.mousephenotype.cda.solr;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +34,7 @@ public class SolrServerConfig {
 	private String solrBaseUrl;
 
 	@Autowired
-	PhenotypePipelineDAO ppDao;
+	ImpressService impressService;
 
 	@NotNull
 	@Value("${phenodigm.solrserver}")
@@ -176,12 +176,12 @@ public class SolrServerConfig {
 
 	@Bean(name = "phenotypeCenterService")
 	PhenotypeCenterService phenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/experiment", ppDao);
+		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
 	}
 
 	@Bean(name = "preQcPhenotypeCenterService")
 	PhenotypeCenterService preQcPhenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/preqc", ppDao);
+		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
 	}
 
 
