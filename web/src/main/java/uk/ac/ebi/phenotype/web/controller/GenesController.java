@@ -56,6 +56,7 @@ import org.mousephenotype.cda.solr.service.AnatomogramDataBean;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.MpToColonyBean;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
@@ -63,6 +64,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.EvidenceLink;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
@@ -225,7 +227,7 @@ public class GenesController {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            GenePageTableRow pr = new GenePageTableRow(pcs, url, config, false);
+            GenePageTableRow pr = new GenePageTableRow(pcs, url, config);
             phenotypes.add(pr);
         } 
         
@@ -558,6 +560,11 @@ public class GenesController {
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		PhenotypeFacetResult phenoResult = null;
 		PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
+		
+		
+		//for image links we need a query that brings back mp terms and colony_ids that have mp terms
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
+		Map<String, Set<String>> mpToColony = imageService.getImagePropertiesThatHaveMp(acc);
 
 		try {
 
@@ -592,8 +599,7 @@ public class GenesController {
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService.hasImages(pcs.getGene().getAccessionId(), 
-					pcs.getProcedure().getName(), pcs.getColonyId()));
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 			
 			// Collapse rows on sex	and p-value		
 			if (phenotypes.containsKey(pr.hashCode())) {
@@ -612,12 +618,13 @@ public class GenesController {
 				//now we severely collapsing rows by so we need to store these as an list
 				 //projectId;
 				List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans=pr.getPhenotypeCallUniquePropertyBeans();
+				//keep the set of properties as a set so we can generate unique graph urls if necessary
 				PhenotypeCallUniquePropertyBean propBean=new PhenotypeCallUniquePropertyBean();
 				if (pcs.getProject() != null && pcs.getProject().getId() != null) {
 					propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
 				}
 				if(pcs.getPhenotypingCenter()!=null){
-				propBean.setPhenotypingCenters(pcs.getPhenotypingCenter());
+				propBean.setPhenotypingCenter(pcs.getPhenotypingCenter());
 				}
 		        //procedure.hashCode() 
 				if(pcs.getProcedure()!=null){
@@ -656,11 +663,41 @@ public class GenesController {
 				}
 				pr.setTopLevelMpGroups(topLevelMpGroups);
 			}
-			
 			//We need to build the urls now we have more parameters for multiple graphs
-			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString(),  imageService.hasImages(pcs.getGene().getAccessionId(), 
-					pcs.getProcedure().getName(), pcs.getColonyId()));
+			//this should be refactored so we make fewer requests
+			//pr.buildEvidenceLink(request.getAttribute("baseUrl").toString());
+			
+			//need to formulate a solr query that will let us know if we have mp terms with images and then generate urls based on that result so we don't do so many requests
+			//need to loop over the property beans get the unique set of properties 
+			
 			phenotypes.put(pr.hashCode(), pr);
+		}
+		
+		
+
+		//now we have all the rows as they should be lets see if they need image links and if so generate them and add them to the row
+		
+		for( DataTableRow row: phenotypes.values()){
+			row.buildEvidenceLink(request.getAttribute("baseUrl").toString());
+			
+			//if(imageService.hasImagesWithMP(row.getGene().getAccessionId(),row.getProcedure().getName(), row.getColonyId(), row.getPhenotypeTerm().getId())){
+			String rowMpId=row.getPhenotypeTerm().getId();
+			if(mpToColony.containsKey(rowMpId)){
+				//System.out.println("mpId found!!!!!!!!!!!!!!!!!!!! "+rowMpId);
+				 Set<String> colonyIds = mpToColony.get(rowMpId);
+				 if(colonyIds.contains(row.getColonyId())){
+					 //System.out.println("colony_id="+row.getColonyId());
+				EvidenceLink imageLink=new EvidenceLink();
+				imageLink.setDisplay(true);
+				imageLink.setIconType(EvidenceLink.IconType.IMAGE);
+				//test page http://localhost:8080/phenotype-archive/genes/MGI:1913955
+				//${baseUrl}/impcImages/images?q=gene_accession_id:${acc}&fq=(mp_id:"${phenotype.phenotypeTerm.id}" AND colony_id:${phenotype.colonyId})
+				 String url=request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+row.getGene().getAccessionId()+"&fq=(mp_id:\""+row.getPhenotypeTerm().getId()+"\" AND colony_id:"+row.getColonyId()+")";
+				imageLink.setUrl(url);
+				row.setImagesEvidenceLink(imageLink);
+				}
+			}
+
 		}
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());

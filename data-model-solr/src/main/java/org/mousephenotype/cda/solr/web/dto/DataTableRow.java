@@ -75,6 +75,17 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 														// them in the row
 	protected Set<String> topLevelMpGroups;
 	private List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans = new ArrayList<>();
+	private EvidenceLink imagesEvidenceLink;
+
+	
+
+	public EvidenceLink getImagesEvidenceLink() {
+		return imagesEvidenceLink;
+	}
+
+	public void setImagesEvidenceLink(EvidenceLink imagesEvidenceLink) {
+		this.imagesEvidenceLink = imagesEvidenceLink;
+	}
 
 	public List<PhenotypeCallUniquePropertyBean> getPhenotypeCallUniquePropertyBeans() {
 		return phenotypeCallUniquePropertyBeans;
@@ -100,7 +111,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	public DataTableRow() {
 	}
 
-	public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, boolean hasImages)
+	public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config)
 			throws UnsupportedEncodingException, SolrServerException {
 
 		this.config = config;
@@ -134,7 +145,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
 		}
 		if (pcs.getPhenotypingCenter() != null) {
-			propBean.setPhenotypingCenters(pcs.getPhenotypingCenter());
+			propBean.setPhenotypingCenter(pcs.getPhenotypingCenter());
 		}
 		// procedure.hashCode()
 		if (pcs.getProcedure() != null) {
@@ -157,7 +168,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			propBean.setgId(pcs.getgId());
 		}
 		phenotypeCallUniquePropertyBeans.add(propBean);
-		this.buildEvidenceLink(baseUrl, hasImages);
+		this.buildEvidenceLink(baseUrl);
 
 	}
 
@@ -296,12 +307,12 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		this.evidenceLink = link;
 	}
 
-	public void buildEvidenceLink(String baseGraphUrl, boolean hasImages) throws UnsupportedEncodingException {
+	public void buildEvidenceLink(String baseGraphUrl) throws UnsupportedEncodingException {
 
-		this.evidenceLink = buildGraphUrl(baseGraphUrl, hasImages);
+		this.evidenceLink = buildEvidenceUrl(baseGraphUrl);
 	}
 
-	public EvidenceLink buildGraphUrl(String baseUrl, boolean hasImage) throws UnsupportedEncodingException {
+	public EvidenceLink buildEvidenceUrl(String baseUrl) throws UnsupportedEncodingException {
 
 		String url = baseUrl;
 		EvidenceLink evidenceLink = new EvidenceLink();
@@ -420,15 +431,29 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		}
 		return pipes;
 	}
+	
+	/**
+	 * This method is set up primarily for debug as not used anywhere other than display of procedures used in a phenotype row on gene page
+	 * @return
+	 */
+	public Set<String> getProcedureNames() {
+		Set<String> procedures = new TreeSet<>();
+		for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
+			procedures.add(propBean.getProcedure().getStableId());
+		}
+		return procedures;
+	}
 
 	private Set<String> getPhenotypingCenters() {
 		Set<String> centers = new TreeSet<>();
+
 		if (this.phenotypeCallUniquePropertyBeans.isEmpty() && this.getPhenotypingCenter()!=null) {
 			centers.add(this.getPhenotypingCenter());
 		} else {
 			for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
-				centers.add(propBean.getPhenotypingCenters());
+				centers.add(propBean.getPhenotypingCenter());
 			}
+
 		}
 		return centers;
 	}
@@ -620,21 +645,17 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	@Override
 	public String toString() {
 		return "DataTableRow [" +
-				// config=" + config + ", phenotypeTerm=" + phenotypeTerm + ",
-				// gene=" + gene + ", allele="
-				// + allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ",
-				// lifeStageName=" + lifeStageName
-				// + ", lifeStageAcc=" + lifeStageAcc + ", projectId=" +
-				// projectId + ", phenotypingCenter="
-				// + phenotypingCenter + ", procedure=" + procedure + ",
-				// parameter=" + parameter + ", dataSourceName="
-				// + dataSourceName + ", evidenceLink=" + evidenceLink + ",
-				// pipeline=" + pipeline + ", pValue=" + pValue
-				// + ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" +
-				// colonyId + ", topLevelPhenotypeTerms="
-				// + topLevelPhenotypeTerms + ", topLevelMpGroups=" +
-				// topLevelMpGroups
-				// +
+				 "config=" + config + ", phenotypeTerm=" + phenotypeTerm + ",gene=" + gene + ", allele="
+				 + allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ",	 lifeStageName=" + lifeStageName
+				 + ", lifeStageAcc=" + lifeStageAcc + ", projectId=" +
+				 projectId + ", phenotypingCenter="
+				 + phenotypingCenter + ", procedure=" + procedure + ",	 parameter=" + parameter + ", dataSourceName="
+				 + dataSourceName + ", evidenceLink=" + evidenceLink + ",	 pipeline=" + pipeline + ", pValue=" + pValue
+				 + ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" +
+				 colonyId + ", topLevelPhenotypeTerms="
+				 + topLevelPhenotypeTerms + ", topLevelMpGroups=" +
+				 topLevelMpGroups
+				 +
 		",\n phenotypeCallUniquePropertyBeans=" + phenotypeCallUniquePropertyBeans + "\n]";
 	}
 
