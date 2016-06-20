@@ -289,7 +289,6 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 	}
 	
 	public void addImage(SolrDocument image) {
-		System.out.println("adding image param");
 			this.imageList.add(image);
 			
 		

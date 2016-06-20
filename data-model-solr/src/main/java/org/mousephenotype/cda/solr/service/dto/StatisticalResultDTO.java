@@ -544,9 +544,7 @@ public class StatisticalResultDTO {
     @Field(PROJECT_ID)
     private Integer projectId;
 
-    public String getChartUrl (String baseUrl) {
-        return DataTableRow.getChartPageUrlPostQc(baseUrl, markerAccessionId, alleleAccessionId, metadataGroup, (zygosity==null) ? null : ZygosityType.valueOf(zygosity), parameterStableId, pipelineStableId, phenotypingCenter);
-    }
+    
 
     public String getDocId() {
 

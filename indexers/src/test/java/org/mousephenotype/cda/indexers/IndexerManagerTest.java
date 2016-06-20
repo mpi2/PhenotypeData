@@ -143,56 +143,7 @@ public class IndexerManagerTest {
         fail("Expected MissingRequiredArgumentException");
     }
 
-     /**
-      * Test invoking static main with empty context.
-      *
-      * Expected results: STATUS_NO_ARGUMENT.
-      */
-     @Test
-//@Ignore
-    public void testStaticEmptyContext() throws IOException, SolrServerException, SQLException {
-        String testName = "testStaticEmptyContext";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=" };
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-        int retVal =  IndexerManager.mainReturnsStatus(args);
 
-        switch (retVal) {
-            case IndexerManager.STATUS_NO_ARGUMENT:
-                break;
-
-            default:
-                fail("Expected STATUS_NO_ARGUMENT");
-                break;
-        }
-    }
-
-     /**
-      * Test invoking IndexerManager instance with empty context.
-      *
-      * Expected results: MissingRequiredArgumentException.
-      */
-     @Test
-//@Ignore
-    public void testInstanceEmptyContext() {
-        String testName = "testInstanceEmptyContext";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=" };
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-        IndexerManager indexerManager = new IndexerManager();
-
-        // Determine which cores to build.
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            if (ie.getCause() instanceof MissingRequiredArgumentException) {
-                // Do nothing. This is what we expect.
-                return;
-            }
-        }
-
-        fail("Expected MissingRequiredArgumentException");
-    }
 
      /**
       * Test invoking static main with invalid nodeps
@@ -204,7 +155,7 @@ public class IndexerManagerTest {
      public void testStaticNoCoresNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String args[] = { "--context=index-config_DEV.xml", "--nodeps" };
+        String args[] = { "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -227,7 +178,7 @@ public class IndexerManagerTest {
      public void testInstanceNoCoresNodeps() {
         String testName = "testInstanceNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String args[] = { "--context=index-config_DEV.xml", "--nodeps" };
+        String args[] = { "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -255,7 +206,7 @@ public class IndexerManagerTest {
      public void testStaticInvalidCoreName() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
-        String args[] = { "--context=index-config_DEV.xml", "--cores=junk" };
+        String args[] = { "--cores=junk" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -278,7 +229,7 @@ public class IndexerManagerTest {
     public void testInstanceInvalidCoreName() {
         String testName = "testInstanceInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
-        String args[] = { "--context=index-config_DEV.xml", "--cores=junk" };
+        String args[] = { "--cores=junk" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -306,7 +257,7 @@ public class IndexerManagerTest {
     public void testInstanceNoCores() {
         String testName = "testInstanceNoCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml" };
+        String[] args = { };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -334,7 +285,7 @@ public class IndexerManagerTest {
     public void testInstanceEmptyCoresNoEquals() {
         String testName = "testInstanceEmptyCoresNoEquals";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores" };
+        String[] args = new String[] { "--cores" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -362,7 +313,7 @@ public class IndexerManagerTest {
     public void testInstanceEmptyCores() {
         String testName = "testInstanceEmptyCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=" };
+        String[] args = new String[] { "--cores=" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -390,7 +341,7 @@ public class IndexerManagerTest {
     public void testInstanceEmptyCoresNoEqualsNodepsBeforeCores() {
         String testName = "testInstanceEmptyCoresNoEqualsNodepsBeforeCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--nodeps", "--cores" };
+        String[] args = new String[] { "--nodeps", "--cores" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -418,7 +369,7 @@ public class IndexerManagerTest {
     public void testInstanceEmptyCoresNodepsBeforeCores() {
         String testName = "testInstanceEmptyCoresNodepsBeforeCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--nodeps", "--cores=" };
+        String[] args = new String[] { "--nodeps", "--cores=" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -437,62 +388,6 @@ public class IndexerManagerTest {
     }
 
      /**
-      * Test invoking IndexerManager instance with empty 'cores=' argument, --nodeps AFTER --cores.
-      *
-      * Expected results: InvalidCoreNameException.
-      */
-     @Test
-//@Ignore
-    public void testInstanceEmptyCoresNoEqualsNodepsAfterCores() {
-        String testName = "testInstanceEmptyCoresNoEqualsNodepsAfterCores";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores", "--nodeps" };
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-        IndexerManager indexerManager = new IndexerManager();
-
-        // Determine which cores to build.
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            if (ie.getCause() instanceof InvalidCoreNameException) {
-                // Do nothing. This is the expected exception.
-            } else {
-                fail("Expected InvalidCoreNameException");
-            }
-        } catch (Exception e) {
-            fail("Expected InvalidCoreNameException");
-        }
-    }
-
-     /**
-      * Test invoking IndexerManager instance with empty 'cores=' argument, --nodeps AFTER --cores.
-      *
-      * Expected results: InvalidCoreNameException.
-      */
-     @Test
-//@Ignore
-    public void testInstanceEmptyCoresNodepsAfterCores() {
-        String testName = "testInstanceEmptyCoresNodepsAfterCores";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=", "--nodeps" };
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-        IndexerManager indexerManager = new IndexerManager();
-
-        // Determine which cores to build.
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            if (ie.getCause() instanceof InvalidCoreNameException) {
-                // Do nothing. This is the expected exception.
-            } else {
-                fail("Expected InvalidCoreNameException");
-            }
-        } catch (Exception e) {
-            fail("Expected InvalidCoreNameException");
-        }
-    }
-
-     /**
       * Test invoking static main with --all and --cores=ma
       *
       * Expected results: STATUS_VALIDATION_ERROR.
@@ -502,7 +397,7 @@ public class IndexerManagerTest {
     public void testStaticAllAndCores() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticAllAndCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml", "--all", "--cores=ma" };
+        String[] args = { "--all", "--cores=ma" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -526,7 +421,7 @@ public class IndexerManagerTest {
     public void testStaticAllAndNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticAllAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml", "--all", "--nodeps" };
+        String[] args = { "--all", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -550,7 +445,7 @@ public class IndexerManagerTest {
     public void testStaticDailyAndNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticDailyAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml", "--daily", "--nodeps" };
+        String[] args = { "--daily", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -574,7 +469,7 @@ public class IndexerManagerTest {
     public void testStaticDailyAndCores() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticDailyAndCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml", "--daily", "--cores=ma" };
+        String[] args = { "--daily", "--cores=ma" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -598,7 +493,7 @@ public class IndexerManagerTest {
     public void testStaticAllAndDaily() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticAllAndDaily";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml", "--all", "--daily" };
+        String[] args = { "--all", "--daily" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -622,7 +517,7 @@ public class IndexerManagerTest {
     public void testStaticAllAndDailyAndNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticAllAndDailyAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml", "--all", "--daily", "--nodeps" };
+        String[] args = { "--all", "--daily", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -658,7 +553,7 @@ public class IndexerManagerTest {
      public void testInstanceFirstCore() {
         String testName = "testInstanceFirstCore";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
+        String[] args = new String[] { "--cores=experiment" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -684,7 +579,7 @@ public class IndexerManagerTest {
      public void testInstanceFirstCoreNodeps() {
         String testName = "testInstanceFirstCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment", "--nodeps" };
+        String[] args = new String[] { "--cores=experiment", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -711,7 +606,7 @@ public class IndexerManagerTest {
      public void testInstanceFirstDailyCore() {
         String testName = "testInstanceFirstDailyCore";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc" };
+        String[] args = new String[] { "--cores=preqc" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -749,7 +644,7 @@ public class IndexerManagerTest {
      public void testInstanceFirstDailyCoreNodeps() {
         String testName = "testInstanceFirstDailyCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=preqc", "--nodeps" };
+        String[] args = new String[] { "--cores=preqc", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -776,7 +671,7 @@ public class IndexerManagerTest {
      public void testInstanceLastCore() {
         String testName = "testInstanceLastCore";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=autosuggest" };
+        String[] args = new String[] { "--cores=autosuggest" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -803,7 +698,7 @@ public class IndexerManagerTest {
      public void testInstanceLastCoreNodeps() {
         String testName = "testInstanceLastCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=autosuggest", "--nodeps" };
+        String[] args = new String[] { "--cores=autosuggest", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -829,7 +724,7 @@ public class IndexerManagerTest {
      public void testInstanceMultipleCores() {
         String testName = "testInstanceMultipleCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=pipeline,allele,impc_images,ma,disease,mp" };
+        String[] args = new String[] { "--cores=pipeline,allele,impc_images,ma,disease,mp" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -863,7 +758,7 @@ public class IndexerManagerTest {
      public void testInstanceMultipleCoresNodeps() {
         String testName = "testInstanceMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=pipeline,preqc,allele,impc_images,ma,disease,mp", "--nodeps" };
+        String[] args = new String[] { "--cores=pipeline,preqc,allele,impc_images,ma,disease,mp", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -897,7 +792,7 @@ public class IndexerManagerTest {
      public void testInstanceAll() {
         String testName = "testInstanceAll";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--all" };
+        String[] args = new String[] { "--all" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -922,7 +817,7 @@ public class IndexerManagerTest {
      public void testInstanceDaily() {
         String testName = "testInstanceDaily";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--daily" };
+        String[] args = new String[] { "--daily" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -947,7 +842,7 @@ public class IndexerManagerTest {
     public void testStaticBuildAndDeploy() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticBuildAndDeploy";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
+        String[] args = { "--cores=ma", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -979,7 +874,7 @@ public class IndexerManagerTest {
      public void testStaticBuildSingleCoreNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
+        String[] args = new String[] { "--cores=anatomy", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -1004,7 +899,7 @@ public class IndexerManagerTest {
      public void testInstanceBuildSingleCoreNodeps() throws SQLException, IOException, SolrServerException {
         String testName = "testInstanceBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
+        String[] args = new String[] { "--cores=anatomy", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -1021,10 +916,7 @@ public class IndexerManagerTest {
 
         // Initialise, validate, and build the cores.
         try {
-            indexerManager.anatomyIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
-            System.out.println("Command line = " + StringUtils.join(args, ","));
-            indexerManager.anatomyIndexer.run();
-            indexerManager.anatomyIndexer.validateBuild();
+	        indexerManager.run();
         } catch (IndexerException ie) {
             fail(ie.getLocalizedMessage());
         }
@@ -1040,7 +932,7 @@ public class IndexerManagerTest {
      public void testStaticBuildMultipleCoresNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
+        String[] args = new String[] { "--cores=anatomy,anatomy", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         int retVal =  IndexerManager.mainReturnsStatus(args);
 
@@ -1066,7 +958,7 @@ public class IndexerManagerTest {
      public void testInstanceBuildMultipleCoresNodeps() throws SQLException, IOException, SolrServerException {
         String testName = "testInstanceBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
+        String[] args = new String[] { "--cores=anatomy,anatomy", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -1083,9 +975,7 @@ public class IndexerManagerTest {
 
         // Initialise, validate, and build the cores.
         try {
-            indexerManager.anatomyIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
-            indexerManager.anatomyIndexer.run();
-            indexerManager.anatomyIndexer.validateBuild();
+            indexerManager.run();
         } catch (IndexerException ie) {
             fail(ie.getLocalizedMessage());
         }
@@ -1116,7 +1006,7 @@ public class IndexerManagerTest {
 //     public void testStaticBuildDailyCores() {
 //        String testName = "testStaticBuildDailyCores";
 //        System.out.println("-------------------" + testName + "-------------------");
-//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,mp,disease", "--nodeps" };
+//        String[] args = new String[] { "--cores=ma,mp,disease", "--nodeps" };
 //        System.out.println("Command line = " + StringUtils.join(args, ","));
 //        int retVal =  IndexerManager.mainReturnsStatus(args);
 //
@@ -1140,7 +1030,7 @@ public class IndexerManagerTest {
 //     public void testStaticBuildCores() {
 //        String testName = "testStaticBuildCores";
 //        System.out.println("-------------------" + testName + "-------------------");
-//        String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=experiment" };
+//        String[] args = new String[] { "--cores=experiment" };
 //        logger.info("Command line = " + StringUtils.join(args, ","));
 //        int retVal =  IndexerManager.mainReturnsStatus(args);
 //
