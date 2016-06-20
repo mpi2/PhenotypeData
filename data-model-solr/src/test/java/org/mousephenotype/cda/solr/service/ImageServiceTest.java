@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
+import java.util.Set;
+
 import javax.validation.constraints.NotNull;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -58,7 +60,10 @@ public class ImageServiceTest {
 		
 		String acc="MGI:1913955";
 		try {
-			imageService.getImagePropertiesThatHaveMp(acc);
+			Set<MpToColonyBean> mpToColonies = imageService.getImagePropertiesThatHaveMp(acc);
+			for(MpToColonyBean mpToColony: mpToColonies){
+				System.out.println(mpToColony);
+			}
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

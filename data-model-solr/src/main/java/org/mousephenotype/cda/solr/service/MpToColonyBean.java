@@ -20,4 +20,9 @@ public class MpToColonyBean implements Comparable<MpToColonyBean>{
 		return this.mp.getName().compareTo(o.mp.name);
 		
 	}
+	@Override
+	public String toString() {
+		return "MpToColonyBean [mp=" + mp + ", colonyId=" + colonyId + "]";
+	}
+	
 }
