@@ -56,6 +56,7 @@ import org.mousephenotype.cda.solr.service.AnatomogramDataBean;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.MpToColonyBean;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
@@ -563,7 +564,7 @@ public class GenesController {
 		
 		//for image links we need a query that brings back mp terms and colony_ids that have mp terms
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
-		imageService.getImagePropertiesThatHaveMp(acc);
+		Set<MpToColonyBean> mpToColony = imageService.getImagePropertiesThatHaveMp(acc);
 
 		try {
 

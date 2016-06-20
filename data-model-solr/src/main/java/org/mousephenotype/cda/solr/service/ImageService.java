@@ -22,6 +22,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -43,6 +44,7 @@ import org.springframework.ui.Model;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+
 
 @Service
 public class ImageService implements WebStatus{
@@ -991,22 +993,49 @@ public class ImageService implements WebStatus{
 	}
 
 
-	public void getImagePropertiesThatHaveMp(String acc) throws SolrServerException {
+	/**
+	 * 
+	 * @param acc
+	 * @return a map containing the mp and colony_id combinations so that if we have these then we show an image link on the phenotype table on the gene page. Each row in table could have a different colony_id as well as mp id
+	 * @throws SolrServerException
+	 */
+			
+	public Set<MpToColonyBean> getImagePropertiesThatHaveMp(String acc) throws SolrServerException {
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
+		Set<MpToColonyBean> mpToColony = new TreeSet<>(); //<parameter, <genes>>
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery(ImageDTO.GENE_ACCESSION_ID+":\""+acc+"\"").setRows(100000000);
-		query.addFilterQuery(ImageDTO.MP_ID_TERM);
-		//query.addField(ImageDTO.INCREMENT_VALUE);
-		//query.addField(ImageDTO.DOWNLOAD_URL);
-		//query.addField(ImageDTO.EXTERNAL_SAMPLE_ID);
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
-
+		query.addFilterQuery(ImageDTO.MP_ID_TERM+":*");
+		query.setFacet(true);
+		query.setFacetLimit(-1);
+		query.setFacetMinCount(1);
+		
+		String pivotFacet=ImageDTO.MP_ID_TERM + "," + ImageDTO.COLONY_ID;
+		query.set("facet.pivot", pivotFacet);
+		query.addFacetField(ObservationDTO.COLONY_ID);
+		System.out.println("solr query for images properties for mp="+query);
 		QueryResponse response = solr.query(query);
 		long numberFound = response.getResults().getNumFound();
-		System.out.println("number found="+numberFound);
-		//ImageDTO image = response.get(0);
-		//System.out.println("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			System.out.println("pivot="+pivot.getValue());
+			String mpIdAndName=pivot.getValue().toString();
+			System.out.println("mpIdAndName" +mpIdAndName);
+			OntologyBean mpBean=new OntologyBean();
+			if(mpIdAndName.contains("_")){
+				mpBean.setId(mpIdAndName.split("_")[0]);
+				mpBean.setName(mpIdAndName.split("_")[1]);
+			}
+			for (PivotField mp : pivot.getPivot()){
+				MpToColonyBean mpToCol=new MpToColonyBean();
+				System.out.println("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
+				mpToCol.setMp(mpBean);
+				mpToCol.setColonyId(mp.getValue().toString());
+				mpToColony.add(mpToCol);
+			}
+			
+		}
+		return mpToColony;
 		
 		
 	}
