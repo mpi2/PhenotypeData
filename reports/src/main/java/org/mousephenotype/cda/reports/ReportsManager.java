@@ -26,8 +26,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
-import scala.collection.immutable.HashMap;
-
 import java.io.File;
 import java.util.List;
 
@@ -106,10 +104,10 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ZygosityReport zygosityReport;
-    
+
     @Autowired
     private ExpressionMpOverlapReport laczMpReport;
-    
+
 
     private ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
@@ -321,7 +319,7 @@ public class ReportsManager implements CommandLineRunner {
                         zygosityReport.run(args);
                         file = zygosityReport.targetFile;
                         break;
-//                    case LACZMPOVERLAP: // This is not ready for users, used internally only, at the moment. 
+//                    case LACZMPOVERLAP: // This is not ready for users, used internally only, at the moment.
 //                    	laczMpReport.run(args);
 //                    	file = laczMpReport.targetFile;
 //                    	break;
