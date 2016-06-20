@@ -98,7 +98,7 @@
                     </c:if>
                 </c:forEach>
             </td>
-            <td>${phenotype.lifeStageName}</td>
+            <td>${phenotype.lifeStageName} <%-- length= ${phenotype.phenotypeCallUniquePropertyBeans} --%></td>
 
             
             
@@ -113,13 +113,13 @@
 			</c:if>
 			<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
-                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
                    </c:if>
 			</c:if>
 			
@@ -130,6 +130,7 @@
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
 					<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
 				</c:if>
+				
 			</c:if>
 			<c:if test="${phenotype.isPreQc()}">
 				<i class="fa fa-exclamation" ></i> </span>

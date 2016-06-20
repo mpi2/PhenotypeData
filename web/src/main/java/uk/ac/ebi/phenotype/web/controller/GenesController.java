@@ -66,6 +66,7 @@ import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallUniquePropertyBean;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
@@ -607,6 +608,43 @@ public class GenesController {
 				if (pr.getpValue() > pcs.getpValue()){
 					pr.setpValue(pcs.getpValue());
 				}
+				
+				//now we severely collapsing rows by so we need to store these as an list
+				 //projectId;
+				List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans=pr.getPhenotypeCallUniquePropertyBeans();
+				PhenotypeCallUniquePropertyBean propBean=new PhenotypeCallUniquePropertyBean();
+				if (pcs.getProject() != null && pcs.getProject().getId() != null) {
+					propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
+				}
+				if(pcs.getPhenotypingCenter()!=null){
+				propBean.setPhenotypingCenters(pcs.getPhenotypingCenter());
+				}
+		        //procedure.hashCode() 
+				if(pcs.getProcedure()!=null){
+				propBean.setProcedure(pcs.getProcedure());
+				}
+		        // parameter
+				if(pcs.getParameter()!=null){
+				propBean.setParameter(pcs.getParameter());
+				}
+		        //dataSourceName
+				if(pcs.getPipeline()!=null){
+				propBean.setPipeline(pcs.getPipeline());
+				}
+		       // pipeline
+				//allele_accession_id
+				if(pcs.getAllele()!=null){
+				propBean.setAllele(pcs.getAllele());
+				}
+				//System.out.println("gene="+pcs.getGene().getSymbol());
+				if(pcs.getgId()!=null){
+					//System.out.println("gid="+pcs.getgId());
+					propBean.setgId(pcs.getgId());
+				}
+				phenotypeCallUniquePropertyBeans.add(propBean);
+				pr.setPhenotypeCallUniquePropertyBeans(phenotypeCallUniquePropertyBeans);
+				
+				
 			}
 			
 			if(pr.getTopLevelPhenotypeTerms()!=null){
@@ -618,12 +656,18 @@ public class GenesController {
 				}
 				pr.setTopLevelMpGroups(topLevelMpGroups);
 			}
-
+			
+			//We need to build the urls now we have more parameters for multiple graphs
+			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString(),  imageService.hasImages(pcs.getGene().getAccessionId(), 
+					pcs.getProcedure().getName(), pcs.getColonyId()));
 			phenotypes.put(pr.hashCode(), pr);
 		}
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
+//		for(GenePageTableRow row:l){
+//			System.out.println("row="+row);
+//		}
 		model.addAttribute("phenotypes", l);
 
 	}
@@ -762,7 +806,9 @@ public class GenesController {
 		List<AnatomogramDataBean> anatomogramDataBeans = expressionService.getAnatomogramDataBeans(parameterCounts);
 		Map<String, Long> topLevelMaCounts = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(anatomogramDataBeans);
 		Set<String> topLevelMaIds = expressionService.getLacSelectedTopLevelMaIdsForAnatomogram(anatomogramDataBeans);
-		System.out.println("topLevelMaCounts"+topLevelMaCounts);
+
+		//System.out.println("Genes controller: topLevelMaCounts"+topLevelMaCounts);
+
 		model.addAttribute("topLevelMaCounts", topLevelMaCounts);
 		model.addAttribute("topLevelMaIds", topLevelMaIds);
 		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);

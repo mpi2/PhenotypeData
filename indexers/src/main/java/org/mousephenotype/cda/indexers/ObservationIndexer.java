@@ -34,12 +34,14 @@ import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -55,14 +57,14 @@ import java.util.*;
 /**
  * Populate the experiment core
  */
-@Component
-public class ObservationIndexer extends AbstractIndexer {
+@EnableAutoConfiguration
+public class ObservationIndexer extends AbstractIndexer implements CommandLineRunner {
+
+	private final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
 
 	final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
-	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 	private static Connection connection;
-	CommonUtils commonUtils = new CommonUtils();
 
 	@Autowired
 	SqlUtils sqlUtils;
@@ -73,7 +75,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 	@Autowired
 	@Qualifier("observationIndexing")
-	SolrServer observationSolrServer;
+	SolrServer observationIndexing;
 
 	@Autowired
 	MaOntologyDAO maOntologyService;
@@ -112,24 +114,22 @@ public class ObservationIndexer extends AbstractIndexer {
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(observationSolrServer);
+		return super.validateBuild(observationIndexing);
 	}
 
 	public static void main(String[] args) throws IndexerException {
-
-		ObservationIndexer main = new ObservationIndexer();
-		main.initialise(args);
-		main.run();
-		main.validateBuild();
-
+		SpringApplication.run(ObservationIndexer.class, args);
 	}
 
-	@Override
-	public void initialise(String[] args) throws IndexerException {
 
-		super.initialise(args);
+	@Override
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+		long count = 0;
+		RunStatus runStatus = new RunStatus();
+		long start = System.currentTimeMillis();
 
 		try {
+
 
 			connection = komp2DataSource.getConnection();
 
@@ -176,22 +176,6 @@ public class ObservationIndexer extends AbstractIndexer {
 
 			logger.info("maps populated");
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new IndexerException(e);
-		}
-
-		printConfiguration();
-
-	}
-
-	@Override
-	public RunStatus run() throws IndexerException {
-		long count = 0;
-		RunStatus runStatus = new RunStatus();
-		long start = System.currentTimeMillis();
-
-		try {
 
 			count = populateObservationSolrCore(runStatus);
 
@@ -201,7 +185,6 @@ public class ObservationIndexer extends AbstractIndexer {
 		}
 
 		logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
 		return runStatus;
 	}
 
@@ -209,7 +192,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		int count = 0;
 
-		observationSolrServer.deleteByQuery("*:*");
+		observationIndexing.deleteByQuery("*:*");
 
 		Boolean hasSequenceIdColumn = sqlUtils.columnInSchemaMysql(connection, "observation", "sequence_id");
 
@@ -592,7 +575,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 				// 60 seconds between commits
 				documentCount++;
-				observationSolrServer.addBean(o, 60000);
+				observationIndexing.addBean(o, 60000);
 
 				count++;
 
@@ -602,7 +585,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			}
 
 			// Final commit to save the rest of the docs
-			observationSolrServer.commit();
+			observationIndexing.commit();
 
 		} catch (Exception e) {
 			e.printStackTrace();

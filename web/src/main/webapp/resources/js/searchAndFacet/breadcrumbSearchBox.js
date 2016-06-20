@@ -114,9 +114,13 @@ $(document).ready(function () {
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
 	$( "input#s").val(decodeURI(srchkw));
 	$( "input#s").click(function(){
-		$(this).val('');
+		if ( $(this).val() == 'Search') {
+			$(this).val('');
+		};
 	});
-
+	$('#clearIcon').click(function(){
+		$("input#s").val('');
+	});
 
 	$( "input#s" ).autocomplete({
 		source: function( request, response ) {
