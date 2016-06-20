@@ -149,16 +149,17 @@ public class ReferenceDAO {
               + notInClause
               + searchClause;
 
+                    //    + " AND pmid=24652767 "; // for test
         String query =
                 "SELECT\n"
-             // + "  GROUP_CONCAT(DISTINCT symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
-             // + ", GROUP_CONCAT(DISTINCT acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
-             // + ", GROUP_CONCAT(DISTINCT gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
-             // + ", GROUP_CONCAT(DISTINCT name      SEPARATOR \"|||\") AS alleleNames\n"
-              + "  GROUP_CONCAT( symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
-              + ", GROUP_CONCAT( acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
-              + ", GROUP_CONCAT( gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
-              + ", GROUP_CONCAT( name      SEPARATOR \"|||\") AS alleleNames\n"
+              + "  GROUP_CONCAT(DISTINCT symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
+              + ", GROUP_CONCAT(DISTINCT acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
+              + ", GROUP_CONCAT(DISTINCT gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
+              + ", GROUP_CONCAT(DISTINCT name      SEPARATOR \"|||\") AS alleleNames\n"
+//              + "  GROUP_CONCAT( symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
+//              + ", GROUP_CONCAT( acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
+//              + ", GROUP_CONCAT( gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
+//              + ", GROUP_CONCAT( name      SEPARATOR \"|||\") AS alleleNames\n"
               + ", title\n"
               + ", journal\n"
               + ", pmid\n"
@@ -171,7 +172,7 @@ public class ReferenceDAO {
               + "GROUP BY pmid\n"
               + "ORDER BY date_of_publication DESC\n";
 
-        //System.out.println("alleleRef query: " + query);
+        System.out.println("alleleRef query: " + query);
 
         List<ReferenceDTO> results = new ArrayList<>();
 
