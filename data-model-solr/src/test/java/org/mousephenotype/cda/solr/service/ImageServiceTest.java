@@ -1,5 +1,8 @@
 package org.mousephenotype.cda.solr.service;
 
+import static org.junit.Assert.*;
+
+import java.util.Map;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -60,9 +63,13 @@ public class ImageServiceTest {
 		
 		String acc="MGI:1913955";
 		try {
-			Set<MpToColonyBean> mpToColonies = imageService.getImagePropertiesThatHaveMp(acc);
-			for(MpToColonyBean mpToColony: mpToColonies){
-				System.out.println(mpToColony);
+			Map<String, Set<String>> mpToColonies = imageService.getImagePropertiesThatHaveMp(acc);
+			assertTrue(mpToColonies.size()>0);
+			for(String mp: mpToColonies.keySet()){
+				System.out.println(mp);
+				for(String colony: mpToColonies.get(mp)){
+					System.out.println("colony="+colony);
+				}
 			}
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block

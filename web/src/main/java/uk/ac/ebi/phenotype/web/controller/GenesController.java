@@ -564,7 +564,7 @@ public class GenesController {
 		
 		//for image links we need a query that brings back mp terms and colony_ids that have mp terms
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
-		Set<MpToColonyBean> mpToColony = imageService.getImagePropertiesThatHaveMp(acc);
+		Map<String, Set<String>> mpToColony = imageService.getImagePropertiesThatHaveMp(acc);
 
 		try {
 
@@ -665,7 +665,7 @@ public class GenesController {
 			}
 			//We need to build the urls now we have more parameters for multiple graphs
 			//this should be refactored so we make fewer requests
-			pr.buildEvidenceLink(request.getAttribute("baseUrl").toString());
+			//pr.buildEvidenceLink(request.getAttribute("baseUrl").toString());
 			
 			//need to formulate a solr query that will let us know if we have mp terms with images and then generate urls based on that result so we don't do so many requests
 			//need to loop over the property beans get the unique set of properties 
@@ -674,10 +674,19 @@ public class GenesController {
 		}
 		
 		
+
+		//now we have all the rows as they should be lets see if they need image links and if so generate them and add them to the row
+		
 		for( DataTableRow row: phenotypes.values()){
 			row.buildEvidenceLink(request.getAttribute("baseUrl").toString());
-
+			
 			//if(imageService.hasImagesWithMP(row.getGene().getAccessionId(),row.getProcedure().getName(), row.getColonyId(), row.getPhenotypeTerm().getId())){
+			String rowMpId=row.getPhenotypeTerm().getId();
+			if(mpToColony.containsKey(rowMpId)){
+				//System.out.println("mpId found!!!!!!!!!!!!!!!!!!!! "+rowMpId);
+				 Set<String> colonyIds = mpToColony.get(rowMpId);
+				 if(colonyIds.contains(row.getColonyId())){
+					 //System.out.println("colony_id="+row.getColonyId());
 				EvidenceLink imageLink=new EvidenceLink();
 				imageLink.setDisplay(true);
 				imageLink.setIconType(EvidenceLink.IconType.IMAGE);
@@ -686,6 +695,8 @@ public class GenesController {
 				 String url=request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+row.getGene().getAccessionId()+"&fq=(mp_id:\""+row.getPhenotypeTerm().getId()+"\" AND colony_id:"+row.getColonyId()+")";
 				imageLink.setUrl(url);
 				row.setImagesEvidenceLink(imageLink);
+				}
+			}
 
 		}
 		
