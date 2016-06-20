@@ -350,14 +350,14 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		+ "INNER JOIN phenotype_parameter pp on pp.id = pploa.parameter_id "
 		+ "INNER JOIN phenotype_parameter_ontology_annotation ppoa on ppoa.id=pploa.annotation_id "
 		+ "INNER JOIN phenotype_procedure_parameter ppp ON ppp.parameter_id=pp.id "
-		+ "INNER JOIN phenotype_procedure pProc ON pProc.id=ppp.procedure_id "
+		+ "INNER JOIN phenotype_procedure pProc ON pProc.id=ppp.procedure_id WHERE ontology_acc LIKE 'MP:%' "
 		+ "ORDER BY pProc.stable_id ASC "
 		+ "LIMIT 100000;";
 
 		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
 			String procedure = "";
 		    ResultSet resultSet = statement.executeQuery();
-		    HashSet<String> mps = new HashSet<String>();
+		    Set<String> mps = new HashSet<String>();
 			while (resultSet.next()) {
 				if (!procedure.equals(resultSet.getString("procedure_stable_id"))){
 					if (!procedure.equals("")){
@@ -368,6 +368,10 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 				}
 				mps.add(resultSet.getString("ontology_acc"));
 			}
+
+			// Add the last set to the map
+			res.put(procedure, new HashSet<String>(mps));
+
 		}
 
 		return res;
