@@ -1000,9 +1000,9 @@ public class ImageService implements WebStatus{
 	 * @throws SolrServerException
 	 */
 			
-	public Set<MpToColonyBean> getImagePropertiesThatHaveMp(String acc) throws SolrServerException {
+	public Map<String, Set<String>> getImagePropertiesThatHaveMp(String acc) throws SolrServerException {
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
-		Set<MpToColonyBean> mpToColony = new TreeSet<>(); //<parameter, <genes>>
+		Map<String, Set<String>> mpToColony = new HashMap<>(); //<parameter, <genes>>
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery(ImageDTO.GENE_ACCESSION_ID+":\""+acc+"\"").setRows(100000000);
@@ -1014,25 +1014,24 @@ public class ImageService implements WebStatus{
 		String pivotFacet=ImageDTO.MP_ID_TERM + "," + ImageDTO.COLONY_ID;
 		query.set("facet.pivot", pivotFacet);
 		query.addFacetField(ObservationDTO.COLONY_ID);
-		System.out.println("solr query for images properties for mp="+query);
+		//System.out.println("solr query for images properties for mp="+query);
 		QueryResponse response = solr.query(query);
-		long numberFound = response.getResults().getNumFound();
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			System.out.println("pivot="+pivot.getValue());
+			//System.out.println("pivot="+pivot.getValue());
 			String mpIdAndName=pivot.getValue().toString();
-			System.out.println("mpIdAndName" +mpIdAndName);
-			OntologyBean mpBean=new OntologyBean();
+			//System.out.println("mpIdAndName" +mpIdAndName);
+			String mpId="";
+			Set<String> colonIds=new TreeSet<>();
 			if(mpIdAndName.contains("_")){
-				mpBean.setId(mpIdAndName.split("_")[0]);
-				mpBean.setName(mpIdAndName.split("_")[1]);
+				mpId=(mpIdAndName.split("_")[0]);
 			}
 			for (PivotField mp : pivot.getPivot()){
-				MpToColonyBean mpToCol=new MpToColonyBean();
-				System.out.println("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
-				mpToCol.setMp(mpBean);
-				mpToCol.setColonyId(mp.getValue().toString());
-				mpToColony.add(mpToCol);
+				
+				//System.out.println("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
+				String colonyId=mp.getValue().toString();
+				colonIds.add(colonyId);
 			}
+			mpToColony.put(mpId, colonIds);
 			
 		}
 		return mpToColony;
