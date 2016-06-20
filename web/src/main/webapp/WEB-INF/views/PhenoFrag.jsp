@@ -114,13 +114,13 @@
 			</c:if>
 			<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
-                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
                    </c:if>
 			</c:if>
 			
