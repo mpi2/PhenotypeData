@@ -10,11 +10,11 @@
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="header">
 	
-		<link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-		<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
+		<%--<link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />--%>
+
 		<script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>  
 		<script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>  
-		<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  
+		<%--<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  --%>
 				  	
 		<style type="text/css">
 			h1#top {
@@ -137,12 +137,6 @@
                 			$('#formBox span').text("You are now in editing mode...");
                 			var oTable = $('table#alleleRef').dataTable();
                 			oTable.fnStandingRedraw();
-//
-//			                $('button').addClass('edit').click(function(){
-//				                // reload page;
-//				                //oTable.fnStandingRedraw();
-//			                })
-
                 		}
                 		else {
                 			alert("Passcode incorrect. Please try again");
@@ -171,7 +165,7 @@
    		});
    		
         function fetchAlleleRefDataTable(oConf) {
-       	console.log(oConf);
+       	    //console.log(oConf);
    		  	var oTable = $('table#alleleRef').dataTable({
    	            "bSort": false,
    	        	"processing": true,
@@ -307,22 +301,11 @@
    	                );
    	            }
    	        });
-   		  	
-   		  	
-   		  
+
         }
-        
-        
+
         </script>
-       		
-       		
-       		  	
-       			
-           		
-       		
-       		
-       
-		
+
 	</jsp:body>
 		
 </t:genericpage>
