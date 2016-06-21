@@ -33,10 +33,11 @@ import java.util.Properties;
 @EnableAutoConfiguration
 @ComponentScan(value = "org.mousephenotype.cda",
 	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
-)@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
+)
+@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class TestConfigSolr {
 
-	@Value("http:${solr.host}")
+	@Value("http:${solrUrl}")
 	String solrBaseUrl;
 
 	@Bean
