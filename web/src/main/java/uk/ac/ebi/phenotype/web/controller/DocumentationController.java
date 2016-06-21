@@ -32,10 +32,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/documentation")
 public class DocumentationController {
-    
+
     @RequestMapping("/{page}")
     public String documentation(@PathVariable String page){
-        System.out.println("documentation controller called");
         return "documentation/"+page;
     }
 }
