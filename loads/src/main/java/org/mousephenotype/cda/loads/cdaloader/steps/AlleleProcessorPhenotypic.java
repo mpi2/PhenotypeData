@@ -19,7 +19,6 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.SequenceRegion;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,13 +34,13 @@ public class AlleleProcessorPhenotypic extends AlleleProcessorAbstract {
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
-    public AlleleProcessorPhenotypic(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes, Map<String, SequenceRegion> sequenceRegions) {
-        super(genomicFeatures, featureTypes, sequenceRegions);
+    public AlleleProcessorPhenotypic(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes) {
+        super(genomicFeatures, featureTypes);
     }
 
     @Override
     public Allele process(Allele allele) throws Exception {
-        super.process(allele);
+        allele = super.process(allele);
 
 //        if (lineNumber % 10000 == 0) {
 //            System.out.println("Thread " + Thread.currentThread().getName() + ": PHENOTYPIC: " + lineNumber);

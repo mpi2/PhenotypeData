@@ -17,17 +17,12 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -39,24 +34,7 @@ public class OntologyWriter implements ItemWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("komp2Loads")
-    private DataSource komp2Loads;
-
-    // This class is created by Spring as a singleton, which is fine in parallel processing as long as there are no
-    // instance variables, or they exist but are always the same (e.g. komp2Loads). However, we need a new instance of
-    //  JdbcTemplate for each new instantion of this class to avoid race conditions.
-    private JdbcTemplate jdbcTemplate;
-
-    private SqlLoaderUtils sqlUtils = new SqlLoaderUtils();
-
-    @PostConstruct
-    public void initialise() throws CdaLoaderException {
-        try {
-            jdbcTemplate = new JdbcTemplate(komp2Loads);
-        } catch (Exception e) {
-            throw new CdaLoaderException(e);
-        }
-    }
+    private SqlLoaderUtils sqlLoaderUtils;
 
 
     /**
@@ -73,7 +51,7 @@ public class OntologyWriter implements ItemWriter {
         for (Object term1 : items) {
             OntologyTerm term = (OntologyTerm) term1;
 
-            sqlUtils.insertOntologyTerm(jdbcTemplate, term);
+            sqlLoaderUtils.updateOntologyTerm(term);
         }
     }
 }

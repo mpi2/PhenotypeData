@@ -16,7 +16,11 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,37 +37,21 @@ import java.util.Set;
  */
 public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, Allele> {
 
-    private       int         addedAllelesCount = 0;
-    public final  Set<String> errMessages       = new HashSet<>();
-//    private       Map<String, OntologyTerm>   featureTypes;
-    private       Map<String, GenomicFeature> genomicFeatures;
-    protected       int                         lineNumber          = 0;
-    private final Logger                      logger              = LoggerFactory.getLogger(this.getClass());
-//    private       Map<String, SequenceRegion> sequenceRegions;
-
-    // The following ints define the column offset of the given column in the GENE_TYPES file.
-    public final static int OFFSET_MGI_ACCESSION_ID = 0;
-    public final static int OFFSET_SEQ_REGION = 0;
-    public final static int OFFSET_BIO_TYPE   = 2;
-    public final static int OFFSET_START      = 3;
-    public final static int OFFSET_END        = 4;
-    public final static int OFFSET_STRAND     = 6;
-    public final static int OFFSET_COMMENTS   = 8;
+    private      int                        addedAllelesCount = 0;
+    public final Set<String>                errMessages       = new HashSet<>();
+    private      Map<String, OntologyTerm>  featureTypes;
+    private     Map<String, GenomicFeature> genomicFeatures;
+    protected   int                         lineNumber        = 0;
+    private final Logger                    logger            = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
 
-//    private void initialise() throws Exception {
-//        featureTypes.putAll(sqlLoaderUtils.getOntologyTerms(sqlLoaderUtils.getJdbcTemplate(), DbIdType.Genome_Feature_Type.intValue()));
-//        sequenceRegions.putAll(sqlLoaderUtils.getSequenceRegions(sqlLoaderUtils.getJdbcTemplate()));
-//    }
-
-    public AlleleProcessorAbstract(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes, Map<String, SequenceRegion> sequenceRegions) {
+    public AlleleProcessorAbstract(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes) {
         this.genomicFeatures = genomicFeatures;
-//        this.featureTypes = featureTypes;
-//        this.sequenceRegions = sequenceRegions;
+        this.featureTypes = featureTypes;
     }
 
     @Override
@@ -71,56 +59,41 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
 
         lineNumber++;
 
-//        // Validate the file using the content of the "mgi marker accession id" column.
-//        if (lineNumber == 1) {
-//            if ( ! item.getValues()[OFFSET_MGI_ACCESSION_ID].toLowerCase().startsWith("mgi:")) {
-//                throw new CdaLoaderException("Parsing error on line " + lineNumber + ": Expected mgi accession id to begin with 'MGI:. Line: " + StringUtils.join(item, ", "));
-//            }
-//
-//            return null;
-//        }
+        // Validate the file using the content of the gene and allele accession ids.
+        if (lineNumber == 1) {
+            if ( ! allele.getId().getAccession().toLowerCase().startsWith("mgi:") ||
+               ( ! allele.getGene().getId().getAccession().toLowerCase().startsWith("mgi:"))) {
+                throw new CdaLoaderException("Parsing error on line " + lineNumber
+                        + ": Expected allele and gene accession ids to begin with 'MGI:'. allele: "
+                        + allele.getId().getAccession() + ". Gene: "
+                        + allele.getGene().getId().getAccession());
+            }
 
+            return null;
+        }
 
-        // Initialise maps on first call to process().
-//        if (featureTypes.isEmpty()) {
-//            initialise();
-//        }
+        if (allele.getBiotype().getName().equals("GeneModel")) {
+            return null;
+        }
 
+        OntologyTerm biotype = featureTypes.get(allele.getBiotype().getName());
+        if (biotype == null) {
+            logger.warn("Line {} : NO biotype FOR allele {}. Skipped...", lineNumber, allele.toString());
+            return null;
+        }
 
+        if (allele.getGene().getId().getAccession().trim().isEmpty()) {
+            return null;                                                // Ignore empty genes.
+        }
 
+        GenomicFeature gene = (allele.getGene() == null ? null : genomicFeatures.get(allele.getGene().getId().getAccession()));
 
+        // Fill in the missing fields in preparation for writing to the database.
+        allele.getId().setDatabaseId(DbIdType.MGI.intValue());
+        allele.setGene(gene);
+        allele.setBiotype(biotype);
 
-
-//        String         accessionId    = parsedComment.getId();
-//        String         biotype        = item.getValues()[OFFSET_BIO_TYPE];
-//        String         end            = item.getValues()[OFFSET_END];
-//        SequenceRegion sequenceRegion = sequenceRegions.get(item.getValues()[OFFSET_SEQ_REGION].substring(3));
-//        String         start          = item.getValues()[OFFSET_START];
-//        int            strand         = (item.getValues()[OFFSET_STRAND].equals("+") ? 1 : -1);
-//        OntologyTerm   subtypeTerm    = featureTypes.get(parsedComment.getNote() != null ? parsedComment.getNote() : "unknown");
-//        String         symbol         = parsedComment.getName();
-//
-//        if ( ! biotype.equals("GeneModel")) {
-//
-//            allele = new GenomicFeature();
-//
-//            DatasourceEntityId dsId = new DatasourceEntityId();
-//            dsId.setAccession(accessionId);
-//            dsId.setDatabaseId(DbIdType.MGI.intValue());
-//
-//            allele.setId(dsId);
-//            allele.setBiotype(featureTypes.get(biotype));
-//            allele.setEnd(Integer.parseInt(end));
-//            allele.setSequenceRegion(sequenceRegion);
-//            allele.setStart(Integer.parseInt(start));
-//            allele.setStatus(MarkerLoader.ACTIVE_STATUS);
-//            allele.setStrand(strand);
-//            allele.setSubtype(subtypeTerm);
-//            allele.setSymbol(symbol);
-//
-//            genomicFeatures.put(accessionId, allele);
-            addedAllelesCount++;
-//        }
+        addedAllelesCount++;
 
         return allele;
     }

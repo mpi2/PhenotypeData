@@ -146,10 +146,22 @@ public class Allele {
 		this.synonyms = synonyms;
 	}
 
+//	@Override
+//	public String toString() {
+//		return "Allele [id=" + id + ", gene=" + gene + ", name=" + name
+//				+ ", symbol=" + symbol + "]";
+//	}
+
+
 	@Override
 	public String toString() {
-		return "Allele [id=" + id + ", gene=" + gene + ", name=" + name
-				+ ", symbol=" + symbol + "]";
+		return "Allele{" +
+				"id=" + id +
+				", biotype=" + biotype +
+				", gene=" + gene +
+				", name='" + name + '\'' +
+				", symbol='" + symbol + '\'' +
+				'}';
 	}
 
 	@Override

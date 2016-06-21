@@ -22,12 +22,11 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,19 +41,288 @@ public class SqlLoaderUtils {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public static final String ACTIVE_STATUS = "active";
+
     @Autowired
-    @Qualifier("komp2Loads")
-    private DataSource komp2Loads;
+    private JdbcTemplate jdbcTemplate;
 
 
-    public void insertOntologyTerm(JdbcTemplate jdbcTemplate, OntologyTerm term) {
-        // Write ontology terms.
-        jdbcTemplate.update("INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) VALUES (?, ?, ?, ?, ?, ?)",
-                term.getId().getAccession(), term.getId().getDatabaseId(), term.getName(), term.getDescription(), term.getIsObsolete(), term.getReplacementAcc());
+    /**
+     * Return the <code>GenomicFeature</code> matching the given {@code mgiAccessionId}
+     *
+     * @param alleleAccessionId the desired allele accession id (exact match)
+     *
+     * @return {@code Allele} matching the given {@code alleleAccessionId}, if
+     *         found; null otherwise
+     */
+    public Allele getAllele(String alleleAccessionId) {
+        Allele retVal = null;
+
+        List<Allele> alleleList = jdbcTemplate.query("SELECT * FROM allele WHERE acc = ?", new AlleleRowMapper(), alleleAccessionId);
+        if ( ! alleleList.isEmpty()) {
+            retVal = alleleList.get(0);
+        }
+
+        return retVal;
+    }
+
+    /**
+     * If {@link Allele} doesn't exist, insert it into the database.
+     *
+     * @param allele the {@link Allele} to be inserted
+     *
+     * @return the number of {@code allele}s inserted
+     */
+    public int updateAllele(Allele allele, PreparedStatementSetter pss) throws CdaLoaderException {
+        int count = 0;
+
+        // Insert Allele if it does not exist.
+        if (getAllele(allele.getId().getAccession()) == null) {
+            try {
+                count = jdbcTemplate.update("INSERT INTO allele (acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol, name) " +
+                                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    pss);
+            } catch (DuplicateKeyException e) {
+                logger.warn("Duplicate allele entry. Accession id: " + allele.getId().getAccession() + ". Name: " + allele.getName() + ". Allele not added.");
+            }
+        }
+
+        return count;
+    }
+
+
+
+    /**
+     * Return the list of consider ids matching the given {@code ontologyTermAcc}
+     *
+     * @param ontologyTermAcc the desired ontology term's accession id
+     *
+     * @return the list of consider ids matching the given {@code ontologyTermAcc}, if found; an empty list otherwise
+     */
+    public List<ConsiderId> getConsiderIds(String ontologyTermAcc) {
+
+        List<ConsiderId> termList = jdbcTemplate.query("SELECT * FROM consider_id WHERE ontology_term_acc = ?", new ConsiderIdRowMapper(), ontologyTermAcc);
+
+        return termList;
+    }
+
+
+
+    /**
+     * Return the <code>GenomicFeature</code> matching the given {@code mgiAccessionId}
+     *
+     * @param mgiAccessionId the desired mgiAccessionId (exact match)
+     *
+     * @return {@code GenomicFeature} matching the given {@code mgiAccesionId}, if
+     *         found; null otherwise
+     */
+    public GenomicFeature getGenomicFeature(String mgiAccessionId) {
+        GenomicFeature retVal = null;
+
+        List<GenomicFeature> termList = jdbcTemplate.query("SELECT * FROM genomic_feature WHERE acc = ?", new GenomicFeatureRowMapper(), mgiAccessionId);
+        if ( ! termList.isEmpty()) {
+            retVal = termList.get(0);
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Return the list of <code>GenomicFeature</code>s
+     *
+     * @return the list of <code>GenomicFeature</code>s
+     */
+    public Map<String, GenomicFeature> getGenomicFeatures() {
+        Map<String, GenomicFeature> retVal = new HashMap<>();
+
+        List<GenomicFeature> genes = jdbcTemplate.query("SELECT * FROM genomic_feature", new GenomicFeatureRowMapper());
+
+        for (GenomicFeature gene : genes) {
+            retVal.put(gene.getId().getAccession(), gene);
+        }
+
+        return retVal;
+    }
+
+    /**
+     * If {@link GenomicFeature} doesn't exist, insert it and any of its {@link Synonym}s and {@link Xref}s that don't
+     * yet exist, into the database.
+     *
+     * @param genomicFeature the {@link GenomicFeature} to be inserted
+     *
+     * @return the number of {@code genomicFeature}s inserted
+     */
+    public int updateGenomicFeature(GenomicFeature genomicFeature, PreparedStatementSetter pss) throws CdaLoaderException {
+        int count = 0;
+
+        // Insert GenomicFeature term if it does not exist.
+        if (getGenomicFeature(genomicFeature.getId().getAccession()) == null) {
+            try {
+                count = jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        pss);
+            } catch (DuplicateKeyException e) {
+                logger.warn("Duplicate genomic_feature entry. Accession id: " + genomicFeature.getId().getAccession() + ". GenomicFeature: " + genomicFeature.getName() + ". GenomicFeature not added.");
+            }
+        }
+
+        // Insert synonyms if they do not already exist.
+        List<Synonym> synonyms = (genomicFeature.getSynonyms() == null ? new ArrayList<>() : genomicFeature.getSynonyms());
+        for (Synonym synonym : synonyms) {
+
+            if (getSynonym(genomicFeature.getId().getAccession(), synonym.getSymbol()) == null) {
+                jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
+                        genomicFeature.getId().getAccession(), genomicFeature.getId().getDatabaseId(), synonym.getSymbol());
+            }
+        }
+
+        // Insert xrefs if they do not already exist.
+        List<Xref> xrefs = genomicFeature.getXrefs();
+        for (Xref xref : xrefs) {
+            if (getXref(xref.getAccession(), xref.getXrefAccession()) == null) {
+                jdbcTemplate.update("INSERT INTO xref (acc, db_id, xref_acc, xref_db_id) VALUES(?, ?, ?, ?)",
+                        xref.getAccession(), xref.getDatabaseId(), xref.getXrefAccession(), xref.getXrefDatabaseId());
+            }
+        }
+
+        return count;
+    }
+
+
+
+    /**
+     * Return the <code>OntologyTerm</code> matching the given {@code accesionId}
+     *
+     * @param accessionId the desired term's accession id
+     *
+     * @return {@code OntologyTerm} matching the given {@code accesionId} if
+     *         found; null otherwise
+     */
+    public OntologyTerm getOntologyTerm(String accessionId) {
+        OntologyTerm retVal = null;
+
+        List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term WHERE acc = ?", new OntologyTermRowMapper(), accessionId);
+        if ( ! termList.isEmpty()) {
+            retVal = termList.get(0);
+
+            retVal.setConsiderIds(getConsiderIds(retVal.getId().getAccession()));
+            retVal.setSynonyms(getSynonyms(retVal.getId().getAccession()));
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Return the <code>OntologyTerm</code> matching the given {@code accesionId} and {@code term}
+     *
+     * @param accessionId the desired term's accession id
+     * @param term the desired term
+     *
+     * @return {@code OntologyTerm} matching the given {@code accesionId} and {@code term}, if
+     *         found; null otherwise
+     */
+    public OntologyTerm getOntologyTerm(String accessionId, String term) {
+        OntologyTerm retVal = null;
+
+        List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term WHERE acc = ? AND name = ?", new OntologyTermRowMapper(), accessionId, term);
+        if ( ! termList.isEmpty()) {
+            retVal = termList.get(0);
+
+            retVal.setConsiderIds(getConsiderIds(retVal.getId().getAccession()));
+            retVal.setSynonyms(getSynonyms(retVal.getId().getAccession()));
+        }
+
+        return retVal;
+    }
+
+   /** Return the <code>OntologyTerm</code> matching the given {@code dbId} and {@code term} after first looking up
+    * and possibly transforming the given term to a standardised term.
+    *
+    * @param dbId the desired term's database id
+    * @param term the term to be matched
+    *
+    * @return {@code OntologyTerm} matching the given {@code dbId} and {@code term}, if
+    *         found; null if not found. If more than one result is found, CdaLoaderException is thrown.
+    *
+    * @throws CdaLoaderException
+    */
+    public OntologyTerm getMappedBiotype(int dbId, String term) throws CdaLoaderException {
+        String mappedTerm = getMappedTerm(term);
+
+        return getOntologyTerm(dbId, mappedTerm);
+    }
+
+    /**
+     * Return the <code>OntologyTerm</code> matching the given {@code dbId} and {@code term}
+     *
+     * @param dbId the desired term's database id
+     * @param term the term to be matched
+     *
+     * @return {@code OntologyTerm} matching the given {@code dbId} and {@code term}, if
+     *         found; null if not found. If more than one result is found, CdaLoaderException is thrown.
+     *
+     * @throws CdaLoaderException
+     */
+
+    public OntologyTerm getOntologyTerm(int dbId, String term) throws CdaLoaderException {
+
+        OntologyTerm retVal = null;
+
+        List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term WHERE db_id = ? AND name = ?", new OntologyTermRowMapper(), dbId, term);
+        if ((termList == null) || (termList.isEmpty())) {
+            return null;
+        } else if (termList.size() > 1) {
+            throw new CdaLoaderException("There is more than one ontology term for the given dbId '" + dbId + "' for term name '" + term + "'.");
+        } else {
+            retVal = termList.get(0);
+
+            retVal.setConsiderIds(getConsiderIds(retVal.getId().getAccession()));
+            retVal.setSynonyms(getSynonyms(retVal.getId().getAccession()));
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Return a map of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by ontology term
+     *
+     * @param dbId the dbId of the desired terms
+     *
+     * @return a map of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by ontology name
+     */
+    public Map<String, OntologyTerm> getOntologyTerms(int dbId) {
+        Map<String, OntologyTerm> retVal = new HashMap<>();
+
+        List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term WHERE db_id = ?", new OntologyTermRowMapper(), dbId);
+
+        for (OntologyTerm term : termList) {
+            term.setConsiderIds(getConsiderIds(term.getId().getAccession()));
+            term.setSynonyms(getSynonyms(term.getId().getAccession()));
+            retVal.put(term.getName(), term);
+        }
+
+        return retVal;
+    }
+
+    /**
+     * If {@link OntologyTerm} doesn't exist, insert it and any of its {@link Synonym}s that don't yet exist, into the database.
+     *
+     * @param term the {@link OntologyTerm} to be inserted
+     *
+     * @return the number of {@code term}s inserted
+     */
+    public int updateOntologyTerm(OntologyTerm term) {
+        int count = 0;
+
+        if (getOntologyTerm(term.getId().getAccession(), term.getName()) == null) {
+            // Write ontology terms.
+            count = jdbcTemplate.update("INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) VALUES (?, ?, ?, ?, ?, ?)",
+                    term.getId().getAccession(), term.getId().getDatabaseId(), term.getName(), term.getDescription(), term.getIsObsolete(), term.getReplacementAcc());
+        }
 
         // Write synonym items.
         for (Synonym synonym : term.getSynonyms()) {
-            if (getSynonym(jdbcTemplate, term.getId().getAccession(), synonym.getSymbol()) == null) {
+            if (getSynonym(term.getId().getAccession(), synonym.getSymbol()) == null) {
                 jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
                         term.getId().getAccession(), term.getId().getDatabaseId(), synonym.getSymbol());
             }
@@ -65,63 +333,20 @@ public class SqlLoaderUtils {
             jdbcTemplate.update("INSERT INTO consider_id (ontology_term_acc, acc) VALUES (?, ?)",
                     term.getId().getAccession(), considerId.getAcc());
         }
+
+        return count;
     }
 
-    /**
-     * Return the <code>OntologyTerm</code> matching the given {@code accesionId} and {@code dbId}
-     *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     * @param accessionId the desired term's accession id
-     * @param dbId the desired term's db id
-     *
-     * @return {@code OntologyTerm} matching the given {@code accesionId} and {@code dbId}, if
-     *         found; null otherwise
-     */
-    public OntologyTerm getOntologyTerm(JdbcTemplate jdbcTemplate, String accessionId, int dbId) {
-        OntologyTerm retVal = null;
 
-        List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term WHERE acc = ? AND db_id = ?", new OntologyTermRowMapper(), accessionId, dbId);
-        if ( ! termList.isEmpty()) {
-            retVal = termList.get(0);
-
-            retVal.setConsiderIds(getConsiderIs(jdbcTemplate, retVal.getId().getAccession()));
-            retVal.setSynonyms(getSynonyms(jdbcTemplate, retVal.getId().getAccession()));
-        }
-
-        return retVal;
-    }
-
-    /**
-     * Return a map of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by ontology name
-     *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     * @param dbId the dbId of the desired terms
-     *
-     * @return a map of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by ontology name
-     */
-    public Map<String, OntologyTerm> getOntologyTerms(JdbcTemplate jdbcTemplate, int dbId) {
-        Map<String, OntologyTerm> retVal = new HashMap<>();
-
-        List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term WHERE db_id = ?", new OntologyTermRowMapper(), dbId);
-
-        for (OntologyTerm term : termList) {
-            term.setConsiderIds(getConsiderIs(jdbcTemplate, term.getId().getAccession()));
-            term.setSynonyms(getSynonyms(jdbcTemplate, term.getId().getAccession()));
-            retVal.put(term.getName(), term);
-        }
-
-        return retVal;
-    }
 
     /**
      * Return the {@code SequenceRegion} mapped by {@b id}, if found; null otherwise
      *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
      * @param id the {@code SequenceRegion} primary key
      *
      * @return the {@code SequenceRegion} mapped by {@b id}, if found; null otherwise
      */
-    public SequenceRegion getSequenceRegion(JdbcTemplate jdbcTemplate, int id) {
+    public SequenceRegion getSequenceRegion(int id) {
         SequenceRegion retVal = null;
         String query =
           "SELECT\n" +
@@ -136,7 +361,7 @@ public class SqlLoaderUtils {
                   ", c.db_id AS coord_system_db_id\n" +
                   "FROM seq_region s\n" +
                   "JOIN coord_system c ON c.id = s.coord_system_id\n" +
-                  "WHERE id = ?;";
+                  "WHERE s.id = ?;";
 
         List<SequenceRegion> sequenceRegionList = jdbcTemplate.query(query, new SequenceRegionRowMapper(), id);
         if ( ! sequenceRegionList.isEmpty()) {
@@ -149,11 +374,9 @@ public class SqlLoaderUtils {
     /**
      * Return a map of <code>SequenceRegion</code>s , indexed by region name
      *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     *
      * @return a map of <code>SequenceRegion</code>s, indexed by region name
      */
-    public Map<String, SequenceRegion> getSequenceRegions(JdbcTemplate jdbcTemplate) {
+    public Map<String, SequenceRegion> getSequenceRegions() {
         Map<String, SequenceRegion> retVal = new HashMap<>();
         String query =
           "SELECT\n" +
@@ -178,27 +401,235 @@ public class SqlLoaderUtils {
         return retVal;
     }
 
+
+
     /**
-     * Return the <code>OntologyTerm</code> matching the given {@code name}
+     * Returns the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
      *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     * @param termName the desired term name (exact match)
+     * @param accessionId the desired accessino id
      *
-     * @return {@code OntologyTerm} matching the given {@code accesionId} and {@code dbId}, if
-     *         found; null otherwise
+     * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
+     *
+     * @throws CdaLoaderException
      */
-    public OntologyTerm getOntologyTermByName(JdbcTemplate jdbcTemplate, String termName) {
-        OntologyTerm retVal = null;
+    public Strain getStrain(String accessionId) throws CdaLoaderException {
 
-        List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term WHERE name = ?", new OntologyTermRowMapper(), termName);
-        if ( ! termList.isEmpty()) {
-            retVal = termList.get(0);
+        List<Strain> strainList = jdbcTemplate.query("SELECT * FROM strain WHERE acc = ?", new StrainRowMapper(), accessionId);
 
-            retVal.setConsiderIds(getConsiderIs(jdbcTemplate, retVal.getId().getAccession()));
-            retVal.setSynonyms(getSynonyms(jdbcTemplate, retVal.getId().getAccession()));
+        return (strainList.isEmpty() ? null : strainList.get(0));
+    }
+
+    public List<Strain> getStrains() throws CdaLoaderException {
+
+        return jdbcTemplate.query("SELECT * FROM strain", new StrainRowMapper());
+    }
+
+    /**
+     * If {@link Strain} doesn't exist, insert it and any of its {@link Synonym}s that don't yet exist, into the database.
+     *
+     * @param strain the strain instance to be inserted
+     *
+     * @return a map with the number of {@link Strain} and {@link Synonym} objects inserted (keyed by class)
+     */
+    public Map<Class, Integer> updateStrain(Strain strain) throws CdaLoaderException {
+        Map<Class, Integer> retVal = new HashMap<>();
+        int strainCount = 0;
+        int synonymCount = 0;
+
+        // Insert Strain term if it does not exist.
+        if (getStrain(strain.getId().getAccession()) == null) {
+
+            try {
+                strainCount = jdbcTemplate.update("INSERT INTO strain (acc, db_id, biotype_acc, biotype_db_id, name) VALUES (?, ?, ?, ?, ?)",
+                        strain.getId().getAccession(), strain.getId().getDatabaseId(), strain.getBiotype().getId().getAccession(), strain.getBiotype().getId().getDatabaseId(), strain.getName());
+            } catch (DuplicateKeyException e) {
+                logger.warn("Duplicate strain entry. Accession id: " + strain.getId().getAccession() + ". Strain: " + strain.getName()  + ". Strain not added.");
+            }
+        }
+
+        // Insert synonyms if they do not already exist.
+        List<Synonym> synonyms = strain.getSynonyms();
+        for (Synonym synonym : synonyms) {
+            if (getSynonym(strain.getId().getAccession(), synonym.getSymbol()) == null) {
+                synonymCount += jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
+                        strain.getId().getAccession(), strain.getId().getDatabaseId(), synonym.getSymbol());
+            }
+        }
+
+        retVal.put(Strain.class, strainCount);
+        retVal.put (Synonym.class, synonymCount);
+
+        return retVal;
+    }
+
+
+
+    /**
+     * Return the matching synonym if found; null otherwise
+     *
+     * @param accessionId the desired term's accession id
+     * @param symbol the desired synonym term
+     *
+     * @return the matching synonym if found; null otherwise
+     */
+    public Synonym getSynonym(String accessionId, String symbol) {
+        Synonym synonym = null;
+
+        List<Synonym> synonyms = jdbcTemplate.query("SELECT * FROM synonym WHERE acc = ? AND symbol = ?", new SynonymRowMapper(), accessionId, symbol);
+
+        if ( ! synonyms.isEmpty()) {
+            synonym = synonyms.get(0);
+        }
+
+        return synonym;
+    }
+
+    /**
+     * Return the list of synonyms matching the given {@code accesionId}
+     *
+     * @param accessionId the desired term's accession id
+     *
+     * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
+     *         found; an empty list otherwise
+     */
+    public List<Synonym> getSynonyms(String accessionId) {
+
+        List<Synonym> termList = jdbcTemplate.query("SELECT * FROM synonym WHERE acc = ?", new SynonymRowMapper(), accessionId);
+
+        return termList;
+    }
+
+
+
+    /**
+     * Return the list of xrefs matching the given {@code accesionId}
+     *
+     * @param accessionId the desired term's accession id
+     *
+     * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
+     *         found; an empty list otherwise
+     */
+    public Xref getXref(String accessionId, String xrefAccessionId) {
+
+        List<Xref> xrefList = jdbcTemplate.query("SELECT * FROM xref WHERE acc = ? AND xref_acc = ?", new XrefRowMapper(), accessionId, xrefAccessionId);
+
+        return (xrefList.isEmpty() ? null : xrefList.get(0));
+    }
+
+    /**
+     * Return the list of xrefs matching the given {@code accesionId}
+     *
+     * @param accessionId the desired term's accession id
+     *
+     * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
+     *         found; an empty list otherwise
+     */
+    public List<Xref> getXrefs(String accessionId) {
+
+        List<Xref> xrefList = jdbcTemplate.query("SELECT * FROM xref WHERE acc = ?", new XrefRowMapper(), accessionId);
+
+        return xrefList;
+    }
+
+
+    // MISCELLANEOUS FUNCTIONS
+
+
+
+    private final String[][] mappedTerms = new String[][] {
+              { "congenic strain",   "congenic" }
+            , { "coisogenic strain", "coisogenic" }
+    };
+    public String getMappedTerm(String term) {
+        String retVal = term;
+        for (int i = 0; i < mappedTerms.length; i++) {
+            if (term.equals(mappedTerms[i][0])) {
+                retVal = mappedTerms[i][1];
+                break;
+            }
         }
 
         return retVal;
+    }
+
+    public RunStatus validateHeadings(String[] headingRow, FileHeading[] headings) {
+        String    actualValue   = "";
+        String    expectedValue = "";
+        int       offset        = 0;
+        RunStatus status        = new RunStatus();
+
+        try {
+            for (int i = 0; i < headings.length; i++) {
+                offset = headings[i].offset;
+                expectedValue = headings[i].heading;
+                actualValue = headingRow[offset];
+                if ( ! expectedValue.equals(actualValue)) {
+                    status.addError("Expected column " + offset
+                            + " to equal " + expectedValue + " but was " + actualValue);
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            status.addError("Index out of bounds. Expected column " + expectedValue + " at offset " + offset + ". Heading row = " + headingRow);
+        }
+
+        return status;
+    }
+
+
+    // ROW MAPPERS
+
+
+    public class AlleleRowMapper implements RowMapper<Allele> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public Allele mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Allele allele = new Allele();
+
+            allele.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
+            allele.setBiotype(getOntologyTerm(rs.getString("biotype_acc")));
+            allele.setName(rs.getString("name"));
+            allele.setSymbol(rs.getString("symbol"));
+
+            allele.setGene(getGenomicFeature(rs.getString("acc")));
+            allele.setSynonyms(getSynonyms(rs.getString("acc")));
+
+            return allele;
+        }
+    }
+
+    public class ConsiderIdRowMapper implements RowMapper<ConsiderId> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public ConsiderId mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ConsiderId considerId = new ConsiderId();
+
+            considerId.setAcc(rs.getString("acc"));
+            considerId.setOntologyTermAcc(rs.getString("ontology_term_acc"));
+
+            return considerId;
+        }
     }
 
     public class GenomicFeatureRowMapper implements RowMapper<GenomicFeature> {
@@ -219,18 +650,15 @@ public class SqlLoaderUtils {
             GenomicFeature feature = new GenomicFeature();
 
             feature.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
-            try {
-                feature.setBiotype(getOntologyTerm(getJdbcTemplate(), rs.getString("biotype_acc"), rs.getInt("biotype_db_id")));
-                feature.setcMposition(rs.getString("cm_position"));
-                feature.setName(rs.getString("name"));
-                feature.setSequenceRegion(getSequenceRegion(getJdbcTemplate(), rs.getInt("seq_region_id")));
-                feature.setStatus("active");
-                feature.setSubtype(getOntologyTerm(getJdbcTemplate(), rs.getString("subtype_acc"), rs.getInt("subtype_db_id")));
-                feature.setSymbol(rs.getString("symbol"));
+            feature.setBiotype(getOntologyTerm(rs.getString("biotype_acc")));
+            feature.setcMposition(rs.getString("cm_position"));
+            feature.setName(rs.getString("name"));
 
-            } catch (CdaLoaderException e) {
-                throw new SQLException(e);
-            }
+            SequenceRegion sequenceRegion = new SequenceRegion();
+            feature.setSequenceRegion(getSequenceRegion(rs.getInt("seq_region_id")));
+            feature.setStatus(ACTIVE_STATUS);
+            feature.setSubtype(getOntologyTerm(rs.getString("subtype_acc")));
+            feature.setSymbol(rs.getString("symbol"));
 
             return feature;
         }
@@ -305,75 +733,6 @@ public class SqlLoaderUtils {
         }
     }
 
-    /**
-     * Return the list of synonyms matching the given {@code accesionId}
-     *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     * @param accessionId the desired term's accession id
-     *
-     * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
-     *         found; an empty list otherwise
-     */
-    public List<Synonym> getSynonyms(JdbcTemplate jdbcTemplate, String accessionId) {
-
-        List<Synonym> termList = jdbcTemplate.query("SELECT * FROM synonym WHERE acc = ?", new SynonymRowMapper(), accessionId);
-
-        return termList;
-    }
-
-    /**
-     * Return the list of xrefs matching the given {@code accesionId}
-     *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     * @param accessionId the desired term's accession id
-     *
-     * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
-     *         found; an empty list otherwise
-     */
-    public Xref getXref(JdbcTemplate jdbcTemplate, String accessionId, String xrefAccessionId) {
-
-        List<Xref> xrefList = jdbcTemplate.query("SELECT * FROM xref WHERE acc = ? AND xref_acc = ?", new XrefRowMapper(), accessionId, xrefAccessionId);
-
-        return (xrefList.isEmpty() ? null : xrefList.get(0));
-    }
-
-    /**
-     * Return the list of xrefs matching the given {@code accesionId}
-     *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     * @param accessionId the desired term's accession id
-     *
-     * @return the list of synonyms matching the given {@code accesionId} and {@code dbId}, if
-     *         found; an empty list otherwise
-     */
-    public List<Xref> getXrefs(JdbcTemplate jdbcTemplate, String accessionId) {
-
-        List<Xref> xrefList = jdbcTemplate.query("SELECT * FROM xref WHERE acc = ?", new XrefRowMapper(), accessionId);
-
-        return xrefList;
-    }
-
-    /**
-     * Return the matching synonym if found; null otherwise
-     *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     * @param accessionId the desired term's accession id
-     * @param symbol the desired synonym term
-     *
-     * @return the matching synonym if found; null otherwise
-     */
-    public Synonym getSynonym(JdbcTemplate jdbcTemplate, String accessionId, String symbol) {
-        Synonym synonym = null;
-
-        List<Synonym> synonyms = jdbcTemplate.query("SELECT * FROM synonym WHERE acc = ? AND symbol = ?", new SynonymRowMapper(), accessionId, symbol);
-
-        if ( ! synonyms.isEmpty()) {
-            synonym = synonyms.get(0);
-        }
-
-        return synonym;
-    }
-
     public class StrainRowMapper implements RowMapper<Strain> {
 
         /**
@@ -392,11 +751,11 @@ public class SqlLoaderUtils {
             Strain strain = new Strain();
 
             try {
-                strain.setBiotype(getOntologyTerm(getJdbcTemplate(), rs.getString("biotype_acc"), rs.getInt("biotype_db_id")));
+                strain.setBiotype(getOntologyTerm(rs.getString("biotype_acc")));
                 strain.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
                 strain.setName(rs.getString("name"));
 
-                strain.setSynonyms(getSynonyms(getJdbcTemplate(), rs.getString("acc")));
+                strain.setSynonyms(getSynonyms(rs.getString("acc")));
 
             } catch (Exception e) {
 
@@ -455,255 +814,5 @@ public class SqlLoaderUtils {
 
             return xref;
         }
-    }
-
-    /**
-     * Return the list of consider ids matching the given {@code ontologyTermAcc}
-     *
-     * @param jdbcTemplate a valid {@code JdbcTemplate} instance
-     * @param ontologyTermAcc the desired ontology term's accession id
-     *
-     * @return the list of consider ids matching the given {@code ontologyTermAcc}, if found; an empty list otherwise
-     */
-    public List<ConsiderId> getConsiderIs(JdbcTemplate jdbcTemplate, String ontologyTermAcc) {
-
-        List<ConsiderId> termList = jdbcTemplate.query("SELECT * FROM consider_id WHERE ontology_term_acc = ?", new ConsiderIdRowMapper(), ontologyTermAcc);
-
-        return termList;
-    }
-
-    public class ConsiderIdRowMapper implements RowMapper<ConsiderId> {
-
-        /**
-         * Implementations must implement this method to map each row of data
-         * in the ResultSet. This method should not call {@code next()} on
-         * the ResultSet; it is only supposed to map values of the current row.
-         *
-         * @param rs     the ResultSet to map (pre-initialized for the current row)
-         * @param rowNum the number of the current row
-         * @return the result object for the current row
-         * @throws SQLException if a SQLException is encountered getting
-         *                      column values (that is, there's no need to catch SQLException)
-         */
-        @Override
-        public ConsiderId mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ConsiderId considerId = new ConsiderId();
-
-            considerId.setAcc(rs.getString("acc"));
-            considerId.setOntologyTermAcc(rs.getString("ontology_term_acc"));
-
-            return considerId;
-        }
-    }
-
-    /**
-     * Insert { @code GenomicFeature} into the {@code genomic_feature} table.
-     *
-     * @param jdbcTemplate a valid {@code JdbcTemplate} instance
-     * @param genomicFeature the {@code GenomicFeature} instance to be inserted
-     */
-    public void insertOrUpdateGenomicFeature(JdbcTemplate jdbcTemplate, GenomicFeature genomicFeature) throws CdaLoaderException {
-        // Insert GenomicFeature term if it does not exist.
-        if (getGenomicFeature(getJdbcTemplate(), genomicFeature.getId().getAccession()) == null) {
-
-            try {
-                jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
-                                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        genomicFeature.getId().getAccession(),
-                        genomicFeature.getId().getDatabaseId(),
-                        genomicFeature.getSymbol(),
-                        genomicFeature.getName(),
-                        genomicFeature.getBiotype().getId().getAccession(),
-                        genomicFeature.getBiotype().getId().getDatabaseId(),
-                        genomicFeature.getSubtype() == null ? null : genomicFeature.getSubtype().getId().getAccession(),
-                        genomicFeature.getSubtype() == null ? null : genomicFeature.getSubtype().getId().getDatabaseId(),
-                        genomicFeature.getSequenceRegion() == null ? null : genomicFeature.getSequenceRegion().getId(),
-                        genomicFeature.getStart(),
-                        genomicFeature.getEnd(),
-                        genomicFeature.getStrand(),
-                        genomicFeature.getcMposition(),
-                        genomicFeature.getStatus());
-
-            } catch (DuplicateKeyException e) {
-                logger.warn("Duplicate genomic_feature entry. Accession id: " + genomicFeature.getId().getAccession() + ". GenomicFeature: " + genomicFeature.getName()  + ". GenomicFeature not added.");
-            }
-        }
-
-        // Insert synonyms if they do not already exist.
-        List<Synonym> synonyms = (genomicFeature.getSynonyms() == null ? new ArrayList<>() : genomicFeature.getSynonyms());
-        for (Synonym synonym : synonyms) {
-
-            if (getSynonym(jdbcTemplate, genomicFeature.getId().getAccession(), synonym.getSymbol()) == null) {
-                jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                        genomicFeature.getId().getAccession(), genomicFeature.getId().getDatabaseId(), synonym.getSymbol());
-            }
-        }
-
-        // Insert xrefs if they do not already exist.
-        List<Xref> xrefs = genomicFeature.getXrefs();
-        for (Xref xref : xrefs) {
-            if (getXref(getJdbcTemplate(), xref.getAccession(), xref.getXrefAccession()) == null) {
-                jdbcTemplate.update("INSERT INTO xref (acc, db_id, xref_acc, xref_db_id) VALUES(?, ?, ?, ?)",
-                        xref.getAccession(), xref.getDatabaseId(), xref.getXrefAccession(), xref.getXrefDatabaseId());
-            }
-        }
-    }
-
-    /**
-     * Insert { @code Strain} into the {@code strain} table.
-     *
-     * @param jdbcTemplate a valid {@code JdbcTemplate} instance
-     * @param strain the {@code Strain} instance to be inserted
-     */
-    public void insertOrUpdateStrain(JdbcTemplate jdbcTemplate, Strain strain) throws CdaLoaderException {
-        // Insert Strain term if it does not exist.
-        if (getStrain(strain.getId().getAccession()) == null) {
-
-            try {
-                jdbcTemplate.update("INSERT INTO strain (acc, db_id, biotype_acc, biotype_db_id, name) VALUES (?, ?, ?, ?, ?)",
-                        strain.getId().getAccession(), strain.getId().getDatabaseId(), strain.getBiotype().getId().getAccession(), strain.getBiotype().getId().getDatabaseId(), strain.getName());
-
-            } catch (DuplicateKeyException e) {
-                logger.warn("Duplicate strain entry. Accession id: " + strain.getId().getAccession() + ". Strain: " + strain.getName()  + ". Strain not added.");
-            }
-        }
-
-        // Insert synonyms if they do not already exist.
-        List<Synonym> synonyms = strain.getSynonyms();
-        for (Synonym synonym : synonyms) {
-            if (getSynonym(jdbcTemplate, strain.getId().getAccession(), synonym.getSymbol()) == null) {
-                jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                        strain.getId().getAccession(), strain.getId().getDatabaseId(), synonym.getSymbol());
-            }
-        }
-    }
-
-    /**
-     * Returns the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
-     *
-     * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
-     *
-     * @throws CdaLoaderException
-     */
-
-    /**
-     * Returns the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
-     *
-     * @param accessionId the desired accessino id
-     *
-     * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
-     *
-     * @throws CdaLoaderException
-     */
-    public Strain getStrain(String accessionId) throws CdaLoaderException {
-
-        List<Strain> strainList = getJdbcTemplate().query("SELECT * FROM strain WHERE acc = ?", new StrainRowMapper(), accessionId);
-
-        return (strainList.isEmpty() ? null : strainList.get(0));
-    }
-
-    public List<Strain> getStrainList() throws CdaLoaderException {
-
-        return getJdbcTemplate().query("SELECT * FROM strain", new StrainRowMapper());
-    }
-
-    /**
-     * Returns the {@code OntologyTerm} matching the strain type (e.g. "inbred strain", "coisogenic", "Not Applicable",
-     * etc.)
-     *
-     * @param strainType the strain type (e.g. "inbred strain", "coisogenic", "Not Applicable"
-     * @return the {@code OntologyTerm} matching the strain type
-     *
-     * @throws CdaLoaderException if the strain type is not found
-     */
-    public OntologyTerm getBiotype(String strainType) throws CdaLoaderException {
-
-        strainType = getMappedStrainType(strainType);
-        OntologyTerm term = getOntologyTermByName(getJdbcTemplate(), strainType);
-
-        if (term == null) {
-            throw new CdaLoaderException("No CV term found for strain type " + strainType);
-        }
-
-        return term;
-    }
-
-    /**
-     * Returns a new {@code JdbcTemplate}
-     * @return a new {@code JdbcTemplate}
-     * @throws CdaLoaderException
-     */
-    public JdbcTemplate getJdbcTemplate() throws CdaLoaderException {
-        JdbcTemplate jdbcTemplate;
-        try {
-            jdbcTemplate = new JdbcTemplate(komp2Loads);
-        } catch (Exception e) {
-            throw new CdaLoaderException(e);
-        }
-
-        return jdbcTemplate;
-    }
-
-
-    // PRIVATE METHODS
-
-
-    private final String[][] mappedStrainTypes = new String[][] {
-              { "congenic strain",   "congenic" }
-            , { "coisogenic strain", "coisogenic" }
-    };
-    public String getMappedStrainType(String strainType) {
-        String retVal = strainType;
-        for (int i = 0; i < mappedStrainTypes.length; i++) {
-            if (strainType.equals(mappedStrainTypes[i][0])) {
-                retVal = mappedStrainTypes[i][1];
-                break;
-            }
-        }
-
-        return retVal;
-    }
-
-    /**
-     * Return the <code>GenomicFeature</code> matching the given {@code mgiAccessionId}
-     *
-     * @param jdbcTemplate a valid <code>JdbcTemplate</code> instance
-     * @param mgiAccessionId the desired mgiAccessionId (exact match)
-     *
-     * @return {@code GenomicFeature} matching the given {@code mgiAccesionId}, if
-     *         found; null otherwise
-     */
-    public GenomicFeature getGenomicFeature(JdbcTemplate jdbcTemplate, String mgiAccessionId) {
-        GenomicFeature retVal = null;
-
-        List<GenomicFeature> termList = jdbcTemplate.query("SELECT * FROM genomic_feature WHERE acc = ?", new GenomicFeatureRowMapper(), mgiAccessionId);
-        if ( ! termList.isEmpty()) {
-            retVal = termList.get(0);
-        }
-
-        return retVal;
-    }
-
-    public RunStatus validateHeadings(String[] headingRow, FileHeading[] headings) {
-        String    actualValue   = "";
-        String    expectedValue = "";
-        int       offset        = 0;
-        RunStatus status        = new RunStatus();
-
-        try {
-            for (int i = 0; i < headings.length; i++) {
-                offset = headings[i].offset;
-                expectedValue = headings[i].heading;
-                actualValue = headingRow[offset];
-                if ( ! expectedValue.equals(actualValue)) {
-                    status.addError("Expected column " + offset
-                            + " to equal " + expectedValue + " but was " + actualValue);
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            status.addError("Index out of bounds. Expected column " + expectedValue + " at offset " + offset + ". Heading row = " + headingRow);
-        }
-
-        return status;
     }
 }

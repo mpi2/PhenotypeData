@@ -83,9 +83,9 @@ public class ConfigBatch {
     @Bean
     public Job[] runJobs() throws CdaLoaderException {
         Job[] jobs = new Job[] {
-                  databaseInitialiserJob()
+//                  databaseInitialiserJob()
 //                , downloaderJob()
-                , dbLoaderJob()
+                  dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -142,35 +142,46 @@ public class ConfigBatch {
         // Ontologies
         for (int i = 0; i < ontologyLoaderList.size(); i++) {
             OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
-            parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i).from(ontologyLoader).end());
+            parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i + "_parallelFlow").from(ontologyLoader).end());
         }
 
         // Markers - Gene types and subtypes, marker lists, VEGA, Ensembl, EntrezGene, and cCDS models
-        Flow flowBuilderAlleleMarkers = new FlowBuilder<Flow>("subflowMarkerLoader").from(markerLoader).end();
+        Flow markersFlow = new FlowBuilder<Flow>("markersFlow").from(markerLoader).end();
 
         // Alleles
-        Flow flowBuilderAlleles = new FlowBuilder<Flow>("subflowAlleleLoader").from(alleleLoader).end();
+        Flow allelesFlow = new FlowBuilder<Flow>("allelesFlow").from(alleleLoader).end();
 
         // Strains - mgi, imsr (the order is important)
-        Flow flowBuilderStrains = new FlowBuilder<Flow>("subflowStrainLoader").from(strainLoader).end();
+        Flow strainsFlow = new FlowBuilder<Flow>("strainsFlow").from(strainLoader).end();
 
         // Parallelize the parallelizable flows.
-        FlowBuilder<Flow> flowBuilderParallel = new FlowBuilder<Flow>("splitflow").start(parallelFlows.get(0));
+        FlowBuilder<Flow> parallelFlowBuilder = new FlowBuilder<Flow>("parallelFlow").start(parallelFlows.get(0));
         for (int i = 1; i < parallelFlows.size(); i++) {
             SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
-            flowBuilderParallel.split(executor).add(parallelFlows.get(i));
+            parallelFlowBuilder.split(executor).add(parallelFlows.get(i));
         }
 
 //        return jobBuilderFactory.get("dbLoaderJob")
 //                .incrementer(new RunIdIncrementer())
-//                .start(flowBuilderStrains)
-//                .next(flowBuilderAlleleMarkers)
+//                .start(parallelFlowBuilder.build())
+//                .next(markersFlow)
+//                .next(allelesFlow)
+//                .next(strainsFlow)
 //                .end()
 //                .build();
 
+//        return jobBuilderFactory.get("dbLoaderJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(markersFlow)
+//                .next(allelesFlow)
+//                .end()
+//                .build();
+
+
+
         return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
-                .start(flowBuilderAlleles)
+                .start(allelesFlow)
                 .end()
                 .build();
     }

@@ -16,12 +16,15 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.LineMapperFieldSet;
 import org.mousephenotype.cda.loads.cdaloader.support.LogStatusStepListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.JobInterruptedException;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
@@ -42,13 +45,12 @@ import java.util.*;
  */
 public class MarkerLoader implements InitializingBean, Step {
 
-    private final Logger                       logger           = LoggerFactory.getLogger(this.getClass());
-    public        Map<FilenameKeys, String>    markerKeys       = new HashMap<>();
-    private       FlatFileItemReader<FieldSet> geneTypesReader  = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet> markerListReader = new FlatFileItemReader<>();
-    private       FlatFileItemReader<FieldSet> xrefsReader      = new FlatFileItemReader<>();
+    private final Logger                       logger     = LoggerFactory.getLogger(this.getClass());
+    public        Map<FilenameKeys, String>    markerKeys = new HashMap<>();
 
-    public static final  String                ACTIVE_STATUS    = "active";
+    private FlatFileItemReader<FieldSet> geneTypesReader  = new FlatFileItemReader<>();
+    private FlatFileItemReader<FieldSet> markerListReader = new FlatFileItemReader<>();
+    private FlatFileItemReader<FieldSet> xrefsReader      = new FlatFileItemReader<>();
 
     public enum FilenameKeys {
           GENE_TYPES
@@ -134,6 +136,7 @@ public class MarkerLoader implements InitializingBean, Step {
                 .chunk(1000)
                 .reader(geneTypesReader)
                 .processor(markerProcessorGeneTypes)
+                // Don't add a writer here, as this processing simply populates the featureTypes, genomicFeatures, and sequenceRegions maps.
                 .build();
 
         Step loadMarkerListStep = stepBuilderFactory.get("markerLoaderMarkerListStep")
@@ -141,14 +144,16 @@ public class MarkerLoader implements InitializingBean, Step {
                 .chunk(1000)
                 .reader(markerListReader)
                 .processor(markerProcessorMarkerList)
+                // Don't add a writer here, as this processing simply populates the featureTypes, genomicFeatures, and sequenceRegions maps.
                 .build();
 
+        // NOTE: The MarkerLoaderXrefsStepListener writes all of the data in the genomicFeatures map.
         Step loadXrefsStep = stepBuilderFactory.get("markerLoaderXrefsStep")
                 .listener(new MarkerLoaderXrefsStepListener())
                 .chunk(1000)
                 .reader(xrefsReader)
                 .processor(markerProcessorXrefs)
-                .writer(writer)
+                // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.
                 .build();
 
         List<Flow> flows = new ArrayList<>();
@@ -174,7 +179,7 @@ public class MarkerLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("GENE TYPES: Added {} new Marker gene types from file {} in {}",
+            logger.info("GENE TYPES: Added {} new Marker gene types to map from file {} in {}",
                     ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getAddedGeneTypesCount(),
                     markerKeys.get(FilenameKeys.GENE_TYPES),
                     commonUtils.formatDateDifference(start, stop));
@@ -187,7 +192,7 @@ public class MarkerLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("MARKER LIST: Added {} new Marker gene types and updated {} Marker gene types from file {} in {}",
+            logger.info("MARKER LIST: Added {} new Marker gene types to map and updated {} Marker gene types from file {} in {}",
                     ((MarkerProcessorMarkerList) markerProcessorMarkerList).getAddedMarkerListCount(),
                     ((MarkerProcessorMarkerList) markerProcessorMarkerList).getUpdatedMarkerListCount(),
                     markerKeys.get(FilenameKeys.MARKER_LIST),
@@ -202,12 +207,28 @@ public class MarkerLoader implements InitializingBean, Step {
         protected Set<String> logStatus() {
             Map<Integer, MarkerProcessorXrefs.XrefNode> xrefNodeMap = ((MarkerProcessorXrefs) markerProcessorXrefs).getXrefNodesMap();
 
-            logger.info("XREF: Added {} new EntrezGene, {} new Ensembl, {} new VEGA, and {} new cCDS Xrefs from file {} in {}",
+            logger.info("XREF: Added {} new EntrezGene, {} new Ensembl, {} new VEGA, and {} new cCDS Xrefs to map from file {} in {}",
                     xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENTREZ_GENE_ID).getCount(),
                     xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENSEMBL_GENE_ID).getCount(),
                     xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_VEGA_GENE_ID).getCount(),
                     xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_CCDS_ID).getCount(),
                     markerKeys.get(FilenameKeys.XREFS),
+                    commonUtils.formatDateDifference(start, stop));
+
+            // Write the genomicFeatures map to the database.
+            start = new Date();
+            logger.info("Writing genes to database");
+
+            List<GenomicFeature> genes = new ArrayList(((MarkerProcessorXrefs) markerProcessorXrefs).getGenomicFeatures().values());
+            try {
+                writer.write(genes);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            stop = new Date();
+            logger.info("Wrote {} genes to database in {}",
+                    genes.size(),
                     commonUtils.formatDateDifference(start, stop));
 
             return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
