@@ -1,3 +1,4 @@
+
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -113,14 +114,24 @@
 			</c:if>
 			<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
-                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
                    </c:if>
+			</c:if>
+			
+			<c:if test="${phenotype.getImagesEvidenceLink().getDisplay()}">
+			
+				
+				<!-- request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+pr.getGene().getAccessionId()+"&fq=mp_id:\""+pr.getPhenotypeTerm().getId()+"\""; -->
+					<a href='${phenotype.getImagesEvidenceLink().url}'><i title="${phenotype.procedureNames}" class="fa fa-image" alt="${phenotype.getImagesEvidenceLink().alt}"></i></a>
+				
+				<%-- ${phenotype} --%>
+			
 			</c:if>
 			
 			<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">

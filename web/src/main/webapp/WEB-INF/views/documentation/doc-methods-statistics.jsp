@@ -8,6 +8,12 @@
     for a high throughput environment, a robust automated statistical pipeline
     that alleviates manual intervention is required.</p>
 
+<p>The IMPC has produced a short guide to help with understanding the statistical analysis pipeline:</p>
+    <ul class="subUl">
+        <li><a href="https://www.mousephenotype.org/sites/beta.mousephenotype.org/files/mousephenotype_files/impc_Statistics101_V1_1.pdf" rel="nofollow">Statistics 101 Guide</a></li>
+    </ul>
+
+
 <p>The IMPC uses a variety of statistical methods for making phenotype calls, including:</p>
 
 <ul>
@@ -19,15 +25,16 @@
 </ul>
 
 <p>
-    The Mixed model (MM), Fisher's Exact (FE), and Reference Range Plue (RR+) methods used have been formalized into an R package called
-    <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a>.
-    See the <a href="http://bioconductor.org/packages/release/bioc/vignettes/PhenStat/inst/doc/PhenStatUsersGuide.pdf">complete PhenStat user's guide</a>.
-</p>
-
-<p>
     All analysis frameworks output a statistical significance measure,
     an effect size measure, model diagnostics (when appropriate),
     and <a href="${baseUrl}/documentation/graph-help">graphical visualisation</a>.
+</p>
+
+<h3>PhenStat</h3>
+
+<p>
+    The statistical methods used by the IMPC have been formalized into an R package called
+    <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a>.
 </p>
 
 <p>
@@ -45,6 +52,16 @@
     </li>
     <li> and additional functions that help to decide the correct method for analysis.</li>
 </ul>
+
+Additional information about the PhenStat package:
+<ul class="subUl">
+    <li><a href="https://www.mousephenotype.org/sites/beta.mousephenotype.org/files/mousephenotype_files/PhenStatUsersGuide_1.pdf" rel="nofollow">PhenStat User Guide</a></li>
+    <li><a href="/sites/beta.mousephenotype.org/files/mousephenotype_files/How%20to%20guide%20-%20installing%20PhenStatV2.pdf" rel="nofollow">How to Guide - Installing PhenStat</a></li>
+    <li><a href="https://bioconductor.org/packages/release/bioc/html/PhenStat.html" rel="nofollow">PhenStat is available as a Bioconductor package</a></li>
+    <li>See the <a href="http://bioconductor.org/packages/release/bioc/vignettes/PhenStat/inst/doc/PhenStatUsersGuide.pdf">complete PhenStat user's guide</a></li>
+</ul>
+
+<h3>Statistical details</h3>
 
 <p>
     The Mixed model framework assumes that base line values of the
@@ -222,3 +239,4 @@
 <h4>Significance</h4>
 
 <p>When a mutant genotype effect P value is less than 1.0E-4 (i.e. 0.0001), it is considered significant.</p>
+

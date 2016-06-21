@@ -38,7 +38,7 @@ public class PhenotypePageTableRow extends DataTableRow {
 
     public PhenotypePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, boolean hasImages) 
     throws UnsupportedEncodingException, SolrServerException {
-        super(pcs, baseUrl, config, hasImages);
+        super(pcs, baseUrl, config);
     }
     /**
      * Sort by:

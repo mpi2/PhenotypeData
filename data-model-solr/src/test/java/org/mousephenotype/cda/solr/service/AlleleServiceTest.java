@@ -1,8 +1,6 @@
 package org.mousephenotype.cda.solr.service;
 
 import junit.framework.TestCase;
-
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
@@ -10,9 +8,9 @@ import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
@@ -24,7 +22,7 @@ import java.util.Set;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
 @ContextConfiguration(classes={TestConfigSolr.class})
-@PropertySource("classpath:application.properties")
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
 public class AlleleServiceTest extends TestCase {
 
 	private static final Logger logger = LoggerFactory.getLogger(AlleleServiceTest.class);

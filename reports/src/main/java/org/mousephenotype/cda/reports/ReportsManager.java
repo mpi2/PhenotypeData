@@ -103,10 +103,10 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ZygosityReport zygosityReport;
-    
+
     @Autowired
     private ExpressionMpOverlapReport laczMpReport;
-    
+
 
     private ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
@@ -318,7 +318,7 @@ public class ReportsManager implements CommandLineRunner {
                         zygosityReport.run(args);
                         file = zygosityReport.targetFile;
                         break;
-//                    case LACZMPOVERLAP: // This is not ready for users, used internally only, at the moment. 
+//                    case LACZMPOVERLAP: // This is not ready for users, used internally only, at the moment.
 //                    	laczMpReport.run(args);
 //                    	file = laczMpReport.targetFile;
 //                    	break;
