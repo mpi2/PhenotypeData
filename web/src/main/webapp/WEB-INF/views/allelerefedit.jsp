@@ -266,11 +266,11 @@
 	   	                		var j = JSON.parse(jsonStr);
 		                        var displayedSymbol = null;
 	   	                		if ( j.allAllelesNotFound ){
-	   	                			alert("Curation ignored as '" + j.symbol + "' could not be mapped to an MGI allele(s)");
+	   	                			alert("Curation ignored as allele symbol(s)\n\n" + j.symbol + "\n\ncould not be mapped to an MGI allele(s)");
 				                    displayedSymbol = "";
 	   	                		}
 		                        else if (j.hasOwnProperty("someAllelesNotFound")){
-				                    alert("Some curation ignored as '" + j.someAllelesNotFound + "' could not be mapped to an MGI allele(s)");
+				                    alert("Some curation ignored as allele symbol(s)\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
 				                    displayedSymbol = j.symbol;
 			                    }
 		                        else {
