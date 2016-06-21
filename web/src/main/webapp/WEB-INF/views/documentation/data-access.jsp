@@ -10,7 +10,7 @@
 	<jsp:attribute name="header">
 		<link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
         <style>
-            ul {
+            .srchdocTab ul {
                 list-style-type: square;
                 margin-left: 50px;
             }
