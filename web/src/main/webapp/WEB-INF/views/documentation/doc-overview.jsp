@@ -55,7 +55,7 @@
       <tr>
         <td class="descTxt"><a href='${baseUrl}/documentation/doc-method'>Methods</a></td>
         <td class="descTxt"><a href='${baseUrl}/documentation/doc-related-resources'>Related Resources</a></td>
-        <td class="descTxt"><a href='${baseUrl}/documentation/doc-access'>Data Access & Submission</a></td>
+        <td class="descTxt"><a href='${baseUrl}/documentation/data-access'>Data Access & Submission</a></td>
         </td>
       </tr>
     </table>

@@ -37,16 +37,16 @@
             </ul>
 
             <div id="tabs-1" class="srchdocTab">
-                <%@ include file="doc-access-api-genotype-phenotype.jsp" %>
+                <%@ include file="data-access-api-genotype-phenotype.jsp" %>
             </div>
             <div id="tabs-2" class="srchdocTab">
-                <%@ include file="doc-access-api-statistical-result.jsp" %>
+                <%@ include file="data-access-api-statistical-result.jsp" %>
             </div>
             <div id="tabs-3" class="srchdocTab">
-                <%@ include file="doc-access-api-observation.jsp" %>
+                <%@ include file="data-access-api-observation.jsp" %>
             </div>
             <div id="tabs-4" class="srchdocTab">
-                <%@ include file="doc-access-submission-api-help.jsp" %>
+                <%@ include file="data-access-submission-api-help.jsp" %>
             </div>
 
         </div>
