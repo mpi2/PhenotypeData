@@ -41,6 +41,8 @@
    			button.edit {
    				color: white;
    				background-color: #993333;
+			    border-radius: 8px;
+
    			}
    			div#tableTool {
    				position: absolute;
@@ -98,7 +100,8 @@
    			//var baseUrl = 'http://localhost:8080/phenotype-archive';
    			var baseUrl = "${baseUrl}";
    			var solrUrl = "${internalSolrUrl};"
-   			
+
+
 			$('button[class=login]').click(function(){
 				if ( ! $(this).hasClass('edit') ) {
 					$('#formBox span').text("");
@@ -219,7 +222,9 @@
                      {"bSearchable": false, "sType": "html", "bSortable": true}
                  ], */
    	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
-   	            	
+
+	                $('table#alleleRef').find('tr th:first-child, tr td:first-child').hide();
+
    	            	// download tool
    	            	oConf.externalDbId = 1;
    	            	oConf.fileType = '';
@@ -229,26 +234,26 @@
    	            	oConf.filterStr = $(".dataTables_filter input").val();
    	            	
    	            	$.fn.initDataTableDumpControl(oConf);
-   	            	
-   	            	
+
    	            	if ( $('button').hasClass('edit')) { 
 	   	            	// POST
 	   	            	var thisTable = $(this);
+		                thisTable.find('tr th:first-child, tr td:first-child').show();
 
 	   	            	var dbid = parseInt($(this).find('tr td:nth-child(4) span').attr('id'));
 
-		                $(this).find('tr td:nth-child(1)').bind('click', function(){
+		                $(this).find('tr td:nth-child(1) input').bind('click', function(){
 
-			                //var thisRow = $(this).parent();
+			                var fp = $(this).is(':checked') ? "yes" : "no"; // falsepositive is checked or not
 
 			                $.ajax({
 				                method: "get",
-				                url: baseUrl + "/dataTableAlleleRefSetFalsePositive?id="+dbid,
+				                url: baseUrl + "/dataTableAlleleRefSetFalsePositive?id="+dbid+"&value="+fp,
 				                success: function(response) {
 					                // boolean response
 				                },
 				                error: function() {
-					                window.alert('AJAX error trying to set this paper as false positive');
+					                window.alert('AJAX error trying to set false positive value for this paper');
 				                }
 			                });
 
@@ -259,11 +264,20 @@
 	   	            	$(this).find('tr td:nth-child(3)').editable(baseUrl + '/dataTableAlleleRef', {
 	   	                 "callback": function( jsonStr, y ) {
 	   	                		var j = JSON.parse(jsonStr);
-	   	                		if ( j.alleleIdNotFound == 'yes'){
-	   	                			alert("Curation ignored as the allele symbol could not be mapped to an MGI allele Id" + j.symbol);
+		                        var displayedSymbol = null;
+	   	                		if ( j.allAllelesNotFound ){
+	   	                			alert("Curation ignored as '" + j.symbol + "' could not be mapped to an MGI allele(s)");
+				                    displayedSymbol = "";
 	   	                		}
-	   	                     	$(this).text(j.symbol);
-	   	                  		$(this).parent().find('td:first-child').html("<input type='checkbox' value='yes'>");
+		                        else if (j.hasOwnProperty("someAllelesNotFound")){
+				                    alert("Some curation ignored as '" + j.someAllelesNotFound + "' could not be mapped to an MGI allele(s)");
+				                    displayedSymbol = j.symbol;
+			                    }
+		                        else {
+				                    displayedSymbol = j.symbol;
+			                    }
+	   	                     	$(this).text(displayedSymbol);
+	   	                  		$(this).parent().find('td:first-child').html("<input type='checkbox'>");
 		                        $(this).parent().find('td:nth-child(2)').text(j.reviewed);
 	   	                 },
 	   	                 "event": "click",
