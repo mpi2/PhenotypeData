@@ -36,7 +36,7 @@ import java.util.Properties;
 )@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class TestConfigSolr {
 
-	@Value("http:${solrUrl}")
+	@Value("http:${solr.host}")
 	String solrBaseUrl;
 
 	@Bean
