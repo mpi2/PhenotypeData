@@ -75,7 +75,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
     private void initialise() throws Exception {
 
         // Populate mgi strain list.
-        List<Strain> strains = sqlLoaderUtils.getStrainList();
+        List<Strain> strains = sqlLoaderUtils.getStrains();
         for (Strain strain : strains) {
             strainsMap.put(strain.getId().getAccession(), strain);
             strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
@@ -189,7 +189,7 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
         if ((values[OFFSET_NAME]).contains("EUCOMM") && ( ! strainNameToAccessionIdMap.containsKey(values[OFFSET_NAME]))) {
             Strain strain = new Strain();
             try {
-                strain.setBiotype(sqlLoaderUtils.getBiotype(values[OFFSET_STRAINTYPE]));
+                strain.setBiotype(sqlLoaderUtils.getMappedBiotype(DbIdType.MGI.intValue(), values[OFFSET_STRAINTYPE]));
                 strain.setId(new DatasourceEntityId("IMSR_EUCOMM:" + addedEucommStrainCount, DbIdType.MGI.intValue()));
                 strain.setName(values[OFFSET_NAME]);
                 List<Synonym> synonyms = new ArrayList<>();

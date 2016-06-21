@@ -184,7 +184,7 @@ CREATE TABLE meta_info (
 
 	PRIMARY KEY (id),
 	UNIQUE KEY key_idx (property_key),
-	KEY value_idx (property_value)
+	KEY value_idx (property_value(333))
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -199,7 +199,7 @@ CREATE TABLE meta_history (
 	data_release_version     VARCHAR(10) NOT NULL,
 
 	PRIMARY KEY (id),
-	KEY value_idx (property_value),
+	KEY value_idx (property_value(333)),
 	KEY version_idx (data_release_version)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -426,9 +426,9 @@ CREATE TABLE allele (
 	db_id                     INT(10) NOT NULL,
 	gf_acc                    VARCHAR(20),
 	gf_db_id                  INT(10),
-	biotype_acc               VARCHAR(20),
-	biotype_db_id             INT(10),
-	symbol                      VARCHAR(100) NOT NULL,
+	biotype_acc               VARCHAR(20)  NOT NULL,
+	biotype_db_id             INT(10)      NOT NULL,
+	symbol                    VARCHAR(100) NOT NULL,
 	name                      VARCHAR(200) NOT NULL,
 
 	PRIMARY KEY (acc, db_id),
@@ -1624,9 +1624,10 @@ CREATE TABLE stat_result_phenotype_call_summary (
   rrplus_result_id          INT(10) UNSIGNED DEFAULT NULL,
 	phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
 
-	PRIMARY KEY (categorical_result_id, unidimensional_result_id, rrplus_result_id, phenotype_call_summary_id),
+	PRIMARY KEY (phenotype_call_summary_id),
 	INDEX srpcs_categorical_result_id_idx (categorical_result_id),
-	Index srpcs_unidimensional_result_id_idx (unidimensional_result_id)
+	INDEX srpcs_unidimensional_result_id_idx (unidimensional_result_id),
+	INDEX srpcs_rrplus_result_id_idx (rrplus_result_id)
 
 )
 	COLLATE =utf8_general_ci

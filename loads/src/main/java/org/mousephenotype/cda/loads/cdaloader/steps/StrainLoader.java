@@ -94,7 +94,7 @@ public class StrainLoader implements InitializingBean, Step {
             String[] values = line.split(Pattern.quote("\t"));
             strain.setId(new DatasourceEntityId(values[0], DbIdType.MGI.intValue()));
             strain.setName(values[1]);
-            strain.setBiotype(sqlLoaderUtils.getBiotype(values[2]));
+            strain.setBiotype(sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), values[2]));
             strain.setSynonyms(new ArrayList<>());
             addedMgiStrainCount++;
 

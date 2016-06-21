@@ -26,10 +26,8 @@ import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
@@ -44,9 +42,10 @@ import java.util.Map;
 @Configuration
 public class ConfigBeans {
 
-    private Map<String, OntologyTerm>   featureTypes    = new HashMap<>();
-    private Map<String, GenomicFeature> genomicFeatures = new HashMap<>();
-    private Map<String, SequenceRegion> sequenceRegions = new HashMap<>();
+    private Map<String, OntologyTerm>   markerProcessorFeatureTypes = new HashMap<>();
+    private Map<String, OntologyTerm>   mgiFeatureTypes             = new HashMap<>();
+    private Map<String, GenomicFeature> genomicFeatures             = new HashMap<>();
+    private Map<String, SequenceRegion> sequenceRegions             = new HashMap<>();
 
     @NotNull
     @Value("${cdaload.workspace}")
@@ -100,7 +99,6 @@ public class ConfigBeans {
         , MGI_QTLAllele
         , MGI_Strain
         , MRK_List1
-        , MRK_List2
         , MRK_Reference
         , MRK_Sequence
         , MRK_SwissProt
@@ -139,7 +137,6 @@ public class ConfigBeans {
                 , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_QTLAllele.rpt", cdaWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MGI_Strain, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Strain.rpt", cdaWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_List1, "ftp://ftp.informatics.jax.org/pub/reports/MRK_List1.rpt", cdaWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
-                , new DownloadFilename(DownloadFileEnum.MRK_List2, "ftp://ftp.informatics.jax.org/pub/reports/MRK_List2.rpt", cdaWorkspace + "/MRK_List2.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_Reference, "ftp://ftp.informatics.jax.org/pub/reports/MRK_Reference.rpt", cdaWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_Sequence, "ftp://ftp.informatics.jax.org/pub/reports/MRK_Sequence.rpt", cdaWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
                 , new DownloadFilename(DownloadFileEnum.MRK_SwissProt, "ftp://ftp.informatics.jax.org/pub/reports/MRK_SwissProt.rpt", cdaWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
@@ -192,12 +189,16 @@ public class ConfigBeans {
 
     @Bean(name = "alleleProcessorPhenotypic")
     public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
-        return new AlleleProcessorPhenotypic(genomicFeatures, featureTypes, sequenceRegions);
+        mgiFeatureTypes = sqlLoaderUtils().getOntologyTerms(DbIdType.MGI.intValue());
+        if (genomicFeatures.isEmpty()) {
+            genomicFeatures =  sqlLoaderUtils().getGenomicFeatures();
+        }
+        return new AlleleProcessorPhenotypic(genomicFeatures, mgiFeatureTypes);
     }
 
     @Bean(name = "alleleProcessorQtl")
     public AlleleProcessorQtl alleleProcessorQtl() {
-        return new AlleleProcessorQtl(genomicFeatures, featureTypes, sequenceRegions);
+        return new AlleleProcessorQtl(genomicFeatures, mgiFeatureTypes);
     }
 
     @Bean(name = "alleleLoader")
@@ -213,6 +214,11 @@ public class ConfigBeans {
         return new AlleleLoader(filenameKeys);
     }
 
+    @Bean(name = "alleleWriter")
+    public AlleleWriter alleleWriter() {
+        return new AlleleWriter();
+    }
+
 
     @Bean(name = "markerLoader")
     public MarkerLoader markerLoader() throws CdaLoaderException {
@@ -226,12 +232,12 @@ public class ConfigBeans {
 
     @Bean(name = "markerProcessorGeneTypes")
     public MarkerProcessorGeneTypes markerProcessorGeneTypes() {
-        return new MarkerProcessorGeneTypes(genomicFeatures, featureTypes, sequenceRegions);
+        return new MarkerProcessorGeneTypes(genomicFeatures, markerProcessorFeatureTypes, sequenceRegions);
     }
 
     @Bean(name = "markerProcessorMarkerList")
     public MarkerProcessorMarkerList markerProcessorMarkerList() {
-        return new MarkerProcessorMarkerList(genomicFeatures, featureTypes, sequenceRegions);
+        return new MarkerProcessorMarkerList(genomicFeatures, markerProcessorFeatureTypes, sequenceRegions);
     }
 
     @Bean(name = "markerProcessorXrefs")

@@ -56,8 +56,8 @@ public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, Genomic
 
 
     private void initialise() throws Exception {
-        featureTypes.putAll(sqlLoaderUtils.getOntologyTerms(sqlLoaderUtils.getJdbcTemplate(), DbIdType.Genome_Feature_Type.intValue()));
-        sequenceRegions.putAll(sqlLoaderUtils.getSequenceRegions(sqlLoaderUtils.getJdbcTemplate()));
+        featureTypes.putAll(sqlLoaderUtils.getOntologyTerms(DbIdType.Genome_Feature_Type.intValue()));
+        sequenceRegions.putAll(sqlLoaderUtils.getSequenceRegions());
     }
 
     public MarkerProcessorGeneTypes(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes, Map<String, SequenceRegion> sequenceRegions) {
@@ -72,7 +72,7 @@ public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, Genomic
         lineNumber++;
 
 
-        // Initialise maps on first call to process().
+        // Make sure maps are initialised.
         if (featureTypes.isEmpty()) {
             initialise();
         }
@@ -122,10 +122,11 @@ public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, Genomic
             feature.setEnd(Integer.parseInt(end));
             feature.setSequenceRegion(sequenceRegion);
             feature.setStart(Integer.parseInt(start));
-            feature.setStatus(MarkerLoader.ACTIVE_STATUS);
+            feature.setStatus(SqlLoaderUtils.ACTIVE_STATUS);
             feature.setStrand(strand);
             feature.setSubtype(subtypeTerm);
             feature.setSymbol(symbol);
+            feature.setXrefs(new ArrayList<>());
 
             genomicFeatures.put(accessionId, feature);
             addedGeneTypesCount++;
@@ -155,7 +156,7 @@ public class MarkerProcessorGeneTypes implements ItemProcessor<FieldSet, Genomic
         private String note = null;
 
         /*
-        * Lines come in the form "ID=MGIxxxxxxx;Name=yyyyy;Note=zzzzz"
+        * Lines come in the form "ID=MGIxxxxxxx;Name=yyyyy;Note=zzzzz" where ID is the markerAccessionId, Name is the markerSymbol, and Note is the markerFeature (not used).
         * ID is on every line in the file. Name and Note are optional. The three tokens always seem to appear in the
         * same order: ID (always), then Name (if it exists), then Note (if it exists). You can't split on ";" because
         * some names contain ";", and a Note might as well (though I haven't seen one).

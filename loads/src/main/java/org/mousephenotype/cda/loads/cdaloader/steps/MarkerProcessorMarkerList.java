@@ -121,6 +121,7 @@ public class MarkerProcessorMarkerList implements ItemProcessor<FieldSet, Genomi
         String   name           = item.getValues()[OFFSET_NAME];
         String   symbol         = item.getValues()[OFFSET_SYMBOL];
         String[] synonyms       = new String[0];
+
         // If there are no synonyms, the column does not exist in the item and will throw an IndexOutOfBoundsException if you try to access it.
         if ((item.getFieldCount() >= OFFSET_SYNONYMS + 1) && (item.getValues()[OFFSET_SYNONYMS] != null)) {
             synonyms = item.getValues()[OFFSET_SYNONYMS].split(",");
@@ -141,9 +142,11 @@ public class MarkerProcessorMarkerList implements ItemProcessor<FieldSet, Genomi
                 feature.setBiotype(featureTypes.get(biotype));
                 feature.setSequenceRegion(sequenceRegions.get(chromosome));
                 feature.setcMposition(cMposition);
-                feature.setStatus(MarkerLoader.ACTIVE_STATUS);
+                feature.setStatus(SqlLoaderUtils.ACTIVE_STATUS);
                 feature.setSymbol(symbol);
                 feature.setSubtype(featureTypes.get("unknown"));
+                feature.setXrefs(new ArrayList<>());
+
                 addedMarkerListCount++;
 
             } else {

@@ -65,8 +65,6 @@ public class AlleleLoader implements InitializingBean, Step {
     private FlatFileItemReader<Allele> phenotypicReader = new FlatFileItemReader<>();
     private FlatFileItemReader<Allele> qtlReader        = new FlatFileItemReader<>();
 
-//    public static final  String                   ACTIVE_STATUS    = "active";
-
     public enum FilenameKeys {
           EUCOMM
         , GENOPHENO
@@ -84,17 +82,11 @@ public class AlleleLoader implements InitializingBean, Step {
     @Qualifier("alleleProcessorQtl")
     private ItemProcessor alleleProcessorQtl;
 
-//    @Autowired
-//    private ItemProcessor markerProcessorMarkerList;
-//
-//    @Autowired
-//    private ItemProcessor markerProcessorXrefs;
-
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
-//    @Autowired
-//    private MarkerWriter writer;
+    @Autowired
+    private AlleleWriter writer;
 
 
     public AlleleLoader(Map<FilenameKeys, String> alleleKeys) throws CdaLoaderException {
@@ -231,6 +223,7 @@ public class AlleleLoader implements InitializingBean, Step {
                 .chunk(1000)
                 .reader(phenotypicReader)
                 .processor(alleleProcessorPhenotypic)
+                .writer(writer)
                 .build();
 
         Step loadQtlsStep = stepBuilderFactory.get("alleleLoaderQtlStep")
@@ -238,102 +231,48 @@ public class AlleleLoader implements InitializingBean, Step {
                 .chunk(1000)
                 .reader(qtlReader)
                 .processor(alleleProcessorQtl)
+                .writer(writer)
                 .build();
 
-//        Step loadQtlsStep2 = stepBuilderFactory.get("alleleLoaderQtlStep")
-//                .listener(new AlleleLoaderQtlStepListener())
-//                .chunk(1000)
-//                .reader(qtlReader)
-//                .processor(alleleProcessorPhenotypic)
-//                .build();
-
-
-        List<Flow> parallelFlows = new ArrayList<>();
-
-        List<Flow> flows = new ArrayList<>();
-        parallelFlows.add(new FlowBuilder<Flow>("alleleLoaderPhenotypicsFlow")
-                .from(loadPhenotypicsStep).end());
-        parallelFlows.add(new FlowBuilder<Flow>("alleleLoaderQtlsFlow")
-                .from(loadQtlsStep).end());
-//        parallelFlows.add(new FlowBuilder<Flow>("alleleLoaderQtls2Flow")
-//                .from(loadQtlsStep2).end());
 
         // Synchronous flows.
-//        FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("alleleLoaderFlows").start(flows.get(0));
-//        for (int i = 1; i < flows.size(); i++) {
-//            flowBuilder.next(flows.get(i));
-//        }
-
-
-
-        // Parallelize the parallelizable flows.
-        FlowBuilder<Flow> flowBuilderParallel = new FlowBuilder<Flow>("splitflow").start(parallelFlows.get(0));
-        for (int i = 1; i < parallelFlows.size(); i++) {
-            SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
-            flowBuilderParallel.split(executor).add(parallelFlows.get(i));
+        List<Flow> synchronousFlows = new ArrayList<>();
+        synchronousFlows.add(new FlowBuilder<Flow>("alleleLoaderPhenotypicsFlow")
+                .from(loadPhenotypicsStep).end());
+        synchronousFlows.add(new FlowBuilder<Flow>("alleleLoaderQtlsFlow")
+                .from(loadQtlsStep).end());
+        FlowBuilder<Flow> synchronousFlowBuilder = new FlowBuilder<Flow>("alleleLoaderFlows").start(synchronousFlows.get(0));
+        for (int i = 1; i < synchronousFlows.size(); i++) {
+            synchronousFlowBuilder.next(synchronousFlows.get(i));
         }
+        Flow flow = synchronousFlowBuilder.build();
 
 
-
-
-
+//        // Parallel flows.
+//        List<Flow> parallelFlows = new ArrayList<>();
+//        parallelFlows.add(new FlowBuilder<Flow>("alleleLoaderPhenotypicsFlow")
+//                .from(loadPhenotypicsStep).end());
+//        parallelFlows.add(new FlowBuilder<Flow>("alleleLoaderQtlsFlow")
+//                .from(loadQtlsStep).end());
+//        FlowBuilder<Flow> parallelFlowBuilder = new FlowBuilder<Flow>("alleleLoaderParallelFlows").start(parallelFlows.get(0));
+//        for (int i = 1; i < parallelFlows.size(); i++) {
+//            SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
+//            parallelFlowBuilder.split(executor).add(parallelFlows.get(i));
+//        }
+//        Flow flow = parallelFlowBuilder.build();
 
 
         stepBuilderFactory.get("alleleLoaderStep")
-                .flow(flowBuilderParallel.build())
+                .flow(flow)
                 .build()
                 .execute(stepExecution);
     }
-
-//    public class AlleleLoaderPhenotypicStepListener extends LogStatusStepListener {
-//
-//        @Override
-//        protected Set<String> logStatus() {
-//            logger.info("GENE TYPES: Added {} new Marker gene types from file {} in {}",
-//                    ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getAddedGeneTypesCount(),
-//                    alleleKeys.get(FilenameKeys.GENE_TYPES),
-//                    commonUtils.formatDateDifference(start, stop));
-//
-//            return ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getErrMessages();
-//        }
-//    }
-
-//    public class AlleleLoaderMutantStepListener extends LogStatusStepListener {
-//
-//        @Override
-//        protected Set<String> logStatus() {
-//            logger.info("MARKER LIST: Added {} new Marker gene types and updated {} Marker gene types from file {} in {}",
-//                    ((MarkerProcessorMarkerList) markerProcessorMarkerList).getAddedMarkerListCount(),
-//                    ((MarkerProcessorMarkerList) markerProcessorMarkerList).getUpdatedMarkerListCount(),
-//                    alleleKeys.get(MarkerFilenameKeys.MARKER_LIST),
-//                    commonUtils.formatDateDifference(start, stop));
-//
-//            return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
-//        }
-//    }
-//
-//    public class AlleleLoaderGenophenoStepListener extends LogStatusStepListener {
-//        @Override
-//        protected Set<String> logStatus() {
-//            Map<Integer, MarkerProcessorXrefs.XrefNode> xrefNodeMap = ((MarkerProcessorXrefs) markerProcessorXrefs).getXrefNodesMap();
-//
-//            logger.info("XREF: Added {} new EntrezGene, {} new Ensembl, {} new VEGA, and {} new cCDS Xrefs from file {} in {}",
-//                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENTREZ_GENE_ID).getCount(),
-//                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENSEMBL_GENE_ID).getCount(),
-//                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_VEGA_GENE_ID).getCount(),
-//                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_CCDS_ID).getCount(),
-//                    alleleKeys.get(MarkerFilenameKeys.XREFS),
-//                    commonUtils.formatDateDifference(start, stop));
-//
-//            return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
-//        }
-//    }
 
     public class AlleleLoaderPhenotypicStepListener extends LogStatusStepListener {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("PHENOTYPIC: Added {} new alleles from file {} in {}",
+            logger.info("PHENOTYPIC: Added {} new alleles to database from file {} in {}",
                     ((AlleleProcessorPhenotypic) alleleProcessorPhenotypic).getAddedAllelesCount(),
                     alleleKeys.get(FilenameKeys.PHENOTYPIC),
                     commonUtils.formatDateDifference(start, stop));
@@ -346,7 +285,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("QTL: Added {} new alleles from file {} in {}",
+            logger.info("QTL: Added {} new alleles to database from file {} in {}",
                     ((AlleleProcessorQtl) alleleProcessorQtl).getAddedAllelesCount(),
                     alleleKeys.get(FilenameKeys.QTL),
                     commonUtils.formatDateDifference(start, stop));
