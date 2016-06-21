@@ -44,6 +44,7 @@ public class ReferenceDTO {
     private String journal;
     private String pmid;
     private String dateOfPublication;
+    private String timestamp;
     private List<String> grantIds;
     private List<String> grantAgencies;
     private List<String> paperUrls;
@@ -144,78 +145,80 @@ public class ReferenceDTO {
         this.paperUrls = paperUrls;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 37 * hash + Objects.hashCode(this.alleleSymbols);
-        hash = 37 * hash + Objects.hashCode(this.alleleAccessionIds);
-        hash = 37 * hash + Objects.hashCode(this.geneAccessionIds);
-        hash = 37 * hash + Objects.hashCode(this.impcGeneLinks);
-        hash = 37 * hash + Objects.hashCode(this.mgiAlleleNames);
-        hash = 37 * hash + Objects.hashCode(this.title);
-        hash = 37 * hash + Objects.hashCode(this.journal);
-        hash = 37 * hash + Objects.hashCode(this.pmid);
-        hash = 37 * hash + Objects.hashCode(this.dateOfPublication);
-        hash = 37 * hash + Objects.hashCode(this.grantIds);
-        hash = 37 * hash + Objects.hashCode(this.grantAgencies);
-        hash = 37 * hash + Objects.hashCode(this.paperUrls);
-        return hash;
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ReferenceDTO that = (ReferenceDTO) o;
+
+        if (alleleSymbols != null ? !alleleSymbols.equals(that.alleleSymbols) : that.alleleSymbols != null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (alleleAccessionIds != null ? !alleleAccessionIds.equals(that.alleleAccessionIds) : that.alleleAccessionIds != null)
             return false;
-        }
-        final ReferenceDTO other = (ReferenceDTO) obj;
-        if ( ! Objects.equals(this.alleleSymbols, other.alleleSymbols)) {
+        if (geneAccessionIds != null ? !geneAccessionIds.equals(that.geneAccessionIds) : that.geneAccessionIds != null)
             return false;
-        }
-        if ( ! Objects.equals(this.alleleAccessionIds, other.alleleAccessionIds)) {
+        if (impcGeneLinks != null ? !impcGeneLinks.equals(that.impcGeneLinks) : that.impcGeneLinks != null)
             return false;
-        }
-        if ( ! Objects.equals(this.geneAccessionIds, other.geneAccessionIds)) {
+        if (mgiAlleleNames != null ? !mgiAlleleNames.equals(that.mgiAlleleNames) : that.mgiAlleleNames != null)
             return false;
-        }
-        if ( ! Objects.equals(this.impcGeneLinks, other.impcGeneLinks)) {
+        if (title != null ? !title.equals(that.title) : that.title != null) return false;
+        if (journal != null ? !journal.equals(that.journal) : that.journal != null) return false;
+        if (pmid != null ? !pmid.equals(that.pmid) : that.pmid != null) return false;
+        if (dateOfPublication != null ? !dateOfPublication.equals(that.dateOfPublication) : that.dateOfPublication != null)
             return false;
-        }
-        if ( ! Objects.equals(this.mgiAlleleNames, other.mgiAlleleNames)) {
+        if (timestamp != null ? !timestamp.equals(that.timestamp) : that.timestamp != null) return false;
+        if (grantIds != null ? !grantIds.equals(that.grantIds) : that.grantIds != null) return false;
+        if (grantAgencies != null ? !grantAgencies.equals(that.grantAgencies) : that.grantAgencies != null)
             return false;
-        }
-        if ( ! Objects.equals(this.title, other.title)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.journal, other.journal)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.pmid, other.pmid)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.dateOfPublication, other.dateOfPublication)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.grantIds, other.grantIds)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.grantAgencies, other.grantAgencies)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.paperUrls, other.paperUrls)) {
-            return false;
-        }
-        return true;
+        return !(paperUrls != null ? !paperUrls.equals(that.paperUrls) : that.paperUrls != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = alleleSymbols != null ? alleleSymbols.hashCode() : 0;
+        result = 31 * result + (alleleAccessionIds != null ? alleleAccessionIds.hashCode() : 0);
+        result = 31 * result + (geneAccessionIds != null ? geneAccessionIds.hashCode() : 0);
+        result = 31 * result + (impcGeneLinks != null ? impcGeneLinks.hashCode() : 0);
+        result = 31 * result + (mgiAlleleNames != null ? mgiAlleleNames.hashCode() : 0);
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        result = 31 * result + (journal != null ? journal.hashCode() : 0);
+        result = 31 * result + (pmid != null ? pmid.hashCode() : 0);
+        result = 31 * result + (dateOfPublication != null ? dateOfPublication.hashCode() : 0);
+        result = 31 * result + (timestamp != null ? timestamp.hashCode() : 0);
+        result = 31 * result + (grantIds != null ? grantIds.hashCode() : 0);
+        result = 31 * result + (grantAgencies != null ? grantAgencies.hashCode() : 0);
+        result = 31 * result + (paperUrls != null ? paperUrls.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
-        return "ReferenceDTO{" + "alleleSymbols=" + alleleSymbols + ", alleleIds=" + ", geneAccessionIds=" + geneAccessionIds + ", impcGeneLinks=" + impcGeneLinks + ", mgiAlleleNames=" + mgiAlleleNames + ", title=" + title + ", journal=" + journal + ", pmid=" + pmid + ", dateOfPublication=" + dateOfPublication + ", grantIds=" + grantIds + ", grantAgencies=" + grantAgencies + ", paperLinks=" + paperUrls + '}';
+        return "ReferenceDTO{" +
+                "alleleSymbols=" + alleleSymbols +
+                ", alleleAccessionIds=" + alleleAccessionIds +
+                ", geneAccessionIds=" + geneAccessionIds +
+                ", impcGeneLinks=" + impcGeneLinks +
+                ", mgiAlleleNames=" + mgiAlleleNames +
+                ", title='" + title + '\'' +
+                ", journal='" + journal + '\'' +
+                ", pmid='" + pmid + '\'' +
+                ", dateOfPublication='" + dateOfPublication + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", grantIds=" + grantIds +
+                ", grantAgencies=" + grantAgencies +
+                ", paperUrls=" + paperUrls +
+                '}';
     }
-
-
 
 
 }
