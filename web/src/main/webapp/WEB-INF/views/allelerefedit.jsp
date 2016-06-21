@@ -10,12 +10,9 @@
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="header">
 	
-		<%--<link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />--%>
-
-		<script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>  
+		<script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>
 		<script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>  
-		<%--<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  --%>
-				  	
+
 		<style type="text/css">
 			h1#top {
 				margin: 20px 0 50px 0;
