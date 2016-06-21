@@ -19,7 +19,13 @@
             color: grey;
           }
           .ui-tooltip {display: none !important;}
+
+           ul {
+               list-style-type: square;
+               margin-left: 50px;
+           }
         </style>
+
 
 	</jsp:attribute>
 
