@@ -5,11 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
@@ -22,7 +18,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -36,7 +31,9 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @EnableAutoConfiguration
-@ComponentScan("org.mousephenotype.cda")
+@ComponentScan(value = "org.mousephenotype.cda",
+	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
+)
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class TestConfigSolr {
 
@@ -63,15 +60,19 @@ public class TestConfigSolr {
 	@Primary
 	@ConfigurationProperties(prefix = "datasource.komp2")
 	public DataSource komp2DataSource() {
-		DataSource ds = DataSourceBuilder.create().build();
-		return ds;
+		return DataSourceBuilder.create().build();
 	}
 
 	@Bean
 	@ConfigurationProperties(prefix = "datasource.admintools")
 	public DataSource admintoolsDataSource() {
-		DataSource ds = DataSourceBuilder.create().build();
-		return ds;
+		return DataSourceBuilder.create().build();
+	}
+
+	@Bean
+	@ConfigurationProperties(prefix = "datasource.ontodb")
+	public DataSource ontodbDataSource() {
+		return DataSourceBuilder.create().build();
 	}
 
 
@@ -101,17 +102,6 @@ public class TestConfigSolr {
 		return hibernateProperties;
 	}
 
-	@Bean
-	@Primary
-	@PersistenceContext(name="komp2Context")
-	public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
-		return builder
-			.dataSource(komp2DataSource())
-			.packages("org.mousephenotype.cda.db")
-			.persistenceUnit("komp2")
-			.build();
-	}
-
 	@Bean(name = "sessionFactory")
 	public LocalSessionFactoryBean sessionFactory() {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
@@ -122,9 +112,6 @@ public class TestConfigSolr {
 
 	@Bean(name = "komp2TxManager")
 	@Primary
-//	public PlatformTransactionManager txManager() {
-//		return new DataSourceTransactionManager(komp2DataSource());
-//	}
 	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
 		JpaTransactionManager tm = new JpaTransactionManager();
 		tm.setEntityManagerFactory(emf);

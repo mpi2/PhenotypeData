@@ -2,12 +2,14 @@ package org.mousephenotype.cda.solr;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
@@ -16,17 +18,21 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Read only Solr server bean configuration
- * The writable Solr servers are configured in IndexerConfig.java of the indexer module
+ * Read only Solr server bean configuration The writable Solr servers are configured in IndexerConfig.java of the
+ * indexer module
  */
 
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
+@ComponentScan(
+	basePackages = {"org.mousephenotype.cda"},
+	useDefaultFilters = false,
+	includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ImpressService.class})
+	})
 public class SolrServerConfig {
 
 	public static final int QUEUE_SIZE = 10000;
 	public static final int THREAD_COUNT = 3;
-
 
 
 	@NotNull
@@ -34,7 +40,7 @@ public class SolrServerConfig {
 	private String solrBaseUrl;
 
 	@Autowired
-	PhenotypePipelineDAO ppDao;
+	ImpressService impressService;
 
 	@NotNull
 	@Value("${phenodigm.solrserver}")
@@ -68,8 +74,7 @@ public class SolrServerConfig {
 
 	// Required for SolrCrudRepositories to work
 	@Bean
-	public SolrServer solrServer() throws Exception
-	{
+	public SolrServer solrServer() throws Exception {
 		HttpSolrServerFactoryBean f = new HttpSolrServerFactoryBean();
 		f.setUrl(solrBaseUrl);
 		f.afterPropertiesSet();
@@ -77,8 +82,7 @@ public class SolrServerConfig {
 	}
 
 	@Bean
-	public SolrTemplate solrTemplate(SolrServer solrServer) throws Exception
-	{
+	public SolrTemplate solrTemplate(SolrServer solrServer) throws Exception {
 		return new SolrTemplate(solrServer());
 	}
 
@@ -87,7 +91,9 @@ public class SolrServerConfig {
 
 	//Phenodigm server for our Web Status currently only
 	@Bean(name = "phenodigmCore")
-	public HttpSolrServer getPhenodigmCore() { return new HttpSolrServer(phenodigmSolrUrl);	}
+	public HttpSolrServer getPhenodigmCore() {
+		return new HttpSolrServer(phenodigmSolrUrl);
+	}
 
 	//Allele
 	@Bean(name = "alleleCore")
@@ -122,7 +128,9 @@ public class SolrServerConfig {
 
 	// Impc images core
 	@Bean(name = "impcImagesCore")
-	HttpSolrServer getImpcImagesCore() { return new HttpSolrServer(solrBaseUrl + "/impc_images"); }
+	HttpSolrServer getImpcImagesCore() {
+		return new HttpSolrServer(solrBaseUrl + "/impc_images");
+	}
 
 	//SangerImages
 	@Bean(name = "sangerImagesCore")
@@ -132,11 +140,15 @@ public class SolrServerConfig {
 
 	//MA
 	@Bean(name = "maCore")
-	HttpSolrServer getMaCore() { return new HttpSolrServer(solrBaseUrl + "/ma"); }
+	HttpSolrServer getMaCore() {
+		return new HttpSolrServer(solrBaseUrl + "/ma");
+	}
 
 	//ANATOMY
 	@Bean(name = "anatomyCore")
-	HttpSolrServer getAnatomyCore() { return new HttpSolrServer(solrBaseUrl + "/anatomy"); }
+	HttpSolrServer getAnatomyCore() {
+		return new HttpSolrServer(solrBaseUrl + "/anatomy");
+	}
 
 	//MP
 	@Bean(name = "mpCore")
@@ -176,12 +188,12 @@ public class SolrServerConfig {
 
 	@Bean(name = "phenotypeCenterService")
 	PhenotypeCenterService phenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/experiment", ppDao);
+		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
 	}
 
 	@Bean(name = "preQcPhenotypeCenterService")
 	PhenotypeCenterService preQcPhenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/preqc", ppDao);
+		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
 	}
 
 
