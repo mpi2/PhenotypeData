@@ -18,10 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -550,9 +547,9 @@ public class DataTableController {
             showImgView = jParams.getBoolean("showImgView");
         }
 
-		System.out.println("GOT SOLRPARAMS: " + solrParamStr);
+		//System.out.println("GOT SOLRPARAMS: " + solrParamStr);
 		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-		System.out.println("*****JSON: " + json.toString());
+
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
@@ -1736,6 +1733,7 @@ public class DataTableController {
 
         if (sSearch != "") {
             query = "select count(*) as count from allele_ref where "
+					+ " reviewed='no' and"
                     + " acc like ?"
                     + " or symbol like ?"
                     + " or pmid like ?"
@@ -1744,9 +1742,10 @@ public class DataTableController {
                     + " or agency like ?"
                     + " or acronym like ?";
         } else {
-            query = "select count(*) as count from allele_ref";
+            query = "select count(*) as count from allele_ref where reviewed='no'";
         }
-        int rowCount = 0;
+		System.out.println("DataTableController: query: "+query);
+		int rowCount = 0;
         try (PreparedStatement p1 = conn.prepareStatement(query)) {
             if (sSearch != "") {
                 for (int i = 1; i < 8; i ++) {
@@ -1766,116 +1765,217 @@ public class DataTableController {
     }
 
     @RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.POST)
-    public @ResponseBody
-    String updateReviewed(
-            @RequestParam(value = "value", required = true) String value,
-            @RequestParam(value = "id", required = true) int dbid,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Model model) throws IOException, URISyntaxException, SQLException {
+	 public @ResponseBody
+	 String updateReviewed(
+					@RequestParam(value = "value", required = true) String value,
+					@RequestParam(value = "id", required = true) int dbid,
+					HttpServletRequest request,
+					HttpServletResponse response,
+					Model model) throws IOException, URISyntaxException, SQLException {
 
-        // store new value to database
-        return setAlleleSymbol(dbid, value);
-    }
+		// store new value to database
+		value = value.trim();
+		return setAlleleSymbol(dbid, value);
+	}
+	@RequestMapping(value = "/dataTableAlleleRefSetFalsePositive", method = RequestMethod.GET)
+	public @ResponseBody
+	Boolean updateFalsePositive(
+			@RequestParam(value = "value", required = true) String falsePositive,
+			@RequestParam(value = "id", required = true) int dbid,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException {
+
+		// store new value to database
+		return setFalsePositive(dbid, falsePositive);
+	}
+
+	public Boolean setFalsePositive(int dbid, String falsePositive) throws SQLException {
+		Connection conn = admintoolsDataSource.getConnection();
+
+		JSONObject j = new JSONObject();
+		String uptSql = "UPDATE allele_ref SET falsepositive=?, reviewed='no', acc='', gacc='', timestamp=? WHERE dbid=?";
+		PreparedStatement stmt = conn.prepareStatement(uptSql);
+		stmt.setString(1, falsePositive);
+		stmt.setString(2, String.valueOf(new Timestamp(System.currentTimeMillis())));
+		stmt.setInt(3, dbid);
+		stmt.executeUpdate();
+
+		return true;
+	}
+
 
     public String setAlleleSymbol(int dbid, String alleleSymbol) throws SQLException {
 
-    	Connection connKomp2 = komp2DataSource.getConnection();
-        Connection conn = admintoolsDataSource.getConnection();
+		Connection connKomp2 = komp2DataSource.getConnection();
+		Connection conn = admintoolsDataSource.getConnection();
 
-        JSONObject j = new JSONObject();
+		List<String> alleleSymbols = new ArrayList<>();
+		JSONObject j = new JSONObject();
 
-        // when symbol is set to be empty, change reviewed status, too
-        if ( alleleSymbol.equals("") ){
+		String sqla = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
 
-        	// update acc, gacc and reviewed field
-        	String uptSql = "UPDATE allele_ref SET symbol='', reviewed='no', acc='', gacc='' WHERE dbid=?";
-            PreparedStatement stmt = conn.prepareStatement(uptSql);
-            stmt.setInt(1, dbid);
-            stmt.executeUpdate();
+		// when symbol is set to be empty, change reviewed status, too
+		if (alleleSymbol.equals("")) {
 
-            j.put("reviewed", "no");
-            j.put("symbol", "");
-    		return j.toString();
-    	}
+			j.put("reviewed", "no");
+			j.put("symbol", "");
 
-        String sqla = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
+		} else if (!alleleSymbol.contains(",")) {
+			// single allele symbol
 
-        // if there are multiple allele symbols, it should have been separated by comma
-        // IN PROGRESS
-        if (alleleSymbol.contains(",")) {
-            int symCount = alleleSymbol.split(",").length;
-            List<String> placeHolders = new ArrayList<>();
+			String alleleAcc = null;
+			String geneAcc = null;
 
-            for (int c = 0; c < symCount; c ++) {
-                placeHolders.add("?");
-            }
-            String placeHolderStr = StringUtils.join(placeHolders, ",");
-            /*List<String> syms = new ArrayList<>();
-             for ( int s=0; s<symbols.length; s++ ){
-             syms.add("\"" + symbols[s] + "\"");
-             }
-             alleleSymbol = StringUtils.join(syms, ",");*/
-            sqla = "SELECT acc, gf_acc FROM allele WHERE symbol in (" + placeHolderStr + ")";
-            //System.out.println("multiples: " + sqla);
-        }
+			// find matching allele symbol from komp2 database and use its allele acc to populate allele_ref table
+			try (PreparedStatement p = connKomp2.prepareStatement(sqla)) {
+				p.setString(1, alleleSymbol);
+				ResultSet resultSet = p.executeQuery();
 
-		// fetch allele id, gene id of this allele symbol
-        // and update acc and gacc fields of allele_ref table
-        //System.out.println("set allele: " + sqla);
+				while (resultSet.next()) {
+					alleleAcc = resultSet.getString("acc");
+					geneAcc = resultSet.getString("gf_acc");
+					//System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-        String alleleAcc = "";
-        String geneAcc = "";
+			try {
+				if (alleleAcc != null && geneAcc != null) {
 
-        try (PreparedStatement p = connKomp2.prepareStatement(sqla)) {
-            p.setString(1, alleleSymbol);
-            ResultSet resultSet = p.executeQuery();
+					String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
+					PreparedStatement stmt = conn.prepareStatement(uptSql);
+					stmt.setString(1, alleleAcc);
+					stmt.setString(2, geneAcc);
+					stmt.setString(3, alleleSymbol);
+					stmt.setString(4, "yes");
+					stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
+					stmt.setInt(6, dbid);
+					stmt.executeUpdate();
 
-            while (resultSet.next()) {
-                alleleAcc = resultSet.getString("acc");
-                geneAcc = resultSet.getString("gf_acc");
-                //System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+					j.put("reviewed", "yes");
+					j.put("symbol", alleleSymbol);
+				} else {
+					j.put("reviewed", "no");
+					j.put("symbol", alleleSymbol);
+					j.put("allAllelesNotFound", true);
+				}
 
-        try {
-	        String uptSql = "UPDATE allele_ref SET symbol=?, acc=?, reviewed=?, gacc=? WHERE dbid=?";
-	        PreparedStatement stmt = conn.prepareStatement(uptSql);
-	        stmt.setString(1, alleleAcc.equals("") ? "" : alleleSymbol);
-	        stmt.setString(2, alleleAcc);
-	        stmt.setString(3, alleleAcc.equals("") ? "no" : "yes");
-	        stmt.setString(4, geneAcc);
-	        stmt.setInt(5, dbid);
-	        stmt.executeUpdate();
+			} catch (SQLException se) {
+				//Handle errors for JDBC
+				se.printStackTrace();
+				j.put("reviewed", "no");
+				j.put("symbol", "ERROR: setting symbol failed");
 
-        	if ( alleleAcc.equals("") ){
-        		// update acc, gacc and reviewed field
+			}
 
-        		j.put("reviewed", "no");
-                j.put("symbol", "");
-                j.put("alleleIdNotFound", "yes");
-        	}
-        	else {
-	            j.put("reviewed", "yes");
-	            j.put("symbol", alleleSymbol);
-        	}
-            //System.out.println("sql: " + sql);
-            //System.out.println("setting acc and gacc -> " + alleleAcc + " --- " + geneAcc);
-        } catch (SQLException se) {
-            //Handle errors for JDBC
-            se.printStackTrace();
-            j.put("reviewed", "no");
-            j.put("symbol", "ERROR: setting symbol failed");
+		} else if (alleleSymbol.contains(",")) {
+			// if there are multiple allele symbols, it should have been separated by comma
 
-        } finally {
-            conn.close();
-            connKomp2.close();
-        }
+			alleleSymbols = Arrays.asList(alleleSymbol.split(","));
 
-        return j.toString();
-    }
+			int alleleCounter = 0;
+			List<String> nonMatchedAlleleSymbols = new ArrayList<>();
+			List<String> matchedAlleleSymbols = new ArrayList<>();
+
+			for (String thisAlleleSymbol : alleleSymbols) {
+
+				thisAlleleSymbol = thisAlleleSymbol.trim();
+
+				// fetch allele id, gene id of this allele symbol
+				// and update acc and gacc fields of allele_ref table
+				//System.out.println("set allele: " + sqla);
+
+				String alleleAcc = null;
+				String geneAcc = null;
+
+				// find matching allele symbol from komp2 database and use its allele acc to populate allele_ref table
+				try (PreparedStatement p = connKomp2.prepareStatement(sqla)) {
+					p.setString(1, thisAlleleSymbol);
+					ResultSet resultSet = p.executeQuery();
+
+					while (resultSet.next()) {
+						alleleAcc = resultSet.getString("acc");
+						geneAcc = resultSet.getString("gf_acc");
+						//System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				//System.out.println("setting acc and gacc -> " + alleleAcc + " --- " + geneAcc);
+
+				try {
+					if (alleleAcc != null && geneAcc != null) {
+						alleleCounter++;
+
+						if (alleleCounter == 1) {
+
+							String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
+							PreparedStatement stmt = conn.prepareStatement(uptSql);
+							stmt.setString(1, alleleAcc);
+							stmt.setString(2, geneAcc);
+							stmt.setString(3, thisAlleleSymbol);
+							stmt.setString(4, "yes");
+							stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
+							stmt.setInt(6, dbid);
+							stmt.executeUpdate();
+							//System.out.println(alleleAcc + " "+String.valueOf(new Timestamp(System.currentTimeMillis()))+ " "+geneAcc + " "+dbid);
+						}
+						else {
+							String insertSql = "INSERT INTO allele_ref ("
+									+ "acc,gacc,symbol,name,pmid,date_of_publication,reviewed,grant_id,agency,acronym,title,journal,datasource,paper_url,timestamp,falsepositive) "
+									+ "SELECT '" + alleleAcc + "','" + geneAcc + "','" + thisAlleleSymbol + "',name,pmid,date_of_publication,'yes',grant_id,agency,acronym,title,journal,datasource,paper_url,'"
+									+ String.valueOf(new Timestamp(System.currentTimeMillis())) + "','no'"
+									+ " FROM allele_ref"
+									+ " WHERE dbid=" + dbid;
+
+							PreparedStatement stmt = conn.prepareStatement(insertSql);
+							stmt.executeUpdate();
+						}
+						matchedAlleleSymbols.add(thisAlleleSymbol);
+					}
+					else {
+						nonMatchedAlleleSymbols.add(thisAlleleSymbol);
+					}
+				}
+				catch (SQLException se) {
+					//Handle errors for JDBC
+					se.printStackTrace();
+					j.put("reviewed", "no");
+					j.put("symbol", "ERROR: setting symbol failed");
+
+				}
+			}
+
+			if ( nonMatchedAlleleSymbols.size() == alleleSymbols.size() ) {
+				// all symbols not found in KOMP2
+				j.put("reviewed", "no");
+				j.put("symbol", alleleSymbol);
+				j.put("allAllelesNotFound", true);
+			}
+			else {
+				if ( matchedAlleleSymbols.size() == alleleSymbols.size() ){
+					// all matched
+					j.put("reviewed", "yes");
+					j.put("symbol", alleleSymbol);
+				}
+				else {
+					// displays only the matched ones
+					j.put("reviewed", "yes");
+					j.put("symbol", StringUtils.join(matchedAlleleSymbols, ","));
+
+					j.put("someAllelesNotFound", StringUtils.join(nonMatchedAlleleSymbols, ","));
+				}
+			}
+		}
+
+		conn.close();
+		connKomp2.close();
+
+		return j.toString();
+	}
 
     // allele reference stuff
     @RequestMapping(value = "/dataTableAlleleRefEdit", method = RequestMethod.GET)
@@ -1883,11 +1983,15 @@ public class DataTableController {
             @RequestParam(value = "iDisplayStart", required = false) Integer iDisplayStart,
             @RequestParam(value = "iDisplayLength", required = false) Integer iDisplayLength,
             @RequestParam(value = "sSearch", required = false) String sSearch,
+			@RequestParam(value = "doAlleleRefEdit", required = false) String editParams,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws IOException, URISyntaxException, SQLException {
 
-    	String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch);
+		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(editParams);
+		Boolean editMode = jParams.getString("editMode").equals("true") ? true : false;
+
+		String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch, editMode);
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
@@ -1942,7 +2046,7 @@ public class DataTableController {
         return match;
     }
 
-    public String fetch_allele_ref_edit(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
+    public String fetch_allele_ref_edit(int iDisplayLength, int iDisplayStart, String sSearch, Boolean editMode) throws SQLException {
 
         Connection conn = admintoolsDataSource.getConnection();
 
@@ -1952,6 +2056,8 @@ public class DataTableController {
 
         if (sSearch != "") {
             query = "select count(*) as count from allele_ref where "
+					+ " reviewed = 'no' and"
+					+ " falsepositive = 'no' and"
                     + " acc like ?"
                     + " or symbol like ?"
                     + " or pmid like ?"
@@ -1960,7 +2066,7 @@ public class DataTableController {
                     + " or agency like ?"
                     + " or acronym like ?";
         } else {
-            query = "select count(*) as count from allele_ref";
+            query = "select count(*) as count from allele_ref where reviewed='no' and falsepositive='no'";
         }
         int rowCount = 0;
         try (PreparedStatement p1 = conn.prepareStatement(query)) {
@@ -1989,21 +2095,23 @@ public class DataTableController {
 
         if (sSearch != "") {
             query2 = "select * from allele_ref where"
-                    + " acc like ?"
+					+ " (reviewed='no' and"
+					+ " falsepositive='no') and"
+                    + " (acc like ?"
                     + " or symbol like ?"
                     + " or pmid like ?"
                     + " or date_of_publication like ?"
                     + " or grant_id like ?"
                     + " or agency like ?"
-                    + " or acronym like ?"
-                    + " order by reviewed desc"
+                    + " or acronym like ?)"
+                    + " order by reviewed"
                     + " limit ?, ?";
         } else {
-            query2 = "select * from allele_ref order by reviewed desc limit ?,?";
+            query2 = "select * from allele_ref where reviewed='no' and falsepositive='no' limit ?,?";
         }
 
-		//System.out.println("query: "+ query);
-        //System.out.println("query2: "+ query2);
+//		System.out.println("query: "+ query);
+//        System.out.println("query2: "+ query2);
         String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
 
         try (PreparedStatement p2 = conn.prepareStatement(query2)) {
@@ -2015,7 +2123,7 @@ public class DataTableController {
                     } else if (i == 9) {
                         p2.setInt(i, iDisplayLength);
                     }
-                }
+				}
             } else {
                 p2.setInt(1, iDisplayStart);
                 p2.setInt(2, iDisplayLength);
@@ -2030,31 +2138,32 @@ public class DataTableController {
                 int dbid = resultSet.getInt("dbid");
                 String gacc = resultSet.getString("gacc");
 
+				rowData.add("<input type='checkbox'>");
                 rowData.add(resultSet.getString("reviewed"));
 
                 //rowData.add(resultSet.getString("acc"));
                 String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
-                String alLink = "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
-                rowData.add(alLink);
+
+				String alLink = alleleSymbol.equals("") ? "" : "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
+                rowData.add(editMode ? alleleSymbol : alLink);
 
                 //rowData.add(resultSet.getString("name"));
                 String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
                 rowData.add(pmid);
 
-
-
-
                 rowData.add(resultSet.getString("date_of_publication"));
-
 
                 rowData.add(resultSet.getString("grant_id"));
                 rowData.add(resultSet.getString("agency"));
                 rowData.add(resultSet.getString("acronym"));
                 String[] urls = resultSet.getString("paper_url").split(",");
                 List<String> links = new ArrayList<>();
-                for (int i = 0; i < urls.length; i ++) {
-                    links.add("<a target='_blank' href='" + urls[i] + "'>paper</a>");
-                }
+//                for (int i = 0; i < urls.length; i ++) {
+//                    links.add("<a target='_blank' href='" + urls[i] + "'>paper</a>");
+//                }
+
+				// just show one paper: although they are from different sources, but are actually the same paper
+				links.add("<a target='_blank' href='" + urls[0] + "'>paper</a>");
                 rowData.add(StringUtils.join(links, "<br>"));
 
                 j.getJSONArray("aaData").add(rowData);
@@ -2105,7 +2214,7 @@ public class DataTableController {
                 String alleleLink;
                 String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 
-                if (i < reference.getImpcGeneLinks().size()) {
+				if (i < reference.getImpcGeneLinks().size()) {
                 		alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
                 } else {
                     if (i > 0) {

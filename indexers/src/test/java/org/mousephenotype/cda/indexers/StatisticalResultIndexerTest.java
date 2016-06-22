@@ -4,8 +4,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,17 +27,24 @@ import java.util.stream.Collectors;
 @SpringApplicationConfiguration(classes = {TestConfigIndexers.class})
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
 @Transactional
-public class StatisticalResultIndexerTest {
+public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
 	@Autowired
 	DataSource komp2DataSource;
 
-	@Autowired
 	StatisticalResultsIndexer statisticalResultIndexer;
+
+	ApplicationContext applicationContext;
 
 	@PostConstruct
 	void postConstruct() {
+
+
 		try {
+
+			// Use Spring to wire up the dependencies
+			statisticalResultIndexer = StatisticalResultsIndexer.class.newInstance();
+			applicationContext.getAutowireCapableBeanFactory().autowireBean(statisticalResultIndexer);
 
 			statisticalResultIndexer.setConnection(komp2DataSource.getConnection());
 			statisticalResultIndexer.setPipelineMap(IndexerMap.getImpressPipelines(komp2DataSource.getConnection()));
@@ -49,8 +59,28 @@ public class StatisticalResultIndexerTest {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			assert (statisticalResultIndexer.getConnection() != null);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
 		}
 	}
+
+	@Test
+	public void getRrPlusResults() throws Exception {
+
+		List<StatisticalResultDTO> results = statisticalResultIndexer.getReferenceRangePlusResults().call();
+		assert (results.size() > 100);
+
+		for (StatisticalResultDTO result : results) {
+
+			// Every document that has an MP term must also have at least one top level MP term
+			if (result.getMpTermId() != null) {
+				assert(result.getTopLevelMpTermId() != null);
+			}
+		}
+	}
+
 
 	@Test
 	public void getEmbryoResults() throws Exception {
@@ -90,4 +120,8 @@ public class StatisticalResultIndexerTest {
 		System.out.println("All generated IDs unique");
 	}
 
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
 }
