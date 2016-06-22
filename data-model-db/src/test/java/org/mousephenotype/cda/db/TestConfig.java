@@ -27,7 +27,6 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -44,7 +43,6 @@ import java.util.Properties;
 @ComponentScan(value = "org.mousephenotype.cda.db",
 	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
 )
-@EnableTransactionManagement
 @EnableJpaRepositories
 public class TestConfig {
 
@@ -101,6 +99,7 @@ public class TestConfig {
 		hibernateProperties.setProperty("hibernate.format_sql", "true");
 		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
 		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+		hibernateProperties.setProperty("hibernate.current_session_context_class","thread");
 
 		return hibernateProperties;
 	}
