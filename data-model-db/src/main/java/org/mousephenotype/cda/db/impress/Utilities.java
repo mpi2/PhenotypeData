@@ -16,18 +16,18 @@
 package org.mousephenotype.cda.db.impress;
 
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.StageUnitType;
-import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.*;
 
@@ -198,6 +198,9 @@ public class Utilities {
 	 */
 	public OntologyTerm getStageTerm(String stage, StageUnitType stageUnit) {
 
+		String termName = null;
+		OntologyTerm term;
+
 		// Fail fast if the stage is not a "number"
 		try {
 			Float.parseFloat(stage);
@@ -211,32 +214,39 @@ public class Utilities {
 
 			case DPC:
 
-				// Mouse gestation is 20 days
-				if(Float.parseFloat(stage)>21) {
+				// Mouse gestation is 20 days, so plus 3 to be safe, else reject
+				if(Float.parseFloat(stage)>24) {
 					return null;
 				}
 
-				String termName = String.format("embryonic day %s", stage);
+				termName = String.format("embryonic day %s", stage);
 
 				if( ! expectedDpc.contains(stage)) {
 					logger.warn("Unexpected value for embryonic DCP stage: "+stage);
 				}
-
-				OntologyTerm term = ontologyTermDAO.getOntologyTermByName(termName);
-				if (term==null) {
-					// Term not found -- create it
-					term = createOntologyTerm(termName);
-				}
-
-				return term;
+				break;
 
 			case THEILER:
 
-				return ontologyTermDAO.getOntologyTermByName(String.format("TS%s,embryo", stage));
+				// Only allow a stage term that makes sense
+				if ( ! stage.contains(".") && Float.parseFloat(stage)>0 && Float.parseFloat(stage)<=28) {
+					termName = String.format("TS%s,embryo", stage);
+				} else {
+					termName = null;
+				}
+				break;
 
 			default:
 				return null;
 		}
+
+		term = ontologyTermDAO.getOntologyTermByName(termName);
+		if (term==null && termName!=null) {
+			// Term not found -- create it
+			term = createOntologyTerm(termName);
+		}
+
+		return term;
 	}
 
 
@@ -252,7 +262,7 @@ public class Utilities {
 
 		String termAcc = "NULL-" + DigestUtils.md5Hex(termName).substring(0,9).toUpperCase();
 
-		logger.info("Creating EFO term for name '%s' (Accession: %s)", termName, termAcc);
+		logger.info("Creating EFO term for name '{}' (Accession: {})", termName, termAcc);
 
 		OntologyTerm term;
 		term = new OntologyTerm();
