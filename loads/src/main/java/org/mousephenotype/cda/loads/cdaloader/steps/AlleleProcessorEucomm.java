@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,23 +29,23 @@ import java.util.Map;
 /**
  * Created by mrelac on 09/06/16.
  */
-public class AlleleProcessorPhenotypic extends AlleleProcessorAbstract {
+public class AlleleProcessorEucomm extends AlleleProcessorAbstract {
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
     @Override
-    public Allele setBiotype(Allele allele) {
-        return super.setBiotypeSkipAlleleIfNoBiotypeFound(allele);
+    public Allele setBiotype(Allele allele) throws CdaLoaderException {
+        return super.setBiotypeMouseMutants(allele);
     }
 
     @Override
-    public Allele setGene(Allele allele) {
-        return super.setGeneNullIsOk(allele);
+    public Allele setGene(Allele allele) throws CdaLoaderException {
+        return super.setGeneNullMeansAddWithdraw(allele);
     }
 
-    public AlleleProcessorPhenotypic(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes) {
+    public AlleleProcessorEucomm(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes) {
         super(genomicFeatures, featureTypes);
     }
 

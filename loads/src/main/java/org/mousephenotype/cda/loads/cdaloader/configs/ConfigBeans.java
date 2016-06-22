@@ -44,8 +44,8 @@ public class ConfigBeans {
 
     private Map<String, OntologyTerm>   markerProcessorFeatureTypes = new HashMap<>();
     private Map<String, OntologyTerm>   mgiFeatureTypes             = new HashMap<>();
-    private Map<String, GenomicFeature> genomicFeatures             = new HashMap<>();
-    private Map<String, SequenceRegion> sequenceRegions             = new HashMap<>();
+    private Map<String, GenomicFeature> genomicFeatures             = new HashMap<>(150000);
+    private Map<String, SequenceRegion> sequenceRegions             = new HashMap<>(150000);
 
     @NotNull
     @Value("${cdaload.workspace}")
@@ -196,6 +196,21 @@ public class ConfigBeans {
         return new AlleleProcessorPhenotypic(genomicFeatures, mgiFeatureTypes);
     }
 
+    @Bean(name = "alleleProcessorEucomm")
+    public AlleleProcessorEucomm alleleProcessorEucomm() {
+        return new AlleleProcessorEucomm(genomicFeatures, mgiFeatureTypes);
+    }
+
+    @Bean(name = "alleleProcessorKomp")
+    public AlleleProcessorKomp alleleProcessorKomp() {
+        return new AlleleProcessorKomp(genomicFeatures, mgiFeatureTypes);
+    }
+
+    @Bean(name = "alleleProcessorNorcomm")
+    public AlleleProcessorNorcomm alleleProcessorNorcomm() {
+        return new AlleleProcessorNorcomm(genomicFeatures, mgiFeatureTypes);
+    }
+
     @Bean(name = "alleleProcessorQtl")
     public AlleleProcessorQtl alleleProcessorQtl() {
         return new AlleleProcessorQtl(genomicFeatures, mgiFeatureTypes);
@@ -207,7 +222,7 @@ public class ConfigBeans {
         filenameKeys.put(AlleleLoader.FilenameKeys.EUCOMM, downloadFilenameMap.get(DownloadFileEnum.EUCOMM_Allele).targetFilename);
         filenameKeys.put(AlleleLoader.FilenameKeys.GENOPHENO, downloadFilenameMap.get(DownloadFileEnum.MGI_GenePheno).targetFilename);
         filenameKeys.put(AlleleLoader.FilenameKeys.KOMP, downloadFilenameMap.get(DownloadFileEnum.KOMP_Allele).targetFilename);
-        filenameKeys.put(AlleleLoader.FilenameKeys.NORCOM, downloadFilenameMap.get(DownloadFileEnum.NorCOMM_Allele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.NORCOMM, downloadFilenameMap.get(DownloadFileEnum.NorCOMM_Allele).targetFilename);
         filenameKeys.put(AlleleLoader.FilenameKeys.PHENOTYPIC, downloadFilenameMap.get(DownloadFileEnum.MGI_PhenotypicAllele).targetFilename);
         filenameKeys.put(AlleleLoader.FilenameKeys.QTL, downloadFilenameMap.get(DownloadFileEnum.MGI_QTLAllele).targetFilename);
 

@@ -41,7 +41,12 @@ public class SqlLoaderUtils {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final String ACTIVE_STATUS = "active";
+    public static final String ACTIVE_STATUS    = "active";
+    public static final String WITHDRAWN_STATUS = "withdrawn";
+
+    public static final String biotypeGeneString = "Gene";
+    public static final String biotypeTm1aString = "Targeted (Floxed/Frt)";
+    public static final String biotypeTm1eString = "Targeted (Reporter)";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -133,7 +138,7 @@ public class SqlLoaderUtils {
      * @return the list of <code>GenomicFeature</code>s
      */
     public Map<String, GenomicFeature> getGenomicFeatures() {
-        Map<String, GenomicFeature> retVal = new HashMap<>();
+        Map<String, GenomicFeature> retVal = new HashMap<>(150000);
 
         List<GenomicFeature> genes = jdbcTemplate.query("SELECT * FROM genomic_feature", new GenomicFeatureRowMapper());
 
@@ -148,36 +153,55 @@ public class SqlLoaderUtils {
      * If {@link GenomicFeature} doesn't exist, insert it and any of its {@link Synonym}s and {@link Xref}s that don't
      * yet exist, into the database.
      *
-     * @param genomicFeature the {@link GenomicFeature} to be inserted
+     * @param feature the {@link GenomicFeature} to be inserted
      *
      * @return the number of {@code genomicFeature}s inserted
      */
-    public int updateGenomicFeature(GenomicFeature genomicFeature, PreparedStatementSetter pss) throws CdaLoaderException {
+    public int updateGenomicFeature(GenomicFeature feature, PreparedStatementSetter pss) throws CdaLoaderException {
         int count = 0;
 
         // Insert GenomicFeature term if it does not exist.
-        if (getGenomicFeature(genomicFeature.getId().getAccession()) == null) {
+        if (getGenomicFeature(feature.getId().getAccession()) == null) {
             try {
-                count = jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        pss);
+                if (pss != null) {
+                    count = jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
+                                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            pss);
+                } else {
+                    jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
+                                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            feature.getId().getAccession(),
+                            feature.getId().getDatabaseId(),
+                            feature.getSymbol(),
+                            feature.getName(),
+                            feature.getBiotype().getId().getAccession(),
+                            feature.getBiotype().getId().getDatabaseId(),
+                            feature.getSubtype() == null ? null : feature.getSubtype().getId().getAccession(),
+                            feature.getSubtype() == null ? null : feature.getSubtype().getId().getDatabaseId(),
+                            feature.getSequenceRegion() == null ? null : feature.getSequenceRegion().getId(),
+                            feature.getStart(),
+                            feature.getEnd(),
+                            feature.getStrand(),
+                            feature.getcMposition(),
+                            feature.getStatus());
+                }
             } catch (DuplicateKeyException e) {
-                logger.warn("Duplicate genomic_feature entry. Accession id: " + genomicFeature.getId().getAccession() + ". GenomicFeature: " + genomicFeature.getName() + ". GenomicFeature not added.");
+                logger.warn("Duplicate genomic_feature entry. Accession id: " + feature.getId().getAccession() + ". GenomicFeature: " + feature.getName() + ". GenomicFeature not added.");
             }
         }
 
         // Insert synonyms if they do not already exist.
-        List<Synonym> synonyms = (genomicFeature.getSynonyms() == null ? new ArrayList<>() : genomicFeature.getSynonyms());
+        List<Synonym> synonyms = (feature.getSynonyms() == null ? new ArrayList<>() : feature.getSynonyms());
         for (Synonym synonym : synonyms) {
 
-            if (getSynonym(genomicFeature.getId().getAccession(), synonym.getSymbol()) == null) {
+            if (getSynonym(feature.getId().getAccession(), synonym.getSymbol()) == null) {
                 jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                        genomicFeature.getId().getAccession(), genomicFeature.getId().getDatabaseId(), synonym.getSymbol());
+                        feature.getId().getAccession(), feature.getId().getDatabaseId(), synonym.getSymbol());
             }
         }
 
         // Insert xrefs if they do not already exist.
-        List<Xref> xrefs = genomicFeature.getXrefs();
+        List<Xref> xrefs = (feature.getXrefs() == null ? new ArrayList<>() : feature.getXrefs());
         for (Xref xref : xrefs) {
             if (getXref(xref.getAccession(), xref.getXrefAccession()) == null) {
                 jdbcTemplate.update("INSERT INTO xref (acc, db_id, xref_acc, xref_db_id) VALUES(?, ?, ?, ?)",
@@ -653,8 +677,6 @@ public class SqlLoaderUtils {
             feature.setBiotype(getOntologyTerm(rs.getString("biotype_acc")));
             feature.setcMposition(rs.getString("cm_position"));
             feature.setName(rs.getString("name"));
-
-            SequenceRegion sequenceRegion = new SequenceRegion();
             feature.setSequenceRegion(getSequenceRegion(rs.getInt("seq_region_id")));
             feature.setStatus(ACTIVE_STATUS);
             feature.setSubtype(getOntologyTerm(rs.getString("subtype_acc")));

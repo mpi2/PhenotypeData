@@ -50,8 +50,6 @@ public abstract class LogStatusStepListener implements StepExecutionListener {
         Set<String> errorMessages = logStatus();
         logErrors(errorMessages);
 
-        commonUtils.formatDateDifference(start, stop);
-
         return ExitStatus.COMPLETED;
     }
 
