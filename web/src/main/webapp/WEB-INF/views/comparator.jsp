@@ -24,9 +24,9 @@
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/reset.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.body.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webclient/css/dusty.css" type="text/css" rel="stylesheet"></link> -->
-    <link href="${omeroStaticUrl}/webgateway/css/ome.viewport.css" type="text/css" rel="stylesheet"></link>
+    <link href="${omeroStaticUrl}webgateway/css/ome.viewport.css" type="text/css" rel="stylesheet"></link>
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.toolbar.css" type="text/css" rel="stylesheet"></link> -->
-    <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link> 
+    <link href="${omeroStaticUrl}webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link> 
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/base.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.snippet_header_logo.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.postit.css" type="text/css" rel="stylesheet"></link> -->
@@ -36,7 +36,7 @@
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/jquery-ui-1.10.4/themes/base/jquery-ui.all.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/omero_image.css" type="text/css" rel="stylesheet"></link>  -->
-   <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
+   <link href="${omeroStaticUrl}3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
 
 
     <script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script>
@@ -50,16 +50,17 @@
 <div class="block">
     <div class="content">
         	<div class="node"> 
-        	 mediaType: ${mediaType }
-        	impcMediaBaseUrl: ${impcMediaBaseUrl } 
 	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_thumbnail"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
 	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
 	        <c:set var="thumbnailSize" value="96"/>
-	        omeroStaticUrl=${omeroStaticUrl}
+	        <%-- 
+	         mediaType: ${mediaType }
+        	impcMediaBaseUrl: ${impcMediaBaseUrl } 
+        	omeroStaticUrl=${omeroStaticUrl}
 	       	jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
-	        pdfWithoutId: ${pdfWithoutId}
+	        pdfWithoutId: ${pdfWithoutId} --%>
             <form action="">
             <div id="comparator" class="section">
             	<c:if test="${mediaType !=null }">
