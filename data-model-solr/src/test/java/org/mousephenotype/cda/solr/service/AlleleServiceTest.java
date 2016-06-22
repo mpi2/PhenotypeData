@@ -22,7 +22,7 @@ import java.util.Set;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
 @ContextConfiguration(classes={TestConfigSolr.class})
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class AlleleServiceTest extends TestCase {
 
 	private static final Logger logger = LoggerFactory.getLogger(AlleleServiceTest.class);
