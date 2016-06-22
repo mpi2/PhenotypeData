@@ -64,7 +64,7 @@ public class ImageComparatorController {
 			throws SolrServerException {
 		System.out.println("calling image imageComparator");
 		if(gender!=null)System.out.println("sex in controller="+gender);
-		if(zygosity!=null)System.out.println("zygParam="+zygosity);
+		
 		
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
@@ -80,7 +80,6 @@ public class ImageComparatorController {
 		SolrDocument imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			mutants=responseExperimental.getResults();
-			System.out.println("list size=" + mutants.size());
 			imgDoc = mutants.get(0);
 		}else{//try this as a procedure not parameter id
 			responseExperimental = imageService
@@ -117,7 +116,6 @@ public class ImageComparatorController {
 
 		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
-		System.out.println("mutants size=" + filteredMutants.size());
 		model.addAttribute("mutants", filteredMutants);
 		//System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
@@ -226,7 +224,6 @@ public class ImageComparatorController {
 	private void addGeneToPage(String acc, Model model)
 			throws SolrServerException {
 		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
-		System.out.println("gene in picker="+gene);
 		model.addAttribute("gene",gene);
 	}
 
