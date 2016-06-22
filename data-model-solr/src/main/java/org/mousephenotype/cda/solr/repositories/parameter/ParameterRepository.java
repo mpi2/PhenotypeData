@@ -1,7 +1,11 @@
 package org.mousephenotype.cda.solr.repositories.parameter;
 
-interface ParameterRepository { //extends SolrCrudRepository<Parameter, String> {
+import org.springframework.data.solr.repository.SolrCrudRepository;
 
-//	List<Parameter> findByStableId(String stableId);
+import java.util.List;
+
+interface ParameterRepository extends SolrCrudRepository<Parameter, String> {
+
+	List<Parameter> findByStableId(String stableId);
 
 }

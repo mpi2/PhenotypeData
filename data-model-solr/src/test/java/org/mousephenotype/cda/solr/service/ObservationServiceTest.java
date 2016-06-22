@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader=AnnotationConfigContextLoader.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class ObservationServiceTest {
 
 	private final Logger logger = LoggerFactory.getLogger(ObservationServiceTest.class);

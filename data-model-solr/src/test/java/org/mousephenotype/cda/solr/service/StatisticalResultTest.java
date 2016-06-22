@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
@@ -26,9 +30,11 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigSolr.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 @Transactional
 public class StatisticalResultTest {
+
+	public static final Integer NUM_TO_TEST = 10;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -58,18 +64,22 @@ public class StatisticalResultTest {
 
 
 		List<GenotypePhenotypeDTO> list = genotypePhenotypeRepository.findByProcedureStableId("IMPC_ABR_001");
-		list.stream().limit(5).forEach(x -> logger.info("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()) );
+		list.stream().limit(NUM_TO_TEST).forEach(x -> logger.info("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()) );
 		assertTrue(list.size()>0);
 
-		list = genotypePhenotypeRepository.findByParameterStableId("IMPC_DXA_006_001");
-		list.stream().limit(5).forEach(x -> logger.info("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()) );
+		list = new ArrayList<>(genotypePhenotypeRepository.findByParameterStableId("IMPC_DXA_006_001"));
+
+		// Randomize the list so we check a different NUM_TO_TEST for each test run
+		Collections.shuffle(list);
+
+		list.stream().limit(NUM_TO_TEST).forEach(x -> logger.info("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()) );
 		assertTrue(list.size()>0);
 
-		list.forEach( x -> {
+		list.stream().limit(NUM_TO_TEST).forEach(x -> {
 			List<StatisticalResultDTO> list1 = statisticalResultRepository.findByMarkerAccessionIdAndParameterStableIdAndProcedureStableIdAndPhenotypeSexAndMpTermId(x.getMarkerAccessionId(), x.getParameterStableId(), x.getProcedureStableId(), x.getSex(), x.getMpTermId());
-			logger.info("Size of statistical-results list for {}: \n{}", x, list1.size());
-			//assertTrue(list1.size()>0);
-			list1.stream().forEach(e->System.out.println(e));
+			if (list1.size() == 0) {
+				logger.warn("Genotype phenotype result for {}, which has no statistical-results entry", StringUtils.join(Arrays.asList(x.getMarkerAccessionId(), x.getParameterStableId(), x.getProcedureStableId(), x.getSex(), x.getMpTermId()), ", "));
+			}
 		});
 
 	}

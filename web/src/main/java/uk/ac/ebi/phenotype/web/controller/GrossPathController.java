@@ -40,7 +40,6 @@ public class GrossPathController {
 		model.addAttribute("gene", gene);
 		
 		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
-		System.out.println("all observations="+allObservations);
 		List<GrossPathPageTableRow> grossPathRows = grossPathService.getTableData(allObservations);
 		model.addAttribute("histopathRows", grossPathRows);
 		model.addAttribute("extSampleIdToObservations", allObservations);
