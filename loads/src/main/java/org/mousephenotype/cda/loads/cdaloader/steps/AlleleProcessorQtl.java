@@ -34,6 +34,16 @@ public class AlleleProcessorQtl extends AlleleProcessorAbstract {
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
+    @Override
+    public Allele setBiotype(Allele allele) {
+        return super.setBiotypeSkipAlleleIfNoBiotypeFound(allele);
+    }
+
+    @Override
+    public Allele setGene(Allele allele) {
+        return super.setGeneNullIsOk(allele);
+    }
+
     public AlleleProcessorQtl(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes) {
         super(genomicFeatures, featureTypes);
     }
