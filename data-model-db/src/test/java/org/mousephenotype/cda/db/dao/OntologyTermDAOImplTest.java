@@ -37,7 +37,7 @@ public class OntologyTermDAOImplTest extends TestCase {
 
 		List<OntologyTerm> terms = ontologyTermDAO.getAllOntologyTerms();
 		System.out.println("Terms count is: " + terms.size());
-		assertTrue(terms.size() == 10);
+		assertTrue(terms.size() >= 10);
 
 	}
 
