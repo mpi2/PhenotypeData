@@ -22,24 +22,62 @@
 
 package uk.ac.ebi.phenotype.api;
 
-import static org.junit.Assert.assertTrue;
-
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import uk.ac.ebi.phenotype.web.TestConfig;
+import javax.validation.constraints.NotNull;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
 public class GeneServiceTest {
+
+	// Spring Configuration class
+	// Only wire up the observation service for this test suite
+	@Configuration
+	@ComponentScan(
+		basePackages = {"org.mousephenotype.cda.solr.service"},
+		useDefaultFilters = false,
+		includeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GeneService.class})
+		})
+	static class ContextConfiguration {
+
+		@NotNull
+		@Value("${baseUrl}")
+		private String baseUrl;
+
+		@NotNull
+		@Value("${solr.host}")
+		private String solrBaseUrl;
+
+		@Bean(name = "geneCore")
+		HttpSolrServer getSolrCore() {
+			return new HttpSolrServer(solrBaseUrl + "/gene");
+		}
+
+		@Bean
+		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+			return new PropertySourcesPlaceholderConfigurer();
+		}
+
+	}
 
 	@Autowired
 	GeneService geneService;
