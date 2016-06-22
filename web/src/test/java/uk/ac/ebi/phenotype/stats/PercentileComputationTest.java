@@ -22,23 +22,14 @@
 
 package uk.ac.ebi.phenotype.stats;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import uk.ac.ebi.phenotype.chart.ChartUtils;
+import uk.ac.ebi.phenotype.chart.PercentileComputation;
 
 import java.util.ArrayList;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertTrue;
 
-import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.chart.PercentileComputation;
-import uk.ac.ebi.phenotype.web.TestConfig;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
 public class PercentileComputationTest {
 
 	@Test
@@ -84,7 +75,7 @@ public class PercentileComputationTest {
 		testarray.add((float) 0.3074);
 		testarray.add((float) 0.489);
 		testarray.add((float) 0.3188);
-		testarray.add((float) 0.385);		
+		testarray.add((float) 0.385);
 		PercentileComputation pc = new PercentileComputation(testarray);
 		assertTrue((float)ChartUtils.getDecimalAdjustedFloat(pc.getLowerQuartile(),4) == (float)0.3314);
 		assertTrue((float)ChartUtils.getDecimalAdjustedFloat(pc.getUpperQuartile(),4) == (float)0.4346);
