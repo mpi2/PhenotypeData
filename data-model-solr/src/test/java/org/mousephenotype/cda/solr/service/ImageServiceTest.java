@@ -1,12 +1,5 @@
 package org.mousephenotype.cda.solr.service;
 
-import static org.junit.Assert.*;
-
-import java.util.Map;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.junit.Test;
@@ -23,12 +16,18 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import javax.validation.constraints.NotNull;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader=AnnotationConfigContextLoader.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class ImageServiceTest {
-	
-	
+
+
 	@Autowired
 	private ImageService imageService;
 	// Sring Configuration class
@@ -56,11 +55,11 @@ public class ImageServiceTest {
 			}
 
 		}
-	
-	
+
+
 	@Test
 	public void testgetImagePropertiesThatHaveMp(){
-		
+
 		String acc="MGI:1913955";
 		try {
 			Map<String, Set<String>> mpToColonies = imageService.getImagePropertiesThatHaveMp(acc);
@@ -75,7 +74,7 @@ public class ImageServiceTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }
