@@ -133,7 +133,7 @@ public class IndexerConfig {
     @Bean
     @ConfigurationProperties(prefix = "datasource.goapro")
     public DataSource goaproDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
     }
 
     @Bean
@@ -151,7 +151,7 @@ public class IndexerConfig {
     @Bean
     @ConfigurationProperties(prefix = "datasource.uniprot")
     public DataSource uniprotDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
     }
 
 	@Bean
