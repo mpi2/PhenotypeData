@@ -22,11 +22,13 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
@@ -42,6 +44,7 @@ import org.springframework.ui.Model;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+
 
 @Service
 public class ImageService implements WebStatus{
@@ -389,6 +392,38 @@ public class ImageService implements WebStatus{
 		if (StringUtils.isNotEmpty(parameterStableId)) {
 			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":"
 					+ parameterStableId);
+		}
+		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
+		// procedure_name + "\"");
+		solrQuery.setRows(numberOfImagesToRetrieve);
+		logger.debug("images experimental query: {}/select?{}",
+				solr.getBaseURL(), solrQuery);
+		QueryResponse response = solr.query(solrQuery);
+		return response;
+	}
+	
+	public QueryResponse getImagesForGeneByProcedure(String mgiAccession,
+			String procedureStableId, String experimentOrControl,
+			int numberOfImagesToRetrieve, SexType sex, String metadataGroup,
+			String strain) throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
+				+ experimentOrControl);
+		if (StringUtils.isNotEmpty(metadataGroup)) {
+			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":"
+					+ metadataGroup);
+		}
+		if (StringUtils.isNotEmpty(strain)) {
+			solrQuery.addFilterQuery(ObservationDTO.STRAIN_NAME + ":" + strain);
+		}
+		if (sex != null) {
+			solrQuery.addFilterQuery("sex:" + sex.name());
+		}
+		if (StringUtils.isNotEmpty(procedureStableId)) {
+			solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_STABLE_ID + ":"
+					+ procedureStableId);
 		}
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
@@ -899,6 +934,28 @@ public class ImageService implements WebStatus{
 		return true;
 
 	}
+	
+	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpId) throws SolrServerException {
+		//System.out.println("looking for mp term="+mpTerm +"  colony Id="+colonyId);
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*")
+				.addFilterQuery(
+						"(" + ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAccessionId + "\" AND "
+								+ ImageDTO.PROCEDURE_NAME + ":\"" + procedureName + "\" AND "
+								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\" AND "
+								+ MpDTO.MP_ID + ":\"" + mpId + "\")")
+				.setRows(0);
+
+		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		if ( response.getResults().getNumFound() == 0 ){
+			return false;
+		}
+		System.out.println("returning true");
+		return true;
+	}
 
 	public long getWebStatus() throws SolrServerException {
 
@@ -933,6 +990,53 @@ public class ImageService implements WebStatus{
 		//System.out.println("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
 		return img;
 
+	}
+
+
+	/**
+	 * 
+	 * @param acc
+	 * @return a map containing the mp and colony_id combinations so that if we have these then we show an image link on the phenotype table on the gene page. Each row in table could have a different colony_id as well as mp id
+	 * @throws SolrServerException
+	 */
+			
+	public Map<String, Set<String>> getImagePropertiesThatHaveMp(String acc) throws SolrServerException {
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
+		Map<String, Set<String>> mpToColony = new HashMap<>();
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery(ImageDTO.GENE_ACCESSION_ID+":\""+acc+"\"").setRows(100000000);
+		query.addFilterQuery(ImageDTO.MP_ID_TERM+":*");
+		query.setFacet(true);
+		query.setFacetLimit(-1);
+		query.setFacetMinCount(1);
+		
+		String pivotFacet=ImageDTO.MP_ID_TERM + "," + ImageDTO.COLONY_ID;
+		query.set("facet.pivot", pivotFacet);
+		query.addFacetField(ObservationDTO.COLONY_ID);
+		//System.out.println("solr query for images properties for mp="+query);
+		QueryResponse response = solr.query(query);
+		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			//System.out.println("pivot="+pivot.getValue());
+			String mpIdAndName=pivot.getValue().toString();
+			//System.out.println("mpIdAndName" +mpIdAndName);
+			String mpId="";
+			Set<String> colonIds=new TreeSet<>();
+			if(mpIdAndName.contains("_")){
+				mpId=(mpIdAndName.split("_")[0]);
+			}
+			for (PivotField mp : pivot.getPivot()){
+				
+				//System.out.println("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
+				String colonyId=mp.getValue().toString();
+				colonIds.add(colonyId);
+			}
+			mpToColony.put(mpId, colonIds);
+			
+		}
+		return mpToColony;
+		
+		
 	}
 
 

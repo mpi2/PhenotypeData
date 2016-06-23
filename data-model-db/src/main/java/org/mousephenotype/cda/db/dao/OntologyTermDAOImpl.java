@@ -25,7 +25,6 @@ package org.mousephenotype.cda.db.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
@@ -96,7 +95,6 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 	public int deleteAllTerms(String shortName) {
 
 		Session session = getSession();
-		Transaction tx = session.beginTransaction();
 
 		// get the database id
 		Datasource d = (Datasource) session.createQuery("from Datasource as d where d.shortName = :shortName")
@@ -108,8 +106,6 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 		int deletedEntities = session.createQuery(hqlDelete)
 		                             .setInteger("dbId", d.getId())
 		                             .executeUpdate();
-		tx.commit();
-		session.close();
 		return deletedEntities;
 	}
 
@@ -119,22 +115,14 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 		int c = 0;
 
 		Session session = getSession();
-		Transaction tx = session.beginTransaction();
 
 		for (OntologyTerm term : ontologyTerms) {
 
 			session.save(term);
 
-			if (c % 20 == 0) { //20, same as the JDBC batch size
-				//flush a batch of inserts and release memory:
-				session.flush();
-				session.clear();
-			}
 			c++;
 		}
 
-		tx.commit();
-		session.close();
 		return c;
 	}
 

@@ -139,10 +139,12 @@
 
                         //$.fn.initDataTableDumpControl(oConf);
 
-                        $('.alleleToggle').click(function () {
+
+                        $('.alleleToggle', this).click(function () {
                             console.log("toggle");
                             if (!$(this).hasClass('showMe')) {
                                 $(this).addClass('showMe').text('Show fewer alleles ...');
+                                console.log($(this).siblings("div.hideMe").html());
                                 $(this).siblings().addClass('showMe');
                             }
                             else {

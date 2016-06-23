@@ -35,15 +35,18 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -56,21 +59,25 @@ import java.util.*;
  * @author ilinca
  *
  */
-@Component
-public class MPIndexer extends AbstractIndexer {
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    CommonUtils commonUtils = new CommonUtils();
+@EnableAutoConfiguration
+public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
+
+	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
+
+	@NotNull
+    @Value("${phenodigm.solrserver}")
+    private String phenodigmSolrServer;
 
     @Autowired
-    @Qualifier("alleleIndexing")
+    @Qualifier("alleleCore")
     private SolrServer alleleCore;
 
     @Autowired
-    @Qualifier("preqcIndexing")
+    @Qualifier("preqcCore")
     private SolrServer preqcCore;
 
     @Autowired
-    @Qualifier("genotypePhenotypeIndexing")
+    @Qualifier("genotypePhenotypeCore")
     private SolrServer genotypePhenotypeCore;
 
     @Autowired
@@ -81,21 +88,17 @@ public class MPIndexer extends AbstractIndexer {
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
 
-
-    @Autowired
-    MpOntologyDAO mpOntologyService;
-
     /**
      * Destination Solr core
      */
     @Autowired
     @Qualifier("mpIndexing")
-    private SolrServer mpCore;
-
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
+    private SolrServer mpIndexing;
 
     private SolrServer phenodigmCore;
+    @Autowired
+    MpOntologyDAO mpOntologyService;
+
 
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
@@ -139,11 +142,13 @@ public class MPIndexer extends AbstractIndexer {
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(mpCore);
+        return super.validateBuild(mpIndexing);
     }
 
+
+
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -159,8 +164,8 @@ public class MPIndexer extends AbstractIndexer {
         	//populateGene2MpCalls();
 
             // Delete the documents in the core if there are any.
-            mpCore.deleteByQuery("*:*");
-            mpCore.commit();
+            mpIndexing.deleteByQuery("*:*");
+            mpIndexing.commit();
 
             // Loop through the mp_term_infos
             //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
@@ -216,22 +221,21 @@ public class MPIndexer extends AbstractIndexer {
                 count ++;
 
                 documentCount++;
-                mpCore.addBean(mp, 60000);
+                mpIndexing.addBean(mp, 60000);
 
                 if (documentCount % 100 == 0){
-                	mpCore.commit();
+                	mpIndexing.commit();
                 }
             }
 
             // Send a final commit
-            mpCore.commit();
+            mpIndexing.commit();
 
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
         return runStatus;
     }
 
@@ -302,7 +306,7 @@ public class MPIndexer extends AbstractIndexer {
      */
     private void initializeSolrCores() {
 
-        final String PHENODIGM_URL = config.get("phenodigm.solrserver");
+        final String PHENODIGM_URL = phenodigmSolrServer;
 
         // Use system proxy if set for external solr servers
         if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
@@ -1258,11 +1262,7 @@ public class MPIndexer extends AbstractIndexer {
 
 
     public static void main(String[] args) throws IndexerException {
-
-        MPIndexer main = new MPIndexer();
-        main.initialise(args);
-        main.run();
-        main.validateBuild();
+        SpringApplication.run(MPIndexer.class, args);
     }
 
 }

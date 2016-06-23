@@ -104,21 +104,16 @@
 									
 									
 									<td>
-										<c:forEach var="textParam" items="${histRow.textParameters}">
-										<%-- <c:if test="${textParam.parameter.name eq parameterName }"> --%>
 										
-											 Parameter:${textParam.parameter.name} Text: ${textParam.textValue }
+										${histRow.textValue}
 										
-										<%-- </c:if> --%>
-										
-										</c:forEach>
 									</td>
 									
 									<td>
 										<c:forEach var="image" items="${histRow.imageList }">
 										
 										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
-										increment= ${image.increment_value}
+										<%-- increment= ${image.increment_value} --%>
 										 <!-- <div id="grid"> -->
                                            
 												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>

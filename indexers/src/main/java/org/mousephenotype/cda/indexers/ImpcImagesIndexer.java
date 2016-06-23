@@ -19,7 +19,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.db.dao.OntologyDAO;
@@ -28,16 +28,18 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,38 +55,48 @@ import java.util.Map;
  *
  * @author jwarren
  */
-@Component
-public class ImpcImagesIndexer extends AbstractIndexer {
-	CommonUtils commonUtils = new CommonUtils();
-	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+@EnableAutoConfiguration
+public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRunner {
+
+	private final Logger logger = LoggerFactory.getLogger(ImpcImagesIndexer.class);
+
+
+	@NotNull
+	@Value("${impcMediaBaseUrl}")
+	private String impcMediaBaseUrl;
+
+	@NotNull
+	@Value("${pdfThumbnailUrl}")
+	private String pdfThumbnailUrl;
 
 	@Autowired
-	@Qualifier("observationIndexing")
-	private SolrServer observationCore;
+	@Qualifier("experimentCore")
+	SolrServer observationCore;
 
 	@Autowired
 	@Qualifier("impcImagesIndexing")
-	SolrServer impcImagesCore;
+	SolrServer impcImagesIndexing;
 
 	@Autowired
-	@Qualifier("alleleIndexing")
-	SolrServer alleleIndexing;
+	@Qualifier("alleleCore")
+	SolrServer alleleCore;
 
 	@Autowired
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
 
 	@Autowired
+	@Qualifier("ontodbDataSource")
+	DataSource ontodbDataSource;
+
+	@Autowired
 	MaOntologyDAO maService;
 
 	@Autowired
-	EmapOntologyDAO emapService;
+	EmapaOntologyDAO emapaService;
 
 	@Autowired
 	MpOntologyDAO mpService;
-
-	@Resource(name = "globalConfiguration")
-	private Map<String, String> config;
 
 	@Value("classpath:uberonEfoMa_mappings.txt")
 	org.springframework.core.io.Resource resource;
@@ -94,17 +106,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	String excludeProcedureStableId = "";
 
 	private Map<String, String> parameterStableIdToMaTermIdMap;
+	private Map<String, String> parameterStableIdToEmapaTermIdMap = new HashMap(); // key: EMAPA id;
+	private Map<String, String> parameterStableIdToMpTermIdMap;
+	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
 
-	private String impcMediaBaseUrl;
 	private String impcAnnotationBaseUrl;
 
-	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap(); // key:
-																					// MA
-																					// id
-	private Map<String, String> parameterStableIdToEmapTermIdMap = new HashMap(); // key:
-																					// EMAP
-																					// id;
-	private Map<String, String> parameterStableIdToMpTermIdMap;
+	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap(); // key: MA id
+
 
 	public ImpcImagesIndexer() {
 		super();
@@ -112,19 +121,17 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(impcImagesCore);
+		return super.validateBuild(impcImagesIndexing);
 	}
 
 	public static void main(String[] args) throws IndexerException, SQLException {
-
-		ImpcImagesIndexer main = new ImpcImagesIndexer();
-		main.initialise(args);
-		main.run();
-		main.validateBuild();
+		SpringApplication.run(ImpcImagesIndexer.class, args);
 	}
 
+
+
 	@Override
-	public RunStatus run() throws IndexerException {
+	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
@@ -136,32 +143,34 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		}
 
 		try {
-			logger.info(" Building parameter to abnormal mp map");
+			logger.info("Building parameter to abnormal mp map");
 			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
-			logger.info(" Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
+			logger.info("Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 		try {
-			parameterStableIdToEmapTermIdMap = this.populateParameterStableIdToEmapIdMap();
+			logger.info("Started emap mapping...");
+			emap2EmapaMap = emapaService.populateEmap2EmapaMap();
+			logger.info("Done {} EMAP to EMAPA mappings", emap2EmapaMap.size());
+			parameterStableIdToEmapaTermIdMap = this.populateParameterStableIdToEmapaIdMap();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 		imageBeans = populateImageUrls();
-		// logger.info(" added {} total Image URL beans", imageBeans.size());
+		logger.info("Added {} total Image URL beans", imageBeans.size());
 
 		if (imageBeans.size() < 100) {
 			runStatus.addError(
-					" Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
+					"Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
 		}
 
 		this.alleles = populateAlleles();
-		// logger.info(" Added {} total allele beans", alleles.size());
+		logger.info("Added {} total allele beans", alleles.size());
 
-		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
-		String pdfThumbnailUrl = config.get("pdfThumbnailUrl");
+
 		// logger.info(" omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl = impcMediaBaseUrl.replace("webgateway", "webclient");
 
@@ -172,8 +181,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		}
 
 		try {
-
-			impcImagesCore.deleteByQuery("*:*");
+			logger.info("Starting indexing.....");
+			impcImagesIndexing.deleteByQuery("*:*");
 
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 
@@ -248,22 +257,22 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 
 					addOntology(runStatus, imageDTO, parameterStableIdToMaTermIdMap, maService);
-					addOntology(runStatus, imageDTO, parameterStableIdToEmapTermIdMap, emapService);
+					addOntology(runStatus, imageDTO, parameterStableIdToEmapaTermIdMap, emapaService);
 					addOntology(runStatus, imageDTO, parameterStableIdToMpTermIdMap, mpService);
 
-					impcImagesCore.addBean(imageDTO);
+					impcImagesIndexing.addBean(imageDTO);
 
 					documentCount++;
 				}
 			}
 
-			impcImagesCore.commit();
+			impcImagesIndexing.commit();
 
 		} catch (SolrServerException | IOException e) {
 			throw new IndexerException(e);
 		}
 
-		logger.info(" Added {} total beans in {}", documentCount,
+		logger.info("Added {} total beans in {}", documentCount,
 				commonUtils.msToHms(System.currentTimeMillis() - start));
 
 		return runStatus;
@@ -278,23 +287,40 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			ArrayList<String> termIds = new ArrayList<>();
 			ArrayList<String> terms = new ArrayList<>();
 			ArrayList<String> termSynonyms = new ArrayList<>();
+
 			ArrayList<String> topLevelIds = new ArrayList<>();
 			ArrayList<String> topLevelTerm = new ArrayList<>();
 			ArrayList<String> topLevelTermSynonym = new ArrayList<>();
 
+			ArrayList<String> selectedTopLevelIds = new ArrayList<>();
+			ArrayList<String> selectedTopLevelTerm = new ArrayList<>();
+			ArrayList<String> selectedTopLevelTermSynonym = new ArrayList<>();
+
 			ArrayList<String> intermediateLevelIds = new ArrayList<>();
 			ArrayList<String> intermediateLevelTerm = new ArrayList<>();
 			ArrayList<String> intermediateLevelTermSynonym = new ArrayList<>();
+
 			for (String paramString : imageDTO.getParameterAssociationStableId()) {
 				if (stableIdToTermIdMap.containsKey(paramString)) {
-					String maTermId = stableIdToTermIdMap.get(paramString);
-					termIds.add(maTermId);
+					String thisTermId = stableIdToTermIdMap.get(paramString);
 
-					OntologyTermBean maTermBean = ontologyDAO.getTerm(maTermId);
-					if (maTermBean != null) {
-						terms.add(maTermBean.getName());
-						termSynonyms.addAll(maTermBean.getSynonyms());
-						List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(maTermId);
+					int level = 0; // use to determine top level and selected top levels: differs from ontology to ontology
+					if ( thisTermId.startsWith("MA:") || thisTermId.startsWith("EMAPA:") ){
+						level = 2;
+					}
+					if (thisTermId.startsWith("MP:")){
+						level = 1;
+					}
+
+					termIds.add(thisTermId);
+
+
+					OntologyTermBean termBean = ontologyDAO.getTerm(thisTermId);
+					if (termBean != null) {
+
+						terms.add(termBean.getName());
+						termSynonyms.addAll(termBean.getSynonyms());
+						List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(thisTermId, level);
 						for (OntologyTermBean topLevel : topLevels) {
 							if (!topLevelIds.contains(topLevel.getId())) {
 								topLevelIds.add(topLevel.getId());
@@ -303,7 +329,16 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							}
 						}
 
-						List<OntologyTermBean> intermediateLevels = ontologyDAO.getIntermediates(maTermId);
+						List<OntologyTermBean> selectedTopLevels = ontologyDAO.getSelectedTopLevel(thisTermId, level);
+						for (OntologyTermBean selectedTopLevel : selectedTopLevels) {
+							if (!topLevelIds.contains(selectedTopLevel.getId())) {
+								selectedTopLevelIds.add(selectedTopLevel.getId());
+								selectedTopLevelTerm.add(selectedTopLevel.getName());
+								selectedTopLevelTermSynonym.addAll(selectedTopLevel.getSynonyms());
+							}
+						}
+
+						List<OntologyTermBean> intermediateLevels = ontologyDAO.getIntermediates(thisTermId);
 						for (OntologyTermBean intermediateLevel : intermediateLevels) {
 							// System.out.println(topLevel.getName());
 							if (!intermediateLevelIds.contains(intermediateLevel.getId())) {
@@ -329,58 +364,71 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				// IndexerMap.get
 			}
 
-			if (ontologyDAO instanceof EmapOntologyDAO) {
+			if (ontologyDAO instanceof EmapaOntologyDAO) {
+
 				if (!termIds.isEmpty()) {
-					imageDTO.setEmapId(termIds);
+					imageDTO.setAnatomyId(termIds);
 
-					ArrayList<String> emapIdTerms = new ArrayList<>();
+					ArrayList<String> emapaIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
-						String emapId = termIds.get(i);
+						String emapaId = termIds.get(i);
 
+						imageDTO.setStage("embryo");
 						try {
-							String emapTerm = terms.get(i);
-							emapIdTerms.add(emapId + "_" + emapTerm);
+							String emapaTerm = terms.get(i);
+							emapaIdTerms.add(emapaId + "_" + emapaTerm);
 						} catch (Exception e) {
-							runStatus.addWarning(" Could not find term when indexing EMAP " + emapId + ". Exception: "
+							runStatus.addWarning(" Could not find term when indexing EMAPA " + emapaId + ". Exception: "
 									+ e.getLocalizedMessage());
 						}
 					}
-					imageDTO.setEmapIdTerm(emapIdTerms);
+					imageDTO.setAnatomyIdTerm(emapaIdTerms);
 				}
 				if (!terms.isEmpty()) {
-					imageDTO.setEmapTerm(terms);
+					imageDTO.setAnatomyTerm(terms);
 				}
-
 				if (!termSynonyms.isEmpty()) {
-					imageDTO.setEmapTermSynonym(termSynonyms);
+					imageDTO.setAnatomyTermSynonym(termSynonyms);
 				}
 				if (!topLevelIds.isEmpty()) {
-					imageDTO.setSelectedTopLevelEmapId(topLevelIds);
+					imageDTO.setTopLevelAnatomyId(topLevelIds);
 				}
 				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setSelectedTopLevelEmapTerm(topLevelTerm);
+					imageDTO.setTopLevelAnatomyTerm(topLevelTerm);
 				}
 				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setSelectedTopLevelEmapTermSynonym(topLevelTermSynonym);
+					imageDTO.setTopLevelAnatomyTermSynonym(topLevelTermSynonym);
+				}
+				if (!selectedTopLevelIds.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyId(selectedTopLevelIds);
+				}
+				if (!selectedTopLevelTerm.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTerm(selectedTopLevelTerm);
+				}
+				if (!selectedTopLevelTermSynonym.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevelTermSynonym);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
-					imageDTO.setIntermediateEmapId(intermediateLevelIds);
+					imageDTO.setIntermediateAnatomyId(intermediateLevelIds);
 				}
 				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateEmapTerm(intermediateLevelTerm);
+					imageDTO.setIntermediateAnatomyTerm(intermediateLevelTerm);
 				}
 				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateEmapTermSynonym(intermediateLevelTermSynonym);
+					imageDTO.setIntermediateAnatomyTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
 
 			if (ontologyDAO instanceof MaOntologyDAO) {
+
 				if (!termIds.isEmpty()) {
-					imageDTO.setMaId(termIds);
+					imageDTO.setAnatomyId(termIds);
 
 					ArrayList<String> maIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
 						String maId = termIds.get(i);
+
+						imageDTO.setStage("adult");
 
 						try {
 
@@ -406,32 +454,41 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 									+ e.getLocalizedMessage());
 						}
 					}
-					imageDTO.setMaIdTerm(maIdTerms);
-				}
-				if (!terms.isEmpty()) {
-					imageDTO.setMaTerm(terms);
+					imageDTO.setAnatomyIdTerm(maIdTerms);
 				}
 
+				if (!terms.isEmpty()) {
+					imageDTO.setAnatomyTerm(terms);
+				}
 				if (!termSynonyms.isEmpty()) {
-					imageDTO.setMaTermSynonym(termSynonyms);
+					imageDTO.setAnatomyTermSynonym(termSynonyms);
 				}
 				if (!topLevelIds.isEmpty()) {
-					imageDTO.setSelectedTopLevelMaId(topLevelIds);
+					imageDTO.setTopLevelAnatomyId(topLevelIds);
 				}
 				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setSelectedTopLevelMaTerm(topLevelTerm);
+					imageDTO.setTopLevelAnatomyTerm(topLevelTerm);
 				}
 				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setSelectedTopLevelMaTermSynonym(topLevelTermSynonym);
+					imageDTO.setTopLevelAnatomyTermSynonym(topLevelTermSynonym);
+				}
+				if (!selectedTopLevelIds.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyId(selectedTopLevelIds);
+				}
+				if (!selectedTopLevelTerm.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTerm(selectedTopLevelTerm);
+				}
+				if (!selectedTopLevelTermSynonym.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevelTermSynonym);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
-					imageDTO.setIntermediateMaId(intermediateLevelIds);
+					imageDTO.setIntermediateAnatomyId(intermediateLevelIds);
 				}
 				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateMaTerm(intermediateLevelTerm);
+					imageDTO.setIntermediateAnatomyTerm(intermediateLevelTerm);
 				}
 				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateMaTermSynonym(intermediateLevelTermSynonym);
+					imageDTO.setIntermediateAnatomyTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
 
@@ -446,9 +503,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						String mpId = termIds.get(i);
 
 						try {
-
-
-
 							String mpTerm = terms.get(i);
 							mpIdTerms.add(mpId + "_" + mpTerm);
 						} catch (Exception e) {
@@ -532,6 +586,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	    return true;
 	}
 
+
+
 	private class ImageBean {
 		Integer increment=0;
 		int omeroId;
@@ -541,7 +597,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	public Map<String, List<AlleleDTO>> populateAlleles() throws IndexerException {
 
-		return IndexerMap.getGeneToAlleles(alleleIndexing);
+		return IndexerMap.getGeneToAlleles(alleleCore);
 	}
 
 	private void populateImageDtoStatuses(ImageDTO img, String geneAccession) {
@@ -682,26 +738,38 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		logger.debug(" paramToMp size = " + paramToMp.size());
 		return paramToMp;
 	}
+
 	// SELECT * FROM phenotype_parameter pp INNER JOIN
 	// phenotype_parameter_lnk_ontology_annotation pploa ON
 	// pp.id=pploa.parameter_id INNER JOIN
 	// phenotype_parameter_ontology_annotation ppoa ON
 	// ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=14 LIMIT 100000
 
-	public Map<String, String> populateParameterStableIdToEmapIdMap() throws SQLException {
-		Map<String, String> paramToEmap = new HashMap<String, String>();
+	// we then map EMAP to EMAPA using the mapping file from PURL
+	public Map<String, String> populateParameterStableIdToEmapaIdMap() throws SQLException {
+		Map<String, String> paramToEmapa = new HashMap<String, String>();
 		String query = "SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=14 LIMIT 1000000";
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 
+			int counter = 0;
 			while (resultSet.next()) {
+
 				String parameterStableId = resultSet.getString("stable_id");
-				String emapAcc = resultSet.getString("ontology_acc");
-				paramToEmap.put(parameterStableId, emapAcc);
+				String acc = resultSet.getString("ontology_acc");
+				if (emap2EmapaMap.get(acc) != null) {
+					String emapaAcc = emap2EmapaMap.get(acc).getEmapaId();
+					//System.out.println(acc + " mapped to " + emapaAcc);
+					paramToEmapa.put(parameterStableId, emapaAcc);
+				}
+				else {
+					counter++;
+				}
 			}
+			logger.info("MISSED: " + counter);
 		}
-		logger.debug(" paramToMa size = " + paramToEmap.size());
-		return paramToEmap;
+		logger.debug(" paramToMa size = " + paramToEmapa.size());
+		return paramToEmapa;
 	}
 
 }

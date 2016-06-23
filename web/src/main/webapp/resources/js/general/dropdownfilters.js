@@ -20,7 +20,7 @@ $(document).ready(function(){
 		var aDataTblCols = [0,1,2,3,4,5,6,7];
 		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 	    $('table#genes').dataTable( {
-			"aoColumns": [{ "sType": "string"},
+			"aoColumns": [{ "sType": "string",  "bSortable" : true},
 			              { "sType": "html", "mRender":function( data, type, full ) {
 			            	  return (type === "filter") ? $(data).text() : data;
 			              }},

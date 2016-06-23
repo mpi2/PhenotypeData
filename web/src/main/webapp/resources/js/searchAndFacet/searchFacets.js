@@ -45,8 +45,8 @@
 		else if ( core == "disease" ){
 			displayDiseaseFacet(json);
 		}
-		else if ( core == "ma" ){
-			displayMaFacet(json);
+		else if ( core == "anatomy" ){
+			displayAnatomyFacet(json);
 		}
 		else if ( core == "impc_images" ){
 			displayImpc_imagesFacet(json);
@@ -565,15 +565,40 @@
 		}
 	}
 
-	function displayMaFacet(json) {
-		console.log(json);
+	function displayAnatomyFacet(json) {
 
-		var facetField = "selected_top_level_ma_term"
-		var aTopLevelCount = json.facet_fields[facetField];
-		var maUlContainer = $("li#ma ul");
+		var core = "anatomy";
+		var topLevelField = "selected_top_level_anatomy_term";
+		var aTopLevelCount = json.facet_fields[topLevelField];
 
+		var stageField = "stage";
+		var aStageCount = json.facet_fields[stageField];
 
-		$('li#ma > span.fcount').text(json.iTotalRecords);
+		var maUlContainer = $("li#" + core + " ul");
+
+		$('li#' + core + ' > span.fcount').text(json.iTotalRecords);
+
+		// stages
+		for (var i = 0; i < aStageCount.length; i += 2) {
+
+			var liContainer = $("<li></li>").attr({'class': 'fcat'});
+
+			var count = aStageCount[i + 1];
+			var coreField = core + '|' + stageField + '|' + aStageCount[i] + '|' + count;
+			var isGrayout = count == 0 ? 'grayout' : '';
+			liContainer.removeClass('grayout').addClass(isGrayout);
+
+			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
+			var flabel = $('<span></span>').attr({'class': 'flabel'}).text(aStageCount[i]);
+			var fcount = $('<span></span>').attr({'class': 'fcount'}).text(count);
+			liContainer.append(chkbox, flabel, fcount);
+			maUlContainer.append(liContainer);
+		}
+
+		// filter separator
+		if (json.iTotalRecords > 0) {
+			maUlContainer.append("<li><div id='anaSep'>&nbsp;</div></li>");
+		}
 
 		// selected top level MA terms
 		for ( var i=0;  i<aTopLevelCount.length; i+=2 ){
@@ -581,7 +606,7 @@
 			var liContainer = $("<li></li>").attr({'class':'fcat'});
 
 			var count = aTopLevelCount[i+1];
-			var coreField = 'ma|'+ facetField + '|' + aTopLevelCount[i] + '|' + count;
+			var coreField = core + '|' + topLevelField + '|' + aTopLevelCount[i] + '|' + count;
 			var isGrayout = count == 0 ? 'grayout' : '';
 			liContainer.removeClass('grayout').addClass(isGrayout);
 
@@ -593,14 +618,14 @@
 		}
 
 		// update all subfacet counts of this facet
-		$('div.flist li#ma > ul').append(maUlContainer);
+		$('div.flist li#'+core+' > ul').append(maUlContainer);
 
 		// change cursor for grayout filter
-		$.fn.cursorUpdate('ma', 'not-allowed');
+		$.fn.cursorUpdate(core, 'not-allowed');
 
-		$.fn.initFacetToggles('ma');
+		$.fn.initFacetToggles(core);
 
-		$('li#ma li.fcat input').click(function(){
+		$('li#'+core+' li.fcat input').click(function(){
 
 			// highlight the item in facet
 			updateCheckedFilter($(this));
@@ -619,7 +644,7 @@
 
 		// appearance order of subfacets
 		//var aSubFacetNames = ['top_level_mp_term','selected_top_level_ma_term','procedure_name','marker_type'];
-		var aSubFacetNames = ['procedure_name', 'selected_top_level_ma_term'];
+		var aSubFacetNames = ['procedure_name', 'selected_top_level_anatomy_term'];
 
 		var displayLabel = {
 			/*annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
@@ -629,7 +654,7 @@
 			 */
 			//top_level_mp_term: 'Phenotype',
 			procedure_name : 'Procedure',
-			selected_top_level_ma_term: 'Anatomy'
+			selected_top_level_anatomy_term: 'Anatomy'
 		};
 
 		for ( var n=0; n<aSubFacetNames.length; n++){
@@ -642,9 +667,39 @@
 
 			var thisUlContainer = $("<ul></ul>");
 
+			// add stage for Anatomy
+			if (facetName == 'selected_top_level_anatomy_term'){
+
+				var aStgFields = ["adult", "embryo"];
+
+				for( var s=0; s<aStgFields.length; s++) {
+
+					var liContainer = $("<li></li>").attr({'class':'fcat ' + "stage"});
+					if (s==1){s+=1;}
+					var fieldName = aFacetFields["stage"][s];
+					var count = aFacetFields["stage"][s + 1];
+
+					var isGrayout = count == 0 ? 'grayout' : '';
+					liContainer.removeClass('grayout').addClass(isGrayout);
+
+					var coreField = 'impc_images|' + "stage" + '|' + fieldName + '|' + count + '|' + facetName;
+					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
+					var flabel = $('<span></span>').attr({'class': 'flabel'}).text(fieldName);
+					var fcount = $('<span></span>').attr({'class': 'fcount'}).text(count);
+
+					thisUlContainer.append(liContainer.append(chkbox, flabel, fcount));
+				}
+
+				// filter separator
+				if (json.iTotalRecords > 0) {
+					thisUlContainer.append("<li><div id='anaSep'>&nbsp;</div></li>");
+				}
+			}
+
 			for ( var i=0; i<aFacetFields[facetName].length; i+=2){
 				//console.log("field name: " + aFacetFields[facetName][i]);
 				//console.log(typeof aFacetFields[facetName][i]);
+
 				if (typeof aFacetFields[facetName][i] == 'string') {
 					var liContainer = $("<li></li>").attr({'class':'fcat ' + facetName});
 
@@ -653,6 +708,8 @@
 					var count = aFacetFields[facetName][i + 1];
 					var label = displayLabel[facetName];
 					foundMatch[label]++;
+
+
 
 					var isGrayout = count == 0 ? 'grayout' : '';
 					liContainer.removeClass('grayout').addClass(isGrayout);

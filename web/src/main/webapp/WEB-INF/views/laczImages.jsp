@@ -57,19 +57,19 @@
 				<div class="content">
 					<div class="node node-gene">
                   <!-- nicolas accordion for images here -->
-                            <c:if test="${not empty impcExpressionImageFacets}">
+                            <c:if test="${not empty impcAdultExpressionImageFacets}">
                                 <div class="section">
                                     <h2 class="title" id="section-images">LacZ images for gene ${gene.markerSymbol}<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
-                                        <c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
+                                        <c:forEach var="entry" items="${impcAdultExpressionImageFacets}" varStatus="status">
                                             <div class="accordion-group open">
                                                 <div class="accordion-heading">
                                                     ${entry.name} (${entry.count})
                                                 </div>
                                                 <div class="accordion-body" style="display: block;">
                                                     <ul>
-                                                        <c:forEach var="doc" items="${impcExpressionFacetToDocs[entry.name]}">
+                                                        <c:forEach var="doc" items="${impcAdultExpressionFacetToDocs[entry.name]}">
                                                                 <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
                                                         </c:forEach>
                                                     </ul>

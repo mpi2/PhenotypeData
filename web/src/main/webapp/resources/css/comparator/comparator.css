@@ -1,3 +1,18 @@
+
+ .viewport {
+    width: 560px;
+        height: 600px;
+        
+    }
+    .thumbList {
+       width: 560px;
+       /*  height: 600px; */
+        float: left;
+        margin: 20px;
+    }
+
+
+
 #comparator{
 min-width:1220px;	
 min-height:900px;
@@ -11,25 +26,35 @@ width:100%;
 
 #control_box{
 	clear: right;
+	/*  height: auto;
+     width: auto; */
 	
 }
 
 #mutant_box{
 	float: right;
+	/* height: 400px;
+    width: 500px; */
 }
 
 .half_box_left{
 	width: 49.6%;
+	height: 400px;
+    height: auto;
+    /* width: auto; */
 	float: left;
 }
 
 .half_box_right{
 	width: 49.6%;
+	/*  height: 400px; */
+       /*  width: 500px; */
 	float: right;
 }
 
 .full_box{
 	width: 100%;
+	height: 100%;
 	float: left;
 }
 
@@ -39,8 +64,8 @@ width:100%;
 }
 
 #control_frame, #mutant_frame {
-	min-width: 600px;
-	min-height:500px;
+	height: 400px;
+    width: 500px;
 	display: inline;
 }
 
@@ -53,8 +78,10 @@ width:100%;
 	border: #ddd 2px solid; color: #666;
 	text-align: center;
 	color: #0978a1;
+	clear: both;
+	height:40px;
 }
-.picker{
+.thumblist{
 	width:100%;
 }
 
