@@ -63,8 +63,6 @@ public class ImageComparatorController {
 			@RequestParam(value = "gender", required=false) String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
 			throws SolrServerException {
 		System.out.println("calling image imageComparator");
-		if(gender!=null)System.out.println("sex in controller="+gender);
-		
 		
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
@@ -87,7 +85,6 @@ public class ImageComparatorController {
 							"experimental", 10000, null, null, null);
 			if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			mutants=responseExperimental.getResults();
-			System.out.println("list size=" + mutants.size());
 			imgDoc = mutants.get(0);
 			}
 		}
@@ -176,9 +173,7 @@ public class ImageComparatorController {
 		Set<SolrDocument> uniqueControls=new HashSet<>();
 		if (imgDoc != null) {
 			for (SexType sex : sexTypes) {
-				System.out.println("sex in controls="+sex);
 				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
-				
 				uniqueControls.addAll(controlsTemp);
 			}
 		}

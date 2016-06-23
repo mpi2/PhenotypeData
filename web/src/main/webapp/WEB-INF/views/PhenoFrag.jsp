@@ -37,7 +37,7 @@
 <table id="genes" class="table tableSorter">
     <thead>
     <tr>
-    	<th class="headerSort">Icon</th>
+    	<th class="headerSort">System</th>
         <th class="headerSort">Phenotype</th>
         <th class="headerSort">Allele</th>
         <th class="headerSort" title="Zygosity">Zyg</th>
