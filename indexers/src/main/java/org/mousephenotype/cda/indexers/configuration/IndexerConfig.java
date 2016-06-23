@@ -121,42 +121,48 @@ public class IndexerConfig {
     @Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.admintools")
     public DataSource admintoolsDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.goapro")
     public DataSource goaproDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.ontodb")
     public DataSource ontodbDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.pfam")
     public DataSource pfamDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.uniprot")
     public DataSource uniprotDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
+	@Bean
+	@ConfigurationProperties(prefix = "datasource.phenodigm")
+	public DataSource phenodigmDataSource() {
+		return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+	}
 
 
-    // support beans for hibernate wiring
+
+	// support beans for hibernate wiring
     protected Properties buildHibernateProperties() {
 	    Properties hibernateProperties = new Properties();
 
