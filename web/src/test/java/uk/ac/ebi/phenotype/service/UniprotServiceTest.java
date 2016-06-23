@@ -3,11 +3,15 @@ package uk.ac.ebi.phenotype.service;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.phenotype.web.TestConfig;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -20,13 +24,28 @@ import java.io.IOException;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
-@Transactional
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
 public class UniprotServiceTest {
 
+	// Only wire up the Uniprot service for this test suite
+	@Configuration
+	@ComponentScan(
+		basePackages = {"uk.ac.ebi.phenotype.service"},
+		useDefaultFilters = false,
+		includeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {UniprotService.class})
+		})
+	static class ContextConfiguration {
 
-    @Autowired
+		@Bean
+		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+			return new PropertySourcesPlaceholderConfigurer();
+		}
+
+	}
+
+
+	@Autowired
     UniprotService uniprotService;
 
     @Test

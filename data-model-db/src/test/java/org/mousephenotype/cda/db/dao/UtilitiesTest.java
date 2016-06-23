@@ -20,15 +20,11 @@
  * This test class is intended to run healthchecks against the observation table.
  */
 
-package uk.ac.ebi.phenotype.data.impress;
-
-import java.util.Arrays;
-import java.util.List;
+package org.mousephenotype.cda.db.dao;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.TestConfig;
 import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
@@ -38,21 +34,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import uk.ac.ebi.phenotype.web.TestConfig;
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
-@Transactional
+@EnableTransactionManagement
 public class UtilitiesTest {
 
     @Autowired
     PhenotypePipelineDAO pDAO;
-
-    @Autowired
-    OntologyTermDAO ontologyTermDAO;
 
     @Autowired
     Utilities impressUtilities;
@@ -82,7 +76,7 @@ public class UtilitiesTest {
             String stage = goodStages.get(i);
             StageUnitType stageUnit = goodStageUnits.get(i);
 
-            System.out.println("Testing :" + stage + " " + stageUnit.getStageUnitName());
+            System.out.println("Testing: " + stage + " " + stageUnit.getStageUnitName());
 
             // Need a method to convert impress input to representative EFO term
             OntologyTerm term = impressUtilities.getStageTerm(stage, stageUnit);

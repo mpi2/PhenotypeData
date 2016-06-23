@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader=AnnotationConfigContextLoader.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class ObservationServiceTest {
 
 	private final Logger logger = LoggerFactory.getLogger(ObservationServiceTest.class);
@@ -70,9 +70,8 @@ public class ObservationServiceTest {
 		String geneAccession="MGI:2449119";
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
-			for(ObservationDTO obs:result){
-				System.out.println("observations="+obs);
-			}
+
+			assert(result.size()>5);
 
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
@@ -88,9 +87,6 @@ public class ObservationServiceTest {
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
 			assertTrue(result.size()>0);
-			for(ObservationDTO obs:result){
-				System.out.println("observations="+obs);
-			}
 
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
