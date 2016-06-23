@@ -11,10 +11,7 @@
 
  <jsp:attribute name="title">${gene.markerSymbol} Image Picker</jsp:attribute>
 <jsp:attribute name="header">
-<script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}">
 
-
-</script>
   <link href="${baseUrl}/css/comparator/comparator.css" rel="stylesheet" type="text/css" />
   <!-- This min.css contains all the smaller css files below... ->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.css" type="text/css" rel="stylesheet"></link> -->
@@ -37,12 +34,14 @@
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/jquery-ui-1.10.4/themes/base/jquery-ui.all.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/omero_image.css" type="text/css" rel="stylesheet"></link>  -->
    <link href="${omeroStaticUrl}3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
-
-
-    <script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script>
     <!-- <script src="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/js/ome.viewport.js" type="text/javascript"></script>
     <script src="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/js/ome.viewportImage.js" type="text/javascript"></script> -->
     
+</jsp:attribute>
+
+<jsp:attribute name="addToFooter">
+	<script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script>
+	<script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
 </jsp:attribute>
 <jsp:body>
 
@@ -397,4 +396,5 @@
 	</script>
 
 </jsp:body>
+
 </t:genericpage>
