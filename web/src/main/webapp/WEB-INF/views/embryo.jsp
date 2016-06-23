@@ -100,7 +100,7 @@
                             <p><a href="https://www.umass.edu/m2m/people/jesse-mager">Jesse Mager, University of Massachusetts Amherst</a>
                             </p>
                             <p>
-                            <a href="https://www.mskcc.org/research-areas/labs/elizabeth-lacy">Liz Lacy, Memorial Sloan Kettering Cancer Center</a>
+                            <a href="https://www.mskcc.org/research-areas/labs/elizabeth-lacy">Elizabeth Lacy, Memorial Sloan Kettering Cancer Center</a>
                             </p>
                             
                             
