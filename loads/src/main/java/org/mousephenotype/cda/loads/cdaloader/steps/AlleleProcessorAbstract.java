@@ -77,8 +77,6 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
                         + allele.getId().getAccession() + "'. Gene: '"
                         + allele.getGene().getId().getAccession() + "'");
             }
-
-            return null;
         }
 
         if (alleles.containsKey(allele.getId().getAccession())) {
@@ -165,8 +163,8 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
      */
     protected Allele setBiotypeMouseMutants(Allele allele) throws CdaLoaderException {
         if (biotypeTm1a == null) {
-            biotypeTm1a = sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), SqlLoaderUtils.biotypeTm1aString);
-            biotypeTm1e = sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), SqlLoaderUtils.biotypeTm1eString);
+            biotypeTm1a = sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), SqlLoaderUtils.BIOTYPE_TM1A_STRING);
+            biotypeTm1e = sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), SqlLoaderUtils.BIOTYPE_TM1E_STRING);
         }
 
         allele.setBiotype(allele.getSymbol().contains("tm1a") ? biotypeTm1a : biotypeTm1e);
@@ -200,13 +198,14 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
     }
 
     /**
-     * If the gene component cannot
+     * A gene that does not exist signifies that MGI's report files are out of sync. There should never be any such
+     * genes. Log a warning if there are, and add the missing gene to the genomic_features table with status 'withdrawn'.
      *
      * <p>If the marker accession id is null or empty, a null gene is added to the allele and the allele is returned.</p>
      * <p>If the gene is found by the marker accession id, it is added to the allele and the allele is returned.</p>
-     * <p>If gene cannot be found by the marker accession id, the gene is added to the genomic_feature table with the
+     * <p>If the gene cannot be found by the marker accession id, the gene is added to the genomic_feature table with the
      * status 'withdrawn' and the biotype set to the ontology term matching "Gene", the newly added gene is added to
-     * the allele, and the allele is returned.</p>
+     * the allele, and the allele is returned. This case indicates an out-of-sync case with MGI's report files.</p>
      *
      * @param allele the allele being processed
      *
@@ -223,13 +222,15 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
             if (gene == null) {
                 withdrawnGenesCount++;
 
-                OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), SqlLoaderUtils.biotypeGeneString);
+                OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), SqlLoaderUtils.BIOTYPE_GENE_STRING);
                 gene = new GenomicFeature();
                 gene.setId(new DatasourceEntityId(allele.getGene().getId().getAccession(), DbIdType.MGI.intValue()));
                 gene.setBiotype(biotype);
                 gene.setSymbol(allele.getGene().getSymbol());
                 gene.setName(allele.getGene().getSymbol());
-                gene.setStatus(SqlLoaderUtils.WITHDRAWN_STATUS);
+                gene.setStatus(SqlLoaderUtils.STATUS_WITHDRAWN);
+                logger.warn("MGI report file is out-of-sync. Adding withdrawn gene {} to allele {}.",
+                        gene.toString(), allele.toString());
 
                 sqlLoaderUtils.updateGenomicFeature(gene, null);
             }

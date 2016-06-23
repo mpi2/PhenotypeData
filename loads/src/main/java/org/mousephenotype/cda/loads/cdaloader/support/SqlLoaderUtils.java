@@ -41,12 +41,16 @@ public class SqlLoaderUtils {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final String ACTIVE_STATUS    = "active";
-    public static final String WITHDRAWN_STATUS = "withdrawn";
+    public static final String FEATURES_UNKNOWN    = "unknown";
 
-    public static final String biotypeGeneString = "Gene";
-    public static final String biotypeTm1aString = "Targeted (Floxed/Frt)";
-    public static final String biotypeTm1eString = "Targeted (Reporter)";
+    public static final String STATUS_ACTIVE       = "active";
+    public static final String STATUS_WITHDRAWN    = "withdrawn";
+
+    public static final String NAME_NOT_SPECIFIED  = "Not Specified";
+
+    public static final String BIOTYPE_GENE_STRING = "Gene";
+    public static final String BIOTYPE_TM1A_STRING = "Targeted (Floxed/Frt)";
+    public static final String BIOTYPE_TM1E_STRING = "Targeted (Reporter)";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -678,7 +682,7 @@ public class SqlLoaderUtils {
             feature.setcMposition(rs.getString("cm_position"));
             feature.setName(rs.getString("name"));
             feature.setSequenceRegion(getSequenceRegion(rs.getInt("seq_region_id")));
-            feature.setStatus(ACTIVE_STATUS);
+            feature.setStatus(STATUS_ACTIVE);
             feature.setSubtype(getOntologyTerm(rs.getString("subtype_acc")));
             feature.setSymbol(rs.getString("symbol"));
 
