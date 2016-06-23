@@ -91,6 +91,10 @@ public class AlleleLoader implements InitializingBean, Step {
     private ItemProcessor alleleProcessorNorcomm;
 
     @Autowired
+    @Qualifier("alleleProcessorGenopheno")
+    private ItemProcessor alleleProcessorGenopheno;
+
+    @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
@@ -160,12 +164,6 @@ public class AlleleLoader implements InitializingBean, Step {
         lineMapperNorcomm.setFieldSetMapper(new AlleleFieldSetMapper());
         norcommReader.setLineMapper(lineMapperNorcomm);
 
-
-
-
-
-
-
         genophenoReader.setResource(new FileSystemResource(alleleKeys.get(FilenameKeys.GENOPHENO)));
         genophenoReader.setComments(new String[] { "#" });
         genophenoReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
@@ -219,7 +217,10 @@ public class AlleleLoader implements InitializingBean, Step {
             allele.setId(dsIdAllele);
             allele.setBiotype(biotype);
             allele.setGene(gene);
-            allele.setName(fs.readString("name"));
+            // The MGI_GenoPheno.rpt file does not have a 'name' column. Each allele name gets set to 'Not Specified' in the AlleleProcessorGenopheno.
+            if (Arrays.asList(fs.getNames()).contains("name")) {
+                allele.setName(fs.readString("name"));
+            }
             allele.setSymbol(fs.readString("symbol"));
             allele.setSynonyms(synonyms);
 
@@ -310,6 +311,14 @@ public class AlleleLoader implements InitializingBean, Step {
                 .writer(writer)
                 .build();
 
+        Step loadGenophenoStep = stepBuilderFactory.get("alleleLoaderGenophenoStep")
+                .listener(new AlleleLoaderGenophenoStepListener())
+                .chunk(1000)
+                .reader(genophenoReader)
+                .processor(alleleProcessorGenopheno)
+                .writer(writer)
+                .build();
+
 
 
         // Synchronous flows.
@@ -324,6 +333,8 @@ public class AlleleLoader implements InitializingBean, Step {
                 .from(loadKompStep).end());
         synchronousFlows.add(new FlowBuilder<Flow>("alleleLoaderNorcommFlow")
                 .from(loadNorcommStep).end());
+        synchronousFlows.add(new FlowBuilder<Flow>("alleleLoaderGenophenoFlow")
+                .from(loadGenophenoStep).end());
         FlowBuilder<Flow> synchronousFlowBuilder = new FlowBuilder<Flow>("alleleLoaderFlows").start(synchronousFlows.get(0));
         for (int i = 1; i < synchronousFlows.size(); i++) {
             synchronousFlowBuilder.next(synchronousFlows.get(i));
@@ -421,6 +432,20 @@ public class AlleleLoader implements InitializingBean, Step {
                     ((AlleleProcessorNorcomm) alleleProcessorNorcomm).getWithdrawnGenesCount());
 
             return ((AlleleProcessorNorcomm) alleleProcessorNorcomm).getErrMessages();
+        }
+    }
+
+    public class AlleleLoaderGenophenoStepListener extends LogStatusStepListener {
+
+        @Override
+        protected Set<String> logStatus() {
+            logger.info("GENOPHENO: Added {} new alleles to database from file {} in {}. Alleles without genes: {}",
+                    ((AlleleProcessorGenopheno) alleleProcessorGenopheno).getAddedAllelesCount(),
+                    alleleKeys.get(FilenameKeys.GENOPHENO),
+                    commonUtils.formatDateDifference(start, stop),
+                    ((AlleleProcessorGenopheno) alleleProcessorGenopheno).getAllelesWithoutGenesCount());
+
+            return ((AlleleProcessorGenopheno) alleleProcessorGenopheno).getErrMessages();
         }
     }
 }

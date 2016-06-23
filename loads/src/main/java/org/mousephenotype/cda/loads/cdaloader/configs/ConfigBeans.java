@@ -211,6 +211,11 @@ public class ConfigBeans {
         return new AlleleProcessorNorcomm(genomicFeatures, mgiFeatureTypes);
     }
 
+    @Bean(name = "alleleProcessorGenopheno")
+    public AlleleProcessorGenopheno alleleProcessorGenopheno() {
+        return new AlleleProcessorGenopheno(genomicFeatures, mgiFeatureTypes);
+    }
+
     @Bean(name = "alleleProcessorQtl")
     public AlleleProcessorQtl alleleProcessorQtl() {
         return new AlleleProcessorQtl(genomicFeatures, mgiFeatureTypes);

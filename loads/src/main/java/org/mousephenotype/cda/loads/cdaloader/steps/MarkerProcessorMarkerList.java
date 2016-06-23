@@ -142,9 +142,9 @@ public class MarkerProcessorMarkerList implements ItemProcessor<FieldSet, Genomi
                 feature.setBiotype(featureTypes.get(biotype));
                 feature.setSequenceRegion(sequenceRegions.get(chromosome));
                 feature.setcMposition(cMposition);
-                feature.setStatus(SqlLoaderUtils.ACTIVE_STATUS);
+                feature.setStatus(SqlLoaderUtils.STATUS_ACTIVE);
                 feature.setSymbol(symbol);
-                feature.setSubtype(featureTypes.get("unknown"));
+                feature.setSubtype(featureTypes.get(SqlLoaderUtils.FEATURES_UNKNOWN));
                 feature.setXrefs(new ArrayList<>());
 
                 addedMarkerListCount++;
