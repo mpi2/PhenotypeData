@@ -369,46 +369,44 @@ $('input#s').keyup(function (e) {
 	}
 });
 		
-	function _convertHp2MpAndSearch(input, facet){
-		input = input.toUpperCase();
-		$.ajax({
-			url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
-			dataType: "jsonp",
-			jsonp: 'json.wrf',
-			type: 'post',
-			async: false,
-			success: function( json ) {
-					var mpid = json.response.docs[0].hpmp_id;
-					document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
-			}
-		});
-	}
+function _convertHp2MpAndSearch(input, facet){
+	input = input.toUpperCase();
+	$.ajax({
+		url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
+		dataType: "jsonp",
+		jsonp: 'json.wrf',
+		type: 'post',
+		async: false,
+		success: function( json ) {
+				var mpid = json.response.docs[0].hpmp_id;
+				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
+		}
+	});
+}
 
+function _convertInputForSearch(input){
+	$.ajax({
+		url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",
+		dataType: "jsonp",
+		jsonp: 'json.wrf',
+		type: 'post',
+		async: false,
+		success: function( json ) {
+			var doc = json.response.docs[0];
+			var facet, q;
 
-
-	function _convertInputForSearch(input){
-		$.ajax({
-			url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",
-			dataType: "jsonp",
-			jsonp: 'json.wrf',
-			type: 'post',
-			async: false,
-			success: function( json ) {
-				var doc = json.response.docs[0];
-				var facet, q;
-
-				for( var field in doc ) {
-					if ( field != 'docType' ){
-						q = doc[field];
-					}
-					else {
-						facet = doc[field];
-					}
+			for( var field in doc ) {
+				if ( field != 'docType' ){
+					q = doc[field];
 				}
-
-				document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
+				else {
+					facet = doc[field];
+				}
 			}
-		});
-	}
+
+			document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
+		}
+	});
+}
 
  	

@@ -1844,7 +1844,7 @@ public class DataTableController {
 			try {
 				if (alleleAcc != null && geneAcc != null) {
 
-					String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=?, WHERE dbid=?";
+					String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
 					PreparedStatement stmt = conn.prepareStatement(uptSql);
 					stmt.setString(1, alleleAcc);
 					stmt.setString(2, geneAcc);
@@ -1983,11 +1983,15 @@ public class DataTableController {
             @RequestParam(value = "iDisplayStart", required = false) Integer iDisplayStart,
             @RequestParam(value = "iDisplayLength", required = false) Integer iDisplayLength,
             @RequestParam(value = "sSearch", required = false) String sSearch,
+			@RequestParam(value = "doAlleleRefEdit", required = false) String editParams,
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws IOException, URISyntaxException, SQLException {
 
-    	String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch);
+		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(editParams);
+		Boolean editMode = jParams.getString("editMode").equals("true") ? true : false;
+
+		String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch, editMode);
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
@@ -2042,7 +2046,7 @@ public class DataTableController {
         return match;
     }
 
-    public String fetch_allele_ref_edit(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
+    public String fetch_allele_ref_edit(int iDisplayLength, int iDisplayStart, String sSearch, Boolean editMode) throws SQLException {
 
         Connection conn = admintoolsDataSource.getConnection();
 
@@ -2100,7 +2104,7 @@ public class DataTableController {
                     + " or grant_id like ?"
                     + " or agency like ?"
                     + " or acronym like ?)"
-                    + " order by reviewed desc"
+                    + " order by reviewed"
                     + " limit ?, ?";
         } else {
             query2 = "select * from allele_ref where reviewed='no' and falsepositive='no' limit ?,?";
@@ -2139,8 +2143,9 @@ public class DataTableController {
 
                 //rowData.add(resultSet.getString("acc"));
                 String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
-                String alLink = "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
-                rowData.add(alLink);
+
+				String alLink = alleleSymbol.equals("") ? "" : "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
+                rowData.add(editMode ? alleleSymbol : alLink);
 
                 //rowData.add(resultSet.getString("name"));
                 String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
@@ -2153,9 +2158,12 @@ public class DataTableController {
                 rowData.add(resultSet.getString("acronym"));
                 String[] urls = resultSet.getString("paper_url").split(",");
                 List<String> links = new ArrayList<>();
-                for (int i = 0; i < urls.length; i ++) {
-                    links.add("<a target='_blank' href='" + urls[i] + "'>paper</a>");
-                }
+//                for (int i = 0; i < urls.length; i ++) {
+//                    links.add("<a target='_blank' href='" + urls[i] + "'>paper</a>");
+//                }
+
+				// just show one paper: although they are from different sources, but are actually the same paper
+				links.add("<a target='_blank' href='" + urls[0] + "'>paper</a>");
                 rowData.add(StringUtils.join(links, "<br>"));
 
                 j.getJSONArray("aaData").add(rowData);

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigSolr.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTests{
 
 	@Autowired
@@ -53,6 +53,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 	public void testGetDocsForGeneWithFacetField() throws SolrServerException {
 
 		String geneId = "MGI:4433191";
+		geneId = "MGI:97549";
 		QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(geneId, "expName", "Xray","", 0, 5);
 		assertTrue(response.getResults().size() > 0);
 

@@ -70,7 +70,7 @@
 			<div class="block block-system">
 				<div class='content'>
 				<div class="node node-gene">
-						<h1 class="title" id="top">IMPC allele references curation</h1>	 
+					<h1 class="title" id="top">IMPC allele references curation</h1>
 				
 					<div id='formBox'>
 						<span></span>
@@ -78,9 +78,11 @@
 	                      Enter passcode to switch to Edit mode: <input size='10' type='password' name='passcode'>
 	                    </form>
                     </div>
-                    <div id='butt'><button class='login'>Edit</button></div>
-					<div class="clear"></div>
-					<!-- facet filter block -->								
+                    <div id='butt'><button class='login'>Edit</button>
+	                    <%--<a><i class='fa fa-question-circle fa paperEdit'></i></a>--%>
+                    </div>
+
+
 					<!-- container to display dataTable -->									
 					<div class="HomepageTable" id="alleleRef"></div>	
 				</div>				
@@ -96,8 +98,7 @@
    			//var baseUrl = '//dev.mousephenotype.org/data';
    			//var baseUrl = 'http://localhost:8080/phenotype-archive';
    			var baseUrl = "${baseUrl}";
-   			var solrUrl = "${internalSolrUrl};"
-
+   			var solrUrl = "${internalSolrUrl};";
 
 			$('button[class=login]').click(function(){
 				if ( ! $(this).hasClass('edit') ) {
@@ -117,9 +118,15 @@
         			oTable.fnStandingRedraw();
 				}
         	});
-			
+
+	        var oConf = {};
+	        oConf.doAlleleRef = true;
+	        oConf.iDisplayLength = 10;
+	        oConf.iDisplayStart = 0;
+	        oConf.editMode = false;
+
 			$('form#allele').submit(function(){
-				
+
 				var passcode = $('form input[type=password]').val();
               	$.ajax({
               		method: "post",
@@ -132,6 +139,8 @@
 
                 			$('form#allele').hide();
                 			$('#formBox span').text("You are now in editing mode...");
+
+			                oConf.editMode = true;
                 			var oTable = $('table#alleleRef').dataTable();
                 			oTable.fnStandingRedraw();
                 		}
@@ -152,17 +161,12 @@
 			
 			var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
 			$('div#alleleRef').append(dTable);
-			
-			var oConf = {};
-			oConf.doAlleleRef = true;
-			oConf.iDisplayLength = 10;
-			oConf.iDisplayStart = 0;
-				
+
 			fetchAlleleRefDataTable(oConf);
    		});
    		
         function fetchAlleleRefDataTable(oConf) {
-       	    //console.log(oConf);
+       	    console.log(oConf);
    		  	var oTable = $('table#alleleRef').dataTable({
    	            "bSort": false,
    	        	"processing": true,
@@ -223,10 +227,11 @@
    	            	oConf.doAlleleRef = true;
    	            	oConf.legacyOnly = false;
    	            	oConf.filterStr = $(".dataTables_filter input").val();
-   	            	
+
    	            	$.fn.initDataTableDumpControl(oConf);
 
-   	            	if ( $('button').hasClass('edit')) { 
+   	            	if ( $('button').hasClass('edit')) {
+
 	   	            	// POST
 	   	            	var thisTable = $(this);
 		                thisTable.find('tr th:first-child, tr td:first-child').show();
@@ -250,10 +255,9 @@
 
 		                });
 
-
 	   	            	$(this).find('tr td:nth-child(3)').attr('id', dbid).css({'cursor':'pointer'}); // set id for the key in POST
 	   	            	$(this).find('tr td:nth-child(3)').editable(baseUrl + '/dataTableAlleleRef', {
-	   	                 "callback": function( jsonStr, y ) {
+	   	                    "callback": function( jsonStr, y ) {
 	   	                		var j = JSON.parse(jsonStr);
 		                        var displayedSymbol = null;
 	   	                		if ( j.allAllelesNotFound ){
@@ -270,10 +274,12 @@
 	   	                     	$(this).text(displayedSymbol);
 	   	                  		$(this).parent().find('td:first-child').html("<input type='checkbox'>");
 		                        $(this).parent().find('td:nth-child(2)').text(j.reviewed);
-	   	                 },
-	   	                 "event": "click",
-	   	                 "height": "18px",
-	   	                 "width": "350px"
+		                     },
+		                     "event": "click",
+		                     "height": "50px",
+		                     "width": "350px",
+				             "type": "textarea",
+				             "submit"  : "OK"
 	   	             	});
 	   	            	$(this).find('tr td:nth-child(3)').bind('click', function(){
 	   	            		//console.log($(this).html()); 
@@ -292,8 +298,9 @@
    	            "sAjaxSource": baseUrl + '/dataTableAlleleRefEdit',
    	            "fnServerParams": function(aoData) {
    	                aoData.push(
-   	                        {"name": "doAlleleRef",
-   	                         "value": JSON.stringify(oConf, null, 3)
+   	                        {"name": "doAlleleRefEdit",
+   	                        // "value": JSON.stringify(oConf, null, 3)
+	                            "value": JSON.stringify(oConf)
    	                        }
    	                );
    	            }
