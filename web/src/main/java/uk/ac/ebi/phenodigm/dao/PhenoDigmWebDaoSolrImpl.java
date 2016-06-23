@@ -23,11 +23,13 @@ import java.util.Map;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.phenodigm.model.Disease;
 import uk.ac.ebi.phenodigm.model.DiseaseIdentifier;
@@ -54,8 +56,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
     private static final Logger logger = LoggerFactory.getLogger(PhenoDigmWebDaoSolrImpl.class);
     private static final int ROWS = 10000;
 
-    @Autowired
-    private SolrServer solrServer;
+    @Autowired @Qualifier("phenodigmCore")
+    private HttpSolrServer phenodigmCore;
 
     @Override
     public Disease getDisease(DiseaseIdentifier diseaseId) {
@@ -76,7 +78,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
         Disease disease = null;
 
         try {
-            resultsDocumentList = solrServer.query(solrQuery).getResults();
+            resultsDocumentList = phenodigmCore.query(solrQuery).getResults();
 
             if (resultsDocumentList.isEmpty()) {
                 logger.info("Uh-oh! Query for disease {} was not found.", diseaseId);
@@ -112,7 +114,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
         List<PhenotypeTerm> phenotypeList = new ArrayList<>();
         try {
-            resultsDocumentList = solrServer.query(solrQuery).getResults();
+            resultsDocumentList = phenodigmCore.query(solrQuery).getResults();
 
             if (resultsDocumentList.isEmpty()) {
                 logger.info("Uh-oh! Query for disease {} phenotypes was not found.", diseaseId);
@@ -152,7 +154,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
         Gene gene = null;
         try {
-            resultsDocumentList = solrServer.query(solrQuery).getResults();
+            resultsDocumentList = phenodigmCore.query(solrQuery).getResults();
 
             if (resultsDocumentList.isEmpty()) {
                 logger.info("Uh-oh! Query for gene {} was not found.", geneIdentifier);
@@ -222,7 +224,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
         List<GeneAssociationSummary> geneAssociationSummaryList = new ArrayList<>();
         try {
-            resultsDocumentList = solrServer.query(solrQuery).getResults();
+            resultsDocumentList = phenodigmCore.query(solrQuery).getResults();
             for (SolrDocument solrDocument : resultsDocumentList) {
 //                logger.info("{}", solrDocument.getFieldValuesMap() );
                 //make the geneIdentifiers
@@ -279,7 +281,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
         List<DiseaseAssociationSummary> diseaseAssociationSummaryList = new ArrayList<>();
         try {
-            resultsDocumentList = solrServer.query(solrQuery).getResults();
+            resultsDocumentList = phenodigmCore.query(solrQuery).getResults();
             for (SolrDocument solrDocument : resultsDocumentList) {
 //                logger.info("{}", solrDocument.getFieldValuesMap() );
                 //make the geneIdentifiers
@@ -324,7 +326,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
         Map<Integer, MouseModel> modelMap = getMouseModels(geneId);
 
         try {
-            resultsDocumentList = solrServer.query(solrQuery).getResults();
+            resultsDocumentList = phenodigmCore.query(solrQuery).getResults();
             for (SolrDocument solrDocument : resultsDocumentList) {
                 DiseaseModelAssociation diseaseModelAssociation = new DiseaseModelAssociation();
                 diseaseModelAssociation.setDiseaseIdentifier(diseaseId);
@@ -412,7 +414,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
         logger.info("making mouseModels for geneIdentifier: {}", geneIdentifier);
 
         try {
-            resultsDocumentList = solrServer.query(solrQuery).getResults();
+            resultsDocumentList = phenodigmCore.query(solrQuery).getResults();
             for (SolrDocument solrDocument : resultsDocumentList) {
 
                 Integer modelId = (Integer) solrDocument.getFieldValue("model_id");

@@ -22,13 +22,11 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -41,17 +39,16 @@ public class PhenotypeCenterService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	@Qualifier("phenotypePipelineDAOImpl")
-	private PhenotypePipelineDAO ppDao;
+	private ImpressService impressService;
 
 
 	public PhenotypeCenterService() {
 	}
 
 
-	public PhenotypeCenterService(String baseSolrUrl, PhenotypePipelineDAO ppDao){
+	public PhenotypeCenterService(String baseSolrUrl, ImpressService impressService){
 		solr = new HttpSolrServer(baseSolrUrl);
-		this.ppDao = ppDao;
+		this.impressService = impressService;
 
 	}
 
@@ -280,7 +277,7 @@ public class PhenotypeCenterService {
         header.add("Missing Procedures");
         header.add("MPS Not Tested For");
 		results.add(header.toArray(temp));
-		Map<String, Set<String>> mpsPerProcedure = ppDao.getMpsForParameters();
+		Map<String, Set<String>> mpsPerProcedure = impressService.getMpsForProcedures();
 		Map<String, List<String>> possibleProceduresPerCenter = getProceduresPerCenter();
 
 		for(String center: centers){

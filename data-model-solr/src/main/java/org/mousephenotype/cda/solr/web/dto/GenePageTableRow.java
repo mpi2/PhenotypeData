@@ -36,9 +36,9 @@ public class GenePageTableRow extends DataTableRow {
         super();
     }
 
-    public GenePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, boolean hasImages) 
+    public GenePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) 
     throws UnsupportedEncodingException, SolrServerException {
-        super(pcs, baseUrl, config, hasImages);
+        super(pcs, baseUrl, config);
     }
 
     /**

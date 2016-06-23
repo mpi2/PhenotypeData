@@ -42,7 +42,7 @@ import static org.junit.Assert.fail;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigSolr.class} )
-@TestPropertySource(locations = {"classpath:test.properties", "file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class GenotypePhenotypeServiceTest {
 
     @Autowired

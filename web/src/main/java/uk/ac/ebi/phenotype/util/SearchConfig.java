@@ -42,9 +42,9 @@ public class SearchConfig {
         sorting.put("gene", "&sort=marker_symbol asc");
         sorting.put("mp", "&sort=mp_term asc");
         sorting.put("disease", "&sort=disease_term asc");
-        sorting.put("ma", "&sort=ma_term asc");
+        sorting.put("anatomy", "&sort=term asc");
         sorting.put("impc_images", "");  // these have multivalue fields, not sortable
-        sorting.put("images", "");  // these have multivalue fields, not sortable
+        //sorting.put("images", "");  // these have multivalue fields, not sortable
 
         return sorting.get(coreName);
     }
@@ -60,9 +60,9 @@ public class SearchConfig {
         }
         coreDefault.put("mp", "top_level_mp_term:*");
         coreDefault.put("disease", "*:*");
-        coreDefault.put("ma", "selected_top_level_ma_term:*");
+        coreDefault.put("anatomy", "selected_top_level_anatomy_term:*");
         coreDefault.put("impc_images", "*:*");
-        coreDefault.put("images", "*:*");
+        //coreDefault.put("images", "*:*");
 
         return coreDefault.get(coreName);
     }
@@ -122,16 +122,16 @@ public class SearchConfig {
         labelMap.put("gene", "Genes");
         labelMap.put("mp", "Phenotypes");
         labelMap.put("disease", "Diseases");
-        labelMap.put("ma", "Anatomy");
+        labelMap.put("anatomy", "Anatomy");
         labelMap.put("impc_images", "IMPC Images");
-        labelMap.put("images", "Images");
+        //labelMap.put("images", "Images");
     }
     public String getBreadcrumLabel(String coreName) {
       return labelMap.get(coreName);
     }
 
     private void setFieldList(){
-        List<String> geneFields = Arrays.asList(new String[]{"marker_symbol",
+        List<String> geneFields = Arrays.asList("marker_symbol",
                 "mgi_accession_id",
                 "marker_synonym",
                 "marker_name",
@@ -144,8 +144,8 @@ public class SearchConfig {
                 "es_cell_status",
                 "mouse_status",
                 "legacy_phenotype_status",
-                "allele_name"});
-        List<String> mpFields = Arrays.asList(new String[]{"mp_id",
+                "allele_name");
+        List<String> mpFields = Arrays.asList("mp_id",
                 "mp_term",
                 "mp_term_synonym",
                 "mp_definition",
@@ -153,8 +153,8 @@ public class SearchConfig {
                 "top_mp_term_id",
                 "hp_id",
                 "hp_term",
-                "pheno_calls"});
-        List<String> diseaseFields = Arrays.asList(new String[]{"disease_id",
+                "pheno_calls");
+        List<String> diseaseFields = Arrays.asList("disease_id",
                 "disease_term",
                 "disease_source",
                 "disease_classes",
@@ -167,45 +167,46 @@ public class SearchConfig {
                 "mgi_predicted",
                 "mgi_novel_predicted_in_locus",
                 "marker_symbol",
-                "mgi_accession_id"});
-        List<String> maFields = Arrays.asList(new String[]{"ma_id",
-                "ma_term",
-                "ma_term_synonym",
-                "selected_top_level_ma_term",
-                "selected_top_level_ma_id"});
-        List<String> impc_imagesFields = Arrays.asList(new String[]{"omero_id",
+                "mgi_accession_id");
+        List<String> anatomyFields = Arrays.asList("anatomy_id",
+                "anatomy_term",
+                "anatomy_term_synonym",
+                "stage",
+                "selected_top_level_anatomy_term",
+                "selected_top_level_anatomy_id");
+        List<String> impc_imagesFields = Arrays.asList("omero_id",
                 "procedure_name",
                 "gene_symbol",
                 "gene_accession_id",
-                "ma_term",
-                "ma_id",
+                "anatomy_term",
+                "anatomy_id",
                 "jpeg_url",
                 "download_url",
                 "parameter_association_name",
-                "parameter_association_value"});
-        List<String> imagesFields = Arrays.asList(new String[]{"annotationTermId",
-                "annotationTermName",
-                "mpTermName",
-                "maTermName",
-                "expName",
-                "expName_exp",
-                "symbol",
-                "symbol_gene",
-                "smallThumbnailFilePath",
-                "largeThumbnailFilePath"});
+                "parameter_association_value");
+//        List<String> imagesFields = Arrays.asList("annotationTermId",
+//                "annotationTermName",
+//                "mpTermName",
+//                "maTermName",
+//                "expName",
+//                "expName_exp",
+//                "symbol",
+//                "symbol_gene",
+//                "smallThumbnailFilePath",
+//                "largeThumbnailFilePath");
 
         fieldMap.put("gene", geneFields);
         fieldMap.put("mp", mpFields);
         fieldMap.put("disease", diseaseFields);
-        fieldMap.put("ma", maFields);
+        fieldMap.put("anatomy", anatomyFields);
         fieldMap.put("impc_images", impc_imagesFields);
-        fieldMap.put("images", imagesFields);
+        //fieldMap.put("images", imagesFields);
 
     }
 
     private void setFecetFields(){
 
-        List<String> geneFacets = Arrays.asList(new String[]{"latest_phenotype_status",
+        List<String> geneFacets = Arrays.asList("latest_phenotype_status",
                 "legacy_phenotype_status",
                 "status",
                 "latest_production_centre",
@@ -213,9 +214,9 @@ public class SearchConfig {
                 "marker_type",
                 "embryo_data_available",
                 "embryo_modalities"
-                });
-        List<String> mpFacets =  Arrays.asList(new String[]{"top_level_mp_term"});
-        List<String> diseaseFacets =  Arrays.asList(new String[]{"disease_source",
+                );
+        List<String> mpFacets =  Arrays.asList("top_level_mp_term");
+        List<String> diseaseFacets =  Arrays.asList("disease_source",
                 "disease_classes",
                 "human_curated",
                 "mouse_curated",
@@ -224,16 +225,16 @@ public class SearchConfig {
                 "impc_predicted",
                 "impc_novel_predicted_in_locus",
                 "mgi_predicted",
-                "mgi_novel_predicted_in_locus"});
-        List<String> maFacets =  Arrays.asList(new String[]{"selected_top_level_ma_term"});
-        List<String> imagesFacets =  Arrays.asList(new String[]{"procedure_name", "top_level_mp_term", "selected_top_level_ma_term", "marker_type"});
-        List<String> impc_imagesFacets =  Arrays.asList(new String[]{"procedure_name", "selected_top_level_ma_term"});
+                "mgi_novel_predicted_in_locus");
+        List<String> anatomyFacets =  Arrays.asList("selected_top_level_anatomy_term", "stage");
+        //List<String> imagesFacets =  Arrays.asList("procedure_name", "top_level_mp_term", "selected_top_level_anatomy_term", "marker_type");
+        List<String> impc_imagesFacets =  Arrays.asList("procedure_name", "selected_top_level_anatomy_term", "stage");
 
         facetMap.put("gene", geneFacets);
         facetMap.put("mp", mpFacets);
         facetMap.put("disease", diseaseFacets);
-        facetMap.put("ma", maFacets);
-        facetMap.put("images", imagesFacets);
+        facetMap.put("anatomy", anatomyFacets);
+        //facetMap.put("images", imagesFacets);
         facetMap.put("impc_images", impc_imagesFacets);
 
     }
@@ -242,9 +243,9 @@ public class SearchConfig {
         facetSortMap.put("gene", "count");
         facetSortMap.put("mp", "index");
         facetSortMap.put("disease", "count");
-        facetSortMap.put("ma", "index");
+        facetSortMap.put("anatomy", "index");
         facetSortMap.put("impc_images", "index");
-        facetSortMap.put("images", "index");
+        //facetSortMap.put("images", "index");
     }
 
     public String getBqStr(String coreName, String q) {
@@ -279,19 +280,19 @@ public class SearchConfig {
                     + " disease_source:(" + q + ")^200");
 
         }
-        else if (coreName.equals("ma")) {
-            bqMap.put("ma", "ma_term:(" + q + ")^1000"
-                    + " ma_term_synonym:(" + q + ")^500");
+        else if (coreName.equals("anatomy")) {
+            bqMap.put("anatomy", "anatomy_term:(" + q + ")^1000"
+                    + " anatomy_term_synonym:(" + q + ")^500");
         }
         else if (coreName.equals("impc_images")) {
             bqMap.put("impc_images", "procedure_name:(" + q + ")^500"
                     + " gene_symbol:(" + q + ")^500");
         }
-        else if (coreName.equals("images")) {
-            bqMap.put("images", "annotationTermName:(" + q + ")^500"
-                    + " expName:(" + q + ")^500"
-                    + " symbol:(" + q + ")^500");
-        }
+//        else if (coreName.equals("images")) {
+//            bqMap.put("images", "annotationTermName:(" + q + ")^500"
+//                    + " expName:(" + q + ")^500"
+//                    + " symbol:(" + q + ")^500");
+//        }
 
         return "&bq=" + bqMap.get(coreName);
 
@@ -299,22 +300,22 @@ public class SearchConfig {
 
 
     private void setGridColumns(){
-        List<String> geneCols = Arrays.asList(new String[]{"Gene", "Production", "Phenotype", "Register"});
-        List<String> mpCols = Arrays.asList(new String[]{"Phenotype", "Definition", "Phenotyping<br>Call(s)", "Ontology<br/>Tree", "Register"});
+        List<String> geneCols = Arrays.asList("Gene", "Production", "Phenotype", "Register");
+        List<String> mpCols = Arrays.asList("Phenotype", "Definition", "Phenotyping<br>Call(s)", "Ontology<br/>Tree", "Register");
 
-       // List<String> diseaseCols = Arrays.asList(new String[]{"Disease", "Source", "Curated Genes", "Candidate Genes<br>by phenotype"});
-        List<String> diseaseCols = Arrays.asList(new String[]{"Disease", "Source"});
-        List<String> maCols = Arrays.asList(new String[]{"Anatomy", "LacZ Expression Data","Ontology<br/>Tree"});
+       // List<String> diseaseCols = Arrays.asList("Disease", "Source", "Curated Genes", "Candidate Genes<br>by phenotype");
+        List<String> diseaseCols = Arrays.asList("Disease", "Source");
+        List<String> maCols = Arrays.asList("Anatomy", "Stage", "LacZ Expression Data", "Ontology<br/>Tree");
 
-        List<String> impc_imagesCols = Arrays.asList(new String[]{"Name", "Images"});
-        List<String> imagesCols = Arrays.asList(new String[]{"Name", "Image(s)"});
+        List<String> impc_imagesCols = Arrays.asList("Name", "Images");
+        List<String> imagesCols = Arrays.asList("Name", "Image(s)");
 
         gridHeaderMap.put("gene", geneCols);
         gridHeaderMap.put("mp", mpCols);
         gridHeaderMap.put("disease", diseaseCols);
-        gridHeaderMap.put("ma", maCols);
+        gridHeaderMap.put("anatomy", maCols);
         gridHeaderMap.put("impc_images", impc_imagesCols);
-        gridHeaderMap.put("images", imagesCols);
+        //gridHeaderMap.put("images", imagesCols);
     }
 
 

@@ -17,9 +17,12 @@
 package org.mousephenotype.cda.db.dao;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
 import javax.annotation.PostConstruct;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,6 +37,8 @@ import java.util.*;
  * 
  * @author mrelac
  */
+@Repository
+@ComponentScanNonParticipant
 public class MaOntologyDAO extends OntologyDAO {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +47,7 @@ public class MaOntologyDAO extends OntologyDAO {
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
 
-    public MaOntologyDAO() throws SQLException {
+    public MaOntologyDAO() {
         
     }
     
@@ -187,11 +192,15 @@ public class MaOntologyDAO extends OntologyDAO {
                 //fullpath += " " + nodeId;                                       // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
                 
                 backtraceMap.put(nodeId, fullpath);
+
+                // get a full ancestor map
+                ancestorMap.put(nodeId, fullpath);
             }
-            
+
             ps.close();
         }
-        
+
+
         // Dump Terry's selected top-levels into a map keyed by node.
         query =
             "SELECT \n"
@@ -241,9 +250,11 @@ public class MaOntologyDAO extends OntologyDAO {
         
         for (OntologyTermBean otBean : allTermsMap.values()) {
             String termId = otBean.getId();
+
             boolean selectedTopLevelFound = false;
             for (Integer nodeId : term2NodesMap.get(termId)) {
                 String[] fullpath = backtraceMap.get(nodeId).split(" ");
+
                 List<Integer> fullpathNodeList = new ArrayList();
                 for (String sNode : fullpath) {
                     int node = Integer.parseInt(sNode);
@@ -253,10 +264,14 @@ public class MaOntologyDAO extends OntologyDAO {
                 }
 
                 if (selectedTopLevelNodeMap.containsKey(nodeId)) {
+                    // get partial ancestor map with the top level being the selected_top_level
+
                     selectedTopLevelFound = true;
+
                     int newSelectedTopLevelNode = selectedTopLevelNodeMap.get(nodeId);
                     int newTopNodeIndex = fullpathNodeList.indexOf(newSelectedTopLevelNode);
                     if (newTopNodeIndex >= 0) {
+
                         // New top level was found in fullpath (i.e. entry.getValue()).
                         fullpathNodeList.subList(0, newTopNodeIndex).clear();
                         String newFullpath = "";
@@ -267,9 +282,13 @@ public class MaOntologyDAO extends OntologyDAO {
                             newFullpath += Integer.toString(node);
                         }
 
-                        ancestorMap.put(nodeId, newFullpath);
+                        selectedAncestorMap.put(nodeId, newFullpath);
+
                     } else {
+
                         String ancestorTermId = node2termMap.get(Integer.toString(nodeId));
+
+
                         OntologyTermBean ot = allTermsMap.get(ancestorTermId);
                         String ancestorTerm = (ot != null ? ot.getName() : "<unknown>");
                         if ( ! missingFromFullpathMap.containsKey(ancestorTermId)) {
@@ -283,11 +302,12 @@ public class MaOntologyDAO extends OntologyDAO {
                         missingFromFullPathNodesList.put(ancestorTermId, nodes);
 
                         // New top level not found in fullpath. Replace fullpath with ancestor node.
-                        ancestorMap.put(nodeId, Integer.toString(nodeId));
+                        selectedAncestorMap.put(nodeId, Integer.toString(nodeId));
                     }
                 }
                 
                 if ( ! selectedTopLevelFound) {
+
                     if (getTopLevelTermIdCount(termId) <= 0) {
                         String ancestorTermId = node2termMap.get(Integer.toString(nodeId));
                         OntologyTermBean ot = allTermsMap.get(ancestorTermId);
@@ -337,6 +357,7 @@ public class MaOntologyDAO extends OntologyDAO {
                 logger.warn(s);
             }
         }
+
     }
     
     /**

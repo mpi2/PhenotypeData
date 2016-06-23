@@ -1,3 +1,4 @@
+
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -16,7 +17,7 @@
         <c:if test='${sex.equalsIgnoreCase("female")}'>
             <c:set var="femaleCount" value="${femaleCount + 1}" scope="page"/>
         </c:if>
-         <c:if test='${sex.equalsIgnoreCase("no data")}'>
+         <c:if test='${sex.equalsIgnoreCase("no_data")}'>
             <c:set var="noSexCount" value="${noSexCount + 1}" scope="page"/>
         </c:if>
     </c:forEach>
@@ -36,7 +37,7 @@
 <table id="genes" class="table tableSorter">
     <thead>
     <tr>
-    	<th class="headerSort">Icon</th>
+    	<th class="headerSort">System</th>
         <th class="headerSort">Phenotype</th>
         <th class="headerSort">Allele</th>
         <th class="headerSort" title="Zygosity">Zyg</th>
@@ -55,11 +56,20 @@
         <tr>
         	<td>
         		<div class="row_abnormalities">
-        			<c:forEach var="topLevelPhenotype" items="${phenotype.topLevelMpGroups }" varStatus="marginCount">
-        				<%-- ${topLevelPhenotype.name} --%>
-        		<c:set var="marginHeight" value="${marginCount.index * 40 }"/>
-					<div class="sprite_orange sprite_row_${topLevelPhenotype.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelPhenotype}" style="margin: 0px 0px 0px ${marginHeight}px"></div>
+        		<c:set var="marginLeftCount" value="0"/>
+        		<c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">
+        		<c:choose>
+        		<c:when test="${topLevelMpGroup eq 'NA' }">
+        		<%-- <div title="${topLevelMpGroup}" >${topLevelMpGroup}</div> don't display a top level icon if there is no top level group for the top level mp term--%>
 				
+        		</c:when>
+        		<c:otherwise>
+        		<c:set var="marginLeft" value="${marginLeftCount * 40 }"/>
+        		<div class="sprite_orange sprite_row_${topLevelMpGroup.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelMpGroup}" style="margin: 0px 0px 0px ${marginLeft}px"></div>
+				<c:set var="marginLeftCount" value="${marginLeftCount+1 }"/>
+        		</c:otherwise>
+        		</c:choose>
+					
         			</c:forEach>
         		</div>
         	</td>
@@ -89,7 +99,7 @@
                     </c:if>
                 </c:forEach>
             </td>
-            <td>${phenotype.lifeStageName}</td>
+            <td>${phenotype.lifeStageName} <%-- length= ${phenotype.phenotypeCallUniquePropertyBeans} --%></td>
 
             
             
@@ -104,14 +114,24 @@
 			</c:if>
 			<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
 				</c:if>
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
-                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i title="${phenotype.procedure.name} | ${phenotype.parameter.name}" class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
                    </c:if>
+			</c:if>
+			
+			<c:if test="${phenotype.getImagesEvidenceLink().getDisplay()}">
+			
+				
+				<!-- request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+pr.getGene().getAccessionId()+"&fq=mp_id:\""+pr.getPhenotypeTerm().getId()+"\""; -->
+					<a href='${phenotype.getImagesEvidenceLink().url}'><i title="${phenotype.procedureNames}" class="fa fa-image" alt="${phenotype.getImagesEvidenceLink().alt}"></i></a>
+				
+				<%-- ${phenotype} --%>
+			
 			</c:if>
 			
 			<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
@@ -121,6 +141,7 @@
 				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
 					<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
 				</c:if>
+				
 			</c:if>
 			<c:if test="${phenotype.isPreQc()}">
 				<i class="fa fa-exclamation" ></i> </span>

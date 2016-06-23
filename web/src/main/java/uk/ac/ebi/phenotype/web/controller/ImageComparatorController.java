@@ -15,22 +15,15 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -70,8 +63,6 @@ public class ImageComparatorController {
 			@RequestParam(value = "gender", required=false) String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
 			throws SolrServerException {
 		System.out.println("calling image imageComparator");
-		if(gender!=null)System.out.println("sex in controller="+gender);
-		if(zygosity!=null)System.out.println("zygParam="+zygosity);
 		
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
@@ -87,8 +78,15 @@ public class ImageComparatorController {
 		SolrDocument imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			mutants=responseExperimental.getResults();
-			System.out.println("list size=" + mutants.size());
 			imgDoc = mutants.get(0);
+		}else{//try this as a procedure not parameter id
+			responseExperimental = imageService
+					.getImagesForGeneByProcedure(acc, parameter_stable_id,
+							"experimental", 10000, null, null, null);
+			if (responseExperimental != null && responseExperimental.getResults().size()>0) {
+			mutants=responseExperimental.getResults();
+			imgDoc = mutants.get(0);
+			}
 		}
 		
 		int numberOfControlsPerSex = 5;
@@ -100,7 +98,10 @@ public class ImageComparatorController {
 		
 		
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
-		SolrDocumentList controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexTypes);
+		SolrDocumentList controls=null;
+		if(imgDoc!=null){
+		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexTypes);
+		}
 		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexTypes);
 		
 		List<ZygosityType> zygosityTypes=getZygosityTypesForFilter(zygosity);
@@ -112,13 +113,22 @@ public class ImageComparatorController {
 
 		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
-		System.out.println("mutants size=" + filteredMutants.size());
 		model.addAttribute("mutants", filteredMutants);
-		System.out.println("controls size=" + controls.size());
+		//System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
-		return "comparator";
+		if(mediaType!=null && mediaType.equals("pdf")){//we need iframes to load google pdf viewer so switch to this view for the pdfs.
+			return "comparatorFrames";
+		}
+		return "comparator";//js viewport used to view images in this view.
 	}
-
+	
+	@RequestMapping("/imageComparatorTest")
+	public String imageCompBrowser(){
+		return "comparatorBasicTest";
+		
+	}
+	
+	
 	private SolrDocumentList filterImagesByZygosity(SolrDocumentList imageDocs, List<ZygosityType> zygosityTypes) {
 		SolrDocumentList filteredImages=new SolrDocumentList();
 		if(zygosityTypes.get(0).getName().equals("not_applicable")){//just return don't filter if not applicable default is found
@@ -163,9 +173,7 @@ public class ImageComparatorController {
 		Set<SolrDocument> uniqueControls=new HashSet<>();
 		if (imgDoc != null) {
 			for (SexType sex : sexTypes) {
-				System.out.println("sex in controls="+sex);
 				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
-				
 				uniqueControls.addAll(controlsTemp);
 			}
 		}
@@ -211,7 +219,6 @@ public class ImageComparatorController {
 	private void addGeneToPage(String acc, Model model)
 			throws SolrServerException {
 		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
-		System.out.println("gene in picker="+gene);
 		model.addAttribute("gene",gene);
 	}
 

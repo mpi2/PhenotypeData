@@ -280,7 +280,12 @@ div#footerline #bigsearchbox {display: none;}
 
 #bigsearchbox input     { color: grey; border: 2px solid #0978a1; width: 380px; height: 20px !important; font-size: 16px; line-height: 0px; padding: 3px 0 6px 5px;}
 #bigsearchbox i#sicon { position: absolute; top: -6px;}
-
+#bigsearchbox i#clearIcon {
+    position: absolute;
+    top: 13px;
+    margin-left: -20px;
+    cursor: pointer;
+}
 nav#mn {width: 950px;}
 div#block-menu-block-1  {
 	float: left;
@@ -542,7 +547,7 @@ a.status.qc, span.status.qc        { /*background:gray !important; */  backgroun
 
 /* Sprite Abnormalities */
 .abnormalities          { float: right; width: 200px; height: 160px; }
-.row_abnormalities          { float: right; width: 200px; height: 40px; }
+.row_abnormalities          { float: right; width: 120px; height: 40px; }
 .abnormalities .allicons {  opacity: 0.4; position: absolute; width: 200px; height: 160px; background-image: url(../img/icon/sprite-abnormalities.png); }
 .lt-ie9 .abnormalities .abnormalities_legend .allicons { filter: alpha(opacity=40); }
 .abnormalities .sprite_blue  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities_over.png); }

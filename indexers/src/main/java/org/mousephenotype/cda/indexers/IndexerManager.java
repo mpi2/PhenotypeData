@@ -22,26 +22,19 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.indexers.configuration.IndexerConfig;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
 
 /**
  * This class encapsulates the code and data necessary to represent an index
@@ -51,39 +44,39 @@ import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
  *
  * @author mrelac
  */
-public class IndexerManager {
+public class IndexerManager  {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(IndexerManager.class);
     protected CommonUtils commonUtils = new CommonUtils();
 
     // core names.
     //      These are built only for a new data release.
-    public static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
-    public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
-    public static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
-    public static final String STATSTICAL_RESULT_CORE = "statistical-result";
+    static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
+    static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
+    static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
+    static final String STATSTICAL_RESULT_CORE = "statistical-result";
 
     //      These are built daily.
-    public static final String PREQC_CORE = "preqc";
-    public static final String ALLELE_CORE = "allele";
-    public static final String IMAGES_CORE = "images";
-    public static final String IMPC_IMAGES_CORE = "impc_images";
-    public static final String MP_CORE = "mp";
-    public static final String MA_CORE = "ma";
-    public static final String PIPELINE_CORE = "pipeline";
-    public static final String GENE_CORE = "gene";
-    public static final String DISEASE_CORE = "disease";
-    public static final String AUTOSUGGEST_CORE = "autosuggest";
+    static final String PREQC_CORE = "preqc";
+    static final String ALLELE_CORE = "allele";
+    static final String IMAGES_CORE = "images";
+    static final String IMPC_IMAGES_CORE = "impc_images";
+    static final String MP_CORE = "mp";
+    static final String ANATOMY_CORE = "anatomy";
+    static final String PIPELINE_CORE = "pipeline";
+    static final String GENE_CORE = "gene";
+    static final String DISEASE_CORE = "disease";
+    static final String AUTOSUGGEST_CORE = "autosuggest";
 
     // main return values.
-    public static final int STATUS_OK                  = 0;
-    public static final int STATUS_WARN                = 1;
-    public static final int STATUS_NO_DEPS             = 2;
-    public static final int STATUS_NO_ARGUMENT         = 3;
-    public static final int STATUS_UNRECOGNIZED_OPTION = 4;
-    public static final int STATUS_INVALID_CORE_NAME   = 5;
-    public static final int STATUS_VALIDATION_ERROR    = 6;
+    static final int STATUS_OK                  = 0;
+    static final int STATUS_WARN                = 1;
+    static final int STATUS_NO_DEPS             = 2;
+    static final int STATUS_NO_ARGUMENT         = 3;
+    static final int STATUS_UNRECOGNIZED_OPTION = 4;
+    static final int STATUS_INVALID_CORE_NAME   = 5;
+    static final int STATUS_VALIDATION_ERROR    = 6;
 
-    public static String getStatusCodeName(int statusCode) {
+    static String getStatusCodeName(int statusCode) {
         switch (statusCode) {
             case STATUS_OK:                     return "STATUS_OK";
             case STATUS_WARN:                   return "STATUS_WARN";
@@ -102,10 +95,7 @@ public class IndexerManager {
     private Boolean daily;
     private Boolean nodeps;
 
-    // These are the args passed to the individual indexers. They should be all the same and should be the same context argument passed to the indexerManager.
-    private String[] indexerArgs;
-
-    public static final String[] allCoresArray = new String[] {      // In dependency order.
+    static final String[] allCoresArray = new String[] {      // In dependency order.
           // In dependency order. These are built only for a new data release.
           OBSERVATION_CORE
         , GENOTYPE_PHENOTYPE_CORE
@@ -118,7 +108,7 @@ public class IndexerManager {
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
         , MP_CORE
-        , MA_CORE
+        , ANATOMY_CORE
         , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
@@ -126,14 +116,14 @@ public class IndexerManager {
     };
     private final List<String> allCoresList = Arrays.asList(allCoresArray);
 
-    public static final String[] allDailyCoresArray = new String[] {
+    static final String[] allDailyCoresArray = new String[] {
           // In dependency order. These are built daily.
         PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
         , MP_CORE
-        , MA_CORE
+        , ANATOMY_CORE
         , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
@@ -144,67 +134,33 @@ public class IndexerManager {
     public static final int RETRY_SLEEP_IN_MS = 60000;                          // If any core fails, sleep this long before reattempting to build the core.
     public static final String STAGING_SUFFIX = "_staging";                     // This snippet is appended to core names meant to be staging core names.
 
-    ;
+	private Class observationClass = ObservationIndexer.class;
+	private Class genotypePhenotypeClass = GenotypePhenotypeIndexer.class;
+	private Class mgiPhenotypeClass = MGIPhenotypeIndexer.class;
+	private Class statisticalResultClass = StatisticalResultsIndexer.class;
+	private Class preqcClass = PreqcIndexer.class;
+	private Class alleleClass = AlleleIndexer.class;
+	private Class imagesClass = SangerImagesIndexer.class;
+	private Class impcImagesClass = ImpcImagesIndexer.class;
+	private Class mpClass = MPIndexer.class;
+	private Class anatomyClass = AnatomyIndexer.class;
+	private Class pipelineClass = PipelineIndexer.class;
+	private Class geneClass = GeneIndexer.class;
+	private Class diseaseClass = DiseaseIndexer.class;
+	private Class autosuggestClass = AutosuggestIndexer.class;
 
-    @Autowired
-    ObservationIndexer observationIndexer;
+    private static final String ALL_ARG = "all";
+    private static final String CORES_ARG = "cores";
+    private static final String DAILY_ARG = "daily";
+    private static final String NO_DEPS_ARG = "nodeps";
 
-    @Autowired
-    GenotypePhenotypeIndexer genotypePhenotypeIndexer;
-
-    @Autowired
-    MGIPhenotypeIndexer mgiPhenotypeIndexer;
-
-
-    @Autowired
-    StatisticalResultIndexer statisticalResultIndexer;
-
-    @Autowired
-    PreqcIndexer preqcIndexer;
-
-    @Autowired
-    AlleleIndexer alleleIndexer;
-
-    @Autowired
-    SangerImagesIndexer imagesIndexer;
-
-    @Autowired
-    ImpcImagesIndexer impcImagesIndexer;
-
-    @Autowired
-    MPIndexer mpIndexer;
-
-    @Autowired
-    MAIndexer maIndexer;
-
-    @Autowired
-    PipelineIndexer pipelineIndexer;
-
-    @Autowired
-    GeneIndexer geneIndexer;
-
-    @Autowired
-    DiseaseIndexer diseaseIndexer;
-
-    @Autowired
-    AutosuggestIndexer autosuggestIndexer;
-
-    private IndexerItem[] indexerItems;
-
-    public String[] args;
-
-    public static final String ALL_ARG = "all";
-    public static final String CORES_ARG = "cores";
-    public static final String DAILY_ARG = "daily";
-    public static final String NO_DEPS_ARG = "nodeps";
-
-    public class IndexerItem {
+	private class IndexerItem {
         public final String name;
-        public final AbstractIndexer indexer;
+        public final Class indexerClass;
 
-        public IndexerItem(String name, AbstractIndexer indexer) {
+        public IndexerItem(String name, Class indexerClass) {
             this.name = name;
-            this.indexer = indexer;
+            this.indexerClass = indexerClass;
         }
     }
 
@@ -218,10 +174,12 @@ public class IndexerManager {
        	}
     }
 
-    protected ApplicationContext applicationContext;
+	private IndexerItem[] indexerItems;
+	private ApplicationContext applicationContext;
 
 
-    // GETTERS
+
+	// GETTERS
 
 
     public Boolean getAll() {
@@ -250,10 +208,7 @@ public class IndexerManager {
         try {
             OptionSet options = parseCommandLine(args);
             if (options != null) {
-                this.args = args;
-                applicationContext = loadApplicationContext((String)options.valuesOf(CONTEXT_ARG).get(0));
-                applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-                initialiseHibernateSession(applicationContext);
+                applicationContext = loadApplicationContext();
                 loadIndexers();
             } else {
                 throw new IndexerException("Failed to parse command-line options.");
@@ -275,29 +230,28 @@ public class IndexerManager {
         }
     }
 
-    protected void initialiseHibernateSession(ApplicationContext applicationContext) {
-        // allow hibernate session to stay open the whole execution
-        PlatformTransactionManager transactionManager = (PlatformTransactionManager) applicationContext.getBean("transactionManager");
-        DefaultTransactionAttribute transactionAttribute = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
-        transactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
-        transactionManager.getTransaction(transactionAttribute);
-    }
 
-    public void run() throws IndexerException, IOException, SolrServerException {
+	public void run() throws IndexerException, IOException, SolrServerException, SQLException {
+
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
         logger.debug("IndexerManager: nodeps = " + nodeps);
         System.out.println("Building these cores in this order:	" + StringUtils.join(cores));
 
-        for (IndexerItem indexerItem : indexerItems) {
+		for (IndexerItem indexerItem : indexerItems) {
             long start = System.currentTimeMillis();
             RunStatus runStatus = new RunStatus();
             RunResult runResult = RunResult.OK;
 
             logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             try {
-                indexerItem.indexer.initialise(indexerArgs);
-                runStatus = indexerItem.indexer.run();
+
+
+	            AbstractIndexer idx = (AbstractIndexer) indexerItem.indexerClass.newInstance();
+	            applicationContext.getAutowireCapableBeanFactory().autowireBean(idx);
+	            runStatus = idx.run();
+
+
                 if (runStatus.hasErrors()) {
                     for (String errorMessage : runStatus.getErrorMessages()) {
                     	logger.error(errorMessage);
@@ -311,7 +265,7 @@ public class IndexerManager {
                         }
                     }
 
-                    runStatus = indexerItem.indexer.validateBuild();
+	                runStatus = idx.validateBuild();
                     if (runStatus.hasErrors()) {
                         for (String errorMessage : runStatus.getErrorMessages()) {
                         	logger.error(errorMessage);
@@ -331,9 +285,12 @@ public class IndexerManager {
                 runStatus.addError(ie.getLocalizedMessage());
                 logExceptions(ie);
                 runResult = RunResult.FAIL;
+            } catch (IllegalAccessException | InstantiationException e) {
+	            logger.error("error:", e);
+	            runResult = RunResult.FAIL;
             }
 
-            logger.info("[END]   {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
+			logger.info("[END]   {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             executionStatsList.add(new ExecutionStatsRow(indexerItem.name, runResult, start, new Date().getTime()));
             printJvmMemoryConfiguration();
         }
@@ -341,21 +298,13 @@ public class IndexerManager {
         System.out.println(executionStatsList.toString());
     }
 
-    protected ApplicationContext loadApplicationContext(String context) {
-        ApplicationContext appContext;
+    protected ApplicationContext loadApplicationContext() {
 
-        // Try context as a file resource.
-        File file = new File(context);
-        if (file.exists()) {
-            // Try context as a file resource
-            appContext = new FileSystemXmlApplicationContext("file:" + context);
-        } else {
-            // Try context as a class path resource
-            appContext = new ClassPathXmlApplicationContext(context);
-        }
+	    AnnotationConfigApplicationContext appContext;
+	    appContext = new AnnotationConfigApplicationContext(IndexerConfig.class);
 
-        if (appContext == null) {
-            logger.error("Unable to load context '" + context  + "' from file or classpath. Exiting...");
+         if (appContext == null) {
+            logger.error("Unable to load context. Exiting...");
         }
 
         return appContext;
@@ -408,25 +357,25 @@ public class IndexerManager {
     private void loadIndexers() {
         List<IndexerItem> indexerItemList = new ArrayList();
 
-        for (String core : cores) {
-            switch (core) {
-                case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
-                case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
-                case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeIndexer));              break;
-                case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
+	    for (String core : cores) {
+		    switch (core) {
+			    case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationClass));                 break;
+			    case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeClass));    break;
+			    case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeClass));              break;
+			    case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultClass));     break;
 
-                case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcIndexer));                             break;
-                case ALLELE_CORE:               indexerItemList.add(new IndexerItem(ALLELE_CORE, alleleIndexer));                           break;
-                case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesIndexer));                           break;
-                case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesIndexer));                  break;
-                case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpIndexer));                                   break;
-                case MA_CORE:                   indexerItemList.add(new IndexerItem(MA_CORE, maIndexer));                                   break;
-                case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineIndexer));                       break;
-                case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneIndexer));                               break;
-                case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseIndexer));                         break;
-                case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestIndexer));                 break;
-            }
-        }
+			    case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcClass));                             break;
+			    case ALLELE_CORE:               indexerItemList.add(new IndexerItem(ALLELE_CORE, alleleClass));                           break;
+			    case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesClass));                           break;
+			    case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesClass));                  break;
+			    case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpClass));                                   break;
+			    case ANATOMY_CORE:              indexerItemList.add(new IndexerItem(ANATOMY_CORE, anatomyClass));                         break;
+			    case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineClass));                       break;
+			    case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneClass));                               break;
+			    case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseClass));                         break;
+			    case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestClass));                 break;
+		    }
+	    }
 
         indexerItems = indexerItemList.toArray(new IndexerItem[0]);
     }
@@ -435,56 +384,19 @@ public class IndexerManager {
 
     /*
      * Rules:
-     * 1. context is always required.
-     * 2. cores is optional.
-     * 2a. If cores is missing or empty:
-     *     - build all cores starting at the preqc core (don't build OBSERVATION_CORE, GENOTYPE_PHENOTYPE_CORE, or STATSTICAL_RESULT_CORE).
-     *     - specifying nodeps throws IllegalArgumentException.
-     * 2b. If 1 core:
+     * 1. cores is always required.
+     * 1b. If 1 core:
      *     - core name must be valid.
      *     - if nodeps is specified:
      *       - build only the specified core. Don't build downstream cores.
      *     - else
      *       - build requested core and all downstream cores.
-     * 2c. If more than 1 core:
+     * 1c. If more than 1 core:
      *     - if nodeps is specified, it is ignored.
      *     - core names must be valid. No downstream cores are built.
-     *
-     * Core Build Truth Table (assume a valid '--context=' parameter is always supplied - not shown in table below to save space):
-     *    |---------------------------------------------------------------------------|
-     *    |          command line           |  nodeps value   |     cores built       |
-     *    |---------------------------------------------------------------------------|
-     *    | <empty>                         | false           | preqc to autosuggest  |
-     *    | --cores                         | false           | preqc to autosuggest  |
-     *    | --nodeps                        | NoDepsException | <none>                |
-     *    | --cores --nodeps                | NoDepsException | <none>                |
-     *    | --cores=mp                      | false           | mp to autosuggest     |
-     *    | --cores=mp --nodeps             | true            | mp                    |
-     *    | --cores=mp,observation          | true            | mp,observation        |
-     *    | --cores-mp,observation --nodeps | true            | mp,observation        |
-     *    |---------------------------------------------------------------------------|
-
-     * @param args command-line arguments
-     * @return<code>OptionSet</code> of parsed parameters
-     * @throws IndexerException
-     */
-
-    /*
-     * Rules:
-     * 1. context is always required.
-     * 2. cores is always required.
-     * 2b. If 1 core:
-     *     - core name must be valid.
-     *     - if nodeps is specified:
-     *       - build only the specified core. Don't build downstream cores.
-     *     - else
-     *       - build requested core and all downstream cores.
-     * 2c. If more than 1 core:
-     *     - if nodeps is specified, it is ignored.
-     *     - core names must be valid. No downstream cores are built.
-     * 3. If 'all' is specified, build all of the cores: experiment to autosuggest.
+     * 2. If 'all' is specified, build all of the cores: experiment to autosuggest.
      *      Specifying --nodeps throws IllegalArgumentException.
-     * 4. If 'daily' is specified, build the daily cores: preqc to autosuggest.
+     * 3. If 'daily' is specified, build the daily cores: preqc to autosuggest.
      *      Specifying --nodeps throws IllegalArgumentException.
      *
      * Core Build Truth Table (assume a valid '--context=' parameter is always supplied - not shown in table below to save space):
@@ -518,13 +430,6 @@ public class IndexerManager {
     private OptionSet parseCommandLine(String[] args) throws IndexerException {
         OptionParser parser = new OptionParser();
         OptionSet options = null;
-
-        // Spring context file parameter [required]
-        parser.accepts(CONTEXT_ARG)
-                .withRequiredArg()
-                .required()
-                .ofType(String.class)
-                .describedAs("Spring context file, such as 'index-app-config.xml'");
 
         // cores [optional]
         parser.accepts(CORES_ARG)
@@ -640,21 +545,20 @@ public class IndexerManager {
             } catch (Exception e) {}
             throw new IndexerException(t);
         }
-        indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
-        logger.debug("indexer config file: '" + indexerArgs[0] + "'");
 
         return options;
     }
 
-    public static void main(String[] args) throws IndexerException, IOException, SolrServerException {
+    public static void main(String[] args) throws IndexerException, IOException, SolrServerException, SQLException {
         int retVal = mainReturnsStatus(args);
         if (retVal != STATUS_OK) {
             throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
         }
     }
 
-    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException {
+    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException, SQLException {
         try {
+
             IndexerManager manager = new IndexerManager();
             manager.initialise(args);
             manager.run();
@@ -790,14 +694,13 @@ public class IndexerManager {
         @Override
         public String format( Map<String, ? extends OptionDescriptor> options ) {
             String buffer =
-                    "Usage: IndexerManager --context=aaa\n" +
+                    "Usage: IndexerManager \n" +
                     "     --all\n" +
                     "   | --daily\n" +
                     "   | --cores=aaa [--nodeps]\n" +
                     "   | --cores=aaa,bbb[,ccc [, ...]]\n" +
                     "   \n" +
-                    "where aaa is the context file name (should be on the classpath)\n" +
-                    "and aaa, bbb, and ccc are cores chosen from the list shown below." +
+                    "where aaa, bbb, and ccc are cores chosen from the list shown below." +
                     "\n" +
                     "if '--all' is specified, all cores from experiment to autosuggest are built.\n" +
                     "if '--daily' is specified, all cores from preqc to autosuggest are built.\n" +
@@ -818,7 +721,7 @@ public class IndexerManager {
                     "   images\n" +
                     "   impc_images\n" +
                     "   mp\n" +
-                    "   ma\n" +
+                    "   anatomy\n" +
                     "   pipeline\n" +
                     "   gene\n" +
                     "   disease\n" +
