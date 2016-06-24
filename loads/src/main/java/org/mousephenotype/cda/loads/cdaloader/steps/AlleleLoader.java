@@ -51,8 +51,8 @@ import java.util.regex.Pattern;
  */
 public class AlleleLoader implements InitializingBean, Step {
 
-    public        Map<FilenameKeys, String> alleleKeys = new HashMap<>();
-    private final Logger                    logger     = LoggerFactory.getLogger(this.getClass());
+    public Map<FilenameKeys, String>   alleleKeys       = new HashMap<>();
+    private final Logger               logger           = LoggerFactory.getLogger(this.getClass());
 
     private FlatFileItemReader<Allele> eucommReader     = new FlatFileItemReader<>();
     private FlatFileItemReader<Allele> genophenoReader  = new FlatFileItemReader<>();

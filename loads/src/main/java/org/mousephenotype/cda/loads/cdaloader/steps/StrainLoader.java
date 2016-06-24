@@ -16,12 +16,10 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
-import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.Strain;
-import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.cdaloader.support.LogStatusStepListener;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobInterruptedException;
@@ -32,15 +30,13 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.transform.DefaultFieldSet;
-import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Loads the MGI_Strain.rpt file into the strain table of the target database.
@@ -52,24 +48,22 @@ import java.util.regex.Pattern;
  */
 public class StrainLoader implements InitializingBean, Step {
 
-    private       int                       addedMgiStrainCount = 0;
-    private final Logger                    logger              = LoggerFactory.getLogger(this.getClass());
+    private FlatFileItemReader<Strain>      imsrReader          = new FlatFileItemReader<>();
+    private FlatFileItemReader<Strain>      mgiReader           = new FlatFileItemReader<>();
     public        Map<FilenameKeys, String> strainKeys          = new HashMap<>();
-    private FlatFileItemReader<Strain>      mgiReader;
-    private FlatFileItemReader<FieldSet>    imsrReader;
 
+    private final Logger                    logger              = LoggerFactory.getLogger(this.getClass());
 
     public enum FilenameKeys {
-          MGI
-        , IMSR
+          IMSR
+        , MGI
     }
 
     @Autowired
     private ItemProcessor strainProcessorImsr;
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private ItemProcessor strainProcessorMgi;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
@@ -85,28 +79,27 @@ public class StrainLoader implements InitializingBean, Step {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        mgiReader = new FlatFileItemReader<>();
         mgiReader.setResource(new FileSystemResource(strainKeys.get(FilenameKeys.MGI)));
         mgiReader.setComments( new String[] { "#" });
-        mgiReader.setLineMapper((line, lineNumber) -> {
-            Strain strain = new Strain();
-
-            String[] values = line.split(Pattern.quote("\t"));
-            strain.setId(new DatasourceEntityId(values[0], DbIdType.MGI.intValue()));
-            strain.setName(values[1]);
-            strain.setBiotype(sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), values[2]));
-            strain.setSynonyms(new ArrayList<>());
-            addedMgiStrainCount++;
-
-            return strain;
-        });
-
-        imsrReader = new FlatFileItemReader<>();
+        mgiReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
+        DefaultLineMapper<Strain> lineMapperStrainMgi = new DefaultLineMapper<>();
+        DelimitedLineTokenizer    tokenizerStrainMgi  = new DelimitedLineTokenizer("\t");
+        tokenizerStrainMgi.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
+        tokenizerStrainMgi.setNames(new String[] { "mgiStrainAccessionId", "name", "biotype" });
+        lineMapperStrainMgi.setLineTokenizer(tokenizerStrainMgi);
+        lineMapperStrainMgi.setFieldSetMapper(new StrainFieldSetMapper());
+        mgiReader.setLineMapper(lineMapperStrainMgi);
+        
         imsrReader.setResource(new FileSystemResource(strainKeys.get(FilenameKeys.IMSR)));
-        imsrReader.setLineMapper((line, lineNumber) -> {
-            FieldSet fieldset = new DefaultFieldSet(line.split(Pattern.quote("\t")));
-            return fieldset;
-        });
+        imsrReader.setComments( new String[] { "#" });
+        imsrReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
+        DefaultLineMapper<Strain> lineMapperStrainImsr = new DefaultLineMapper<>();
+        DelimitedLineTokenizer    tokenizerStrainImsr  = new DelimitedLineTokenizer("\t");
+        tokenizerStrainImsr.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
+        tokenizerStrainImsr.setNames(new String[] { "unused_1", "mgiStrainAccessionId", "name", "unused_4", "unused_5", "synonyms", "biotype" });
+        lineMapperStrainImsr.setLineTokenizer(tokenizerStrainImsr);
+        lineMapperStrainImsr.setFieldSetMapper(new StrainFieldSetMapper());
+        imsrReader.setLineMapper(lineMapperStrainImsr);
     }
 
 
@@ -154,6 +147,7 @@ public class StrainLoader implements InitializingBean, Step {
                 .listener(new StrainLoaderMgiStepListener())
                 .chunk(1000)
                 .reader(mgiReader)
+                .processor(strainProcessorMgi)
                 .writer(writer)
                 .build();
 
@@ -186,12 +180,12 @@ public class StrainLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("MGI: Added {} strains (with no synonyms) from file {} in {}",
-                    addedMgiStrainCount,
+            logger.info("MGI: Added {} mgi strains (with no synonyms) from file {} in {}",
+                    ((StrainProcessorMgi)strainProcessorMgi).getAddedMgiStrainsCount(),
                     strainKeys.get(FilenameKeys.MGI),
                     commonUtils.formatDateDifference(start, stop));
 
-            return new HashSet<>();
+            return ((StrainProcessorMgi)strainProcessorMgi).getErrorMessages();
         }
     }
 
@@ -199,11 +193,14 @@ public class StrainLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("IMSR: Added {} strains and {} synonyms from file {} in {}",
-                    ((StrainProcessorImsr)strainProcessorImsr).getAddedEucommStrainCount(),
-                    ((StrainProcessorImsr)strainProcessorImsr).getAddedSynonymCount(),
+            logger.info("IMSR: Added {} Eucomm strains and {} Eucomm synonyms from file {} in {}. StrainNotSynonym count: {}. AddedStrainNotSynonym count: {}. StrainIsAllele count: {}.",
+                    ((StrainProcessorImsr)strainProcessorImsr).getAddedEucommStrainsCount(),
+                    ((StrainProcessorImsr)strainProcessorImsr).getAddedEucommSynonymsCount(),
                     strainKeys.get(FilenameKeys.IMSR),
-                    commonUtils.formatDateDifference(start, stop));
+                    commonUtils.formatDateDifference(start, stop),
+                    ((StrainProcessorImsr)strainProcessorImsr).getStrainNotSynonymCount(),
+                    ((StrainProcessorImsr)strainProcessorImsr).getAddedStrainNotSynonymCount(),
+                    ((StrainProcessorImsr)strainProcessorImsr).getStrainIsAlleleCount());
 
             return ((StrainProcessorImsr) strainProcessorImsr).getErrorMessages();
         }

@@ -16,9 +16,7 @@
 
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.SequenceRegion;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.*;
@@ -44,8 +42,10 @@ public class ConfigBeans {
 
     private Map<String, OntologyTerm>   markerProcessorFeatureTypes = new HashMap<>();
     private Map<String, OntologyTerm>   mgiFeatureTypes             = new HashMap<>();
+    private Map<String, Allele>         alleles                     = new HashMap<>(150000);
     private Map<String, GenomicFeature> genomicFeatures             = new HashMap<>(150000);
     private Map<String, SequenceRegion> sequenceRegions             = new HashMap<>(150000);
+    private Map<String, Strain>         strains                     = new HashMap<>(150000);
 
     @NotNull
     @Value("${cdaload.workspace}")
@@ -190,9 +190,9 @@ public class ConfigBeans {
     @Bean(name = "alleleProcessorPhenotypic")
     public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
         mgiFeatureTypes = sqlLoaderUtils().getOntologyTerms(DbIdType.MGI.intValue());
-        if (genomicFeatures.isEmpty()) {
-            genomicFeatures =  sqlLoaderUtils().getGenomicFeatures();
-        }
+//        if (genomicFeatures.isEmpty()) {
+//            genomicFeatures =  sqlLoaderUtils().getGenomicFeatures();
+//        }
         return new AlleleProcessorPhenotypic(genomicFeatures, mgiFeatureTypes);
     }
 
@@ -300,9 +300,14 @@ public class ConfigBeans {
         return new StrainLoader(filenameKeys);
     }
 
+    @Bean(name = "strainProcessorMgi")
+    public StrainProcessorMgi strainProcessorMgi() {
+        return new StrainProcessorMgi(strains);
+    }
+
     @Bean(name = "strainProcessorImsr")
     public StrainProcessorImsr strainProcessorImsr() {
-        return new StrainProcessorImsr();
+        return new StrainProcessorImsr(alleles, strains);
     }
 
     @Bean(name = "strainWriter")

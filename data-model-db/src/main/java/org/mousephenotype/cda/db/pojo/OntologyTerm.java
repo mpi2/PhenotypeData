@@ -180,7 +180,7 @@ public class OntologyTerm {
     @Override
 	public String toString() {
 		return "OntologyTerm{" +
-				"id={" + id.getAccession() + "," + id.getDatabaseId() + "}" +
+				"id={" + (id == null ? "null" : id.getAccession() + "," + id.getDatabaseId()) + "}" +
 				", description='" + description + '\'' +
 				", name='" + name + '\'' +
 				", isObsolete=" + isObsolete +

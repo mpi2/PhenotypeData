@@ -85,7 +85,7 @@ public class ConfigBatch {
         Job[] jobs = new Job[] {
 //                  databaseInitialiserJob()
 //                , downloaderJob()
-                  dbLoaderJob()
+                 dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -137,12 +137,12 @@ public class ConfigBatch {
     }
 
     public Job dbLoaderJob() throws CdaLoaderException {
-        List<Flow> parallelFlows = new ArrayList<>();
+        List<Flow> ontologyFlows = new ArrayList<>();
 
         // Ontologies
         for (int i = 0; i < ontologyLoaderList.size(); i++) {
             OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
-            parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i + "_parallelFlow").from(ontologyLoader).end());
+            ontologyFlows.add(new FlowBuilder<Flow>("ontology_" + i + "_parallelFlow").from(ontologyLoader).end());
         }
 
         // Markers - Gene types and subtypes, marker lists, VEGA, Ensembl, EntrezGene, and cCDS models
@@ -155,10 +155,10 @@ public class ConfigBatch {
         Flow strainsFlow = new FlowBuilder<Flow>("strainsFlow").from(strainLoader).end();
 
         // Parallelize the parallelizable flows.
-        FlowBuilder<Flow> parallelFlowBuilder = new FlowBuilder<Flow>("parallelFlow").start(parallelFlows.get(0));
-        for (int i = 1; i < parallelFlows.size(); i++) {
+        FlowBuilder<Flow> parallelFlowBuilder = new FlowBuilder<Flow>("parallelFlow").start(ontologyFlows.get(0));
+        for (int i = 1; i < ontologyFlows.size(); i++) {
             SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
-            parallelFlowBuilder.split(executor).add(parallelFlows.get(i));
+            parallelFlowBuilder.split(executor).add(ontologyFlows.get(i));
         }
 
 //        return jobBuilderFactory.get("dbLoaderJob")
@@ -181,7 +181,7 @@ public class ConfigBatch {
 
         return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
-                .start(allelesFlow)
+                .start(strainsFlow)
                 .end()
                 .build();
     }

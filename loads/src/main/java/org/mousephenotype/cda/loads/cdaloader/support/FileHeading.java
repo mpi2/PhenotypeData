@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.support;
 /**
  * Created by mrelac on 09/06/16.
  */
+@Deprecated
 public class FileHeading {
     public final int offset;
     public final String heading;
@@ -30,6 +31,7 @@ public class FileHeading {
      * @param offset the 0-relative offset of the heading in the file stream
      * @param heading the heading name in the file
      */
+    @Deprecated
     public FileHeading(int offset, String heading) {
         this.offset = offset;
         this.heading = heading;

@@ -463,6 +463,8 @@ public class SqlLoaderUtils {
         Map<Class, Integer> retVal = new HashMap<>();
         int strainCount = 0;
         int synonymCount = 0;
+        retVal.put(Strain.class, strainCount);
+        retVal.put (Synonym.class, synonymCount);
 
         // Insert Strain term if it does not exist.
         if (getStrain(strain.getId().getAccession()) == null) {
@@ -472,6 +474,9 @@ public class SqlLoaderUtils {
                         strain.getId().getAccession(), strain.getId().getDatabaseId(), strain.getBiotype().getId().getAccession(), strain.getBiotype().getId().getDatabaseId(), strain.getName());
             } catch (DuplicateKeyException e) {
                 logger.warn("Duplicate strain entry. Accession id: " + strain.getId().getAccession() + ". Strain: " + strain.getName()  + ". Strain not added.");
+            } catch (Exception e) {
+                logger.error("INSERT FAILED FOR Strain {}. Reason: {}. Skipping...", strain, e.getLocalizedMessage());
+                return retVal;
             }
         }
 
@@ -484,13 +489,27 @@ public class SqlLoaderUtils {
             }
         }
 
-        retVal.put(Strain.class, strainCount);
-        retVal.put (Synonym.class, synonymCount);
-
         return retVal;
     }
 
 
+
+    /**
+     * Inserts the given synonym using {@code strain}'s id
+     *
+     * @param strain the strain instance whose synonym is to be inserted
+     * @param synonym the synonym to be inserted
+     *
+     * @return an int indicating the number of synonyms added
+     *
+     * @throws CdaLoaderException if synonym already exists
+     */
+    public int insertStrainSynonym(Strain strain, Synonym synonym) throws CdaLoaderException {
+        int synonymCount = 0;
+
+        return jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
+                                   strain.getId().getAccession(), strain.getId().getDatabaseId(), synonym.getSymbol());
+    }
 
     /**
      * Return the matching synonym if found; null otherwise
@@ -580,6 +599,7 @@ public class SqlLoaderUtils {
         return retVal;
     }
 
+    @Deprecated
     public RunStatus validateHeadings(String[] headingRow, FileHeading[] headings) {
         String    actualValue   = "";
         String    expectedValue = "";

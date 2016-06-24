@@ -153,13 +153,16 @@ public class Strain {
 
 		return "Strain{" +
 				"id=" + id +
-				", biotype=" + biotype +
+				", biotype=" + (biotype == null ? "null" : biotype) +
 				", name='" + name + '\'' +
 				", synonyms=[" + toStringSynonyms() + "]" +
 				'}';
 	}
 	public String toStringSynonyms() {
 		String synonymSymbols = "";
+		if (synonyms == null) {
+			return "";
+		}
 		for (int i = 0; i < synonyms.size(); i++) {
 			if (i > 0)
 				synonymSymbols += ", ";
