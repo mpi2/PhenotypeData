@@ -16,9 +16,9 @@
 
 package uk.ac.ebi.phenotype.web;
 
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
@@ -57,9 +57,9 @@ import java.util.Map;
 // NOTE: Don't use @TestPropertySource. Why? See: http://stackoverflow.com/questions/28418071/how-to-override-config-value-from-propertysource-used-in-a-configurationproper
 
 @Configuration
-@ComponentScan({"org.mousephenotype", "uk.ac.ebi.phenotype"})
-@PropertySource("file:${user.home}/configfiles/${profile}/test.properties")
-@EnableAutoConfiguration
+@ComponentScan(value = {"org.mousephenotype", "uk.ac.ebi.phenotype"},
+	excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, value = ComponentScanNonParticipant.class)
+)
 public class TestConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -87,6 +87,11 @@ public class TestConfig {
         logger.info("baseUrl:              " + baseUrl);
         logger.info("internalSolrUrl:      " + internalSolrUrl);
     }
+//
+//	@Bean
+//	public PropertyPlaceholderConfigurer getPropertyPlaceholderConfigurer() {
+//		return new PropertyPlaceholderConfigurer();
+//	}
 
     @Bean (name="globalConfiguration")
     public Map <String, String> globalConfiguration(){

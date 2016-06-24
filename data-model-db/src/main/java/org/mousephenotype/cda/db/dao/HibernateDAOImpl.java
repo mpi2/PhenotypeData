@@ -85,6 +85,9 @@ public class HibernateDAOImpl implements HibernateDAO {
 		Session sess = null;
 		try {
 			sess = sessionFactory.getCurrentSession();
+			if ( ! sess.isOpen()) {
+				sess = sessionFactory.openSession();
+			}
 		} catch (org.hibernate.HibernateException he) {
 			sess = sessionFactory.openSession();
 		}

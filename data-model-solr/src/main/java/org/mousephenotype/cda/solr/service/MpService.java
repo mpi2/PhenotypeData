@@ -16,7 +16,6 @@
 package org.mousephenotype.cda.solr.service;
 
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -26,7 +25,6 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -45,10 +43,6 @@ public class MpService extends BasicService implements WebStatus{
 	@Autowired
 	@Qualifier("mpCore")
     private HttpSolrServer solr;
-
-	@Autowired
-	@Qualifier("phenotypePipelineDAOImpl")
-	private PhenotypePipelineDAO pipelineDao;
 
 	public MpService() {
 	}
@@ -91,23 +85,23 @@ public class MpService extends BasicService implements WebStatus{
 	}
 
 	/**
-	 * 
-	 * @param ids MP ids to query for (only query on MP_ID field. 
-	 * @return List<MpDTO> corresponding to the passed ids. 
+	 *
+	 * @param ids MP ids to query for (only query on MP_ID field.
+	 * @return List<MpDTO> corresponding to the passed ids.
 	 * @throws SolrServerException
 	 */
-	public List<MpDTO> getPhenotypes(List<String> ids) 
+	public List<MpDTO> getPhenotypes(List<String> ids)
 	throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\""); 
+			.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\"");
 
 		QueryResponse rsp = solr.query(solrQuery);
 		System.out.println("RETURNED -- " + rsp.getResults().size() + " " + solr.getBaseURL() + "/select?" + solrQuery);
 		return rsp.getBeans(MpDTO.class);
-		
+
 	}
-	
+
 
 	/**
 	 * @author ilinca
@@ -160,9 +154,9 @@ public class MpService extends BasicService implements WebStatus{
 	 * @return JSON in jstree format for ontology browser
 	 * @throws SolrServerException
 	 */
-	public String getSearchTermJson(String mpTermId)  
+	public String getSearchTermJson(String mpTermId)
 	throws SolrServerException{
-		
+
 		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_ID + ":\"" + mpTermId + "\"")
 				.setRows(1);
@@ -170,7 +164,7 @@ public class MpService extends BasicService implements WebStatus{
 
 		QueryResponse rsp = solr.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
-		
+
 		return (mps != null) ? mps.get(0).getSearchTermJson() : "";
 	}
 
@@ -184,7 +178,7 @@ public class MpService extends BasicService implements WebStatus{
 	 */
 	public String getChildrenJson(String nodeId)
 	throws SolrServerException{
-		
+
 		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
 				.setRows(1);
@@ -192,10 +186,10 @@ public class MpService extends BasicService implements WebStatus{
 
 		QueryResponse rsp = solr.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
-		
+
 		return (mps != null) ? mps.get(0).getChildrenJson() : "";
 	}
-	
+
 	/**
 	 * @author ilinca
 	 * @since 2016/03/22
@@ -305,7 +299,7 @@ public class MpService extends BasicService implements WebStatus{
     	List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
     	List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));
 		Map<String, SimpleOntoTerm> computationalHPTerms = new HashMap<>();
-		
+
     	for ( int i=0; i< hpIds.size(); i++  ){
     		SimpleOntoTerm term = new SimpleOntoTerm();
     		term.setTermId(hpIds.get(i));
@@ -313,13 +307,13 @@ public class MpService extends BasicService implements WebStatus{
 
 			computationalHPTerms.put(hpIds.get(i), term);
 		}
-  	
+
 		return new HashSet<SimpleOntoTerm>(computationalHPTerms.values());
 
     }
 
 	@Override
-	public long getWebStatus() 
+	public long getWebStatus()
 	throws SolrServerException {
 
 		SolrQuery query = new SolrQuery();
