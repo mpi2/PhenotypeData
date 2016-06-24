@@ -16,43 +16,35 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
-import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.db.pojo.Strain;
-import org.mousephenotype.cda.db.pojo.Synonym;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.FileHeading;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import java.util.*;
 
 /**
  * Contains the business processing rules for loading the imsr strains.
  * Created by mrelac on 03/06/16.
  */
-public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>> {
+public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
 
-    private       int                 addedEucommStrainCount     = 0;
-    private       int                 addedSynonymCount          = 0;
-    public final  Set<String>         errorMessages              = new HashSet<>();
-    private       int                 lineNumber                 = 0;
-    private final Logger              logger                     = LoggerFactory.getLogger(this.getClass());
-    private       Map<String, Strain> strainsMap                 = new HashMap<>();     // Key = accession id. Value = Strain instance.
-    private       Map<String, String> strainNameToAccessionIdMap = new HashMap<>();     // key = strain name (strainStock). Value = strain accession id with the same strain name
-
-    // The following IMSR_ ints define the column offset of the given column in the report.txt file. Comment maps report.txt value column to equivalent column in MGI_Strains.rpt.
-    public final static int OFFSET_ACCESSION_ID = 1;                    // StrainId       /   acc  (column 0)
-    public final static int OFFSET_NAME         = 2;                    // Strain/Stock   /   name (column 1)
-    public final static int OFFSET_SYNONYMS     = 5;                    // Synonyms       /   N/A
-    public final static int OFFSET_STRAINTYPE   = 6;                    // type           /   type (column 2)
-    public final static int OFFSET_MAX          = OFFSET_STRAINTYPE;    // Points to the highest value offset.
+    private       int                 addedEucommStrainsCount     = 0;
+    private       int                 addedStrainNotSynonymCount  = 0;
+    private       int                 addedEucommSynonymsCount    = 0;
+    private       Map<String, Allele> allelesMap;                                           // Key = accession id. Value = Allele instance.
+    public final  Set<String>         errorMessages               = new HashSet<>();
+    private       int                 lineNumber                  = 0;
+    private final Logger              logger                      = LoggerFactory.getLogger(this.getClass());
+    private       int                 strainIsAlleleCount         = 0;
+    private       int                 strainNotSynonymCount       = 0;
+    private       Map<String, Strain> strainsMap;                                           // Key = accession id. Value = Strain instance.
+    private       Map<String, String> strainNameToAccessionIdMap = new HashMap<>(50000);    // key = strain name (strainStock). Value = strain accession id with the same strain name
 
     // The following  strings define the column headings in the report.txt file.
     public final static String HEADING_ACCESSION_ID = "Strain ID";
@@ -60,26 +52,14 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
     public final static String HEADING_SYNONYMS     = "Synonyms";
     public final static String HEADING_STRAINTYPE   = "Type";
 
-    public FileHeading[] fileHeadings = new FileHeading[] {
-              new FileHeading(OFFSET_ACCESSION_ID, HEADING_ACCESSION_ID)
-            , new FileHeading(OFFSET_NAME, HEADING_NAME)
-            , new FileHeading(OFFSET_SYNONYMS, HEADING_SYNONYMS)
-            , new FileHeading(OFFSET_STRAINTYPE, HEADING_STRAINTYPE)
-    };
-
     @Autowired
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
 
-    private void initialise() throws Exception {
-
-        // Populate mgi strain list.
-        List<Strain> strains = sqlLoaderUtils.getStrains();
-        for (Strain strain : strains) {
-            strainsMap.put(strain.getId().getAccession(), strain);
-            strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
-        }
+    public StrainProcessorImsr(Map<String, Allele> allelesMap, Map<String, Strain> strainsMap) {
+        this.allelesMap = allelesMap;
+        this.strainsMap = strainsMap;
     }
 
 
@@ -88,156 +68,133 @@ public class StrainProcessorImsr implements ItemProcessor<FieldSet, List<Strain>
      * processing.  If the returned result is null, it is assumed that processing of the item
      * should not continue.
      *
-     * @param item to be processed
+     * @param strain to be processed
      * @return potentially modified or new item for continued processing, null if processing of the
      * provided item should not continue.
      * @throws Exception
      */
     @Override
-    public List<Strain> process(FieldSet item) throws Exception {
-        String accessionId;
-        String synonymCell;
-
-        List<Strain> strains = null;
+    public Strain process(Strain strain) throws Exception {
 
         lineNumber++;
 
-        // Initialise maps on first call to process().
-        if (strainsMap.isEmpty()) {
-            initialise();
-        }
-
-        String[] values = item.getValues();
-
         // Validate the file using the heading names.
         if (lineNumber == 1) {
-            RunStatus status = sqlLoaderUtils.validateHeadings(item.getValues(),fileHeadings);
-            if (status.hasErrors()) {
-                throw new CdaLoaderException(status.toStringErrorMessages());
-            }
+            String[] actualHeadings   = new String[]{strain.getId().getAccession(), strain.getName(), strain.getSynonyms().get(0).getSymbol(), strain.getBiotype().getName()};
+            String[] expectedHeadings = new String[]{"Strain ID", "Strain/Stock", "Synonyms", "Type"};
 
-            return null;
-        }
+            for (int i = 0; i < expectedHeadings.length; i++) {
+                if ( ! expectedHeadings[i].equals(actualHeadings[i])) {
+                    throw new CdaLoaderException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
+                }
 
-        // Skip empty lines. They have a field count of 1.
-        if (item.getFieldCount() < 2) {
-            return null;
-        }
-
-        // If the strain is already loaded, skip this record.
-        try {
-            accessionId = values[OFFSET_ACCESSION_ID];
-            if (strainsMap.containsKey(accessionId)) {
                 return null;
             }
+        }
 
-        } catch (IndexOutOfBoundsException e) {
-            logger.warn("StrainProcessorImsr(): report.txt Line " + lineNumber + " doesn't have a " + HEADING_ACCESSION_ID + " value. Skipping. Line: '" + StringUtils.join(item, ",") + "'.");
+        // Initialise strainNameToAccessionIdMap
+        if (strainNameToAccessionIdMap.isEmpty()) {
+            for (Strain tempStrain : strainsMap.values()) {
+                strainNameToAccessionIdMap.put(tempStrain.getName(), tempStrain.getId().getAccession());
+            }
+        }
+
+        // If name is in strainNameToAccessionIdMap, return null.
+        if (strainNameToAccessionIdMap.containsKey(strain.getName())) {
             return null;
         }
 
-        // Sometimes the report.txt file incorrectly reports a strain name as a synonym. Fix this by comparing each
-        // synonym with the strainNameToAccessionIdMap key and, if there is a match:
-        //    if the strain/stock name does not yet exist as a synonym:
-        //       create a synonym from the strain/stock value
-        //       add the Synonym instance to this strain's list of synonyms.
-        //       add the strain containing the new Synonym instance to the list of returned strains
-        synonymCell = values[OFFSET_SYNONYMS];
-        String[] synonymNames = synonymCell.split(",");
-        try {
-            boolean synonymFound = false;
-            for (String synonymName: synonymNames) {
+        /*
+        * Sometimes the report.txt file incorrectly reports a strain name as a synonym. To handle this situation:
+        * For each synonym:
+        *     If the synonym symbol exists in the strainNameToAccessionIdMap
+        *         If that strain's synonyms do not contain the name as a synonym,
+        *             add the name (as a synonym) to the strain's synonyms and update the strainsMap
+        *             update the synonym table in the database
+        *             return null
+        *
+        * If name contains "EUCOMM"
+        *     If the strain accession id is not really an allele accession id
+        *         Create new Strain with synonyms
+        *         Update the strainsMap and strainNameToAccessionIdMap
+        *         Return the newly created strain object
+        *
+        * Return null
+         */
 
-                if (synonymName.isEmpty()) {
-                    continue;
-                }
+        for (Synonym synonym : strain.getSynonyms()) {
+            String synonymAsStrainAccessionId = strainNameToAccessionIdMap.get(synonym.getSymbol());
 
-                if (strainNameToAccessionIdMap.containsKey(synonymName)) {
-                    String strainAccessionId = strainNameToAccessionIdMap.get(synonymName);
-                    Strain strain = strainsMap.get(strainAccessionId);
+            if (synonymAsStrainAccessionId != null) {
+                strainNotSynonymCount++;
 
-                    if (strain.getSynonym(values[OFFSET_NAME]) == null) {
-                        Synonym synonym = new Synonym();
-                        synonym.setSymbol(values[OFFSET_NAME]);
-                        strain.getSynonyms().add(synonym);
-                        if (strains == null) {
-                            strains = new ArrayList<>();
-                        }
-                        strains.add(strain);                                    // Add the modified strain to the returned strain list.
-                        strainsMap.put(strain.getId().getAccession(), strain);  // Update the strainsMap with the strain with the newly added synonym.
+                Strain synonymAsStrain = strainsMap.get(synonymAsStrainAccessionId);
 
-                        logger.debug("[{}] Creating synonym '{}' for {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
-                        synonymFound = true;
-                        addedSynonymCount++;
-                    }
+                if (synonymAsStrain.getSynonym(strain.getName()) == null) {
+                    addedStrainNotSynonymCount++;
+                    Synonym newSynonym = new Synonym();
+                    newSynonym.setSymbol(strain.getName());
+                    synonymAsStrain.getSynonyms().add(newSynonym);
+                    strainsMap.put(synonymAsStrain.getId().getAccession(), synonymAsStrain);
+
+                    sqlLoaderUtils.insertStrainSynonym(synonymAsStrain, newSynonym);
+
+                    return null;
                 }
             }
-
-            if (synonymFound) {
-                return strains;
-            }
-
-        } catch (IndexOutOfBoundsException e) {
-            // There are no synonyms; thus, no strain or synonyms to add.
-            return null;
         }
 
-        // If we got here, it's because no synonyms were found.
-        // If report.txt strainStock contains the string "EUCOMM", and the report.txt strainStock value is not in strainNameToAccessionIdMap,
-        // add the strain and its synonyms to the database and to strainsMap and the strain name to strainNameToAccessionIdMap.
+        if (strain.getName().contains("EUCOMM")) {
+            Allele allele = allelesMap.get(strain.getId().getAccession());
+            if (allele != null) {
+                logger.warn("Strain {} is already in the allele table as allele {}", strain.toString(), allele);
+                strainIsAlleleCount++;
+            } else if ( ! strainNameToAccessionIdMap.containsKey(strain.getName())) {
+                // Fill in the missing common fields in preparation for writing to the database.
+                strain.getId().setDatabaseId(DbIdType.MGI.intValue());
 
-        if ((values[OFFSET_NAME]).contains("EUCOMM") && ( ! strainNameToAccessionIdMap.containsKey(values[OFFSET_NAME]))) {
-            Strain strain = new Strain();
-            try {
-                strain.setBiotype(sqlLoaderUtils.getMappedBiotype(DbIdType.MGI.intValue(), values[OFFSET_STRAINTYPE]));
-                strain.setId(new DatasourceEntityId("IMSR_EUCOMM:" + addedEucommStrainCount, DbIdType.MGI.intValue()));
-                strain.setName(values[OFFSET_NAME]);
-                List<Synonym> synonyms = new ArrayList<>();
-                strain.setSynonyms(synonyms);
-
-                for (String synonymName: synonymNames) {
-
-                    if (synonymName.isEmpty()) {
-                        continue;
-                    }
-
-                    Synonym synonym = new Synonym();
-                    synonym.setSymbol(synonymName);
-                    synonyms.add(synonym);
-
-                    logger.debug("[{}] Creating synonym '{}' for {}", lineNumber, synonym.getSymbol(), strain.getId().getAccession());
-
-                    addedSynonymCount++;
+                // Call the remaining methods to finish setting the strain instance.
+                OntologyTerm biotype = sqlLoaderUtils.getMappedBiotype(DbIdType.MGI.intValue(), strain.getBiotype().getName());
+                if (biotype == null) {
+                    logger.warn("Line {} : NO biotype FOR strain {}.", lineNumber, strain.toString());
+                    return null;
                 }
+                strain.setBiotype(biotype);
 
-                if (strains == null) {
-                    strains = new ArrayList<>();
-                }
-                strains.add(strain);
-                strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
                 strainsMap.put(strain.getId().getAccession(), strain);
+                strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
 
-                logger.debug("[{}] Creating EUCOMM strain for {} with name '{}' and synonyms '[{}]'", lineNumber, strain.getId().getAccession(), strain.getName(), strain.toStringSynonyms());
-                addedEucommStrainCount++;
+                addedEucommStrainsCount++;
+                addedEucommSynonymsCount += strain.getSynonyms().size();
 
-            } catch (CdaLoaderException e) {
-                System.out.println(e.getLocalizedMessage());
-                errorMessages.add(e.getLocalizedMessage());
+                return strain;
             }
         }
 
-        return strains;
+        return null;
     }
 
-    public int getAddedEucommStrainCount() {
-        return addedEucommStrainCount;
+    public int getAddedEucommStrainsCount() {
+        return addedEucommStrainsCount;
     }
 
-    public int getAddedSynonymCount() {
-        return addedSynonymCount;
+    public int getAddedEucommSynonymsCount() {
+        return addedEucommSynonymsCount;
+    }
+
+    public int getAddedStrainNotSynonymCount() {
+        return addedStrainNotSynonymCount;
     }
 
     public Set<String> getErrorMessages() {
         return errorMessages;
+    }
+
+    public int getStrainIsAlleleCount() {
+        return strainIsAlleleCount;
+    }
+
+    public int getStrainNotSynonymCount() {
+        return strainNotSynonymCount;
     }
 }
