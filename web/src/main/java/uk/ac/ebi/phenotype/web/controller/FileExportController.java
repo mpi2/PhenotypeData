@@ -222,7 +222,7 @@ public class FileExportController {
 				row.add(dataValue);
 				row.add("\"" + StringUtils.join(observation.getMetadata(), "::") + "\"");
 
-				row.add(StringUtils.isNotEmpty(observation.getWeight().toString()) ? observation.getWeight().toString() : "");
+				row.add((observation.getWeight() != null && StringUtils.isNotEmpty(observation.getWeight().toString())) ? observation.getWeight().toString() : "");
 
 				rows.add(StringUtils.join(row, ", "));
 			}
@@ -279,7 +279,7 @@ public class FileExportController {
 					}
 
 					JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
-					
+
 					List<String> dr = new ArrayList<>();
 
 					dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
