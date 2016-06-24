@@ -125,6 +125,14 @@
 	        oConf.iDisplayStart = 0;
 	        oConf.editMode = false;
 
+	        var tableHeader = "<thead><th>False-positive</th><th>Reviewed</th><th>Allele symbol</th><th>PMID</th><th>Date of publication</th><th>Grant id</th><th>Grant agency</th><th>Paper link</th></thead>";
+	        var tableCols = 8;
+
+	        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
+	        $('div#alleleRef').append(dTable);
+
+	        fetchAlleleRefDataTable(oConf);
+
 			$('form#allele').submit(function(){
 
 				var passcode = $('form input[type=password]').val();
@@ -143,6 +151,16 @@
 			                oConf.editMode = true;
                 			var oTable = $('table#alleleRef').dataTable();
                 			oTable.fnStandingRedraw();
+			                //oTable.fnDraw();
+
+
+//			                var tableHeader = "<thead><th>False-positive</th><th>Reviewed</th><th>Allele symbol</th><th>PMID</th><th>Date of publication</th><th>Grant id</th><th>Grant agency</th><th>Grant acronym</th><th>Paper link</th></thead>";
+//			                var tableCols = 9;
+//
+//			                var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
+//			                $('div#alleleRef').append(dTable);
+//
+//			                fetchAlleleRefDataTable(oConf);
                 		}
                 		else {
                 			alert("Passcode incorrect. Please try again");
@@ -156,13 +174,7 @@
 			});
    			
    			
-   			var tableHeader = "<thead><th>False-positive</th><th>Reviewed</th><th>Allele symbol</th><th>PMID</th><th>Date of publication</th><th>Grant id</th><th>Grant agency</th><th>Grant acronym</th><th>Paper link</th></thead>";
-			var tableCols = 9;
-			
-			var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
-			$('div#alleleRef').append(dTable);
 
-			fetchAlleleRefDataTable(oConf);
    		});
    		
         function fetchAlleleRefDataTable(oConf) {
@@ -185,40 +197,46 @@
        	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ alleles records",
        	         	"sSearch": "Filter: "
    	        	},
-   	        	/* "aoColumns": [{ "bSearchable": false, "bSortable": false },
-   	        	              { "bSearchable": true, "bSortable": false },
-   	        	           	  { "bSearchable": true, "bSortable": false },
-	        	              { "bSearchable": true, "bSortable": false },
-	        	              { "bSearchable": true, "bSortable": false },
-	        	              { "bSearchable": true, "bSortable": false },
-   	        	              { "bSearchable": true, "bSortable": false },
+   	        	"aoColumns": [{ "bSearchable": false, "bSortable": true },
+   	        	              { "bSearchable": true, "bSortable": true },
+   	        	           	  { "bSearchable": true, "bSortable": true },
+	        	              { "bSearchable": true, "bSortable": true },
+	        	              { "bSearchable": true, "bSortable": true },
+	        	              { "bSearchable": true, "bSortable": true },
+   	        	              { "bSearchable": true, "bSortable": true },
    	        	              { "bSearchable": false, "bSortable": false }
-   	        	              ], */
-   	        	           "aoColumns": [{ "bSearchable": false},
-		                              { "bSearchable": false },
-   	       	        	              { "bSearchable": true },
-   	       	        	           	  { "bSearchable": true },
-   	    	        	              { "bSearchable": true },
-   	    	        	              { "bSearchable": true },
-   	    	        	              { "bSearchable": true},
-   	       	        	              { "bSearchable": true},
-   	       	        	              { "bSearchable": false},
-   	       	        	              ],
+   	        	              ],
+//   	        	           "aoColumns": [{ "bSearchable": false},
+//		                              { "bSearchable": false },
+//   	       	        	              { "bSearchable": true },
+//   	       	        	           	  { "bSearchable": true },
+//   	    	        	              { "bSearchable": true },
+//   	    	        	              { "bSearchable": true },
+//   	    	        	              { "bSearchable": true},
+//   	       	        	              { "bSearchable": false},
+//   	       	        	              ],
    	        	"columnDefs": [                
    	        	              { "type": "alt-string", targets: 4 }   //5th col sorted using alt-string
    	        	              ],
             	"aaSorting": [[ 4, "desc" ]],  // default sort column order
-                 /*"aoColumns": [
-                     {"bSearchable": true, "sType": "html", "bSortable": true},
-                     {"bSearchable": true, "sType": "string", "bSortable": true},
-                     {"bSearchable": true, "sType": "string", "bSortable": true},
-                     {"bSearchable": true, "sType": "string", "bSortable": true},
-                     {"bSearchable": true, "sType": "string", "bSortable": true},
-                     {"bSearchable": false, "sType": "html", "bSortable": true}
-                 ], */
+//                 "aoColumns": [
+//                     {"bSearchable": false, "sType": "html", "bSortable": true},
+//                     {"bSearchable": false, "sType": "string", "bSortable": true},
+//                     {"bSearchable": true, "sType": "string", "bSortable": true},
+//                     {"bSearchable": true, "sType": "string", "bSortable": true},
+//                     {"bSearchable": true, "sType": "string", "bSortable": true},
+//                     {"bSearchable": true, "sType": "html", "bSortable": true},
+//	                 {"bSearchable": true, "sType": "string", "bSortable": true},
+//	                 {"bSearchable": false, "sType": "html", "bSortable": false}
+//                 ],
    	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 
-	                $('table#alleleRef').find('tr th:first-child, tr td:first-child').hide();
+	                if ( oConf.editMode ) {
+		                $('table#alleleRef').find('tr th:first-child, tr td:first-child').show();
+	                }
+	                else {
+		                $('table#alleleRef').find('tr th:first-child, tr td:first-child').hide();
+	                }
 
    	            	// download tool
    	            	oConf.externalDbId = 1;
@@ -234,11 +252,11 @@
 
 	   	            	// POST
 	   	            	var thisTable = $(this);
-		                thisTable.find('tr th:first-child, tr td:first-child').show();
-
-	   	            	var dbid = parseInt($(this).find('tr td:nth-child(4) span').attr('id'));
+		                //thisTable.find('tr th:first-child, tr td:first-child').show();
 
 		                $(this).find('tr td:nth-child(1) input').bind('click', function(){
+
+			                var dbid = $(this).parent().parent().find('td span.pmid').attr('id'); // this comes from concatenation, so is a string
 
 			                var fp = $(this).is(':checked') ? "yes" : "no"; // falsepositive is checked or not
 
@@ -255,7 +273,7 @@
 
 		                });
 
-	   	            	$(this).find('tr td:nth-child(3)').attr('id', dbid).css({'cursor':'pointer'}); // set id for the key in POST
+	   	            	//$(this).find('tr td:nth-child(4)').attr('id', dbid); //.css({'cursor':'pointer'}); // set id for the key in POST
 	   	            	$(this).find('tr td:nth-child(3)').editable(baseUrl + '/dataTableAlleleRef', {
 	   	                    "callback": function( jsonStr, y ) {
 	   	                		var j = JSON.parse(jsonStr);
@@ -282,12 +300,13 @@
 				             "submit"  : "OK"
 	   	             	});
 	   	            	$(this).find('tr td:nth-child(3)').bind('click', function(){
-	   	            		//console.log($(this).html()); 
+			                $(this).attr('id', $(this).parent().find('td span.pmid').attr('id'));
+	   	            		//console.log($(this).parent().find('td span.pmid').attr('id'));
 	   	            		// a form is created on the fly by jeditable
 	   	            		// change that value for user to save typing as this value 
 	   	            		// will be 'yes'
-	   	            		$(this).find('form').css('padding','2px'); 
-	   	            		$(this).find('form input[name=value]').val("");
+	   	            		$(this).find('form').css('padding','2px');
+			               // $(this).find('form input[name=value]').val("");
 	   	            	}).mouseover(function(){
 	   	            		$(this).css({'border':'1px solid gray'});
 	   	            	}).mouseout(function(){
