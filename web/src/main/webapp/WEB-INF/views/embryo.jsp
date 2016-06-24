@@ -93,11 +93,14 @@
                             <tr><td>E18.5 microCT</td><td>at least 2 homs, 2 wt</td><td>reconstructions available</td></tr>
                             </table>
                             <p>
-                            In addition, the NIH is supporting in-depth phenotyping of embryonic lethal lines with two current awardees.
+                            In addition, the NIH is supporting in-depth phenotyping of embryonic lethal lines with three current awardees.
                             </p>
                             <p><a href="http://www.ucdenver.edu/academics/colleges/medicalschool/programs/Molbio/faculty/WilliamsT/Pages/WilliamsT.aspx">Trevor William, University of Colorado School of Medicine</a>
                             </p>
                             <p><a href="https://www.umass.edu/m2m/people/jesse-mager">Jesse Mager, University of Massachusetts Amherst</a>
+                            </p>
+                            <p>
+                            <a href="https://www.mskcc.org/research-areas/labs/elizabeth-lacy">Elizabeth Lacy, Memorial Sloan Kettering Cancer Center</a>
                             </p>
                             
                             

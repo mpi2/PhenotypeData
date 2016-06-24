@@ -2,20 +2,20 @@ package org.mousephenotype.cda.indexers.configuration;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
-import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.util.Properties;
@@ -121,86 +121,97 @@ public class IndexerConfig {
     @Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.admintools")
     public DataSource admintoolsDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.goapro")
     public DataSource goaproDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.ontodb")
     public DataSource ontodbDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.pfam")
     public DataSource pfamDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.uniprot")
     public DataSource uniprotDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
     }
 
+	@Bean
+	@ConfigurationProperties(prefix = "datasource.phenodigm")
+	public DataSource phenodigmDataSource() {
+		return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+	}
 
 
-    // support beans for hibernate wiring
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-        emf.setDataSource(komp2DataSource());
-        emf.setPackagesToScan("org.mousephenotype.cda.db.pojo");
 
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        emf.setJpaVendorAdapter(vendorAdapter);
-        emf.setJpaProperties(buildHibernateProperties());
-
-        return emf;
-    }
-
+	// support beans for hibernate wiring
     protected Properties buildHibernateProperties() {
-        Properties hibernateProperties = new Properties();
+	    Properties hibernateProperties = new Properties();
 
-        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        hibernateProperties.setProperty("hibernate.show_sql", "true");
-        hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-        hibernateProperties.setProperty("hibernate.format_sql", "true");
-        hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-        hibernateProperties.setProperty("hibernate.current_session_context_class","thread");
+	    hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+	    hibernateProperties.setProperty("hibernate.show_sql", "false");
+	    hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
+	    hibernateProperties.setProperty("hibernate.format_sql", "true");
+	    hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+	    hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
 
-        return hibernateProperties;
+	    return hibernateProperties;
     }
 
 
-    @Bean(name = "sessionFactory")
-    public LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(komp2DataSource());
-        sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
-        return sessionFactory;
-    }
+	@Bean(name = "sessionFactory")
+	@Primary
+	public SessionFactory getSessionFactory() {
 
-    @Bean(name = "komp2TxManager")
-    @Primary
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager tm = new JpaTransactionManager();
-        tm.setEntityManagerFactory(emf);
-        tm.setDataSource(komp2DataSource());
-        return tm;
-    }
+		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.dao");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 
+		return sessionBuilder.buildSessionFactory();
+	}
+
+	@Bean
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+		em.setDataSource(komp2DataSource());
+		em.setPackagesToScan("org.mousephenotype.cda.db.dao", "org.mousephenotype.cda.db.pojo");
+
+		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		em.setJpaVendorAdapter(vendorAdapter);
+		em.setJpaProperties(buildHibernateProperties());
+
+		return em;
+	}
+
+	@Bean
+	public HibernateTransactionManager transactionManager(SessionFactory s) {
+		HibernateTransactionManager txManager = new HibernateTransactionManager();
+		txManager.setSessionFactory(s);
+		return txManager;
+	}
+
+	@Bean
+	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+		return new PersistenceExceptionTranslationPostProcessor();
+	}
 
 
 }

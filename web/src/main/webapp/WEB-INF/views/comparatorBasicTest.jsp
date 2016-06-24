@@ -28,7 +28,7 @@
             'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
         });
         /* Load the selected image into the viewport */
-        viewport.load(87269);
+        viewport.load(18271);
 
 
         // Alternative for testing non-big image viewer
@@ -43,7 +43,7 @@
             'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
         });
         /* Load the selected image into the viewport */
-        viewport2.load(87043);
+        viewport2.load(17867);
 
         $(".thumb").click(function(){
             var iid = $(this).attr('data-id');
@@ -89,6 +89,7 @@
         <img class="thumb" data-id="87133" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87133/96/"/>
 
         <img class="thumb" data-id="86976" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86976/96/"/>
+         <img class="thumb" data-id="17867" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/17867/96/"/>
     </div>
     <div class="thumbList">
         <img class="thumb2" data-id="87044" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/87044/96/"/>
