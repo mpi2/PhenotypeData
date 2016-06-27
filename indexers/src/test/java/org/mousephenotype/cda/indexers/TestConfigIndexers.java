@@ -1,10 +1,6 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
-import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -28,9 +24,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 
@@ -42,7 +35,7 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @EnableAutoConfiguration
-@ComponentScan({"org.mousephenotype.cda", "org.mousephenotype.cda.indexers", "org.mousephenotype.cda.solr.service"})
+@ComponentScan({"org.mousephenotype.cda"})
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class TestConfigIndexers {
 
@@ -126,113 +119,11 @@ public class TestConfigIndexers {
 
 	@Bean(name = "komp2TxManager")
 	@Primary
-	//	public PlatformTransactionManager txManager() {
-	//		return new DataSourceTransactionManager(komp2DataSource());
-	//	}
 	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
 		JpaTransactionManager tm = new JpaTransactionManager();
 		tm.setEntityManagerFactory(emf);
 		tm.setDataSource(komp2DataSource());
 		return tm;
 	}
-
-
-	@Bean(name = "alleleIndexing")
-	SolrServer getAlleleIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/allele", 10000, 5);
-	}
-
-	@Bean(name = "preqcIndexing")
-	SolrServer getPreqcIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/preqc", 10000, 5);
-	}
-
-	@Bean(name = "observationIndexing")
-	SolrServer getObservationIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/experiment", 10000, 5);
-	}
-
-	@Bean(name = "maIndexing")
-	SolrServer getMaIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/ma", 10000, 5);
-	}
-
-	@Bean(name = "diseaseIndexing")
-	SolrServer getDiseaseIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/disease", 10000, 5);
-	}
-
-	@Bean(name = "geneIndexing")
-	SolrServer getGeneIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/gene", 10000, 5);
-	}
-
-	@Bean(name = "genotypePhenotypeIndexing")
-	SolrServer getGenotypePhenotypeIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/genotype-phenotype", 10000, 5);
-	}
-
-	@Bean(name = "mgiPhenotypeIndexing")
-	SolrServer getMgiPhenotypeIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/mgi-phenotype", 10000, 5);
-	}
-
-	@Bean(name = "pipelineIndexing")
-	SolrServer getPipelineIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/pipeline", 10000, 5);
-	}
-
-	@Bean(name = "sangerImagesIndexing")
-	SolrServer getSangerImagesIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/images", 10000, 5);
-	}
-
-	@Bean(name = "mpIndexing")
-	SolrServer getMpIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/mp", 10000, 5);
-	}
-
-	@Bean(name = "emapIndexing")
-	SolrServer getEmapIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/emap", 10000, 5);
-	}
-
-	@Bean(name = "autosuggestIndexing")
-	SolrServer getAutosuggestIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/autosuggest", 10000, 5);
-	}
-
-	@Bean(name = "impcImagesIndexing")
-	SolrServer getImpcImagesIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/impc_images", 10000, 5);
-	}
-
-	@Bean(name = "statisticalResultsIndexing")
-	SolrServer getStatisticalResultsIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/statistical-result", 10000, 5);
-	}
-
-	@Bean(name = "gwasIndexing")
-	SolrServer getGwasIndexing() {
-		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/gwas", 10000, 5);
-	}
-
-
-	@Bean(name = "mpOntologyService")
-	MpOntologyDAO getMpOntologyDAO() throws SQLException {
-		return new MpOntologyDAO();
-	}
-
-	@Bean(name = "maOntologyDAO")
-	MaOntologyDAO getMaOntologyDAO() throws SQLException {
-		return new MaOntologyDAO();
-	}
-
-	@Bean(name = "emapOntologyDAO")
-	EmapOntologyDAO getEmapOntologyDAO() throws SQLException {
-		return new EmapOntologyDAO();
-	}
-
-
 
 }
