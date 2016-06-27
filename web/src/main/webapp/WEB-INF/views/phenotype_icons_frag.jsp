@@ -2,10 +2,10 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-<div>
+
 	<div class="abnormalities">
-		<div class="allicons"></div>
-	
+		<!-- <div class="allicons"></div> -->
+	<%-- 
 		<div class="no-sprite sprite_embryogenesis_phenotype" data-hasqtip="27"
 			title="${gene.markerSymbol} embryogenesis phenotype measurements"></div>
 		<div class="no-sprite sprite_reproductive_system_phenotype"
@@ -51,30 +51,34 @@
 		<div class="no-sprite sprite_endocrine_exocrine_gland_phenotype "
 			data-hasqtip="27" title="${gene.markerSymbol} endocrine/exocrine gland phenotype measurments"></div>
 		<div class="no-sprite sprite_vision_eye_phenotype" data-hasqtip="27"
-			title="${gene.markerSymbol} vision/eye phenotype measurments"></div>
+			title="${gene.markerSymbol} vision/eye phenotype measurments"></div> --%>
 	
 		<c:forEach var="group" items="${significantTopLevelMpGroups.keySet()}">
 			<c:if test="${group != 'mammalian phenotype' }">
-				<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(group)}'>
-					<div class="sprite_orange sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${gene.markerSymbol} ${group} measurements"></div>
-				</a>
+				<%-- <a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(group)}'> --%>
+					<%-- <div class="sprite_orange sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${gene.markerSymbol} ${group} measurements"></div> --%>
+					<div class="sprite_orange sprite_row_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${gene.markerSymbol} ${group} measurements" ></div>
+					
+				
+				<!-- </a> -->
 			</c:if>		
 		</c:forEach>
 		
 		<c:forEach var="group" items="${notsignificantTopLevelMpGroups.keySet()}">
 			<c:if test="${group != 'mammalian phenotype' }">
-				<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(group)}'>
-					<div class="sprite_blue sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="${gene.markerSymbol} ${group} measurements"></div>
-				</a>
+				<%-- <a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(group)}'> --%>
+					<%-- <div class="sprite_blue sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="${gene.markerSymbol} ${group} measurements"></div> --%>
+					<div class="sprite_orange sprite_row_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${gene.markerSymbol} ${group} measurements" ></div>
+				<!-- </a> -->
 			</c:if>		
 		</c:forEach>
 	
 	</div>
-  	<div class="floatright"  style="clear: both">
+  	<div class="floatleft"  style="clear: both">
   		<div class="abnormalities_key">
 			<span style="color: #e27010">Significant &nbsp; &nbsp; </span>
             <span style="color: #0978a1">Not Significant &nbsp; &nbsp; </span>
             <span style="color: #c2c2c2">Not tested &nbsp; &nbsp; </span>
         </div>
 	</div>
-</div>
+

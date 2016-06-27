@@ -546,12 +546,14 @@ span.status.done        { background: #0978A1 !important; }
 a.status.qc, span.status.qc        { /*background:gray !important; */  background: #0978A1 !important; /* temporarily shown to be same as phenotype data available */ }
 
 /* Sprite Abnormalities */
-.abnormalities          { float: right; width: 200px; height: 160px; }
+.abnormalities          { float: left; width: 200px; height: 160px; }
 .row_abnormalities          { float: right; width: 120px; height: 40px; }
 .abnormalities .allicons {  opacity: 0.4; position: absolute; width: 200px; height: 160px; background-image: url(../img/icon/sprite-abnormalities.png); }
 .lt-ie9 .abnormalities .abnormalities_legend .allicons { filter: alpha(opacity=40); }
-.abnormalities .sprite_blue  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities_over.png); }
-.abnormalities .sprite_orange, .row_abnormalities .sprite_orange  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-orange.png); }
+.abnormalities .sprite_blue  { background-position: left center;
+background-repeat: no-repeat; padding-left: 16px width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities_over.png); }
+.abnormalities .sprite_orange, .row_abnormalities .sprite_orange  { background-position: left center;
+background-repeat: no-repeat; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-orange.png); }
 .abnormalities .sprite_green  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-green.png); }
 .abnormalities .sprite_red  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-red.png); }
 
@@ -575,6 +577,68 @@ a.status.qc, span.status.qc        { /*background:gray !important; */  backgroun
 .abnormalities .sprite-4-3 { margin: 120px 0px 0px 80px; background-position: -80px -120px; }
 .abnormalities .sprite-4-4 { margin: 120px 0px 0px 120px; background-position: -120px -120px; }
 .abnormalities .sprite-4-5 { margin: 120px 0px 0px 160px; background-position: -160px -120px; }
+
+
+.abnormalities .no-sprite  { position: absolute; width: 40px; height: 40px;}
+.abnormalities .sprite_NA  { position: absolute; width: 0px; height: 0px;}
+.abnormalities .sprite_mortality_aging { margin: 0px 0px 0px 0px; background-position: 0px 0px; }
+.abnormalities .sprite_embryogenesis_phenotype { margin: 0px 0px 0px 40px; background-position: -40px 0px; }
+.abnormalities .sprite_reproductive_system_phenotype { margin: 0px 0px 0px 80px; background-position: -80px 0px; }
+.abnormalities .sprite_growth_size_body_region_phenotype { margin: 0px 0px 0px 120px; background-position: -120px 0px; }
+
+.abnormalities .sprite_row_growth_size_body_region_phenotype { background-position: -120px 0px;  }
+
+.abnormalities .sprite_homeostasis_metabolism_phenotype_or_adipose_tissue_phenotype { margin: 0px 0px 0px 160px; background-position: -160px 0px; }
+
+.abnormalities .sprite_behavior_neurological_phenotype_or_nervous_system_phenotype { margin: 40px 0px 0px 0px; background-position: 0px -40px; }
+.abnormalities .sprite_cardiovascular_system_phenotype { margin: 40px 0px 0px 40px; background-position: -40px -40px; }
+.abnormalities .sprite_respiratory_system_phenotype { margin: 40px 0px 0px 80px; background-position: -80px -40px; }
+.abnormalities .sprite_digestive_alimentary_phenotype_or_liver_biliary_system_phenotype { margin: 40px 0px 0px 120px; background-position: -120px -40px; }
+.abnormalities .sprite_renal_urinary_system_phenotype { margin: 40px 0px 0px 160px; background-position: -160px -40px; }
+
+.abnormalities .sprite_limbs_digits_tail_phenotype { margin: 80px 0px 0px 0px; background-position: 0px -80px; }
+.abnormalities .sprite_skeleton_phenotype { margin: 80px 0px 0px 40px; background-position: -40px -80px; }
+.abnormalities .sprite_immune_system_phenotype_or_hematopoietic_system_phenotype { margin: 80px 0px 0px 80px; background-position: -80px -80px; }
+.abnormalities .sprite_muscle_phenotype { margin: 80px 0px 0px 120px; background-position: -120px -80px; }
+.abnormalities .sprite_integument_phenotype_or_pigmentation_phenotype { margin: 80px 0px 0px 160px; background-position: -160px -80px; }
+
+.abnormalities .sprite_craniofacial_phenotype { margin: 120px 0px 0px 0px; background-position: 0px -120px; }
+.abnormalities .sprite_hearing_vestibular_ear_phenotype { margin: 120px 0px 0px 40px; background-position: -40px -120px; }
+.abnormalities .sprite_taste_olfaction_phenotype { margin: 120px 0px 0px 80px; background-position: -80px -120px; }
+.abnormalities .sprite_endocrine_exocrine_gland_phenotype { margin: 120px 0px 0px 120px; background-position: -120px -120px; }
+.abnormalities .sprite_vision_eye_phenotype { margin: 120px 0px 0px 160px; background-position: -160px -120px; }
+
+
+
+
+/* need sprites for table rows instead of block */
+
+.row_abnormalities .sprite_row_mortality_aging { background-position: 0px 0px; }
+.row_abnormalities .sprite_row_embryogenesis_phenotype {  background-position: -40px 0px; }
+.row_abnormalities .sprite_row_reproductive_system_phenotype { background-position: -80px 0px; }
+.row_abnormalities .sprite_row_growth_size_body_region_phenotype { background-position: -120px 0px; }
+
+.row_abnormalities .sprite_row_row_growth_size_body_region_phenotype { background-position: -120px 0px;  }
+
+.row_abnormalities .sprite_row_homeostasis_metabolism_phenotype_or_adipose_tissue_phenotype { background-position: -160px 0px; }
+
+.row_abnormalities .sprite_row_behavior_neurological_phenotype_or_nervous_system_phenotype { background-position: 0px -40px; }
+.row_abnormalities .sprite_row_cardiovascular_system_phenotype { background-position: -40px -40px; }
+.row_abnormalities .sprite_row_respiratory_system_phenotype { background-position: -80px -40px; }
+.row_abnormalities .sprite_row_digestive_alimentary_phenotype_or_liver_biliary_system_phenotype { background-position: -120px -40px; }
+.row_abnormalities .sprite_row_renal_urinary_system_phenotype {background-position: -160px -40px; }
+
+.row_abnormalities .sprite_row_limbs_digits_tail_phenotype {  background-position: 0px -80px; }
+.row_abnormalities .sprite_row_skeleton_phenotype {  background-position: -40px -80px; }
+.row_abnormalities .sprite_row_immune_system_phenotype_or_hematopoietic_system_phenotype {  background-position: -80px -80px; }
+.row_abnormalities .sprite_row_muscle_phenotype {  background-position: -120px -80px; }
+.row_abnormalities .sprite_row_integument_phenotype_or_pigmentation_phenotype {  background-position: -160px -80px; }
+
+.row_abnormalities .sprite_row_craniofacial_phenotype {  background-position: 0px -120px; }
+.row_abnormalities .sprite_row_hearing_vestibular_ear_phenotype { background-position: -40px -120px; }
+.row_abnormalities .sprite_row_taste_olfaction_phenotype {  background-position: -80px -120px; }
+.row_abnormalities .sprite_row_endocrine_exocrine_gland_phenotype {  background-position: -120px -120px; }
+.row_abnormalities .sprite_row_vision_eye_phenotype { background-position: -160px -120px; }
 
 .abnormalities_key div
 {
@@ -795,7 +859,7 @@ div.dataTables_filter {
 
 div#phenoSumDiv {
     min-height: 190px;
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
 }
 div#phenoSumDiv > p {
     display: block;
