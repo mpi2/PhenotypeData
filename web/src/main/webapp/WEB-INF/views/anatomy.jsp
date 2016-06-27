@@ -84,64 +84,65 @@
 									<div class="clear"></div>
 								</div>					
 							</div>
-						</div>
-				<div class="section"> 
-					<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
-						<div class="inner">
-							<div class="container span12">
-							  <div id="filterParams" >
-				                     <c:forEach var="filterParameters" items="${paramValues.fq}">
-				                         ${filterParameters}
-				                     </c:forEach>
-		                      </div> 
-			                  <c:if test="${not empty phenoFacets}">
-			                     <form class="tablefiltering no-style" id="target" action="destination.html">
-			                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-			                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-			                                  <c:forEach var="facet" items="${phenoFacet.value}">
-			                                       <option>${facet.key}</option>
-			                                  </c:forEach>
-			                             </select> 
-			                        </c:forEach>
-			                        <div class="clear"></div>
-			                     </form>
-			                 </c:if>
-		                 	<jsp:include page="anatomyFrag.jsp"></jsp:include>						 
-						</div>
-			    	</div>
-				</div>	
-				 
-				 
-					<div class="section">
-						<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
-						<div class=inner>
-							<c:if test="${empty expressionImages && fn:length(anatomy.getChildAnatomyTerm()) == 0}">
-									<div class="alert alert-info">No data currently available	</div>
-							</c:if>
-						
-							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
-								<div class="accordion-group">
-	              					<div class="accordion-heading">Expression Associated Images</div>
-									<div class="accordion-body">
-					    				<ul>                                    
-					    					<c:forEach var="doc" items="${expressionImages}">
-	                   							<li class="span2">
-													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-	                      						</li>
-	                   						 </c:forEach>                              
-										</ul>
-									
-										<c:if test="${numberExpressionImagesFound>5}">
-	                   						<p class="textright">
-												<a href='${baseUrl}/images?anatomy_id=${anatomy.getAnatomyId()}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
-											</p>
-										</c:if>
+							
+							<div class="section"> 
+								<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
+									<div class="inner">
+										<div class="container span12">
+										  <div id="filterParams" >
+							                     <c:forEach var="filterParameters" items="${paramValues.fq}">
+							                         ${filterParameters}
+							                     </c:forEach>
+					                      </div> 
+						                  <c:if test="${not empty phenoFacets}">
+						                     <form class="tablefiltering no-style" id="target" action="destination.html">
+						                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
+						                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
+						                                  <c:forEach var="facet" items="${phenoFacet.value}">
+						                                       <option>${facet.key}</option>
+						                                  </c:forEach>
+						                             </select> 
+						                        </c:forEach>
+						                        <div class="clear"></div>
+						                     </form>
+						                 </c:if>
+					                 	<jsp:include page="anatomyFrag.jsp"></jsp:include>						 
 									</div>
-								</div>
-							</c:if>
-						</div>
-					</div>
+						    	</div>
+							</div>	
 				 
+				 
+							<div class="section">
+								<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
+								<div class=inner>
+									<c:if test="${empty expressionImages && fn:length(anatomy.getChildAnatomyTerm()) == 0}">
+											<div class="alert alert-info">No data currently available	</div>
+									</c:if>
+								
+									<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
+										<div class="accordion-group">
+			              					<div class="accordion-heading">Expression Associated Images</div>
+											<div class="accordion-body">
+							    				<ul>                                    
+							    					<c:forEach var="doc" items="${expressionImages}">
+			                   							<li class="span2">
+															<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+			                      						</li>
+			                   						 </c:forEach>                              
+												</ul>
+											
+												<c:if test="${numberExpressionImagesFound>5}">
+			                   						<p class="textright">
+														<a href='${baseUrl}/images?anatomy_id=${anatomy.getAnatomyId()}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
+													</p>
+												</c:if>
+											</div>
+										</div>
+									</c:if>
+								</div>
+							</div>
+				 
+				</div>
 			</div>
 		</div>
 	</div>
@@ -199,7 +200,7 @@
 			var dropdownsList = new Array();
 			
 			var allDropdowns = new Array();
-			allDropdowns[0] = $('#ma_term');
+			allDropdowns[0] = $('#anatomy_term');
 			allDropdowns[1] = $('#procedure_name');
 			allDropdowns[2] = $('#parameter_association_value');
 			allDropdowns[3] = $('#phenotyping_center');
