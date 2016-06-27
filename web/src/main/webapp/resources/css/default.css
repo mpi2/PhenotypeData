@@ -809,3 +809,8 @@ div#expDataView {
 .inner hr {
     margin: 30px 0;
 }
+
+.inner-division { 
+	border-top: #ddd 1px solid;
+	padding: 1.0em;
+ }
