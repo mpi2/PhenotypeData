@@ -15,11 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-import org.mousephenotype.cda.solr.web.dto.Anatomy;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 public class ImageDTO extends ObservationDTO {
 
