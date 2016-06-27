@@ -98,8 +98,8 @@ public class ImageService implements WebStatus{
     }
 
 
-	public List<AnatomyPageTableRow> getImagesForMA(String maId,
-			List<String> maTerms, List<String> phenotypingCenter,
+	public List<AnatomyPageTableRow> getImagesForAnatomy(String anartomyId,
+			List<String> anatomyTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc, String baseUrl)
 			throws SolrServerException {
 
@@ -108,28 +108,27 @@ public class ImageService implements WebStatus{
 
 		query.setQuery("*:*")
 			.addFilterQuery(
-				"(" + ImageDTO.MA_ID + ":\"" + maId + "\" OR "
-					+ ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\""
-					+ maId + "\")")
+				"(" + ImageDTO.ANATOMY_ID + ":\"" + anartomyId + "\" OR "
+					+ ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anartomyId + "\" OR "
+					+ ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anartomyId + "\")")
 			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
-			.setRows(100000)
+			.setRows(Integer.MAX_VALUE)
 			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
 				ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY,
-				ImageDTO.MA_ID, ImageDTO.MA_TERM,
+				ImageDTO.ANATOMY_ID, ImageDTO.ANATOMY_TERM,
 				ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME,
 				ImageDTO.PARAMETER_ASSOCIATION_VALUE,
 				ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID,
 				ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
 				ImageDTO.PHENOTYPING_CENTER,
-				ImageDTO.MA_ID, ImageDTO.MA_TERM,
-				ImageDTO.INTERMEDIATE_MA_ID, ImageDTO.INTERMEDIATE_MA_TERM,
-				ImageDTO.SELECTED_TOP_LEVEL_MA_ID, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM
+				ImageDTO.INTERMEDIATE_ANATOMY_ID, ImageDTO.INTERMEDIATE_ANATOMY_TERM,
+				ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM
 			);
 
-		if (maTerms != null) {
-			query.addFilterQuery(ImageDTO.MA_TERM
+		if (anatomyTerms != null) {
+			query.addFilterQuery(ImageDTO.ANATOMY_TERM
 					+ ":\""
-					+ StringUtils.join(maTerms, "\" OR " + ImageDTO.MA_TERM
+					+ StringUtils.join(anatomyTerms, "\" OR " + ImageDTO.ANATOMY_TERM
 							+ ":\"") + "\"");
 		}
 		if (phenotypingCenter != null) {
@@ -152,15 +151,14 @@ public class ImageService implements WebStatus{
 					+ "\"");
 		}
 
-		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?"
-				+ query);
+		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 
 		for (ImageDTO image : response) {
 
 			for (String expressionValue : image.getDistinctParameterAssociationsValue()) {
 				if (paramAssoc == null || paramAssoc.contains(expressionValue)) {
-					AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, baseUrl, expressionValue);
+					AnatomyPageTableRow row = new AnatomyPageTableRow(image, anartomyId, baseUrl, expressionValue);
 					if (res.containsKey(row.getKey())) {
 						row = res.get(row.getKey());
 						row.addSex(image.getSex());
@@ -182,13 +180,14 @@ public class ImageService implements WebStatus{
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ");
 
 		if (anatomyId != null) {
-			query.addFilterQuery("(" + ImageDTO.MA_ID + ":\"" + anatomyId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + anatomyId + "\")");
+			query.addFilterQuery("(" + ImageDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR " 
+					+ ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
 		}
 
 		query.setFacet(true);
 		query.setFacetLimit(-1);
 		query.setFacetMinCount(1);
-		query.addFacetField(ImageDTO.MA_TERM);
+		query.addFacetField(ImageDTO.ANATOMY_ID);
 		query.addFacetField(ImageDTO.PHENOTYPING_CENTER);
 		query.addFacetField(ImageDTO.PROCEDURE_NAME);
 		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
@@ -220,7 +219,7 @@ public class ImageService implements WebStatus{
 				.setRows(100000)
 				.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
 						ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY,
-						ImageDTO.MA_ID, ImageDTO.MA_TERM,
+						ImageDTO.ANATOMY_ID, ImageDTO.ANATOMY_TERM,
 						ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME,
 						ImageDTO.PARAMETER_ASSOCIATION_VALUE,
 						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID,
@@ -449,8 +448,8 @@ public class ImageService implements WebStatus{
         query.setRows(1000000);
         query.addField(ImageDTO.GENE_SYMBOL);
 		query.addField(ImageDTO.GENE_ACCESSION_ID);
-		query.addField(ImageDTO.MA_ID);
-		query.addField(ImageDTO.MA_TERM);
+		query.addField(ImageDTO.ANATOMY_ID);
+		query.addField(ImageDTO.ANATOMY_TERM);
 
 		return solr.query(query).getBeans(ImageDTO.class);
 	}
