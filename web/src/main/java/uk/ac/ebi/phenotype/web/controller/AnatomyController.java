@@ -167,16 +167,16 @@ public class AnatomyController {
 		return "anatomyFrag";
 	}
 
-    private Map<String, Map<String, Long>> getFacets (String maId){
+    private Map<String, Map<String, Long>> getFacets (String anatomyId){
 
     	Map<String, Map<String, Long>> phenoFacets = new HashMap<>();
     	Map<String, Map<String, Long>> temp = new HashMap<>();
 		try {
-			temp = is.getFacets(maId);
-			phenoFacets.put("ma_term", temp.get(ImageDTO.MA_TERM));
-			phenoFacets.put("parameter_association_value", temp.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
-			phenoFacets.put("phenotyping_center", temp.get(ImageDTO.PHENOTYPING_CENTER));
-			phenoFacets.put("procedure_name", temp.get(ImageDTO.PROCEDURE_NAME));
+			temp = is.getFacets(anatomyId);
+			phenoFacets.put(ImageDTO.ANATOMY_TERM, temp.get(ImageDTO.ANATOMY_TERM));
+			phenoFacets.put(ImageDTO.PARAMETER_ASSOCIATION_VALUE, temp.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
+			phenoFacets.put(ImageDTO.PHENOTYPING_CENTER, temp.get(ImageDTO.PHENOTYPING_CENTER));
+			phenoFacets.put(ImageDTO.PROCEDURE_NAME, temp.get(ImageDTO.PROCEDURE_NAME));
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}

@@ -187,7 +187,7 @@ public class ImageService implements WebStatus{
 		query.setFacet(true);
 		query.setFacetLimit(-1);
 		query.setFacetMinCount(1);
-		query.addFacetField(ImageDTO.ANATOMY_ID);
+		query.addFacetField(ImageDTO.ANATOMY_TERM);
 		query.addFacetField(ImageDTO.PHENOTYPING_CENTER);
 		query.addFacetField(ImageDTO.PROCEDURE_NAME);
 		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
