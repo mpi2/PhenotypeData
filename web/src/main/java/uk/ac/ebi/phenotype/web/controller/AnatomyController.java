@@ -15,33 +15,39 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
-import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.AnatomyService;
+import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.solr.web.dto.Anatomy;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenotype.generic.util.JSONMAUtils;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 @Controller
 public class AnatomyController {
@@ -75,27 +81,25 @@ public class AnatomyController {
 	 * @throws SolrServerException
 	 *
 	 */
-	@RequestMapping(value = "/anatomy/{anatomy_id}", method = RequestMethod.GET)
-	public String loadMaPage(@PathVariable String anatomy_id, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	@RequestMapping(value = "/anatomy/{anatomy}", method = RequestMethod.GET)
+	public String loadMaPage(@PathVariable String anatomy, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 
-		Anatomy ma = JSONMAUtils.getMA(anatomy_id, config);
+		AnatomyDTO anatomyTerm = anatomyService.getTerm(anatomy);
 
 		//get expression only images
-		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
+		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null, null, null, null, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 
-		model.addAttribute("anatomy", ma);
+		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
-        model.addAttribute("phenoFacets", getFacets(anatomy_id));
+        model.addAttribute("phenoFacets", getFacets(anatomy));
 
         // Stuff for parent-child display
-        model.addAttribute("hasChildren", anatomyService.getChildren(anatomy_id).size() > 0 ? true : false);
-        model.addAttribute("hasParents", anatomyService.getParents(anatomy_id).size() > 0 ? true : false);
-
-        System.out.println(" --- " + anatomyService.getChildren(anatomy_id) + " " + anatomyService.getParents(anatomy_id));
+        model.addAttribute("hasChildren", anatomyTerm.getChildAnatomyId().size() > 0 ? true : false);
+        model.addAttribute("hasParents", anatomyTerm.getParentAnatomyId().size() > 0 ? true : false);
 
         return "anatomy";
 

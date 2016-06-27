@@ -34,11 +34,8 @@
             
             <ul>
                 <li><a href="#top">Anatomy Term</a></li>
-                <c:if test="${not empty anatomy.mpTerms}">
+                <c:if test="${not empty anatomy.getMpId()}">
                 	<li><a href="#associated-phenotypes">Associated Phenotypes</a></li>
-                </c:if>
-                <c:if test="${fn:length(anatomy.childTerms)>0 }">
-                	<li><a href="#explore">Explore</a></li>
                 </c:if>
             </ul>
             
@@ -57,23 +54,18 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">						
-						<h1 class="title" id="top">${anatomy.term}</h1>
+						<h1 class="title" id="top">${anatomy.getAnatomyTerm()}</h1>
 						
 							<div class="section">
 								<div class="inner">		
 									<div class="half">							
-										<c:if test="${fn:length(anatomy.synonyms) > 0 }">			
+										<c:if test="${fn:length(anatomy.getAnatomyTermSynonym()) > 0 }">			
 											<p class="with-label"> <span class="label">Synonyms </span>
-												<c:forEach items="${anatomy.synonyms}" var="synonym" varStatus="synonymLoop">
+												<c:forEach items="${anatomy.getAnatomyTermSynonym()}" var="synonym" varStatus="synonymLoop">
 													${synonym}<c:if test="${!synonymLoop.last}">,&nbsp;</c:if>	
 												</c:forEach>
 											</p>	
 										</c:if>
-										<c:if test="${fn:length(anatomy.childTerms) > 0 }">								
-											<p class="with-label"> <span class="label">Child Terms </span>
-												<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus"><a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${childTerm}</a><c:if test="${!childStatus.last}">,&nbsp;</c:if></c:forEach>
-											</p>
-										</c:if>	
 									</div>
 						
 									<div id="parentChild" class="half">
