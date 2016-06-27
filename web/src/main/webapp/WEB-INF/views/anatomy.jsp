@@ -5,8 +5,8 @@
 
 <t:genericpage>
 
-	<jsp:attribute name="title">${anatomy.accession} (${anatomy.term}) | IMPC anatomy Information</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/anatomy?kw=*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
+	<jsp:attribute name="title">${anatomy.getAnatomyId()} (${anatomy.getAnatomyTerm()}) | IMPC anatomy Information</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/anatomy?kw=*">anatomy</a> &raquo; ${anatomy.getAnatomyTerm()}</jsp:attribute>
 	<jsp:attribute name="header">
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
 	</jsp:attribute>
@@ -15,7 +15,7 @@
     	
     	<script type="text/javascript">
 			// Stuff dor parent-child. Will be used in parentChildTree.js.
-			var ont_id = '${anatomy.accession}';
+			var ont_id = '${anatomy.getAnatomyId()}';
 			var ontPrefix = "ma";
 			var page = "anatomy";
 			var hasChildren = ${hasChildren};
@@ -115,7 +115,7 @@
 					<div class="section">
 						<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
 						<div class=inner>
-							<c:if test="${empty expressionImages && fn:length(anatomy.childTerms)==0}">
+							<c:if test="${empty expressionImages && fn:length(anatomy.getChildAnatomyTerm()) == 0}">
 									<div class="alert alert-info">No data currently available	</div>
 							</c:if>
 						
@@ -133,7 +133,7 @@
 									
 										<c:if test="${numberExpressionImagesFound>5}">
 	                   						<p class="textright">
-												<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
+												<a href='${baseUrl}/images?anatomy_id=${anatomy.getAnatomyId()}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
 											</p>
 										</c:if>
 									</div>
@@ -298,7 +298,6 @@
 				}
 				newUrl += selectedFilters;
 				refreshAnatomyTable(newUrl);
-		    console.log('...refresh genes AnatomyFrag called woth new url='+newUrl);
 				return false;
 			}
 			
@@ -309,31 +308,3 @@
 	
 
 </t:genericpage>
-
-
-	
-	<%-- spoke to terry and these need rethink in terms of MP associations <c:if test="${not empty anatomy.mpTerms}">
-		<div class="section">
-			<div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-			<h2 class="title" id="associated-phenotypes">Associated Phenotypes<i class="fa fa-question-circle pull-right"></i></h2>
-			<div class="inner">
-							
-				
-				<table>
-				<tbody>
-					<tr>
-						<td>MP Terms:</td>
-						<c:forEach items="${anatomy.mpTerms}" var="mpTerm" varStatus="mpStatus">
-						<tr>
-						<td><a href="${baseUrl}/phenotypes/${anatomy.mpIds[mpStatus.index]}">${mpTerm}</a></td><td>${mpTerm}</td>
-						</tr>
-						</c:forEach>
-					</tr>
-					</tbody>
-					</table>
-					
-				
-		</div>
-		
-	</div><!-- end of images lacz expression priority and xray maybe -->
-	</c:if> --%>
