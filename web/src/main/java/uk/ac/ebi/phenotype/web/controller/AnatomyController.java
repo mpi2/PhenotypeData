@@ -152,7 +152,7 @@ public class AnatomyController {
 
     @RequestMapping(value = "/anatomyFrag/{anatomy_id}", method = RequestMethod.GET)
 	public String loadMaTable(	@PathVariable String anatomy_id,
-								@RequestParam(required = false, value = "ma_term") List<String> maTerms,
+								@RequestParam(required = false, value = "anatomy_term") List<String> maTerms,
 								@RequestParam(required = false, value = "parameter_association_value") List<String> parameterAssociationValue,
 								@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
 								@RequestParam(required = false, value = "procedure_name") List<String> procedureName,

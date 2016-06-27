@@ -151,7 +151,6 @@
 	<script>
 	$(document).ready(function(){						
 					
-				
 			initAnatomyDataTable();
 			
 			var selectedFilters = "";
@@ -216,7 +215,7 @@
 						console.log("IN dropdownchecklist");
 						var justChecked = checkbox.prop("checked");
 						console.log("justChecked="+justChecked);
-						console.log("checked="+ checkbox.val());
+						console.log("clicked="+ checkbox.val());
 						var values = [];
 						for(var  i=0; i < selector.options.length; i++ ) {
 							if (selector.options[i].selected && (selector.options[i].value != "")) {
