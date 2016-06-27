@@ -476,7 +476,6 @@ public class SqlLoaderUtils {
                 logger.warn("Duplicate strain entry. Accession id: " + strain.getId().getAccession() + ". Strain: " + strain.getName()  + ". Strain not added.");
             } catch (Exception e) {
                 logger.error("INSERT FAILED FOR Strain {}. Reason: {}. Skipping...", strain, e.getLocalizedMessage());
-                return retVal;
             }
         }
 

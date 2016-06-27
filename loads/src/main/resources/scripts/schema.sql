@@ -443,7 +443,7 @@ CREATE TABLE allele (
  */
 CREATE TABLE strain (
 
-	acc                       VARCHAR(20) NOT NULL,
+	acc                       VARCHAR(30) NOT NULL,   -- There really is a strain 'CSD1918305-1b-(EUCOMM)Wtsi'.
 	db_id                     INT(10) NOT NULL,
 	biotype_acc               VARCHAR(20),
 	biotype_db_id             INT(10),

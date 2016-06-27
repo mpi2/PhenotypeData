@@ -180,10 +180,11 @@ public class StrainLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("MGI: Added {} mgi strains (with no synonyms) from file {} in {}",
+            logger.info("MGI: Added {} mgi strains (with no synonyms) from file {} in {}. StrainIsAllele count: {}.",
                     ((StrainProcessorMgi)strainProcessorMgi).getAddedMgiStrainsCount(),
                     strainKeys.get(FilenameKeys.MGI),
-                    commonUtils.formatDateDifference(start, stop));
+                    commonUtils.formatDateDifference(start, stop),
+                    ((StrainProcessorMgi)strainProcessorMgi).getStrainIsAlleleCount());
 
             return ((StrainProcessorMgi)strainProcessorMgi).getErrorMessages();
         }

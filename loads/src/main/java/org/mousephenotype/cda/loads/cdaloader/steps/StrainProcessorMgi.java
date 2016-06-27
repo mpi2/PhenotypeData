@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
+import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
@@ -26,19 +27,21 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by mrelac on 24/06/16.
  */
 public class StrainProcessorMgi implements ItemProcessor<Strain, Strain> {
 
-    private      int         addedMgiStrainsCount = 0;
-    public final Set<String> errorMessages        = new HashSet<>();
-    protected    int         lineNumber           = 0;
-    private Map<String, Strain> strainsMap;
+    private      int                addedMgiStrainsCount = 0;
+    public final Set<String>        errorMessages        = new HashSet<>();
+    protected    int                lineNumber           = 0;
+    protected    int                strainIsAlleleCount  = 0;
+    private     Map<String, Strain> strainsMap;
+    private     Map<String, Allele> allelesMap;
+
+    private       Map<String, String> strainNameToAccessionIdMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);    // key = strain name (strainStock). Value = strain accession id with the same strain name
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -47,29 +50,44 @@ public class StrainProcessorMgi implements ItemProcessor<Strain, Strain> {
     private SqlLoaderUtils sqlLoaderUtils;
 
 
-    public StrainProcessorMgi(Map<String, Strain> strainsMap) {
+    public StrainProcessorMgi(Map<String, Strain> strainsMap, Map<String, Allele> allelesMap) {
         this.strainsMap = strainsMap;
+        this.allelesMap = allelesMap;
     }
 
     @Override
     public Strain process(Strain strain) throws Exception {
-
-        // Fill in the missing common fields in preparation for writing to the database.
-        strain.getId().setDatabaseId(DbIdType.MGI.intValue());
-
-        // Call the remaining methods to finish setting the strain instance.
-        OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), strain.getBiotype().getName());
-        if (biotype == null) {
-            logger.warn("Line {} : NO biotype FOR strain {}.", lineNumber, strain.toString());
+        Allele allele = allelesMap.get(strain.getId().getAccession());
+        if (allele != null) {
+            logger.warn("Strain {} is already in the allele table as allele {}", strain.toString(), allele);
+            strainIsAlleleCount++;
             return null;
+        } else if ( ! strainNameToAccessionIdMap.containsKey(strain.getName())) {
+
+            // Fill in the missing common fields in preparation for writing to the database.
+            strain.getId().setDatabaseId(DbIdType.MGI.intValue());
+
+            // Call the remaining methods to finish setting the strain instance.
+            OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), strain.getBiotype().getName());
+            if (biotype == null) {
+                logger.warn("Line {} : NO biotype FOR strain {}.", lineNumber, strain.toString());
+                return null;
+            }
+            strain.setBiotype(biotype);
+
+            strainsMap.put(strain.getId().getAccession(), strain);
+            strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
+
+            addedMgiStrainsCount++;
+
+            return strain;
         }
-        strain.setBiotype(biotype);
 
-        strainsMap.put(strain.getId().getAccession(), strain);
+        return null;
+    }
 
-        addedMgiStrainsCount++;
-
-        return strain;
+    public int getStrainIsAlleleCount() {
+        return strainIsAlleleCount;
     }
 
     public int getAddedMgiStrainsCount() {

@@ -44,7 +44,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
     private       int                 strainIsAlleleCount         = 0;
     private       int                 strainNotSynonymCount       = 0;
     private       Map<String, Strain> strainsMap;                                           // Key = accession id. Value = Strain instance.
-    private       Map<String, String> strainNameToAccessionIdMap = new HashMap<>(50000);    // key = strain name (strainStock). Value = strain accession id with the same strain name
+    private       Map<String, String> strainNameToAccessionIdMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);    // key = strain name (strainStock). Value = strain accession id with the same strain name
 
     // The following  strings define the column headings in the report.txt file.
     public final static String HEADING_ACCESSION_ID = "Strain ID";
