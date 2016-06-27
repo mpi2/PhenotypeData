@@ -547,7 +547,7 @@ a.status.qc, span.status.qc        { /*background:gray !important; */  backgroun
 
 /* Sprite Abnormalities */
 .abnormalities          { float: right; width: 200px; height: 160px; }
-.row_abnormalities          { float: right; width: 200px; height: 40px; }
+.row_abnormalities          { float: right; width: 120px; height: 40px; }
 .abnormalities .allicons {  opacity: 0.4; position: absolute; width: 200px; height: 160px; background-image: url(../img/icon/sprite-abnormalities.png); }
 .lt-ie9 .abnormalities .abnormalities_legend .allicons { filter: alpha(opacity=40); }
 .abnormalities .sprite_blue  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities_over.png); }
@@ -809,3 +809,8 @@ div#expDataView {
 .inner hr {
     margin: 30px 0;
 }
+
+.inner-division { 
+	border-top: #ddd 1px solid;
+	padding: 1.0em;
+ }

@@ -1768,44 +1768,57 @@ public class DataTableController {
 	 public @ResponseBody
 	 String updateReviewed(
 					@RequestParam(value = "value", required = true) String value,
-					@RequestParam(value = "id", required = true) int dbid,
+					@RequestParam(value = "id", required = true) String dbidStr,
 					HttpServletRequest request,
 					HttpServletResponse response,
 					Model model) throws IOException, URISyntaxException, SQLException {
 
 		// store new value to database
 		value = value.trim();
-		return setAlleleSymbol(dbid, value);
+		System.out.println("***** check dbid: "+dbidStr);
+		List<Integer> dbids = getDbIds(dbidStr);
+		return setAlleleSymbol(dbids, value);
 	}
 	@RequestMapping(value = "/dataTableAlleleRefSetFalsePositive", method = RequestMethod.GET)
 	public @ResponseBody
 	Boolean updateFalsePositive(
 			@RequestParam(value = "value", required = true) String falsePositive,
-			@RequestParam(value = "id", required = true) int dbid,
+			@RequestParam(value = "id", required = true) String dbidStr,
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
 
 		// store new value to database
-		return setFalsePositive(dbid, falsePositive);
+		System.out.println("***** check set falsepositive dbid: "+dbidStr);
+		List<Integer> dbids = getDbIds(dbidStr);
+		return setFalsePositive(dbids, falsePositive);
 	}
 
-	public Boolean setFalsePositive(int dbid, String falsePositive) throws SQLException {
+	public Boolean setFalsePositive(List<Integer> dbids, String falsePositive) throws SQLException {
 		Connection conn = admintoolsDataSource.getConnection();
 
-		JSONObject j = new JSONObject();
-		String uptSql = "UPDATE allele_ref SET falsepositive=?, reviewed='no', acc='', gacc='', timestamp=? WHERE dbid=?";
-		PreparedStatement stmt = conn.prepareStatement(uptSql);
-		stmt.setString(1, falsePositive);
-		stmt.setString(2, String.valueOf(new Timestamp(System.currentTimeMillis())));
-		stmt.setInt(3, dbid);
-		stmt.executeUpdate();
+		for( int dbid : dbids) {
 
+			String uptSql = "UPDATE allele_ref SET falsepositive=?, reviewed='no', acc='', gacc='', timestamp=? WHERE dbid=?";
+			PreparedStatement stmt = conn.prepareStatement(uptSql);
+			stmt.setString(1, falsePositive);
+			stmt.setString(2, String.valueOf(new Timestamp(System.currentTimeMillis())));
+			stmt.setInt(3, dbid);
+			stmt.executeUpdate();
+		}
 		return true;
 	}
 
+	private List<Integer> getDbIds(String dbidStr) {
+		List<String> dbids = Arrays.asList(dbidStr.split(","));
+		List<Integer> dbidsInt = new ArrayList<>();
+		for (String strDbid : dbids) {
+			dbidsInt.add(Integer.parseInt(strDbid));
+		}
+		return dbidsInt;
+	}
 
-    public String setAlleleSymbol(int dbid, String alleleSymbol) throws SQLException {
+    public String setAlleleSymbol(List<Integer> dbids, String alleleSymbol) throws SQLException {
 
 		Connection connKomp2 = komp2DataSource.getConnection();
 		Connection conn = admintoolsDataSource.getConnection();
@@ -1821,7 +1834,8 @@ public class DataTableController {
 			j.put("reviewed", "no");
 			j.put("symbol", "");
 
-		} else if (!alleleSymbol.contains(",")) {
+		}
+		else if (!alleleSymbol.contains(",")) {
 			// single allele symbol
 
 			String alleleAcc = null;
@@ -1844,16 +1858,18 @@ public class DataTableController {
 			try {
 				if (alleleAcc != null && geneAcc != null) {
 
-					String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
-					PreparedStatement stmt = conn.prepareStatement(uptSql);
-					stmt.setString(1, alleleAcc);
-					stmt.setString(2, geneAcc);
-					stmt.setString(3, alleleSymbol);
-					stmt.setString(4, "yes");
-					stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
-					stmt.setInt(6, dbid);
-					stmt.executeUpdate();
+					for ( int dbid : dbids ) {
 
+						String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
+						PreparedStatement stmt = conn.prepareStatement(uptSql);
+						stmt.setString(1, alleleAcc);
+						stmt.setString(2, geneAcc);
+						stmt.setString(3, alleleSymbol);
+						stmt.setString(4, "yes");
+						stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
+						stmt.setInt(6, dbid);
+						stmt.executeUpdate();
+					}
 					j.put("reviewed", "yes");
 					j.put("symbol", alleleSymbol);
 				} else {
@@ -1912,27 +1928,31 @@ public class DataTableController {
 
 						if (alleleCounter == 1) {
 
-							String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
-							PreparedStatement stmt = conn.prepareStatement(uptSql);
-							stmt.setString(1, alleleAcc);
-							stmt.setString(2, geneAcc);
-							stmt.setString(3, thisAlleleSymbol);
-							stmt.setString(4, "yes");
-							stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
-							stmt.setInt(6, dbid);
-							stmt.executeUpdate();
-							//System.out.println(alleleAcc + " "+String.valueOf(new Timestamp(System.currentTimeMillis()))+ " "+geneAcc + " "+dbid);
+							for (int dbid : dbids) {
+
+								String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
+								PreparedStatement stmt = conn.prepareStatement(uptSql);
+								stmt.setString(1, alleleAcc);
+								stmt.setString(2, geneAcc);
+								stmt.setString(3, thisAlleleSymbol);
+								stmt.setString(4, "yes");
+								stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
+								stmt.setInt(6, dbid);
+								stmt.executeUpdate();
+							}
 						}
 						else {
-							String insertSql = "INSERT INTO allele_ref ("
-									+ "acc,gacc,symbol,name,pmid,date_of_publication,reviewed,grant_id,agency,acronym,title,journal,datasource,paper_url,timestamp,falsepositive) "
-									+ "SELECT '" + alleleAcc + "','" + geneAcc + "','" + thisAlleleSymbol + "',name,pmid,date_of_publication,'yes',grant_id,agency,acronym,title,journal,datasource,paper_url,'"
-									+ String.valueOf(new Timestamp(System.currentTimeMillis())) + "','no'"
-									+ " FROM allele_ref"
-									+ " WHERE dbid=" + dbid;
+							for (int dbid : dbids) {
+								String insertSql = "INSERT INTO allele_ref ("
+										+ "acc,gacc,symbol,name,pmid,date_of_publication,reviewed,grant_id,agency,acronym,title,journal,datasource,paper_url,timestamp,falsepositive) "
+										+ "SELECT '" + alleleAcc + "','" + geneAcc + "','" + thisAlleleSymbol + "',name,pmid,date_of_publication,'yes',grant_id,agency,acronym,title,journal,datasource,paper_url,'"
+										+ String.valueOf(new Timestamp(System.currentTimeMillis())) + "','no'"
+										+ " FROM allele_ref"
+										+ " WHERE dbid=" + dbid;
 
-							PreparedStatement stmt = conn.prepareStatement(insertSql);
-							stmt.executeUpdate();
+								PreparedStatement stmt = conn.prepareStatement(insertSql);
+								stmt.executeUpdate();
+							}
 						}
 						matchedAlleleSymbols.add(thisAlleleSymbol);
 					}
@@ -2055,31 +2075,53 @@ public class DataTableController {
         String query = null;
 
         if (sSearch != "") {
-            query = "select count(*) as count from allele_ref where "
-					+ " reviewed = 'no' and"
-					+ " falsepositive = 'no' and"
-                    + " acc like ?"
-                    + " or symbol like ?"
-                    + " or pmid like ?"
-                    + " or date_of_publication like ?"
-                    + " or grant_id like ?"
-                    + " or agency like ?"
-                    + " or acronym like ?";
+//            query = "select * as count from allele_ref where "
+//					+ " (reviewed = 'no' and"
+//					+ " falsepositive = 'no') and"
+//                    + " acc like ?"
+//                    + " or symbol like ?"
+//                    + " or pmid like ?"
+//                    + " or date_of_publication like ?"
+//                    + " or grant_id like ?"
+//                    + " or agency like ?";
+//                  //  + " or acronym like ?";
+			query = "SELECT "
+					+ "GROUP_CONCAT(distinct symbol) AS symbol,"
+					+ "pmid,"
+					+ "date_of_publication,"
+					+ "GROUP_CONCAT(grant_id) AS grant_id,"
+					+ "GROUP_CONCAT(agency) AS agency "
+					+ "FROM allele_ref "
+					+ "WHERE (reviewed='no' AND falsepositive='no') "
+					+ "AND (symbol LIKE ? "
+					+ "OR pmid LIKE ? "
+					+ "OR date_of_publication LIKE ? "
+					+ "OR grant_id LIKE ? "
+					+ "OR agency LIKE ?) "
+					+ "GROUP BY pmid ";
         } else {
-            query = "select count(*) as count from allele_ref where reviewed='no' and falsepositive='no'";
+            //query = "select count(distinct pmid) as count from allele_ref";
+			query = "SELECT COUNT(DISTINCT pmid) AS count FROM allele_ref WHERE reviewed='no' AND falsepositive='no'";
         }
-        int rowCount = 0;
+		//System.out.println("count query: "+query);
+		int rowCount = 0;
         try (PreparedStatement p1 = conn.prepareStatement(query)) {
             if (sSearch != "") {
-                for (int i = 1; i < 8; i ++) {
-                    p1.setString(i, like);
+                for (int i = 1; i < 6; i ++) {
+					p1.setString(i, like);
                 }
+				ResultSet resultSet = p1.executeQuery();
+				while (resultSet.next()) {
+					rowCount++;
+				}
             }
-            ResultSet resultSet = p1.executeQuery();
+			else {
+				ResultSet resultSet = p1.executeQuery();
+				while (resultSet.next()) {
+					rowCount = Integer.parseInt(resultSet.getString("count"));
+				}
+			}
 
-            while (resultSet.next()) {
-                rowCount = Integer.parseInt(resultSet.getString("count"));
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2087,40 +2129,74 @@ public class DataTableController {
 		//System.out.println("Got " + rowCount + " rows");
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
-
-        j.put("iTotalRecords", rowCount);
-        j.put("iTotalDisplayRecords", rowCount);
+		j.put("iTotalRecords", rowCount);
+		j.put("iTotalDisplayRecords", rowCount);
 
         String query2 = null;
 
         if (sSearch != "") {
-            query2 = "select * from allele_ref where"
-					+ " (reviewed='no' and"
-					+ " falsepositive='no') and"
-                    + " (acc like ?"
-                    + " or symbol like ?"
-                    + " or pmid like ?"
-                    + " or date_of_publication like ?"
-                    + " or grant_id like ?"
-                    + " or agency like ?"
-                    + " or acronym like ?)"
-                    + " order by reviewed"
-                    + " limit ?, ?";
+//            query2 = "select * from allele_ref where"
+//					+ " (reviewed='no' and"
+//					+ " falsepositive='no') and"
+//                    + " (acc like ?"
+//                    + " or symbol like ?"
+//                    + " or pmid like ?"
+//                    + " or date_of_publication like ?"
+//                    + " or grant_id like ?"
+//                    + " or agency like ?"
+//                    + " or acronym like ?)"
+//                    + " order by reviewed"
+//                    + " limit ?, ?";
+			query2 = "SELECT GROUP_CONCAT(dbid) AS dbid,"
+				+ "reviewed,"
+				+ "GROUP_CONCAT(distinct gacc) AS gacc,"
+				+ "GROUP_CONCAT(distinct symbol) AS symbol,"
+				+ "pmid,"
+				+ "date_of_publication,"
+				+ "GROUP_CONCAT(grant_id) AS grant_id,"
+				+ "GROUP_CONCAT(agency) AS agency,"
+				+ "GROUP_CONCAT(acronym) AS acronym,"
+				+ "paper_url "
+				+ "FROM allele_ref "
+				+ "WHERE (reviewed='no' AND falsepositive='no') "
+				+ "AND (symbol LIKE ? "
+				+ "OR pmid LIKE ? "
+				+ "OR date_of_publication LIKE ? "
+				+ "OR grant_id LIKE ? "
+				+ "OR agency LIKE ? ) "
+				+ "GROUP BY pmid "
+				+ "ORDER BY reviewed DESC "
+				+ "LIMIT ?, ?";
         } else {
-            query2 = "select * from allele_ref where reviewed='no' and falsepositive='no' limit ?,?";
+            //query2 = "select * from allele_ref where reviewed='no' and falsepositive='no' limit ?,?";
+			query2 = "SELECT GROUP_CONCAT(dbid) AS dbid,"
+				+ "reviewed,"
+				+ "GROUP_CONCAT(distinct gacc) AS gacc,"
+				+ "GROUP_CONCAT(distinct symbol) AS symbol,"
+				+ "pmid,"
+				+ "date_of_publication,"
+				+ "GROUP_CONCAT(grant_id) AS grant_id,"
+				+ "GROUP_CONCAT(agency) AS agency,"
+				//+ "GROUP_CONCAT(acronym) AS acronym,"
+				+ "paper_url "
+				+ "FROM allele_ref "
+				+ "WHERE (reviewed='no' AND falsepositive='no') "
+				+ "GROUP BY pmid "
+				+ "ORDER BY reviewed DESC limit ?,?";
         }
 
 //		System.out.println("query: "+ query);
 //        System.out.println("query2: "+ query2);
-        String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
+//		System.out.println("start: " + iDisplayStart + " end: " + iDisplayLength);
+		String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
 
         try (PreparedStatement p2 = conn.prepareStatement(query2)) {
             if (sSearch != "") {
-                for (int i = 1; i < 10; i ++) {
+                for (int i = 1; i < 8; i ++) {
                     p2.setString(i, like);
-                    if (i == 8) {
+                    if (i == 6) {
                         p2.setInt(i, iDisplayStart);
-                    } else if (i == 9) {
+                    } else if (i == 7) {
                         p2.setInt(i, iDisplayLength);
                     }
 				}
@@ -2131,31 +2207,36 @@ public class DataTableController {
 
             ResultSet resultSet = p2.executeQuery();
 
+
             while (resultSet.next()) {
 
-                List<String> rowData = new ArrayList<String>();
+				List<String> rowData = new ArrayList<String>();
 
-                int dbid = resultSet.getInt("dbid");
+				// dbid has been concatanated so becomes a string
+				String dbidStr = resultSet.getString("dbid");
+
+				//int dbid = resultSet.getInt("dbid");
+
                 String gacc = resultSet.getString("gacc");
 
 				rowData.add("<input type='checkbox'>");
                 rowData.add(resultSet.getString("reviewed"));
 
                 //rowData.add(resultSet.getString("acc"));
-                String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
-
-				String alLink = alleleSymbol.equals("") ? "" : "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
-                rowData.add(editMode ? alleleSymbol : alLink);
+				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
+				//String alLink = alleleSymbol.equals("") ? "" : "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
+				rowData.add(alleleSymbol);
 
                 //rowData.add(resultSet.getString("name"));
-                String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
+                //String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
+				String pmid = "<span class='pmid' id=" + dbidStr + ">" + resultSet.getString("pmid") + "</span>";
                 rowData.add(pmid);
 
                 rowData.add(resultSet.getString("date_of_publication"));
 
                 rowData.add(resultSet.getString("grant_id"));
                 rowData.add(resultSet.getString("agency"));
-                rowData.add(resultSet.getString("acronym"));
+                //rowData.add(resultSet.getString("acronym").replaceAll("\\s,|,\\s|\\s,\\s|,$", ""));
                 String[] urls = resultSet.getString("paper_url").split(",");
                 List<String> links = new ArrayList<>();
 //                for (int i = 0; i < urls.length; i ++) {
@@ -2168,9 +2249,12 @@ public class DataTableController {
 
                 j.getJSONArray("aaData").add(rowData);
             }
-        } catch (Exception e) {
+
+        }
+		catch (Exception e) {
             e.printStackTrace();
-        } finally {
+        }
+		finally {
             conn.close();
         }
         return j.toString();

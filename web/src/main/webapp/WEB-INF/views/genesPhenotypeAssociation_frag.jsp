@@ -41,9 +41,9 @@
     <%--</c:if>--%>
 
     <div id="phenoSumDiv">
-        <h5 class="sectHint">Phenotype Summary</h5>
+        <h5 class="sectHint">All Phenotypes Summary</h5>
         <p>Based on automated MP annotations supported by experiments
-      on knockout mouse models. </p>
+      on knockout mouse models. Click on icons to go to all ${gene.markerSymbol} data for that phenotype.</p>
         <p></p>
         <c:if test="${!(empty dataMapList)}">
             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
@@ -200,10 +200,12 @@
 
 <div id="phenotypes"></div> <!-- Empty anchor for links, used for disease paper. Don't remove.  -->
 
+
 <c:if
         test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
   <!-- Associations table -->
-  <h5>Significant phenotype table</h5>
+  <div class="inner-division">
+  <h5>Significant Phenotypes</h5>
 
 
   <div class="row-fluid">
@@ -272,5 +274,5 @@
 		<a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">XLS</a>
 	</p>
  </div>
-
+</div><!-- end of div for mini section line -->
 </c:if>

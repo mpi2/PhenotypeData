@@ -137,7 +137,7 @@ public class HibernateDAOImpl implements HibernateDAO {
 	 * @return the transactional session
 	 */
 	protected Session getCurrentSession() {
-		return getSession();
+		return sessionFactory.getCurrentSession();
 	}
 
 	public void flushAndClearSession() {

@@ -249,6 +249,7 @@ public class IndexerManager  {
 
 	            AbstractIndexer idx = (AbstractIndexer) indexerItem.indexerClass.newInstance();
 	            applicationContext.getAutowireCapableBeanFactory().autowireBean(idx);
+	            applicationContext.getAutowireCapableBeanFactory().initializeBean(idx, "IndexBean"+idx.getClass().toGenericString());
 	            runStatus = idx.run();
 
 
