@@ -302,7 +302,7 @@ public class ConfigBeans {
 
     @Bean(name = "strainProcessorMgi")
     public StrainProcessorMgi strainProcessorMgi() {
-        return new StrainProcessorMgi(strains);
+        return new StrainProcessorMgi(strains, alleles);
     }
 
     @Bean(name = "strainProcessorImsr")

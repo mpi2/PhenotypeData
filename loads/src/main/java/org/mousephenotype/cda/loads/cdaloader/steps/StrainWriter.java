@@ -43,8 +43,6 @@ public class StrainWriter implements ItemWriter {
      * Process the supplied data element. Will not be called with any null items
      * in normal operation.
      *
-     * NOTE: To be thread-safe, we need a new jdbc template for every insert operation. Get one from sqlLoaderUtils.
-     *
      * @param items items to be written
      * @throws Exception if there are errors. The framework will catch the
      *                   exception and convert or rethrow it as appropriate.
