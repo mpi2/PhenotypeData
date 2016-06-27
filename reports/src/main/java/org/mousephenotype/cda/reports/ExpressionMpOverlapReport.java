@@ -91,7 +91,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 
 	        // Get gene-MA associations
 	        for (ImageDTO doc : impcLacz){
-	        	List<String> maIds = doc.getMaId();
+	        	List<String> maIds = doc.getAnatomyId();
 	        	for (String maId : maIds){
 	        		geneMaLaczCombiantions.put(doc.getGeneAccession() + "_" + maId, new Mapping(doc.getGeneAccession(), maId, null));
 	        		maFromLacz.add(maId);
