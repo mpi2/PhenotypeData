@@ -231,7 +231,7 @@ public class ImageService implements WebStatus{
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 
 		for (ImageDTO image : response) {
-			for (String maId : image.getMaId()) {
+			for (String maId : image.getAnatomyId()) {
 				AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId,
 						baseUrl, "expression");
 				if (res.containsKey(row.getKey())) {
@@ -443,7 +443,7 @@ public class ImageService implements WebStatus{
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ*");
-		query.setFilterQueries(ImageDTO.MA_ID + ":*");
+		query.setFilterQueries(ImageDTO.ANATOMY_ID + ":*");
 		query.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":*");
         query.setRows(1000000);
         query.addField(ImageDTO.GENE_SYMBOL);
