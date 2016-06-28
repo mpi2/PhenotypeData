@@ -5,8 +5,8 @@
 
 <t:genericpage>
 
-	<jsp:attribute name="title">${anatomy.accession} (${anatomy.term}) | IMPC anatomy Information</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/anatomy?kw=*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
+	<jsp:attribute name="title">${anatomy.getAnatomyId()} (${anatomy.getAnatomyTerm()}) | IMPC anatomy Information</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/anatomy?kw=*">anatomy</a> &raquo; ${anatomy.getAnatomyTerm()}</jsp:attribute>
 	<jsp:attribute name="header">
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
 	</jsp:attribute>
@@ -15,8 +15,8 @@
     	
     	<script type="text/javascript">
 			// Stuff dor parent-child. Will be used in parentChildTree.js.
-			var ont_id = '${anatomy.accession}';
-			var ontPrefix = "ma";
+			var ont_id = '${anatomy.getAnatomyId()}';
+			var ontPrefix = "anatomy";
 			var page = "anatomy";
 			var hasChildren = ${hasChildren};
 			var hasParents = ${hasParents};
@@ -34,11 +34,8 @@
             
             <ul>
                 <li><a href="#top">Anatomy Term</a></li>
-                <c:if test="${not empty anatomy.mpTerms}">
+                <c:if test="${not empty anatomy.getMpId()}">
                 	<li><a href="#associated-phenotypes">Associated Phenotypes</a></li>
-                </c:if>
-                <c:if test="${fn:length(anatomy.childTerms)>0 }">
-                	<li><a href="#explore">Explore</a></li>
                 </c:if>
             </ul>
             
@@ -57,23 +54,18 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">						
-						<h1 class="title" id="top">${anatomy.term}</h1>
+						<h1 class="title" id="top">${anatomy.getAnatomyTerm()}</h1>
 						
 							<div class="section">
 								<div class="inner">		
 									<div class="half">							
-										<c:if test="${fn:length(anatomy.synonyms) > 0 }">			
+										<c:if test="${fn:length(anatomy.getAnatomyTermSynonym()) > 0 }">			
 											<p class="with-label"> <span class="label">Synonyms </span>
-												<c:forEach items="${anatomy.synonyms}" var="synonym" varStatus="synonymLoop">
+												<c:forEach items="${anatomy.getAnatomyTermSynonym()}" var="synonym" varStatus="synonymLoop">
 													${synonym}<c:if test="${!synonymLoop.last}">,&nbsp;</c:if>	
 												</c:forEach>
 											</p>	
 										</c:if>
-										<c:if test="${fn:length(anatomy.childTerms) > 0 }">								
-											<p class="with-label"> <span class="label">Child Terms </span>
-												<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus"><a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${childTerm}</a><c:if test="${!childStatus.last}">,&nbsp;</c:if></c:forEach>
-											</p>
-										</c:if>	
 									</div>
 						
 									<div id="parentChild" class="half">
@@ -92,64 +84,65 @@
 									<div class="clear"></div>
 								</div>					
 							</div>
-						</div>
-				<div class="section"> 
-					<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
-						<div class="inner">
-							<div class="container span12">
-							  <div id="filterParams" >
-				                     <c:forEach var="filterParameters" items="${paramValues.fq}">
-				                         ${filterParameters}
-				                     </c:forEach>
-		                      </div> 
-			                  <c:if test="${not empty phenoFacets}">
-			                     <form class="tablefiltering no-style" id="target" action="destination.html">
-			                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-			                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-			                                  <c:forEach var="facet" items="${phenoFacet.value}">
-			                                       <option>${facet.key}</option>
-			                                  </c:forEach>
-			                             </select> 
-			                        </c:forEach>
-			                        <div class="clear"></div>
-			                     </form>
-			                 </c:if>
-		                 	<jsp:include page="anatomyFrag.jsp"></jsp:include>						 
-						</div>
-			    	</div>
-				</div>	
-				 
-				 
-					<div class="section">
-						<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
-						<div class=inner>
-							<c:if test="${empty expressionImages && fn:length(anatomy.childTerms)==0}">
-									<div class="alert alert-info">No data currently available	</div>
-							</c:if>
-						
-							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
-								<div class="accordion-group">
-	              					<div class="accordion-heading">Expression Associated Images</div>
-									<div class="accordion-body">
-					    				<ul>                                    
-					    					<c:forEach var="doc" items="${expressionImages}">
-	                   							<li class="span2">
-													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-	                      						</li>
-	                   						 </c:forEach>                              
-										</ul>
-									
-										<c:if test="${numberExpressionImagesFound>5}">
-	                   						<p class="textright">
-												<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
-											</p>
-										</c:if>
+							
+							<div class="section"> 
+								<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
+									<div class="inner">
+										<div class="container span12">
+										  <div id="filterParams" >
+							                     <c:forEach var="filterParameters" items="${paramValues.fq}">
+							                         ${filterParameters}
+							                     </c:forEach>
+					                      </div> 
+						                  <c:if test="${not empty phenoFacets}">
+						                     <form class="tablefiltering no-style" id="target" action="destination.html">
+						                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
+						                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
+						                                  <c:forEach var="facet" items="${phenoFacet.value}">
+						                                       <option>${facet.key}</option>
+						                                  </c:forEach>
+						                             </select> 
+						                        </c:forEach>
+						                        <div class="clear"></div>
+						                     </form>
+						                 </c:if>
+					                 	<jsp:include page="anatomyFrag.jsp"></jsp:include>						 
 									</div>
-								</div>
-							</c:if>
-						</div>
-					</div>
+						    	</div>
+							</div>	
 				 
+				 
+							<div class="section">
+								<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
+								<div class=inner>
+									<c:if test="${empty expressionImages && fn:length(anatomy.getChildAnatomyTerm()) == 0}">
+											<div class="alert alert-info">No data currently available	</div>
+									</c:if>
+								
+									<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
+										<div class="accordion-group">
+			              					<div class="accordion-heading">Expression Associated Images</div>
+											<div class="accordion-body">
+							    				<ul>                                    
+							    					<c:forEach var="doc" items="${expressionImages}">
+			                   							<li class="span2">
+															<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+			                      						</li>
+			                   						 </c:forEach>                              
+												</ul>
+											
+												<c:if test="${numberExpressionImagesFound>5}">
+			                   						<p class="textright">
+														<a href='${baseUrl}/images?anatomy_id=${anatomy.getAnatomyId()}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
+													</p>
+												</c:if>
+											</div>
+										</div>
+									</c:if>
+								</div>
+							</div>
+				 
+				</div>
 			</div>
 		</div>
 	</div>
@@ -158,7 +151,6 @@
 	<script>
 	$(document).ready(function(){						
 					
-				
 			initAnatomyDataTable();
 			
 			var selectedFilters = "";
@@ -207,7 +199,7 @@
 			var dropdownsList = new Array();
 			
 			var allDropdowns = new Array();
-			allDropdowns[0] = $('#ma_term');
+			allDropdowns[0] = $('#anatomy_term');
 			allDropdowns[1] = $('#procedure_name');
 			allDropdowns[2] = $('#parameter_association_value');
 			allDropdowns[3] = $('#phenotyping_center');
@@ -223,7 +215,7 @@
 						console.log("IN dropdownchecklist");
 						var justChecked = checkbox.prop("checked");
 						console.log("justChecked="+justChecked);
-						console.log("checked="+ checkbox.val());
+						console.log("clicked="+ checkbox.val());
 						var values = [];
 						for(var  i=0; i < selector.options.length; i++ ) {
 							if (selector.options[i].selected && (selector.options[i].value != "")) {
@@ -306,7 +298,6 @@
 				}
 				newUrl += selectedFilters;
 				refreshAnatomyTable(newUrl);
-		    console.log('...refresh genes AnatomyFrag called woth new url='+newUrl);
 				return false;
 			}
 			
@@ -317,31 +308,3 @@
 	
 
 </t:genericpage>
-
-
-	
-	<%-- spoke to terry and these need rethink in terms of MP associations <c:if test="${not empty anatomy.mpTerms}">
-		<div class="section">
-			<div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-			<h2 class="title" id="associated-phenotypes">Associated Phenotypes<i class="fa fa-question-circle pull-right"></i></h2>
-			<div class="inner">
-							
-				
-				<table>
-				<tbody>
-					<tr>
-						<td>MP Terms:</td>
-						<c:forEach items="${anatomy.mpTerms}" var="mpTerm" varStatus="mpStatus">
-						<tr>
-						<td><a href="${baseUrl}/phenotypes/${anatomy.mpIds[mpStatus.index]}">${mpTerm}</a></td><td>${mpTerm}</td>
-						</tr>
-						</c:forEach>
-					</tr>
-					</tbody>
-					</table>
-					
-				
-		</div>
-		
-	</div><!-- end of images lacz expression priority and xray maybe -->
-	</c:if> --%>

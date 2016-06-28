@@ -1,22 +1,36 @@
 package org.mousephenotype.cda.reports;
 
+import java.beans.Introspector;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.*;
-import org.mousephenotype.cda.solr.service.dto.*;
-import org.mousephenotype.cda.solr.web.dto.Anatomy;
+import org.mousephenotype.cda.solr.service.AnatomyService;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.MaDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.beans.Introspector;
-import java.io.IOException;
-import java.util.*;
 
 /**
  *
@@ -46,7 +60,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	@Autowired
 	private AnatomyService anatomyService;
 
-	private Map<String, AnatomyDTO> maMap = new HashMap<>();
+	private Map<String, AnatomyDTO> anatomyMap = new HashMap<>();
 
 	public ExpressionMpOverlapReport() {
 		super();
@@ -72,23 +86,23 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        List<ImageDTO> impcLacz = imageService.getImagesForLacZ();
 	        Map<String, Mapping> geneMaLaczCombiantions = new HashMap<>();
 	        Map<String, Mapping> geneMaFromPhenotypeCombiantions = new HashMap<>();
-	        Set<String> maFromLacz = new HashSet<>();
-	        Set<String> maFromMp = new HashSet<>();
+	        Set<String> anatomyFromLacz = new HashSet<>();
+	        Set<String> anatomyFromMp = new HashSet<>();
 
 	        // Get gene-MA associations
 	        for (ImageDTO doc : impcLacz){
-	        	List<String> maIds = doc.getMaId();
-	        	for (String maId : maIds){
-	        		geneMaLaczCombiantions.put(doc.getGeneAccession() + "_" + maId, new Mapping(doc.getGeneAccession(), maId, null));
-	        		maFromLacz.add(maId);
+	        	List<String> anatomyIds = doc.getAnatomyId();
+	        	for (String anatomyId : anatomyIds){
+	        		geneMaLaczCombiantions.put(doc.getGeneAccession() + "_" + anatomyId, new Mapping(doc.getGeneAccession(), anatomyId, null));
+	        		anatomyFromLacz.add(anatomyId);
 	        	}
 	        }
 	        Iterator<SolrDocument> i = wtsiImageService.getImagesForLacZ().iterator();
 	        while (i.hasNext()){
 	        	SolrDocument doc = i.next();
-	        	for (Object maId : doc.getFieldValues("ma_id")){
-	        		geneMaLaczCombiantions.put(doc.getFieldValue("accession") + "_" + maId, new Mapping(doc.getFieldValue("accession").toString(), maId.toString(), null));
-	        		maFromLacz.add(maId.toString());
+	        	for (Object anatomyId : doc.getFieldValues("ma_id")){
+	        		geneMaLaczCombiantions.put(doc.getFieldValue("accession") + "_" + anatomyId, new Mapping(doc.getFieldValue("accession").toString(), anatomyId.toString(), null));
+	        		anatomyFromLacz.add(anatomyId.toString());
 	        	}
 	        }
 
@@ -96,17 +110,17 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        List<GenotypePhenotypeDTO> mpCalls = postqcService.getAllGenotypePhenotypes(null); // Duplicate gene-mp paris.
 
 	        // Get MP-MA mappings
-	        Map<String, List<String>> mpMaMap = new HashMap<>();
+	        Map<String, List<String>> mpAnatomyMap = new HashMap<>();
 	        for (MpDTO doc :  mpService.getAllMpWithMaMapping()){
-	        	mpMaMap.put(doc.getMpId(), doc.getInferredMaTermId());
+	        	mpAnatomyMap.put(doc.getMpId(), doc.getInferredMaTermId());
 	        }
 
 	        // Convert gene-MP mappings to gene-MA
 	        for (GenotypePhenotypeDTO geneDto: mpCalls){
-	        	if (mpMaMap.containsKey(geneDto.getMpTermId())){
-	        		for (String ma : mpMaMap.get(geneDto.getMpTermId())){
-	        			geneMaFromPhenotypeCombiantions.put(geneDto.getMarkerAccessionId() + "_" + ma, new Mapping(geneDto.getMarkerAccessionId(), ma, geneDto.getMpTermId()));
-	        			maFromMp.add(ma);
+	        	if (mpAnatomyMap.containsKey(geneDto.getMpTermId())){
+	        		for (String anatomy : mpAnatomyMap.get(geneDto.getMpTermId())){
+	        			geneMaFromPhenotypeCombiantions.put(geneDto.getMarkerAccessionId() + "_" + anatomy, new Mapping(geneDto.getMarkerAccessionId(), anatomy, geneDto.getMpTermId()));
+	        			anatomyFromMp.add(anatomy);
 	        		}
 	        	}
 	        }
@@ -122,9 +136,9 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        			if ( inCommon != null && inCommon.getLevel() >= 0){
 	        				for (AnatomyDTO ancestor: inCommon.getAncestors()){
 	        		        	String geneSymbol = geneService.getGeneById(m1.getMgiAccession(), GeneDTO.MARKER_SYMBOL).getMarkerSymbol();
-	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.maId, getMa(m1.maId).getAnatomyTerm(),
+	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.anatomyId, getMa(m1.anatomyId).getAnatomyTerm(),
 	        							(m2.mpId != null) ? m2.mpId : "", (m2.mpId != null) ? mpService.getPhenotype(m2.mpId).getMpTerm() : "",
-	        							m2.maId, getMa(m2.getMaId()).getAnatomyTerm(), ancestor.getAnatomyId(), ancestor.getAnatomyTerm(), "" + inCommon.getLevel() });
+	        							m2.anatomyId, getMa(m2.getMaId()).getAnatomyTerm(), ancestor.getAnatomyId(), ancestor.getAnatomyTerm(), "" + inCommon.getLevel() });
 	        				}
 	        			}
 	        		}
@@ -203,22 +217,22 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 
 	public AnatomyDTO getMa(String maId)
 	throws SolrServerException{
-		if (!maMap.containsKey(maId)){
-			maMap.put(maId, anatomyService.getTerm(maId));
+		if (!anatomyMap.containsKey(maId)){
+			anatomyMap.put(maId, anatomyService.getTerm(maId));
 		}
-		return maMap.get(maId);
+		return anatomyMap.get(maId);
 	}
 
 
 	private class Mapping{
 
 		String mgiAccession;
-		String maId;
+		String anatomyId;
 		String mpId;
 
 		public Mapping(String mgiAccession, String maId, String mpId){
 			this.mgiAccession = mgiAccession;
-			this.maId = maId;
+			this.anatomyId = maId;
 			this.mpId = mpId;
 		}
 
@@ -229,10 +243,10 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 			this.mgiAccession = mgiAccession;
 		}
 		public String getMaId() {
-			return maId;
+			return anatomyId;
 		}
 		public void setMaId(String maId) {
-			this.maId = maId;
+			this.anatomyId = maId;
 		}
 		public String getMpId(){
 			return mpId;
