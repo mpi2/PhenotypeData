@@ -156,7 +156,7 @@ public class PaperController {
 
 				it.remove(); // avoids a ConcurrentModificationException
 			}
-			if ( failedPmids.size() == 0 ) {
+			if ( failedPmids.size() == 0 && foundPmids.size() == pmidStrs.size()) {
 				status = "Pmid(s) added successfully";
 			}
 			else {
@@ -194,6 +194,8 @@ public class PaperController {
 		// 7.reviewed, 8.grant_id, 9.agency, 10.acronym, 11.title,
 		// 12.journal, 13.paper_url, 14.datasource, 15.timestamp, 16.falsepositive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
 
+		final String delimiter = "|||";
+
 		insertStatement.setString(1, "");
 		insertStatement.setString(2, "");
 		insertStatement.setString(3, "");
@@ -222,9 +224,9 @@ public class PaperController {
 			}
 		}
 
-		insertStatement.setString(8, grantIds.size() > 0 ? StringUtils.join(grantIds, "|||") : "");
-		insertStatement.setString(9, grantAgencies.size() > 0 ? StringUtils.join(grantAgencies, "|||") : "");
-		insertStatement.setString(10, grantAcronyms.size() > 0 ? StringUtils.join(grantAcronyms, "|||") : "");
+		insertStatement.setString(8, grantIds.size() > 0 ? StringUtils.join(grantIds, delimiter) : "");
+		insertStatement.setString(9, grantAgencies.size() > 0 ? StringUtils.join(grantAgencies, delimiter) : "");
+		insertStatement.setString(10, grantAcronyms.size() > 0 ? StringUtils.join(grantAcronyms, delimiter) : "");
 
 		insertStatement.setString(11, pub.getTitle());
 		insertStatement.setString(12, pub.getJournal());
@@ -236,7 +238,7 @@ public class PaperController {
 			Paperurl p = paperUrls.get(j);
 			paper_urls.add(p.getUrl());
 		}
-		insertStatement.setString(13, paper_urls.size() > 0 ? StringUtils.join(paper_urls, ",") : "");
+		insertStatement.setString(13, paper_urls.size() > 0 ? StringUtils.join(paper_urls, delimiter) : "");
 
 		insertStatement.setString(14, "europubmed");
 		insertStatement.setString(15, "00-00-00 00:00:00");

@@ -114,10 +114,10 @@ public class ReferenceDAO {
 
     	Connection connection = admintoolsDataSource.getConnection();
     	// need to set max length for group_concat() otherwise some values would get chopped off !!
-    	String gcsql = "SET SESSION GROUP_CONCAT_MAX_LEN = 100000000";
-
-    	PreparedStatement pst = connection.prepareStatement(gcsql);
-    	pst.executeQuery();
+//    	String gcsql = "SET SESSION GROUP_CONCAT_MAX_LEN = 100000000";
+//
+//    	PreparedStatement pst = connection.prepareStatement(gcsql);
+//    	pst.executeQuery();
 
     	if (filter == null)
             filter = "";
@@ -152,10 +152,10 @@ public class ReferenceDAO {
                     //    + " AND pmid=24652767 "; // for test
         String query =
                 "SELECT\n"
-              + "  GROUP_CONCAT(DISTINCT symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
-              + ", GROUP_CONCAT(DISTINCT acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
-              + ", GROUP_CONCAT(DISTINCT gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
-              + ", GROUP_CONCAT(DISTINCT name      SEPARATOR \"|||\") AS alleleNames\n"
+              + "  symbol AS alleleSymbols\n"
+              + ", acc AS alleleAccessionIds\n"
+              + ", gacc AS geneAccessionIds\n"
+              + ", name AS alleleNames\n"
 //              + "  GROUP_CONCAT( symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
 //              + ", GROUP_CONCAT( acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
 //              + ", GROUP_CONCAT( gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
@@ -164,12 +164,12 @@ public class ReferenceDAO {
               + ", journal\n"
               + ", pmid\n"
               + ", date_of_publication\n"
-              + ", GROUP_CONCAT(DISTINCT grant_id  SEPARATOR \"|||\") AS grantIds\n"
-              + ", GROUP_CONCAT(DISTINCT agency    SEPARATOR \"|||\") AS grantAgencies\n"
-              + ", GROUP_CONCAT(DISTINCT paper_url SEPARATOR \"|||\") AS paperUrls\n"
+              + ", grant_id AS grantIds\n"
+              + ", agency AS grantAgencies\n"
+              + ", paper_url AS paperUrls\n"
               + "FROM allele_ref AS ar\n"
               + whereClause
-              + "GROUP BY pmid\n"
+              //+ "GROUP BY pmid\n"
               + "ORDER BY date_of_publication DESC\n";
 
         System.out.println("alleleRef query: " + query);
@@ -190,36 +190,26 @@ public class ReferenceDAO {
                 final String delimeter = "\\|\\|\\|";
                 ReferenceDTO referenceRow = new ReferenceDTO();
 
-                referenceRow.setAlleleSymbols((Arrays.asList(resultSet.getString("alleleSymbols").split(delimeter))));
-                referenceRow.setAlleleAccessionIds((Arrays.asList(resultSet.getString("alleleAccessionIds").split(delimeter))));
+                referenceRow.setAlleleSymbols(Arrays.asList(resultSet.getString("alleleSymbols").split(delimeter)));
+                referenceRow.setAlleleAccessionIds(Arrays.asList(resultSet.getString("alleleAccessionIds").split(delimeter)));
                 String geneAccessionIds = resultSet.getString("geneAccessionIds").trim();
                 List<String> geneLinks = new ArrayList();
                 if ( ! geneAccessionIds.isEmpty()) {
-                    referenceRow.setGeneAccessionIds((Arrays.asList(resultSet.getString("geneAccessionIds").split(delimeter))));
+                    referenceRow.setGeneAccessionIds(Arrays.asList(geneAccessionIds.split(delimeter)));
                     String[] parts = geneAccessionIds.split(delimeter);
                     for (String part : parts) {
                         geneLinks.add(impcGeneBaseUrl + part.trim());
                     }
                     referenceRow.setImpcGeneLinks(geneLinks);
                 }
-                referenceRow.setMgiAlleleNames((Arrays.asList(resultSet.getString("alleleNames").split(delimeter))));
+                referenceRow.setMgiAlleleNames(Arrays.asList(resultSet.getString("alleleNames").split(delimeter)));
                 referenceRow.setTitle(resultSet.getString("title"));
                 referenceRow.setJournal(resultSet.getString("journal"));
                 referenceRow.setPmid(resultSet.getString("pmid"));
                 referenceRow.setDateOfPublication(resultSet.getString("date_of_publication"));
-                referenceRow.setGrantIds((Arrays.asList(resultSet.getString("grantIds").split(delimeter))));
-                referenceRow.setGrantAgencies((Arrays.asList(resultSet.getString("grantAgencies").split(delimeter))));
-
-                String paperUrls = resultSet.getString("paperUrls").trim();
-                List<String> paperLinks = new ArrayList();
-                if ( ! paperUrls.isEmpty()) {
-                    String[] parts = paperUrls.split(delimeter);
-                    for (String s : parts) {
-                        String[] parts2 = s.split(",");
-                        paperLinks.addAll(Arrays.asList(parts2));
-                    }
-                    referenceRow.setPaperUrls(paperLinks);
-                }
+                referenceRow.setGrantIds(Arrays.asList(resultSet.getString("grantIds").split(delimeter)));
+                referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
+                referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
 
                 results.add(referenceRow);
             }
