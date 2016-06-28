@@ -16,7 +16,7 @@
     	<script type="text/javascript">
 			// Stuff dor parent-child. Will be used in parentChildTree.js.
 			var ont_id = '${anatomy.getAnatomyId()}';
-			var ontPrefix = "ma";
+			var ontPrefix = "anatomy";
 			var page = "anatomy";
 			var hasChildren = ${hasChildren};
 			var hasParents = ${hasParents};
