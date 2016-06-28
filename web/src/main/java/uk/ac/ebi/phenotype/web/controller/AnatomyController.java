@@ -98,8 +98,8 @@ public class AnatomyController {
         model.addAttribute("phenoFacets", getFacets(anatomy));
 
         // Stuff for parent-child display
-        model.addAttribute("hasChildren", anatomyTerm.getChildAnatomyId().size() > 0 ? true : false);
-        model.addAttribute("hasParents", anatomyTerm.getParentAnatomyId().size() > 0 ? true : false);
+        model.addAttribute("hasChildren", (anatomyTerm.getChildAnatomyId() != null && anatomyTerm.getChildAnatomyId().size() > 0) ? true : false);
+        model.addAttribute("hasParents", (anatomyTerm.getParentAnatomyId() != null && anatomyTerm.getParentAnatomyId().size() > 0) ? true : false);
 
         return "anatomy";
 
@@ -108,7 +108,7 @@ public class AnatomyController {
 	 /**
      * @author ilinca
      * @since 2016/05/03
-     * @param maId
+     * @param anatomyId
      * @param type
      * @param model
      * @return
@@ -116,17 +116,17 @@ public class AnatomyController {
      * @throws IOException
      * @throws URISyntaxException
      */
-    @RequestMapping(value="/maTree/json/{maId}", method=RequestMethod.GET)
-    public @ResponseBody String getParentChildren( @PathVariable String maId, @RequestParam(value = "type", required = true) String type, Model model)
+    @RequestMapping(value="/anatomyTree/json/{anatomyId}", method=RequestMethod.GET)
+    public @ResponseBody String getParentChildren( @PathVariable String anatomyId, @RequestParam(value = "type", required = true) String type, Model model)
     throws SolrServerException, IOException, URISyntaxException {
 
     	if (type.equals("parents")){
 
 	    	JSONObject data = new JSONObject();
-	    	data.element("id", maId);
+	    	data.element("id", anatomyId);
 	    	JSONArray nodes = new JSONArray();
 
-	    	for (OntologyBean term : anatomyService.getParents(maId)){
+	    	for (OntologyBean term : anatomyService.getParents(anatomyId)){
 	    		nodes.add(term.toJson());
 	    	}
 
@@ -136,10 +136,10 @@ public class AnatomyController {
     	} else if (type.equals("children")){
 
     		JSONObject data = new JSONObject();
-        	data.element("id", maId);
+        	data.element("id", anatomyId);
         	JSONArray nodes = new JSONArray();
 
-        	for (OntologyBean term : anatomyService.getChildren(maId)){
+        	for (OntologyBean term : anatomyService.getChildren(anatomyId)){
 	    		nodes.add(term.toJson());
 	    	}
 
@@ -151,8 +151,8 @@ public class AnatomyController {
 
 
     @RequestMapping(value = "/anatomyFrag/{anatomy_id}", method = RequestMethod.GET)
-	public String loadMaTable(	@PathVariable String anatomy_id,
-								@RequestParam(required = false, value = "anatomy_term") List<String> maTerms,
+	public String loadAnatomyTable(	@PathVariable String anatomy_id,
+								@RequestParam(required = false, value = "anatomy_term") List<String> anatomyTerms,
 								@RequestParam(required = false, value = "parameter_association_value") List<String> parameterAssociationValue,
 								@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
 								@RequestParam(required = false, value = "procedure_name") List<String> procedureName,
@@ -161,7 +161,7 @@ public class AnatomyController {
 								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy_id, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
 		model.addAttribute("anatomyTable", anatomyTable);
 
 		return "anatomyFrag";
