@@ -18,7 +18,11 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,7 +56,6 @@ import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.web.dto.Anatomy;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,12 +76,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import uk.ac.ebi.phenotype.generic.util.JSONMAUtils;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 
 
 @Controller
