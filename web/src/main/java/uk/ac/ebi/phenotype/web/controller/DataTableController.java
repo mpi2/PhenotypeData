@@ -1775,9 +1775,10 @@ public class DataTableController {
 
 		// store new value to database
 		value = value.trim();
+		Integer dbid = Integer.parseInt(dbidStr);
 		System.out.println("***** check dbid: "+dbidStr);
-		List<Integer> dbids = getDbIds(dbidStr);
-		return setAlleleSymbol(dbids, value);
+		//List<Integer> dbids = getDbIds(dbidStr);
+		return setAlleleSymbol(dbid, value);
 	}
 	@RequestMapping(value = "/dataTableAlleleRefSetFalsePositive", method = RequestMethod.GET)
 	public @ResponseBody
@@ -1788,24 +1789,23 @@ public class DataTableController {
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
 
+		Integer dbid = Integer.parseInt(dbidStr);
 		// store new value to database
-		System.out.println("***** check set falsepositive dbid: "+dbidStr);
-		List<Integer> dbids = getDbIds(dbidStr);
-		return setFalsePositive(dbids, falsePositive);
+		System.out.println("***** check set falsepositive dbid: "+dbid);
+		//List<Integer> dbids = getDbIds(dbidStr);
+		return setFalsePositive(dbid, falsePositive);
 	}
 
-	public Boolean setFalsePositive(List<Integer> dbids, String falsePositive) throws SQLException {
+	public Boolean setFalsePositive(Integer dbid, String falsePositive) throws SQLException {
 		Connection conn = admintoolsDataSource.getConnection();
 
-		for( int dbid : dbids) {
+		String uptSql = "UPDATE allele_ref SET falsepositive=?, reviewed='no', acc='', gacc='', timestamp=? WHERE dbid=?";
+		PreparedStatement stmt = conn.prepareStatement(uptSql);
+		stmt.setString(1, falsePositive);
+		stmt.setString(2, String.valueOf(new Timestamp(System.currentTimeMillis())));
+		stmt.setInt(3, dbid);
+		stmt.executeUpdate();
 
-			String uptSql = "UPDATE allele_ref SET falsepositive=?, reviewed='no', acc='', gacc='', timestamp=? WHERE dbid=?";
-			PreparedStatement stmt = conn.prepareStatement(uptSql);
-			stmt.setString(1, falsePositive);
-			stmt.setString(2, String.valueOf(new Timestamp(System.currentTimeMillis())));
-			stmt.setInt(3, dbid);
-			stmt.executeUpdate();
-		}
 		return true;
 	}
 
@@ -1818,7 +1818,7 @@ public class DataTableController {
 		return dbidsInt;
 	}
 
-    public String setAlleleSymbol(List<Integer> dbids, String alleleSymbol) throws SQLException {
+    public String setAlleleSymbol(Integer dbid, String alleleSymbol) throws SQLException {
 
 		Connection connKomp2 = komp2DataSource.getConnection();
 		Connection conn = admintoolsDataSource.getConnection();
@@ -1836,8 +1836,8 @@ public class DataTableController {
 
 		}
 		else if (!alleleSymbol.contains(",")) {
-			// single allele symbol
 
+			// single allele symbols
 			String alleleAcc = null;
 			String geneAcc = null;
 
@@ -1858,18 +1858,16 @@ public class DataTableController {
 			try {
 				if (alleleAcc != null && geneAcc != null) {
 
-					for ( int dbid : dbids ) {
+					String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
+					PreparedStatement stmt = conn.prepareStatement(uptSql);
+					stmt.setString(1, alleleAcc);
+					stmt.setString(2, geneAcc);
+					stmt.setString(3, alleleSymbol);
+					stmt.setString(4, "yes");
+					stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
+					stmt.setInt(6, dbid);
+					stmt.executeUpdate();
 
-						String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
-						PreparedStatement stmt = conn.prepareStatement(uptSql);
-						stmt.setString(1, alleleAcc);
-						stmt.setString(2, geneAcc);
-						stmt.setString(3, alleleSymbol);
-						stmt.setString(4, "yes");
-						stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
-						stmt.setInt(6, dbid);
-						stmt.executeUpdate();
-					}
 					j.put("reviewed", "yes");
 					j.put("symbol", alleleSymbol);
 				} else {
@@ -1886,14 +1884,15 @@ public class DataTableController {
 
 			}
 
-		} else if (alleleSymbol.contains(",")) {
+		}
+		else if (alleleSymbol.contains(",")) {
 			// if there are multiple allele symbols, it should have been separated by comma
-
 			alleleSymbols = Arrays.asList(alleleSymbol.split(","));
 
-			int alleleCounter = 0;
 			List<String> nonMatchedAlleleSymbols = new ArrayList<>();
 			List<String> matchedAlleleSymbols = new ArrayList<>();
+			List<String> alleleAccs = new ArrayList<>();
+			List<String> geneAccs = new ArrayList<>();
 
 			for (String thisAlleleSymbol : alleleSymbols) {
 
@@ -1922,51 +1921,36 @@ public class DataTableController {
 
 				//System.out.println("setting acc and gacc -> " + alleleAcc + " --- " + geneAcc);
 
-				try {
-					if (alleleAcc != null && geneAcc != null) {
-						alleleCounter++;
-
-						if (alleleCounter == 1) {
-
-							for (int dbid : dbids) {
-
-								String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
-								PreparedStatement stmt = conn.prepareStatement(uptSql);
-								stmt.setString(1, alleleAcc);
-								stmt.setString(2, geneAcc);
-								stmt.setString(3, thisAlleleSymbol);
-								stmt.setString(4, "yes");
-								stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
-								stmt.setInt(6, dbid);
-								stmt.executeUpdate();
-							}
-						}
-						else {
-							for (int dbid : dbids) {
-								String insertSql = "INSERT INTO allele_ref ("
-										+ "acc,gacc,symbol,name,pmid,date_of_publication,reviewed,grant_id,agency,acronym,title,journal,datasource,paper_url,timestamp,falsepositive) "
-										+ "SELECT '" + alleleAcc + "','" + geneAcc + "','" + thisAlleleSymbol + "',name,pmid,date_of_publication,'yes',grant_id,agency,acronym,title,journal,datasource,paper_url,'"
-										+ String.valueOf(new Timestamp(System.currentTimeMillis())) + "','no'"
-										+ " FROM allele_ref"
-										+ " WHERE dbid=" + dbid;
-
-								PreparedStatement stmt = conn.prepareStatement(insertSql);
-								stmt.executeUpdate();
-							}
-						}
-						matchedAlleleSymbols.add(thisAlleleSymbol);
-					}
-					else {
-						nonMatchedAlleleSymbols.add(thisAlleleSymbol);
-					}
+				if (alleleAcc != null && geneAcc != null) {
+					alleleAccs.add(alleleAcc);
+					geneAccs.add(geneAcc);
+					matchedAlleleSymbols.add(thisAlleleSymbol);
 				}
-				catch (SQLException se) {
-					//Handle errors for JDBC
-					se.printStackTrace();
-					j.put("reviewed", "no");
-					j.put("symbol", "ERROR: setting symbol failed");
-
+				else if ( alleleAcc == null ){
+					nonMatchedAlleleSymbols.add(thisAlleleSymbol);
 				}
+			}
+
+			String alleleAccsStr = StringUtils.join(alleleAccs, "|||");
+			String geneAccsStr = StringUtils.join(geneAccs, "|||");
+
+			try{
+				String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
+				PreparedStatement stmt = conn.prepareStatement(uptSql);
+				stmt.setString(1, alleleAccsStr);
+				stmt.setString(2, geneAccsStr);
+				stmt.setString(3, alleleSymbol);
+				stmt.setString(4, "yes");
+				stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
+				stmt.setInt(6, dbid);
+				stmt.executeUpdate();
+			}
+			catch (SQLException se) {
+				//Handle errors for JDBC
+				se.printStackTrace();
+				j.put("reviewed", "no");
+				j.put("symbol", "ERROR: setting symbol failed");
+
 			}
 
 			if ( nonMatchedAlleleSymbols.size() == alleleSymbols.size() ) {
@@ -1990,6 +1974,110 @@ public class DataTableController {
 				}
 			}
 		}
+//		else if (alleleSymbol.contains(",")) {
+//			// if there are multiple allele symbols, it should have been separated by comma
+//
+//			alleleSymbols = Arrays.asList(alleleSymbol.split(","));
+//
+//			int alleleCounter = 0;
+//			List<String> nonMatchedAlleleSymbols = new ArrayList<>();
+//			List<String> matchedAlleleSymbols = new ArrayList<>();
+//
+//			for (String thisAlleleSymbol : alleleSymbols) {
+//
+//				thisAlleleSymbol = thisAlleleSymbol.trim();
+//
+//				// fetch allele id, gene id of this allele symbol
+//				// and update acc and gacc fields of allele_ref table
+//				//System.out.println("set allele: " + sqla);
+//
+//				String alleleAcc = null;
+//				String geneAcc = null;
+//
+//				// find matching allele symbol from komp2 database and use its allele acc to populate allele_ref table
+//				try (PreparedStatement p = connKomp2.prepareStatement(sqla)) {
+//					p.setString(1, thisAlleleSymbol);
+//					ResultSet resultSet = p.executeQuery();
+//
+//					while (resultSet.next()) {
+//						alleleAcc = resultSet.getString("acc");
+//						geneAcc = resultSet.getString("gf_acc");
+//						//System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
+//					}
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//
+//				//System.out.println("setting acc and gacc -> " + alleleAcc + " --- " + geneAcc);
+//
+//				try {
+//					if (alleleAcc != null && geneAcc != null) {
+//						alleleCounter++;
+//
+//						if (alleleCounter == 1) {
+//
+//							for (int dbid : dbids) {
+//
+//								String uptSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=? WHERE dbid=?";
+//								PreparedStatement stmt = conn.prepareStatement(uptSql);
+//								stmt.setString(1, alleleAcc);
+//								stmt.setString(2, geneAcc);
+//								stmt.setString(3, thisAlleleSymbol);
+//								stmt.setString(4, "yes");
+//								stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
+//								stmt.setInt(6, dbid);
+//								stmt.executeUpdate();
+//							}
+//						}
+//						else {
+//							for (int dbid : dbids) {
+//								String insertSql = "INSERT INTO allele_ref ("
+//										+ "acc,gacc,symbol,name,pmid,date_of_publication,reviewed,grant_id,agency,acronym,title,journal,datasource,paper_url,timestamp,falsepositive) "
+//										+ "SELECT '" + alleleAcc + "','" + geneAcc + "','" + thisAlleleSymbol + "',name,pmid,date_of_publication,'yes',grant_id,agency,acronym,title,journal,datasource,paper_url,'"
+//										+ String.valueOf(new Timestamp(System.currentTimeMillis())) + "','no'"
+//										+ " FROM allele_ref"
+//										+ " WHERE dbid=" + dbid;
+//
+//								PreparedStatement stmt = conn.prepareStatement(insertSql);
+//								stmt.executeUpdate();
+//							}
+//						}
+//						matchedAlleleSymbols.add(thisAlleleSymbol);
+//					}
+//					else {
+//						nonMatchedAlleleSymbols.add(thisAlleleSymbol);
+//					}
+//				}
+//				catch (SQLException se) {
+//					//Handle errors for JDBC
+//					se.printStackTrace();
+//					j.put("reviewed", "no");
+//					j.put("symbol", "ERROR: setting symbol failed");
+//
+//				}
+//			}
+//
+//			if ( nonMatchedAlleleSymbols.size() == alleleSymbols.size() ) {
+//				// all symbols not found in KOMP2
+//				j.put("reviewed", "no");
+//				j.put("symbol", alleleSymbol);
+//				j.put("allAllelesNotFound", true);
+//			}
+//			else {
+//				if ( matchedAlleleSymbols.size() == alleleSymbols.size() ){
+//					// all matched
+//					j.put("reviewed", "yes");
+//					j.put("symbol", alleleSymbol);
+//				}
+//				else {
+//					// displays only the matched ones
+//					j.put("reviewed", "yes");
+//					j.put("symbol", StringUtils.join(matchedAlleleSymbols, ","));
+//
+//					j.put("someAllelesNotFound", StringUtils.join(nonMatchedAlleleSymbols, ","));
+//				}
+//			}
+//		}
 
 		conn.close();
 		connKomp2.close();
@@ -2092,16 +2180,17 @@ public class DataTableController {
 					+ "GROUP_CONCAT(grant_id) AS grant_id,"
 					+ "GROUP_CONCAT(agency) AS agency "
 					+ "FROM allele_ref "
-					+ "WHERE (reviewed='no' AND falsepositive='no') "
-					+ "AND (symbol LIKE ? "
+					//+ "WHERE (reviewed='no' AND falsepositive='no') "
+					+ "WHERE "
+					+ "(symbol LIKE ? "
 					+ "OR pmid LIKE ? "
 					+ "OR date_of_publication LIKE ? "
 					+ "OR grant_id LIKE ? "
 					+ "OR agency LIKE ?) "
 					+ "GROUP BY pmid ";
         } else {
-            //query = "select count(distinct pmid) as count from allele_ref";
-			query = "SELECT COUNT(DISTINCT pmid) AS count FROM allele_ref WHERE reviewed='no' AND falsepositive='no'";
+			query = "SELECT COUNT(DISTINCT pmid) AS count FROM allele_ref";
+			//query = "SELECT COUNT(DISTINCT pmid) AS count FROM allele_ref WHERE reviewed='no' AND falsepositive='no'";
         }
 		//System.out.println("count query: "+query);
 		int rowCount = 0;
@@ -2158,8 +2247,9 @@ public class DataTableController {
 				+ "GROUP_CONCAT(acronym) AS acronym,"
 				+ "paper_url "
 				+ "FROM allele_ref "
-				+ "WHERE (reviewed='no' AND falsepositive='no') "
-				+ "AND (symbol LIKE ? "
+				//+ "WHERE (reviewed='no' AND falsepositive='no') "
+				+ "WHERE "
+				+ "(symbol LIKE ? "
 				+ "OR pmid LIKE ? "
 				+ "OR date_of_publication LIKE ? "
 				+ "OR grant_id LIKE ? "
@@ -2180,7 +2270,7 @@ public class DataTableController {
 				//+ "GROUP_CONCAT(acronym) AS acronym,"
 				+ "paper_url "
 				+ "FROM allele_ref "
-				+ "WHERE (reviewed='no' AND falsepositive='no') "
+				//+ "WHERE (reviewed='no' AND falsepositive='no') "
 				+ "GROUP BY pmid "
 				+ "ORDER BY reviewed DESC limit ?,?";
         }
@@ -2223,7 +2313,7 @@ public class DataTableController {
                 rowData.add(resultSet.getString("reviewed"));
 
                 //rowData.add(resultSet.getString("acc"));
-				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
+				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol")).replaceAll("\\|\\|\\|", ", ");
 				//String alLink = alleleSymbol.equals("") ? "" : "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
 				rowData.add(alleleSymbol);
 
@@ -2234,8 +2324,18 @@ public class DataTableController {
 
                 rowData.add(resultSet.getString("date_of_publication"));
 
-                rowData.add(resultSet.getString("grant_id"));
-                rowData.add(resultSet.getString("agency"));
+				String[] grantIds = resultSet.getString("grant_id").split("\\|\\|\\|");
+				String[] grantAgencies = resultSet.getString("agency").split("\\|\\|\\|");
+				List<String> gIdsAgencies = new ArrayList<>();
+
+				for( int i=0; i<grantIds.length; i++ ) {
+					if (!grantIds[i].equals("")){
+						gIdsAgencies.add(grantIds[i] + " (" + grantAgencies[i] + ")");
+					}
+				}
+				rowData.add(gIdsAgencies.size()>0 ? StringUtils.join(gIdsAgencies, ", ") : "No information available");
+//                rowData.add(resultSet.getString("grant_id").replaceAll("\\|\\|\\|",","));
+//                rowData.add(resultSet.getString("agency").replaceAll("\\|\\|\\|",","));
                 //rowData.add(resultSet.getString("acronym").replaceAll("\\s,|,\\s|\\s,\\s|,$", ""));
                 String[] urls = resultSet.getString("paper_url").split(",");
                 List<String> links = new ArrayList<>();
@@ -2326,6 +2426,7 @@ public class DataTableController {
             rowData.add(StringUtils.join(alLinks, ""));
 
             rowData.add(reference.getTitle());
+			rowData.add(reference.getPmid());
             rowData.add(reference.getJournal());
 
             String oriPubDate = reference.getDateOfPublication();
