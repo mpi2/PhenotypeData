@@ -44,9 +44,7 @@
                 font-size: 11px;
                 font-weight: bold;
             }
-
             div.saveTable {
-
                 bottom: 50px;
                 float: right;
                 margin-right: 30px;
@@ -81,7 +79,7 @@
             });
 
             function fetchAlleleRefDataTable(oConf) {
-            	
+
             	var aDataTblCols = [0,1,2,3,4,5,6];
                 var oTable = $('table#alleleRef').dataTable({
                     "bSort": true, // true is default 
@@ -118,7 +116,6 @@
                         oConf.dataType = "alleleRef";
                         oConf.kw = ""; // default
 
-
                         var paramStr = "mode=all";
                         $.each(oConf, function(i, val){
                             paramStr += "&" + i + "=" + val;
@@ -154,6 +151,8 @@
                                 $(this).siblings().removeClass('showMe');
                             }
                         });
+
+
                         $('body').removeClass('footerToBottom');
                     },
                     "sAjaxSource": baseUrl + '/dataTableAlleleRef',
@@ -174,33 +173,33 @@
 
     </jsp:attribute>
 
-    <jsp:attribute name="addToFooter">	
+    <jsp:attribute name="addToFooter">
         <div class="region region-pinned">
 
-        </div>		
+        </div>
 
     </jsp:attribute>
-
-    <jsp:body>		
+    <jsp:body>
 
         <div class="region region-content">
             <div class="block">
                 <div class='content'>
                     <div class="node node-gene">
-                        <h1 class="title" id="top">References using IKMC and IMPC resources</h1>	 
+                        <h1 class="title" id="top">References using IKMC and IMPC resources</h1>
                         <div class="section">
                             <div class="inner">
                                 <div class="clear"></div>
 
-                                <!-- container to display dataTable -->									
+                                <!-- container to display dataTable -->
                                 <div class="HomepageTable" id="alleleRef"></div>
                             </div>
                         </div>
-                    </div>				
+                    </div>
                 </div>
             </div>
-        </div>		       
+        </div>
 
     </jsp:body>
+
 </t:genericpage>
 
