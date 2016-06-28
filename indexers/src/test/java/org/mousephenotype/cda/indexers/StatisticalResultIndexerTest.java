@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigIndexers.class})
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 @Transactional
 public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
@@ -56,13 +56,9 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 			statisticalResultIndexer.populateParameterMpTermMap();
 			statisticalResultIndexer.populateEmbryoSignificanceMap();
 
-		} catch (SQLException e) {
+		} catch (IllegalAccessException | InstantiationException | SQLException e) {
 			e.printStackTrace();
 			assert (statisticalResultIndexer.getConnection() != null);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
 		}
 	}
 
