@@ -95,20 +95,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
     }
 
-    /**
-     * Initialize the database connections required
-     *
-     * @throws IndexerException when there's an issue
-     */
-    private void initializeDatabaseConnections() throws IndexerException {
-
-        try {
-            ontodbDataSource.getConnection();
-        } catch (SQLException e) {
-            throw new IndexerException(e);
-        }
-
-    }
     @Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(anatomyIndexing);
@@ -123,7 +109,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
 
-        initializeDatabaseConnections();
 
     	try {
 

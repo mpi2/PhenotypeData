@@ -98,7 +98,7 @@ public class ImageService implements WebStatus{
     }
 
 
-	public List<AnatomyPageTableRow> getImagesForAnatomy(String anartomyId,
+	public List<AnatomyPageTableRow> getImagesForAnatomy(String anatomyId,
 			List<String> anatomyTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc, String baseUrl)
 			throws SolrServerException {
@@ -108,9 +108,9 @@ public class ImageService implements WebStatus{
 
 		query.setQuery("*:*")
 			.addFilterQuery(
-				"(" + ImageDTO.ANATOMY_ID + ":\"" + anartomyId + "\" OR "
-					+ ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anartomyId + "\" OR "
-					+ ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anartomyId + "\")")
+				"(" + ImageDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR "
+					+ ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
+					+ ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\")")
 			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
 			.setRows(Integer.MAX_VALUE)
 			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
@@ -158,7 +158,7 @@ public class ImageService implements WebStatus{
 
 			for (String expressionValue : image.getDistinctParameterAssociationsValue()) {
 				if (paramAssoc == null || paramAssoc.contains(expressionValue)) {
-					AnatomyPageTableRow row = new AnatomyPageTableRow(image, anartomyId, baseUrl, expressionValue);
+					AnatomyPageTableRow row = new AnatomyPageTableRow(image, anatomyId, baseUrl, expressionValue);
 					if (res.containsKey(row.getKey())) {
 						row = res.get(row.getKey());
 						row.addSex(image.getSex());
