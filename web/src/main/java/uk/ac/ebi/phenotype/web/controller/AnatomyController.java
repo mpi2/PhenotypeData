@@ -150,8 +150,8 @@ public class AnatomyController {
     }
 
 
-    @RequestMapping(value = "/anatomyFrag/{anatomy_id}", method = RequestMethod.GET)
-	public String loadAnatomyTable(	@PathVariable String anatomy_id,
+    @RequestMapping(value = "/anatomyFrag/{anatomyId}", method = RequestMethod.GET)
+	public String loadAnatomyTable(	@PathVariable String anatomyId,
 								@RequestParam(required = false, value = "anatomy_term") List<String> anatomyTerms,
 								@RequestParam(required = false, value = "parameter_association_value") List<String> parameterAssociationValue,
 								@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
@@ -161,7 +161,7 @@ public class AnatomyController {
 								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy_id, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
 		model.addAttribute("anatomyTable", anatomyTable);
 
 		return "anatomyFrag";

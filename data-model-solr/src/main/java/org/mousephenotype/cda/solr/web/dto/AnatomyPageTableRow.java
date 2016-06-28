@@ -88,16 +88,16 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setAnatomy(anatomyTerms);
 
 	    // Collect the parallel lists of IDs and Term names into combined parallel list of all three sets (term, intermediates, top levels)
-	    List<String> maIds = Stream.of(image.getAnatomyId(), image.getIntermediateAnatomyId(), image.getSelectedTopLevelAnatomyId())
+	    List<String> anatomyIds = Stream.of(image.getAnatomyId(), image.getIntermediateAnatomyId(), image.getSelectedTopLevelAnatomyId())
 		    .filter(Objects::nonNull)
 		    .flatMap(Collection::stream)
 		    .collect(Collectors.toList());
-	    List<String> maTerms = Stream.of(image.getAnatomyTerm(), image.getIntermediateAnatomyTerm(), image.getSelectedTopLevelAnatomyTerm())
+	    List<String> anatomy = Stream.of(image.getAnatomyTerm(), image.getIntermediateAnatomyTerm(), image.getSelectedTopLevelAnatomyTerm())
 		    .filter(Objects::nonNull)
 		    .flatMap(Collection::stream)
 		    .collect(Collectors.toList());
 
-        this.setEvidenceLink(buildImageUrl(baseUrl, anatomyId, maTerms.get(maIds.indexOf(anatomyId)), expressionValue));
+        this.setEvidenceLink(buildImageUrl(baseUrl, anatomyId, anatomy.get(anatomyIds.indexOf(anatomyId)), expressionValue));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
         this.numberOfImages ++;
     }
@@ -121,12 +121,12 @@ public class AnatomyPageTableRow extends DataTableRow{
     }
 
 
-    public EvidenceLink buildImageUrl(String baseUrl, String maId, String maTerm, String expressionValue){
+    public EvidenceLink buildImageUrl(String baseUrl, String anatomyId, String anatomyTerm, String expressionValue){
 
     	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(";
         url += ImageDTO.ANATOMY_ID + ":\"";
-        url += maId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + maId + "\"";
-        url += " OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + maId + "\"";
+        url += anatomyId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\"";
+        url += " OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\"";
 
     	url += ") ";
 
@@ -142,7 +142,7 @@ public class AnatomyPageTableRow extends DataTableRow{
     		url += " AND " + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"" + expressionValue + "\"";
     	}
     	
-    	url += "&title=gene " + this.getGene().getSymbol() + " with " + expressionValue + " in " + maTerm + "";
+    	url += "&title=gene " + this.getGene().getSymbol() + " with " + expressionValue + " in " + anatomyTerm + "";
 
     	EvidenceLink link = new EvidenceLink();
     	link.setUrl(url);
