@@ -115,7 +115,7 @@ public class ImageDTO extends ObservationDTO {
 	public static final String STAGE = "stage";
 
 	@Field(MpDTO.MP_ID)
-	private ArrayList<String> mpTermIds;
+	private List<String> mpTermIds;
 
 	@Field(MpDTO.MP_TERM)
 	private List<String> mpTerm;
@@ -212,7 +212,7 @@ public class ImageDTO extends ObservationDTO {
 		this.mpIdTerm = mpIdTerm;
 	}
 	
-	public ArrayList<String> getMpTermIds() {
+	public List<String> getMpTermIds() {
 		return mpTermIds;
 	}
 
