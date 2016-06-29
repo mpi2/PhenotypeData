@@ -31,6 +31,10 @@ public class Synonym {
 
 	private String symbol;
 
+	// These transient fields were added to provide a place to save the parent's accessionId and dbId for data loading.
+	private String accessionId;
+	private int dbId;
+
 	public Synonym() {
 
 	}
@@ -49,9 +53,25 @@ public class Synonym {
 		this.symbol = symbol;
 	}
 
+	public String getAccessionId() {
+		return accessionId;
+	}
+
+	public void setAccessionId(String accessionId) {
+		this.accessionId = accessionId;
+	}
+
+	public int getDbId() {
+		return dbId;
+	}
+
+	public void setDbId(int dbId) {
+		this.dbId = dbId;
+	}
+
 	/* (non-Javadoc)
-         * @see java.lang.Object#toString()
-         */
+             * @see java.lang.Object#toString()
+             */
 	@Override
 	public String toString() {
 		return "Synonym [symbol=" + symbol + "]";

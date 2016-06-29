@@ -19,7 +19,6 @@ package org.mousephenotype.cda.loads.cdaloader.support;
 /**
  * Created by mrelac on 09/06/16.
  */
-@Deprecated
 public class FileHeading {
     public final int offset;
     public final String heading;

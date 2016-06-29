@@ -42,10 +42,11 @@ public class ConfigBeans {
 
     private Map<String, OntologyTerm>   markerProcessorFeatureTypes = new HashMap<>();
     private Map<String, OntologyTerm>   mgiFeatureTypes             = new HashMap<>();
-    private Map<String, Allele>         alleles                     = new HashMap<>(150000);
-    private Map<String, GenomicFeature> genomicFeatures             = new HashMap<>(150000);
-    private Map<String, SequenceRegion> sequenceRegions             = new HashMap<>(150000);
-    private Map<String, Strain>         strains                     = new HashMap<>(150000);
+
+    private Map<String, Allele>         alleles                     = new HashMap<>(150000);    // key = allele accession id
+    private Map<String, GenomicFeature> genomicFeatures             = new HashMap<>(150000);    // key = marker accession id
+    private Map<String, SequenceRegion> sequenceRegions             = new HashMap<>(150000);    // key = name (seq_name)
+    private Map<String, Strain>         strains                     = new HashMap<>(150000);    // key = strain accession id
 
     @NotNull
     @Value("${cdaload.workspace}")
@@ -190,9 +191,9 @@ public class ConfigBeans {
     @Bean(name = "alleleProcessorPhenotypic")
     public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
         mgiFeatureTypes = sqlLoaderUtils().getOntologyTerms(DbIdType.MGI.intValue());
-//        if (genomicFeatures.isEmpty()) {
-//            genomicFeatures =  sqlLoaderUtils().getGenomicFeatures();
-//        }
+        if (genomicFeatures.isEmpty()) {
+            genomicFeatures =  sqlLoaderUtils().getGenes();
+        }
         return new AlleleProcessorPhenotypic(genomicFeatures, mgiFeatureTypes);
     }
 
@@ -238,6 +239,27 @@ public class ConfigBeans {
     public AlleleWriter alleleWriter() {
         return new AlleleWriter();
     }
+
+
+
+    @Bean(name = "bioModelProcessor")
+    public BiologicalModelProcessor bioModelProcessor() {
+        return new BiologicalModelProcessor(alleles, genomicFeatures);
+    }
+
+    @Bean(name = "bioModelLoader")
+    public BiologicalModelLoader bioModelLoader() throws CdaLoaderException {
+        Map<BiologicalModelLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
+        filenameKeys.put(BiologicalModelLoader.FilenameKeys.MGI_PhenoGenoMP, downloadFilenameMap.get(DownloadFileEnum.MGI_PhenoGenoMP).targetFilename);
+
+        return new BiologicalModelLoader(filenameKeys);
+    }
+
+    @Bean(name = "bioModelWriter")
+    public BiologicalModelWriter bioModelWriter() {
+        return new BiologicalModelWriter();
+    }
+
 
 
     @Bean(name = "markerLoader")

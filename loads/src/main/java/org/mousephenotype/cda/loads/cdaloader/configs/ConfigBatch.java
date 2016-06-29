@@ -73,6 +73,9 @@ public class ConfigBatch {
     public AlleleLoader alleleLoader;
 
     @Autowired
+    public BiologicalModelLoader bioModelLoader;
+
+    @Autowired
     public MarkerLoader markerLoader;
 
     @Autowired
@@ -83,9 +86,9 @@ public class ConfigBatch {
     @Bean
     public Job[] runJobs() throws CdaLoaderException {
         Job[] jobs = new Job[] {
-//                  databaseInitialiserJob()
+                  databaseInitialiserJob()
 //                , downloaderJob()
-                 dbLoaderJob()
+                , dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -154,6 +157,9 @@ public class ConfigBatch {
         // Strains - mgi, imsr (the order is important)
         Flow strainsFlow = new FlowBuilder<Flow>("strainsFlow").from(strainLoader).end();
 
+        // Biological Models
+        Flow bioModelsFlow = new FlowBuilder<Flow>("bioModelsFlow").from(bioModelLoader).end();
+
         // Parallelize the parallelizable flows.
         FlowBuilder<Flow> parallelFlowBuilder = new FlowBuilder<Flow>("parallelFlow").start(ontologyFlows.get(0));
         for (int i = 1; i < ontologyFlows.size(); i++) {
@@ -161,14 +167,14 @@ public class ConfigBatch {
             parallelFlowBuilder.split(executor).add(ontologyFlows.get(i));
         }
 
-//        return jobBuilderFactory.get("dbLoaderJob")
-//                .incrementer(new RunIdIncrementer())
-//                .start(parallelFlowBuilder.build())
-//                .next(markersFlow)
-//                .next(allelesFlow)
-//                .next(strainsFlow)
-//                .end()
-//                .build();
+        return jobBuilderFactory.get("dbLoaderJob")
+                .incrementer(new RunIdIncrementer())
+                .start(parallelFlowBuilder.build())
+                .next(markersFlow)
+                .next(allelesFlow)
+                .next(strainsFlow)
+                .end()
+                .build();
 
 //        return jobBuilderFactory.get("dbLoaderJob")
 //                .incrementer(new RunIdIncrementer())
@@ -179,10 +185,10 @@ public class ConfigBatch {
 
 
 
-        return jobBuilderFactory.get("dbLoaderJob")
-                .incrementer(new RunIdIncrementer())
-                .start(strainsFlow)
-                .end()
-                .build();
+//        return jobBuilderFactory.get("dbLoaderJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(bioModelsFlow)
+//                .end()
+//                .build();
     }
 }

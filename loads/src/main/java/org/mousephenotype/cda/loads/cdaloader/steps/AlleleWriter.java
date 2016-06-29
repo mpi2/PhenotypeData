@@ -67,7 +67,7 @@ public class AlleleWriter implements ItemWriter {
         public void setAllele(Allele allele) {
             this.allele = allele;
         }
-private int count = 0;
+
         @Override
         public void setValues(PreparedStatement ps) throws SQLException {
             String geneAcc = (allele.getGene() == null ? null : allele.getGene().getId().getAccession());
