@@ -37,7 +37,7 @@ import java.util.Properties;
 	"org.mousephenotype.cda.solr",
 	"org.mousephenotype.cda.utilities"}
 )
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 public class IndexerConfig {
 
     public static final int QUEUE_SIZE = 10000;
