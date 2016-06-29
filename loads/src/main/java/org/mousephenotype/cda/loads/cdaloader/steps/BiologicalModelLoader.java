@@ -60,7 +60,7 @@ public class BiologicalModelLoader implements InitializingBean, Step {
     }
 
     @Autowired
-    @Qualifier("alleleProcessorPhenotypic")
+    @Qualifier("bioModelProcessor")
     private ItemProcessor bioModelProcessor;
 
     @Autowired
@@ -163,9 +163,6 @@ public class BiologicalModelLoader implements InitializingBean, Step {
                 .build();
 
         // Synchronous flows.
-        List<Flow> synchronousFlows = new ArrayList<>();
-        synchronousFlows.add(new FlowBuilder<Flow>("alleleLoaderPhenotypicsFlow")
-                .from(loadBioModelStep).end());
         FlowBuilder<Flow> synchronousFlowBuilder = new FlowBuilder<Flow>("bioModelLoaderFlow").start(loadBioModelStep);
         Flow flow = synchronousFlowBuilder.build();
 

@@ -91,6 +91,7 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
 
         bioModel.setAlleleAccessionId(alleleAccessionId);
 
+        bioModels.put(bioModel.getAlleleSymbol(), bioModel);
         addedBioModelsCount++;
 
         return bioModel;

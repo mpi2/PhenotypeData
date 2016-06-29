@@ -43,10 +43,10 @@ public class ConfigBeans {
     private Map<String, OntologyTerm>   markerProcessorFeatureTypes = new HashMap<>();
     private Map<String, OntologyTerm>   mgiFeatureTypes             = new HashMap<>();
 
-    private Map<String, Allele>         alleles                     = new HashMap<>(150000);    // key = allele accession id
-    private Map<String, GenomicFeature> genomicFeatures             = new HashMap<>(150000);    // key = marker accession id
-    private Map<String, SequenceRegion> sequenceRegions             = new HashMap<>(150000);    // key = name (seq_name)
-    private Map<String, Strain>         strains                     = new HashMap<>(150000);    // key = strain accession id
+    private Map<String, Allele>         alleles         = new HashMap<>(150000);    // key = allele accession id
+    private Map<String, GenomicFeature> genes           = new HashMap<>(150000);    // key = marker accession id
+    private Map<String, SequenceRegion> sequenceRegions = new HashMap<>(150000);    // key = name (seq_name)
+    private Map<String, Strain>         strains         = new HashMap<>(150000);    // key = strain accession id
 
     @NotNull
     @Value("${cdaload.workspace}")
@@ -191,35 +191,35 @@ public class ConfigBeans {
     @Bean(name = "alleleProcessorPhenotypic")
     public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
         mgiFeatureTypes = sqlLoaderUtils().getOntologyTerms(DbIdType.MGI.intValue());
-        if (genomicFeatures.isEmpty()) {
-            genomicFeatures =  sqlLoaderUtils().getGenes();
+        if (genes.isEmpty()) {
+            genes =  sqlLoaderUtils().getGenes();
         }
-        return new AlleleProcessorPhenotypic(genomicFeatures, mgiFeatureTypes);
+        return new AlleleProcessorPhenotypic(genes, mgiFeatureTypes);
     }
 
     @Bean(name = "alleleProcessorEucomm")
     public AlleleProcessorEucomm alleleProcessorEucomm() {
-        return new AlleleProcessorEucomm(genomicFeatures, mgiFeatureTypes);
+        return new AlleleProcessorEucomm(genes, mgiFeatureTypes);
     }
 
     @Bean(name = "alleleProcessorKomp")
     public AlleleProcessorKomp alleleProcessorKomp() {
-        return new AlleleProcessorKomp(genomicFeatures, mgiFeatureTypes);
+        return new AlleleProcessorKomp(genes, mgiFeatureTypes);
     }
 
     @Bean(name = "alleleProcessorNorcomm")
     public AlleleProcessorNorcomm alleleProcessorNorcomm() {
-        return new AlleleProcessorNorcomm(genomicFeatures, mgiFeatureTypes);
+        return new AlleleProcessorNorcomm(genes, mgiFeatureTypes);
     }
 
     @Bean(name = "alleleProcessorGenopheno")
     public AlleleProcessorGenopheno alleleProcessorGenopheno() {
-        return new AlleleProcessorGenopheno(genomicFeatures, mgiFeatureTypes);
+        return new AlleleProcessorGenopheno(genes, mgiFeatureTypes);
     }
 
     @Bean(name = "alleleProcessorQtl")
     public AlleleProcessorQtl alleleProcessorQtl() {
-        return new AlleleProcessorQtl(genomicFeatures, mgiFeatureTypes);
+        return new AlleleProcessorQtl(genes, mgiFeatureTypes);
     }
 
     @Bean(name = "alleleLoader")
@@ -244,7 +244,13 @@ public class ConfigBeans {
 
     @Bean(name = "bioModelProcessor")
     public BiologicalModelProcessor bioModelProcessor() {
-        return new BiologicalModelProcessor(alleles, genomicFeatures);
+        if (alleles.isEmpty()) {
+            alleles = sqlLoaderUtils().getAlleles();
+        }
+        if (genes.isEmpty()) {
+            genes = sqlLoaderUtils().getGenes();
+        }
+        return new BiologicalModelProcessor(alleles, genes);
     }
 
     @Bean(name = "bioModelLoader")
@@ -274,17 +280,17 @@ public class ConfigBeans {
 
     @Bean(name = "markerProcessorGeneTypes")
     public MarkerProcessorGeneTypes markerProcessorGeneTypes() {
-        return new MarkerProcessorGeneTypes(genomicFeatures, markerProcessorFeatureTypes, sequenceRegions);
+        return new MarkerProcessorGeneTypes(genes, markerProcessorFeatureTypes, sequenceRegions);
     }
 
     @Bean(name = "markerProcessorMarkerList")
     public MarkerProcessorMarkerList markerProcessorMarkerList() {
-        return new MarkerProcessorMarkerList(genomicFeatures, markerProcessorFeatureTypes, sequenceRegions);
+        return new MarkerProcessorMarkerList(genes, markerProcessorFeatureTypes, sequenceRegions);
     }
 
     @Bean(name = "markerProcessorXrefs")
     public MarkerProcessorXrefs markerProcessorXrefs() {
-        return new MarkerProcessorXrefs(genomicFeatures);
+        return new MarkerProcessorXrefs(genes);
     }
 
     @Bean(name = "markerWriter")
