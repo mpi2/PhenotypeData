@@ -96,21 +96,21 @@ public class ImageComparatorController {
 		
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
-		List<SexType> sexTypes=null;
-		if(gender!=null){
-			sexTypes = getSexTypesForFilter(gender);
+		SexType sexType=null;
+		if(gender!=null && !gender.equals("all")){
+			sexType = getSexTypesForFilter(gender);
 		}
 		
 		
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
 		SolrDocumentList controls=null;
 		if(imgDoc!=null){
-		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexTypes);
+		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexType);
 		}
-		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexTypes);
+		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexType);
 		
 		List<ZygosityType> zygosityTypes=null;
-		if(zygosity!=null){
+		if(zygosity!=null && !zygosity.equals("all")){
 			zygosityTypes=getZygosityTypesForFilter(zygosity);
 			//only filter mutants by zygosity as all controls are homs.
 			filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
@@ -121,7 +121,11 @@ public class ImageComparatorController {
 		
 
 		this.addGeneToPage(acc, model);
+		model.addAttribute("parameter_stable_id", parameter_stable_id);
+		model.addAttribute("anatomy_id", anatomy_id);
 		model.addAttribute("mediaType", mediaType);
+		model.addAttribute("sexTypes",SexType.values());
+		model.addAttribute("zygTypes",ZygosityType.values());
 		model.addAttribute("mutants", filteredMutants);
 		//System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
@@ -153,38 +157,38 @@ public class ImageComparatorController {
 		return filteredImages;
 	}
 
-	private SolrDocumentList filterMutantsBySex(SolrDocumentList mutants, SolrDocument imgDoc, List<SexType> sexTypes) {
-		if(sexTypes==null || sexTypes.isEmpty()){
+	private SolrDocumentList filterMutantsBySex(SolrDocumentList mutants, SolrDocument imgDoc, SexType sexType) {
+		if(sexType==null){
 			return mutants;
 		}
 		
 		SolrDocumentList filteredMutants = new SolrDocumentList();
 		
 		if (imgDoc != null) {
-			for (SexType sex : sexTypes) {
+			
 				for(SolrDocument mutant:mutants){
-					if(mutant.get("sex").equals(sex.getName())){
+					if(mutant.get("sex").equals(sexType.getName())){
 						filteredMutants.add(mutant);
 					}
 				}
 				
-			}
+			
 		}
 		return filteredMutants;
 	}
 
 	private SolrDocumentList filterControlsBySexAndOthers(SolrDocument imgDoc, int numberOfControlsPerSex,
-			List<SexType> sexTypes) throws SolrServerException {
-		if(sexTypes==null){
+			SexType sex) throws SolrServerException {
+		if(sex==null){
 			return imageService.getControls(numberOfControlsPerSex, null, imgDoc, null);
 		}
 		SolrDocumentList controls = new SolrDocumentList();
 		Set<SolrDocument> uniqueControls=new HashSet<>();
 		if (imgDoc != null) {
-			for (SexType sex : sexTypes) {
+			
 				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 				uniqueControls.addAll(controlsTemp);
-			}
+			
 		}
 		
 		
@@ -193,21 +197,15 @@ public class ImageComparatorController {
 		return controls;
 	}
 
-	private List<SexType> getSexTypesForFilter(String gender) {
-		List<SexType> sexTypes=new ArrayList<>();
-		if(gender.equals("male")){
-			sexTypes.add(SexType.male);
-		}else
-		if(gender.equals("female")){
-			sexTypes.add(SexType.female);
-		}else
-		if(gender.equals("both")){
-			sexTypes.add(SexType.male);
-			sexTypes.add(SexType.female);
-		}else if(gender.equals("not applicable") || gender.equals("no data")){
-			return Arrays.asList(SexType.values());
+	private SexType getSexTypesForFilter(String gender) {
+		SexType chosenSex=null;
+		for(SexType sex:SexType.values()){
+			if(sex.name().equals(gender)){
+				chosenSex=sex;
+				return sex;
+			}
 		}
-		return sexTypes;
+		return chosenSex;
 	}
 	
 	private List<ZygosityType> getZygosityTypesForFilter(String zygosity) {
@@ -217,8 +215,14 @@ public class ImageComparatorController {
 		}else
 		if(zygosity.equals("heterozygote")){
 			zygosityTypes.add(ZygosityType.heterozygote);
+		}else if(zygosity.equals("hemizygote")){
+				zygosityTypes.add(ZygosityType.hemizygote);
 		}else
-		if(zygosity.equals("not_applicable")){
+		if(zygosity.equals("not_applicable") || zygosity.equals("notapplicable")){
+			zygosityTypes.addAll(Arrays.asList(ZygosityType.values()));
+			
+		}else
+		if(zygosity.equals("all")){
 			zygosityTypes.addAll(Arrays.asList(ZygosityType.values()));
 			
 		}

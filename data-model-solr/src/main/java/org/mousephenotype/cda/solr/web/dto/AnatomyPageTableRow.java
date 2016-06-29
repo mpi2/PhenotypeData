@@ -134,10 +134,10 @@ public class AnatomyPageTableRow extends DataTableRow{
     		url += "&" + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + "=control";
     	}
     	if (getParameter() != null){
-    		url += "&" + ImageDTO.PARAMETER_STABLE_ID + "=\"" + getParameter().getStableId() + "\"";
+    		url += "&" + ImageDTO.PARAMETER_STABLE_ID + "=" + getParameter().getStableId();
     	}
     	if ( expressionValue != null){
-    		url += "&" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + "=\"" + expressionValue + "\"";
+    		url += "&" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + "=" + expressionValue;
     	}
 
     	EvidenceLink link = new EvidenceLink();
