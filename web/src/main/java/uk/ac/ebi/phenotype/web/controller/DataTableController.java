@@ -1744,7 +1744,7 @@ public class DataTableController {
         } else {
             query = "select count(*) as count from allele_ref where reviewed='no'";
         }
-		System.out.println("DataTableController: query: "+query);
+		//System.out.println("DataTableController: query: "+query);
 		int rowCount = 0;
         try (PreparedStatement p1 = conn.prepareStatement(query)) {
             if (sSearch != "") {
@@ -1776,9 +1776,6 @@ public class DataTableController {
 		// store new value to database
 		value = value.trim();
 		Integer dbid = Integer.parseInt(dbidStr);
-		System.out.println("***** check dbid: "+dbidStr);
-		//List<Integer> dbids = getDbIds(dbidStr);
-
 
 		return setAlleleSymbol(dbid, value);
 	}
@@ -1793,8 +1790,7 @@ public class DataTableController {
 
 		Integer dbid = Integer.parseInt(dbidStr);
 		// store new value to database
-		System.out.println("***** check set falsepositive dbid: "+dbid);
-		//List<Integer> dbids = getDbIds(dbidStr);
+
 		return setFalsePositive(dbid, falsePositive);
 	}
 
@@ -1809,15 +1805,6 @@ public class DataTableController {
 		stmt.executeUpdate();
 
 		return true;
-	}
-
-	private List<Integer> getDbIds(String dbidStr) {
-		List<String> dbids = Arrays.asList(dbidStr.split(","));
-		List<Integer> dbidsInt = new ArrayList<>();
-		for (String strDbid : dbids) {
-			dbidsInt.add(Integer.parseInt(strDbid));
-		}
-		return dbidsInt;
 	}
 
     public String setAlleleSymbol(Integer dbid, String alleleSymbol) throws SQLException {
@@ -2176,33 +2163,19 @@ public class DataTableController {
         String query = null;
 
         if (sSearch != "") {
-            query = "select count(*) as count from allele_ref where "
-                    + " acc like ?"
-                    + " or symbol like ?"
-                    + " or pmid like ?"
-                    + " or date_of_publication like ?"
-                    + " or grant_id like ?"
-                    + " or agency like ?";
-                  //  + " or acronym like ?";
-//			query = "SELECT "
-//					+ "symbol AS symbol,"
-//					+ "pmid,"
-//					+ "date_of_publication,"
-//					+ "grant_id AS grant_id,"
-//					+ "agency AS agency "
-//					+ "FROM allele_ref "
-//					//+ "WHERE (reviewed='no' AND falsepositive='no') "
-//					+ "WHERE "
-//					+ "(symbol LIKE ? "
-//					+ "OR pmid LIKE ? "
-//					+ "OR date_of_publication LIKE ? "
-//					+ "OR grant_id LIKE ? "
-//					+ "OR agency LIKE ?)";
+            query = "SELECT count(*) AS count FROM allele_ref WHERE "
+					+ "falsepositive='no' "
+                    + "AND (acc like ? "
+                    + "OR symbol like ? "
+                    + "OR pmid like ? "
+                    + "OR date_of_publication like ? "
+                    + "OR grant_id like ? "
+                    + "OR agency like ?)";
+                  //  + " OR acronym like ?";
         } else {
-			query = "SELECT count(*) AS count FROM allele_ref";
-			//query = "SELECT COUNT(DISTINCT pmid) AS count FROM allele_ref WHERE reviewed='no' AND falsepositive='no'";
+			query = "SELECT count(*) AS count FROM allele_ref WHERE falsepositive='no'";
         }
-		System.out.println("count query: "+query);
+		//System.out.println("count query: "+query);
 		int rowCount = 0;
         try (PreparedStatement p1 = conn.prepareStatement(query)) {
 
@@ -2215,23 +2188,6 @@ public class DataTableController {
 			while (resultSet.next()) {
 				rowCount = Integer.parseInt(resultSet.getString("count"));
 			}
-
-
-//            if (sSearch != "") {
-//                for (int i = 1; i < 6; i ++) {
-//					p1.setString(i, like);
-//                }
-//				ResultSet resultSet = p1.executeQuery();
-//				while (resultSet.next()) {
-//					rowCount = Integer.parseInt(resultSet.getString("count"));
-//				}
-//            }
-//			else {
-//				ResultSet resultSet = p1.executeQuery();
-//				while (resultSet.next()) {
-//					rowCount = Integer.parseInt(resultSet.getString("count"));
-//				}
-//			}
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2245,18 +2201,6 @@ public class DataTableController {
         String query2 = null;
 
         if (sSearch != "") {
-//            query2 = "select * from allele_ref where"
-//					+ " (reviewed='no' and"
-//					+ " falsepositive='no') and"
-//                    + " (acc like ?"
-//                    + " or symbol like ?"
-//                    + " or pmid like ?"
-//                    + " or date_of_publication like ?"
-//                    + " or grant_id like ?"
-//                    + " or agency like ?"
-//                    + " or acronym like ?)"
-//                    + " order by reviewed"
-//                    + " limit ?, ?";
 			query2 = "SELECT dbid AS dbid,"
 				+ "reviewed,"
 				+ "gacc AS gacc,"
@@ -2268,9 +2212,8 @@ public class DataTableController {
 				+ "acronym AS acronym,"
 				+ "paper_url "
 				+ "FROM allele_ref "
-				//+ "WHERE (reviewed='no' AND falsepositive='no') "
-				+ "WHERE "
-				+ "(symbol LIKE ? "
+				+ "WHERE falsepositive='no' "
+				+ "AND (symbol LIKE ? "
 				+ "OR pmid LIKE ? "
 				+ "OR date_of_publication LIKE ? "
 				+ "OR grant_id LIKE ? "
@@ -2278,7 +2221,6 @@ public class DataTableController {
 				+ "ORDER BY reviewed DESC "
 				+ "LIMIT ?, ?";
         } else {
-            //query2 = "select * from allele_ref where reviewed='no' and falsepositive='no' limit ?,?";
 			query2 = "SELECT dbid AS dbid,"
 				+ "reviewed,"
 				+ "gacc AS gacc,"
@@ -2289,7 +2231,7 @@ public class DataTableController {
 				+ "agency AS agency,"
 				+ "paper_url "
 				+ "FROM allele_ref "
-				//+ "WHERE (reviewed='no' AND falsepositive='no') "
+				+ "WHERE falsepositive='no' "
 				+ "ORDER BY reviewed DESC limit ?,?";
         }
 
@@ -2406,10 +2348,7 @@ public class DataTableController {
 			// show max of 50 alleles for a paper
             int alleleAccessionIdCount = reference.getAlleleAccessionIds().size() > 50 ? 50 : reference.getAlleleAccessionIds().size();
 
-			System.out.println("DataTableController allele count: " + alleleAccessionIdCount);
-
 			for (int i = 0; i < alleleAccessionIdCount; i++) {
-				System.out.println("i now: "+ i + " -- " + alleleAccessionIdCount + "symbol: " + reference.getAlleleSymbols().size() + " gene: "+reference.getGeneAccessionIds().size() + " ---> "+ reference.getPmid());
 				String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
                 String alleleLink;
                 //String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
