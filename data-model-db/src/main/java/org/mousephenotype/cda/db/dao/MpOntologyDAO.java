@@ -22,9 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 /**
  * This class encapsulates the code and data necessary to serve a Mammalian
@@ -39,10 +43,55 @@ public class MpOntologyDAO extends OntologyDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass()); 
 
+    protected Map<String, List<String>>   mpToAnatomy = new HashMap<>(); //<mpId, <anatomyIds>>
     
     public MpOntologyDAO() {
         
     }
+    
+    @Override
+    @PostConstruct
+    public void initialize() throws RuntimeException {
+        super.initialize();
+        try{
+        	mpToAnatomy = populateMpMappings() ;
+        } catch (Exception e){
+        	e.printStackTrace();
+        }
+    }
+    @Override
+    public List<String> getAnatomyMappings(String mpId){
+    	return mpToAnatomy.get(mpId);
+    }
+    
+    public Map<String, List<String>>  getMpToAnatomyMap(){
+    	return mpToAnatomy;
+    }
+    
+    private Map<String, List<String>> populateMpMappings() 
+    throws SQLException {
+    	    	
+   	        Map<String, List<String>> beans = new HashMap<>();
+            Connection ontoDbConnection = ontodbDataSource.getConnection();
+            String q = "select mp.term_id, ti.term_id as ma_term_id from mp_mappings mp inner join ma_term_infos ti on mp.mapped_term_id=ti.term_id and mp.ontology='MA'";
+            PreparedStatement ps = ontoDbConnection.prepareStatement(q);
+            ResultSet rs = ps.executeQuery();
+            int count = 0;
+            while (rs.next()) {
+                String mpId = rs.getString("term_id");
+                String anatomyTermId = rs.getString("ma_term_id");
+                if ( ! beans.containsKey(mpId)) {
+                    beans.put(mpId, new ArrayList<String>());
+                }
+                beans.get(mpId).add(anatomyTermId);
+                count ++;
+            }
+            logger.debug(" Added {} anatomy mapping ids.", count);
+
+            return beans;
+    
+    }
+
     
     /**
      * Returns the set of descendent graphs for the given id.
