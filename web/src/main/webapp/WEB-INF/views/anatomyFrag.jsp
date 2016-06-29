@@ -31,7 +31,7 @@
 					            </td>
 					            <td>${row.expression}</td>
 					           	<td>${row.anatomyLinks}</td>
-					            <td>${row.zygosity}</td>
+					            <td>${row.zygosity.getShortName()}</td>
 					            <td>
 					                <c:set var="count" value="0" scope="page"/>
 					                <c:forEach var="sex" items="${row.sexes}"><c:set var="count" value="${count + 1}" scope="page"/>

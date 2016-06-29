@@ -43,7 +43,7 @@
 						<td><t:formatAllele>${row.getAllele().getSymbol()}</t:formatAllele></td>
 						<td>${row.getPhenotypingCenter()}</td>
 						<td>${row.getProcedure().getName()} / ${row.getParameter().getName()}</td>
-						<td>${row.getZygosity().toString().substring(0,3).toUpperCase()}</td>
+						<td>${row.getZygosity().getShortName()}</td>
 						<td>${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m</td>
 						<td>${row.getStatisticalMethod()}</td>
 						<!-- pValue -->
