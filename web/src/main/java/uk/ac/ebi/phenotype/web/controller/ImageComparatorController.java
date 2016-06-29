@@ -59,8 +59,10 @@ public class ImageComparatorController {
 	
 	@RequestMapping("/imageComparator")
 	public String imageCompBrowser( @RequestParam(value = "acc")  String acc,
-			 @RequestParam(value = "parameter_stable_id")  String parameter_stable_id,
-			@RequestParam(value = "gender", required=false) String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
+			 @RequestParam(value = "parameter_stable_id", required=false)  String parameter_stable_id,
+			 @RequestParam(value = "parameter_association_value", required=false)  String parameter_association_value,
+			 @RequestParam(value = "anatomy_id", required=false)  String anatomy_id,
+			@RequestParam(value = "gender", required=false) String gender, @RequestParam(value = "zygosity", required=false) String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
 			throws SolrServerException {
 		System.out.println("calling image imageComparator");
 		
@@ -69,15 +71,15 @@ public class ImageComparatorController {
 		//changed to http://localhost:8080/phenotype-archive/imageComparator?acc=MGI:2669829&parameter_stable_id=IMPC_EYE_050_001
 		//in anatomy pages we have links like this that need to be supported
 		//http://localhost:8080/phenotype-archive/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(anatomy_id:%22EMAPA:16105%22%20OR%20selected_top_level_anatomy_id:%22EMAPA:16105%22%20OR%20intermediate_anatomy_id:%22EMAPA:16105%22)%20%20AND%20gene_symbol:Ap4e1%20AND%20parameter_name:%22LacZ%20images%20wholemount%22%20AND%20parameter_association_value:%22ambiguous%22&title=gene%20Ap4e1%20with%20ambiguous%20in%20heart
-		
+		//http://localhost:8080/phenotype-archive/imageCompara?anatomy_id:%22EMAPA:16105%22&gene_symbol:Ap4e1&parameter_name:%22LacZ%20images%20wholemount%22&parameter_association_value:%22ambiguous%22
 		if(mediaType!=null) System.out.println("mediaType= "+mediaType);
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
 		SolrDocumentList mutants = new SolrDocumentList();
 		QueryResponse responseExperimental = imageService
-				.getImagesForGeneByParameter(acc, parameter_stable_id,
-						"experimental", 10000, null, null, null);
+				.getImagesForGeneByParameter(acc, parameter_stable_id,"experimental", 10000, 
+						null, null, null, anatomy_id, parameter_association_value);
 		SolrDocument imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			mutants=responseExperimental.getResults();
@@ -107,10 +109,14 @@ public class ImageComparatorController {
 		}
 		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexTypes);
 		
-		List<ZygosityType> zygosityTypes=getZygosityTypesForFilter(zygosity);
+		List<ZygosityType> zygosityTypes=null;
+		if(zygosity!=null){
+			zygosityTypes=getZygosityTypesForFilter(zygosity);
+			//only filter mutants by zygosity as all controls are homs.
+			filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
+		}
 		
-		//only filter mutants by zygosity as all controls are homs.
-		filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
+
 		
 		
 
