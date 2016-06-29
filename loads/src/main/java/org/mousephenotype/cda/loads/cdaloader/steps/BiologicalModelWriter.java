@@ -40,7 +40,10 @@ public class BiologicalModelWriter implements ItemWriter {
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
-    private BioModelAllelePSSetter pss = new BioModelAllelePSSetter();
+    private BioModelPSSetter bioModelPss = new BioModelPSSetter();
+    private BioModelAllelePSSetter bioModelAllelePss = new BioModelAllelePSSetter();
+    private BioModelGenomicFeaturePSSetter bioModelGenomicFeaturePss = new BioModelGenomicFeaturePSSetter();
+    private BioModelPhenotypePSSetter bioModelPhenotypePss = new BioModelPhenotypePSSetter();
 
 
     /**
@@ -53,13 +56,6 @@ public class BiologicalModelWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-
-
-        BioModelPSSetter bioModelPss = new BioModelPSSetter();
-        BioModelAllelePSSetter bioModelAllelePss = new BioModelAllelePSSetter();
-        BioModelGenomicFeaturePSSetter bioModelGenomicFeaturePss = new BioModelGenomicFeaturePSSetter();
-        BioModelPhenotypePSSetter bioModelPhenotypePss = new BioModelPhenotypePSSetter();
-
         for (Object bioModel1 : items) {
             BiologicalModelAggregator bioModel = (BiologicalModelAggregator) bioModel1;
 
