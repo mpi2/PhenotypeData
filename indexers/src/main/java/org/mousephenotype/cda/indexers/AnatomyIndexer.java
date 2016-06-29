@@ -73,8 +73,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
 
-    private static Connection ontoDbConnection;
-
     @Autowired
     @Qualifier("sangerImagesCore")
     SolrServer imagesCore;
@@ -90,31 +88,13 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     EmapaOntologyDAO emapaOntologyService;
 
 
-    private Map<String, List<Integer>> termNodeIds;
-    private Map<Integer, String> lookupTableByNodeId = new HashMap<>(); // <nodeId, emapaOntologyId>
-    private Map<String, List<String>> emapaTermSynonyms;
-
-    private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();      // key = term_id.
-    private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap();      // key = term_id.
+    private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap<>();      // key = term_id.
+    private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap<>();      // key = term_id.
 
     public AnatomyIndexer() {
 
     }
 
-    /**
-     * Initialize the database connections required
-     *
-     * @throws IndexerException when there's an issue
-     */
-    private void initializeDatabaseConnections() throws IndexerException {
-
-        try {
-            ontoDbConnection = ontodbDataSource.getConnection();
-        } catch (SQLException e) {
-            throw new IndexerException(e);
-        }
-
-    }
     @Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(anatomyIndexing);
@@ -129,7 +109,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
 
-        initializeDatabaseConnections();
 
     	try {
 
@@ -140,7 +119,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             logger.info(" Source of images core: " + SolrUtils.getBaseURL(imagesCore) );
             initialiseSupportingBeans();
 
-            List<AnatomyDTO> maBatch = new ArrayList(BATCH_SIZE);
+            List<AnatomyDTO> maBatch = new ArrayList<>(BATCH_SIZE);
             List<OntologyTermBean> beans = maOntologyService.getAllTerms();
             List<OntologyTermBean> emapaBeans = emapaOntologyService.getAllTerms();
 

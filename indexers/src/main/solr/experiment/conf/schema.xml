@@ -112,27 +112,6 @@
         <field name="sub_term_description" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="sequence_id" type="int" indexed="true" stored="true" multiValued="false"/>
 
-        <!-- ma term for ALZ parameters (Adult LacZ tissues) -->
-        <field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="intermediate_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="intermediate_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="intermediate_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
-        <!-- emap term for ELZ parameters (Embryonic LacZ tissues) -->
-        <field name="emap_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="emap_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="emap_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="intermediate_emap_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="intermediate_emap_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="intermediate_emap_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="selected_top_level_emap_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="selected_top_level_emap_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="selected_top_level_emap_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     </fields>
 
     <uniqueKey>id</uniqueKey>

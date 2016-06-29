@@ -24,10 +24,10 @@ package org.mousephenotype.cda.enumerations;
  */
 
 public enum SexType {
+	
 	female("female"),
 	hermaphrodite("hermaphrodite"),
 	male("male"),
-	not_applicable("not applicable"),
 	no_data("no data"),
 	both("both");
 
