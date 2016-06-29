@@ -121,6 +121,14 @@ public class ReferenceDTO {
         this.dateOfPublication = dateOfPublication;
     }
 
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public List<String> getGrantIds() {
         return grantIds;
     }
@@ -143,14 +151,6 @@ public class ReferenceDTO {
 
     public void setPaperUrls(List<String> paperUrls) {
         this.paperUrls = paperUrls;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
     }
 
     @Override
@@ -219,6 +219,4 @@ public class ReferenceDTO {
                 ", paperUrls=" + paperUrls +
                 '}';
     }
-
-
 }
