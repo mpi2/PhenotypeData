@@ -172,7 +172,7 @@ public class ReferenceDAO {
               //+ "GROUP BY pmid\n"
               + "ORDER BY date_of_publication DESC\n";
 
-        System.out.println("alleleRef query: " + query);
+        //System.out.println("alleleRef query: " + query);
 
         List<ReferenceDTO> results = new ArrayList<>();
 
