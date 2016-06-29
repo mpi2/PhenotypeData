@@ -96,6 +96,32 @@
         <field name="metadata" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="metadata_group" type="string" indexed="true" stored="true" multiValued="false"/>
 
+        <!-- anatomy: MA and EMAP or other anatomy (eg. EMAPA) -->
+        <field name="anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="anatomy_id_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <field name="top_level_anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="top_level_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="top_level_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <field name="selected_top_level_anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="selected_top_level_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="selected_top_level_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <field name="intermediate_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="intermediate_anatomy_term" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="intermediate_anatomy_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
+
+        <field name="parent_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="parent_anatomy_term" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="parent_anatomy_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
+
+        <field name="child_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="child_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="child_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
         <!-- images -->
         <field name="download_file_path" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="file_type" type="string" indexed="true" stored="true" multiValued="false"/>
