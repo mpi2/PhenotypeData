@@ -122,27 +122,23 @@ public class AnatomyPageTableRow extends DataTableRow{
 
 
     public EvidenceLink buildImageUrl(String baseUrl, String anatomyId, String anatomyTerm, String expressionValue){
-
-    	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(";
-        url += ImageDTO.ANATOMY_ID + ":\"";
-        url += anatomyId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\"";
-        url += " OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\"";
-
-    	url += ") ";
+    	//http://localhost:8080/phenotype-archive/imageCompara?anatomy_id:%22EMAPA:16105%22&gene_symbol:Ap4e1&parameter_name:%22LacZ%20images%20wholemount%22&parameter_association_value:%22ambiguous%22
+		
+    	String url = baseUrl + "/imageComparator?";
+        url +=ImageDTO.ANATOMY_ID + "=" + anatomyId;
+       
 
     	if (getGene().getSymbol()!= null){
-    		url += " AND " + ImageDTO.GENE_SYMBOL + ":" + this.getGene().getSymbol();
+    		url += "&acc="+ this.getGene().getAccessionId();
     	} else {
-    		url += " AND " + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":control";
+    		url += "&" + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + "=control";
     	}
     	if (getParameter() != null){
-    		url += " AND " + ImageDTO.PARAMETER_NAME + ":\"" + getParameter().getName() + "\"";
+    		url += "&" + ImageDTO.PARAMETER_STABLE_ID + "=\"" + getParameter().getStableId() + "\"";
     	}
     	if ( expressionValue != null){
-    		url += " AND " + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"" + expressionValue + "\"";
+    		url += "&" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + "=\"" + expressionValue + "\"";
     	}
-    	
-    	url += "&title=gene " + this.getGene().getSymbol() + " with " + expressionValue + " in " + anatomyTerm + "";
 
     	EvidenceLink link = new EvidenceLink();
     	link.setUrl(url);
