@@ -16,10 +16,9 @@
 package org.mousephenotype.cda.db.pojo;
 
 /**
- * Representation of a synonym in the database.
+ * Representation of a consider id in the database.
  *
- * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @since February 2012
+ * @author Mike Relac
  *
  */
 
@@ -29,8 +28,8 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class ConsiderId {
 
-	private String ontologyTermAcc;
-	private String acc;
+	private String ontologyTermAccessionId;
+	private String considerAccessionId;
 
 	public ConsiderId() {
 
@@ -39,30 +38,30 @@ public class ConsiderId {
 	/**
 	 * Create a new {@code ConsiderId} instance
 	 *
-	 * @param ontologyTermAcc the ontology term accession id (foreign key to the ontology_term table)
-	 * @param @param acc the accession id
+	 * @param ontologyTermAccessionId the ontology term accession id (foreign key to the ontology_term table)
+	 * @param @param considerAccessionId the consider accession id
      */
-	public ConsiderId(String ontologyTermAcc, String acc) {
-		this.ontologyTermAcc = ontologyTermAcc;
-		this.acc = acc;
+	public ConsiderId(String ontologyTermAccessionId, String considerAccessionId) {
+		this.ontologyTermAccessionId = ontologyTermAccessionId;
+		this.considerAccessionId = considerAccessionId;
 	}
 
 	/**
-	 * Return the accession id
+	 * Return the consider accession id
 	 *
-	 * @return the accession id
+	 * @return the consider accession id
 	 */
-	public String getAcc() {
-		return acc;
+	public String getConsiderAccessionId() {
+		return considerAccessionId;
 	}
 
 	/**
-	 * Set the acc
+	 * Set the consider accession id
 	 *
-	 * @param acc the accession id to set
+	 * @param considerAccessionId the consider accession id to set
 	 */
-	public void setAcc(String acc) {
-		this.acc = acc;
+	public void setConsiderAccessionId(String considerAccessionId) {
+		this.considerAccessionId = considerAccessionId;
 	}
 
 	/**
@@ -70,24 +69,24 @@ public class ConsiderId {
 	 *
 	 * @return the ontology term accession id (foreign key to the ontology_term table)
 	 */
-	public String getOntologyTermAcc() {
-		return ontologyTermAcc;
+	public String getOntologyTermAccessionId() {
+		return ontologyTermAccessionId;
 	}
 
 	/**
 	 * Set the ontology term accession id (foreign key to the ontology_term table)
 	 *
-	 * @param ontologyTermAcc the ontology term accession id (foreign key to the ontology_term table) to set
+	 * @param ontologyTermAccessionId the ontology term accession id (foreign key to the ontology_term table) to set
 	 */
-	public void setOntologyTermAcc(String ontologyTermAcc) {
-		this.ontologyTermAcc = ontologyTermAcc;
+	public void setOntologyTermAccessionId(String ontologyTermAccessionId) {
+		this.ontologyTermAccessionId = ontologyTermAccessionId;
 	}
 
 	@Override
 	public String toString() {
 		return "ConsiderId{" +
-				"ontologyTermAcc='" + ontologyTermAcc + '\'' +
-				", acc='" + acc + '\'' +
+				"ontologyTermAccessionId='" + ontologyTermAccessionId + '\'' +
+				", considerAccessionId='" + considerAccessionId + '\'' +
 				'}';
 	}
 }

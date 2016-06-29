@@ -234,8 +234,8 @@ public class OntologyParser {
 		
 		ConsiderId consider = new ConsiderId();
 		if (ann.getValue() instanceof OWLLiteral){
-			consider.setOntologyTermAcc(getIdentifierShortForm(cls));
-			consider.setAcc(((OWLLiteral) ann.getValue()).getLiteral());
+			consider.setOntologyTermAccessionId(getIdentifierShortForm(cls));
+			consider.setConsiderAccessionId(((OWLLiteral) ann.getValue()).getLiteral());
 		}
 		return consider;
 	}

@@ -57,6 +57,9 @@ public class StrainProcessorMgi implements ItemProcessor<Strain, Strain> {
 
     @Override
     public Strain process(Strain strain) throws Exception {
+
+        lineNumber++;
+
         Allele allele = allelesMap.get(strain.getId().getAccession());
         if (allele != null) {
             logger.warn("Strain {} is already in the allele table as allele {}", strain.toString(), allele);

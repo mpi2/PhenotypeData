@@ -38,11 +38,11 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
     private       int                 addedStrainNotSynonymCount  = 0;
     private       int                 addedEucommSynonymsCount    = 0;
     private       Map<String, Allele> allelesMap;                                           // Key = accession id. Value = Allele instance.
-    public final  Set<String>         errorMessages               = new HashSet<>();
-    private       int                 lineNumber                  = 0;
-    private final Logger              logger                      = LoggerFactory.getLogger(this.getClass());
-    private       int                 strainIsAlleleCount         = 0;
-    private       int                 strainNotSynonymCount       = 0;
+    public final  Set<String> errorMessages         = new HashSet<>();
+    private       int         lineNumber            = 0;
+    private final Logger      logger                = LoggerFactory.getLogger(this.getClass());
+    private       int         strainIsAlleleCount   = 0;
+    private       int         strainNotSynonymCount = 0;
     private       Map<String, Strain> strainsMap;                                           // Key = accession id. Value = Strain instance.
     private       Map<String, String> strainNameToAccessionIdMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);    // key = strain name (strainStock). Value = strain accession id with the same strain name
 
@@ -123,21 +123,20 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
          */
 
         for (Synonym synonym : strain.getSynonyms()) {
-            String synonymAsStrainAccessionId = strainNameToAccessionIdMap.get(synonym.getSymbol());
+            String strainAsSynonymAccessionId = strainNameToAccessionIdMap.get(synonym.getSymbol());
 
-            if (synonymAsStrainAccessionId != null) {
+            if (strainAsSynonymAccessionId != null) {
                 strainNotSynonymCount++;
 
-                Strain synonymAsStrain = strainsMap.get(synonymAsStrainAccessionId);
+                Strain strainAsSynonym = strainsMap.get(strainAsSynonymAccessionId);
 
-                if (synonymAsStrain.getSynonym(strain.getName()) == null) {
+                if (sqlLoaderUtils.getSynonym(strainAsSynonymAccessionId, strain.getName()) == null) {
                     addedStrainNotSynonymCount++;
                     Synonym newSynonym = new Synonym();
                     newSynonym.setSymbol(strain.getName());
-                    synonymAsStrain.getSynonyms().add(newSynonym);
-                    strainsMap.put(synonymAsStrain.getId().getAccession(), synonymAsStrain);
-
-                    sqlLoaderUtils.insertStrainSynonym(synonymAsStrain, newSynonym);
+                    strainAsSynonym.getSynonyms().add(newSynonym);
+                    strainsMap.put(strainAsSynonym.getId().getAccession(), strainAsSynonym);
+                    sqlLoaderUtils.insertStrainSynonym(strainAsSynonym, newSynonym);
 
                     return null;
                 }
