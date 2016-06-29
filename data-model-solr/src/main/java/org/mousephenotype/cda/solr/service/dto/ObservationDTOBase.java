@@ -107,26 +107,6 @@ public class ObservationDTOBase {
 	public static final String INTERMEDIATE_ANATOMY_TERM = "intermediate_anatomy_term";
 	public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM = "intermediate_anatomy_term_synonym";
 
-	public static final String MA_ID = "ma_id";
-	public static final String MA_TERM = "ma_term";
-	public static final String MA_TERM_SYNONYM = "ma_term_synonym";
-	public static final String INTERMEDIATE_MA_ID = "intermediate_ma_id";
-	public static final String INTERMEDIATE_MA_TERM = "intermediate_ma_term";
-	public static final String INTERMEDIATE_MA_TERM_SYNONYM = "intermediate_ma_term_synonym";
-	public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
-	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
-	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "selected_top_level_ma_term_synonym";
-
-	public static final String EMAP_ID = "emap_id";
-	public static final String EMAP_TERM = "emap_term";
-	public static final String EMAP_TERM_SYNONYM = "emap_term_synonym";
-	public static final String INTERMEDIATE_EMAP_ID = "intermediate_emap_id";
-	public static final String INTERMEDIATE_EMAP_TERM = "intermediate_emap_term";
-	public static final String INTERMEDIATE_EMAP_TERM_SYNONYM = "intermediate_emap_term_synonym";
-	public static final String SELECTED_TOP_LEVEL_EMAP_ID = "selected_top_level_emap_id";
-	public static final String SELECTED_TOP_LEVEL_EMAP_TERM = "selected_top_level_emap_term";
-	public static final String SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM = "selected_top_level_emap_term_synonym";
-
 
 	@Field(ID)
     protected Integer id;
@@ -354,62 +334,7 @@ public class ObservationDTOBase {
 	List<String> selectedTopLevelAnatomyTermSynonym;
 
 
-	@Field(MA_ID)
-	List<String> maId;
-
-	@Field(MA_TERM)
-	List<String> maTerm;
-
-	@Field(MA_TERM_SYNONYM)
-	List<String> maTermSynonym;
-
-	@Field(INTERMEDIATE_MA_ID)
-	List<String> intermediateMaID;
-
-	@Field(INTERMEDIATE_MA_TERM)
-	List<String> intermediateMaTerm;
-
-	@Field(INTERMEDIATE_MA_TERM_SYNONYM)
-	List<String> intermediateMaTermSynonym;
-
-	@Field(SELECTED_TOP_LEVEL_MA_ID)
-	List<String> selectedTopLevelMaID;
-
-	@Field(SELECTED_TOP_LEVEL_MA_TERM)
-	List<String> selectedTopLevelMaTerm;
-
-	@Field(SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
-	List<String> selectedTopLevelMaTermSynonym;
-
-
-	@Field(EMAP_ID)
-	List<String> emapId;
-
-	@Field(EMAP_TERM)
-	List<String> emapTerm;
-
-	@Field(EMAP_TERM_SYNONYM)
-	List<String> emapTermSynonym;
-
-	@Field(INTERMEDIATE_EMAP_ID)
-	List<String> intermediateEmapID;
-
-	@Field(INTERMEDIATE_EMAP_TERM)
-	List<String> intermediateEmapTerm;
-
-	@Field(INTERMEDIATE_EMAP_TERM_SYNONYM)
-	List<String> intermediateEmapTermSynonym;
-
-	@Field(SELECTED_TOP_LEVEL_EMAP_ID)
-	List<String> selectedTopLevelEmapID;
-
-	@Field(SELECTED_TOP_LEVEL_EMAP_TERM)
-	List<String> selectedTopLevelEmapTerm;
-
-	@Field(SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM)
-	List<String> selectedTopLevelEmapTermSynonym;
-
-			public List<String> getAnatomyId() {
+	public List<String> getAnatomyId() {
 		return anatomyId;
 	}
 
@@ -821,24 +746,6 @@ public class ObservationDTOBase {
 				", selectedTopLevelAnatomyId=" + selectedTopLevelAnatomyId +
 				", selectedTopLevelAnatomyTerm=" + selectedTopLevelAnatomyTerm +
 				", selectedTopLevelAnatomyTermSynonym=" + selectedTopLevelAnatomyTermSynonym +
-				", maId=" + maId +
-				", maTerm=" + maTerm +
-				", maTermSynonym=" + maTermSynonym +
-				", intermediateMaID=" + intermediateMaID +
-				", intermediateMaTerm=" + intermediateMaTerm +
-				", intermediateMaTermSynonym=" + intermediateMaTermSynonym +
-				", selectedTopLevelMaID=" + selectedTopLevelMaID +
-				", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm +
-				", selectedTopLevelMaTermSynonym=" + selectedTopLevelMaTermSynonym +
-				", emapId=" + emapId +
-				", emapTerm=" + emapTerm +
-				", emapTermSynonym=" + emapTermSynonym +
-				", intermediateEmapID=" + intermediateEmapID +
-				", intermediateEmapTerm=" + intermediateEmapTerm +
-				", intermediateEmapTermSynonym=" + intermediateEmapTermSynonym +
-				", selectedTopLevelEmapID=" + selectedTopLevelEmapID +
-				", selectedTopLevelEmapTerm=" + selectedTopLevelEmapTerm +
-				", selectedTopLevelEmapTermSynonym=" + selectedTopLevelEmapTermSynonym +
 				'}';
 	}
 
@@ -1528,147 +1435,4 @@ public class ObservationDTOBase {
 		this.developmentalStageName = developmentalStageName;
 	}
 
-	public List<String> getMaId() {
-		return maId;
-	}
-
-	public void setMaId(List<String> maId) {
-		this.maId = maId;
-	}
-
-	public List<String> getMaTerm() {
-		return maTerm;
-	}
-
-	public void setMaTerm(List<String> maTerm) {
-		this.maTerm = maTerm;
-	}
-
-	public List<String> getMaTermSynonym() {
-		return maTermSynonym;
-	}
-
-	public void setMaTermSynonym(List<String> maTermSynonym) {
-		this.maTermSynonym = maTermSynonym;
-	}
-
-	public List<String> getIntermediateMaId() {
-		return intermediateMaID;
-	}
-
-	public void setIntermediateMaId(List<String> intermediateMaID) {
-		this.intermediateMaID = intermediateMaID;
-	}
-
-	public List<String> getIntermediateMaTerm() {
-		return intermediateMaTerm;
-	}
-
-	public void setIntermediateMaTerm(List<String> intermediateMaTerm) {
-		this.intermediateMaTerm = intermediateMaTerm;
-	}
-
-	public List<String> getIntermediateMaTermSynonym() {
-		return intermediateMaTermSynonym;
-	}
-
-	public void setIntermediateMaTermSynonym(List<String> intermediateMaTermSynonym) {
-		this.intermediateMaTermSynonym = intermediateMaTermSynonym;
-	}
-
-	public List<String> getSelectedTopLevelMaId() {
-		return selectedTopLevelMaID;
-	}
-
-	public void setSelectedTopLevelMaId(List<String> selectedTopLevelMaID) {
-		this.selectedTopLevelMaID = selectedTopLevelMaID;
-	}
-
-	public List<String> getSelectedTopLevelMaTerm() {
-		return selectedTopLevelMaTerm;
-	}
-
-	public void setSelectedTopLevelMaTerm(List<String> selectedTopLevelMaTerm) {
-		this.selectedTopLevelMaTerm = selectedTopLevelMaTerm;
-	}
-
-	public List<String> getSelectedTopLevelMaTermSynonym() {
-		return selectedTopLevelMaTermSynonym;
-	}
-
-	public void setSelectedTopLevelMaTermSynonym(List<String> selectedTopLevelMaTermSynonym) {
-		this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
-	}
-
-	public List<String> getEmapId() {
-		return emapId;
-	}
-
-	public void setEmapId(List<String> emapId) {
-		this.emapId = emapId;
-	}
-
-	public List<String> getEmapTerm() {
-		return emapTerm;
-	}
-
-	public void setEmapTerm(List<String> emapTerm) {
-		this.emapTerm = emapTerm;
-	}
-
-	public List<String> getEmapTermSynonym() {
-		return emapTermSynonym;
-	}
-
-	public void setEmapTermSynonym(List<String> emapTermSynonym) {
-		this.emapTermSynonym = emapTermSynonym;
-	}
-
-	public List<String> getIntermediateEmapId() {
-		return intermediateEmapID;
-	}
-
-	public void setIntermediateEmapId(List<String> intermediateEmapID) {
-		this.intermediateEmapID = intermediateEmapID;
-	}
-
-	public List<String> getIntermediateEmapTerm() {
-		return intermediateEmapTerm;
-	}
-
-	public void setIntermediateEmapTerm(List<String> intermediateEmapTerm) {
-		this.intermediateEmapTerm = intermediateEmapTerm;
-	}
-
-	public List<String> getIntermediateEmapTermSynonym() {
-		return intermediateEmapTermSynonym;
-	}
-
-	public void setIntermediateEmapTermSynonym(List<String> intermediateEmapTermSynonym) {
-		this.intermediateEmapTermSynonym = intermediateEmapTermSynonym;
-	}
-
-	public List<String> getSelectedTopLevelEmapId() {
-		return selectedTopLevelEmapID;
-	}
-
-	public void setSelectedTopLevelEmapId(List<String> selectedTopLevelEmapID) {
-		this.selectedTopLevelEmapID = selectedTopLevelEmapID;
-	}
-
-	public List<String> getSelectedTopLevelEmapTerm() {
-		return selectedTopLevelEmapTerm;
-	}
-
-	public void setSelectedTopLevelEmapTerm(List<String> selectedTopLevelEmapTerm) {
-		this.selectedTopLevelEmapTerm = selectedTopLevelEmapTerm;
-	}
-
-	public List<String> getSelectedTopLevelEmapTermSynonym() {
-		return selectedTopLevelEmapTermSynonym;
-	}
-
-	public void setSelectedTopLevelEmapTermSynonym(List<String> selectedTopLevelEmapTermSynonym) {
-		this.selectedTopLevelEmapTermSynonym = selectedTopLevelEmapTermSynonym;
-	}
 }

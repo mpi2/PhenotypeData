@@ -23,7 +23,7 @@
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webclient/css/dusty.css" type="text/css" rel="stylesheet"></link> -->
     <link href="${omeroStaticUrl}webgateway/css/ome.viewport.css" type="text/css" rel="stylesheet"></link>
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.toolbar.css" type="text/css" rel="stylesheet"></link> -->
-    <link href="${omeroStaticUrl}webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link> 
+  
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/base.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.snippet_header_logo.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.postit.css" type="text/css" rel="stylesheet"></link> -->
@@ -34,13 +34,17 @@
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/jquery-ui-1.10.4/themes/base/jquery-ui.all.css" type="text/css" rel="stylesheet"></link> -->
     <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/omero_image.css" type="text/css" rel="stylesheet"></link>  -->
    <link href="${omeroStaticUrl}3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
-    <!-- <script src="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/js/ome.viewport.js" type="text/javascript"></script>
-    <script src="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/js/ome.viewportImage.js" type="text/javascript"></script> -->
+   <%--  <link href="${omeroStaticUrl}webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link>  --%>
+   <script src="${omeroStaticUrl}webgateway/js/ome.gs_slider.js" type="text/javascript"></script> 
+   <script src="${omeroStaticUrl}webgateway/js/ome.popup.js" type="text/javascript"></script>
+    <script src="${omeroStaticUrl}webgateway/js/ome.gs_utils.js" type="text/javascript"></script>
+   <script src="${omeroStaticUrl}webgateway/js/ome.viewport.js" type="text/javascript"></script>
+   <script src="${omeroStaticUrl}webgateway/js/ome.viewportImage.js" type="text/javascript"></script>
     
 </jsp:attribute>
 
 <jsp:attribute name="addToFooter">
-	<script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script>
+	<%-- <script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script> --%>
 	<script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
 </jsp:attribute>
 <jsp:body>
