@@ -52,6 +52,19 @@
 			  font-weight: bold;
 			  color: black;
 			}
+			form#pmidbox{
+				/*padding: 0;*/
+				/*width: 200px;*/
+				display: none;
+				margin-bottom: 20px;
+				background-color: #F2F2F2;
+			}
+			form.showpmidbox {
+				display: block;
+			}
+			form#pmidbox legend {
+				font-size: 14px;
+			}
 
 			
 		</style>
@@ -83,6 +96,16 @@
                     </div>
 
 
+					<%-- inputbox to add pmid --%>
+					<form id="pmidbox">
+						<fieldset>
+							<legend>Add paper containing EUCOMM/KOMP allele(s) by pmid.<br>Separate by comma for multiple papers.</legend>
+							<textarea></textarea>
+							<input type="submit" value="Submit papers for curation"/>
+							<input type="reset" value="Clear">
+						</fieldset>
+					</form>
+
 					<!-- container to display dataTable -->									
 					<div class="HomepageTable" id="alleleRef"></div>	
 				</div>				
@@ -93,8 +116,10 @@
         <script type='text/javascript'>
         
         $(document).ready(function(){
-   			'use strict';	
-   			
+   			'use strict';
+
+//	        addPaperFormJs();
+
    			//var baseUrl = '//dev.mousephenotype.org/data';
    			//var baseUrl = 'http://localhost:8080/phenotype-archive';
    			var baseUrl = "${baseUrl}";
@@ -110,10 +135,13 @@
 						$('formBox span').text("");
 						$('form#allele').show();
 					}
+
 				}
 				else {
 					$(this).removeClass('edit').text('Edit');
 					$('#formBox span').text("You are now out of editing mode...");
+
+					$('form#pmidbox').hide();
 					var oTable = $('table#alleleRef').dataTable();
         			oTable.fnStandingRedraw();
 				}
@@ -125,8 +153,8 @@
 	        oConf.iDisplayStart = 0;
 	        oConf.editMode = false;
 
-	        var tableHeader = "<thead><th>False-positive</th><th>Reviewed</th><th>Allele symbol</th><th>PMID</th><th>Date of publication</th><th>Grant id</th><th>Grant agency</th><th>Paper link</th></thead>";
-	        var tableCols = 8;
+	        var tableHeader = "<thead><th>False-positive</th><th>Reviewed</th><th>Allele symbol</th><th>PMID</th><th>Date of publication</th><th>Grant id (Grant agency)</th><th>Paper link</th></thead>";
+	        var tableCols = 7;
 
 	        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
 	        $('div#alleleRef').append(dTable);
@@ -148,20 +176,15 @@
                 			$('form#allele').hide();
                 			$('#formBox span').text("You are now in editing mode...");
 
-			                oConf.editMode = true;
-                			var oTable = $('table#alleleRef').dataTable();
-                			oTable.fnStandingRedraw();
-			                //oTable.fnDraw();
+			                $('form#pmidbox').show();
 
+			                addPaperFormJs();
 
-//			                var tableHeader = "<thead><th>False-positive</th><th>Reviewed</th><th>Allele symbol</th><th>PMID</th><th>Date of publication</th><th>Grant id</th><th>Grant agency</th><th>Grant acronym</th><th>Paper link</th></thead>";
-//			                var tableCols = 9;
-//
-//			                var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
-//			                $('div#alleleRef').append(dTable);
-//
-//			                fetchAlleleRefDataTable(oConf);
-                		}
+							oConf.editMode = true;
+							var oTable = $('table#alleleRef').dataTable();
+							oTable.fnStandingRedraw();
+
+			      		}
                 		else {
                 			alert("Passcode incorrect. Please try again");
                 		}
@@ -176,7 +199,45 @@
    			
 
    		});
-   		
+
+        function addPaperFormJs(){
+	        $('form#pmidbox').submit(function(){
+		        var idStr = $(this).find('textarea').val();
+
+		        // validate pmid str
+		        var badIds = [];
+		        var goodIds = [];
+		        var ids = idStr.split(",");
+		        for ( var i=0; i<ids.length; i++){
+			        var id = ids[i].trim();
+
+			        if ( ! id.match(/^\d+$/) ){
+				        badIds.push(id);
+			        }
+			        else {
+				        goodIds.push(id);
+			        }
+		        }
+
+				if (badIds.length > 0) {
+					alert("Sorry, your submission contains invalid paper id(s): " + badIds.join(", "));
+				}
+		        else {
+					$.ajax({
+						method: "post",
+						url: baseUrl + "/addpmid?idStr=" + goodIds.join(","),
+						success: function (response) {
+							alert(response);
+						},
+						error: function () {
+							window.alert('AJAX error trying to add pmid to database');
+						}
+					});
+				}
+		        return false; // do not refresh this page after form submit
+	        });
+        }
+
         function fetchAlleleRefDataTable(oConf) {
        	    console.log(oConf);
    		  	var oTable = $('table#alleleRef').dataTable({
@@ -203,7 +264,6 @@
 	        	              { "bSearchable": true, "bSortable": true },
 	        	              { "bSearchable": true, "bSortable": true },
 	        	              { "bSearchable": true, "bSortable": true },
-   	        	              { "bSearchable": true, "bSortable": true },
    	        	              { "bSearchable": false, "bSortable": false }
    	        	              ],
 //   	        	           "aoColumns": [{ "bSearchable": false},
@@ -252,7 +312,6 @@
 
 	   	            	// POST
 	   	            	var thisTable = $(this);
-		                //thisTable.find('tr th:first-child, tr td:first-child').show();
 
 		                $(this).find('tr td:nth-child(1) input').bind('click', function(){
 
