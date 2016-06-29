@@ -35,7 +35,12 @@ public enum ZygosityType {
 	}
 
 	public String getShortName(){
-		return this.toString().substring(0, 3) + ".";
+		
+		if (this.getName().equals(not_applicable.toString())){
+			return "N/A";
+		} else {
+			return this.toString().substring(0, 3).toUpperCase();
+		}
 	}
 
 }
