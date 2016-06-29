@@ -310,7 +310,7 @@
 
         <field name="parent_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
         <field name="parent_anatomy_term" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parent_anatomy_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />parenteld name="child_anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="parent_anatomy_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
 
         <field name="child_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
         <field name="child_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
