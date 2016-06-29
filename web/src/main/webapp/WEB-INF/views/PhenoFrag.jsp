@@ -85,7 +85,7 @@
             <td><c:choose><c:when test="${fn:contains(phenotype.allele.accessionId, 'MGI')}"><a
                     href="http://www.informatics.jax.org/accession/${phenotype.allele.accessionId}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></a></c:when><c:otherwise><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></c:otherwise></c:choose>
             </td>
-            <td title="${phenotype.zygosity}">${fn:substring(phenotype.zygosity, 0 , 3)}</td>
+            <td title="${phenotype.zygosity}">${phenotype.zygosity.getShortName()}</td>
             <td>
                 <c:set var="count" value="0" scope="page"/>
                 <c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/>

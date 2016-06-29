@@ -43,7 +43,7 @@
                 <span class="smallerAlleleFont"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
             </td>
 
-            <td>${phenotype.zygosity}</td>
+            <td>${phenotype.zygosity.getShortName()}</td>
 
             <td style="font-family:Verdana;font-weight:bold;">
                 <c:set var="count" value="0" scope="page"/>

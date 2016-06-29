@@ -44,9 +44,7 @@
                 font-size: 11px;
                 font-weight: bold;
             }
-
             div.saveTable {
-
                 bottom: 50px;
                 float: right;
                 margin-right: 30px;
@@ -66,8 +64,8 @@
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl};"
 
-                var tableHeader = "<thead><th>Allele symbol</th><th>Paper title</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
-                var tableCols = 6;
+                var tableHeader = "<thead><th>Allele symbol</th><th>Paper title</th><th>Pmid</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
+                var tableCols = 7;
 
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
                 $('div#alleleRef').append(dTable);
@@ -81,8 +79,8 @@
             });
 
             function fetchAlleleRefDataTable(oConf) {
-            	
-            	var aDataTblCols = [0,1,2,3,4,5];
+
+            	var aDataTblCols = [0,1,2,3,4,5,6];
                 var oTable = $('table#alleleRef').dataTable({
                     "bSort": true, // true is default 
                     "processing": true,
@@ -96,11 +94,12 @@
                         "sSearch": "Filter: "
                     },
                     "columnDefs": [
-                        { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string
+                        { "type": "alt-string", targets: 4 }   //4th col sorted using alt-string
                     ],
-                    "aaSorting": [[ 3, "desc" ]],  // default sort column order
+                    "aaSorting": [[ 4, "desc" ]],  // default sort column order
                     "aoColumns": [
                         {"bSearchable": true, "sType": "html", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},
@@ -116,7 +115,6 @@
                         oConf.iDisplayLength = 5000;
                         oConf.dataType = "alleleRef";
                         oConf.kw = ""; // default
-
 
                         var paramStr = "mode=all";
                         $.each(oConf, function(i, val){
@@ -153,6 +151,8 @@
                                 $(this).siblings().removeClass('showMe');
                             }
                         });
+
+
                         $('body').removeClass('footerToBottom');
                     },
                     "sAjaxSource": baseUrl + '/dataTableAlleleRef',
@@ -173,33 +173,33 @@
 
     </jsp:attribute>
 
-    <jsp:attribute name="addToFooter">	
+    <jsp:attribute name="addToFooter">
         <div class="region region-pinned">
 
-        </div>		
+        </div>
 
     </jsp:attribute>
-
-    <jsp:body>		
+    <jsp:body>
 
         <div class="region region-content">
             <div class="block">
                 <div class='content'>
                     <div class="node node-gene">
-                        <h1 class="title" id="top">References using IKMC and IMPC resources</h1>	 
+                        <h1 class="title" id="top">References using IKMC and IMPC resources</h1>
                         <div class="section">
                             <div class="inner">
                                 <div class="clear"></div>
 
-                                <!-- container to display dataTable -->									
+                                <!-- container to display dataTable -->
                                 <div class="HomepageTable" id="alleleRef"></div>
                             </div>
                         </div>
-                    </div>				
+                    </div>
                 </div>
             </div>
-        </div>		       
+        </div>
 
     </jsp:body>
+
 </t:genericpage>
 

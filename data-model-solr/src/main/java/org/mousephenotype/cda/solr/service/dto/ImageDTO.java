@@ -15,11 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-import org.mousephenotype.cda.solr.web.dto.Anatomy;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 public class ImageDTO extends ObservationDTO {
 
@@ -82,43 +81,6 @@ public class ImageDTO extends ObservationDTO {
 	public final static String WEIGHT_DAYS_OLD = ObservationDTO.WEIGHT_DAYS_OLD;
 	public final static String WEIGHT = ObservationDTO.WEIGHT;
 
-//	public static final String ANATOMY_ID = ObservationDTO.ANATOMY_ID;
-//	public static final String ANATOMY_TERM = ObservationDTO.ANATOMY_TERM;
-//	public static final String ANATOMY_ID_TERM = ObservationDTO.ANATOMY_ID_TERM;
-//	public static final String ANATOMY_TERM_SYNONYM = ObservationDTO.ANATOMY_TERM_SYNONYM;
-//	public static final String INTERMEDIATE_ANATOMY_ID = ObservationDTO.INTERMEDIATE_ANATOMY_ID;
-//	public static final String INTERMEDIATE_ANATOMY_TERM = ObservationDTO.INTERMEDIATE_ANATOMY_TERM;
-//	public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_ANATOMY_TERM_SYNONYM;
-//	public static final String TOP_LEVEL_ANATOMY_ID = ObservationDTO.TOP_LEVEL_ANATOMY_ID;
-//	public static final String TOP_LEVEL_ANATOMY_TERM = ObservationDTO.TOP_LEVEL_ANATOMY_TERM;
-//	public static final String TOP_LEVEL_ANATOMY_TERM_SYNONYM = ObservationDTO.TOP_LEVEL_ANATOMY_TERM_SYNONYM;
-//	public static final String SELECTED_TOP_LEVEL_ANATOMY_ID = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID;
-//	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
-//	public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM;
-
-//	public static final String MA_ID = ObservationDTO.MA_ID;
-//	public static final String MA_TERM = ObservationDTO.MA_TERM;
-//	public static final String MA_ID_TERM = "ma_id_term";
-//	public static final String MA_TERM_SYNONYM = ObservationDTO.MA_TERM_SYNONYM;
-//	public static final String INTERMEDIATE_MA_ID = ObservationDTO.INTERMEDIATE_MA_ID;
-//	public static final String INTERMEDIATE_MA_TERM = ObservationDTO.INTERMEDIATE_MA_TERM;
-//	public static final String INTERMEDIATE_MA_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_MA_TERM_SYNONYM;
-//	public static final String SELECTED_TOP_LEVEL_MA_ID = ObservationDTO.SELECTED_TOP_LEVEL_MA_ID;
-//	public static final String SELECTED_TOP_LEVEL_MA_TERM = ObservationDTO.SELECTED_TOP_LEVEL_MA_TERM;
-//	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
-//
-//	public static final String EMAP_ID = ObservationDTO.EMAP_ID;
-//	public static final String EMAP_TERM = ObservationDTO.EMAP_TERM;
-//	public static final String EMAP_ID_TERM = "emap_id_term";
-//	public static final String EMAP_TERM_SYNONYM = ObservationDTO.EMAP_TERM_SYNONYM;
-//	public static final String INTERMEDIATE_EMAP_ID = ObservationDTO.INTERMEDIATE_EMAP_ID;
-//	public static final String INTERMEDIATE_EMAP_TERM = ObservationDTO.INTERMEDIATE_EMAP_TERM;
-//	public static final String INTERMEDIATE_EMAP_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_EMAP_TERM_SYNONYM;
-//	public static final String SELECTED_TOP_LEVEL_EMAP_ID = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_ID;
-//	public static final String SELECTED_TOP_LEVEL_EMAP_TERM = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
-//	public static final String SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM;
-
-
 	public static final String FULL_RESOLUTION_FILE_PATH="full_resolution_file_path";
 
 	public static final String OMERO_ID = "omero_id";
@@ -152,28 +114,8 @@ public class ImageDTO extends ObservationDTO {
 	public static final String INCREMENT_VALUE = "increment_value";
 	public static final String STAGE = "stage";
 
-
-//	@Field(ANATOMY_ID)
-//	private ArrayList<String> anatomyId;
-//
-//	@Field(ANATOMY_TERM)
-//	private List<String> anatomyTerm;
-//
-//	@Field(ANATOMY_ID_TERM)
-//	private List<String> anatomyIdTerm;
-//
-//	@Field(ANATOMY_TERM_SYNONYM)
-//	private List<String> anatomyTermSynonym;
-
-
-//	@Field(MA_ID_TERM)
-//	private List<String> maIdTerm;
-//
-//	@Field(EMAP_ID_TERM)
-//	private List<String> emapIdTerm;
-
 	@Field(MpDTO.MP_ID)
-	private ArrayList<String> mpTermIds;
+	private List<String> mpTermIds;
 
 	@Field(MpDTO.MP_TERM)
 	private List<String> mpTerm;
@@ -183,49 +125,6 @@ public class ImageDTO extends ObservationDTO {
 
 	@Field(MpDTO.MP_TERM_SYNONYM)
 	private List<String> mpTermSynonym;
-
-	public List<String> getMpIdTerm() {
-		return mpIdTerm;
-	}
-
-	public void setMpIdTerm(List<String> mpIdTerm) {
-		this.mpIdTerm = mpIdTerm;
-	}
-
-//	public List<String> getEmapIdTerm() {
-//		return emapIdTerm;
-//	}
-//
-//	public void setEmapIdTerm(List<String> emapIdTerm) {
-//		this.emapIdTerm = emapIdTerm;
-//	}
-
-	public ArrayList<String> getMpTermIds() {
-		return mpTermIds;
-	}
-
-	public void setMpTermIds(ArrayList<String> mpTermIds) {
-		this.mpTermIds = mpTermIds;
-	}
-
-	public List<String> getMpTerm() {
-		return mpTerm;
-	}
-
-	public void setMpTerm(List<String> mpTerm) {
-		this.mpTerm = mpTerm;
-	}
-
-
-	public List<String> getMpTermSynonym() {
-		return mpTermSynonym;
-	}
-
-	public void setMpTermSynonym(List<String> mpTermSynonym) {
-		this.mpTermSynonym = mpTermSynonym;
-	}
-
-
 
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
@@ -247,8 +146,6 @@ public class ImageDTO extends ObservationDTO {
 
 	@Field(UBERON_ID)
 	private List<String> uberonId;
-
-
 
 	@Field(SYMBOL_GENE)
 	private String symbolGene;//for search and annotation view
@@ -304,6 +201,41 @@ public class ImageDTO extends ObservationDTO {
 	@Field(STAGE)
 	private String stage;
 
+	@Field(LATEST_PHENOTYPE_STATUS)
+	private List<String> latestPhenotypeStatus;
+	
+	public List<String> getMpIdTerm() {
+		return mpIdTerm;
+	}
+
+	public void setMpIdTerm(List<String> mpIdTerm) {
+		this.mpIdTerm = mpIdTerm;
+	}
+	
+	public List<String> getMpTermIds() {
+		return mpTermIds;
+	}
+
+	public void setMpTermIds(ArrayList<String> mpTermIds) {
+		this.mpTermIds = mpTermIds;
+	}
+
+	public List<String> getMpTerm() {
+		return mpTerm;
+	}
+
+	public void setMpTerm(List<String> mpTerm) {
+		this.mpTerm = mpTerm;
+	}
+
+	public List<String> getMpTermSynonym() {
+		return mpTermSynonym;
+	}
+
+	public void setMpTermSynonym(List<String> mpTermSynonym) {
+		this.mpTermSynonym = mpTermSynonym;
+	}
+	
 	public String getStage() {
 		return stage;
 	}
@@ -319,10 +251,6 @@ public class ImageDTO extends ObservationDTO {
 	public void setIncrement(int increment) {
 		this.increment = increment;
 	}
-
-	@Field(LATEST_PHENOTYPE_STATUS)
-	private List<String> latestPhenotypeStatus;
-
 
 	public String getImageLink() {
 		return imageLink;
@@ -403,16 +331,6 @@ public class ImageDTO extends ObservationDTO {
 		}
 		this.uberonId.add(id);
 	}
-
-//	public List<String> getMaIdTerm() {
-//
-//		return maIdTerm;
-//	}
-//
-//	public void setMaIdTerm(List<String> maIdTerms) {
-//
-//		this.maIdTerm = maIdTerms;
-//	}
 
 	public String getDownloadUrl() {
 
@@ -569,22 +487,6 @@ public class ImageDTO extends ObservationDTO {
 
 	}
 
-//	public List<String> getMaTerm() {
-//		return maTerm;
-//	}
-//
-//	public void setMaTerm(List<String> maTerm) {
-//		this.maTerm = maTerm;
-//	}
-//
-//	public List<String> getMaTermSynonym() {
-//		return maTermSynonym;
-//	}
-//
-//	public void setMaTermSynonym(List<String> maTermSynonym) {
-//		this.maTermSynonym = maTermSynonym;
-//	}
-
 	public String getExpression(String maId){
 
 		int pos = maId.indexOf(maId);
@@ -720,9 +622,6 @@ public class ImageDTO extends ObservationDTO {
 		this.mpTermIds=mpTermIds;
 
 	}
-
-
-
 
 
 }
