@@ -22,10 +22,12 @@ import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmap;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMa;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -143,7 +145,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			ontologyEntityMap = IndexerMap.getOntologyParameterSubTerms(connection);
 			logger.debug(" ontology entity map size: " + ontologyEntityMap.size());
 
-			logger.info("populating supporting maps");
+			logger.debug("populating datasource map");
 			populateDatasourceDataMap();
 
 			logger.debug("populating categorynames map");
@@ -271,77 +273,54 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 					if (anatomyTermId != null) {
 
+
+						if (o.getAnatomyId() == null) {
+							// Initialize all the collections of anatomy terms
+							o.setAnatomyId(new ArrayList<>());
+							o.setAnatomyTerm(new ArrayList<>());
+							o.setAnatomyTermSynonym(new ArrayList<>());
+							o.setIntermediateAnatomyId(new ArrayList<>());
+							o.setIntermediateAnatomyTerm(new ArrayList<>());
+							o.setIntermediateAnatomyTermSynonym(new ArrayList<>());
+							o.setSelectedTopLevelAnatomyId(new ArrayList<>());
+							o.setSelectedTopLevelAnatomyTerm(new ArrayList<>());
+							o.setSelectedTopLevelAnatomyTermSynonym(new ArrayList<>());
+						}
+
+						OntologyDAO ontoService = null;
+						OntologyTermHelper b = null;
 						if (anatomyTermId.startsWith("MA:")) {
-							if (o.getMaId() == null) {
-								// Initialize all the collections of ma terms
-								o.setMaId(new ArrayList<>());
-								o.setMaTerm(new ArrayList<>());
-								o.setMaTermSynonym(new ArrayList<>());
-								o.setIntermediateMaId(new ArrayList<>());
-								o.setIntermediateMaTerm(new ArrayList<>());
-								o.setIntermediateMaTermSynonym(new ArrayList<>());
-								o.setSelectedTopLevelMaId(new ArrayList<>());
-								o.setSelectedTopLevelMaTerm(new ArrayList<>());
-								o.setSelectedTopLevelMaTermSynonym(new ArrayList<>());
-							}
-
-							OntologyTermBean term = maOntologyService.getTerm(anatomyTermId);
-
-							if(term!=null) {
-								o.getMaId().add(term.getId());
-								o.getMaTerm().add(term.getName());
-								o.getMaTermSynonym().addAll(term.getSynonyms());
-
-								OntologyTermHelperMa b = new OntologyTermHelperMa(maOntologyService, term.getId());
-								if (b!=null) {
-
-									if (b.getIntermediates() != null) {
-										o.getIntermediateMaId().addAll(b.getIntermediates().getIds());
-										o.getIntermediateMaTerm().addAll(b.getIntermediates().getNames());
-										o.getIntermediateMaTermSynonym().addAll(b.getIntermediates().getSynonyms());
-									}
-									if (b.getTopLevels() != null) {
-										o.getSelectedTopLevelMaId().addAll(b.getTopLevels().getIds());
-										o.getSelectedTopLevelMaTerm().addAll(b.getTopLevels().getNames());
-										o.getSelectedTopLevelMaTermSynonym().addAll(b.getTopLevels().getSynonyms());
-									}
-								}
-							}
+							ontoService = maOntologyService;
 
 						} else if (anatomyTermId.startsWith("EMAP:")) {
+							ontoService = maOntologyService;
 
-							if (o.getEmapId() == null) {
-								// Initialize all the collections of ma terms
-								o.setEmapId(new ArrayList<>());
-								o.setEmapTerm(new ArrayList<>());
-								o.setEmapTermSynonym(new ArrayList<>());
-								o.setIntermediateEmapId(new ArrayList<>());
-								o.setIntermediateEmapTerm(new ArrayList<>());
-								o.setIntermediateEmapTermSynonym(new ArrayList<>());
-								o.setSelectedTopLevelEmapId(new ArrayList<>());
-								o.setSelectedTopLevelEmapTerm(new ArrayList<>());
-								o.setSelectedTopLevelEmapTermSynonym(new ArrayList<>());
+						}
+
+						OntologyTermBean term = ontoService.getTerm(anatomyTermId);
+
+						if (term != null) {
+							o.getAnatomyId().add(term.getId());
+							o.getAnatomyTerm().add(term.getName());
+							o.getAnatomyTermSynonym().addAll(term.getSynonyms());
+
+							if (anatomyTermId.startsWith("MA:")) {
+								b = new OntologyTermHelperMa(maOntologyService, term.getId());
+							} else if (anatomyTermId.startsWith("EMAP:")) {
+								b = new OntologyTermHelperEmap(emapOntologyService, term.getId());
 							}
 
-							OntologyTermBean term = emapOntologyService.getTerm(anatomyTermId);
-							if(term!=null) {
+							if (b != null) {
 
-								o.getEmapId().add(term.getId());
-								o.getEmapTerm().add(term.getName());
-								o.getEmapTermSynonym().addAll(term.getSynonyms());
-								OntologyTermHelperEmap b = new OntologyTermHelperEmap(emapOntologyService, term.getId());
-								if (b!=null) {
-
-									if (b.getIntermediates() != null) {
-										o.getIntermediateEmapId().addAll(b.getIntermediates().getIds());
-										o.getIntermediateEmapTerm().addAll(b.getIntermediates().getNames());
-										o.getIntermediateEmapTermSynonym().addAll(b.getIntermediates().getSynonyms());
-									}
-									if (b.getTopLevels() != null) {
-										o.getSelectedTopLevelEmapId().addAll(b.getTopLevels().getIds());
-										o.getSelectedTopLevelEmapTerm().addAll(b.getTopLevels().getNames());
-										o.getSelectedTopLevelEmapTermSynonym().addAll(b.getTopLevels().getSynonyms());
-									}
+								if (b.getIntermediates() != null) {
+									o.getIntermediateAnatomyId().addAll(b.getIntermediates().getIds());
+									o.getIntermediateAnatomyTerm().addAll(b.getIntermediates().getNames());
+									o.getIntermediateAnatomyTermSynonym().addAll(b.getIntermediates().getSynonyms());
+								}
+								if (b.getTopLevels() != null) {
+									o.getSelectedTopLevelAnatomyId().addAll(b.getTopLevels().getIds());
+									o.getSelectedTopLevelAnatomyTerm().addAll(b.getTopLevels().getNames());
+									o.getSelectedTopLevelAnatomyTermSynonym().addAll(b.getTopLevels().getSynonyms());
 								}
 							}
 						}

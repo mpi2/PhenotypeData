@@ -37,8 +37,8 @@ public class OntologyTermBean {
     private List<String> synonyms = new ArrayList<>();
     private String topLevelTermId;
     private List<String> altIds = new ArrayList<>();
-    private List<Integer>  nodeIds = new ArrayList<>();
-
+    private List<Integer>  nodeIds = new ArrayList<>();    
+    
     public List<Integer> getNodeIds() {
         return nodeIds;
     }
