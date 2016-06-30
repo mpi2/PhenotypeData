@@ -322,8 +322,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							}
 						}
 					}
-				} else {
-					continue;
 				}
 
 				o.setDataSourceId(datasourceMap.get(r.getInt("datasource_id")).id);
