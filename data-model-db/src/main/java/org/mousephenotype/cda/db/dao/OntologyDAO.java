@@ -536,13 +536,14 @@ public abstract class OntologyDAO {
                 }
 
                 // list of node IDs
-                List<Integer> nodeIds = new ArrayList<>();
+
                 List<String> nodeIdsOfTerm = Arrays.asList(resultSet.getString("nodes").split(","));
-                List<Integer> iNodeIds = new ArrayList<>();
+                Set<Integer> iNodeIdsSet = new HashSet<>();
                 for (String sNodeId : nodeIdsOfTerm) {
-                    iNodeIds.add(Integer.parseInt(sNodeId));
+                    iNodeIdsSet.add(Integer.parseInt(sNodeId));
                 }
-                bean.setNodeIds(iNodeIds);
+
+                bean.setNodeIds(new ArrayList<Integer>(iNodeIdsSet));
 
                 map.put(mapKey, bean);
 
