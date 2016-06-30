@@ -1799,7 +1799,7 @@ public class DataTableController {
 	public Boolean setFalsePositive(Integer dbid, String falsePositive) throws SQLException {
 		Connection conn = admintoolsDataSource.getConnection();
 
-		String uptSql = "UPDATE allele_ref SET falsepositive=?, reviewed='no', acc='', gacc='', timestamp=? WHERE dbid=?";
+		String uptSql = "UPDATE allele_ref SET falsepositive=?, reviewed='yes', acc='', gacc='', timestamp=? WHERE dbid=?";
 		PreparedStatement stmt = conn.prepareStatement(uptSql);
 		stmt.setString(1, falsePositive);
 		stmt.setString(2, String.valueOf(new Timestamp(System.currentTimeMillis())));

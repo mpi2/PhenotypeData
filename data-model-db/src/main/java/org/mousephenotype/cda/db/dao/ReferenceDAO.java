@@ -130,22 +130,23 @@ public class ReferenceDAO {
             searchClause =
                 "  AND (\n"
                 + "     title               LIKE ?\n"
-                + "  OR journal             LIKE ?\n"
-                + "  OR acc                 LIKE ?\n"
-                + "  OR symbol              LIKE ?\n"
-                + "  OR pmid                LIKE ?\n"
-                + "  OR date_of_publication LIKE ?\n"
-                + "  OR grant_id            LIKE ?\n"
-                + "  OR agency              LIKE ?\n"
-                + "  OR acronym             LIKE ?)\n";
+                + " OR journal             LIKE ?\n"
+                + " OR acc                 LIKE ?\n"
+                + " OR symbol              LIKE ?\n"
+                + " OR pmid                LIKE ?\n"
+                + " OR date_of_publication LIKE ?\n"
+                + " OR grant_id            LIKE ?\n"
+                + " OR agency              LIKE ?\n"
+                + " OR acronym             LIKE ?)\n";
         }
 
         String whereClause =
                 "WHERE\n"
-              + "  reviewed = 'yes'\n"
-              + "  AND symbol != ''\n"
-              + "  AND gacc != ''\n"
-              + "  AND acc != ''\n"
+              + " reviewed = 'yes'\n"
+              + " AND falsepositive = 'no'"
+              + " AND symbol != ''\n"
+              + " AND gacc != ''\n"
+              + " AND acc != ''\n"
               + notInClause
               + searchClause;
 
