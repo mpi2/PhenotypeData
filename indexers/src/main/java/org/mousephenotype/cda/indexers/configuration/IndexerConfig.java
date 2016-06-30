@@ -116,7 +116,12 @@ public class IndexerConfig {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/gwas", QUEUE_SIZE, THREAD_COUNT);
     }
 
-    // database connections
+	@Bean
+	SolrServer phenodigmIndexing() {
+		return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/phenoodigm", QUEUE_SIZE, THREAD_COUNT);
+	}
+
+	// database connections
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
