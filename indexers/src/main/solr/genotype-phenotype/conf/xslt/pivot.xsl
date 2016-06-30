@@ -30,8 +30,8 @@
   <xsl:template name="last">
   	<xsl:param name="wholeLine" />
   	<xsl:for-each select="arr/lst">
-  		<xsl:if test="str[@name='value']">
-			<xsl:value-of select="$wholeLine"/>"<xsl:value-of select="str[@name='value']"/>",<xsl:value-of select="normalize-space(int)"/><xsl:text>&#xD;</xsl:text>
+  		<xsl:if test="[@name='value']">
+			<xsl:value-of select="$wholeLine"/>"<xsl:value-of select="[@name='value']"/>",<xsl:value-of select="normalize-space(int)"/><xsl:text>&#xD;</xsl:text>
 		</xsl:if>
   	</xsl:for-each>
   </xsl:template>
