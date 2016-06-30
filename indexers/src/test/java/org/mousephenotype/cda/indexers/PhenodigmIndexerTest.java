@@ -48,7 +48,33 @@ public class PhenodigmIndexerTest {
 
 		assertThat(diseasePhenotypeMap.size(), greaterThan(50));
 
-		System.out.println(diseasePhenotypeMap);
+		System.out.println("diseasePhenotypeMap size is : " + diseasePhenotypeMap.size());
 	}
+
+
+	@Test
+	public void getMousePhenotypeMap() throws Exception {
+
+		Map<Integer, Set<String>> mousePhenotypeMap = phenodigmIndexer.getMousePhenotypeMap();
+
+		assertThat(mousePhenotypeMap.size(), greaterThan(50));
+
+		System.out.println("mousePhenotypeMap size is : " + mousePhenotypeMap.size());
+	}
+
+	@Test
+	public void getHumanSynonymMap() throws Exception {
+
+		Map<String, Set<String>> humanSynonymMap = phenodigmIndexer.getHumanSynonymMap();
+
+		assertThat(humanSynonymMap.size(), greaterThan(50));
+		assertThat(humanSynonymMap.get("HP:0000003").size(), greaterThan(1));
+
+		System.out.println("humanSynonymMap size is : " + humanSynonymMap.size());
+	}
+
+
+
+
 
 }
