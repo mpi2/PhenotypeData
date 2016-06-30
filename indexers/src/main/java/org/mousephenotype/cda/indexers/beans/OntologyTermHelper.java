@@ -31,13 +31,15 @@ import org.mousephenotype.cda.db.dao.OntologyDAO;
  * @author mrelac
  */
 public class OntologyTermHelper {
+	
     protected final String id;
-    
     protected OntologyDAO ontologyService;
     
     public OntologyTermHelper(OntologyDAO ontologyService, String id) {
-        this.ontologyService = ontologyService;
+     
+    	this.ontologyService = ontologyService;
         this.id = id;
+        
     }
 
     public List<String> getSynonyms() {
