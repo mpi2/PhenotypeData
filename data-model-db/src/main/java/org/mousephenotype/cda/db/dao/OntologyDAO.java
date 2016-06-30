@@ -63,15 +63,15 @@ public abstract class OntologyDAO {
 
     protected Map<String, OntologyTermBean>   allTermsMap = null;
 
-    protected final HashMap<Integer, String>  ancestorMap = new HashMap();
-    protected final HashMap<Integer, String>  selectedAncestorMap = new HashMap();
+    protected final HashMap<Integer, String>  ancestorMap = new HashMap<>();
+    protected final HashMap<Integer, String>  selectedAncestorMap = new HashMap<>();
     protected Map<String, List<List<String>>> ancestorGraphsMap = null;
     protected Map<String, List<List<String>>> selectedAncestorGraphsMap = null;
 
     protected CommonUtils                     commonUtils = new CommonUtils();
     protected Connection                      connection;
-    protected final Map<String, List<String>> id2nodesMap = new HashMap();
-    protected final HashMap<String, String>   node2termMap = new HashMap();
+    protected final Map<String, List<String>> id2nodesMap = new HashMap<>();
+    protected final HashMap<String, String>   node2termMap = new HashMap<>();
     protected Map<String, List<String>>       synonymsMap = null;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -116,6 +116,7 @@ public abstract class OntologyDAO {
     protected abstract void populateAncestorMap()   throws SQLException;
     protected abstract void populateNode2TermMap()  throws SQLException;
     protected abstract void populateSynonyms()      throws SQLException;
+    public abstract List<String>  getAnatomyMappings(String mpId);
 
     /**
      * Methods annotated with @PostConstruct are executed just after the constructor
@@ -150,6 +151,7 @@ public abstract class OntologyDAO {
     public List<OntologyTermBean> getAllTerms() {
         return new ArrayList(allTermsMap.values());
     }
+    
 
     public List<String> getAltTermIds(String mpId) {
         OntologyTermBean ontologyTermBean = allTermsMap.get(mpId);
