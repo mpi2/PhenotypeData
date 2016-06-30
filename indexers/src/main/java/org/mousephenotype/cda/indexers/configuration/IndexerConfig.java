@@ -118,7 +118,7 @@ public class IndexerConfig {
 
 	@Bean
 	SolrServer phenodigmIndexing() {
-		return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/phenoodigm", QUEUE_SIZE, THREAD_COUNT);
+		return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
 	}
 
 	// database connections
