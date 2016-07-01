@@ -15,6 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
+
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -22,15 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.Map.Entry;
 
 
 /**
@@ -87,6 +99,134 @@ public abstract class OntologyDAO {
     public OntologyDAO() {
         
     }
+    
+    /**
+     * Returns this term's selected-top-level terms.
+     *
+     * @return this term's selected-top-level terms.
+     */
+    public OntologyDetail getSelectedTopLevelDetails(String id) {
+        int level = 1;
+        List<OntologyTermBean> beans = getSelectedTopLevel(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+
+        return detail;
+    }
+
+    /**
+     * Returns this term's top-level terms.
+     *
+     * @return this term's top-level terms.
+     */
+    public OntologyDetail getTopLevel(Integer level, String id) {
+        List<OntologyTermBean> beans = getTopLevel(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+
+        return detail;
+    }
+
+    /**
+     * Returns this term's top-level terms.
+     * 
+     * @return this term's top-level terms.
+     */
+    public OntologyDetail getTopLevelDetail(String id) {
+        List<OntologyTermBean> beans = getTopLevel(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+
+        return detail;
+    }
+    
+    /**
+     * Returns this term's top-level terms at level <code>level</code>.
+     * 
+     * @param level the 1-relative level below the top level (i.e. 1 = top
+     * level, 2 = top-level - 1, etc.)
+     * 
+     * @return this term's top-level terms at level <code>level</code>
+     */
+    public OntologyDetail getTopLevels(int level, String id) {
+        List<OntologyTermBean> beans = getTopLevel(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's ancestors.
+     * 
+     * @return this term's ancestors.
+     */
+    public OntologyDetail getAncestorsDetail(String id) {
+        List<OntologyTermBean> beans = getAncestors(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's parents.
+     * 
+     * @return this term's parents.
+     */
+    public OntologyDetail getParentsDetails(String id) {
+        List<OntologyTermBean> beans = getParents(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's intermediates.
+     * 
+     * @return this term's intermediates.
+     */
+    public OntologyDetail getIntermediatesDetail(String id) {
+        List<OntologyTermBean> beans = getIntermediates(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's children.
+     * 
+     * @return this term's children.
+     */
+    public OntologyDetail getChildrenDetails(String id) {
+        List<OntologyTermBean> beans = getChildren(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's descendents.
+     * 
+     * @return this term's descendents.
+     */
+    public OntologyDetail getDescendentsDetails(String id) {
+        List<OntologyTermBean> beans = getDescendents(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's descendents at level <code>level</code>.
+     * 
+     * @param level the 1-relative level below this term (i.e. 1 = descendent-
+     * level 1, 2 = descendent-level - 1, etc.)
+     * 
+     * @return this term's descendents at level <code>level</code>
+     */
+    public OntologyDetail getDescendents(int level, String id) {
+        List<OntologyTermBean> beans = getDescendents(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
     
     /**
      * Returns the <code>OntologyTermBean</code> matching <code>id</code>, if
