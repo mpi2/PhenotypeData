@@ -33,13 +33,13 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperAnatomy;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -84,8 +84,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	MpOntologyDAO mpOntologyService;
 	
 	@Autowired
-	MaOntologyDAO anatomyOntologyService;
+	MaOntologyDAO maOntologyService;
 
+	@Autowired
+	EmapaOntologyDAO emapaOntologyService;
+	
 	private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
 	private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
 	private Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
@@ -508,12 +511,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 if (mpOntologyService.getAnatomyMappings(mpId) != null){
                 	List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
                 	for (String id: anatomyIds){
+                		OntologyDAO currentOntologyService = null;
+                		if (id.startsWith("EMAPA")){
+                			currentOntologyService = emapaOntologyService;
+                		} else  if (id.startsWith("MA")){
+                			currentOntologyService = maOntologyService;
+                		}
                 		doc.addAnatomyTermId(id);
-                		doc.addAnatomyTermName(anatomyOntologyService.getTerm(id).getName());
-                		OntologyDetail maAncestors = anatomyOntologyService.getIntermediatesDetail(id);
+                		doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
+                		OntologyDetail maAncestors = currentOntologyService.getIntermediatesDetail(id);
                 		doc.setIntermediateAnatomyTermId(maAncestors.getIds());
                 		doc.setIntermediateAnatomyTermName(maAncestors.getNames());
-                		OntologyDetail maTopLevels = anatomyOntologyService.getSelectedTopLevelDetails(id);
+                		OntologyDetail maTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
                 		doc.setTopLevelAnatomyTermId(maTopLevels.getIds());
                 		doc.setTopLevelAnatomyTermName(maTopLevels.getNames());
                 	}
