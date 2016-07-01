@@ -76,7 +76,7 @@
    <field name="marker_accession" type="string" indexed="true" stored="true" multiValued="false"/>
    <field name="marker_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
    <field name="hgnc_gene_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
-   <field name="hgnc_id" type="string" indexed="true" stored="true" multiValued="false"/>
+   <field name="hgnc_gene_id" type="string" indexed="true" stored="true" multiValued="false"/>
    <field name="hgnc_gene_locus" type="string" indexed="true" stored="true" multiValued="false" />
 
    <!--mouse model fields-->

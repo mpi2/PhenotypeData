@@ -10,16 +10,36 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -34,16 +54,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -72,7 +82,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	@Autowired
 	MpOntologyDAO mpOntologyService;
+	
+	@Autowired
+	MaOntologyDAO maOntologyService;
 
+	@Autowired
+	EmapaOntologyDAO emapaOntologyService;
+	
 	private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
 	private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
 	private Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
@@ -471,26 +487,49 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	 * Add the appropriate MP term associations to the document
 	 * This is only used for the embryo data for the moment (2016-04-07)
 	 *
-	 * @param mpTerm the mp term accession id
+	 * @param mpId the mp term accession id
 	 * @param doc the solr document to update
 	 * @throws SQLException if the query fields do not exist
 	 */
-	private void addMpTermData(String mpTerm, StatisticalResultDTO doc) throws SQLException {
+	private void addMpTermData(String mpId, StatisticalResultDTO doc) throws SQLException {
 
 		// Add the appropriate fields for the global MP term
-		if (mpTerm != null) {
+		if (mpId != null) {
 
-			OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
-			if (bean != null) {
-				doc.setMpTermId(bean.getId());
-				doc.setMpTermName(bean.getName());
+			OntologyTermBean mpTerm = mpOntologyService.getTerm(mpId);
+			if (mpTerm != null) {
+				doc.setMpTermId(mpTerm.getId());
+				doc.setMpTermName(mpTerm.getName());
 
-				OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, bean.getId());
-				doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-				doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
+				doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
+				doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
 
-				doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-				doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
+				doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
+				doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
+
+				 // mp-anatomy mappings (all MA at the moment)
+                if (mpOntologyService.getAnatomyMappings(mpId) != null){
+                	List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
+                	for (String id: anatomyIds){
+                		OntologyDAO currentOntologyService = null;
+                		if (id.startsWith("EMAPA")){
+                			currentOntologyService = emapaOntologyService;
+                		} else  if (id.startsWith("MA")){
+                			currentOntologyService = maOntologyService;
+                		}
+                		if (currentOntologyService != null){
+	                		doc.addAnatomyTermId(id);
+	                		doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
+	                		OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
+	                		doc.setIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
+	                		doc.setIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
+	                		OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
+	                		doc.setTopLevelAnatomyTermId(anatomyTopLevels.getIds());
+	                		doc.setTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+                		}
+                	}
+                }
+
 			}
 		}
 	}
@@ -521,12 +560,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				doc.setMaleMpTermId(bean.getId());
 				doc.setMaleMpTermName(bean.getName());
 
-				OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, bean.getId());
-				doc.setMaleTopLevelMpTermId(beanlist.getTopLevels().getIds());
-				doc.setMaleTopLevelMpTermName(beanlist.getTopLevels().getNames());
+				doc.setMaleTopLevelMpTermId(mpOntologyService.getTopLevelDetail(bean.getId()).getIds());
+				doc.setMaleTopLevelMpTermName(mpOntologyService.getTopLevelDetail(bean.getId()).getNames());
 
-				doc.setMaleIntermediateMpTermId(beanlist.getIntermediates().getIds());
-				doc.setMaleIntermediateMpTermName(beanlist.getIntermediates().getNames());
+				doc.setMaleIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(bean.getId()).getIds());
+				doc.setMaleIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(bean.getId()).getNames());
 			}
 		}
 
@@ -539,12 +577,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				doc.setFemaleMpTermId(bean.getId());
 				doc.setFemaleMpTermName(bean.getName());
 
-				OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, bean.getId());
-				doc.setFemaleTopLevelMpTermId(beanlist.getTopLevels().getIds());
-				doc.setFemaleTopLevelMpTermName(beanlist.getTopLevels().getNames());
+				doc.setFemaleTopLevelMpTermId(mpOntologyService.getTopLevelDetail(bean.getId()).getIds());
+				doc.setFemaleTopLevelMpTermName(mpOntologyService.getTopLevelDetail(bean.getId()).getNames());
 
-				doc.setFemaleIntermediateMpTermId(beanlist.getIntermediates().getIds());
-				doc.setFemaleIntermediateMpTermName(beanlist.getIntermediates().getNames());
+				doc.setFemaleIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(bean.getId()).getIds());
+				doc.setFemaleIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(bean.getId()).getNames());
 			}
 		}
 
@@ -583,11 +620,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				if (bean != null) {
 
 					ontoTerms.add(bean);
-
-					OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, bean.getId());
-
 					// Add all ancestor terms for this MP ID
-					beanlist.getAncestors().getIds().forEach(mp -> {
+					mpOntologyService.getAncestorsDetail(bean.getId()).getIds().forEach(mp -> {
 						OntologyTermBean b = mpOntologyService.getTerm(mp);
 						if (b != null) {
 							ontoTerms.add(b);

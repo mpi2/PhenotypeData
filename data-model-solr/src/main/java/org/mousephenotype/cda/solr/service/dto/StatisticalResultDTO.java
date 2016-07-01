@@ -172,6 +172,15 @@ public class StatisticalResultDTO {
     public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
     public final static String PROJECT_ID = "project_id";
     public final static String PHENOTYPE_SEX = "phenotype_sex";
+    
+    // Mapped anatomy terms from MP.
+    public static final String ANATOMY_TERM_NAME = "anatomy_term_name";
+    public static final String ANATOMY_TERM_ID = "anatomy_term_id";
+    public static final String INTERMEDIATE_ANATOMY_TERM_ID = "intermediate_anatomy_term_id";
+    public static final String INTERMEDIATE_ANATOMY_TERM_NAME = "intermediate_anatomy_term_name";
+    public static final String TOP_LEVEL_ANATOMY_TERM_ID = "top_level_anatomy_term_id";
+    public static final String TOP_LEVEL_ANATOMY_TERM_NAME = "top_level_anatomy_term_name";
+    
 
 	@Id
     @Field(DOCUMENT_ID)
@@ -180,6 +189,23 @@ public class StatisticalResultDTO {
     @Field(DB_ID)
     private Integer dbId;
 
+    @Field(ANATOMY_TERM_ID)
+    List<String> anatomyTermId;
+
+    @Field(ANATOMY_TERM_NAME)
+    List<String> anatomyTermName;
+    
+    @Field(INTERMEDIATE_ANATOMY_TERM_ID)
+    List<String> intermediateAnatomyTermId;
+
+    @Field(INTERMEDIATE_ANATOMY_TERM_NAME)
+    List<String> intermediateAnatomyTermName;
+    
+    @Field(TOP_LEVEL_ANATOMY_TERM_ID)
+    List<String> topLevelAnatomyTermId;
+
+    @Field(TOP_LEVEL_ANATOMY_TERM_NAME)
+    List<String> topLevelAnatomyTermName;
 
     @Field(PHENOTYPE_SEX)
     private List<String> phenotypeSex;
@@ -1922,6 +1948,97 @@ public class StatisticalResultDTO {
 	}
 
 
+	public List<String> getAnatomyTermId() {
+		return anatomyTermId;
+	}
+	
+	public void addAnatomyTermId(String anatomyTermId){
+		if (this.anatomyTermId == null){
+			this.anatomyTermId = new ArrayList<>();
+		}
+		this.anatomyTermId.add(anatomyTermId);
+	}
+
+	public void setAnatomyTermId(List<String> anatomyTermId) {
+		this.anatomyTermId = anatomyTermId;
+	}
+
+	public List<String> getAnatomyTermName() {
+		return anatomyTermName;
+	}
+
+	public void setAnatomyTermName(List<String> anatomyTermName) {
+		this.anatomyTermName = anatomyTermName;
+	}
+
+	public void addAnatomyTermName(String anatomyTermName){
+		if (this.anatomyTermName == null){
+			this.anatomyTermName = new ArrayList<>();
+		}
+		this.anatomyTermName.add(anatomyTermName);
+	}
+	
+	public List<String> getIntermediateAnatomyTermId() {
+		return intermediateAnatomyTermId;
+	}
+
+	public void setIntermediateAnatomyTermId(List<String> intermediateAnatomyTermId) {
+		this.intermediateAnatomyTermId = intermediateAnatomyTermId;
+	}
+
+	public void addIntermediateAnatomyTermId(String intermediateAnatomyTermId){
+		if (this.intermediateAnatomyTermId == null){
+			this.intermediateAnatomyTermId = new ArrayList<>();
+		}
+		this.intermediateAnatomyTermId.add(intermediateAnatomyTermId);
+	}
+	
+	public List<String> getIntermediateAnatomyTermName() {
+		return intermediateAnatomyTermName;
+	}
+
+	public void setIntermediateAnatomyTermName(List<String> intermediateAnatomyTermName) {
+		this.intermediateAnatomyTermName = intermediateAnatomyTermName;
+	}
+
+	public void addIntermediateAnatomyTermName(String intermediateAnatomyTermName){
+		if (this.intermediateAnatomyTermName == null){
+			this.intermediateAnatomyTermName = new ArrayList<>();
+		}
+		this.intermediateAnatomyTermName.add(intermediateAnatomyTermName);
+	}
+	
+	public List<String> getTopLevelAnatomyTermId() {
+		return topLevelAnatomyTermId;
+	}
+
+	public void setTopLevelAnatomyTermId(List<String> topLevelAnatomyTermId) {
+		this.topLevelAnatomyTermId = topLevelAnatomyTermId;
+	}
+	
+	public void addTopLevelAnatomyTermId(String topLevelAnatomyTermId){
+		if (this.topLevelAnatomyTermId == null){
+			this.topLevelAnatomyTermId = new ArrayList<>();
+		}
+		this.topLevelAnatomyTermId.add(topLevelAnatomyTermId);
+	}
+
+	public List<String> getTopLevelAnatomyTermName() {
+		return topLevelAnatomyTermName;
+	}
+
+	public void setTopLevelAnatomyTermName(List<String> topLevelAnatomyTermName) {
+		this.topLevelAnatomyTermName = topLevelAnatomyTermName;
+	}
+
+	public void addTopLevelAnatomyTermName(String topLevelAnatomyTermName){
+		if (this.topLevelAnatomyTermName == null){
+			this.topLevelAnatomyTermName = new ArrayList<>();
+		}
+		this.topLevelAnatomyTermName.add(topLevelAnatomyTermName);
+	}
+	
+	
 	@Override
     public boolean equals(Object o) {
 
