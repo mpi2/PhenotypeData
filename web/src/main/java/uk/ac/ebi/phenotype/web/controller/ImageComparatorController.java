@@ -121,8 +121,6 @@ public class ImageComparatorController {
 		
 
 		this.addGeneToPage(acc, model);
-		model.addAttribute("parameter_stable_id", parameter_stable_id);
-		model.addAttribute("anatomy_id", anatomy_id);
 		model.addAttribute("mediaType", mediaType);
 		model.addAttribute("sexTypes",SexType.values());
 		model.addAttribute("zygTypes",ZygosityType.values());

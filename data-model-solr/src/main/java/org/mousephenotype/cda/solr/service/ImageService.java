@@ -410,12 +410,13 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_VALUE + ":"
 					+ parameterAssociationValue);
 		}
-		if(StringUtils.isNotEmpty(anatomyId)){
-			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":"
-					+ anatomyId+""+" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":"
-					+ anatomyId+""+" OR "+ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":"
-					+ anatomyId+"");
-		}
+//		if(StringUtils.isNotEmpty(anatomyId)){
+//			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":"
+//					+ anatomyId+""+" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":"
+//					+ anatomyId+""+" OR "+ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":"
+//					+ anatomyId+"");
+//		}
+		//solrQuery.setQueryType(qt)Param("defType","edismax");
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
