@@ -37,12 +37,8 @@ import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-//import Glacier2.CannotCreateSessionException;
-//import Glacier2.PermissionDeniedException;
 
 @Controller
 public class ImageComparatorController {
@@ -128,6 +124,7 @@ public class ImageComparatorController {
 		//System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
 		if(mediaType!=null && mediaType.equals("pdf")){//we need iframes to load google pdf viewer so switch to this view for the pdfs.
+			System.out.println("using frames based comparator to pdfs");
 			return "comparatorFrames";
 		}
 		return "comparator";//js viewport used to view images in this view.

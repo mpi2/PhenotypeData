@@ -128,7 +128,7 @@
 	            		<div class="thumbList">
 	            		<c:forEach var="img" items="${controls}" varStatus="controlLoop">
 	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
-	            				<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
+	            				<c:set var="controlText" value="WT: ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">

@@ -38,6 +38,7 @@
 	            <div id="comparator" class="section">
 	            <c:if test="${mediaType !=null }">
 	            <input type="hidden" name="mediaType" value="${mediaType}">
+	            
 	            </c:if>
 	            	<div id="filters">Filter Images by gender: 
 	            	<%-- ${param.gender} --%>
@@ -96,7 +97,7 @@
 	            			">
 	            				<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+										<img id="${img.omero_id}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 									</c:when>
 									<c:otherwise>
 	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
@@ -150,7 +151,7 @@
 	            			">
 								<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+										<img id="${img.omero_id}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 									</c:when>
 									<c:otherwise>
 	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
