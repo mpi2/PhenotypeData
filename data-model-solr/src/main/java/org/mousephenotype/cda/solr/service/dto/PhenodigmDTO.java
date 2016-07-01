@@ -9,56 +9,56 @@ import java.util.List;
  */
 public class PhenodigmDTO {
 
-	private static final String ID = "id";
-	private static final String TYPE = "type";
-	private static final String DISEASE_ID = "disease_id";
-	private static final String DISEASE_SOURCE = "disease_source";
-	private static final String DISEASE_TERM = "disease_term";
-	private static final String DISEASE_ALTS = "disease_alts";
-	private static final String DISEASE_LOCUS = "disease_locus";
-	private static final String DISEASE_CLASSES = "disease_classes";
-	private static final String MARKER_ACCESSION = "marker_accession";
-	private static final String MARKER_SYMBOL = "marker_symbol";
-	private static final String HGNC_GENE_SYMBOL = "hgnc_gene_symbol";
-	private static final String HGNC_ID = "hgnc_id";
-	private static final String HGNC_GENE_LOCUS = "hgnc_gene_locus";
-	private static final String MODEL_ID = "model_id";
-	private static final String SOURCE = "source";
-	private static final String ALLELIC_COMPOSITION = "allelic_composition";
-	private static final String GENETIC_BACKGROUND = "genetic_background";
-	private static final String ALLELE_IDS = "allele_ids";
-	private static final String HOM_HET = "hom_het";
-	private static final String HUMAN_CURATED = "human_curated";
-	private static final String MOUSE_CURATED = "mouse_curated";
-	private static final String MGI_PREDICTED = "mgi_predicted";
-	private static final String IMPC_PREDICTED = "impc_predicted";
-	private static final String MGI_PREDICTED_KNOWN_GENE = "mgi_predicted_known_gene";
-	private static final String IMPC_PREDICTED_KNOWN_GENE = "impc_predicted_known_gene";
-	private static final String MGI_NOVEL_PREDICTED_IN_LOCUS = "mgi_novel_predicted_in_locus";
-	private static final String IMPC_NOVEL_PREDICTED_IN_LOCUS = "impc_novel_predicted_in_locus";
-	private static final String MOD_MODEL = "mod_model";
-	private static final String HTPC_MODEL = "htpc_model";
-	private static final String HTPC_PHENOTYPE = "htpc_phenotype";
-	private static final String MAX_MGI_D2M_SCORE = "max_mgi_d2m_score";
-	private static final String MAX_MGI_M2D_SCORE = "max_mgi_m2d_score";
-	private static final String MAX_IMPC_D2M_SCORE = "max_impc_d2m_score";
-	private static final String MAX_IMPC_M2D_SCORE = "max_impc_m2d_score";
-	private static final String RAW_MOD_SCORE = "raw_mod_score";
-	private static final String RAW_HTPC_SCORE = "raw_htpc_score";
-	private static final String IN_LOCUS = "in_locus";
-	private static final String LIT_MODEL = "lit_model";
-	private static final String DISEASE_TO_MODEL_SCORE = "disease_to_model_score";
-	private static final String MODEL_TO_DISEASE_SCORE = "model_to_disease_score";
-	private static final String RAW_SCORE = "raw_score";
-	private static final String HP_MATCHED_TERMS = "hp_matched_terms";
-	private static final String MP_MATCHED_TERMS = "mp_matched_terms";
-	private static final String MP_ID = "mp_id";
-	private static final String MP_TERM = "mp_term";
-	private static final String HP_ID = "hp_id";
-	private static final String HP_TERM = "hp_term";
-	private static final String HP_SYNONYM = "hp_synonym";
-	private static final String PHENOTYPES = "phenotypes";
-	private static final String TEXT = "text";
+	public static final String ID = "id";
+	public static final String TYPE = "type";
+	public static final String DISEASE_ID = "disease_id";
+	public static final String DISEASE_SOURCE = "disease_source";
+	public static final String DISEASE_TERM = "disease_term";
+	public static final String DISEASE_ALTS = "disease_alts";
+	public static final String DISEASE_LOCUS = "disease_locus";
+	public static final String DISEASE_CLASSES = "disease_classes";
+	public static final String MARKER_ACCESSION = "marker_accession";
+	public static final String MARKER_SYMBOL = "marker_symbol";
+	public static final String HGNC_GENE_SYMBOL = "hgnc_gene_symbol";
+	public static final String HGNC_GENE_ID = "hgnc_gene_id";
+	public static final String HGNC_GENE_LOCUS = "hgnc_gene_locus";
+	public static final String MODEL_ID = "model_id";
+	public static final String SOURCE = "source";
+	public static final String ALLELIC_COMPOSITION = "allelic_composition";
+	public static final String GENETIC_BACKGROUND = "genetic_background";
+	public static final String ALLELE_IDS = "allele_ids";
+	public static final String HOM_HET = "hom_het";
+	public static final String HUMAN_CURATED = "human_curated";
+	public static final String MOUSE_CURATED = "mouse_curated";
+	public static final String MGI_PREDICTED = "mgi_predicted";
+	public static final String IMPC_PREDICTED = "impc_predicted";
+	public static final String MGI_PREDICTED_KNOWN_GENE = "mgi_predicted_known_gene";
+	public static final String IMPC_PREDICTED_KNOWN_GENE = "impc_predicted_known_gene";
+	public static final String MGI_NOVEL_PREDICTED_IN_LOCUS = "mgi_novel_predicted_in_locus";
+	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS = "impc_novel_predicted_in_locus";
+	public static final String MOD_MODEL = "mod_model";
+	public static final String HTPC_MODEL = "htpc_model";
+	public static final String HTPC_PHENOTYPE = "htpc_phenotype";
+	public static final String MAX_MGI_D2M_SCORE = "max_mgi_d2m_score";
+	public static final String MAX_MGI_M2D_SCORE = "max_mgi_m2d_score";
+	public static final String MAX_IMPC_D2M_SCORE = "max_impc_d2m_score";
+	public static final String MAX_IMPC_M2D_SCORE = "max_impc_m2d_score";
+	public static final String RAW_MOD_SCORE = "raw_mod_score";
+	public static final String RAW_HTPC_SCORE = "raw_htpc_score";
+	public static final String IN_LOCUS = "in_locus";
+	public static final String LIT_MODEL = "lit_model";
+	public static final String DISEASE_TO_MODEL_SCORE = "disease_to_model_score";
+	public static final String MODEL_TO_DISEASE_SCORE = "model_to_disease_score";
+	public static final String RAW_SCORE = "raw_score";
+	public static final String HP_MATCHED_TERMS = "hp_matched_terms";
+	public static final String MP_MATCHED_TERMS = "mp_matched_terms";
+	public static final String MP_ID = "mp_id";
+	public static final String MP_TERM = "mp_term";
+	public static final String HP_ID = "hp_id";
+	public static final String HP_TERM = "hp_term";
+	public static final String HP_SYNONYM = "hp_synonym";
+	public static final String PHENOTYPES = "phenotypes";
+	public static final String TEXT = "text";
 
 	@Field(ID)
 	private String id;
@@ -93,8 +93,8 @@ public class PhenodigmDTO {
 	@Field(HGNC_GENE_SYMBOL)
 	private String hgncGeneSymbol;
 
-	@Field(HGNC_ID)
-	private String hgncID;
+	@Field(HGNC_GENE_ID)
+	private String hgncGeneID;
 
 	@Field(HGNC_GENE_LOCUS)
 	private String hgncGeneLocus;
@@ -299,12 +299,12 @@ public class PhenodigmDTO {
 		this.hgncGeneSymbol = hgncGeneSymbol;
 	}
 
-	public String getHgncID() {
-		return hgncID;
+	public String getHgncGeneID() {
+		return hgncGeneID;
 	}
 
-	public void setHgncID(String hgncID) {
-		this.hgncID = hgncID;
+	public void setHgncGeneID(String hgncGeneID) {
+		this.hgncGeneID = hgncGeneID;
 	}
 
 	public String getHgncGeneLocus() {
@@ -638,7 +638,7 @@ public class PhenodigmDTO {
 			return false;
 		if (getHgncGeneSymbol() != null ? !getHgncGeneSymbol().equals(that.getHgncGeneSymbol()) : that.getHgncGeneSymbol() != null)
 			return false;
-		if (getHgncID() != null ? !getHgncID().equals(that.getHgncID()) : that.getHgncID() != null) return false;
+		if (getHgncGeneID() != null ? !getHgncGeneID().equals(that.getHgncGeneID()) : that.getHgncGeneID() != null) return false;
 		if (getHgncGeneLocus() != null ? !getHgncGeneLocus().equals(that.getHgncGeneLocus()) : that.getHgncGeneLocus() != null)
 			return false;
 		if (getModelID() != null ? !getModelID().equals(that.getModelID()) : that.getModelID() != null) return false;
@@ -722,7 +722,7 @@ public class PhenodigmDTO {
 		result = 31 * result + (getMarkerAccession() != null ? getMarkerAccession().hashCode() : 0);
 		result = 31 * result + (getMarkerSymbol() != null ? getMarkerSymbol().hashCode() : 0);
 		result = 31 * result + (getHgncGeneSymbol() != null ? getHgncGeneSymbol().hashCode() : 0);
-		result = 31 * result + (getHgncID() != null ? getHgncID().hashCode() : 0);
+		result = 31 * result + (getHgncGeneID() != null ? getHgncGeneID().hashCode() : 0);
 		result = 31 * result + (getHgncGeneLocus() != null ? getHgncGeneLocus().hashCode() : 0);
 		result = 31 * result + (getModelID() != null ? getModelID().hashCode() : 0);
 		result = 31 * result + (getSource() != null ? getSource().hashCode() : 0);
@@ -778,7 +778,7 @@ public class PhenodigmDTO {
 			", markerAccession='" + markerAccession + '\'' +
 			", markerSymbol='" + markerSymbol + '\'' +
 			", hgncGeneSymbol='" + hgncGeneSymbol + '\'' +
-			", hgncID='" + hgncID + '\'' +
+			", hgncGeneID='" + hgncGeneID + '\'' +
 			", hgncGeneLocus='" + hgncGeneLocus + '\'' +
 			", modelID=" + modelID +
 			", source='" + source + '\'' +
