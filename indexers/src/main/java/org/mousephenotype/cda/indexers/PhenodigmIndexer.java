@@ -29,7 +29,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -296,7 +295,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 			"  'gene'                  AS type, " +
 			"  mgo.model_gene_id       AS model_gene_id, " +
 			"  model_gene_symbol       AS model_gene_symbol, " +
-			"  hgnc_id, " +
+			"  hgnc_id AS hgnc_gene_id, " +
 			"  hgnc_gene_symbol, " +
 			"  hgnc_gene_locus         AS hgnc_gene_locus, " +
 			"  human_curated, " +
@@ -324,7 +323,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 				doc.setType(r.getString("type"));
 				doc.setMarkerAccession(r.getString("model_gene_id"));
 				doc.setMarkerSymbol(r.getString("model_gene_symbol"));
-				doc.setHgncID(r.getString("hgnc_id"));
+				doc.setHgncGeneID(r.getString("hgnc_gene_id"));
 				doc.setHgncGeneSymbol(r.getString("hgnc_gene_symbol"));
 				doc.setHgncGeneLocus(r.getString("hgnc_gene_locus"));
 				doc.setHumanCurated(r.getBoolean("human_curated"));
@@ -525,7 +524,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 				doc.setMarkerAccession(r.getString("model_gene_id"));
 				doc.setMarkerSymbol(r.getString("model_gene_symbol"));
-				doc.setHgncID(r.getString("hgnc_id"));
+				doc.setHgncGeneID(r.getString("hgnc_gene_id"));
 				doc.setHgncGeneSymbol(r.getString("hgnc_gene_symbol"));
 
 				doc.setHumanCurated(r.getBoolean("human_curated"));
@@ -639,8 +638,9 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 				doc.setMpTerm(r.getString("mp_term"));
 
 				// Human phenotype synonyms
-				if (humanSynonymMap.containsKey(hpId))
+				if (humanSynonymMap.containsKey(hpId)) {
 					doc.setHpSynonym(new ArrayList<>(humanSynonymMap.get(hpId)));
+				}
 
 				phenodigmIndexing.addBean(doc);
 				count++;
