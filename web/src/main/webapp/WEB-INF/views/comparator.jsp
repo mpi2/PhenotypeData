@@ -72,7 +72,6 @@
 	            <c:if test="${gene !=null }">
 	            	<input type="hidden" name="acc" value="${gene.mgiAccessionId}">
 	            </c:if>
-	            anatomy_id=${param.anatomy_id}
 	            	<input type="hidden" name="parameter_stable_id" value="${param.parameter_stable_id}">
 	            	<input type="hidden" name="parameter_association_value" value="${param.parameter_association_value}">
 	            	<input type="hidden" name="anatomy_id" value="${param.anatomy_id}">
@@ -211,7 +210,19 @@
 					        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/>  -->
 					        
 					        <c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
-	            			<c:set var="mutantText" value="Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
+					        
+					        <c:forEach items="${img.parameter_association_name}" var="currentItem" varStatus="stat">
+  								<c:set var="myVar" value="${stat.first ? '' : myVar} ${currentItem}:${img.parameter_association_value[stat.index]}" />
+  								
+							</c:forEach> 
+	            			<c:set var="mutantText" value='Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}, ${myVar}'/>
+	            			
+                                                	<%-- <c:forEach items="${img.parameter_association_name}" varStatus="status">
+                                                		<c:out value="${img.parameter_association_name[status.index]}"/>
+                                                		<c:out value="${img.parameter_association_value[status.index]}"/>
+                                                		<br/>
+                                                	</c:forEach> --%>
+                                                
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
