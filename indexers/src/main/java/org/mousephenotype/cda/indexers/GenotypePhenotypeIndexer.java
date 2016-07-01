@@ -15,15 +15,33 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
+import org.mousephenotype.cda.indexers.beans.OntologyDetail;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMa;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMp;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -37,14 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Populate the Genotype-Phenotype core
@@ -82,6 +92,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
+    @Autowired
+    MaOntologyDAO maOntologyService;
+    
 	@Autowired
 	OntologyTermDAO ontologyTermDAO;
 
@@ -315,23 +328,32 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, mpId);
+                    OntologyTermHelperMp mpTerm = new OntologyTermHelperMp(mpOntologyService, mpId);
+                    // mp-anatomy mappings (all MA at the moment)
+                    if (mpTerm.getAnatomyMappings() != null){
+                    	List<String> anatomyIds = mpTerm.getAnatomyMappings();
+                    	for (String id: anatomyIds){
+                    		OntologyTermHelperMa maTerm = new OntologyTermHelperMa(maOntologyService, id);
+                    		doc.addAnatomyTermId(id);
+                    		doc.addAnatomyTermName(maTerm.getOntologyTerm().getName());
+                    		OntologyDetail maAncestors = maTerm.getIntermediates();
+                    		doc.setIntermediateAnatomyTermId(maAncestors.getIds());
+                    		doc.setIntermediateAnatomyTermName(maAncestors.getNames());
+                    		OntologyDetail maTopLevels = maTerm.getSelectedTopLevels();
+                    		doc.setTopLevelAnatomyTermId(maTopLevels.getIds());
+                    		doc.setTopLevelAnatomyTermName(maTopLevels.getNames());
+                    	}
+                    }
 
-                    // Alternative MP Term ID - not working yet
-//                    if ( beanlist.getAltTermIds() != null && beanlist.getAltTermIds().size() > 0 ) {
-//                        System.out.println("ALT MP ID: " + doc.getAltMpTermId());
-//                        doc.setAltMpTermId(beanlist.getAltTermIds());
-//                    }
+                    doc.setTopLevelMpTermId(mpTerm.getTopLevels().getIds());
+                    doc.setTopLevelMpTermName(mpTerm.getTopLevels().getNames());
+                    doc.setTopLevelMpTermSynonym(mpTerm.getTopLevels().getSynonyms());
+                    doc.setTopLevelMpTermDefinition(mpTerm.getTopLevels().getDefinitions());
 
-                    doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-                    doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
-                    doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());
-                    doc.setTopLevelMpTermDefinition(beanlist.getTopLevels().getDefinitions());
-
-                    doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-                    doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
-                    doc.setIntermediateMpTermSynonym(beanlist.getIntermediates().getSynonyms());
-                    doc.setIntermediateMpTermDefinition(beanlist.getIntermediates().getDefinitions());
+                    doc.setIntermediateMpTermId(mpTerm.getIntermediates().getIds());
+                    doc.setIntermediateMpTermName(mpTerm.getIntermediates().getNames());
+                    doc.setIntermediateMpTermSynonym(mpTerm.getIntermediates().getSynonyms());
+                    doc.setIntermediateMpTermDefinition(mpTerm.getIntermediates().getDefinitions());
                 }
                 // MPATH association
                 else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){

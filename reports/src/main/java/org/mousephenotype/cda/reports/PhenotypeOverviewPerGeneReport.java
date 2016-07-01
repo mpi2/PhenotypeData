@@ -100,8 +100,8 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
                 }
 
                 // Term can be EMAP, MPATH, MP, etc.
-                if ((gp.getEmapTermName() != null) && ( ! gp.getEmapTermName().isEmpty())) {
-                    geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getEmapTermName() + "/" + gp.getParameterName());
+                if ((gp.getAnatomyTermName() != null) && ( ! gp.getAnatomyTermName().isEmpty())) {
+                    geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getAnatomyTermName() + "/" + gp.getParameterName());
                 } else if ((gp.getMpathTermName() != null) && ( ! gp.getMpathTermName().isEmpty())) {
                     geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpathTermName() + "/" + gp.getParameterName());
                 } else if ((gp.getMpTermName() != null) && ( ! gp.getMpTermName().isEmpty())) {

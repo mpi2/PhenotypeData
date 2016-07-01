@@ -479,4 +479,10 @@ public class EmapaOntologyOldDAO extends OntologyDAO {
             ps.close();
         }
     }
+
+	@Override
+	public List<String> getAnatomyMappings(String mpId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

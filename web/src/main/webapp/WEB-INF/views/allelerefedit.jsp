@@ -315,7 +315,8 @@
 
 		                $(this).find('tr td:nth-child(1) input').bind('click', function(){
 
-			                var dbid = $(this).parent().parent().find('td span.pmid').attr('id'); // this comes from concatenation, so is a string
+			                var thisTr = $(this).parent().parent();;
+			                var dbid = thisTr.find('td span.pmid').attr('id'); // this comes from concatenation, so is a string
 
 			                var fp = $(this).is(':checked') ? "yes" : "no"; // falsepositive is checked or not
 
@@ -324,6 +325,8 @@
 				                url: baseUrl + "/dataTableAlleleRefSetFalsePositive?id="+dbid+"&value="+fp,
 				                success: function(response) {
 					                // boolean response
+					                var reviewed = fp;
+					                thisTr.find('td:nth-child(2)').html(reviewed);
 				                },
 				                error: function() {
 					                window.alert('AJAX error trying to set false positive value for this paper');
