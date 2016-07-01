@@ -55,10 +55,15 @@ public class ImageComparatorController {
 	
 	@RequestMapping("/imageComparator")
 	public String imageCompBrowser( @RequestParam(value = "acc")  String acc,
-			 @RequestParam(value = "parameter_stable_id", required=false)  String parameter_stable_id,
-			 @RequestParam(value = "parameter_association_value", required=false)  String parameter_association_value,
-			 @RequestParam(value = "anatomy_id", required=false)  String anatomy_id,
-			@RequestParam(value = "gender", required=false) String gender, @RequestParam(value = "zygosity", required=false) String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
+				@RequestParam(value = "parameter_stable_id", required=false)  String parameterStableId,
+				@RequestParam(value = "parameter_association_value", required=false)  String parameterAssociationValue,
+				@RequestParam(value = "anatomy_id", required=false)  String anatomyId,
+				@RequestParam(value = "gender", required=false) String gender,
+				@RequestParam(value = "zygosity", required=false) String zygosity,
+				@RequestParam(value="mediaType", required=false) String mediaType,
+				@RequestParam(value="colony_id", required=false) String colonyId,
+				@RequestParam(value="mp_id", required=false) String mpId,
+				Model model, HttpServletRequest request)
 			throws SolrServerException {
 		System.out.println("calling image imageComparator");
 		
@@ -68,26 +73,21 @@ public class ImageComparatorController {
 		//in anatomy pages we have links like this that need to be supported
 		//http://localhost:8080/phenotype-archive/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(anatomy_id:%22EMAPA:16105%22%20OR%20selected_top_level_anatomy_id:%22EMAPA:16105%22%20OR%20intermediate_anatomy_id:%22EMAPA:16105%22)%20%20AND%20gene_symbol:Ap4e1%20AND%20parameter_name:%22LacZ%20images%20wholemount%22%20AND%20parameter_association_value:%22ambiguous%22&title=gene%20Ap4e1%20with%20ambiguous%20in%20heart
 		//http://localhost:8080/phenotype-archive/imageCompara?anatomy_id:%22EMAPA:16105%22&gene_symbol:Ap4e1&parameter_name:%22LacZ%20images%20wholemount%22&parameter_association_value:%22ambiguous%22
+		//example link from gene page phenotype table that should work through this method with mpId and colonyId
+		//http://localhost:8080/phenotype-archive/imageComparator?acc=MGI:1913955&mpId=MP:0000572&colony_id=RIKEN_EPD0296_2_A10
+		
 		if(mediaType!=null) System.out.println("mediaType= "+mediaType);
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
 		SolrDocumentList mutants = new SolrDocumentList();
 		QueryResponse responseExperimental = imageService
-				.getImagesForGeneByParameter(acc, parameter_stable_id,"experimental", 10000, 
-						null, null, null, anatomy_id, parameter_association_value);
+				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", 10000, 
+						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
 		SolrDocument imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			mutants=responseExperimental.getResults();
 			imgDoc = mutants.get(0);
-		}else{//try this as a procedure not parameter id
-			responseExperimental = imageService
-					.getImagesForGeneByProcedure(acc, parameter_stable_id,
-							"experimental", 10000, null, null, null);
-			if (responseExperimental != null && responseExperimental.getResults().size()>0) {
-			mutants=responseExperimental.getResults();
-			imgDoc = mutants.get(0);
-			}
 		}
 		
 		int numberOfControlsPerSex = 5;

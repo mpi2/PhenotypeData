@@ -692,7 +692,7 @@ public class GenesController {
 				imageLink.setIconType(EvidenceLink.IconType.IMAGE);
 				//test page http://localhost:8080/phenotype-archive/genes/MGI:1913955
 				//${baseUrl}/impcImages/images?q=gene_accession_id:${acc}&fq=(mp_id:"${phenotype.phenotypeTerm.id}" AND colony_id:${phenotype.colonyId})
-				 String url=request.getAttribute("baseUrl").toString()+"/impcImages/images?q=gene_accession_id:"+row.getGene().getAccessionId()+"&fq=(mp_id:\""+row.getPhenotypeTerm().getId()+"\" AND colony_id:"+row.getColonyId()+")";
+				 String url=request.getAttribute("baseUrl").toString()+"/imageComparator?acc="+row.getGene().getAccessionId()+"&mp_id="+row.getPhenotypeTerm().getId()+"&colony_id="+row.getColonyId();
 				imageLink.setUrl(url);
 				row.setImagesEvidenceLink(imageLink);
 				}

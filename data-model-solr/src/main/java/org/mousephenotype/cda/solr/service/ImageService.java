@@ -383,7 +383,7 @@ public class ImageService implements WebStatus{
 	public QueryResponse getImagesForGeneByParameter(String mgiAccession, String parameterStableId,
 			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex,
 			String metadataGroup, String strain, String anatomyId,
-			String parameterAssociationValue) throws SolrServerException {
+			String parameterAssociationValue, String mpId, String colonyId) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		//gene accession will take precedence if both acc and symbol supplied
@@ -416,6 +416,15 @@ public class ImageService implements WebStatus{
 					+ anatomyId+"\" OR "+ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\""
 					+ anatomyId+"\"");
 		}
+		if (StringUtils.isNotEmpty(mpId)) {
+			solrQuery.addFilterQuery(MpDTO.MP_ID + ":\""
+					+ mpId+"\"");
+		}
+		if (StringUtils.isNotEmpty(colonyId)) {
+			solrQuery.addFilterQuery(ObservationDTO.COLONY_ID + ":\""
+					+ colonyId+"\"");
+		}
+		
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
@@ -424,37 +433,6 @@ public class ImageService implements WebStatus{
 		return response;
 	}
 
-	public QueryResponse getImagesForGeneByProcedure(String mgiAccession,
-			String procedureStableId, String experimentOrControl,
-			int numberOfImagesToRetrieve, SexType sex, String metadataGroup,
-			String strain) throws SolrServerException {
-
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
-		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
-				+ experimentOrControl);
-		if (StringUtils.isNotEmpty(metadataGroup)) {
-			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":"
-					+ metadataGroup);
-		}
-		if (StringUtils.isNotEmpty(strain)) {
-			solrQuery.addFilterQuery(ObservationDTO.STRAIN_NAME + ":" + strain);
-		}
-		if (sex != null) {
-			solrQuery.addFilterQuery("sex:" + sex.name());
-		}
-		if (StringUtils.isNotEmpty(procedureStableId)) {
-			solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_STABLE_ID + ":"
-					+ procedureStableId);
-		}
-		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
-		// procedure_name + "\"");
-		solrQuery.setRows(numberOfImagesToRetrieve);
-		logger.debug("images experimental query: {}/select?{}",
-				solr.getBaseURL(), solrQuery);
-		QueryResponse response = solr.query(solrQuery);
-		return response;
-	}
 
 	/**
 	 *
@@ -861,7 +839,7 @@ public class ImageService implements WebStatus{
 						QueryResponse responseExperimental = this
 								.getImagesForGeneByParameter(acc,count.getName(),
 										"experimental", 1,null, null,
-										null, anatomyId, null);
+										null, anatomyId, null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
 
 							SolrDocument imgDoc = responseExperimental
@@ -878,7 +856,7 @@ public class ImageService implements WebStatus{
 											(String) imgDoc
 													.get(ObservationDTO.STRAIN_NAME),
 											anatomyId,
-											null);
+											null, null, null);
 
 							list = getControls(numberOfControls, null, imgDoc,
 									null);

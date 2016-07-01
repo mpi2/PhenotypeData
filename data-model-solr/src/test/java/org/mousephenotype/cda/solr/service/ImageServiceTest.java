@@ -87,7 +87,7 @@ public class ImageServiceTest {
 		String parameterAsscociationValue="ambiguous";
 		QueryResponse response =null;
 		try {
-			response = imageService.getImagesForGeneByParameter(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue);
+			response = imageService.getImagesForGeneByParameter(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
