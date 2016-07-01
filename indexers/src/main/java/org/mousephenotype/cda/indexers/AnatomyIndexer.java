@@ -126,21 +126,21 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
             // Add all ma terms to the index.
             for (OntologyTermBean bean : beans) {
-                AnatomyDTO ma = new AnatomyDTO();
+                AnatomyDTO anatomyTerm = new AnatomyDTO();
 
                 String id = bean.getId();
 
                 // Set scalars.
-                ma.setDataType("ma");
-                ma.setAnatomyId(id);
-                ma.setAnatomyTerm(bean.getName());
-                ma.setStage("adult");
+                anatomyTerm.setDataType("ma");
+                anatomyTerm.setAnatomyId(id);
+                anatomyTerm.setAnatomyTerm(bean.getName());
+                anatomyTerm.setStage("adult");
 
                 if (bean.getAltIds().size() > 0) {
-                    ma.setAltAnatomyIds(bean.getAltIds());
+                    anatomyTerm.setAltAnatomyIds(bean.getAltIds());
                 }
 
-                ma.setAnatomyTermSynonym(maOntologyService.getSynonyms(bean.getId()));
+                anatomyTerm.setAnatomyTermSynonym(maOntologyService.getSynonyms(id));
 
                 // Using the level for MA to get top-levels
                 // eg. the fullpath:
@@ -156,69 +156,69 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 int level = 2; // if call w/0 level, default is 1
 
-                OntologyDetail topLevels = maOntologyService.getTopLevel(level, bean.getId());
-                ma.setTopLevelAnatomyId(topLevels.getIds());
-                ma.setTopLevelAnatomyTerm(topLevels.getNames());
-                ma.setTopLevelAnatomyTermSynonym(topLevels.getSynonyms());
+                OntologyDetail topLevels = maOntologyService.getTopLevel(level, id);
+                anatomyTerm.setTopLevelAnatomyId(topLevels.getIds());
+                anatomyTerm.setTopLevelAnatomyTerm(topLevels.getNames());
+                anatomyTerm.setTopLevelAnatomyTermSynonym(topLevels.getSynonyms());
 
 //                System.out.println("1 CHECK TOP: " + ma.getTopLevelId() + " -- " +  ma.getTopLevelTerm() + " -- " + ma.getTopLevelTermSynonym());
 //                System.out.println("1 CHECK TOP: " + topLevels.getIds() + " -- " +  topLevels.getNames() + " -- " + topLevels.getSynonyms());
 
-                OntologyDetail selectedTopLevels = maOntologyService.getSelectedTopLevelDetails(bean.getId());
-                ma.setSelectedTopLevelAnatomyId(selectedTopLevels.getIds());
-                ma.setSelectedTopLevelAnatomyTerm(selectedTopLevels.getNames());
-                ma.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevels.getSynonyms());
+                OntologyDetail selectedTopLevels = maOntologyService.getSelectedTopLevelDetails(id);
+                anatomyTerm.setSelectedTopLevelAnatomyId(selectedTopLevels.getIds());
+                anatomyTerm.setSelectedTopLevelAnatomyTerm(selectedTopLevels.getNames());
+                anatomyTerm.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevels.getSynonyms());
                 //ma.setSelectedTopLevelIdTerm(selectedTopLevels.getId_name_concatenations());
 
 //                System.out.println("1 CHECK SELTOP: " + ma.getSelectedTopLevelId() + " -- " +  ma.getSelectedTopLevelTerm() + " -- " + ma.getSelectedTopLevelTermSynonym());
 
-                OntologyDetail intermediates = maOntologyService.getIntermediatesDetail(bean.getId());
-                ma.setIntermediateAnatomyId(intermediates.getIds());
-                ma.setIntermediateAnatomyTerm(intermediates.getNames());
-                ma.setIntermediateAnatomyTermSynonym(intermediates.getSynonyms());
+                OntologyDetail intermediates = maOntologyService.getIntermediatesDetail(id);
+                anatomyTerm.setIntermediateAnatomyId(intermediates.getIds());
+                anatomyTerm.setIntermediateAnatomyTerm(intermediates.getNames());
+                anatomyTerm.setIntermediateAnatomyTermSynonym(intermediates.getSynonyms());
 
-                OntologyDetail parents = maOntologyService.getParentsDetails(bean.getId());
-                ma.setParentAnatomyId(parents.getIds());
-                ma.setParentAnatomyTerm(parents.getNames());
-                ma.setParentAnatomyTermSynonym(parents.getSynonyms());
+                OntologyDetail parents = maOntologyService.getParentsDetails(id);
+                anatomyTerm.setParentAnatomyId(parents.getIds());
+                anatomyTerm.setParentAnatomyTerm(parents.getNames());
+                anatomyTerm.setParentAnatomyTermSynonym(parents.getSynonyms());
 
-                OntologyDetail children = maOntologyService.getChildrenDetails(bean.getId());
-                ma.setChildAnatomyId(children.getIds());
-                ma.setChildAnatomyTerm(children.getNames());
-                ma.setChildAnatomyTermSynonym(children.getSynonyms());
+                OntologyDetail children = maOntologyService.getChildrenDetails(id);
+                anatomyTerm.setChildAnatomyId(children.getIds());
+                anatomyTerm.setChildAnatomyTerm(children.getNames());
+                anatomyTerm.setChildAnatomyTermSynonym(children.getSynonyms());
 
-                ma.setAnatomyNodeId(bean.getNodeIds());
+                anatomyTerm.setAnatomyNodeId(bean.getNodeIds());
 
                 // index UBERON/EFO id for MA id
 
                 if (maUberonEfoMap.containsKey(id)) {
                     if (maUberonEfoMap.get(id).containsKey("uberon_id")) {
-                        ma.setUberonIds(maUberonEfoMap.get(id).get("uberon_id"));
+                        anatomyTerm.setUberonIds(maUberonEfoMap.get(id).get("uberon_id"));
                     }
                     if (maUberonEfoMap.get(id).containsKey("efo_id")) {
-                        ma.setEfoIds(maUberonEfoMap.get(id).get("efo_id"));
+                        anatomyTerm.setEfoIds(maUberonEfoMap.get(id).get("efo_id"));
                     }
                 }
 
                 //System.out.println("MA ID: " + ma.getMaId() + " --- MA node id: " + ma.getMaNodeId() + " --- " + ma.getMaTerm());
                 // OntologyBrowser stuff
-                TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getAnatomyId());
+                TreeHelper helper = ontologyBrowser.getTreeHelper("ma", anatomyTerm.getAnatomyId());
                 //helper.setExcludedNodeIds(excludedNodeIds);
 
                 // for  the root node id is 1 (MP is 0)
-                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "1", null, ma.getAnatomyId());
-                ma.setSearchTermJson(searchTree.toString());
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "1", null, anatomyTerm.getAnatomyId());
+                anatomyTerm.setSearchTermJson(searchTree.toString());
 
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
-                ma.setScrollNode(scrollNodeId);
-                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getAnatomyId()).get(0), null, ma.getAnatomyId());
-                ma.setChildrenJson(childrenTree.toString());
+                anatomyTerm.setScrollNode(scrollNodeId);
+                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(anatomyTerm.getAnatomyId()).get(0), null, anatomyTerm.getAnatomyId());
+                anatomyTerm.setChildrenJson(childrenTree.toString());
 
                 // also index all UBERON/EFO ids for intermediate MA ids
                 Set<String> all_ae_mapped_uberonIds = new HashSet<>();
                 Set<String> all_ae_mapped_efoIds = new HashSet<>();
 
-                for (String intermediateId : ma.getIntermediateAnatomyId()) {
+                for (String intermediateId : anatomyTerm.getIntermediateAnatomyId()) {
 
                     if (maUberonEfoMap.containsKey(intermediateId) && maUberonEfoMap.get(intermediateId).containsKey("uberon_id")) {
                         all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateId).get("uberon_id"));
@@ -228,13 +228,13 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                     }
                 }
 
-                if (ma.getUberonIds() != null) {
-                    all_ae_mapped_uberonIds.addAll(ma.getUberonIds());
-                    ma.setAll_ae_mapped_uberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
+                if (anatomyTerm.getUberonIds() != null) {
+                    all_ae_mapped_uberonIds.addAll(anatomyTerm.getUberonIds());
+                    anatomyTerm.setAll_ae_mapped_uberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
                 }
-                if (ma.getEfoIds() != null) {
-                    all_ae_mapped_efoIds.addAll(ma.getEfoIds());
-                    ma.setAll_ae_mapped_efoIds(new ArrayList<String>(all_ae_mapped_efoIds));
+                if (anatomyTerm.getEfoIds() != null) {
+                    all_ae_mapped_efoIds.addAll(anatomyTerm.getEfoIds());
+                    anatomyTerm.setAll_ae_mapped_efoIds(new ArrayList<String>(all_ae_mapped_efoIds));
                 }
 
                 // Image association fields
@@ -271,8 +271,8 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 //                }
 
                 count++;
-                if ( !maBatch.contains(ma)) {
-                    maBatch.add(ma);
+                if ( !maBatch.contains(anatomyTerm)) {
+                    maBatch.add(anatomyTerm);
                 }
 //                if (maBatch.size() == BATCH_SIZE) {
 //                    // Update the batch, clear the list
@@ -282,7 +282,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 //                }
 
                 documentCount++;
-                anatomyIndexing.addBean(ma, 60000);
+                anatomyIndexing.addBean(anatomyTerm, 60000);
 
                 if (documentCount % 100 == 0){
                     anatomyIndexing.commit();

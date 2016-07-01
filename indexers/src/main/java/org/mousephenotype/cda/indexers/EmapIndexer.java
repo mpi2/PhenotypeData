@@ -163,26 +163,26 @@ public class EmapIndexer extends AbstractIndexer implements CommandLineRunner {
 
             for (OntologyTermBean bean : beans) {
                 EmapDTO emap = new EmapDTO();
-
                 String emapTermId = bean.getId();
+                
                 // Set scalars.
                 emap.setDataType("emap");
                 emap.setEmapId(emapTermId);
                 emap.setEmapTerm(bean.getName());
-
                 emap.setEmapNodeId(termNodeIds.get(emapTermId));
+                
                 buildNodes(emap);
 
-                emap.setEmapTermSynonym(emapOntologyService.getSynonyms(bean.getId()));
+                emap.setEmapTermSynonym(emapOntologyService.getSynonyms(emapTermId));
 
-                emap.setChildEmapId(emapOntologyService.getChildrenDetails(bean.getId()).getIds());
-                emap.setChildEmapIdTerm(emapOntologyService.getChildrenDetails(bean.getId()).getId_name_concatenations());
-                emap.setChildEmapTerm(emapOntologyService.getChildrenDetails(bean.getId()).getNames());
-                emap.setChildEmapTermSynonym(emapOntologyService.getChildrenDetails(bean.getId()).getSynonyms());
+                emap.setChildEmapId(emapOntologyService.getChildrenDetails(emapTermId).getIds());
+                emap.setChildEmapIdTerm(emapOntologyService.getChildrenDetails(emapTermId).getId_name_concatenations());
+                emap.setChildEmapTerm(emapOntologyService.getChildrenDetails(emapTermId).getNames());
+                emap.setChildEmapTermSynonym(emapOntologyService.getChildrenDetails(emapTermId).getSynonyms());
 
-                emap.setSelectedTopLevelEmapId(emapOntologyService.getTopLevelDetail(bean.getId()).getIds());
-                emap.setSelectedTopLevelEmapTerm(emapOntologyService.getTopLevelDetail(bean.getId()).getNames());
-                emap.setSelectedTopLevelEmapTermSynonym(emapOntologyService.getTopLevelDetail(bean.getId()).getSynonyms());
+                emap.setSelectedTopLevelEmapId(emapOntologyService.getTopLevelDetail(emapTermId).getIds());
+                emap.setSelectedTopLevelEmapTerm(emapOntologyService.getTopLevelDetail(emapTermId).getNames());
+                emap.setSelectedTopLevelEmapTermSynonym(emapOntologyService.getTopLevelDetail(emapTermId).getSynonyms());
 
                 // Genes annotated to an EMAP
                 if ( emap2MgiId.containsKey(emapTermId) ) {

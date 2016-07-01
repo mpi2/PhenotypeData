@@ -295,7 +295,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						if (anatomyTermId.startsWith("MA:")) {
 							ontoService = maOntologyService;
 						} else if (anatomyTermId.startsWith("EMAP:")) {
-							ontoService = maOntologyService;
+							ontoService = emapOntologyService;
 						}
 
 						OntologyTermBean term = ontoService.getTerm(anatomyTermId);

@@ -517,14 +517,16 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 		} else  if (id.startsWith("MA")){
                 			currentOntologyService = maOntologyService;
                 		}
-                		doc.addAnatomyTermId(id);
-                		doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
-                		OntologyDetail maAncestors = currentOntologyService.getIntermediatesDetail(id);
-                		doc.setIntermediateAnatomyTermId(maAncestors.getIds());
-                		doc.setIntermediateAnatomyTermName(maAncestors.getNames());
-                		OntologyDetail maTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
-                		doc.setTopLevelAnatomyTermId(maTopLevels.getIds());
-                		doc.setTopLevelAnatomyTermName(maTopLevels.getNames());
+                		if (currentOntologyService != null){
+	                		doc.addAnatomyTermId(id);
+	                		doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
+	                		OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
+	                		doc.setIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
+	                		doc.setIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
+	                		OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
+	                		doc.setTopLevelAnatomyTermId(anatomyTopLevels.getIds());
+	                		doc.setTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+                		}
                 	}
                 }
 
