@@ -15,10 +15,17 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -30,13 +37,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * Populate the MGI-Phenotype core - currently only for internal EBI consumption
@@ -158,17 +158,15 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, mpId);
+                    doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
+                    doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+                    doc.setTopLevelMpTermSynonym(mpOntologyService.getTopLevelDetail(mpId).getSynonyms());
+                    doc.setTopLevelMpTermDefinition(mpOntologyService.getTopLevelDetail(mpId).getDefinitions());
 
-                    doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-                    doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
-                    doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());
-                    doc.setTopLevelMpTermDefinition(beanlist.getTopLevels().getDefinitions());
-
-                    doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-                    doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
-                    doc.setIntermediateMpTermSynonym(beanlist.getIntermediates().getSynonyms());
-                    doc.setIntermediateMpTermDefinition(beanlist.getIntermediates().getDefinitions());
+                    doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
+                    doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
+                    doc.setIntermediateMpTermSynonym(mpOntologyService.getIntermediatesDetail(mpId).getSynonyms());
+                    doc.setIntermediateMpTermDefinition(mpOntologyService.getIntermediatesDetail(mpId).getDefinitions());
                 }
                 // MPATH association
                 else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){

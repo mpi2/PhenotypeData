@@ -15,11 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
+import static org.mousephenotype.cda.indexers.utils.IndexerMap.getGeneToAlleles;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmap;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
@@ -30,17 +46,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-import static org.mousephenotype.cda.indexers.utils.IndexerMap.getGeneToAlleles;
 
 /**
  * @author ckchen based on mike relac's MaIndexer
@@ -168,19 +173,16 @@ public class EmapIndexer extends AbstractIndexer implements CommandLineRunner {
                 emap.setEmapNodeId(termNodeIds.get(emapTermId));
                 buildNodes(emap);
 
-                // Set collections.
-                OntologyTermHelperEmap sourceList = new OntologyTermHelperEmap(emapOntologyService, bean.getId());
+                emap.setEmapTermSynonym(emapOntologyService.getSynonyms(bean.getId()));
 
-                emap.setEmapTermSynonym(sourceList.getSynonyms());
+                emap.setChildEmapId(emapOntologyService.getChildrenDetails(bean.getId()).getIds());
+                emap.setChildEmapIdTerm(emapOntologyService.getChildrenDetails(bean.getId()).getId_name_concatenations());
+                emap.setChildEmapTerm(emapOntologyService.getChildrenDetails(bean.getId()).getNames());
+                emap.setChildEmapTermSynonym(emapOntologyService.getChildrenDetails(bean.getId()).getSynonyms());
 
-                emap.setChildEmapId(sourceList.getChildren().getIds());
-                emap.setChildEmapIdTerm(sourceList.getChildren().getId_name_concatenations());
-                emap.setChildEmapTerm(sourceList.getChildren().getNames());
-                emap.setChildEmapTermSynonym(sourceList.getChildren().getSynonyms());
-
-                emap.setSelectedTopLevelEmapId(sourceList.getTopLevels().getIds());
-                emap.setSelectedTopLevelEmapTerm(sourceList.getTopLevels().getNames());
-                emap.setSelectedTopLevelEmapTermSynonym(sourceList.getTopLevels().getSynonyms());
+                emap.setSelectedTopLevelEmapId(emapOntologyService.getTopLevelDetail(bean.getId()).getIds());
+                emap.setSelectedTopLevelEmapTerm(emapOntologyService.getTopLevelDetail(bean.getId()).getNames());
+                emap.setSelectedTopLevelEmapTermSynonym(emapOntologyService.getTopLevelDetail(bean.getId()).getSynonyms());
 
                 // Genes annotated to an EMAP
                 if ( emap2MgiId.containsKey(emapTermId) ) {
