@@ -15,6 +15,24 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -27,9 +45,6 @@ import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmap;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperAnatomy;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
@@ -44,17 +59,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 /**
  * Populate the experiment core
@@ -288,13 +292,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						}
 
 						OntologyDAO ontoService = null;
-						OntologyTermHelper b = null;
 						if (anatomyTermId.startsWith("MA:")) {
 							ontoService = maOntologyService;
-
 						} else if (anatomyTermId.startsWith("EMAP:")) {
 							ontoService = maOntologyService;
-
 						}
 
 						OntologyTermBean term = ontoService.getTerm(anatomyTermId);
@@ -304,23 +305,17 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							o.getAnatomyTerm().add(term.getName());
 							o.getAnatomyTermSynonym().addAll(term.getSynonyms());
 
-							if (anatomyTermId.startsWith("MA:")) {
-								b = new OntologyTermHelperAnatomy(maOntologyService, term.getId());
-							} else if (anatomyTermId.startsWith("EMAP:")) {
-								b = new OntologyTermHelperEmap(emapOntologyService, term.getId());
-							}
+							if (ontoService != null) {
 
-							if (b != null) {
-
-								if (b.getIntermediates() != null) {
-									o.getIntermediateAnatomyId().addAll(b.getIntermediates().getIds());
-									o.getIntermediateAnatomyTerm().addAll(b.getIntermediates().getNames());
-									o.getIntermediateAnatomyTermSynonym().addAll(b.getIntermediates().getSynonyms());
+								if (ontoService.getIntermediatesDetail(anatomyTermId) != null) {
+									o.getIntermediateAnatomyId().addAll(ontoService.getIntermediatesDetail(anatomyTermId).getIds());
+									o.getIntermediateAnatomyTerm().addAll(ontoService.getIntermediatesDetail(anatomyTermId).getNames());
+									o.getIntermediateAnatomyTermSynonym().addAll(ontoService.getIntermediatesDetail(anatomyTermId).getSynonyms());
 								}
-								if (b.getTopLevels() != null) {
-									o.getSelectedTopLevelAnatomyId().addAll(b.getTopLevels().getIds());
-									o.getSelectedTopLevelAnatomyTerm().addAll(b.getTopLevels().getNames());
-									o.getSelectedTopLevelAnatomyTermSynonym().addAll(b.getTopLevels().getSynonyms());
+								if (ontoService.getTopLevelDetail(anatomyTermId) != null) {
+									o.getSelectedTopLevelAnatomyId().addAll(ontoService.getTopLevelDetail(anatomyTermId).getIds());
+									o.getSelectedTopLevelAnatomyTerm().addAll(ontoService.getTopLevelDetail(anatomyTermId).getNames());
+									o.getSelectedTopLevelAnatomyTermSynonym().addAll(ontoService.getTopLevelDetail(anatomyTermId).getSynonyms());
 								}
 							}
 						}
