@@ -33,8 +33,8 @@ allele = allele.replaceAll("##", "</sup>");
         <!-- href specified as arg to tag as in the case of gene page to image picker links -->
         	<c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		<!-- if this image is a pdf on the gene page we want to link to a list view of the pdfs for that gene not the image picker -->
-         		 <a href="${href}?mediaType=pdf">
-         		<img  src="${pdfThumbnailUrl}" class="thumbnailStyle"></a>
+         		 <a href="${href}&mediaType=pdf">
+         		<img  src="../${pdfThumbnailUrl}" class="thumbnailStyle"></a>
          	</c:if>
          	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		 <a href="${href}">
@@ -46,7 +46,7 @@ allele = allele.replaceAll("##", "</sup>");
          <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          <!-- used pdf images on normal image scrolldown pages -->
          		<a href="${img.download_url}" >
-         		<img  src="${pdfThumbnailUrl}" class="thumbnailStyle"></a>
+         		<img  src="../${pdfThumbnailUrl}" class="thumbnailStyle"></a>
          		<div class="caption" style="max-width: 200px; max-height: 200px;width:auto;height:auto">
          		 <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
                  <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}<br/></c:if>

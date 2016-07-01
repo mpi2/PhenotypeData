@@ -49,7 +49,7 @@
 </jsp:attribute>
 <jsp:body>
 
-paramsid=${param.parameter_stable_id}
+
 <div class="block">
     <div class="content">
         	<div class="node"> 
@@ -72,10 +72,10 @@ paramsid=${param.parameter_stable_id}
 	            <c:if test="${gene !=null }">
 	            	<input type="hidden" name="acc" value="${gene.mgiAccessionId}">
 	            </c:if>
-	            ${param.parameter_stable_id}
+	            anatomy_id=${param.anatomy_id}
 	            	<input type="hidden" name="parameter_stable_id" value="${param.parameter_stable_id}">
 	            	<input type="hidden" name="parameter_association_value" value="${param.parameter_association_value}">
-	            	<input type="hidden" name="anatomy_id" value="${param.antomy_id}">
+	            	<input type="hidden" name="anatomy_id" value="${param.anatomy_id}">
 	            
 	            <div id="filters">Filter Images by gender: 
 	            	${param.gender}
@@ -128,7 +128,7 @@ paramsid=${param.parameter_stable_id}
 	            		<div class="thumbList">
 	            		<c:forEach var="img" items="${controls}" varStatus="controlLoop">
 	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
-	            				<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
+	            				<c:set var="controlText" value="WT: ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
