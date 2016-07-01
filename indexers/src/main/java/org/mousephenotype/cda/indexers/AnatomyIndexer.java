@@ -22,10 +22,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.OntologyDetail;
+import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmapa;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMa;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelperAnatomy;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
@@ -144,7 +144,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 }
 
                 // Set collections.
-                OntologyTermHelper sourceList = new OntologyTermHelperMa(maOntologyService, bean.getId());
+                OntologyTermHelper sourceList = new OntologyTermHelperAnatomy(maOntologyService, bean.getId());
 
                 ma.setAnatomyTermSynonym(sourceList.getSynonyms());
 
