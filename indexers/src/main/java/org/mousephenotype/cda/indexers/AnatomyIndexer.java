@@ -23,9 +23,6 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.OntologyDetail;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmapa;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperAnatomy;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
@@ -143,10 +140,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                     ma.setAltAnatomyIds(bean.getAltIds());
                 }
 
-                // Set collections.
-                OntologyTermHelper sourceList = new OntologyTermHelperAnatomy(maOntologyService, bean.getId());
-
-                ma.setAnatomyTermSynonym(sourceList.getSynonyms());
+                ma.setAnatomyTermSynonym(maOntologyService.getSynonyms(bean.getId()));
 
                 // Using the level for MA to get top-levels
                 // eg. the fullpath:
@@ -162,7 +156,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 int level = 2; // if call w/0 level, default is 1
 
-                OntologyDetail topLevels = sourceList.getTopLevels(level);
+                OntologyDetail topLevels = maOntologyService.getTopLevel(level, bean.getId());
                 ma.setTopLevelAnatomyId(topLevels.getIds());
                 ma.setTopLevelAnatomyTerm(topLevels.getNames());
                 ma.setTopLevelAnatomyTermSynonym(topLevels.getSynonyms());
@@ -170,7 +164,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 //                System.out.println("1 CHECK TOP: " + ma.getTopLevelId() + " -- " +  ma.getTopLevelTerm() + " -- " + ma.getTopLevelTermSynonym());
 //                System.out.println("1 CHECK TOP: " + topLevels.getIds() + " -- " +  topLevels.getNames() + " -- " + topLevels.getSynonyms());
 
-                OntologyDetail selectedTopLevels = sourceList.getSelectedTopLevels();
+                OntologyDetail selectedTopLevels = maOntologyService.getSelectedTopLevelDetails(bean.getId());
                 ma.setSelectedTopLevelAnatomyId(selectedTopLevels.getIds());
                 ma.setSelectedTopLevelAnatomyTerm(selectedTopLevels.getNames());
                 ma.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevels.getSynonyms());
@@ -178,17 +172,17 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
 //                System.out.println("1 CHECK SELTOP: " + ma.getSelectedTopLevelId() + " -- " +  ma.getSelectedTopLevelTerm() + " -- " + ma.getSelectedTopLevelTermSynonym());
 
-                OntologyDetail intermediates = sourceList.getIntermediates();
+                OntologyDetail intermediates = maOntologyService.getIntermediatesDetail(bean.getId());
                 ma.setIntermediateAnatomyId(intermediates.getIds());
                 ma.setIntermediateAnatomyTerm(intermediates.getNames());
                 ma.setIntermediateAnatomyTermSynonym(intermediates.getSynonyms());
 
-                OntologyDetail parents = sourceList.getParents();
+                OntologyDetail parents = maOntologyService.getParentsDetails(bean.getId());
                 ma.setParentAnatomyId(parents.getIds());
                 ma.setParentAnatomyTerm(parents.getNames());
                 ma.setParentAnatomyTermSynonym(parents.getSynonyms());
 
-                OntologyDetail children = sourceList.getChildren();
+                OntologyDetail children = maOntologyService.getChildrenDetails(bean.getId());
                 ma.setChildAnatomyId(children.getIds());
                 ma.setChildAnatomyTerm(children.getNames());
                 ma.setChildAnatomyTermSynonym(children.getSynonyms());
@@ -311,11 +305,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                     emapa.setAltAnatomyIds(ebean.getAltIds());
                 }
 
-                // Set collections.
-                OntologyTermHelperEmapa sourceList2 = new OntologyTermHelperEmapa(emapaOntologyService, emapaId);
-
-                //emapa.setOntologySubset(sourceList2.getSubsets());
-                emapa.setAnatomyTermSynonym(sourceList2.getSynonyms());
+                emapa.setAnatomyTermSynonym(emapaOntologyService.getSynonyms(emapaId));
 
                 // Using the level for EMAPA to get top-levels
                 // eg. the fullpath:
@@ -331,7 +321,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 int level = 2; // if call w/0 level, default is 1
 
-                OntologyDetail topLevels = sourceList2.getTopLevels(level);
+                OntologyDetail topLevels = emapaOntologyService.getTopLevelDetail(emapaId);
                 emapa.setTopLevelAnatomyId(topLevels.getIds());
                 emapa.setTopLevelAnatomyTerm(topLevels.getNames());
                 emapa.setTopLevelAnatomyTermSynonym(topLevels.getSynonyms());
@@ -339,7 +329,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 //System.out.println("1 CHECK TOP: " + emapa.getTopLevelAnatomyId() + " -- " +  emapa.getTopLevelAnatomyTerm() + " -- " + emapa.getTopLevelAnatomyTermSynonym());
                 //System.out.println("1 CHECK TOP: " + topLevels.getIds() + " -- " +  topLevels.getNames() + " -- " + topLevels.getSynonyms());
 
-                OntologyDetail selectedTopLevels = sourceList2.getSelectedTopLevels();
+                OntologyDetail selectedTopLevels = emapaOntologyService.getSelectedTopLevelDetails(emapaId);
                 emapa.setSelectedTopLevelAnatomyId(selectedTopLevels.getIds());
                 emapa.setSelectedTopLevelAnatomyTerm(selectedTopLevels.getNames());
                 emapa.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevels.getSynonyms());
@@ -347,17 +337,17 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 //System.out.println("1 CHECK SELTOP: " + emapa.getSelectedTopLevelAnatomyId() + " -- " +  emapa.getSelectedTopLevelAnatomyTerm() + " -- " + emapa.getSelectedTopLevelAnatomyTermSynonym());
 
-                OntologyDetail intermediates = sourceList2.getIntermediates();
+                OntologyDetail intermediates = emapaOntologyService.getIntermediatesDetail(emapaId);
                 emapa.setIntermediateAnatomyId(intermediates.getIds());
                 emapa.setIntermediateAnatomyTerm(intermediates.getNames());
                 emapa.setIntermediateAnatomyTermSynonym(intermediates.getSynonyms());
 
-                OntologyDetail parents = sourceList2.getParents();
+                OntologyDetail parents = emapaOntologyService.getParentsDetails(emapaId);
                 emapa.setParentAnatomyId(parents.getIds());
                 emapa.setParentAnatomyTerm(parents.getNames());
                 emapa.setParentAnatomyTermSynonym(parents.getSynonyms());
 
-                OntologyDetail children = sourceList2.getChildren();
+                OntologyDetail children = emapaOntologyService.getChildrenDetails(emapaId);
                 emapa.setChildAnatomyId(children.getIds());
                 emapa.setChildAnatomyTerm(children.getNames());
                 emapa.setChildAnatomyTermSynonym(children.getSynonyms());
