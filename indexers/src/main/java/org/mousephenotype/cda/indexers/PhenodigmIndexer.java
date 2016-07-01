@@ -471,7 +471,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 			"  disease_classes                      AS disease_classes, " +
 			"  mgo.model_gene_id                    AS model_gene_id, " +
 			"  mgo.model_gene_symbol                AS model_gene_symbol, " +
-			"  hgnc_id, " +
+			"  hgnc_id AS hgnc_gene_id, " +
 			"  hgnc_gene_symbol, " +
 			"  human_curated, " +
 			"  mod_curated                          AS mod_curated, " +
