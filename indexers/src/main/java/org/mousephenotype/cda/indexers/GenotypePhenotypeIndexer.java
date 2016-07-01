@@ -339,7 +339,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     		OntologyDetail maAncestors = maTerm.getIntermediates();
                     		doc.setIntermediateAnatomyTermId(maAncestors.getIds());
                     		doc.setIntermediateAnatomyTermName(maAncestors.getNames());
-                    		OntologyDetail maTopLevels = maTerm.getTopLevels();
+                    		OntologyDetail maTopLevels = maTerm.getSelectedTopLevels();
                     		doc.setTopLevelAnatomyTermId(maTopLevels.getIds());
                     		doc.setTopLevelAnatomyTermName(maTopLevels.getNames());
                     	}

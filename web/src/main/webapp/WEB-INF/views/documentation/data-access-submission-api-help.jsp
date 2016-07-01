@@ -1,4 +1,4 @@
-<h3>Data submission to IMCE</h3>
+<h3>Data submission to IMPC</h3>
 
 <ul class="subUl">
     <li><a href="https://www.mousephenotype.org/impress-help-documentation">IMPReSS Help Documentation</a></li>

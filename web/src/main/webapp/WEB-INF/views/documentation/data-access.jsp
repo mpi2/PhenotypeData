@@ -32,7 +32,7 @@
                 <li><a href="#tabs-1">IMPC Genotype Phenotype API</a></li>
                 <li><a href="#tabs-2">IMPC Statistical Result API</a></li>
                 <li><a href="#tabs-3">IMPC Observation API</a></li>
-                <li><a href="#tabs-4">Data submission to IMCE</a></li>
+                <li><a href="#tabs-4">Data submission to IMPC</a></li>
 
             </ul>
 
