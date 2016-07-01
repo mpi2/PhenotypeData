@@ -16,33 +16,25 @@
  */
 package uk.ac.ebi.phenodigm.dao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-import uk.ac.ebi.phenodigm.model.Disease;
-import uk.ac.ebi.phenodigm.model.DiseaseIdentifier;
-import uk.ac.ebi.phenodigm.model.DiseaseModelAssociation;
-import uk.ac.ebi.phenodigm.model.Gene;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.model.MouseModel;
-import uk.ac.ebi.phenodigm.model.PhenotypeTerm;
+import uk.ac.ebi.phenodigm.model.*;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseGeneAssociationDetail;
 import uk.ac.ebi.phenodigm.web.GeneAssociationSummary;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of PhenoDigmWebDao which uses Solr as the datasource. This
@@ -81,7 +73,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
             if (results.isEmpty()) {
                 logger.info("Uh-oh! Query for disease {} was not found.", diseaseId);
-                return disease;
+                return null;
             }
             if (results.size() > 1) {
                 logger.info("Uh-oh! Query for disease {} returned more than one result.", diseaseId);
@@ -155,7 +147,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
             if (results.isEmpty()) {
                 logger.info("Uh-oh! Query for gene {} was not found.", geneIdentifier);
-                return gene;
+                return null;
             }
             if (results.size() > 1) {
                 logger.info("Uh-oh! Query for gene {} returned more than one result.", geneIdentifier);
@@ -189,11 +181,11 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
         //if there is no cutoff then don't put it in the query as it will take a long time (a few seconds) to collect the results
         //rather than a few tens of ms
-        if (minRawScoreCutoff != 0) {
+//        if (minRawScoreCutoff != 0) {
             //we're not doing this anymore as we've pre-processed the data from the database in order to show only the high quality data
             //this makes the query *lot* quicker and also makes for a *much* smaller core so big wins all round.
 //            solrQuery.addFilterQuery(String.format("(human_curated:true OR mouse_curated:true OR raw_mod_score:[%s TO *] OR raw_htpc_score:[%s TO *])", minRawScoreCutoff, minRawScoreCutoff));
-        }
+//        }
 
         //add fields to return
 	    solrQuery.addField(PhenodigmDTO.MARKER_ACCESSION);
@@ -256,9 +248,6 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
         SolrQuery solrQuery = new SolrQuery(query);
 	    solrQuery.addFilterQuery(PhenodigmDTO.TYPE + ":disease_gene_summary");
 
-        String maxMgiField = PhenodigmDTO.MAX_MGI_M2D_SCORE;
-        String maxImpcField = PhenodigmDTO.MAX_IMPC_M2D_SCORE;
-
         //add fields to return
         solrQuery.addField(PhenodigmDTO.DISEASE_ID);
         solrQuery.addField(PhenodigmDTO.DISEASE_TERM);
@@ -319,8 +308,6 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
         //there will be more than 10 results for this - we want them all.
         solrQuery.setRows(ROWS);
 
-        SolrDocumentList resultsDocumentList;
-
         List<DiseaseModelAssociation> diseaseAssociationSummaryList = new ArrayList<>();
 
         //get the models needed for this geneIdentifier
@@ -357,8 +344,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
     /**
      * Returns a map of models indexed by model_id.
      *
-     * @param geneIdentifier
-     * @return
+     * @param geneIdentifier the gene to be queried
+     * @return a map of mgi model ids to model objects
      */
     private Map<Integer, MouseModel> getMouseModels(GeneIdentifier geneIdentifier) {
 
@@ -369,18 +356,14 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
         solrQuery.addField(PhenodigmDTO.MODEL_ID);
         solrQuery.addField(PhenodigmDTO.MARKER_ACCESSION);
-        solrQuery.addField(PhenodigmDTO.MARKER_SYMBOL);
         solrQuery.addField(PhenodigmDTO.SOURCE);
         solrQuery.addField(PhenodigmDTO.GENETIC_BACKGROUND);
         solrQuery.addField(PhenodigmDTO.ALLELIC_COMPOSITION);
         solrQuery.addField(PhenodigmDTO.ALLELE_IDS);
-        solrQuery.addField(PhenodigmDTO.HOM_HET);
         solrQuery.addField(PhenodigmDTO.PHENOTYPES);
 
         //there will be more than 10 results for this - we want them all.
         solrQuery.setRows(ROWS);
-
-        SolrDocumentList resultsDocumentList;
 
         Map<Integer, MouseModel> modelMap = new HashMap<>();
 
@@ -396,10 +379,9 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
                 String geneticBackground = phenodigm.getGeneticBackground();
                 String allelicComposition = phenodigm.getAllelicComposition();
                 String setAlleleIds = phenodigm.getAlleleIds();
-                String homHet = phenodigm.getHomHet();
                 List<String> phenotypes = phenodigm.getPhenotypes();
                 //make the phenotype terms
-                List<PhenotypeTerm> phenotypeTerms = new ArrayList();
+                List<PhenotypeTerm> phenotypeTerms = new ArrayList<>();
 
                 if (phenotypes != null) {
                     for (String string : phenotypes) {
