@@ -52,8 +52,9 @@ public class IndexerManager  {
     //      These are built only for a new data release.
     static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
     static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
-    static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
     static final String STATSTICAL_RESULT_CORE = "statistical-result";
+	static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
+	static final String PHENODIGM_CORE = "phenodigm";
 
     //      These are built daily.
     static final String PREQC_CORE = "preqc";
@@ -101,6 +102,7 @@ public class IndexerManager  {
         , GENOTYPE_PHENOTYPE_CORE
 	    , STATSTICAL_RESULT_CORE
 	    , MGI_PHENOTYPE_CORE
+	    , PHENODIGM_CORE
 
           // These are built daily.
         , PREQC_CORE
@@ -136,8 +138,9 @@ public class IndexerManager  {
 
 	private Class observationClass = ObservationIndexer.class;
 	private Class genotypePhenotypeClass = GenotypePhenotypeIndexer.class;
-	private Class mgiPhenotypeClass = MGIPhenotypeIndexer.class;
 	private Class statisticalResultClass = StatisticalResultsIndexer.class;
+	private Class mgiPhenotypeClass = MGIPhenotypeIndexer.class;
+	private Class phenodigmClass = PhenodigmIndexer.class;
 	private Class preqcClass = PreqcIndexer.class;
 	private Class alleleClass = AlleleIndexer.class;
 	private Class imagesClass = SangerImagesIndexer.class;
@@ -362,8 +365,9 @@ public class IndexerManager  {
 		    switch (core) {
 			    case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationClass));                 break;
 			    case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeClass));    break;
-			    case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeClass));              break;
 			    case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultClass));     break;
+			    case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeClass));              break;
+			    case PHENODIGM_CORE:            indexerItemList.add(new IndexerItem(PHENODIGM_CORE, phenodigmClass));                     break;
 
 			    case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcClass));                             break;
 			    case ALLELE_CORE:               indexerItemList.add(new IndexerItem(ALLELE_CORE, alleleClass));                           break;
@@ -717,6 +721,7 @@ public class IndexerManager  {
                     "   genotype-phenotype\n" +
 	                "   statistical-result\n" +
 	                "   mgi-phenotype\n" +
+	                "   phenodigm\n" +
                     "   preqc\n" +
                     "   allele\n" +
                     "   images\n" +
