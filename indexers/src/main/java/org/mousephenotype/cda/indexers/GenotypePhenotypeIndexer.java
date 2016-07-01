@@ -34,14 +34,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperAnatomy;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMp;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -94,6 +94,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     @Autowired
     MaOntologyDAO maOntologyService;
+
+    @Autowired
+    EmapaOntologyDAO emapaOntologyService;
     
 	@Autowired
 	OntologyTermDAO ontologyTermDAO;
@@ -332,12 +335,18 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     if (mpOntologyService.getAnatomyMappings(mpId) != null){
                     	List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
                     	for (String id: anatomyIds){
+                    		OntologyDAO currentOntologyService = null;
+                    		if (id.startsWith("EMAPA")){
+                    			currentOntologyService = emapaOntologyService;
+                    		} else  if (id.startsWith("MA")){
+                    			currentOntologyService = maOntologyService;
+                    		}
                     		doc.addAnatomyTermId(id);
-                    		doc.addAnatomyTermName(maOntologyService.getTerm(id).getName());
-                    		OntologyDetail maAncestors = maOntologyService.getIntermediatesDetail(id);
+                    		doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
+                    		OntologyDetail maAncestors = currentOntologyService.getIntermediatesDetail(id);
                     		doc.setIntermediateAnatomyTermId(maAncestors.getIds());
                     		doc.setIntermediateAnatomyTermName(maAncestors.getNames());
-                    		OntologyDetail maTopLevels = maOntologyService.getSelectedTopLevelDetails(id);
+                    		OntologyDetail maTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
                     		doc.setTopLevelAnatomyTermId(maTopLevels.getIds());
                     		doc.setTopLevelAnatomyTermName(maTopLevels.getNames());
                     	}
