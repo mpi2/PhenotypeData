@@ -5,7 +5,8 @@ import org.apache.solr.client.solrj.beans.Field;
 import java.util.List;
 
 /**
- * Created by jmason on 02/06/2016.
+ * DTO to facilitate dommunication with the phenodigm solr core
+ * @author jmason
  */
 public class PhenodigmDTO {
 

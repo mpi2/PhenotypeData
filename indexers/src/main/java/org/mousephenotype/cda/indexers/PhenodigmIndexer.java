@@ -39,7 +39,8 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * Created by jmason on 02/06/2016.
+ * Indexer for loading the phenodigm index
+ * @author jmason
  */
 @EnableAutoConfiguration
 public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunner {
@@ -57,13 +58,13 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 	public static final long MIN_EXPECTED_ROWS = 218000;
 
-	Map<String, Set<String>> diseasePhenotypeMap = new HashMap<>();
-	Map<Integer, Set<String>> mousePhenotypeMap = new HashMap<>();
-	Map<String, Set<String>> humanSynonymMap = new HashMap<>();
+	private Map<String, Set<String>> diseasePhenotypeMap = new HashMap<>();
+	private Map<Integer, Set<String>> mousePhenotypeMap = new HashMap<>();
+	private Map<String, Set<String>> humanSynonymMap = new HashMap<>();
 
 	public PhenodigmIndexer() {}
 
-	public PhenodigmIndexer(SolrServer phenodigmIndexing, DataSource phenodigmDataSource) {
+	PhenodigmIndexer(SolrServer phenodigmIndexing, DataSource phenodigmDataSource) {
 		this.phenodigmIndexing = phenodigmIndexing;
 		this.phenodigmDataSource = phenodigmDataSource;
 	}
@@ -147,7 +148,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 		return runStatus;
 	}
 
-	public Map<String, Set<String>> getDiseasePhenotypeMap() throws SQLException {
+	Map<String, Set<String>> getDiseasePhenotypeMap() throws SQLException {
 
 		Map<String, Set<String>> diseasePhenotypeMap = new HashMap<>();
 
@@ -170,7 +171,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 		return diseasePhenotypeMap;
 	}
 
-	public Map<Integer, Set<String>> getMousePhenotypeMap() throws SQLException {
+	Map<Integer, Set<String>> getMousePhenotypeMap() throws SQLException {
 
 		Map<Integer, Set<String>> map = new HashMap<>();
 
@@ -193,7 +194,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 		return map;
 	}
 
-	public Map<String, Set<String>> getHumanSynonymMap() throws SQLException {
+	Map<String, Set<String>> getHumanSynonymMap() throws SQLException {
 
 		Map<String, Set<String>> map = new HashMap<>();
 
