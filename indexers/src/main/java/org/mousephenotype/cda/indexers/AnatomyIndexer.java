@@ -321,7 +321,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 int level = 2; // if call w/0 level, default is 1
 
-                OntologyDetail topLevels = emapaOntologyService.getTopLevelDetail(emapaId);
+                OntologyDetail topLevels = emapaOntologyService.getTopLevel(level, emapaId);
                 emapa.setTopLevelAnatomyId(topLevels.getIds());
                 emapa.setTopLevelAnatomyTerm(topLevels.getNames());
                 emapa.setTopLevelAnatomyTermSynonym(topLevels.getSynonyms());
