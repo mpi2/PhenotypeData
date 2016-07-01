@@ -29,7 +29,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmap;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMa;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelperAnatomy;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
@@ -305,7 +305,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							o.getAnatomyTermSynonym().addAll(term.getSynonyms());
 
 							if (anatomyTermId.startsWith("MA:")) {
-								b = new OntologyTermHelperMa(maOntologyService, term.getId());
+								b = new OntologyTermHelperAnatomy(maOntologyService, term.getId());
 							} else if (anatomyTermId.startsWith("EMAP:")) {
 								b = new OntologyTermHelperEmap(emapOntologyService, term.getId());
 							}

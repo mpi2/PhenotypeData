@@ -28,9 +28,9 @@ import org.mousephenotype.cda.db.dao.MaOntologyDAO;
  * 
  * @author mrelac
  */
-public class OntologyTermHelperMa extends OntologyTermHelper {
+public class OntologyTermHelperAnatomy extends OntologyTermHelper {
     
-    public OntologyTermHelperMa(MaOntologyDAO maOntologyService, String id) {
+    public OntologyTermHelperAnatomy(MaOntologyDAO maOntologyService, String id) {
         super(maOntologyService, id);
     }
 
