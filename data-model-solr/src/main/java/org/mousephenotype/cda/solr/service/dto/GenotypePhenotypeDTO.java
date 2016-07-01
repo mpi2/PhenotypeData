@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SolrDocument(solrCoreName = "genotype-phenotype")
@@ -31,8 +32,12 @@ public class GenotypePhenotypeDTO {
     public static final String GID = "preqc_gid"; // preqc only
     public static final String MPATH_TERM_ID = "mpath_term_id";
     public static final String MPATH_TERM_NAME = "mpath_term_name";
-    public static final String EMAP_TERM_ID = "emap_term_id";
-    public static final String EMAP_TERM_NAME = "emap_term_name";
+    public static final String ANATOMY_TERM_NAME = "anatomy_term_name";
+    public static final String ANATOMY_TERM_ID = "anatomy_term_id";
+    public static final String INTERMEDIATE_ANATOMY_TERM_ID = "intermediate_anatomy_term_id";
+    public static final String INTERMEDIATE_ANATOMY_TERM_NAME = "intermediate_anatomy_term_name";
+    public static final String TOP_LEVEL_ANATOMY_TERM_ID = "top_level_anatomy_term_id";
+    public static final String TOP_LEVEL_ANATOMY_TERM_NAME = "top_level_anatomy_term_name";
     public static final String MP_TERM_ID = "mp_term_id";
     public static final String MP_TERM_NAME = "mp_term_name";
     public static final String ALT_MP_TERM_ID = "alt_mp_term_id";
@@ -98,11 +103,23 @@ public class GenotypePhenotypeDTO {
     @Field(MPATH_TERM_NAME)
     String mpathTermName;
 
-    @Field(EMAP_TERM_ID)
-    String emapTermId;
+    @Field(ANATOMY_TERM_ID)
+    List<String> anatomyTermId;
 
-    @Field(EMAP_TERM_NAME)
-    String emapTermName;
+    @Field(ANATOMY_TERM_NAME)
+    List<String> anatomyTermName;
+    
+    @Field(INTERMEDIATE_ANATOMY_TERM_ID)
+    List<String> intermediateAnatomyTermId;
+
+    @Field(INTERMEDIATE_ANATOMY_TERM_NAME)
+    List<String> intermediateAnatomyTermName;
+    
+    @Field(TOP_LEVEL_ANATOMY_TERM_ID)
+    List<String> topLevelAnatomyTermId;
+
+    @Field(TOP_LEVEL_ANATOMY_TERM_NAME)
+    List<String> topLevelAnatomyTermName;
 
     @Field(MP_TERM_ID)
     String mpTermId;
@@ -256,7 +273,137 @@ public class GenotypePhenotypeDTO {
         this.ontology_db_id = ontology_db_id;
     }
 
-    public String getAssertionType() {
+    public Integer getOntology_db_id() {
+		return ontology_db_id;
+	}
+
+	public void setOntology_db_id(Integer ontology_db_id) {
+		this.ontology_db_id = ontology_db_id;
+	}
+
+	public String getAssertion_type() {
+		return assertion_type;
+	}
+
+	public void setAssertion_type(String assertion_type) {
+		this.assertion_type = assertion_type;
+	}
+
+	public String getAssertion_type_id() {
+		return assertion_type_id;
+	}
+
+	public void setAssertion_type_id(String assertion_type_id) {
+		this.assertion_type_id = assertion_type_id;
+	}
+
+	public List<String> getAnatomyTermId() {
+		return anatomyTermId;
+	}
+	
+	public void addAnatomyTermId(String anatomyTermId){
+		if (this.anatomyTermId == null){
+			this.anatomyTermId = new ArrayList<>();
+		}
+		this.anatomyTermId.add(anatomyTermId);
+	}
+
+	public void setAnatomyTermId(List<String> anatomyTermId) {
+		this.anatomyTermId = anatomyTermId;
+	}
+
+	public List<String> getAnatomyTermName() {
+		return anatomyTermName;
+	}
+
+	public void setAnatomyTermName(List<String> anatomyTermName) {
+		this.anatomyTermName = anatomyTermName;
+	}
+
+	public void addAnatomyTermName(String anatomyTermName){
+		if (this.anatomyTermName == null){
+			this.anatomyTermName = new ArrayList<>();
+		}
+		this.anatomyTermName.add(anatomyTermName);
+	}
+	
+	public List<String> getIntermediateAnatomyTermId() {
+		return intermediateAnatomyTermId;
+	}
+
+	public void setIntermediateAnatomyTermId(List<String> intermediateAnatomyTermId) {
+		this.intermediateAnatomyTermId = intermediateAnatomyTermId;
+	}
+
+	public void addIntermediateAnatomyTermId(String intermediateAnatomyTermId){
+		if (this.intermediateAnatomyTermId == null){
+			this.intermediateAnatomyTermId = new ArrayList<>();
+		}
+		this.intermediateAnatomyTermId.add(intermediateAnatomyTermId);
+	}
+	
+	public List<String> getIntermediateAnatomyTermName() {
+		return intermediateAnatomyTermName;
+	}
+
+	public void setIntermediateAnatomyTermName(List<String> intermediateAnatomyTermName) {
+		this.intermediateAnatomyTermName = intermediateAnatomyTermName;
+	}
+
+	public void addIntermediateAnatomyTermName(String intermediateAnatomyTermName){
+		if (this.intermediateAnatomyTermName == null){
+			this.intermediateAnatomyTermName = new ArrayList<>();
+		}
+		this.intermediateAnatomyTermName.add(intermediateAnatomyTermName);
+	}
+	
+	public List<String> getTopLevelAnatomyTermId() {
+		return topLevelAnatomyTermId;
+	}
+
+	public void setTopLevelAnatomyTermId(List<String> topLevelAnatomyTermId) {
+		this.topLevelAnatomyTermId = topLevelAnatomyTermId;
+	}
+	
+	public void addTopLevelAnatomyTermId(String topLevelAnatomyTermId){
+		if (this.topLevelAnatomyTermId == null){
+			this.topLevelAnatomyTermId = new ArrayList<>();
+		}
+		this.topLevelAnatomyTermId.add(topLevelAnatomyTermId);
+	}
+
+	public List<String> getTopLevelAnatomyTermName() {
+		return topLevelAnatomyTermName;
+	}
+
+	public void setTopLevelAnatomyTermName(List<String> topLevelAnatomyTermName) {
+		this.topLevelAnatomyTermName = topLevelAnatomyTermName;
+	}
+
+	public void addTopLevelAnatomyTermName(String topLevelAnatomyTermName){
+		if (this.topLevelAnatomyTermName == null){
+			this.topLevelAnatomyTermName = new ArrayList<>();
+		}
+		this.topLevelAnatomyTermName.add(topLevelAnatomyTermName);
+	}
+	
+	public String getLife_stage_acc() {
+		return life_stage_acc;
+	}
+
+	public void setLife_stage_acc(String life_stage_acc) {
+		this.life_stage_acc = life_stage_acc;
+	}
+
+	public String getLife_stage_name() {
+		return life_stage_name;
+	}
+
+	public void setLife_stage_name(String life_stage_name) {
+		this.life_stage_name = life_stage_name;
+	}
+
+	public String getAssertionType() {
 
         return assertion_type;
     }
@@ -274,7 +421,6 @@ public class GenotypePhenotypeDTO {
 
         this.assertion_type_id = assertion_type_id;
     }
-
 
     public String getMpathTermId() {
 
@@ -295,27 +441,6 @@ public class GenotypePhenotypeDTO {
 
         this.mpathTermName = mpathTermName;
     }
-
-    public String getEmapTermId() {
-
-        return emapTermId;
-    }
-
-    public void setEmapTermId(String emapTermId) {
-
-        this.emapTermId = emapTermId;
-    }
-
-    public String getEmapTermName() {
-
-        return emapTermName;
-    }
-
-    public void setEmapTermName(String emapTermName) {
-
-        this.emapTermName = emapTermName;
-    }
-
 
     public String getMpTermId() {
 
@@ -772,8 +897,6 @@ public class GenotypePhenotypeDTO {
         if (mpathTermId != null ? !mpathTermId.equals(that.mpathTermId) : that.mpathTermId != null) return false;
         if (mpathTermName != null ? !mpathTermName.equals(that.mpathTermName) : that.mpathTermName != null)
             return false;
-        if (emapTermId != null ? !emapTermId.equals(that.emapTermId) : that.emapTermId != null) return false;
-        if (emapTermName != null ? !emapTermName.equals(that.emapTermName) : that.emapTermName != null) return false;
         if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) return false;
         if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) return false;
         if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null)
@@ -855,8 +978,6 @@ public class GenotypePhenotypeDTO {
         result = 31 * result + (assertion_type_id != null ? assertion_type_id.hashCode() : 0);
         result = 31 * result + (mpathTermId != null ? mpathTermId.hashCode() : 0);
         result = 31 * result + (mpathTermName != null ? mpathTermName.hashCode() : 0);
-        result = 31 * result + (emapTermId != null ? emapTermId.hashCode() : 0);
-        result = 31 * result + (emapTermName != null ? emapTermName.hashCode() : 0);
         result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
         result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
         result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
@@ -912,8 +1033,6 @@ public class GenotypePhenotypeDTO {
                 ", assertion_type_id='" + assertion_type_id + '\'' +
                 ", mpathTermId='" + mpathTermId + '\'' +
                 ", mpathTermName='" + mpathTermName + '\'' +
-                ", emapTermId='" + emapTermId + '\'' +
-                ", emapTermName='" + emapTermName + '\'' +
                 ", mpTermId='" + mpTermId + '\'' +
                 ", mpTermName='" + mpTermName + '\'' +
                 ", topLevelMpTermId=" + topLevelMpTermId +

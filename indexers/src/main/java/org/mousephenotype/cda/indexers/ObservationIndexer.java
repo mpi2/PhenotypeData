@@ -271,59 +271,60 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 					String anatomyTermId = anatomyMap.get(r.getInt("parameter_id"));
 
+					if (anatomyTermId != null) {
 
-					if (o.getAnatomyId() == null) {
-						// Initialize all the collections of anatomy terms
-						o.setAnatomyId(new ArrayList<>());
-						o.setAnatomyTerm(new ArrayList<>());
-						o.setAnatomyTermSynonym(new ArrayList<>());
-						o.setIntermediateAnatomyId(new ArrayList<>());
-						o.setIntermediateAnatomyTerm(new ArrayList<>());
-						o.setIntermediateAnatomyTermSynonym(new ArrayList<>());
-						o.setSelectedTopLevelAnatomyId(new ArrayList<>());
-						o.setSelectedTopLevelAnatomyTerm(new ArrayList<>());
-						o.setSelectedTopLevelAnatomyTermSynonym(new ArrayList<>());
-					}
 
-					OntologyDAO ontoService = null;
-					OntologyTermHelper b = null;
-					if (anatomyTermId.startsWith("MA:")) {
-						ontoService = maOntologyService;
+						if (o.getAnatomyId() == null) {
+							// Initialize all the collections of anatomy terms
+							o.setAnatomyId(new ArrayList<>());
+							o.setAnatomyTerm(new ArrayList<>());
+							o.setAnatomyTermSynonym(new ArrayList<>());
+							o.setIntermediateAnatomyId(new ArrayList<>());
+							o.setIntermediateAnatomyTerm(new ArrayList<>());
+							o.setIntermediateAnatomyTermSynonym(new ArrayList<>());
+							o.setSelectedTopLevelAnatomyId(new ArrayList<>());
+							o.setSelectedTopLevelAnatomyTerm(new ArrayList<>());
+							o.setSelectedTopLevelAnatomyTermSynonym(new ArrayList<>());
+						}
 
-					} else if (anatomyTermId.startsWith("EMAP:")) {
-						ontoService = maOntologyService;
-
-					}
-
-					OntologyTermBean term = ontoService.getTerm(anatomyTermId);
-
-					if(term != null) {
-						o.getAnatomyId().add(term.getId());
-						o.getAnatomyTerm().add(term.getName());
-						o.getAnatomyTermSynonym().addAll(term.getSynonyms());
-
+						OntologyDAO ontoService = null;
+						OntologyTermHelper b = null;
 						if (anatomyTermId.startsWith("MA:")) {
-							b = new OntologyTermHelperMa(maOntologyService, term.getId());
+							ontoService = maOntologyService;
+
 						} else if (anatomyTermId.startsWith("EMAP:")) {
-							b = new OntologyTermHelperEmap(emapOntologyService, term.getId());
+							ontoService = maOntologyService;
+
 						}
 
-						if (b!=null) {
+						OntologyTermBean term = ontoService.getTerm(anatomyTermId);
 
-							if (b.getIntermediates() != null) {
-								o.getIntermediateAnatomyId().addAll(b.getIntermediates().getIds());
-								o.getIntermediateAnatomyTerm().addAll(b.getIntermediates().getNames());
-								o.getIntermediateAnatomyTermSynonym().addAll(b.getIntermediates().getSynonyms());
+						if (term != null) {
+							o.getAnatomyId().add(term.getId());
+							o.getAnatomyTerm().add(term.getName());
+							o.getAnatomyTermSynonym().addAll(term.getSynonyms());
+
+							if (anatomyTermId.startsWith("MA:")) {
+								b = new OntologyTermHelperMa(maOntologyService, term.getId());
+							} else if (anatomyTermId.startsWith("EMAP:")) {
+								b = new OntologyTermHelperEmap(emapOntologyService, term.getId());
 							}
-							if (b.getTopLevels() != null) {
-								o.getSelectedTopLevelAnatomyId().addAll(b.getTopLevels().getIds());
-								o.getSelectedTopLevelAnatomyTerm().addAll(b.getTopLevels().getNames());
-								o.getSelectedTopLevelAnatomyTermSynonym().addAll(b.getTopLevels().getSynonyms());
+
+							if (b != null) {
+
+								if (b.getIntermediates() != null) {
+									o.getIntermediateAnatomyId().addAll(b.getIntermediates().getIds());
+									o.getIntermediateAnatomyTerm().addAll(b.getIntermediates().getNames());
+									o.getIntermediateAnatomyTermSynonym().addAll(b.getIntermediates().getSynonyms());
+								}
+								if (b.getTopLevels() != null) {
+									o.getSelectedTopLevelAnatomyId().addAll(b.getTopLevels().getIds());
+									o.getSelectedTopLevelAnatomyTerm().addAll(b.getTopLevels().getNames());
+									o.getSelectedTopLevelAnatomyTermSynonym().addAll(b.getTopLevels().getSynonyms());
+								}
 							}
 						}
 					}
-				} else {
-					continue;
 				}
 
 				o.setDataSourceId(datasourceMap.get(r.getInt("datasource_id")).id);
