@@ -113,7 +113,7 @@ public class ImageService implements WebStatus{
 			List<String> anatomyTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc, String baseUrl)
 			throws SolrServerException {
-
+System.out.println("calling get images for Anatomy");
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 

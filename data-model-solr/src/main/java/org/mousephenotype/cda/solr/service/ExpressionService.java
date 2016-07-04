@@ -29,6 +29,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -661,6 +662,61 @@ public class ExpressionService extends BasicService {
 		return model;
 
 	}
+	
+	public List<AnatomyPageTableRow> getExpressionForGenesOnAnatomyPage(String anatomyId)  {
+		try {
+			SolrDocumentList list= this.getLacZDataForAnatomy(anatomyId,  ImageDTO.ZYGOSITY,
+					ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_STABLE_ID,
+					ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public SolrDocumentList getLacZDataForAnatomy(String anatomyId, String...fields) throws SolrServerException{
+		System.out.println("calling -------------------------------------getLacZDataForAnatomy");
+		
+		SolrQuery solrQuery = new SolrQuery();
+		if (anatomyId != null) {
+			solrQuery.setQuery(ObservationDTO.ANATOMY_ID+":\"" + anatomyId + "\"");
+		} 
+		
+		
+			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\" OR "+ ImageDTO.PROCEDURE_NAME+":\"Adult LacZ\"");
+			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+			//we aren't interested in the image data here yet.
+			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
+			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
+			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
+			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+			
+		
+//		if (embryo) {
+//			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
+//			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
+//			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
+//			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+//		} else {
+//			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
+//			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
+//			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+//			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+//		}
+
+		// solrQuery.setFacetMinCount(1);
+		// solrQuery.setFacet(true);
+		solrQuery.setFields(fields);
+		// solrQuery.addFacetField("ma_term");
+		System.out.println("expression query="+solrQuery);
+		solrQuery.setRows(100000);
+		QueryResponse response = experimentSolr.query(solrQuery);
+		SolrDocumentList docs = response.getResults();
+		System.out.println("expression docs size="+docs.size());
+		return docs;
+		
+	}
 
 	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs,
 			boolean embryo) {
@@ -1015,5 +1071,7 @@ public class ExpressionService extends BasicService {
 		}
 
 	}
+
+	
 
 }
