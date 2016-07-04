@@ -220,17 +220,11 @@
 					        <c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
 					        
 					        <c:forEach items="${img.parameter_association_name}" var="currentItem" varStatus="stat">
-  								<c:set var="myVar" value="${stat.first ? '' : myVar} ${currentItem}:${img.parameter_association_value[stat.index]}" />
+  								<c:set var="paramAssValues" value="${stat.first ? '' : paramAssValues} ${currentItem}:${img.parameter_association_value[stat.index]}" />
   								
 							</c:forEach> 
-	            			<c:set var="mutantText" value='Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}, ${myVar}'/>
+	            			<c:set var="mutantText" value='Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}, ${paramAssValues}'/>
 	            			
-                                                	<%-- <c:forEach items="${img.parameter_association_name}" varStatus="status">
-                                                		<c:out value="${img.parameter_association_name[status.index]}"/>
-                                                		<c:out value="${img.parameter_association_value[status.index]}"/>
-                                                		<br/>
-                                                	</c:forEach> --%>
-                                                
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">

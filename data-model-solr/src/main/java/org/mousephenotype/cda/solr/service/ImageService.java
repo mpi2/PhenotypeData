@@ -425,10 +425,7 @@ public class ImageService implements WebStatus{
 					+ colonyId+"\"");
 		}
 		
-		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
-		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println("images experimental query blah:"+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
