@@ -16,7 +16,19 @@
 
 package org.mousephenotype.cda.indexers;
 
-import net.sf.json.JSONObject;
+import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
@@ -41,13 +53,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.core.io.Resource;
 
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
-
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
+import net.sf.json.JSONObject;
 
 /**
  * Populate the Anatomy core
