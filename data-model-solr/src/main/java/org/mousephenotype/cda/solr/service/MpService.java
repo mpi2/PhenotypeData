@@ -25,6 +25,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -176,11 +177,11 @@ public class MpService extends BasicService implements WebStatus{
 	 * @return JSON in jstree format for ontology browser
 	 * @throws SolrServerException
 	 */
-	public String getChildrenJson(String nodeId)
+	public String getChildrenJson(String nodeId, String termId)
 	throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
+				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId + " AND " + MpDTO.MP_ID + ":\"" + termId + "\"")
 				.setRows(1);
 		solrQuery.addField(MpDTO.CHILDREN_JSON);
 
