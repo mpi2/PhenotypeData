@@ -164,7 +164,7 @@ public class SqlLoaderUtils {
 
         try {
 
-            count = jdbcTemplate.update("INSERT INTO biological_model_genomic_feature (biological_model_id, genomic_feature_acc, genomic_feature_db_id) " +
+            count = jdbcTemplate.update("INSERT INTO biological_model_genomic_feature (biological_model_id, gf_acc, gf_db_id) " +
                                 "VALUES (?, ?, ?)", bioModelGenomicFeaturePss);
 
         } catch (DuplicateKeyException e) {
