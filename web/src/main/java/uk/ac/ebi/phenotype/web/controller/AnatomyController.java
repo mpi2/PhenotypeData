@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.AnatomyService;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
@@ -59,6 +60,9 @@ public class AnatomyController {
 
 	@Autowired
 	AnatomyService anatomyService;
+	
+	@Autowired
+	ExpressionService expressionService;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -91,7 +95,7 @@ public class AnatomyController {
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
-
+		List<AnatomyPageTableRow> anatomyExpTable=expressionService.getExpressionForGenesOnAnatomyPage(anatomy);
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
@@ -160,8 +164,10 @@ public class AnatomyController {
 								HttpServletRequest request,
 								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
-
+//this method doesn't get used anywhere???
 		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
+		//List<AnatomyPageTableRow> anatomyExpTable=expressionService.getExpressionForGenesOnAnatomyPage(anatomyId);
+		
 		model.addAttribute("anatomyTable", anatomyTable);
 
 		return "anatomyFrag";
