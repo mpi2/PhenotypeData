@@ -72,10 +72,18 @@
 	            <c:if test="${gene !=null }">
 	            	<input type="hidden" name="acc" value="${gene.mgiAccessionId}">
 	            </c:if>
+	            <c:if test="${param.parameter_stable_id!=null}">
 	            	<input type="hidden" name="parameter_stable_id" value="${param.parameter_stable_id}">
+	            </c:if>
+	            <c:if test="${param.parameter_association_value!=null}">
 	            	<input type="hidden" name="parameter_association_value" value="${param.parameter_association_value}">
+	            </c:if>
+	            <c:if test="${param.anatomy_id!=null}">
 	            	<input type="hidden" name="anatomy_id" value="${param.anatomy_id}">
-	            
+	            </c:if>
+	             <c:if test="${param.mp_id!=null}">
+	            	<input type="hidden" name="mp_id" value="${param.mp_id}">
+	            </c:if>
 	            <div id="filters">Filter Images by gender: 
 	            	${param.gender}
 	            	<select name="gender">
@@ -89,7 +97,7 @@
             		zygosity: 
             		${param.zygosity}
              		<select name="zygosity">
-             		<option value="all" <c:if test="${param.zygosity eq null}">selected</c:if> >all</option>
+             		<option  <c:if test="${param.zygosity eq null}">selected</c:if> >all</option>
              		<c:forEach var="zyg" items="${zygTypes}">
              			<option value="${zyg.name}" <c:if test="${param.zygosity eq zyg.name}">selected</c:if>>${zyg.name}</option>
             		</c:forEach>

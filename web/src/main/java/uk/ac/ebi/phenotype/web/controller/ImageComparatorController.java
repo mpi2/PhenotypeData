@@ -139,7 +139,7 @@ public class ImageComparatorController {
 	
 	private SolrDocumentList filterImagesByZygosity(SolrDocumentList imageDocs, List<ZygosityType> zygosityTypes) {
 		SolrDocumentList filteredImages=new SolrDocumentList();
-		if(zygosityTypes.get(0).getName().equals("not_applicable")){//just return don't filter if not applicable default is found
+		if(zygosityTypes==null || (zygosityTypes.get(0).getName().equals("not_applicable"))){//just return don't filter if not applicable default is found
 			return imageDocs;
 		}
 		for(ZygosityType zygosityType:zygosityTypes){
