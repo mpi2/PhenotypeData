@@ -2,6 +2,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +76,27 @@ public class ImageServiceTest {
 			e.printStackTrace();
 		}
 
+	}
+	
+	@Test
+	public void testgetImagesForGeneByParameter(){
+		//expression test first
+		String acc="MGI:1336993";
+		String parameterStableId="IMPC_ELZ_064_001";
+		String anatomyId="EMAPA:16105";
+		String parameterAsscociationValue="ambiguous";
+		QueryResponse response =null;
+		try {
+			response = imageService.getImagesForGeneByParameter(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
+			
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		long resultsSize=response.getResults().size();
+		System.out.println("resultsSize="+resultsSize);
+		assertTrue(resultsSize>12);
+		
 	}
 
 }

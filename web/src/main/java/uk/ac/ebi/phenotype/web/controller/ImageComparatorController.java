@@ -37,12 +37,8 @@ import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-//import Glacier2.CannotCreateSessionException;
-//import Glacier2.PermissionDeniedException;
 
 @Controller
 public class ImageComparatorController {
@@ -59,8 +55,15 @@ public class ImageComparatorController {
 	
 	@RequestMapping("/imageComparator")
 	public String imageCompBrowser( @RequestParam(value = "acc")  String acc,
-			 @RequestParam(value = "parameter_stable_id")  String parameter_stable_id,
-			@RequestParam(value = "gender", required=false) String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
+				@RequestParam(value = "parameter_stable_id", required=false)  String parameterStableId,
+				@RequestParam(value = "parameter_association_value", required=false)  String parameterAssociationValue,
+				@RequestParam(value = "anatomy_id", required=false)  String anatomyId,
+				@RequestParam(value = "gender", required=false) String gender,
+				@RequestParam(value = "zygosity", required=false) String zygosity,
+				@RequestParam(value="mediaType", required=false) String mediaType,
+				@RequestParam(value="colony_id", required=false) String colonyId,
+				@RequestParam(value="mp_id", required=false) String mpId,
+				Model model, HttpServletRequest request)
 			throws SolrServerException {
 		System.out.println("calling image imageComparator");
 		
@@ -69,6 +72,9 @@ public class ImageComparatorController {
 		//changed to http://localhost:8080/phenotype-archive/imageComparator?acc=MGI:2669829&parameter_stable_id=IMPC_EYE_050_001
 		//in anatomy pages we have links like this that need to be supported
 		//http://localhost:8080/phenotype-archive/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(anatomy_id:%22EMAPA:16105%22%20OR%20selected_top_level_anatomy_id:%22EMAPA:16105%22%20OR%20intermediate_anatomy_id:%22EMAPA:16105%22)%20%20AND%20gene_symbol:Ap4e1%20AND%20parameter_name:%22LacZ%20images%20wholemount%22%20AND%20parameter_association_value:%22ambiguous%22&title=gene%20Ap4e1%20with%20ambiguous%20in%20heart
+		//http://localhost:8080/phenotype-archive/imageCompara?anatomy_id:%22EMAPA:16105%22&gene_symbol:Ap4e1&parameter_name:%22LacZ%20images%20wholemount%22&parameter_association_value:%22ambiguous%22
+		//example link from gene page phenotype table that should work through this method with mpId and colonyId
+		//http://localhost:8080/phenotype-archive/imageComparator?acc=MGI:1913955&mpId=MP:0000572&colony_id=RIKEN_EPD0296_2_A10
 		
 		if(mediaType!=null) System.out.println("mediaType= "+mediaType);
 		// get experimental images
@@ -76,50 +82,49 @@ public class ImageComparatorController {
 		// side
 		SolrDocumentList mutants = new SolrDocumentList();
 		QueryResponse responseExperimental = imageService
-				.getImagesForGeneByParameter(acc, parameter_stable_id,
-						"experimental", 10000, null, null, null);
+				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", 10000, 
+						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
 		SolrDocument imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			mutants=responseExperimental.getResults();
 			imgDoc = mutants.get(0);
-		}else{//try this as a procedure not parameter id
-			responseExperimental = imageService
-					.getImagesForGeneByProcedure(acc, parameter_stable_id,
-							"experimental", 10000, null, null, null);
-			if (responseExperimental != null && responseExperimental.getResults().size()>0) {
-			mutants=responseExperimental.getResults();
-			imgDoc = mutants.get(0);
-			}
 		}
 		
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
-		List<SexType> sexTypes=null;
-		if(gender!=null){
-			sexTypes = getSexTypesForFilter(gender);
+		SexType sexType=null;
+		if(gender!=null && !gender.equals("all")){
+			sexType = getSexTypesForFilter(gender);
 		}
 		
 		
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
 		SolrDocumentList controls=null;
 		if(imgDoc!=null){
-		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexTypes);
+		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexType);
 		}
-		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexTypes);
+		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexType);
 		
-		List<ZygosityType> zygosityTypes=getZygosityTypesForFilter(zygosity);
+		List<ZygosityType> zygosityTypes=null;
+		if(zygosity!=null && !zygosity.equals("all")){
+			zygosityTypes=getZygosityTypesForFilter(zygosity);
+			//only filter mutants by zygosity as all controls are homs.
+			filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
+		}
 		
-		//only filter mutants by zygosity as all controls are homs.
-		filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
+
 		
 		
 
 		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
+		model.addAttribute("sexTypes",SexType.values());
+		model.addAttribute("zygTypes",ZygosityType.values());
 		model.addAttribute("mutants", filteredMutants);
 		//System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
 		if(mediaType!=null && mediaType.equals("pdf")){//we need iframes to load google pdf viewer so switch to this view for the pdfs.
+			System.out.println("using frames based comparator to pdfs");
 			return "comparatorFrames";
 		}
 		return "comparator";//js viewport used to view images in this view.
@@ -134,7 +139,7 @@ public class ImageComparatorController {
 	
 	private SolrDocumentList filterImagesByZygosity(SolrDocumentList imageDocs, List<ZygosityType> zygosityTypes) {
 		SolrDocumentList filteredImages=new SolrDocumentList();
-		if(zygosityTypes.get(0).getName().equals("not_applicable")){//just return don't filter if not applicable default is found
+		if(zygosityTypes==null || (zygosityTypes.get(0).getName().equals("not_applicable"))){//just return don't filter if not applicable default is found
 			return imageDocs;
 		}
 		for(ZygosityType zygosityType:zygosityTypes){
@@ -147,38 +152,38 @@ public class ImageComparatorController {
 		return filteredImages;
 	}
 
-	private SolrDocumentList filterMutantsBySex(SolrDocumentList mutants, SolrDocument imgDoc, List<SexType> sexTypes) {
-		if(sexTypes==null || sexTypes.isEmpty()){
+	private SolrDocumentList filterMutantsBySex(SolrDocumentList mutants, SolrDocument imgDoc, SexType sexType) {
+		if(sexType==null){
 			return mutants;
 		}
 		
 		SolrDocumentList filteredMutants = new SolrDocumentList();
 		
 		if (imgDoc != null) {
-			for (SexType sex : sexTypes) {
+			
 				for(SolrDocument mutant:mutants){
-					if(mutant.get("sex").equals(sex.getName())){
+					if(mutant.get("sex").equals(sexType.getName())){
 						filteredMutants.add(mutant);
 					}
 				}
 				
-			}
+			
 		}
 		return filteredMutants;
 	}
 
 	private SolrDocumentList filterControlsBySexAndOthers(SolrDocument imgDoc, int numberOfControlsPerSex,
-			List<SexType> sexTypes) throws SolrServerException {
-		if(sexTypes==null){
+			SexType sex) throws SolrServerException {
+		if(sex==null){
 			return imageService.getControls(numberOfControlsPerSex, null, imgDoc, null);
 		}
 		SolrDocumentList controls = new SolrDocumentList();
 		Set<SolrDocument> uniqueControls=new HashSet<>();
 		if (imgDoc != null) {
-			for (SexType sex : sexTypes) {
+			
 				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 				uniqueControls.addAll(controlsTemp);
-			}
+			
 		}
 		
 		
@@ -187,21 +192,15 @@ public class ImageComparatorController {
 		return controls;
 	}
 
-	private List<SexType> getSexTypesForFilter(String gender) {
-		List<SexType> sexTypes=new ArrayList<>();
-		if(gender.equals("male")){
-			sexTypes.add(SexType.male);
-		}else
-		if(gender.equals("female")){
-			sexTypes.add(SexType.female);
-		}else
-		if(gender.equals("both")){
-			sexTypes.add(SexType.male);
-			sexTypes.add(SexType.female);
-		}else if(gender.equals("not applicable") || gender.equals("no data")){
-			return Arrays.asList(SexType.values());
+	private SexType getSexTypesForFilter(String gender) {
+		SexType chosenSex=null;
+		for(SexType sex:SexType.values()){
+			if(sex.name().equals(gender)){
+				chosenSex=sex;
+				return sex;
+			}
 		}
-		return sexTypes;
+		return chosenSex;
 	}
 	
 	private List<ZygosityType> getZygosityTypesForFilter(String zygosity) {
@@ -211,8 +210,14 @@ public class ImageComparatorController {
 		}else
 		if(zygosity.equals("heterozygote")){
 			zygosityTypes.add(ZygosityType.heterozygote);
+		}else if(zygosity.equals("hemizygote")){
+				zygosityTypes.add(ZygosityType.hemizygote);
 		}else
-		if(zygosity.equals("not_applicable")){
+		if(zygosity.equals("not_applicable") || zygosity.equals("notapplicable")){
+			zygosityTypes.addAll(Arrays.asList(ZygosityType.values()));
+			
+		}else
+		if(zygosity.equals("all")){
 			zygosityTypes.addAll(Arrays.asList(ZygosityType.values()));
 			
 		}

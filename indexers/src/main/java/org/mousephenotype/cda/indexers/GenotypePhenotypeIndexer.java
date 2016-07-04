@@ -15,15 +15,33 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -37,14 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Populate the Genotype-Phenotype core
@@ -82,6 +92,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
+    @Autowired
+    MaOntologyDAO maOntologyService;
+
+    @Autowired
+    EmapaOntologyDAO emapaOntologyService;
+    
 	@Autowired
 	OntologyTermDAO ontologyTermDAO;
 
@@ -315,23 +331,38 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, mpId);
+                    // mp-anatomy mappings (all MA at the moment)
+                    if (mpOntologyService.getAnatomyMappings(mpId) != null){
+                    	List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
+                    	for (String id: anatomyIds){
+                    		OntologyDAO currentOntologyService = null;
+                    		if (id.startsWith("EMAPA")){
+                    			currentOntologyService = emapaOntologyService;
+                    		} else  if (id.startsWith("MA")){
+                    			currentOntologyService = maOntologyService;
+                    		}
+                    		if(currentOntologyService != null){
+	                    		doc.addAnatomyTermId(id);
+	                    		doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
+	                    		OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
+	                    		doc.setIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
+	                    		doc.setIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
+	                    		OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
+	                    		doc.setTopLevelAnatomyTermId(anatomyTopLevels.getIds());
+	                    		doc.setTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+                    		}
+                    	}
+                    }
 
-                    // Alternative MP Term ID - not working yet
-//                    if ( beanlist.getAltTermIds() != null && beanlist.getAltTermIds().size() > 0 ) {
-//                        System.out.println("ALT MP ID: " + doc.getAltMpTermId());
-//                        doc.setAltMpTermId(beanlist.getAltTermIds());
-//                    }
+                    doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
+                    doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+                    doc.setTopLevelMpTermSynonym(mpOntologyService.getTopLevelDetail(mpId).getSynonyms());
+                    doc.setTopLevelMpTermDefinition(mpOntologyService.getTopLevelDetail(mpId).getDefinitions());
 
-                    doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-                    doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
-                    doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());
-                    doc.setTopLevelMpTermDefinition(beanlist.getTopLevels().getDefinitions());
-
-                    doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-                    doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
-                    doc.setIntermediateMpTermSynonym(beanlist.getIntermediates().getSynonyms());
-                    doc.setIntermediateMpTermDefinition(beanlist.getIntermediates().getDefinitions());
+                    doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
+                    doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
+                    doc.setIntermediateMpTermSynonym(mpOntologyService.getIntermediatesDetail(mpId).getSynonyms());
+                    doc.setIntermediateMpTermDefinition(mpOntologyService.getIntermediatesDetail(mpId).getDefinitions());
                 }
                 // MPATH association
                 else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){

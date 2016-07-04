@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.indexers.beans;
+package org.mousephenotype.cda.db.dao;
 
 import java.util.ArrayList;
 import java.util.List;
