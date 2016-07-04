@@ -191,7 +191,7 @@ public class ImageService implements WebStatus{
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ");
 
 		if (anatomyId != null) {
-			query.addFilterQuery("(" + ImageDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR " 
+			query.addFilterQuery("(" + ImageDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
 					+ ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
 		}
 
@@ -383,7 +383,7 @@ public class ImageService implements WebStatus{
 	public QueryResponse getImagesForGeneByParameter(String mgiAccession, String parameterStableId,
 			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex,
 			String metadataGroup, String strain, String anatomyId,
-			String parameterAssociationValue) throws SolrServerException {
+			String parameterAssociationValue, String mpId, String colonyId) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		//gene accession will take precedence if both acc and symbol supplied
@@ -411,50 +411,25 @@ public class ImageService implements WebStatus{
 					+ parameterAssociationValue);
 		}
 		if(StringUtils.isNotEmpty(anatomyId)){
-			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":"
-					+ anatomyId+""+" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":"
-					+ anatomyId+""+" OR "+ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":"
-					+ anatomyId+"");
+			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":\""
+					+ anatomyId+"\" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\""
+					+ anatomyId+"\" OR "+ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\""
+					+ anatomyId+"\"");
 		}
-		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
-		// procedure_name + "\"");
+		if (StringUtils.isNotEmpty(mpId)) {
+			solrQuery.addFilterQuery(MpDTO.MP_ID + ":\""
+					+ mpId+"\"");
+		}
+		if (StringUtils.isNotEmpty(colonyId)) {
+			solrQuery.addFilterQuery(ObservationDTO.COLONY_ID + ":\""
+					+ colonyId+"\"");
+		}
+		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println("images experimental query:"+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
-	
-	public QueryResponse getImagesForGeneByProcedure(String mgiAccession,
-			String procedureStableId, String experimentOrControl,
-			int numberOfImagesToRetrieve, SexType sex, String metadataGroup,
-			String strain) throws SolrServerException {
 
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
-		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
-				+ experimentOrControl);
-		if (StringUtils.isNotEmpty(metadataGroup)) {
-			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":"
-					+ metadataGroup);
-		}
-		if (StringUtils.isNotEmpty(strain)) {
-			solrQuery.addFilterQuery(ObservationDTO.STRAIN_NAME + ":" + strain);
-		}
-		if (sex != null) {
-			solrQuery.addFilterQuery("sex:" + sex.name());
-		}
-		if (StringUtils.isNotEmpty(procedureStableId)) {
-			solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_STABLE_ID + ":"
-					+ procedureStableId);
-		}
-		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
-		// procedure_name + "\"");
-		solrQuery.setRows(numberOfImagesToRetrieve);
-		logger.debug("images experimental query: {}/select?{}",
-				solr.getBaseURL(), solrQuery);
-		QueryResponse response = solr.query(solrQuery);
-		return response;
-	}
 
 	/**
 	 *
@@ -861,7 +836,7 @@ public class ImageService implements WebStatus{
 						QueryResponse responseExperimental = this
 								.getImagesForGeneByParameter(acc,count.getName(),
 										"experimental", 1,null, null,
-										null, anatomyId, null);
+										null, anatomyId, null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
 
 							SolrDocument imgDoc = responseExperimental
@@ -878,7 +853,7 @@ public class ImageService implements WebStatus{
 											(String) imgDoc
 													.get(ObservationDTO.STRAIN_NAME),
 											anatomyId,
-											null);
+											null, null, null);
 
 							list = getControls(numberOfControls, null, imgDoc,
 									null);
@@ -958,7 +933,7 @@ public class ImageService implements WebStatus{
 		return true;
 
 	}
-	
+
 	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpId) throws SolrServerException {
 		//System.out.println("looking for mp term="+mpTerm +"  colony Id="+colonyId);
 		SolrQuery query = new SolrQuery();
@@ -1018,12 +993,12 @@ public class ImageService implements WebStatus{
 
 
 	/**
-	 * 
+	 *
 	 * @param acc
 	 * @return a map containing the mp and colony_id combinations so that if we have these then we show an image link on the phenotype table on the gene page. Each row in table could have a different colony_id as well as mp id
 	 * @throws SolrServerException
 	 */
-			
+
 	public Map<String, Set<String>> getImagePropertiesThatHaveMp(String acc) throws SolrServerException {
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
 		Map<String, Set<String>> mpToColony = new HashMap<>();
@@ -1034,7 +1009,7 @@ public class ImageService implements WebStatus{
 		query.setFacet(true);
 		query.setFacetLimit(-1);
 		query.setFacetMinCount(1);
-		
+
 		String pivotFacet=ImageDTO.MP_ID_TERM + "," + ImageDTO.COLONY_ID;
 		query.set("facet.pivot", pivotFacet);
 		query.addFacetField(ObservationDTO.COLONY_ID);
@@ -1050,17 +1025,17 @@ public class ImageService implements WebStatus{
 				mpId=(mpIdAndName.split("_")[0]);
 			}
 			for (PivotField mp : pivot.getPivot()){
-				
+
 				//System.out.println("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
 				String colonyId=mp.getValue().toString();
 				colonIds.add(colonyId);
 			}
 			mpToColony.put(mpId, colonIds);
-			
+
 		}
 		return mpToColony;
-		
-		
+
+
 	}
 
 

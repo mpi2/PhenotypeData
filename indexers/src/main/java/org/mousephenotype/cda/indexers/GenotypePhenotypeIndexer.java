@@ -34,14 +34,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.indexers.beans.OntologyDetail;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMa;
-import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMp;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -94,6 +94,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     @Autowired
     MaOntologyDAO maOntologyService;
+
+    @Autowired
+    EmapaOntologyDAO emapaOntologyService;
     
 	@Autowired
 	OntologyTermDAO ontologyTermDAO;
@@ -328,32 +331,38 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    OntologyTermHelperMp mpTerm = new OntologyTermHelperMp(mpOntologyService, mpId);
                     // mp-anatomy mappings (all MA at the moment)
-                    if (mpTerm.getAnatomyMappings() != null){
-                    	List<String> anatomyIds = mpTerm.getAnatomyMappings();
+                    if (mpOntologyService.getAnatomyMappings(mpId) != null){
+                    	List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
                     	for (String id: anatomyIds){
-                    		OntologyTermHelperMa maTerm = new OntologyTermHelperMa(maOntologyService, id);
-                    		doc.addAnatomyTermId(id);
-                    		doc.addAnatomyTermName(maTerm.getOntologyTerm().getName());
-                    		OntologyDetail maAncestors = maTerm.getIntermediates();
-                    		doc.setIntermediateAnatomyTermId(maAncestors.getIds());
-                    		doc.setIntermediateAnatomyTermName(maAncestors.getNames());
-                    		OntologyDetail maTopLevels = maTerm.getTopLevels();
-                    		doc.setTopLevelAnatomyTermId(maTopLevels.getIds());
-                    		doc.setTopLevelAnatomyTermName(maTopLevels.getNames());
+                    		OntologyDAO currentOntologyService = null;
+                    		if (id.startsWith("EMAPA")){
+                    			currentOntologyService = emapaOntologyService;
+                    		} else  if (id.startsWith("MA")){
+                    			currentOntologyService = maOntologyService;
+                    		}
+                    		if(currentOntologyService != null){
+	                    		doc.addAnatomyTermId(id);
+	                    		doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
+	                    		OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
+	                    		doc.setIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
+	                    		doc.setIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
+	                    		OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
+	                    		doc.setTopLevelAnatomyTermId(anatomyTopLevels.getIds());
+	                    		doc.setTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+                    		}
                     	}
                     }
 
-                    doc.setTopLevelMpTermId(mpTerm.getTopLevels().getIds());
-                    doc.setTopLevelMpTermName(mpTerm.getTopLevels().getNames());
-                    doc.setTopLevelMpTermSynonym(mpTerm.getTopLevels().getSynonyms());
-                    doc.setTopLevelMpTermDefinition(mpTerm.getTopLevels().getDefinitions());
+                    doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
+                    doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+                    doc.setTopLevelMpTermSynonym(mpOntologyService.getTopLevelDetail(mpId).getSynonyms());
+                    doc.setTopLevelMpTermDefinition(mpOntologyService.getTopLevelDetail(mpId).getDefinitions());
 
-                    doc.setIntermediateMpTermId(mpTerm.getIntermediates().getIds());
-                    doc.setIntermediateMpTermName(mpTerm.getIntermediates().getNames());
-                    doc.setIntermediateMpTermSynonym(mpTerm.getIntermediates().getSynonyms());
-                    doc.setIntermediateMpTermDefinition(mpTerm.getIntermediates().getDefinitions());
+                    doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
+                    doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
+                    doc.setIntermediateMpTermSynonym(mpOntologyService.getIntermediatesDetail(mpId).getSynonyms());
+                    doc.setIntermediateMpTermDefinition(mpOntologyService.getIntermediatesDetail(mpId).getDefinitions());
                 }
                 // MPATH association
                 else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){

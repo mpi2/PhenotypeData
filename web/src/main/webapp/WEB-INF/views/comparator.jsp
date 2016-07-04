@@ -49,7 +49,7 @@
 </jsp:attribute>
 <jsp:body>
 
-paramsid=${param.parameter_stable_id}
+
 <div class="block">
     <div class="content">
         	<div class="node"> 
@@ -72,11 +72,18 @@ paramsid=${param.parameter_stable_id}
 	            <c:if test="${gene !=null }">
 	            	<input type="hidden" name="acc" value="${gene.mgiAccessionId}">
 	            </c:if>
-	            ${param.parameter_stable_id}
+	            <c:if test="${param.parameter_stable_id!=null}">
 	            	<input type="hidden" name="parameter_stable_id" value="${param.parameter_stable_id}">
+	            </c:if>
+	            <c:if test="${param.parameter_association_value!=null}">
 	            	<input type="hidden" name="parameter_association_value" value="${param.parameter_association_value}">
-	            	<input type="hidden" name="anatomy_id" value="${param.antomy_id}">
-	            
+	            </c:if>
+	            <c:if test="${param.anatomy_id!=null}">
+	            	<input type="hidden" name="anatomy_id" value="${param.anatomy_id}">
+	            </c:if>
+	             <c:if test="${param.mp_id!=null}">
+	            	<input type="hidden" name="mp_id" value="${param.mp_id}">
+	            </c:if>
 	            <div id="filters">Filter Images by gender: 
 	            	${param.gender}
 	            	<select name="gender">
@@ -90,7 +97,7 @@ paramsid=${param.parameter_stable_id}
             		zygosity: 
             		${param.zygosity}
              		<select name="zygosity">
-             		<option value="all" <c:if test="${param.zygosity eq null}">selected</c:if> >all</option>
+             		<option  <c:if test="${param.zygosity eq null}">selected</c:if> >all</option>
              		<c:forEach var="zyg" items="${zygTypes}">
              			<option value="${zyg.name}" <c:if test="${param.zygosity eq zyg.name}">selected</c:if>>${zyg.name}</option>
             		</c:forEach>
@@ -128,7 +135,7 @@ paramsid=${param.parameter_stable_id}
 	            		<div class="thumbList">
 	            		<c:forEach var="img" items="${controls}" varStatus="controlLoop">
 	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
-	            				<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
+	            				<c:set var="controlText" value="WT: ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
@@ -211,7 +218,13 @@ paramsid=${param.parameter_stable_id}
 					        <img class="thumb2" data-id="86899" src="https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/86899/96/"/>  -->
 					        
 					        <c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
-	            			<c:set var="mutantText" value="Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
+					        
+					        <c:forEach items="${img.parameter_association_name}" var="currentItem" varStatus="stat">
+  								<c:set var="paramAssValues" value="${stat.first ? '' : paramAssValues} ${currentItem}:${img.parameter_association_value[stat.index]}" />
+  								
+							</c:forEach> 
+	            			<c:set var="mutantText" value='Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}, ${paramAssValues}'/>
+	            			
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
