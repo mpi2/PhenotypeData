@@ -58,7 +58,10 @@ public class BiologicalModelWriter implements ItemWriter {
     public void write(List items) throws Exception {
         for (Object bioModel1 : items) {
             BiologicalModelAggregator bioModel = (BiologicalModelAggregator) bioModel1;
-
+            bioModelPss.setBioModel(bioModel);
+            bioModelAllelePss.setBioModel(bioModel);
+            bioModelGenomicFeaturePss.setBioModel(bioModel);
+            bioModelPhenotypePss.setBioModel(bioModel);
             sqlLoaderUtils.updateBioModel(bioModel, bioModelPss, bioModelAllelePss, bioModelGenomicFeaturePss, bioModelPhenotypePss);
         }
     }

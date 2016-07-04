@@ -177,10 +177,11 @@ public class BiologicalModelLoader implements InitializingBean, Step {
         @Override
         protected Set<String> logStatus() {
             logger.info("BIOMODEL: Added {} new bioModels to map from file {} in {}. Multiple alleles per row (skipped): {}. Multiple genes per row (skipped): {}",
-                    ((BiologicalModelProcessor)bioModelProcessor).getMultipleAllelesPerRowCount(),
-                    ((BiologicalModelProcessor)bioModelProcessor).getMultipleGenesPerRowCount(),
+                    ((BiologicalModelProcessor)bioModelProcessor).getAddedBioModelsCount(),
                     bioModelKeys.get(FilenameKeys.MGI_PhenoGenoMP),
-                    commonUtils.formatDateDifference(start, stop));
+                    commonUtils.formatDateDifference(start, stop),
+                    ((BiologicalModelProcessor)bioModelProcessor).getMultipleAllelesPerRowCount(),
+                    ((BiologicalModelProcessor)bioModelProcessor).getMultipleGenesPerRowCount());
 
             // Write the bioModels map to the database.
             start = new Date();
