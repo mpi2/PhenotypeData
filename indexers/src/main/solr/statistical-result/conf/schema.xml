@@ -66,6 +66,13 @@
         <field name="db_id" type="int" indexed="true" stored="true" multiValued="false" required="true"/>
         <field name="data_type" type="string" indexed="true" stored="true" multiValued="false"/>
 
+		<!--  Anatomy terms mapped from MP -->
+        <field name="anatomy_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="anatomy_term_name" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="intermediate_anatomy_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="intermediate_anatomy_term_name" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="top_level_anatomy_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="top_level_anatomy_term_name" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
         <!-- Information about the MP term -->
         <field name="mp_term_id_options" type="string" indexed="true" stored="true" required="false" multiValued="true"/>

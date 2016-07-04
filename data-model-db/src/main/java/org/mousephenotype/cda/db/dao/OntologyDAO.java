@@ -15,6 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
+
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -22,15 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.Map.Entry;
 
 
 /**
@@ -87,6 +99,134 @@ public abstract class OntologyDAO {
     public OntologyDAO() {
         
     }
+    
+    /**
+     * Returns this term's selected-top-level terms.
+     *
+     * @return this term's selected-top-level terms.
+     */
+    public OntologyDetail getSelectedTopLevelDetails(String id) {
+        int level = 1;
+        List<OntologyTermBean> beans = getSelectedTopLevel(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+
+        return detail;
+    }
+
+    /**
+     * Returns this term's top-level terms.
+     *
+     * @return this term's top-level terms.
+     */
+    public OntologyDetail getTopLevel(Integer level, String id) {
+        List<OntologyTermBean> beans = getTopLevel(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+
+        return detail;
+    }
+
+    /**
+     * Returns this term's top-level terms.
+     * 
+     * @return this term's top-level terms.
+     */
+    public OntologyDetail getTopLevelDetail(String id) {
+        List<OntologyTermBean> beans = getTopLevel(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+
+        return detail;
+    }
+    
+    /**
+     * Returns this term's top-level terms at level <code>level</code>.
+     * 
+     * @param level the 1-relative level below the top level (i.e. 1 = top
+     * level, 2 = top-level - 1, etc.)
+     * 
+     * @return this term's top-level terms at level <code>level</code>
+     */
+    public OntologyDetail getTopLevels(int level, String id) {
+        List<OntologyTermBean> beans = getTopLevel(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's ancestors.
+     * 
+     * @return this term's ancestors.
+     */
+    public OntologyDetail getAncestorsDetail(String id) {
+        List<OntologyTermBean> beans = getAncestors(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's parents.
+     * 
+     * @return this term's parents.
+     */
+    public OntologyDetail getParentsDetails(String id) {
+        List<OntologyTermBean> beans = getParents(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's intermediates.
+     * 
+     * @return this term's intermediates.
+     */
+    public OntologyDetail getIntermediatesDetail(String id) {
+        List<OntologyTermBean> beans = getIntermediates(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's children.
+     * 
+     * @return this term's children.
+     */
+    public OntologyDetail getChildrenDetails(String id) {
+        List<OntologyTermBean> beans = getChildren(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's descendents.
+     * 
+     * @return this term's descendents.
+     */
+    public OntologyDetail getDescendentsDetails(String id) {
+        List<OntologyTermBean> beans = getDescendents(id);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
+    /**
+     * Returns this term's descendents at level <code>level</code>.
+     * 
+     * @param level the 1-relative level below this term (i.e. 1 = descendent-
+     * level 1, 2 = descendent-level - 1, etc.)
+     * 
+     * @return this term's descendents at level <code>level</code>
+     */
+    public OntologyDetail getDescendents(int level, String id) {
+        List<OntologyTermBean> beans = getDescendents(id, level);
+        OntologyDetail detail = new OntologyDetail(beans);
+        
+        return detail;
+    }
+    
     
     /**
      * Returns the <code>OntologyTermBean</code> matching <code>id</code>, if
@@ -149,7 +289,7 @@ public abstract class OntologyDAO {
     }
 
     public List<OntologyTermBean> getAllTerms() {
-        return new ArrayList(allTermsMap.values());
+        return new ArrayList<>(allTermsMap.values());
     }
     
 
@@ -170,7 +310,7 @@ public abstract class OntologyDAO {
      * @param what a string identifying the map, prepended to the output.
      */
     public void dumpOntologyTermMap(Map<String, List<OntologyTermBean>> map, String what) {
-        List<OntologyTermRecord> termList = new ArrayList();
+        List<OntologyTermRecord> termList = new ArrayList<>();
         Iterator<Entry<String, List<OntologyTermBean>>> it = map.entrySet().iterator();
         while (it.hasNext()) {
             Entry<String, List<OntologyTermBean>> entry = it.next();
@@ -180,7 +320,6 @@ public abstract class OntologyDAO {
         
         Collections.sort(termList, new OntologyTermRecordComparator());
         
-        Comparator<OntologyTermBean> c = new OntologyTermBeanComparator();
         System.out.println(what);
         System.out.format("%10.10s\t%10.10s\t%s\t%s\n", "KEY", "TERM_ID", "TERM_NAME", "[SYNONYMS]");
         for (OntologyTermRecord record : termList) {
@@ -246,7 +385,7 @@ public abstract class OntologyDAO {
             throw new RuntimeException("Level must be > 0. level was " + level);
         }
 
-        Set<OntologyTermBean> beans = new LinkedHashSet();
+        Set<OntologyTermBean> beans = new LinkedHashSet<>();
         List<List<String>> selectedAncestorGraphsId = selectedAncestorGraphsMap.get(id);
 
         if (selectedAncestorGraphsId != null) {
@@ -261,7 +400,7 @@ public abstract class OntologyDAO {
             }
         }
 
-        return new ArrayList(beans);
+        return new ArrayList<>(beans);
     }
 
     /**
@@ -295,7 +434,7 @@ public abstract class OntologyDAO {
             throw new RuntimeException("Level must be > 0. level was " + level);
         }
         
-        Set<OntologyTermBean> beans = new LinkedHashSet();
+        Set<OntologyTermBean> beans = new LinkedHashSet<>();
 
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
 
@@ -311,7 +450,7 @@ public abstract class OntologyDAO {
             }
         }
 
-        return new ArrayList(beans);
+        return new ArrayList<>(beans);
     }
 
     /**
@@ -326,7 +465,7 @@ public abstract class OntologyDAO {
      * <code>id</code>/s parent terms, or an empty list if there are none.
      */
     public List<OntologyTermBean> getAncestors(String id) {
-        Set<OntologyTermBean> beans = new LinkedHashSet();
+        Set<OntologyTermBean> beans = new LinkedHashSet<>();
 
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
         if (ancestorGraphsId != null) {
@@ -341,7 +480,7 @@ public abstract class OntologyDAO {
             }
         }
 
-        return new ArrayList(beans);
+        return new ArrayList<>(beans);
     }
     
     /**
@@ -355,7 +494,7 @@ public abstract class OntologyDAO {
      */
     public List<OntologyTermBean> getParents(String id) {
     	
-        Set<OntologyTermBean> beans = new LinkedHashSet();
+        Set<OntologyTermBean> beans = new LinkedHashSet<>();
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
 
         if (ancestorGraphsId != null) {        	
@@ -369,7 +508,7 @@ public abstract class OntologyDAO {
             }
         }
 
-        return new ArrayList(beans); 
+        return new ArrayList<>(beans); 
     }
     
     /**
@@ -386,7 +525,7 @@ public abstract class OntologyDAO {
      */
 
     public List<OntologyTermBean> getIntermediates(String id) {
-        Set<OntologyTermBean> beans = new LinkedHashSet();
+        Set<OntologyTermBean> beans = new LinkedHashSet<>();
 
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
         if (ancestorGraphsId != null) {
@@ -406,7 +545,7 @@ public abstract class OntologyDAO {
             }
         }
 
-        return new ArrayList(beans);
+        return new ArrayList<>(beans);
     }
     
     /**
@@ -419,7 +558,7 @@ public abstract class OntologyDAO {
      * <code>id</code>'s child terms, or an empty list if there are none.
      */
     public List<OntologyTermBean> getChildren(String id) {
-        Set<OntologyTermBean> beans = new LinkedHashSet();
+        Set<OntologyTermBean> beans = new LinkedHashSet<>();
         
         List<List<String>> descendentGraphsId = getDescendentGraphs(id);
         if (descendentGraphsId != null) {
@@ -431,7 +570,7 @@ public abstract class OntologyDAO {
             }
         }
 
-        return new ArrayList(beans); 
+        return new ArrayList<>(beans); 
     }
     
     /**
@@ -446,7 +585,7 @@ public abstract class OntologyDAO {
      * terms (inclusive), or an empty list if there are none.
      */
     public List<OntologyTermBean> getDescendents(String id) {
-        Set<OntologyTermBean> beans = new LinkedHashSet();
+        Set<OntologyTermBean> beans = new LinkedHashSet<>();
         
         List<List<String>> descendentGraphsId = getDescendentGraphs(id);
         if (descendentGraphsId != null) {
@@ -459,7 +598,7 @@ public abstract class OntologyDAO {
             }
         }
 
-        return new ArrayList(beans); 
+        return new ArrayList<>(beans); 
     }
     
     /**
@@ -480,7 +619,7 @@ public abstract class OntologyDAO {
             throw new RuntimeException("Level must be > 0. level was " + level);
         }
         
-        Set<OntologyTermBean> beans = new LinkedHashSet();
+        Set<OntologyTermBean> beans = new LinkedHashSet<>();
 
         List<List<String>> descendentGraphsId = getDescendentGraphs(id);
         if (descendentGraphsId != null) {
@@ -492,7 +631,7 @@ public abstract class OntologyDAO {
             }
         }
 
-        return new ArrayList(beans);
+        return new ArrayList<>(beans);
     }
     
     
@@ -514,7 +653,7 @@ public abstract class OntologyDAO {
         //System.out.println("POPULATE ALL TERMS: "+ query);
         // need to preserve oder of mysql query result so that ontologyBrowser.createTreeJson()
         // would work as it works from top of the tree, which corresponds to the order of the mysql query
-        Map<String, OntologyTermBean> map = new LinkedHashMap();
+        Map<String, OntologyTermBean> map = new LinkedHashMap<>();
 
 
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
@@ -565,18 +704,18 @@ public abstract class OntologyDAO {
      * NOTE: the root element is removed from all ancestor records.
      */
     protected final void populateAncestorGraph() {
-        Map<String, List<List<String>>> ancestorsMap = new HashMap();
-        Map<String, List<List<String>>> selectedAncestorsMap = new HashMap();
+        Map<String, List<List<String>>> ancestorsMap = new HashMap<>();
+        Map<String, List<List<String>>> selectedAncestorsMap = new HashMap<>();
 
         Set<Map.Entry<String, List<String>>> entrySet = id2nodesMap.entrySet();
         
         for (Map.Entry<String, List<String>> entry : entrySet) {
-            List<List<String>> ancestorList = new ArrayList();
-            List<List<String>> selectedAncestorList = new ArrayList();
+            List<List<String>> ancestorList = new ArrayList<>();
+            List<List<String>> selectedAncestorList = new ArrayList<>();
 
             for (String sNodeId : entry.getValue()) {
-                List<String> topTermIds = new ArrayList();
-                List<String> selectedToptermIds = new ArrayList();
+                List<String> topTermIds = new ArrayList<>();
+                List<String> selectedToptermIds = new ArrayList<>();
                 Integer nodeId = commonUtils.tryParseInt(sNodeId);
 
                 String ancestorNodeIdConcat = ancestorMap.get(nodeId);
@@ -646,7 +785,7 @@ public abstract class OntologyDAO {
      * @return the set of descendent graphs for the given id.
      */
     protected final List<List<String>> getDescendentGraphsInternal(String query) {
-        List<List<String>> descendentsIdList = new ArrayList();
+        List<List<String>> descendentsIdList = new ArrayList<>();
         List<String> descendentNodes;
         try {
             descendentNodes = getDescendentNodes(query);
@@ -655,7 +794,7 @@ public abstract class OntologyDAO {
         }
         for (String graph : descendentNodes) {
             String[] descendentGraphNodes = graph.split(" ");
-            List<String> descendentIds = new ArrayList();
+            List<String> descendentIds = new ArrayList<>();
             for (String descendentGraphNode : descendentGraphNodes) {
                 descendentIds.add(node2termMap.get(descendentGraphNode));
             }
@@ -691,7 +830,7 @@ public abstract class OntologyDAO {
      * @throws SQLException when a database exception occurs
      */
     protected final void populateSynonyms(String query) throws SQLException {
-        Map<String, List<String>> map = new HashMap();
+        Map<String, List<String>> map = new HashMap<>();
     
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
@@ -727,7 +866,7 @@ public abstract class OntologyDAO {
      * @throws SQLException 
      */
     private List<String> getDescendentNodes(String query) throws SQLException {
-        List<String> descendentNodes = new ArrayList();
+        List<String> descendentNodes = new ArrayList<>();
         
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
