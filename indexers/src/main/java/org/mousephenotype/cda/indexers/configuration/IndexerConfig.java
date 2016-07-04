@@ -37,7 +37,7 @@ import java.util.Properties;
 	"org.mousephenotype.cda.solr",
 	"org.mousephenotype.cda.utilities"}
 )
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 public class IndexerConfig {
 
     public static final int QUEUE_SIZE = 10000;
@@ -116,7 +116,12 @@ public class IndexerConfig {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/gwas", QUEUE_SIZE, THREAD_COUNT);
     }
 
-    // database connections
+	@Bean
+	SolrServer phenodigmIndexing() {
+		return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
+	}
+
+	// database connections
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "datasource.komp2")

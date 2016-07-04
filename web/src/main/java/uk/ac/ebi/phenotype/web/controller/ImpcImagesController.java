@@ -114,51 +114,6 @@ public class ImpcImagesController {
 	}
 
 
-	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
-	public String imagePicker(@PathVariable String acc,
-			@PathVariable String parameter_stable_id, Model model, HttpServletRequest request)
-			throws SolrServerException {
-
-		
-		// good example url with control and experimental images
-		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
-		System.out.println("calling image picker");
-				String mediaType=request.getParameter("mediaType");
-				 if(mediaType!=null) System.out.println("mediaType= "+mediaType);
-		// get experimental images
-		// we will also want to call the getControls method and display side by
-		// side
-		SolrDocumentList experimental = new SolrDocumentList();
-		QueryResponse responseExperimental = imageService
-				.getImagesForGeneByParameter(acc, parameter_stable_id,
-						"experimental", 10000, null, null, null);
-		SolrDocument imgDoc =null;
-		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
-			experimental=responseExperimental.getResults();
-			System.out.println("list size=" + experimental.size());
-			imgDoc = experimental.get(0);
-		}
-		
-		int numberOfControlsPerSex = 5;
-		// int daysEitherSide = 30;// get a month either side
-		SolrDocumentList controls = new SolrDocumentList();
-		if (imgDoc != null) {
-			for (SexType sex : SexType.values()) {
-
-				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
-				controls.addAll(controlsTemp);
-			}
-		}
-		
-		this.addGeneToPage(acc, model);
-		model.addAttribute("mediaType", mediaType);
-		System.out.println("experimental size=" + experimental.size());
-		model.addAttribute("experimental", experimental);
-		System.out.println("controls size=" + controls.size());
-		model.addAttribute("controls", controls);
-		return "imagePicker";
-	}
-
 	@RequestMapping("/imageNavigator")
 	public String imageControlNavigator(HttpServletRequest request, Model model) {
 
@@ -189,15 +144,6 @@ public class ImpcImagesController {
 		if (request.getParameter("start") != null) {
 			startString = request.getParameter("start");
 		}
-		// if (request.getParameter("rows") != null) {
-		// rowsString = request.getParameter("rows");
-		// }
-
-		// Map params = request.getParameterMap();
-		// Map newParamsMap=new HashMap<>();
-		// newParamsMap.putAll(params);
-		// newParamsMap.remove("rows");
-		// newParamsMap.remove("start");
 		String newQueryString = "";
 		String qStr = null;
 		String fqStr = null;
