@@ -299,31 +299,31 @@ public class SqlLoaderUtils {
         }
 
         // Insert synonyms if they do not already exist.
+
         List<Synonym> synonymList = (gene.getSynonyms() == null ? new ArrayList<>() : gene.getSynonyms());
-        for (Synonym synonym : synonymList) {
-            if (getSynonym(gene.getId().getAccession(), synonym.getSymbol()) == null) {
-
-                jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                        gene.getId().getAccession(), gene.getId().getDatabaseId(), synonym.getSymbol());
-
-                List<Synonym> tmpSynonymList = new ArrayList<>();
-                tmpSynonymList.add(synonym);
-                synonyms.put(gene.getId().getAccession(), tmpSynonymList);
+        if ( ! synonymList.isEmpty()) {
+            for (Synonym synonym : synonymList) {
+                if (getSynonym(gene.getId().getAccession(), synonym.getSymbol()) == null) {
+                    jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
+                            gene.getId().getAccession(), gene.getId().getDatabaseId(), synonym.getSymbol());
+                }
             }
+
+            synonyms.put(gene.getId().getAccession(), gene.getSynonyms());
         }
 
         // Insert xrefs if they do not already exist.
         List<Xref> xrefList = (gene.getXrefs() == null ? new ArrayList<>() : gene.getXrefs());
-        for (Xref xref : xrefList) {
-            if (getXref(xref.getAccession(), xref.getXrefAccession()) == null) {
+        if ( ! xrefList.isEmpty()) {
+            for (Xref xref : xrefList) {
+                if (getXref(xref.getAccession(), xref.getXrefAccession()) == null) {
 
-                jdbcTemplate.update("INSERT INTO xref (acc, db_id, xref_acc, xref_db_id) VALUES(?, ?, ?, ?)",
-                        xref.getAccession(), xref.getDatabaseId(), xref.getXrefAccession(), xref.getXrefDatabaseId());
-
-                List<Xref> tmpXrefList = new ArrayList();
-                tmpXrefList.add(xref);
-                xrefs.put(xref.getAccession(), tmpXrefList);
+                    jdbcTemplate.update("INSERT INTO xref (acc, db_id, xref_acc, xref_db_id) VALUES(?, ?, ?, ?)",
+                            gene.getId().getAccession(), gene.getId().getDatabaseId(), xref.getXrefAccession(), xref.getXrefDatabaseId());
+                }
             }
+
+            xrefs.put(gene.getId().getAccession(), gene.getXrefs());
         }
 
         return count;
@@ -642,7 +642,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      */
     public Synonym getSynonym(String accessionId, String symbol) {
         for (Synonym synonym : getSynonyms(accessionId)) {
-            if (synonym.getSymbol().equals(symbol)) {
+            if (synonym.getSymbol().equalsIgnoreCase(symbol)) {
                 return synonym;
             }
         }
