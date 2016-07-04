@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.steps;
+package org.mousephenotype.cda.loads.cdaloader.support;
 
 import org.mousephenotype.cda.db.pojo.*;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;

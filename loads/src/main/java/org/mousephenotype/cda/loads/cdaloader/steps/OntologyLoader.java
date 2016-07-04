@@ -85,7 +85,7 @@ public class OntologyLoader implements Step, InitializingBean {
      */
     @Override
     public int getStartLimit() {
-        return 1;
+        return 10;
     }
 
     /**
