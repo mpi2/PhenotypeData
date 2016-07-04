@@ -105,6 +105,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 
         int count = 0;
+        
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
