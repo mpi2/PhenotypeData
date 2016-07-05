@@ -60,7 +60,7 @@ public class FertilityChartAndDataProvider {
 			return null;
 		}
 
-		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)",null);
+		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)", "",null);
 		System.out.println("total fert chart="+totalChart);
 		fertility.setTotalChart(totalChart);
 

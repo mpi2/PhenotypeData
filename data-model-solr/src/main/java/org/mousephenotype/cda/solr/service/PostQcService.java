@@ -118,7 +118,14 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         return retVal;
     }
 
-    public long getGenesByAnatomy(String anatomyId) 
+    /**
+     * @author ilinca
+     * @since 2016/07/05
+     * @param anatomyId
+     * @return Number of genes in g-p core for anatomy term given. 
+     * @throws SolrServerException
+     */
+    public Integer getGenesByAnatomy(String anatomyId) 
     throws SolrServerException{
     	
     	 SolrQuery query = new SolrQuery();
@@ -133,7 +140,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
          JSONObject groups = new JSONObject(solr.query(query).getResponse().get("grouped").toString().replaceAll("=",":"));
          
-         return new Long(groups.getJSONObject(GenotypePhenotypeDTO.MARKER_ACCESSION_ID).getLong("ngroups"));
+         return groups.getJSONObject(GenotypePhenotypeDTO.MARKER_ACCESSION_ID).getInt("ngroups");
     }
     
 	@Override
