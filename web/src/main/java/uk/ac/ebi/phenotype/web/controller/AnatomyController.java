@@ -105,10 +105,10 @@ public class AnatomyController {
 		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
 		Integer genesWithPhenotype = gpService.getGenesByAnatomy(anatomy);
-		Integer genesInSR = srService.getGenesByAnatomy(anatomy);
+		Integer genesWithoutPhenotype = srService.getGenesByAnatomy(anatomy) - genesWithPhenotype;
 		Map<String, Integer> pieData = new HashMap<>();
 		pieData.put("Phenotype present ", genesWithPhenotype);
-		pieData.put("No phenotype ", genesInSR);
+		pieData.put("No phenotype ", genesWithoutPhenotype);
 		
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
