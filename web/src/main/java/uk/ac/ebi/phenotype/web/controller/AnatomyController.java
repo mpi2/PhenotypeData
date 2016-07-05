@@ -120,7 +120,7 @@ public class AnatomyController {
      * @param type
      * @param model
      * @return
-     * @throws SolrServerException§
+     * @throws SolrServerException
      * @throws IOException
      * @throws URISyntaxException
      */
