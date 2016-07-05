@@ -384,13 +384,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     
                     doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
                     doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
-                    doc.setTopLevelMpTermSynonym(mpOntologyService.getTopLevelDetail(mpId).getSynonyms());
-                    doc.setTopLevelMpTermDefinition(mpOntologyService.getTopLevelDetail(mpId).getDefinitions());
 
                     doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
                     doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
-                    doc.setIntermediateMpTermSynonym(mpOntologyService.getIntermediatesDetail(mpId).getSynonyms());
-                    doc.setIntermediateMpTermDefinition(mpOntologyService.getIntermediatesDetail(mpId).getDefinitions());
                 }
                 // MPATH association
                 else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){
