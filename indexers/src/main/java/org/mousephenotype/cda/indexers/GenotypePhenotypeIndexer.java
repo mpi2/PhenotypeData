@@ -357,7 +357,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     Set<String> anatomyIdsForAncestors = new HashSet<>();
                     for (String mpAncestorId: mpOntologyService.getAncestorsDetail(mpId).getIds()){
                     	System.out.println();
-                    	anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
+                    	if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null){
+                    		anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
+                    	}
                     }
                     
                     for (String id: anatomyIdsForAncestors){
