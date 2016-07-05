@@ -9,6 +9,11 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/anatomy?kw=*">anatomy</a> &raquo; ${anatomy.getAnatomyTerm()}</jsp:attribute>
 	<jsp:attribute name="header">
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
+        
+		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+       	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+       	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+       	    	
 	</jsp:attribute>
 	
     <jsp:attribute name="addToFooter">
@@ -70,6 +75,7 @@
 											<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
 											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
 										</p>
+										<div id="phenotypesByAnatomy" class="half"><script type="text/javascript">${pieChartCode}</script></div>
 									</div>
 						
 									<div id="parentChild" class="half">
