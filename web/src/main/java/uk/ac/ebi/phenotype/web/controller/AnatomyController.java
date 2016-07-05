@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,11 @@ import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.AnatomyService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
+import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +61,11 @@ public class AnatomyController {
 	ImageService is;
 
 	@Autowired
-	AnatomyService anatomyService;
+	PostQcService gpService;
 
+	@Autowired
+	AnatomyService anatomyService;
+	
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
@@ -91,11 +97,13 @@ public class AnatomyController {
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
-
+		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
+		
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
         model.addAttribute("phenoFacets", getFacets(anatomy));
+		model.addAttribute("phenotypeTable", phenotypesTable);
 
         // Stuff for parent-child display
         model.addAttribute("hasChildren", (anatomyTerm.getChildAnatomyId() != null && anatomyTerm.getChildAnatomyId().size() > 0) ? true : false);
