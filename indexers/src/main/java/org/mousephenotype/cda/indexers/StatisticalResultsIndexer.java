@@ -529,6 +529,33 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 		}
                 	}
                 }
+                // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might. 
+                Set<String> anatomyIdsForAncestors = new HashSet<>();
+                for (String mpAncestorId: mpOntologyService.getAncestorsDetail(mpId).getIds()){
+                	System.out.println();
+                	if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null){
+                		anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
+                	}
+                }
+                
+                for (String id: anatomyIdsForAncestors){
+                	OntologyDAO currentOntologyService = null;
+                	if (id.startsWith("EMAPA")){
+                		currentOntologyService = emapaOntologyService;
+                	} else  if (id.startsWith("MA")){
+                		currentOntologyService = maOntologyService;
+                	}
+                	if(currentOntologyService != null){
+                   		doc.addIntermediateAnatomyTermId(id);
+                   		doc.addIntermediateAnatomyTermName(currentOntologyService.getTerm(id).getName());
+                   		OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
+                   		doc.addIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
+                   		doc.addIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
+                   		OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
+                   		doc.addTopLevelAnatomyTermId(anatomyTopLevels.getIds());
+                   		doc.addTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+                	}
+                }
 
 			}
 		}

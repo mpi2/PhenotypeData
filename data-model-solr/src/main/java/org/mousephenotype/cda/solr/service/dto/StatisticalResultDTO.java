@@ -22,6 +22,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -1978,6 +1979,7 @@ public class StatisticalResultDTO {
 		this.anatomyTermName.add(anatomyTermName);
 	}
 	
+
 	public List<String> getIntermediateAnatomyTermId() {
 		return intermediateAnatomyTermId;
 	}
@@ -1991,6 +1993,17 @@ public class StatisticalResultDTO {
 			this.intermediateAnatomyTermId = new ArrayList<>();
 		}
 		this.intermediateAnatomyTermId.add(intermediateAnatomyTermId);
+	}
+	
+	public void addIntermediateAnatomyTermId(Collection<String> intermediateAnatomyTermIds){
+		if (this.intermediateAnatomyTermId == null){
+			this.intermediateAnatomyTermId = new ArrayList<>();
+		}
+		for (String term : intermediateAnatomyTermIds){
+			if (!this.intermediateAnatomyTermId.contains(term)){
+				this.intermediateAnatomyTermId.add(term);
+			}
+		}
 	}
 	
 	public List<String> getIntermediateAnatomyTermName() {
@@ -2008,6 +2021,17 @@ public class StatisticalResultDTO {
 		this.intermediateAnatomyTermName.add(intermediateAnatomyTermName);
 	}
 	
+	public void addIntermediateAnatomyTermName(Collection<String> intermediateAnatomyTermName){
+		if (this.intermediateAnatomyTermName == null){
+			this.intermediateAnatomyTermName = new ArrayList<>();
+		}
+		for (String term : intermediateAnatomyTermName){
+			if (!this.intermediateAnatomyTermName.contains(term)){
+				this.intermediateAnatomyTermName.add(term);
+			}
+		}
+	}
+	
 	public List<String> getTopLevelAnatomyTermId() {
 		return topLevelAnatomyTermId;
 	}
@@ -2021,6 +2045,17 @@ public class StatisticalResultDTO {
 			this.topLevelAnatomyTermId = new ArrayList<>();
 		}
 		this.topLevelAnatomyTermId.add(topLevelAnatomyTermId);
+	}
+	
+	public void addTopLevelAnatomyTermId(Collection<String> topLevelAnatomyTermId){
+		if (this.topLevelAnatomyTermId == null){
+			this.topLevelAnatomyTermId = new ArrayList<>();
+		}
+		for (String term : topLevelAnatomyTermId){
+			if (!this.topLevelAnatomyTermId.contains(term)){
+				this.topLevelAnatomyTermId.add(term);
+			}
+		}
 	}
 
 	public List<String> getTopLevelAnatomyTermName() {
@@ -2036,6 +2071,17 @@ public class StatisticalResultDTO {
 			this.topLevelAnatomyTermName = new ArrayList<>();
 		}
 		this.topLevelAnatomyTermName.add(topLevelAnatomyTermName);
+	}
+	
+	public void addTopLevelAnatomyTermName(Collection<String> topLevelAnatomyTermName){
+		if (this.topLevelAnatomyTermName == null){
+			this.topLevelAnatomyTermName = new ArrayList<>();
+		}
+		for (String term : topLevelAnatomyTermName){
+			if (!this.topLevelAnatomyTermName.contains(term)){
+				this.topLevelAnatomyTermName.add(term);
+			}
+		}
 	}
 	
 	
