@@ -37,6 +37,8 @@ import org.mousephenotype.cda.solr.service.AlleleService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -52,6 +54,8 @@ import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
 @Controller
 public class ReleaseController {
+
+	private final Logger logger = LoggerFactory.getLogger(ReleaseController.class);
 
 	@Autowired
 	private AnalyticsDAO analyticsDAO;
@@ -71,6 +75,9 @@ public class ReleaseController {
 	@Autowired
 	private UnidimensionalChartAndTableProvider chartProvider;
 
+	Double CACHE_REFRESH_PERCENT = 0.05; // 5%
+	Map<String, String> cachedMetaInfo = null;
+
 	public static Map<String, String> statisticalMethodsShortName = new HashMap<>();
 	static {
 		statisticalMethodsShortName.put("Fisher's exact test", "Fisher");
@@ -79,13 +86,40 @@ public class ReleaseController {
 		statisticalMethodsShortName.put("Mixed Model framework, linear mixed-effects model, equation withoutWeight", "MMlme");
 	}
 
+	/**
+	 * Return the meta information about the data release
+	 *
+	 * If the data is cached, return the cached data
+	 *
+	 * Sometimes (defined by CACHE_REFRESH_PERCENT), refresh the cached data
+	 *
+	 * @return map of the meta data
+	 * @throws SQLException
+	 */
+	private Map<String, String> getMetaInfo() throws SQLException {
+		Map<String, String> metaInfo = cachedMetaInfo;
+
+		if (metaInfo == null || Math.random() < CACHE_REFRESH_PERCENT) {
+			metaInfo = analyticsDAO.getMetaData();
+			synchronized (this) {
+				cachedMetaInfo = metaInfo;
+			}
+			logger.info("Refreshing metadata cache");
+		}
+
+		return metaInfo;
+	}
+
 	@RequestMapping(value="/release.json", method=RequestMethod.GET)
 	public ResponseEntity<String> getJsonReleaseInformation() {
 
-		Map<String, String> metaInfo = null;
 		try {
-			metaInfo = analyticsDAO.getMetaData();
+
+			// 10% of the time refresh the cached metadata info
+			Map<String, String> metaInfo = getMetaInfo();
+
 			JSONObject json = new JSONObject(metaInfo);
+
 			return new ResponseEntity<>(json.toString(), createResponseHeaders(), HttpStatus.OK);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -94,6 +128,7 @@ public class ReleaseController {
 
 
 	}
+
 	private HttpHeaders createResponseHeaders() {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -104,7 +139,8 @@ public class ReleaseController {
 	public String getReleaseInformation(
 		Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
-		Map<String, String> metaInfo = analyticsDAO.getMetaData();
+		// 10% of the time refresh the cached metadata info
+		Map<String, String> metaInfo = getMetaInfo();
 
 		/*
 		 * What are the different Phenotyping centers?

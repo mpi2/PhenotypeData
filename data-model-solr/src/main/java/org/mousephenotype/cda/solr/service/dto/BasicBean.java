@@ -46,6 +46,15 @@ public class BasicBean {
 		this.description = description;
 	}
 	
+	public BasicBean(){
+		
+	}
+	
+	public BasicBean(String id, String name){
+		this.id = id;
+		this.name = name;
+	}
+	
 	/**
 	 * @author tudose
 	 */

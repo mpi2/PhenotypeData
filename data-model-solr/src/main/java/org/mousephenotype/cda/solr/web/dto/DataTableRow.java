@@ -27,6 +27,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -60,19 +61,15 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	protected String phenotypingCenter;
 	protected ImpressBaseDTO procedure;
 	protected ImpressBaseDTO parameter;
-	protected String dataSourceName;// to hold the name of the origin of the
-									// data e.g. Europhenome or WTSI Mouse
-									// Genetics Project
+	protected String dataSourceName;
 	protected EvidenceLink evidenceLink;
 	protected ImpressBaseDTO pipeline;
 	protected Double pValue;
 	protected boolean isPreQc;
 	protected String gid;
 	protected String colonyId;
-	protected List<BasicBean> topLevelPhenotypeTerms;// keep the top level terms
-														// so we can display the
-														// correct icons next to
-														// them in the row
+	protected List<BasicBean> topLevelPhenotypeTerms;
+	// keep the top level terms so we can display the correct icons next to them in the row
 	protected Set<String> topLevelMpGroups;
 	private List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans = new ArrayList<>();
 	private EvidenceLink imagesEvidenceLink;
@@ -172,6 +169,27 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 	}
 
+	public void addSex(String sex){
+		
+		if (sexes == null){
+			sexes = new ArrayList<>();
+		}
+		if (!sexes.contains(sex)){
+			sexes.add(sex);
+		}
+	}
+	
+	/**
+	 * @since 2016/07/04
+	 * @author ilinca
+	 * @param pValue The pValue of the object will get the smallest pValue passed. 
+	 */
+	public void addPvalue(Double pValue){
+		if (this.pValue == null || this.pValue > pValue){
+			this.pValue = pValue;
+		}
+	}
+	
 	/**
 	 * Currently as histopath data is set up differently in Impress we need to
 	 * change the phenotype column to show the phenotype using the parameter
