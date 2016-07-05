@@ -75,6 +75,7 @@
 											<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
 											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
 										</p>
+										<br/> <br/>
 										<div id="phenotypesByAnatomy" class="half"><script type="text/javascript">${pieChartCode}</script></div>
 									</div>
 						
