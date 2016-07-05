@@ -65,20 +65,24 @@
 													${synonym}<c:if test="${!synonymLoop.last}">,&nbsp;</c:if>	
 												</c:forEach>
 											</p>	
-										</c:if>
+										</c:if>	
+										<p class="with-label"> <span class="label">Stage </span>
+											<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
+											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
+										</p>
 									</div>
 						
 									<div id="parentChild" class="half">
-											<c:if test="${hasChildren && hasParents}">
-				                            	<div class="half" id="parentDiv"></div>
-												<div class="half" id="childDiv"></div>
-											</c:if>
-											<c:if test="${hasChildren && !hasParents}">
-												<div id="childDiv"></div>
-											</c:if>
-											<c:if test="${!hasChildren && hasParents}">
-				                            	<div id="parentDiv"></div>
-											</c:if>
+										<c:if test="${hasChildren && hasParents}">
+				                           	<div class="half" id="parentDiv"></div>
+											<div class="half" id="childDiv"></div>
+										</c:if>
+										<c:if test="${hasChildren && !hasParents}">
+											<div id="childDiv"></div>
+										</c:if>
+										<c:if test="${!hasChildren && hasParents}">
+				                           	<div id="parentDiv"></div>
+										</c:if>
 									</div>
 										
 									<div class="clear"></div>
@@ -111,15 +115,19 @@
 						    	</div>
 							</div>	
 				 
+				 			<div class="section"> 
+								<h2 class="title">Associated phenotypes</h2>
+								<div class="inner">
+									<div class="container span12">
+					                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
+									</div>
+						    	</div>
+							</div>
 				 
-							<div class="section">
-								<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
-								<div class=inner>
-									<c:if test="${empty expressionImages && fn:length(anatomy.getChildAnatomyTerm()) == 0}">
-											<div class="alert alert-info">No data currently available	</div>
-									</c:if>
-								
-									<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
+							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
+								<div class="section">
+									<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
+									<div class=inner>
 										<div class="accordion-group">
 			              					<div class="accordion-heading">Expression Associated Images</div>
 											<div class="accordion-body">
@@ -138,9 +146,9 @@
 												</c:if>
 											</div>
 										</div>
-									</c:if>
+									</div>
 								</div>
-							</div>
+							</c:if>
 				 
 				</div>
 			</div>
@@ -180,8 +188,19 @@
 							"bPaginate":true,
 				      "sPaginationType": "bootstrap"
 					});
-		  }
+		  			  
 		  
+				  $('table#phenotypeAnatomy').dataTable( {
+						"aoColumns": [
+						              { "sType": "html"},
+						              { "sType": "html"}
+						              ],
+							"bDestroy": true,
+							"bFilter":true,
+							"bPaginate":true,
+				      "sPaginationType": "bootstrap"
+					});
+		  }
 			
 			function refreshAnatomyTable(newUrl){
 				$.ajax({

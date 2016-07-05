@@ -15,8 +15,22 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -32,24 +46,32 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class AbstractGenotypePhenotypeService extends BasicService {
 
@@ -115,22 +137,72 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return solr.query(query).getResults().getNumFound();
     }
 
+    /**
+     * @since 2016/07/04
+     * @author ilinca
+     * @param anatomyId
+     * @return
+     * @throws SolrServerException
+     */
+    public List<GenotypePhenotypeDTO> getPhenotypesForAnatomy(String anatomyId) 
+    throws SolrServerException{
+    	
+    	SolrQuery query = new SolrQuery();
+    	query.setRows(Integer.MAX_VALUE);
+    	query.setQuery(GenotypePhenotypeDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " + 
+    				GenotypePhenotypeDTO.INTERMEDIATE_ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " +  
+    				GenotypePhenotypeDTO.TOP_LEVEL_ANATOMY_TERM_ID + ":\"" + anatomyId + "\"");
+    	
+    	query.setFields(GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.P_VALUE,
+    			GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.SEX,
+    			GenotypePhenotypeDTO.ZYGOSITY);
+    	
+    	return solr.query(query).getBeans(GenotypePhenotypeDTO.class);
+    	    	
+    }
+    
+    public Collection<PhenotypeTableRowAnatomyPage> getCollapsedPhenotypesForAnatomy(String anatomyId, String baseUrl) 
+    throws SolrServerException{
+    	
+    	Map<String, PhenotypeTableRowAnatomyPage> res = new HashMap<>();
+    	List<GenotypePhenotypeDTO> phenotypes = getPhenotypesForAnatomy(anatomyId);
+    	
+    	for (GenotypePhenotypeDTO call : phenotypes){
+    		
+    		PhenotypeTableRowAnatomyPage row = new PhenotypeTableRowAnatomyPage();
+    		if (res.containsKey(call.getMpTermId())){
+    			row  = res.get(call.getMpTermId());
+    		} else {
+    			row.setPhenotypeTerm(new BasicBean(call.getMpTermId(), call.getMpTermName()));
+    		}
+    		MarkerBean gene = new MarkerBean();
+    		gene.setAccessionId(call.getMarkerAccessionId());
+    		gene.setSymbol(call.getMarkerSymbol());
+    		row.addGenes(gene);
+    //		row.addSex(call.getSex());
+    //		row.addPvalue(call.getP_value());
+    		res.put(call.getMpTermId(), row);
+    		
+    	}
+    	return res.values();    	
+    }
+    
+    
     public List<String[]> getHitsDistributionByProcedure(List<String> resourceName)
-        throws SolrServerException, InterruptedException, ExecutionException {
+    throws SolrServerException, InterruptedException, ExecutionException {
 
         return getHitsDistributionBySomething(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID, resourceName);
     }
 
     public List<String[]> getHitsDistributionByParameter(List<String> resourceName)
-        throws SolrServerException, InterruptedException, ExecutionException {
+    throws SolrServerException, InterruptedException, ExecutionException {
 
         return getHitsDistributionBySomething(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, resourceName);
     }
 
 
-    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, List<String> resourceName, ZygosityType zygosity,
-                                                                 int facetMincount, Double maxPValue)
-        throws SolrServerException, InterruptedException, ExecutionException {
+    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, List<String> resourceName, ZygosityType zygosity, int facetMincount, Double maxPValue)
+    throws SolrServerException, InterruptedException, ExecutionException {
 
         Map<String, Long>  res = new HashMap<>();
         Long time = System.currentTimeMillis();
