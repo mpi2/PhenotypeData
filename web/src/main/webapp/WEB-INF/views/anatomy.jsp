@@ -200,7 +200,7 @@
 						              { "sType": "html"}
 						              ],
 							"bDestroy": true,
-							"bFilter":false,
+							"bFilter":true,
 							"bPaginate":true,
 				      "sPaginationType": "bootstrap"
 					});
