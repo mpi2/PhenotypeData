@@ -65,20 +65,24 @@
 													${synonym}<c:if test="${!synonymLoop.last}">,&nbsp;</c:if>	
 												</c:forEach>
 											</p>	
+											<p class="with-label"> <span class="label">Stage </span>
+												<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
+												<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
+											</p>	
 										</c:if>
 									</div>
 						
 									<div id="parentChild" class="half">
-											<c:if test="${hasChildren && hasParents}">
-				                            	<div class="half" id="parentDiv"></div>
-												<div class="half" id="childDiv"></div>
-											</c:if>
-											<c:if test="${hasChildren && !hasParents}">
-												<div id="childDiv"></div>
-											</c:if>
-											<c:if test="${!hasChildren && hasParents}">
-				                            	<div id="parentDiv"></div>
-											</c:if>
+										<c:if test="${hasChildren && hasParents}">
+				                           	<div class="half" id="parentDiv"></div>
+											<div class="half" id="childDiv"></div>
+										</c:if>
+										<c:if test="${hasChildren && !hasParents}">
+											<div id="childDiv"></div>
+										</c:if>
+										<c:if test="${!hasChildren && hasParents}">
+				                           	<div id="parentDiv"></div>
+										</c:if>
 									</div>
 										
 									<div class="clear"></div>
@@ -111,6 +115,14 @@
 						    	</div>
 							</div>	
 				 
+				 			<div class="section"> 
+								<h2 class="title">Associated phenotypes</h2>
+								<div class="inner">
+									<div class="container span12">
+					                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
+									</div>
+						    	</div>
+							</div>
 				 
 							<div class="section">
 								<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
@@ -180,8 +192,19 @@
 							"bPaginate":true,
 				      "sPaginationType": "bootstrap"
 					});
-		  }
+		  			  
 		  
+				  $('table#phenotypeAnatomy').dataTable( {
+						"aoColumns": [
+						              { "sType": "html"},
+						              { "sType": "html"}
+						              ],
+							"bDestroy": true,
+							"bFilter":false,
+							"bPaginate":true,
+				      "sPaginationType": "bootstrap"
+					});
+		  }
 			
 			function refreshAnatomyTable(newUrl){
 				$.ajax({
