@@ -193,6 +193,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             }
         } catch (Exception e) {
             runStatus.addError(" Error populating live stage lookup map: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -243,6 +244,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
             ResultSet r = p.executeQuery();
             while (r.next()) {
+            	
+            	System.out.println("next " + r.getInt("id"));
 
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
@@ -413,10 +416,10 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
 
 	            DevelopmentalStage stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
-	           if (stage != null) {
-		           doc.setLifeStageAcc(stage.getAccession());
-		           doc.setLifeStageName(stage.getName());
-	           }
+	            if (stage != null) {
+		            doc.setLifeStageAcc(stage.getAccession());
+		            doc.setLifeStageName(stage.getName());
+	            }
 
                 documentCount++;
                 genotypePhenotypeIndexing.addBean(doc, 30000);
@@ -429,6 +432,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         } catch (Exception e) {
             runStatus.addError(" Big error " + e.getMessage());
+            e.printStackTrace();
         }
 
         return count;
