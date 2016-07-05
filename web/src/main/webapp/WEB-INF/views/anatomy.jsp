@@ -65,11 +65,11 @@
 													${synonym}<c:if test="${!synonymLoop.last}">,&nbsp;</c:if>	
 												</c:forEach>
 											</p>	
-											<p class="with-label"> <span class="label">Stage </span>
-												<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
-												<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
-											</p>	
-										</c:if>
+										</c:if>	
+										<p class="with-label"> <span class="label">Stage </span>
+											<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
+											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
+										</p>
 									</div>
 						
 									<div id="parentChild" class="half">
