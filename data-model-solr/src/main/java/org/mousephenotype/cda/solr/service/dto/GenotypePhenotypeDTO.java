@@ -44,12 +44,8 @@ public class GenotypePhenotypeDTO {
     public static final String ALT_MP_TERM_ID = "alt_mp_term_id";
     public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
     public static final String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
-    public static final String TOP_LEVEL_MP_TERM_DEFINITION = "top_level_mp_term_definition";
-    public static final String TOP_LEVEL_MP_TERM_SYNONYM = "top_level_mp_term_synonym";
     public static final String INTERMEDIATE_MP_TERM_ID = "intermediate_mp_term_id";
     public static final String INTERMEDIATE_MP_TERM_NAME = "intermediate_mp_term_name";
-    public static final String INTERMEDIATE_MP_TERM_DEFINITION = "intermediate_mp_term_definition";
-    public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_term_synonym";
     public static final String MARKER_SYMBOL = "marker_symbol";
     public static final String MARKER_ACCESSION_ID = "marker_accession_id";
     public static final String COLONY_ID = "colony_id";
@@ -137,23 +133,11 @@ public class GenotypePhenotypeDTO {
     @Field(TOP_LEVEL_MP_TERM_NAME)
     List<String> topLevelMpTermName;
 
-    @Field(TOP_LEVEL_MP_TERM_DEFINITION)
-    List<String> topLevelMpTermDefinition;
-
-    @Field(TOP_LEVEL_MP_TERM_SYNONYM)
-    List<String> topLevelMpTermSynonym;
-
     @Field(INTERMEDIATE_MP_TERM_ID)
     List<String> intermediateMpTermId;
 
     @Field(INTERMEDIATE_MP_TERM_NAME)
     List<String> intermediateMpTermName;
-
-    @Field(INTERMEDIATE_MP_TERM_DEFINITION)
-    List<String> intermediateMpTermDefinition;
-
-    @Field(INTERMEDIATE_MP_TERM_SYNONYM)
-    List<String> intermediateMpTermSynonym;
 
     @Field(MARKER_SYMBOL)
     String markerSymbol;
@@ -537,26 +521,7 @@ public class GenotypePhenotypeDTO {
         this.topLevelMpTermName = topLevelMpTermName;
     }
 
-    public List<String> getTopLevelMpTermDefinition() {
-
-        return topLevelMpTermDefinition;
-    }
-
-    public void setTopLevelMpTermDefinition(List<String> topLevelMpTermDefinition) {
-
-        this.topLevelMpTermDefinition = topLevelMpTermDefinition;
-    }
-
-    public List<String> getTopLevelMpTermSynonym() {
-
-        return topLevelMpTermSynonym;
-    }
-
-    public void setTopLevelMpTermSynonym(List<String> topLevelMpTermSynonym) {
-
-        this.topLevelMpTermSynonym = topLevelMpTermSynonym;
-    }
-
+    
     public List<String> getIntermediateMpTermId() {
 
         return intermediateMpTermId;
@@ -575,26 +540,6 @@ public class GenotypePhenotypeDTO {
     public void setIntermediateMpTermName(List<String> intermediateMpTermName) {
 
         this.intermediateMpTermName = intermediateMpTermName;
-    }
-
-    public List<String> getIntermediateMpTermDefinition() {
-
-        return intermediateMpTermDefinition;
-    }
-
-    public void setIntermediateMpTermDefinition(List<String> intermediateMpTermDefinition) {
-
-        this.intermediateMpTermDefinition = intermediateMpTermDefinition;
-    }
-
-    public List<String> getIntermediateMpTermSynonym() {
-
-        return intermediateMpTermSynonym;
-    }
-
-    public void setIntermediateMpTermSynonym(List<String> intermediateMpTermSynonym) {
-
-        this.intermediateMpTermSynonym = intermediateMpTermSynonym;
     }
 
     public String getMarkerSymbol() {
@@ -948,17 +893,10 @@ public class GenotypePhenotypeDTO {
             return false;
         if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null)
             return false;
-        if (topLevelMpTermDefinition != null ? !topLevelMpTermDefinition.equals(that.topLevelMpTermDefinition) : that.topLevelMpTermDefinition != null)
-            return false;
-        if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(that.topLevelMpTermSynonym) : that.topLevelMpTermSynonym != null)
-            return false;
+   
         if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null)
             return false;
         if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null)
-            return false;
-        if (intermediateMpTermDefinition != null ? !intermediateMpTermDefinition.equals(that.intermediateMpTermDefinition) : that.intermediateMpTermDefinition != null)
-            return false;
-        if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(that.intermediateMpTermSynonym) : that.intermediateMpTermSynonym != null)
             return false;
         if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
         if (markerAccessionId != null ? !markerAccessionId.equals(that.markerAccessionId) : that.markerAccessionId != null)
@@ -1027,12 +965,8 @@ public class GenotypePhenotypeDTO {
         result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
         result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
         result = 31 * result + (topLevelMpTermName != null ? topLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermDefinition != null ? topLevelMpTermDefinition.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
         result = 31 * result + (intermediateMpTermId != null ? intermediateMpTermId.hashCode() : 0);
         result = 31 * result + (intermediateMpTermName != null ? intermediateMpTermName.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermDefinition != null ? intermediateMpTermDefinition.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
         result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
         result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
         result = 31 * result + (colonyId != null ? colonyId.hashCode() : 0);
@@ -1082,12 +1016,8 @@ public class GenotypePhenotypeDTO {
                 ", mpTermName='" + mpTermName + '\'' +
                 ", topLevelMpTermId=" + topLevelMpTermId +
                 ", topLevelMpTermName=" + topLevelMpTermName +
-                ", topLevelMpTermDefinition=" + topLevelMpTermDefinition +
-                ", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
                 ", intermediateMpTermId=" + intermediateMpTermId +
                 ", intermediateMpTermName=" + intermediateMpTermName +
-                ", intermediateMpTermDefinition=" + intermediateMpTermDefinition +
-                ", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
                 ", markerSymbol='" + markerSymbol + '\'' +
                 ", markerAccessionId='" + markerAccessionId + '\'' +
                 ", colonyId='" + colonyId + '\'' +
