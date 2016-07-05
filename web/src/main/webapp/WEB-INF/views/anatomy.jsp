@@ -124,14 +124,10 @@
 						    	</div>
 							</div>
 				 
-							<div class="section">
-								<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
-								<div class=inner>
-									<c:if test="${empty expressionImages && fn:length(anatomy.getChildAnatomyTerm()) == 0}">
-											<div class="alert alert-info">No data currently available	</div>
-									</c:if>
-								
-									<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
+							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
+								<div class="section">
+									<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
+									<div class=inner>
 										<div class="accordion-group">
 			              					<div class="accordion-heading">Expression Associated Images</div>
 											<div class="accordion-body">
@@ -150,9 +146,9 @@
 												</c:if>
 											</div>
 										</div>
-									</c:if>
+									</div>
 								</div>
-							</div>
+							</c:if>
 				 
 				</div>
 			</div>
