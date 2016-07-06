@@ -76,7 +76,9 @@
 											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
 										</p>
 										<br/> <br/>
-										<div id="phenotypesByAnatomy" class="half"><script type="text/javascript">${pieChartCode}</script></div>
+										<c:if test="${genesTested > 0}">
+											<div id="phenotypesByAnatomy" class="half"><script type="text/javascript">${pieChartCode}</script></div>
+										</c:if>
 									</div>
 						
 									<div id="parentChild" class="half">
@@ -122,15 +124,17 @@
 						    	</div>
 							</div>	
 				 
-				 			<div class="section"> 
-								<h2 class="title">Associated phenotypes</h2>
-								<div class="inner">
-									<div class="container span12">
-					                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
-									</div>
-						    	</div>
-							</div>
-				 
+				 			<c:if test="${phenotypeTable.size() > 0}">
+					 			<div class="section"> 
+									<h2 class="title">Associated phenotypes</h2>
+									<div class="inner">
+										<div class="container span12">
+						                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
+										</div>
+							    	</div>
+								</div>
+				 			</c:if>
+				 			
 							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 								<div class="section">
 									<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>

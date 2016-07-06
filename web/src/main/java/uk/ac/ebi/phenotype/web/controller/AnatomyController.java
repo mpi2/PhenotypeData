@@ -116,7 +116,7 @@ public class AnatomyController {
         model.addAttribute("phenoFacets", getFacets(anatomy));
 		model.addAttribute("phenotypeTable", phenotypesTable);
 		model.addAttribute("pieChartCode", PieChartCreator.getPieChart(pieData, "phenotypesByAnatomy", "", "Genes with phenotype associations in " + anatomyTerm.getAnatomyTerm(), null));
-
+		model.addAttribute("genesTested", genesWithoutPhenotype + genesWithPhenotype);
         // Stuff for parent-child display
         model.addAttribute("hasChildren", (anatomyTerm.getChildAnatomyId() != null && anatomyTerm.getChildAnatomyId().size() > 0) ? true : false);
         model.addAttribute("hasParents", (anatomyTerm.getParentAnatomyId() != null && anatomyTerm.getParentAnatomyId().size() > 0) ? true : false);
