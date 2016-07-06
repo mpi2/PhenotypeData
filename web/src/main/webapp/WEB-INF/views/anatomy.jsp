@@ -39,9 +39,8 @@
             
             <ul>
                 <li><a href="#top">Anatomy Term</a></li>
-                <c:if test="${not empty anatomy.getMpId()}">
-                	<li><a href="#associated-phenotypes">Associated Phenotypes</a></li>
-                </c:if>
+                <li><a href="#expression">LacZ Expression</a></li>
+                <li><a href="#phenotypes">Associated Phenotypes</a></li>
             </ul>
             
             <div class="clear"></div>
@@ -75,10 +74,7 @@
 											<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
 											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
 										</p>
-										<br/> <br/>
-										<c:if test="${genesTested > 0}">
-											<div id="phenotypesByAnatomy" class="half"><script type="text/javascript">${pieChartCode}</script></div>
-										</c:if>
+										
 									</div>
 						
 									<div id="parentChild" class="half">
@@ -98,7 +94,7 @@
 								</div>					
 							</div>
 							
-							<div class="section"> 
+							<div class="section" id="expression"> 
 								<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
 									<div class="inner">
 										<div class="container span12">
@@ -124,17 +120,23 @@
 						    	</div>
 							</div>	
 				 
-				 			<c:if test="${phenotypeTable.size() > 0}">
-					 			<div class="section"> 
+							<c:if test="${genesTested > 0}">
+						 		<div class="section" id="phenotypes"> 
 									<h2 class="title">Associated phenotypes</h2>
 									<div class="inner">
-										<div class="container span12">
-						                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
-										</div>
-							    	</div>
+										<div id="phenotypesByAnatomy" class="onethird"><script type="text/javascript">${pieChartCode}</script></div>
+										<div class="clear both"> </div>
+					 					<c:if test="${phenotypeTable.size() > 0}">
+											<div class="container span12">
+							                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
+											</div>
+										</c:if>
+										<c:if test="${phenotypeTable.size() > 0}">
+											<div class="container span12 info"> No significant phenotype associations found. </div>
+										</c:if>
+								    </div>
 								</div>
-				 			</c:if>
-				 			
+							</c:if>				 			
 							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 								<div class="section">
 									<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
