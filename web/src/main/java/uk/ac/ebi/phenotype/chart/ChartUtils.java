@@ -56,6 +56,22 @@ public class ChartUtils {
         }
         return chartsAndTablesForParameter;
     }
+    
+    public static String getSelectAllButtonJs(String chartVarName){
+    
+    	return "$('#checkAll').click(function(){ "
+    			+ " for(i=0; i < " + chartVarName + ".series.length; i++) {"
+    			+ " if(" + chartVarName + ".series[i].visible == false){ "
+                + " " + chartVarName + ".series[i].show(); "
+                + "}}" 
+                + "}); "
+                +"$('#uncheckAll').click(function(){ "
+    			+ " for(i=0; i < " + chartVarName + ".series.length; i++) { "
+    			+ " if(" + chartVarName + ".series[i].visible == true){ "
+                + " " + chartVarName + ".series[i].hide(); "
+                + "}}" 
+                + "}); ";
+    }
 
 
     /**
