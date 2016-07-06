@@ -125,7 +125,6 @@ $(document).ready(function () {
 	$( "input#s" ).autocomplete({
 		source: function( request, response ) {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
-			solrUrl = solrUrl.replace("http:","");
 
 			$.ajax({
 				//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
