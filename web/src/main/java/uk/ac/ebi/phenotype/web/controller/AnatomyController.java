@@ -94,8 +94,8 @@ public class AnatomyController {
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
-		List<AnatomyPageTableRow> anatomyExpTable=expressionService.getExpressionForGenesOnAnatomyPage(anatomy);
+		//List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyTable=expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
@@ -166,7 +166,7 @@ public class AnatomyController {
 	throws SolrServerException, IOException, URISyntaxException {
 //this method doesn't get used anywhere???
 		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
-		//List<AnatomyPageTableRow> anatomyExpTable=expressionService.getExpressionForGenesOnAnatomyPage(anatomyId);
+		List<AnatomyPageTableRow> anatomyExpTable=expressionService.getLacZDataForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
 		
 		model.addAttribute("anatomyTable", anatomyTable);
 
