@@ -9,6 +9,11 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/anatomy?kw=*">anatomy</a> &raquo; ${anatomy.getAnatomyTerm()}</jsp:attribute>
 	<jsp:attribute name="header">
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
+        
+		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+       	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+       	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+       	    	
 	</jsp:attribute>
 	
     <jsp:attribute name="addToFooter">
@@ -70,6 +75,10 @@
 											<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
 											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
 										</p>
+										<br/> <br/>
+										<c:if test="${genesTested > 0}">
+											<div id="phenotypesByAnatomy" class="half"><script type="text/javascript">${pieChartCode}</script></div>
+										</c:if>
 									</div>
 						
 									<div id="parentChild" class="half">
@@ -115,15 +124,17 @@
 						    	</div>
 							</div>	
 				 
-				 			<div class="section"> 
-								<h2 class="title">Associated phenotypes</h2>
-								<div class="inner">
-									<div class="container span12">
-					                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
-									</div>
-						    	</div>
-							</div>
-				 
+				 			<c:if test="${phenotypeTable.size() > 0}">
+					 			<div class="section"> 
+									<h2 class="title">Associated phenotypes</h2>
+									<div class="inner">
+										<div class="container span12">
+						                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
+										</div>
+							    	</div>
+								</div>
+				 			</c:if>
+				 			
 							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 								<div class="section">
 									<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>

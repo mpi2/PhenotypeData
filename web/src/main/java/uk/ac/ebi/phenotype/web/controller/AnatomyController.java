@@ -26,11 +26,13 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.AnatomyService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
@@ -51,6 +53,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import uk.ac.ebi.phenotype.chart.PieChartCreator;
 
 @Controller
 public class AnatomyController {
@@ -65,6 +68,9 @@ public class AnatomyController {
 
 	@Autowired
 	AnatomyService anatomyService;
+	
+	@Autowired
+	StatisticalResultService srService;
 	
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -98,13 +104,19 @@ public class AnatomyController {
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
+		Integer genesWithPhenotype = gpService.getGenesByAnatomy(anatomy);
+		Integer genesWithoutPhenotype = srService.getGenesByAnatomy(anatomy) - genesWithPhenotype;
+		Map<String, Integer> pieData = new HashMap<>();
+		pieData.put("Phenotype present ", genesWithPhenotype);
+		pieData.put("No phenotype ", genesWithoutPhenotype);
 		
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
         model.addAttribute("phenoFacets", getFacets(anatomy));
 		model.addAttribute("phenotypeTable", phenotypesTable);
-
+		model.addAttribute("pieChartCode", PieChartCreator.getPieChart(pieData, "phenotypesByAnatomy", "", "Genes with phenotype associations in " + anatomyTerm.getAnatomyTerm(), null));
+		model.addAttribute("genesTested", genesWithoutPhenotype + genesWithPhenotype);
         // Stuff for parent-child display
         model.addAttribute("hasChildren", (anatomyTerm.getChildAnatomyId() != null && anatomyTerm.getChildAnatomyId().size() > 0) ? true : false);
         model.addAttribute("hasParents", (anatomyTerm.getParentAnatomyId() != null && anatomyTerm.getParentAnatomyId().size() > 0) ? true : false);

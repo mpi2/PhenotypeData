@@ -532,7 +532,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might. 
                 Set<String> anatomyIdsForAncestors = new HashSet<>();
                 for (String mpAncestorId: mpOntologyService.getAncestorsDetail(mpId).getIds()){
-                	System.out.println();
                 	if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null){
                 		anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
                 	}
