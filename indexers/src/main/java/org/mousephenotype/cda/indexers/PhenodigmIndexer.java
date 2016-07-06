@@ -533,16 +533,16 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 				doc.setInLocus(r.getBoolean("in_locus"));
 
 				// <!--model organism database (MGI) scores-->
-				doc.setMaxMgiD2mScore(r.getDouble("max_mod_disease_to_model_perc_score"));
-				doc.setMaxMgiM2dScore(r.getDouble("max_mod_model_to_disease_perc_score"));
+				doc.setMaxMgiD2mScore(getDoubleDefaultZero(r, "max_mod_disease_to_model_perc_score"));
+				doc.setMaxMgiM2dScore(getDoubleDefaultZero(r, "max_mod_model_to_disease_perc_score"));
 
 				// <!--IMPC scores-->
-				doc.setMaxImpcD2mScore(r.getDouble("max_htpc_disease_to_model_perc_score"));
-				doc.setMaxImpcM2dScore(r.getDouble("max_htpc_model_to_disease_perc_score"));
+				doc.setMaxImpcD2mScore(getDoubleDefaultZero(r, "max_htpc_disease_to_model_perc_score"));
+				doc.setMaxImpcM2dScore(getDoubleDefaultZero(r, "max_htpc_model_to_disease_perc_score"));
 
 				// <!--raw scores-->
-				doc.setRawModScore(r.getDouble("raw_mod_score"));
-				doc.setRawHtpcScore(r.getDouble("raw_htpc_score"));
+				doc.setRawModScore(getDoubleDefaultZero(r, "raw_mod_score"));
+				doc.setRawHtpcScore(getDoubleDefaultZero(r, "raw_htpc_score"));
 
 				// <!--summary fields for faceting-->
 				doc.setMgiPredicted(r.getBoolean("mod_predicted"));
@@ -561,6 +561,11 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 		}
 
 		return count;
+	}
+
+	private Double getDoubleDefaultZero(ResultSet r, String field) throws SQLException {
+		Double v = r.getDouble(field);
+		return r.wasNull() ? 0.0 : v;
 	}
 
 	private Integer populateDiseaseModelAssociation() throws SolrServerException, IOException, SQLException {
@@ -601,9 +606,9 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 				doc.setMarkerAccession(r.getString("model_gene_id"));
 				doc.setModelID(r.getInt("model_id"));
 				doc.setLitModel(r.getBoolean("lit_model"));
-				doc.setDiseaseToModelScore(r.getDouble("disease_to_model_perc_score"));
-				doc.setModelToDiseaseScore(r.getDouble("model_to_disease_perc_score"));
-				doc.setRawScore(r.getDouble("raw_score"));
+				doc.setDiseaseToModelScore(getDoubleDefaultZero(r, "disease_to_model_perc_score"));
+				doc.setModelToDiseaseScore(getDoubleDefaultZero(r, "model_to_disease_perc_score"));
+				doc.setRawScore(getDoubleDefaultZero(r, "raw_score"));
 				doc.setHpMatchedTerms(Arrays.asList(r.getString("hp_matched_terms").split(",")));
 				doc.setMpMatchedTerms(Arrays.asList(r.getString("mp_matched_terms").split(",")));
 
