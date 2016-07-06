@@ -662,59 +662,82 @@ public class ExpressionService extends BasicService {
 		return model;
 
 	}
+
 	
-	public List<AnatomyPageTableRow> getExpressionForGenesOnAnatomyPage(String anatomyId)  {
-		try {
-			SolrDocumentList list= this.getLacZDataForAnatomy(anatomyId,  ImageDTO.ZYGOSITY,
-					ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_STABLE_ID,
-					ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public SolrDocumentList getLacZDataForAnatomy(String anatomyId, String...fields) throws SolrServerException{
+	public List<AnatomyPageTableRow> getLacZDataForAnatomy(String anatomyId,List<String> anatomyTerms, List<String> phenotypingCenter,
+			List<String> procedure, List<String> paramAssoc, String baseUrl) throws SolrServerException{
 		System.out.println("calling -------------------------------------getLacZDataForAnatomy");
-		
-		SolrQuery solrQuery = new SolrQuery();
+		Map<String, AnatomyPageTableRow> res = new HashMap<>();
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&fq=(anatomy_id:%22MA:0000031%22%20OR%20intermediate_anatomy_id:%22MA:0000031%22%20OR%20selected_top_level_anatomy_id:%22MA0000031%22)
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*");
 		if (anatomyId != null) {
-			solrQuery.setQuery(ObservationDTO.ANATOMY_ID+":\"" + anatomyId + "\"");
+			query.addFilterQuery("("+ObservationDTO.ANATOMY_ID+":\"" + anatomyId + "\" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID+":\""+anatomyId+ "\" OR "+ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID+":\""+anatomyId+"\")");
 		} 
 		
 		
-			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\" OR "+ ImageDTO.PROCEDURE_NAME+":\"Adult LacZ\"");
-			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
-			//we aren't interested in the image data here yet.
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+			query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ")
+			.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"")
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
+			.setRows(Integer.MAX_VALUE)
+			.setFields(ObservationDTO.SEX, ObservationDTO.ALLELE_SYMBOL,
+				ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.ZYGOSITY,
+				ObservationDTO.ANATOMY_ID, ObservationDTO.ANATOMY_TERM,
+				ObservationDTO.PROCEDURE_STABLE_ID, ObservationDTO.DATASOURCE_NAME,
+				//ObservationDTO.PARAMETER_ASSOCIATION_VALUE,
+				ObservationDTO.GENE_SYMBOL, ObservationDTO.GENE_ACCESSION_ID,
+				ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PROCEDURE_NAME,
+				ObservationDTO.PHENOTYPING_CENTER,
+				ObservationDTO.INTERMEDIATE_ANATOMY_ID, ObservationDTO.INTERMEDIATE_ANATOMY_TERM,
+				ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, ObservationDTO.CATEGORY
+			);
 			
-		
-//		if (embryo) {
-//			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
-//			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
-//			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
-//			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
-//		} else {
-//			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
-//			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-//			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
-//			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
-//		}
+			if (anatomyTerms != null) {
+				query.addFilterQuery(ObservationDTO.ANATOMY_TERM
+						+ ":\""
+						+ StringUtils.join(anatomyTerms, "\" OR " + ObservationDTO.ANATOMY_TERM
+								+ ":\"") + "\"");
+			}
+			if (phenotypingCenter != null) {
+				query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER
+						+ ":\""
+						+ StringUtils.join(phenotypingCenter, "\" OR "
+								+ ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"");
+			}
+			if (procedure != null) {
+				query.addFilterQuery(ObservationDTO.PROCEDURE_NAME
+						+ ":\""
+						+ StringUtils.join(procedure, "\" OR "
+								+ ObservationDTO.PROCEDURE_NAME + ":\"") + "\"");
+			}
+//			if (paramAssoc != null) {
+//				query.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_VALUE
+//						+ ":\""
+//						+ StringUtils.join(paramAssoc, "\" OR "
+//								+ ObservationDTO.PARAMETER_ASSOCIATION_VALUE + ":\"")
+//						+ "\"");
+//			}
 
-		// solrQuery.setFacetMinCount(1);
-		// solrQuery.setFacet(true);
-		solrQuery.setFields(fields);
-		// solrQuery.addFacetField("ma_term");
-		System.out.println("expression query="+solrQuery);
-		solrQuery.setRows(100000);
-		QueryResponse response = experimentSolr.query(solrQuery);
-		SolrDocumentList docs = response.getResults();
-		System.out.println("expression docs size="+docs.size());
-		return docs;
+			System.out.println("SOLR URL WAS " + experimentSolr.getBaseURL() + "/select?" + query);
+			List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
+			System.out.println("anatomy response size="+response.size());
+			for (ObservationDTO observation : response) {
+
+				//for (String expressionValue : observation.getDistinctParameterAssociationsValue()) {
+				String expressionValue=observation.getCategory();
+					
+						AnatomyPageTableRow row = new AnatomyPageTableRow(observation, anatomyId, baseUrl, expressionValue);
+						if (res.containsKey(row.getKey())) {
+							row = res.get(row.getKey());
+							row.addSex(observation.getSex());
+							//row.addImage();
+						}
+						res.put(row.getKey(), row);
+					
+				//}
+			}
+
+			return new ArrayList<>(res.values());
 		
 	}
 
