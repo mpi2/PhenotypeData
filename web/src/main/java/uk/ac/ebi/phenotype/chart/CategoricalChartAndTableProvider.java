@@ -380,7 +380,7 @@ public class CategoricalChartAndTableProvider {
 			+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  labels: {  formatter: function() { return this.value +'%';   }  }},  "
 			+ "plotOptions: { column: { stacking: 'percent' } }, "
 			+ "series: "+ seriesArray + " });  });  "
-			+ ChartUtils.getSelectAllButtonJs("chart_"+ chartId)
+			+ ChartUtils.getSelectAllButtonJs("chart_"+ chartId, "checkAll", "uncheckAll")
 			+ "});";
 		chartData.setChart(javascript);
 		chartData.setChartIdentifier(chartId);

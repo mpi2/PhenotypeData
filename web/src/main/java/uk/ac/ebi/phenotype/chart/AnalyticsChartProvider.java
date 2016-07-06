@@ -95,14 +95,15 @@ public class AnalyticsChartProvider {
 			String subTitle,
 			String yAxis1Legend,
 			String yAxis2Legend,
-			boolean yAxisCombined, String containerId) {
+			boolean yAxisCombined, String containerId, String checkAllId, String uncheckAllId) {
 
 		String chartString=
 
-				"$(function () {\n"+
-			    "    $('#"+ containerId +"').highcharts({\n"+
+				"$(function () { var chart_" + containerId + "; \n"+
+				"$(document).ready(function() { chart_"	+ containerId + " = new Highcharts.Chart({ \n" +
 			    "        chart: {\n"+
-				"                zoomType: 'xy'\n"+
+				"               zoomType: 'xy',\n"+
+			    "				renderTo: '" + containerId + "'"+	
 				"            },\n"+
 				"            title: {\n"+
 				"                text: '"+title+"'\n"+
@@ -161,21 +162,26 @@ public class AnalyticsChartProvider {
             				"            },\n"+*/
             				"            series:" + series.toString() +"\n"+
             				"        });\n"+
-            				"    });\n";
+            				"    });\n"
+            				+ ChartUtils.getSelectAllButtonJs("chart_"+ containerId, checkAllId, uncheckAllId)
+            				+ "});";
 		return chartString;
 	}
 
 
-	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, String containerId, Boolean stacked) {
+	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, 
+			String containerId, Boolean stacked, String checkAllId, String uncheckAllId) {
 
 		String chartString=
-			"$(function () {\n"+
+			"$(function () {\n var chart_" + containerId + ";" +
 			"	Highcharts.setOptions({"+
 			"	    colors: " + ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque) + "});" +
-		    "    $('#"+ containerId +"').highcharts({\n"+
+			"   chart_" + containerId + " = new Highcharts.Chart({ " +
+		//    "    $('#"+ containerId +"').highcharts({\n"+
 		    "        chart: {\n"+
 		    "            type: 'column',\n"+
-		    "            height: 800\n"+
+		    "            height: 800,\n"+
+		    "			 renderTo:" + containerId +
 		    "        },\n"+
 		    "        title: {\n"+
 		    "            text: '"+title+"'\n"+
@@ -220,6 +226,7 @@ public class AnalyticsChartProvider {
 		    "        },\n"+
 		    "        series:" + series.toString() +"\n"+
 		    "    });\n"+
+		    ChartUtils.getSelectAllButtonJs("chart_" + containerId, checkAllId, uncheckAllId) + 
 		    "});\n";
 
 		return chartString;
@@ -408,7 +415,7 @@ public class AnalyticsChartProvider {
 			String subTitle,
 			String yAxisLegend,
 			String yAxisUnit,
-			String containerId
+			String containerId, String checkAll, String uncheckAll
 			) throws IOException,
 			URISyntaxException {
 
@@ -460,7 +467,7 @@ public class AnalyticsChartProvider {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true);
+		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true, checkAll, uncheckAll);
 
 		return chartString;
 	}
@@ -478,7 +485,9 @@ public class AnalyticsChartProvider {
 			String yAxis1Legend,
 			String yAxis2Legend,
 			boolean yAxisCombined,
-			String containerId) {
+			String containerId,
+			String checkAllId,
+			String uncheckAllId) {
 
 		JSONArray series = new JSONArray();
 		JSONArray categories = new JSONArray();
@@ -489,7 +498,6 @@ public class AnalyticsChartProvider {
 				categories.put(release);
 			}
 
-			int count = 0;
 			List<String> keys = new ArrayList<String>(trendsMap.keySet());
 			Collections.sort(keys);
 
@@ -528,14 +536,13 @@ public class AnalyticsChartProvider {
 				containerJsonObject.put("tooltip", tooltip);
 
 				series.put(containerJsonObject);
-				count++;
 				// this is hardcoded for the moment
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 
-		String chartString= createHistoryTrendChart(series, categories, title, subtitle, yAxis1Legend, yAxis2Legend, yAxisCombined, containerId);
+		String chartString = createHistoryTrendChart(series, categories, title, subtitle, yAxis1Legend, yAxis2Legend, yAxisCombined, containerId, checkAllId, uncheckAllId);
 		return chartString;
 
 	}

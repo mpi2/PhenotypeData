@@ -149,7 +149,7 @@ public class PhenomeChartProvider {
 //        + " },"
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
-		+ ChartUtils.getSelectAllButtonJs("pvaluesOverviewChart")
+		+ ChartUtils.getSelectAllButtonJs("pvaluesOverviewChart", "checkAll", "uncheckAll")
 		+ "	}); \n";
 
 		return chartString;
