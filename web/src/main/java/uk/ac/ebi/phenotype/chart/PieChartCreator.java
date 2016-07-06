@@ -29,10 +29,11 @@ String pieChart="";
 
 
 
-	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title, Map<String, String> map){
-		List<String> colors=new ArrayList<>();;
-		if(map==null){//if no colormap then use highdifference colors as default
-		colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
+	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title, String subtitle, Map<String, String> map){
+		
+		List<String> colors=new ArrayList<>();
+		if(map == null){//if no colormap then use highdifference colors as default
+			colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		}else{
 			for(Entry<String, Integer> entry: labelToNumber.entrySet()){
 				if(entry.getKey().contains("WT")){
@@ -54,6 +55,7 @@ String pieChart="";
 				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "
 				 + " colors:"+colors+", "
 				 + " title: {  text: '"+title+"' }, "
+				 + " subtitle: {  text: '"+subtitle+"' }, "
 				 + " credits: { enabled: false }, "
 				 + " tooltip: {  pointFormat: '{point.y}: <b>{point.percentage:.1f}%</b>'},"
 				 + " plotOptions: { "
@@ -69,13 +71,13 @@ String pieChart="";
 				 //	+ "dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} "
 				 	+ "}"
 				 + " },"
-			+ " series: [{  type: 'pie',   name: '',  "
-				+ "data: [";
+				 + " series: [{  type: 'pie',   name: '',  "
+				 + "data: [";
 		for (Entry<String, Integer> entry : labelToNumber.entrySet()){
-					chart+="['"+entry.getKey()+"', " +entry.getValue()+ " ],";
-			}
-			chart+=	"]}]"
-		+" }); });";
+			chart+="['"+entry.getKey()+"', " +entry.getValue()+ " ],";
+		}
+		
+		chart+=	"]}] }); });";
 
 		return chart;
 	}
