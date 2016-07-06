@@ -30,6 +30,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
+import org.json.JSONObject;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
@@ -142,7 +143,32 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	    return retVal;
 	}
 
-
+	/**
+	 * @author ilinca
+	 * @since 2016/07/05
+	 * @param anatomyId
+	 * @return Number of genes in s-r core for anatomy term given. 
+	 * @throws SolrServerException
+	 */
+	public Integer getGenesByAnatomy(String anatomyId) 
+	throws SolrServerException{
+		    	
+	 	 SolrQuery query = new SolrQuery();
+	     query.setQuery("(" + StatisticalResultDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " + 
+	    		 StatisticalResultDTO.INTERMEDIATE_ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " +
+	    		 StatisticalResultDTO.TOP_LEVEL_ANATOMY_TERM_ID + ":\"" + anatomyId + "\")")
+	            .setRows(0)
+	            .add("group", "true")
+	            .add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID)
+	            .add("group.ngroups", "true")
+	            .add("wt","json");
+         JSONObject groups = new JSONObject(solr.query(query).getResponse().get("grouped").toString().replaceAll("=",":"));
+	         
+         return groups.getJSONObject(StatisticalResultDTO.MARKER_ACCESSION_ID).getInt("ngroups");
+         
+    }
+			    
+	
 	public Map<String, Long> getColoniesNoMPHit(List<String> resourceName, ZygosityType zygosity)
 	throws SolrServerException{
 
