@@ -296,11 +296,11 @@ public class AnatomyService extends BasicService implements WebStatus {
 		return (mas != null) ? mas.get(0).getSearchTermJson() : "";
 	}
 
-	public String getChildrenJson(String nodeId)
+	public String getChildrenJson(String nodeId, String termId)
 			throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId)
+				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId + " AND " + AnatomyDTO.ANATOMY_ID + ":\"" + termId + "\"")
 				.setRows(1);
 		solrQuery.addField(AnatomyDTO.CHILDREN_JSON);
 

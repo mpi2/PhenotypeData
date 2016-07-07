@@ -156,7 +156,7 @@ public class EmapIndexer extends AbstractIndexer implements CommandLineRunner {
     	try {
             initialiseSupportingBeans();
 
-            List<EmapDTO> emapBatch = new ArrayList(BATCH_SIZE);
+            List<EmapDTO> emapBatch = new ArrayList<>(BATCH_SIZE);
 
             // Add all emap terms to the index.
             List<OntologyTermBean> beans = emapOntologyService.getAllTerms();

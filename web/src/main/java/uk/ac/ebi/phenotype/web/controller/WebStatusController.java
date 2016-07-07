@@ -37,22 +37,12 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 
 /**
  * Class to handle the nagios web status monitoring pages
- * 
+ *
  * @author jwarren
  *
  */
 @Controller
 public class WebStatusController {
-
-	@Autowired
-	private PhenotypeSummaryDAO phenSummary;
-
-	// @Autowired
-	// private PhenotypeCallSummarySolr phenoDAO;
-
-	// uses admintools db which we don't need for web so don't status test it.
-	// @Autowired
-	// private GwasDAO gwasDao;
 
 	@Autowired
 	ObservationService observationService;
@@ -101,7 +91,7 @@ public class WebStatusController {
 
 	@Autowired
 	PhenodigmService phenodigmService;
-	
+
 	@Autowired
 	OmeroStatusService omeroStatusService;
 
@@ -111,12 +101,16 @@ public class WebStatusController {
 
 	@Autowired
 	Allele2Service allele2;
+
 	@Autowired
 	EucommCreProductService eucommCreProductService;
+
 	@Autowired
 	EucommToolsProductService eucommToolsProductService;
+
 	@Autowired
 	EucommToolsCreAllele2Service eucommToolsCreAllele2Service;
+
 	List<WebStatus> imitsWebStatusObjects;
 
 	@PostConstruct
@@ -154,7 +148,7 @@ public class WebStatusController {
 	@RequestMapping("/webstatus")
 	public String webStatus(Model model, HttpServletResponse response) {
 		boolean ok = true;
-		// System.out.println("calling webstatus controller");
+
 		// check our core solr instances are returning via the services
 		List<WebStatusModel> webStatusModels = new ArrayList<>();
 		for (WebStatus status : webStatusObjects) {
@@ -163,7 +157,6 @@ public class WebStatusController {
 			try {
 				number = status.getWebStatus();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				ok = false;
 				e.printStackTrace();
 			}
@@ -181,10 +174,9 @@ public class WebStatusController {
 			try {
 				number = status.getWebStatus();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				ok = true;// set the status still to be ok as imits isn't a core
-							// service - ie the website will function without
-							// it?
+
+				// Do not change the status for unavailable non-critical resource
+
 				e.printStackTrace();
 			}
 			WebStatusModel wModel = new WebStatusModel(name, number);

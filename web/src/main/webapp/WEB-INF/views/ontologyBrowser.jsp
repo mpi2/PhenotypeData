@@ -83,7 +83,7 @@
 					 r.push(data.instance.get_node(data.selected[i]).text);
 				 }
 				 var nodeHref = data.node.original.href;
-				 window.location.href = "${baseUrl}" + nodeHref;
+				 window.location.href = "${baseUrl}" + nodeHref.replace("/data","");
 			 }).jstree();
 
 		

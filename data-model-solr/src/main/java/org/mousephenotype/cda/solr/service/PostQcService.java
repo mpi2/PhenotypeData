@@ -15,6 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -23,15 +28,13 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.json.JSONObject;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service("postqcService")
 public class PostQcService extends AbstractGenotypePhenotypeService implements WebStatus {
@@ -66,26 +69,28 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      */
     public List<GraphTestDTO> getGeneAccessionIdsByParameterStableId(List<String> parameterStableIds, int count) throws SolrServerException {
       
-    	List<GraphTestDTO> retVal = new ArrayList();
+    	List<GraphTestDTO> retVal = new ArrayList<>();
 
-        if (count < 1)
+        if (count < 1){
             return retVal;
+        }
 
         String queryString = "";
         for (String parameterStableId : parameterStableIds) {
             if ( ! queryString.isEmpty()) {
                 queryString += " OR ";
             }
-            queryString += "parameter_stable_id:" + parameterStableId;
+            queryString += GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":" + parameterStableId;
         }
         SolrQuery query = new SolrQuery();
         // http://ves-ebi-d0:8090/mi/impc/dev/solr/experiment/select?q=observation_type%3Acategorical&rows=12&wt=json&indent=true&facet=true&facet.field=parameter_stable_id
         query
             .setQuery(queryString)
             .setRows(count)
-            .setFields("parameter_stable_id, marker_accession_id", "procedure_name", "parameter_name")
+            .setFields(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.PROCEDURE_NAME,
+            		GenotypePhenotypeDTO.PARAMETER_NAME)
             .add("group", "true")
-            .add("group.field", "marker_accession_id")
+            .add("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION_ID)
             .add("group.limit", Integer.toString(count))
         ;
 
@@ -98,10 +103,10 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
                 SolrDocument doc = docs.get(0);                                                    // All elements in this collection have the same mgi_accession_id.
                 GraphTestDTO geneGraph = new GraphTestDTO();
-                geneGraph.setParameterStableId((String)doc.get("parameter_stable_id"));
-                geneGraph.setMgiAccessionId((String)doc.get("marker_accession_id"));
-                geneGraph.setParameterName((String)doc.get("parameter_name"));
-                geneGraph.setProcedureName((String)doc.get("procedure_name"));
+                geneGraph.setParameterStableId((String)doc.get(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
+                geneGraph.setMgiAccessionId((String)doc.get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
+                geneGraph.setParameterName((String)doc.get(GenotypePhenotypeDTO.PARAMETER_NAME));
+                geneGraph.setProcedureName((String)doc.get(GenotypePhenotypeDTO.PROCEDURE_NAME));
                 retVal.add(geneGraph);
                 count--;
                 if (count == 0) {
@@ -113,6 +118,31 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         return retVal;
     }
 
+    /**
+     * @author ilinca
+     * @since 2016/07/05
+     * @param anatomyId
+     * @return Number of genes in g-p core for anatomy term given. 
+     * @throws SolrServerException
+     */
+    public Integer getGenesByAnatomy(String anatomyId) 
+    throws SolrServerException{
+    	
+    	 SolrQuery query = new SolrQuery();
+         query.setQuery("(" + GenotypePhenotypeDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " + 
+        		 GenotypePhenotypeDTO.INTERMEDIATE_ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " +
+        		 GenotypePhenotypeDTO.TOP_LEVEL_ANATOMY_TERM_ID + ":\"" + anatomyId + "\")")
+             .setRows(0)
+             .add("group", "true")
+             .add("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION_ID)
+             .add("group.ngroups", "true")
+             .add("wt","json");
+
+         JSONObject groups = new JSONObject(solr.query(query).getResponse().get("grouped").toString().replaceAll("=",":"));
+         
+         return groups.getJSONObject(GenotypePhenotypeDTO.MARKER_ACCESSION_ID).getInt("ngroups");
+    }
+    
 	@Override
 	public long getWebStatus() throws SolrServerException {
 		SolrQuery query = new SolrQuery();
