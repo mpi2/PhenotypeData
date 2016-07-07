@@ -111,11 +111,8 @@ public class AnatomyController {
 		List<AnatomyPageTableRow> anatomyTable=expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		//now collapse the rows from both the categorical and image data sources
-		anatomyTable.addAll(anatomyRowsFromImages);
-		Map<String, AnatomyPageTableRow> res = new HashMap<>();
-		for(AnatomyPageTableRow row:anatomyTable){
-			res.put(row.getKey(), row);
-		}
+		ArrayList<AnatomyPageTableRow> collapsedTable = collapsCategoricalAndImageRows(anatomyTable,
+				anatomyRowsFromImages);
 		
 		//List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
@@ -128,7 +125,7 @@ public class AnatomyController {
 
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
-		model.addAttribute("anatomyTable", anatomyTable);
+		model.addAttribute("anatomyTable", collapsedTable);
         model.addAttribute("phenoFacets", getFacets(anatomy));
 		model.addAttribute("phenotypeTable", phenotypesTable);
 		model.addAttribute("pieChartCode", PieChartCreator.getPieChart(pieData, "phenotypesByAnatomy", "", "Genes with phenotype associations in " + anatomyTerm.getAnatomyTerm(), null));
@@ -139,6 +136,27 @@ public class AnatomyController {
 
         return "anatomy";
 
+	}
+
+	private ArrayList<AnatomyPageTableRow> collapsCategoricalAndImageRows(List<AnatomyPageTableRow> anatomyTable,
+			List<AnatomyPageTableRow> anatomyRowsFromImages) {
+		anatomyTable.addAll(anatomyRowsFromImages);
+		Map<String, AnatomyPageTableRow> res = new HashMap<>();
+		for(AnatomyPageTableRow row:anatomyTable){
+			if(res.containsKey(row.getKey())){
+				AnatomyPageTableRow tempRow = res.get(row.getKey());
+				if(tempRow.getNumberOfImages()>0){
+					res.put(row.getKey(), tempRow);//always keep the row that has image links in preference to catagorical as we want the image link
+				}else{
+					res.put(row.getKey(), row);
+				}
+			}else{
+				res.put(row.getKey(), row);
+			}
+			
+		}
+		ArrayList<AnatomyPageTableRow> collapsedRows = new ArrayList<>(res.values());
+		return collapsedRows;
 	}
 
 	 /**
@@ -197,10 +215,12 @@ public class AnatomyController {
 								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 //this method doesn't get used anywhere???
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
-		List<AnatomyPageTableRow> anatomyExpTable=expressionService.getLacZDataForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
+    	System.out.println("calling anotomy frag");
+		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyTable=expressionService.getLacZDataForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
 		
-		model.addAttribute("anatomyTable", anatomyTable);
+		ArrayList<AnatomyPageTableRow> collapsedTable = this.collapsCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
+		model.addAttribute("anatomyTable", collapsedTable);
 
 		return "anatomyFrag";
 	}
