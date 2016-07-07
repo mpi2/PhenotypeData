@@ -117,7 +117,6 @@ public class AnatomyPageTableRow extends DataTableRow{
 
         this.setEvidenceLink(buildImageUrl(baseUrl, anatomyId, anatomy.get(anatomyIds.indexOf(anatomyId)), expressionValue));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
-        this.numberOfImages ++;
     }
     
    
@@ -159,18 +158,19 @@ public class AnatomyPageTableRow extends DataTableRow{
     	if ( expressionValue != null){
     		url += "&" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + "=" + expressionValue;
     	}
+    	if( zygosity!=null){
+    		url+= "&" +ImageDTO.ZYGOSITY+"="+zygosity;
+    	}
+    	if( phenotypingCenter!=null){
+    		url+= "&" +ImageDTO.PHENOTYPING_CENTER+"="+phenotypingCenter;
+    	}
 
     	EvidenceLink link = new EvidenceLink();
     	link.setUrl(url);
-    	link.setDisplay(true);
     	link.setIconType(IconType.IMAGE);
     	link.setAlt("Images");
 
     	return link;
-    }
-
-    public void addImage(){
-    	this.numberOfImages ++;
     }
 
 	@Override
@@ -190,7 +190,8 @@ public class AnatomyPageTableRow extends DataTableRow{
 	}
 
 	public String getKey(){
-		return getAllele().getSymbol() + getZygosity().name() + getParameter().getName() + getExpression() + getPhenotypingCenter();
+		//return getAllele().getSymbol() + getZygosity().name() +  getExpression();
+		return getGene().getSymbol() + getZygosity().name() +  getExpression();
 	}
 
 	public boolean equals(AnatomyPageTableRow obj) {
