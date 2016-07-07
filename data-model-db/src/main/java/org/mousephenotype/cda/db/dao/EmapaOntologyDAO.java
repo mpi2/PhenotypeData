@@ -16,19 +16,25 @@
 
 package org.mousephenotype.cda.db.dao;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
-
-import javax.annotation.PostConstruct;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * This class encapsulates the code and data necessary to serve a EMAP ontology
@@ -42,7 +48,7 @@ import java.util.*;
 public class EmapaOntologyDAO extends OntologyDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final Map<String, String> subsets = new HashMap();
+    private final Map<String, String> subsets = new HashMap<>();
     private Map<String, List<Integer>> term2NodesMap = null;
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
@@ -229,7 +235,7 @@ public class EmapaOntologyDAO extends OntologyDAO {
         // Populate backtraceMap so the fullpath can be modified to contain the selected top-level terms.
         String query = "SELECT * FROM emapa_node_backtrace_fullpath\n";
 
-        Map<Integer, String> backtraceMap = new HashMap();  // key = nodeId. value = fullpath.
+        Map<Integer, String> backtraceMap = new HashMap<Integer, String>();  // key = nodeId. value = fullpath.
 
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
@@ -253,7 +259,7 @@ public class EmapaOntologyDAO extends OntologyDAO {
               + ", top_level_node_id\n"
               + "FROM emapa_node_2_selected_top_level_mapping\n";
 
-        HashMap<Integer, Integer> selectedTopLevelNodeMap = new HashMap();
+        HashMap<Integer, Integer> selectedTopLevelNodeMap = new HashMap<>();
 
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
@@ -292,10 +298,10 @@ public class EmapaOntologyDAO extends OntologyDAO {
         //     - Yes: Ok to ignore.
         //     - No:  Log a warning that this term has no selected top level. Terry needs to choose one.
 
-        Map<String, String> missingFromFullpathMap = new HashMap();
-        Map<String, List<Integer>> missingFromFullPathNodesList = new HashMap();
-        Map<String, String> needsReviewByTerryCountMap = new HashMap();
-        Map<String, List<Integer>> needsReviewByTerryCountNodesMap = new HashMap();
+        Map<String, String> missingFromFullpathMap = new HashMap<>();
+        Map<String, List<Integer>> missingFromFullPathNodesList = new HashMap<>();
+        Map<String, String> needsReviewByTerryCountMap = new HashMap<>();
+        Map<String, List<Integer>> needsReviewByTerryCountNodesMap = new HashMap<>();
 
         for (OntologyTermBean otBean : allTermsMap.values()) {
             String termId = otBean.getId();
@@ -304,7 +310,7 @@ public class EmapaOntologyDAO extends OntologyDAO {
             for (Integer nodeId : term2NodesMap.get(termId)) {
                 String[] fullpath = backtraceMap.get(nodeId).split(" ");
 
-                List<Integer> fullpathNodeList = new ArrayList();
+                List<Integer> fullpathNodeList = new ArrayList<>();
                 for (String sNode : fullpath) {
                     int node = Integer.parseInt(sNode);
                     if (node > 0 ) {
@@ -476,7 +482,7 @@ public class EmapaOntologyDAO extends OntologyDAO {
 
     protected void populateTerm2NodesMap() throws SQLException {
         if (term2NodesMap == null) {
-            term2NodesMap = new HashMap();
+            term2NodesMap = new HashMap<>();
 
             String query =
                     "SELECT\n"
@@ -492,7 +498,7 @@ public class EmapaOntologyDAO extends OntologyDAO {
                 ResultSet resultSet = ps.executeQuery();
                 while (resultSet.next()) {
                     String[] nodeIdArray = resultSet.getString("nodeIdList").split(",");
-                    List<Integer> nodeIdList = new ArrayList();
+                    List<Integer> nodeIdList = new ArrayList<>();
                     for (String nodeId : nodeIdArray) {
                         nodeIdList.add(Integer.parseInt(nodeId));
                     }

@@ -100,6 +100,7 @@ public class ImageService implements WebStatus{
 
     /**
      * This method should not be used! This method should use the observation core and get categorical data as well as have image links where applicable!!!
+     * @param anatomyTable 
      * @param anatomyId
      * @param anatomyTerms
      * @param phenotypingCenter

@@ -88,9 +88,9 @@ public class OntologyBrowserController {
         else {
 
             if (termId.startsWith("MA:") || termId.startsWith("EMAPA:")) {
-                res = new ResponseEntity<String>(anatomyService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
+                res = new ResponseEntity<String>(anatomyService.getChildrenJson(rootId, termId), createResponseHeaders(), HttpStatus.CREATED);
             } else if (termId.startsWith("MP:")) {
-                res = new ResponseEntity<String>(mpService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
+                res = new ResponseEntity<String>(mpService.getChildrenJson(rootId, termId), createResponseHeaders(), HttpStatus.CREATED);
             }
 
             return res;

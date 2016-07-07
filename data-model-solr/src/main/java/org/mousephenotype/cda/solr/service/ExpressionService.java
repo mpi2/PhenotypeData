@@ -679,6 +679,7 @@ public class ExpressionService extends BasicService {
 			query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ")
 			.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"")
 			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
+			.addFilterQuery("("+ObservationDTO.CATEGORY + ":\"no expression\" OR "+ObservationDTO.CATEGORY+":\"expression\""+")") //only have expressed and not expressed ingnore ambiguous and no tissue
 			.setRows(Integer.MAX_VALUE)
 			.setFields(ObservationDTO.SEX, ObservationDTO.ALLELE_SYMBOL,
 				ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.ZYGOSITY,
