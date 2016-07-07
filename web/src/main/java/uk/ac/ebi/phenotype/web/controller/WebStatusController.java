@@ -84,9 +84,6 @@ public class WebStatusController {
 	AutoSuggestService autoSuggestService;
 
 	@Autowired
-	private OntologyTermDAO ontoTermDao;
-
-	@Autowired
 	private PhenotypePipelineDAO ppDAO;
 
 	@Autowired
@@ -133,7 +130,6 @@ public class WebStatusController {
 		webStatusObjects.add(geneService);
 		webStatusObjects.add(diseaseService);
 		webStatusObjects.add(autoSuggestService);
-		webStatusObjects.add(ontoTermDao);
 		webStatusObjects.add(ppDAO);
 		webStatusObjects.add(phenodigmService);
 		//webStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second!
