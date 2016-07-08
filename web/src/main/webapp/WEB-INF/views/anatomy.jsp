@@ -96,7 +96,7 @@
 							</div>
 							
 							<div class="section" id="expression"> 
-								<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
+								<h2 class="title">Reporter gene expression associated with ${anatomy.getAnatomyTerm()}</h2>
 									<div class="inner">
 										<div class="container span12">
 										  <div id="filterParams" >
@@ -123,7 +123,7 @@
 				 
 							<c:if test="${genesTested > 0}">
 						 		<div class="section" id="phenotypes"> 
-									<h2 class="title">Associated phenotypes</h2>
+									<h2 class="title">Phenotypes associated with ${anatomy.getAnatomyTerm()}</h2>
 									<div class="inner">
 										<div id="phenotypesByAnatomy" class="onethird"><script type="text/javascript">${pieChartCode}</script></div>
 										<div class="clear both"> </div>
