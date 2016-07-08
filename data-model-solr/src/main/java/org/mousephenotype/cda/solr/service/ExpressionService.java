@@ -18,6 +18,7 @@ package org.mousephenotype.cda.solr.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.mapred.analysejobhistory_jsp;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -27,6 +28,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
@@ -738,6 +740,35 @@ public class ExpressionService extends BasicService {
 
 	}
 
+	/**
+	 * @author ilinca
+	 * @since 2016/07/08
+	 * @param anatomyId
+	 * @return List of gene ids with positive expression in given anatomy term. 
+	 * @throws SolrServerException
+	 */
+	public List<String> getGenesWithExpression(String anatomyId) throws SolrServerException{
+		
+		List<String> geneIds = new ArrayList<>();
+		SolrQuery q = new SolrQuery();
+		q.setQuery(ObservationDTO.CATEGORY + ":\"expression\"" )
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"");
+		if (anatomyId != null){
+			q.setFilterQueries(ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\" OR " +ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\"" );
+		}
+		q.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1)
+			.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
+		
+		for (Count value: experimentSolr.query(q).getFacetFields().get(0).getValues()){
+			geneIds.add(value.getName());
+		}
+		return geneIds;
+		
+	}
+	
+	
 	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs,
 			boolean embryo) {
 
