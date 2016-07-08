@@ -7,7 +7,7 @@
 
 .node text {
   font-size: 11px;
-  color:rgb(9,120,161);
+  fill:rgb(9,120,161);
 }
 
 path.link {
