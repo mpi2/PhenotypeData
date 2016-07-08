@@ -109,12 +109,10 @@ public class AnatomyController {
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 
-		
-		List<AnatomyPageTableRow> anatomyTable=expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyTable = expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		//now collapse the rows from both the categorical and image data sources
-		ArrayList<AnatomyPageTableRow> collapsedTable = collapseCategoricalAndImageRows(anatomyTable,
-				anatomyRowsFromImages);
+		ArrayList<AnatomyPageTableRow> collapsedTable = collapseCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
 		
 		//List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
@@ -124,9 +122,10 @@ public class AnatomyController {
 		pieData.put("Phenotype present ", genesWithPhenotype);
 		pieData.put("No phenotype ", genesWithoutPhenotype);
 		
-
+		
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
+		model.addAttribute("genesWithExpression", expressionService.getGenesWithExpression(anatomy));
 		model.addAttribute("anatomyTable", collapsedTable);
         model.addAttribute("phenoFacets", getFacets(anatomy));
 		model.addAttribute("phenotypeTable", phenotypesTable);

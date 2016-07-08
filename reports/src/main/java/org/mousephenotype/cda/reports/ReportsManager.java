@@ -107,6 +107,7 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ExpressionMpOverlapReport laczMpReport;
+    
 
 
     private ReportsManagerParser parser = new ReportsManagerParser();
@@ -133,7 +134,8 @@ public class ReportsManager implements CommandLineRunner {
         SEXUAL_DIMORPHISM_WITH_BODY_WEIGHT("sexualDimorphismWithBodyWeight", "Sexual dimorphism with body weight report"),
         VIABILITY("viability", "Viability report"),
         LACZMPOVERLAP("laczmpoverlap", "Lacz and MP call overlap report"),
-        ZYGOSITY("zygosity", "Zygosity report");
+        ZYGOSITY("zygosity", "Zygosity report"),
+        EBIDCC("ebidcc", "EBI-DCC call comparison report");
 
         String tag;
         String description;
@@ -323,6 +325,7 @@ public class ReportsManager implements CommandLineRunner {
 //                    	laczMpReport.run(args);
 //                    	file = laczMpReport.targetFile;
 //                    	break;
+                   
                 }
 
                 String fqFilename = (file != null ? file.getAbsolutePath() : "<unknown>");

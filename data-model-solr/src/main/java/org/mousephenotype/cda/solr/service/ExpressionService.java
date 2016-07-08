@@ -15,8 +15,17 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -35,9 +44,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import javax.annotation.PostConstruct;
-import java.sql.SQLException;
-import java.util.*;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * Pulled in 2015/07/09 by @author tudose
@@ -738,6 +746,35 @@ public class ExpressionService extends BasicService {
 
 	}
 
+	/**
+	 * @author ilinca
+	 * @since 2016/07/08
+	 * @param anatomyId
+	 * @return List of gene ids with positive expression in given anatomy term. 
+	 * @throws SolrServerException
+	 */
+	public List<String> getGenesWithExpression(String anatomyId) throws SolrServerException{
+		
+		List<String> geneIds = new ArrayList<>();
+		SolrQuery q = new SolrQuery();
+		q.setQuery(ObservationDTO.CATEGORY + ":\"expression\"" )
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"");
+		if (anatomyId != null){
+			q.setFilterQueries(ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\" OR " +ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\"" );
+		}
+		q.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1)
+			.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
+		
+		for (Count value: experimentSolr.query(q).getFacetFields().get(0).getValues()){
+			geneIds.add(value.getName());
+		}
+		return geneIds;
+		
+	}
+	
+	
 	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs,
 			boolean embryo) {
 

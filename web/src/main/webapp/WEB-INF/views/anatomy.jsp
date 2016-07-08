@@ -58,7 +58,7 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">						
-						<h1 class="title" id="top">${anatomy.getAnatomyTerm()}</h1>
+						<h1 class="title" id="top">Anatomy: ${anatomy.getAnatomyTerm()}</h1>
 						
 							<div class="section">
 								<div class="inner">		
@@ -78,6 +78,7 @@
 									</div>
 						
 									<div id="parentChild" class="half">
+										<h4>Browse mouse anatomy ontology</h4>
 										<c:if test="${hasChildren && hasParents}">
 				                           	<div class="half" id="parentDiv"></div>
 											<div class="half" id="childDiv"></div>
@@ -95,7 +96,7 @@
 							</div>
 							
 							<div class="section" id="expression"> 
-								<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
+								<h2 class="title">Reporter gene expression associated with ${anatomy.getAnatomyTerm()}</h2>
 									<div class="inner">
 										<div class="container span12">
 										  <div id="filterParams" >
@@ -122,7 +123,7 @@
 				 
 							<c:if test="${genesTested > 0}">
 						 		<div class="section" id="phenotypes"> 
-									<h2 class="title">Associated phenotypes</h2>
+									<h2 class="title">Phenotypes associated with ${anatomy.getAnatomyTerm()}</h2>
 									<div class="inner">
 										<div id="phenotypesByAnatomy" class="onethird"><script type="text/javascript">${pieChartCode}</script></div>
 										<div class="clear both"> </div>
@@ -131,8 +132,8 @@
 							                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
 											</div>
 										</c:if>
-										<c:if test="${phenotypeTable.size() > 0}">
-											<div class="container span12 info"> No significant phenotype associations found. </div>
+										<c:if test="${phenotypeTable.size() == 0}">
+											<div class="container info"> No significant phenotype associations found. </div>
 										</c:if>
 								    </div>
 								</div>
@@ -205,6 +206,7 @@
 		  
 				  $('table#phenotypeAnatomy').dataTable( {
 						"aoColumns": [
+						              { "sType": "html"},
 						              { "sType": "html"},
 						              { "sType": "html"}
 						              ],
