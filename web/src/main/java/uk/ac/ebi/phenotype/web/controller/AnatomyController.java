@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
 import org.slf4j.Logger;
@@ -225,16 +227,29 @@ public class AnatomyController {
 		return "anatomyFrag";
 	}
 
-    private Map<String, Map<String, Long>> getFacets (String anatomyId){
+    private Map<String, Set<String>> getFacets (String anatomyId){
 
-    	Map<String, Map<String, Long>> phenoFacets = new HashMap<>();
-    	Map<String, Map<String, Long>> temp = new HashMap<>();
+    	Map<String, Set<String>> phenoFacets = new HashMap<>();
+    	Map<String, Set<String>> tempFromImages = new HashMap<>();
+    	Map<String, Set<String>> tempFromCategorical = new HashMap<>();
 		try {
-			temp = is.getFacets(anatomyId);
-			phenoFacets.put(ImageDTO.ANATOMY_TERM, temp.get(ImageDTO.ANATOMY_TERM));
-			phenoFacets.put(ImageDTO.PARAMETER_ASSOCIATION_VALUE, temp.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
-			phenoFacets.put(ImageDTO.PHENOTYPING_CENTER, temp.get(ImageDTO.PHENOTYPING_CENTER));
-			phenoFacets.put(ImageDTO.PROCEDURE_NAME, temp.get(ImageDTO.PROCEDURE_NAME));
+			tempFromImages = is.getFacets(anatomyId);
+			tempFromCategorical=expressionService.getFacets(anatomyId);
+			//we need to merge the options from each data source categorical and images - note categorical==parameter_association_value
+			for(String key: tempFromImages.keySet()){
+				System.out.println("key="+key);
+				if(key.equals(ImageDTO.PARAMETER_ASSOCIATION_VALUE)){
+					tempFromImages.get(key).addAll(tempFromCategorical.get(ObservationDTO.CATEGORY));
+				}else{
+					tempFromImages.get(key).addAll(tempFromCategorical.get(key));
+				}
+			}
+			
+			
+			phenoFacets.put(ImageDTO.ANATOMY_TERM, tempFromImages.get(ImageDTO.ANATOMY_TERM));
+			phenoFacets.put(ImageDTO.PARAMETER_ASSOCIATION_VALUE, tempFromImages.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
+			phenoFacets.put(ImageDTO.PHENOTYPING_CENTER, tempFromImages.get(ImageDTO.PHENOTYPING_CENTER));
+			phenoFacets.put(ImageDTO.PROCEDURE_NAME, tempFromImages.get(ImageDTO.PROCEDURE_NAME));
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
