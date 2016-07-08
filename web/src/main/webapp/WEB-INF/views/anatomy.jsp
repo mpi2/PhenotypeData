@@ -58,7 +58,7 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">						
-						<h1 class="title" id="top">${anatomy.getAnatomyTerm()}</h1>
+						<h1 class="title" id="top">Anatomy: ${anatomy.getAnatomyTerm()}</h1>
 						
 							<div class="section">
 								<div class="inner">		
@@ -78,7 +78,7 @@
 									</div>
 						
 									<div id="parentChild" class="half">
-										<h4>Browse Mouse Anatomy</h4>
+										<h4>Browse Mouse Anatomy Ontology</h4>
 										<c:if test="${hasChildren && hasParents}">
 				                           	<div class="half" id="parentDiv"></div>
 											<div class="half" id="childDiv"></div>
