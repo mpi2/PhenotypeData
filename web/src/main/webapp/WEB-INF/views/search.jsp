@@ -264,38 +264,39 @@
 
 				var srchMsg;
 				if ( window.location.search != '' ){
-					srchMsg = "Datasets found by your search keyword are grouped in the following categories:";
+					srchMsg = "Resutls found by your search keyword are grouped in the following categories:";
 				}
 				else {
-					srchMsg = "Datasets found are grouped in the following categories:";
+					srchMsg = "Results found are grouped in the following categories:";
 				}
 				$('#datasets').html(srchMsg);
 
 				$.fn.qTip({'pageName':'search'});
 
 				// populate facet counts to all "tabs"
-				$('ul.tabLabel li').each(function(){
-					var id = $(this).attr('id').replace('T','');
-					//if ( id == 'gene' ){id += '2'}  // count for protein coding gene only
+				<%--$('ul.tabLabel li').each(function(){--%>
+					<%--var id = $(this).attr('id').replace('T','');--%>
+					<%--//if ( id == 'gene' ){id += '2'}  // count for protein coding gene only--%>
 
-					if (${facetCount}[id] == 0){
-						$(this).find('a').addClass('noData');
-					}
+					<%--if (${facetCount}[id] == 0){--%>
+						<%--$(this).addClass('noData');--%>
+						<%--$(this).find('a').addClass('noData')--%>
+					<%--}--%>
 
-					$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");
-				});
+					<%--$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");--%>
+				<%--});--%>
 
 				// so that we don't see the "tabs" appear w/o facet counts
 				// because the counts are appended after those "tabs" markup are loaded
 				$('ul.tabLabel li').css('visibility', 'visible');
 
-
-				$('ul.tabLabel li a.noData').mouseover(function(){
-					// no background change for zero count dataset
-					$(this).parent().css({'background-color':'white','border':'1px solid grey','border-bottom':'none'});
-				}).click(function(){
-					return false;
-				});
+//
+//				$('ul.tabLabel li.noData').mouseover(function(){
+//					// no background change for zero count dataset
+//					//$(this).parent().css({'background-color':'white','border':'1px solid grey','border-bottom':'none'});
+//				}).click(function(){
+//					return false;
+//				});
 
 				$('div#resultMsg').css('border-top', '1px solid grey');
 
@@ -388,7 +389,8 @@
 				//---------------------- end of parse URL ----------------------------
 
 				$("ul.tabLabel > li a").each(function(){
-					$(this).removeClass('currDataType'); // reset
+					$(this).removeClass('currDataType noData'); // reset
+					$(this).parent().removeClass('noData'); // reset
 
 					var thisId = $(this).parent().attr('id').replace("T","");
 
@@ -411,10 +413,13 @@
 
 						if (${facetCount}[thisId] == 0) {
 							$(this).attr('href', '');
+							$(this).addClass('noData');
+							$(this).parent().addClass('noData');
 						}
 						else {
 							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
 						}
+
 					}
 
 					// ----------- highlights current "tab" and populates its facet filters and dataTable -----------
@@ -432,8 +437,6 @@
 								$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
 							}
 						}
-
-						//$(this).addClass('currDataType').click();
 
 						$(this).parent().addClass('currDataType');//.click();
 
@@ -534,7 +537,6 @@
 							// add Download
 							addDownloadTool();
 
-
 							// highlight synonyms
 							highlighSynonym();
 
@@ -542,6 +544,9 @@
 							addRegisterInterestJs();
 						}
 					}
+
+					$(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");
+
 
 				});
 				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
