@@ -184,8 +184,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     		gene.setAccessionId(call.getMarkerAccessionId());
     		gene.setSymbol(call.getMarkerSymbol());
     		row.addGenes(gene);
-    //		row.addSex(call.getSex());
-    //		row.addPvalue(call.getP_value());
     		res.put(call.getMpTermId(), row);
     		
     	}
