@@ -82,7 +82,7 @@ public class ImageComparatorController {
 		// side
 		SolrDocumentList mutants = new SolrDocumentList();
 		QueryResponse responseExperimental = imageService
-				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", 10000, 
+				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
 						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
 		SolrDocument imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
