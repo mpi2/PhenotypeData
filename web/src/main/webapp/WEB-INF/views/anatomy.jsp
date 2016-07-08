@@ -78,7 +78,7 @@
 									</div>
 						
 									<div id="parentChild" class="half">
-										<h4>Browse Mouse Anatomy Ontology</h4>
+										<h4>Browse mouse anatomy ontology</h4>
 										<c:if test="${hasChildren && hasParents}">
 				                           	<div class="half" id="parentDiv"></div>
 											<div class="half" id="childDiv"></div>
@@ -132,8 +132,8 @@
 							                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
 											</div>
 										</c:if>
-										<c:if test="${phenotypeTable.size() > 0}">
-											<div class="container span12 info"> No significant phenotype associations found. </div>
+										<c:if test="${phenotypeTable.size() == 0}">
+											<div class="container info"> No significant phenotype associations found. </div>
 										</c:if>
 								    </div>
 								</div>
@@ -206,6 +206,7 @@
 		  
 				  $('table#phenotypeAnatomy').dataTable( {
 						"aoColumns": [
+						              { "sType": "html"},
 						              { "sType": "html"},
 						              { "sType": "html"}
 						              ],
