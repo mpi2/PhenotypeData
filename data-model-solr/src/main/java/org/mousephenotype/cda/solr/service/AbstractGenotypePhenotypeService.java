@@ -16,7 +16,9 @@
 package org.mousephenotype.cda.solr.service;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,6 +56,7 @@ import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
@@ -66,10 +69,12 @@ import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
+import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -1197,6 +1202,37 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public SolrServer getSolrServer() {
         return solr;
     }
+    
+    
+    /**
+     * @author ilinca
+     * @since 2016/07/07
+     * @return CSV string of facet values (mp,gene,colony,phenCenter,sex,zyg,param,pVal). At the moment of writing used to compare calls from EBI to DCC
+     * @throws SolrServerException
+     * @throws URISyntaxException 
+     * @throws IOException 
+     * @throws MalformedURLException 
+     */
+    public String getTabbedCallSummary() 
+    throws MalformedURLException, IOException, URISyntaxException{
+    //	http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/genotype-phenotype/select?q=resource_name:IMPC&facet=true&facet.mincount=1&facet.pivot=mp_term_name,marker_symbol,colony_id,phenotyping_center,sex,zygosity,parameter_stable_id,p_value&facet.limit=-1&facet.mincount=1&wt=xslt&tr=pivot.xsl
+    		
+    	SolrQuery q = new SolrQuery();
+    	q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":IMPC");
+    	q.setFacet(true);
+    	q.setFacetLimit(-1)
+    		.setFacetMinCount(1)
+    		.addFacetPivotField(GenotypePhenotypeDTO.MP_TERM_ID + "," + GenotypePhenotypeDTO.MARKER_SYMBOL + "," + 
+    			GenotypePhenotypeDTO.COLONY_ID + "," + GenotypePhenotypeDTO.PHENOTYPING_CENTER + "," + GenotypePhenotypeDTO.SEX + "," + 
+    			GenotypePhenotypeDTO.ZYGOSITY + "," + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + "," + GenotypePhenotypeDTO.P_VALUE);
+    	q.set("wt", "xslt").set("tr", "pivot.xsl");
     	
+    	HttpProxy proxy = new HttpProxy();
+		System.out.println(solr.getBaseURL() + "/select?" + q);
+
+		String content = proxy.getContent(new URL(solr.getBaseURL() + "/select?" + q));    
+		
+    	return content;
+    }
     
 }

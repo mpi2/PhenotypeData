@@ -78,6 +78,7 @@
 									</div>
 						
 									<div id="parentChild" class="half">
+										<h4>Browse Mouse Anatomy</h4>
 										<c:if test="${hasChildren && hasParents}">
 				                           	<div class="half" id="parentDiv"></div>
 											<div class="half" id="childDiv"></div>
