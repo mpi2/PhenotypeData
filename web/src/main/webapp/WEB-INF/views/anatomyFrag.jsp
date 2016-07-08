@@ -48,7 +48,7 @@
 					            <td>${row.phenotypingCenter} </td>
 					            <td>${row.numberOfImages} </td>
 					            <td>
-					            	<c:if test="${row.getEvidenceLink().getDisplay()}">
+					            	<c:if test="${row.numberOfImages > 0}">
 					            		<a href='${row.getEvidenceLink().getUrl()}'><i class="fa fa-image" alt="${row.getEvidenceLink().getAlt()}"></i></a>
 					            	</c:if>
 					            </td>	

@@ -100,6 +100,7 @@ public class ImageService implements WebStatus{
 
     /**
      * This method should not be used! This method should use the observation core and get categorical data as well as have image links where applicable!!!
+     * @param anatomyTable 
      * @param anatomyId
      * @param anatomyTerms
      * @param phenotypingCenter
@@ -113,7 +114,7 @@ public class ImageService implements WebStatus{
 			List<String> anatomyTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc, String baseUrl)
 			throws SolrServerException {
-
+System.out.println("calling get images for Anatomy");
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 
@@ -123,11 +124,14 @@ public class ImageService implements WebStatus{
 					+ ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
 					+ ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\")")
 			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
+			.addFilterQuery("("+ImageDTO.PARAMETER_ASSOCIATION_VALUE+ ":\"no expression\" OR "+ImageDTO.PARAMETER_ASSOCIATION_VALUE+":\"expression\""+")") //only have expressed and not expressed ingnore ambiguous and no tissue
 			.setRows(Integer.MAX_VALUE)
 			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
 				ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY,
 				ImageDTO.ANATOMY_ID, ImageDTO.ANATOMY_TERM,
-				ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME,
+				ImageDTO.PROCEDURE_STABLE_ID, 
+				ImageDTO.DATASOURCE_NAME,
 				ImageDTO.PARAMETER_ASSOCIATION_VALUE,
 				ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID,
 				ImageDTO.PARAMETER_NAME, ImageDTO.PARAMETER_STABLE_ID, ImageDTO.PROCEDURE_NAME,
@@ -162,20 +166,20 @@ public class ImageService implements WebStatus{
 					+ "\"");
 		}
 
-		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
-
+		System.out.println("image response size="+response.size());
 		for (ImageDTO image : response) {
-
 			for (String expressionValue : image.getDistinctParameterAssociationsValue()) {
 				if (paramAssoc == null || paramAssoc.contains(expressionValue)) {
 					AnatomyPageTableRow row = new AnatomyPageTableRow(image, anatomyId, baseUrl, expressionValue);
 					if (res.containsKey(row.getKey())) {
 						row = res.get(row.getKey());
 						row.addSex(image.getSex());
-						row.addImage();
+						row.addIncrementToNumberOfImages();
+					}else{
+						row.addIncrementToNumberOfImages();
+						res.put(row.getKey(), row);
 					}
-					res.put(row.getKey(), row);
 				}
 			}
 		}
@@ -426,6 +430,7 @@ public class ImageService implements WebStatus{
 		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
+		System.out.println("solr Query in image service"+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}

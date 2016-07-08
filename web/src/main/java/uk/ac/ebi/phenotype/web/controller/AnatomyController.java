@@ -26,9 +26,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.AnatomyService;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.PostQcService;
@@ -62,9 +62,13 @@ public class AnatomyController {
 
 	@Autowired
 	ImageService is;
+	
+	@Autowired
+	ExpressionService expressionService;
 
 	@Autowired
 	PostQcService gpService;
+
 
 	@Autowired
 	AnatomyService anatomyService;
@@ -102,7 +106,15 @@ public class AnatomyController {
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
+
+		
+		List<AnatomyPageTableRow> anatomyTable=expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
+		//now collapse the rows from both the categorical and image data sources
+		ArrayList<AnatomyPageTableRow> collapsedTable = collapseCategoricalAndImageRows(anatomyTable,
+				anatomyRowsFromImages);
+		
+		//List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<PhenotypeTableRowAnatomyPage> phenotypesTable = new ArrayList<>(gpService.getCollapsedPhenotypesForAnatomy(anatomy, request.getAttribute("baseUrl").toString()));
 		Integer genesWithPhenotype = gpService.getGenesByAnatomy(anatomy);
 		Integer genesWithoutPhenotype = srService.getGenesByAnatomy(anatomy) - genesWithPhenotype;
@@ -110,9 +122,10 @@ public class AnatomyController {
 		pieData.put("Phenotype present ", genesWithPhenotype);
 		pieData.put("No phenotype ", genesWithoutPhenotype);
 		
+
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
-		model.addAttribute("anatomyTable", anatomyTable);
+		model.addAttribute("anatomyTable", collapsedTable);
         model.addAttribute("phenoFacets", getFacets(anatomy));
 		model.addAttribute("phenotypeTable", phenotypesTable);
 		model.addAttribute("pieChartCode", PieChartCreator.getPieChart(pieData, "phenotypesByAnatomy", "Phenotype penetrance", "Genes with significant phenotype associations in " + anatomyTerm.getAnatomyTerm(), null));
@@ -123,6 +136,27 @@ public class AnatomyController {
 
         return "anatomy";
 
+	}
+
+	private ArrayList<AnatomyPageTableRow> collapseCategoricalAndImageRows(List<AnatomyPageTableRow> anatomyTable,
+			List<AnatomyPageTableRow> anatomyRowsFromImages) {
+		anatomyTable.addAll(anatomyRowsFromImages);
+		Map<String, AnatomyPageTableRow> res = new HashMap<>();
+		for(AnatomyPageTableRow row:anatomyTable){
+			if(res.containsKey(row.getKey())){
+				AnatomyPageTableRow tempRow = res.get(row.getKey());
+				if(tempRow.getNumberOfImages()>0){
+					res.put(row.getKey(), tempRow);//always keep the row that has image links in preference to catagorical as we want the image link
+				}else{
+					res.put(row.getKey(), row);
+				}
+			}else{
+				res.put(row.getKey(), row);
+			}
+			
+		}
+		ArrayList<AnatomyPageTableRow> collapsedRows = new ArrayList<>(res.values());
+		return collapsedRows;
 	}
 
 	 /**
@@ -180,9 +214,13 @@ public class AnatomyController {
 								HttpServletRequest request,
 								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
-
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
-		model.addAttribute("anatomyTable", anatomyTable);
+//this method doesn't get used anywhere???
+    	System.out.println("calling anotomy frag");
+		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
+		List<AnatomyPageTableRow> anatomyTable=expressionService.getLacZDataForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
+		
+		ArrayList<AnatomyPageTableRow> collapsedTable = this.collapseCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
+		model.addAttribute("anatomyTable", collapsedTable);
 
 		return "anatomyFrag";
 	}
