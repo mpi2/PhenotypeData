@@ -146,7 +146,7 @@ div#leftSideBar {
 	font-weight: bold;
 }
 div.mpi2-search {
-	margin-top: 30px;
+	margin-top: 37px;
 }
 div.mpi2-search .dataTable td a {
 	margin-right: 5px !important;
@@ -200,51 +200,71 @@ div#exportSpinner {
 /* end of table tool */
 
 div#tabs {
-	margin-top: 30px;
-	width: 70%;
-	float: right;
+	margin-top: 15px;
+	width: 100%;
+	/*float: right;*/
 }
 
 ul.tabLabel{
-	margin-left: 18px;
-	margin-bottom: 50px;
+	margin-left: 30px;
+	margin-bottom: 0px;
 	height: 27px;
-	border-bottom: 1px solid grey;
+	/*border-bottom: 1px solid grey;*/
 }
 
 ul.tabLabel li {
 	float: left;
-	height: 25px;
+	height: 29px;
 	margin: 0 0 0 5px;
-	padding: 2px 12px 0px 12px;
+	padding: 2px 0 0 0;
 	visibility: hidden;
-	border: 1px solid gray;
+	border: 1px solid grey;
 	border-bottom: none;
 	border-radius: 5px 5px 0 0;
-	vertical-align: middle;
-}
-ul.tabLabel li a.noData {
-	color: #C7C7C7;
-}
-ul.tabLabel li a {
-	padding: 0;
-	color: gray;
-	text-decoration: none;
-	font-weight: bold;
-	font-size: 18px;
+	background-color: #0978A1;
+	cursor: pointer;
 }
 
-ul.tabLabel li:hover, ul.tabLabel li:hover a, li.currDataType {
-	background-color: rgb(144,195,212); /* light blue */
+ul.tabLabel li a {
+	padding: 0 30px 2px 30px;
 	color: white;
 	text-decoration: none;
+	font-weight: bold;
+	font-size: 20px;
+	vertical-align: middle;
+	/*border: 1px solid red;*/
+	/*display: block;*/
 }
+
+ul.tabLabel li:hover {
+	background-color: rgb(144,195,212); /* light blue */
+	/*color: white;*/
+	/*color: grey;*/
+	text-decoration: none;
+	border: none;
+}
+
+.noData {
+	color: grey !important;
+	background-color: white !important;
+	cursor: default !important;
+}
+li.noData:hover {
+	border: 1px solid grey !important;
+	border-bottom: none !important;
+	background-color: white !important;
+}
+
 li.currDataType {
-	background-color: #0978A1;
+	background-color: white !important;
+	/*border: 1px solid #0978A1 !important;*/
+	/*border-bottom: 2px solid white !important;*/
+	border: 2px solid #0978A1 !important;
+	border-bottom: 2px solid white !important;
+	/*padding-top: -2px !important;*/
 }
 li.currDataType a  {
-	color: white !important;
-
+	color: #0978A1 !important;
 }
 div#resultMsg {
 	clear: both;
@@ -260,6 +280,12 @@ div#dTable_pagination {
 }
 .hideme {
 	display: none;
+	margin-top: 6px;
+	padding: 30px 20px 20px 20px;
+	border: 2px solid #0978A1;
+	-webkit-border-radius:;
+	-moz-border-radius:;
+	border-radius: 5px;
 }
 
 .tabfc {
@@ -373,30 +399,32 @@ div#goBlock table td {
 	align: center !important;
 
 }
-a#batchquery {
-	float: right;
-	margin-top: 10px;
-	margin-right: 120px;
-	text-decoration: none;
-	color: #0978A1;
+div.searchcontent {
+	margin-top: -15px;
 }
-
-#sicon {
-	padding-top: 8px;
-}
-
-#bigsearchbox {
-	position: relative;
-	width: 650px; margin-top: 5px; margin-right: 50px;
-	height: 30px; float: right; background: none;
+#bigsearchbox           {
+	-webkit-border-radius:;
+	-moz-border-radius:;
+	border-radius: 5px;
+	float: left;
+	width: 915px;
+	background-color: #0978A1;
+	padding: 10px 5px 10px 10px;
 }
 #bigsearchbox input {
-	width: 610px; padding-top: 5px;
-	/*#bigsearchbox input     { border: 2px solid #0978a1; width: 380px; height: 20px !important; font-size: 14px; line-height: 0px; padding: 3px 0 6px 5px;}*/
+	width: 905px;
 }
+#bigsearchbox i#sicon { position: absolute; top: 10px;}
 #bigsearchbox i#clearIcon {
-	top: 15px;
+	top: 22px;
 }
+i.searchExample {
+	top: 20px;
+}
+#batchQryLink {
+	display: block;
+}
+
 input.resetFilters {
 	width: 100%;
 	margin: 0 auto;
@@ -423,7 +451,7 @@ input.facetFilterSubmit {
 }
 
 div.facet {
-	top: 30px;
+	top: 0px;
 	margin-bottom: 50px;
 	border: 1px solid lightgrey;
 	padding: 20px;
