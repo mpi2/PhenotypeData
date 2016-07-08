@@ -1,14 +1,14 @@
 package org.mousephenotype.cda.solr.web.dto;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 
 public class PhenotypeTableRowAnatomyPage extends DataTableRow{
 
-	Set<MarkerBean> genes;
+	TreeSet<MarkerBean> genes;
 	BasicBean anatomyTerm;
 	
 	public Set<MarkerBean> getGenes() {
@@ -16,13 +16,14 @@ public class PhenotypeTableRowAnatomyPage extends DataTableRow{
 	}
 
 	public void setGenes(Set<MarkerBean> genes) {
-		this.genes = genes;
+		this.genes = new TreeSet<>(MarkerBean.getComparatorBySymbol());
+		this.genes.addAll(genes);
 	}
 
 	public void addGenes(MarkerBean gene){
 		
 		if (genes == null){
-			genes = new HashSet<>();
+			genes = new TreeSet<>(MarkerBean.getComparatorBySymbol());
 		}
 		
 		genes.add(gene);
