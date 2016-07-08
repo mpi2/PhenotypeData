@@ -111,7 +111,7 @@ public class AnatomyController {
 		List<AnatomyPageTableRow> anatomyTable=expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		//now collapse the rows from both the categorical and image data sources
-		ArrayList<AnatomyPageTableRow> collapsedTable = collapsCategoricalAndImageRows(anatomyTable,
+		ArrayList<AnatomyPageTableRow> collapsedTable = collapseCategoricalAndImageRows(anatomyTable,
 				anatomyRowsFromImages);
 		
 		//List<AnatomyPageTableRow> anatomyTable = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
@@ -138,7 +138,7 @@ public class AnatomyController {
 
 	}
 
-	private ArrayList<AnatomyPageTableRow> collapsCategoricalAndImageRows(List<AnatomyPageTableRow> anatomyTable,
+	private ArrayList<AnatomyPageTableRow> collapseCategoricalAndImageRows(List<AnatomyPageTableRow> anatomyTable,
 			List<AnatomyPageTableRow> anatomyRowsFromImages) {
 		anatomyTable.addAll(anatomyRowsFromImages);
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
@@ -219,7 +219,7 @@ public class AnatomyController {
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
 		List<AnatomyPageTableRow> anatomyTable=expressionService.getLacZDataForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
 		
-		ArrayList<AnatomyPageTableRow> collapsedTable = this.collapsCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
+		ArrayList<AnatomyPageTableRow> collapsedTable = this.collapseCategoricalAndImageRows(anatomyTable, anatomyRowsFromImages);
 		model.addAttribute("anatomyTable", collapsedTable);
 
 		return "anatomyFrag";

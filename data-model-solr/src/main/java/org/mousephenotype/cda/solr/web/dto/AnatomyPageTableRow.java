@@ -78,29 +78,28 @@ public class AnatomyPageTableRow extends DataTableRow{
 //        System.out.println("class="+observation.getClass());
         List<OntologyTerm> anatomyTerms = new ArrayList<>();
         
-        if(!observation.getClass().getName().equals("org.mousephenotype.cda.solr.service.dto.ImageDTO")){
-       
-	        for (int i = 0; i < observation.getAnatomyId().size(); i++){
-	        	if (observation.getCategory().equalsIgnoreCase(expressionValue)){
-		        	OntologyTerm anatomy = new OntologyTerm();
-		        	anatomy.setId(new DatasourceEntityId(observation.getAnatomyId().get(i), -1));
-		        	anatomy.setName(observation.getAnatomyTerm().get(i));
-		        	anatomyTerms.add(anatomy);
-	        	}
-	        }
-        }
-        
-        if(observation.getClass().getName().equals("org.mousephenotype.cda.solr.service.dto.ImageDTO")){
-        	ImageDTO imageDTO=(ImageDTO)observation;
-	        for (int i = 0; i < imageDTO.getAnatomyId().size(); i++){
-	        	if (imageDTO.getExpression(observation.getAnatomyId().get(i)).equalsIgnoreCase(expressionValue)){
-		        	OntologyTerm anatomy = new OntologyTerm();
-		        	anatomy.setId(new DatasourceEntityId(observation.getAnatomyId().get(i), -1));
-		        	anatomy.setName(observation.getAnatomyTerm().get(i));
-		        	anatomyTerms.add(anatomy);
-	        	}
-	        }
-        }
+		if (observation instanceof ImageDTO) {
+			ImageDTO imageDTO = (ImageDTO) observation;
+			for (int i = 0; i < imageDTO.getAnatomyId().size(); i++) {
+				if (imageDTO.getExpression(observation.getAnatomyId().get(i)).equalsIgnoreCase(expressionValue)) {
+					OntologyTerm anatomy = new OntologyTerm();
+					anatomy.setId(new DatasourceEntityId(observation.getAnatomyId().get(i), -1));
+					anatomy.setName(observation.getAnatomyTerm().get(i));
+					anatomyTerms.add(anatomy);
+				}
+			}
+		} else {//else currently this should be a normal observation and so will have categorical parameter data
+
+			for (int i = 0; i < observation.getAnatomyId().size(); i++) {
+				if (observation.getCategory().equalsIgnoreCase(expressionValue)) {
+					OntologyTerm anatomy = new OntologyTerm();
+					anatomy.setId(new DatasourceEntityId(observation.getAnatomyId().get(i), -1));
+					anatomy.setName(observation.getAnatomyTerm().get(i));
+					anatomyTerms.add(anatomy);
+				}
+			}
+
+		}
 
         this.setExpression(expressionValue);
         this.setAnatomy(anatomyTerms);
