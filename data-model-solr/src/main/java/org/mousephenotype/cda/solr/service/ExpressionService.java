@@ -15,10 +15,18 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.mapred.analysejobhistory_jsp;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -28,7 +36,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
@@ -37,9 +44,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import javax.annotation.PostConstruct;
-import java.sql.SQLException;
-import java.util.*;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * Pulled in 2015/07/09 by @author tudose
