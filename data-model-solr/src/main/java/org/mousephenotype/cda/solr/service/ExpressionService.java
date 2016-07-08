@@ -665,7 +665,7 @@ public class ExpressionService extends BasicService {
 
 	
 	public List<AnatomyPageTableRow> getLacZDataForAnatomy(String anatomyId,List<String> anatomyTerms, List<String> phenotypingCenter,
- List<String> procedure, List<String> paramAssoc, String baseUrl)
+		List<String> procedure, List<String> paramAssoc, String baseUrl)
 					throws SolrServerException {
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&fq=(anatomy_id:%22MA:0000031%22%20OR%20intermediate_anatomy_id:%22MA:0000031%22%20OR%20selected_top_level_anatomy_id:%22MA0000031%22)
@@ -706,13 +706,13 @@ public class ExpressionService extends BasicService {
 			query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\""
 					+ StringUtils.join(procedure, "\" OR " + ObservationDTO.PROCEDURE_NAME + ":\"") + "\"");
 		}
-		// if (paramAssoc != null) {
-		// query.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_VALUE
-		// + ":\""
-		// + StringUtils.join(paramAssoc, "\" OR "
-		// + ObservationDTO.PARAMETER_ASSOCIATION_VALUE + ":\"")
-		// + "\"");
-		// }
+		 if (paramAssoc != null) {
+		 query.addFilterQuery(ObservationDTO.CATEGORY
+		 + ":\""
+		 + StringUtils.join(paramAssoc, "\" OR "
+		 + ObservationDTO.CATEGORY + ":\"")
+		 + "\"");
+		 }
 
 		System.out.println("SOLR URL WAS " + experimentSolr.getBaseURL() + "/select?" + query);
 		List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
@@ -1092,6 +1092,41 @@ public class ExpressionService extends BasicService {
 
 	}
 
-	
+	public Map<String, Set<String>> getFacets(String anatomyId)
+			throws SolrServerException {
 
+				Map<String, Set<String>> res = new HashMap<>();
+				SolrQuery query = new SolrQuery();
+				query.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
+
+				if (anatomyId != null) {
+					query.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
+							+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
+				}
+				query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
+				.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
+						+ ":\"expression\"" + ")"); // only have expressed and
+													// not expressed ingnore
+													// ambiguous and no tissue
+
+				query.setFacet(true);
+				query.setFacetLimit(-1);
+				query.setFacetMinCount(1);
+				query.addFacetField(ObservationDTO.ANATOMY_TERM);
+				query.addFacetField(ObservationDTO.PHENOTYPING_CENTER);
+				query.addFacetField(ObservationDTO.PROCEDURE_NAME);
+				query.addFacetField(ObservationDTO.CATEGORY);
+
+				QueryResponse response = experimentSolr.query(query);
+
+				for (FacetField facetField : response.getFacetFields()) {
+					Set<String> filter = new TreeSet<>();
+					for (Count facet : facetField.getValues()) {
+						filter.add(facet.getName());
+					}
+					res.put(facetField.getName(), filter);
+				}
+
+				return res;
+		}
 }
