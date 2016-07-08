@@ -200,7 +200,7 @@ div#exportSpinner {
 /* end of table tool */
 
 div#tabs {
-	margin-top: 45px;
+	margin-top: 15px;
 	width: 100%;
 	/*float: right;*/
 }
@@ -216,23 +216,27 @@ ul.tabLabel li {
 	float: left;
 	height: 29px;
 	margin: 0 0 0 5px;
-	padding: 2px 25px 0px 25px;
+	padding: 2px 0 0 0;
 	visibility: hidden;
 	border: 1px solid grey;
 	border-bottom: none;
 	border-radius: 5px 5px 0 0;
+	background-color: #0978A1;
+	cursor: pointer;
 }
 
 ul.tabLabel li a {
-	padding: 0;
-	color: gray;
+	padding: 0 30px 2px 30px;
+	color: white;
 	text-decoration: none;
 	font-weight: bold;
 	font-size: 20px;
 	vertical-align: middle;
+	/*border: 1px solid red;*/
+	/*display: block;*/
 }
 
-ul.tabLabel li:hover, ul.tabLabel li:hover a {
+ul.tabLabel li:hover {
 	background-color: rgb(144,195,212); /* light blue */
 	/*color: white;*/
 	/*color: grey;*/
@@ -240,13 +244,19 @@ ul.tabLabel li:hover, ul.tabLabel li:hover a {
 	border: none;
 }
 
-ul.tabLabel li a.noData {
-	cursor: default;
-	background-color: white;
+.noData {
+	color: grey !important;
+	background-color: white !important;
+	cursor: default !important;
+}
+li.noData:hover {
+	border: 1px solid grey !important;
+	border-bottom: none !important;
+	background-color: white !important;
 }
 
 li.currDataType {
-	/*background-color: #0978A1;*/
+	background-color: white !important;
 	/*border: 1px solid #0978A1 !important;*/
 	/*border-bottom: 2px solid white !important;*/
 	border: 2px solid #0978A1 !important;
@@ -271,7 +281,7 @@ div#dTable_pagination {
 .hideme {
 	display: none;
 	margin-top: 6px;
-	padding: 50px 20px 20px 20px;
+	padding: 30px 20px 20px 20px;
 	border: 2px solid #0978A1;
 	-webkit-border-radius:;
 	-moz-border-radius:;
@@ -410,6 +420,9 @@ div.searchcontent {
 }
 i.searchExample {
 	top: 20px;
+}
+#batchQryLink {
+	display: block;
 }
 
 input.resetFilters {
