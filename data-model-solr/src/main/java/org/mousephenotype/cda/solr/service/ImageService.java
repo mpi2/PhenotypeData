@@ -216,7 +216,7 @@ System.out.println("images query facet="+query);
 		for (FacetField facetField : response.getFacetFields()) {
 			Set<String> filter = new TreeSet<>();
 			for (Count facet : facetField.getValues()) {
-				if (facet.getName().equals("expression") || facetField.getName().equals("no expression")) {
+				if (!facet.getName().equals("tissue not available") && !facet.getName().equals("ambiguous")) {
 					filter.add(facet.getName());
 				}
 			}
