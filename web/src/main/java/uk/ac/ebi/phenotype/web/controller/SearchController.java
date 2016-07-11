@@ -100,7 +100,7 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
-		System.out.println("path: /search/" + dataType);
+//		System.out.println("path: /search/" + dataType);
 
 		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
 	}
@@ -114,7 +114,7 @@ public class SearchController {
 		String debug = request.getParameter("debug");
 
 		String paramString = request.getQueryString();
-		//System.out.println("paramString " + paramString);
+//		System.out.println("paramString " + paramString);
 		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 
 		model.addAttribute("facetCount", facetCountJsonResponse);
