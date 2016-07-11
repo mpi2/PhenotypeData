@@ -2,11 +2,11 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.Allele2Service;
@@ -33,8 +33,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
-
 /**
  * Class to handle the nagios web status monitoring pages
  *
@@ -43,6 +41,8 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
  */
 @Controller
 public class WebStatusController {
+
+	public static final Integer TIMEOUT_INTERVAL = 2;
 
 	@Autowired
 	ObservationService observationService;
@@ -143,19 +143,40 @@ public class WebStatusController {
 
 	@RequestMapping("/webstatus")
 	public String webStatus(Model model, HttpServletResponse response) {
+
+
+		ExecutorService executor = Executors.newCachedThreadPool();
+
 		boolean ok = true;
 
 		// check our core solr instances are returning via the services
 		List<WebStatusModel> webStatusModels = new ArrayList<>();
 		for (WebStatus status : webStatusObjects) {
+
+			Future<Long> future = null;
+
 			String name = status.getServiceName();
 			long number = 0;
 			try {
-				number = status.getWebStatus();
+
+				//				number = status.getWebStatus();
+
+				// This block causes the method reference getWebStatus to be submitted to the executor
+				// And then "get"ted from the future.  If the request is not complete in 2 seconds (more than enough time)
+				// then timeout and throw an exception
+				Callable<Long> task = status::getWebStatus;
+				future = executor.submit(task);
+				number = future.get(TIMEOUT_INTERVAL, TimeUnit.SECONDS);
+
 			} catch (Exception e) {
+
+				// Cancel the ongoing call
+				if (future!=null) {future.cancel(true);}
+
 				ok = false;
 				e.printStackTrace();
 			}
+
 			WebStatusModel wModel = new WebStatusModel(name, number);
 			webStatusModels.add(wModel);
 		}
@@ -165,14 +186,27 @@ public class WebStatusController {
 		// check the imits services
 		List<WebStatusModel> imitsWebStatusModels = new ArrayList<>();
 		for (WebStatus status : imitsWebStatusObjects) {
+
+			Future<Long> future = null;
 			String name = status.getServiceName();
 			long number = 0;
+
 			try {
-				number = status.getWebStatus();
+				// number = status.getWebStatus();
+
+				// This block causes the method reference getWebStatus to be submitted to the executor
+				// And then "get"ted from the future.  If the request is not complete in 2 seconds (more than enough time)
+				// then timeout and throw an exception
+				Callable<Long> task = status::getWebStatus;
+				future = executor.submit(task);
+				number = future.get(TIMEOUT_INTERVAL, TimeUnit.SECONDS);
+
 			} catch (Exception e) {
 
-				// Do not change the status for unavailable non-critical resource
+				// Cancel the ongoing call
+				if (future!=null) {future.cancel(true);}
 
+				// Do not change the website status for an unavailable non-critical resource
 				e.printStackTrace();
 			}
 			WebStatusModel wModel = new WebStatusModel(name, number);

@@ -3,43 +3,24 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <html>
-	<header>
-	</header>
-		<body>
-		Status OK:${ok}<br/><br/>
+<head>
+</head>
+<body>
+Status OK:${ok}<br/><br/>
 Cores Services Statuses:
-				<ol>
-					<c:forEach var="status" items="${webStatusModels}">
-						<c:choose>
-							<c:when test="${status.number!=0}">
-								<li>${status.name} : ${status.number}</li>
-							</c:when>
-							<c:otherwise>
-							<li><font color="red">${status.name} : ${status.number}</font></li>
-							</c:otherwise>
-						</c:choose>
-					</c:forEach>
-				</ol>				
-								
-				Imits statuses:
-				<ol>
-					<c:forEach var="status" items="${imitsWebStatusModels}">
-				
-						
-						<c:choose>
-							<c:when test="${status.number!=0}">
-								<li>${status.name} : ${status.number}</li>
-							</c:when>
-							<c:otherwise>
-							<li><font color="red">${status.name} : ${status.number}</font></li>
-							</c:otherwise>
-						</c:choose>
-					
-					</c:forEach>
-				</ol>
-				
-				
-				
-				
-		</body>
+<ol>
+    <c:forEach var="status" items="${webStatusModels}">
+        <li<c:if test="${status.number==0}"> style="color:red;"</c:if>>${status.name} : ${status.number}</li>
+    </c:forEach>
+</ol>
+
+Imits statuses:
+<ol>
+    <c:forEach var="status" items="${imitsWebStatusModels}">
+        <li<c:if test="${status.number==0}"> style="color:red;"</c:if>>${status.name} : ${status.number}</li>
+    </c:forEach>
+</ol>
+
+
+</body>
 </html>

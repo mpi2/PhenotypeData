@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EucommCreProductService implements WebStatus{
-	
+
 	@Autowired @Qualifier("eucommCreProductsCore")
 	private HttpSolrServer solr;
 
@@ -27,10 +27,10 @@ public class EucommCreProductService implements WebStatus{
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();
 	}
-	
+
 	@Override
 	public String getServiceName(){
-		return "Imits Allele2 Core";
+		return "Eucomm cre product service";
 	}
 
 }
