@@ -39,9 +39,8 @@
             
             <ul>
                 <li><a href="#top">Anatomy Term</a></li>
-                <c:if test="${not empty anatomy.getMpId()}">
-                	<li><a href="#associated-phenotypes">Associated Phenotypes</a></li>
-                </c:if>
+                <li><a href="#expression">LacZ Expression</a></li>
+                <li><a href="#phenotypes">Associated Phenotypes</a></li>
             </ul>
             
             <div class="clear"></div>
@@ -59,7 +58,7 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">						
-						<h1 class="title" id="top">${anatomy.getAnatomyTerm()}</h1>
+						<h1 class="title" id="top">Anatomy: ${anatomy.getAnatomyTerm()}</h1>
 						
 							<div class="section">
 								<div class="inner">		
@@ -75,13 +74,11 @@
 											<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
 											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
 										</p>
-										<br/> <br/>
-										<c:if test="${genesTested > 0}">
-											<div id="phenotypesByAnatomy" class="half"><script type="text/javascript">${pieChartCode}</script></div>
-										</c:if>
+										
 									</div>
 						
 									<div id="parentChild" class="half">
+										<h4>Browse mouse anatomy ontology</h4>
 										<c:if test="${hasChildren && hasParents}">
 				                           	<div class="half" id="parentDiv"></div>
 											<div class="half" id="childDiv"></div>
@@ -98,8 +95,8 @@
 								</div>					
 							</div>
 							
-							<div class="section"> 
-								<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
+							<div class="section" id="expression"> 
+								<h2 class="title">Reporter gene expression associated with ${anatomy.getAnatomyTerm()}</h2>
 									<div class="inner">
 										<div class="container span12">
 										  <div id="filterParams" >
@@ -112,7 +109,7 @@
 						                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
 						                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
 						                                  <c:forEach var="facet" items="${phenoFacet.value}">
-						                                       <option>${facet.key}</option>
+						                                       <option>${facet}</option>
 						                                  </c:forEach>
 						                             </select> 
 						                        </c:forEach>
@@ -124,17 +121,23 @@
 						    	</div>
 							</div>	
 				 
-				 			<c:if test="${phenotypeTable.size() > 0}">
-					 			<div class="section"> 
-									<h2 class="title">Associated phenotypes</h2>
+							<c:if test="${genesTested > 0}">
+						 		<div class="section" id="phenotypes"> 
+									<h2 class="title">Phenotypes associated with ${anatomy.getAnatomyTerm()}</h2>
 									<div class="inner">
-										<div class="container span12">
-						                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
-										</div>
-							    	</div>
+										<div id="phenotypesByAnatomy" class="onethird"><script type="text/javascript">${pieChartCode}</script></div>
+										<div class="clear both"> </div>
+					 					<c:if test="${phenotypeTable.size() > 0}">
+											<div class="container span12">
+							                	<jsp:include page="anatomyPhenFrag.jsp"></jsp:include>						 
+											</div>
+										</c:if>
+										<c:if test="${phenotypeTable.size() == 0}">
+											<div class="container info"> No significant phenotype associations found. </div>
+										</c:if>
+								    </div>
 								</div>
-				 			</c:if>
-				 			
+							</c:if>				 			
 							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 								<div class="section">
 									<h2 class="title"> Expression images from the WellcomeTrust's MGP </h2>
@@ -203,6 +206,7 @@
 		  
 				  $('table#phenotypeAnatomy').dataTable( {
 						"aoColumns": [
+						              { "sType": "html"},
 						              { "sType": "html"},
 						              { "sType": "html"}
 						              ],

@@ -15,8 +15,18 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -29,14 +39,14 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import javax.annotation.PostConstruct;
-import java.sql.SQLException;
-import java.util.*;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * Pulled in 2015/07/09 by @author tudose
@@ -662,6 +672,110 @@ public class ExpressionService extends BasicService {
 
 	}
 
+	
+	public List<AnatomyPageTableRow> getLacZDataForAnatomy(String anatomyId,List<String> anatomyTerms, List<String> phenotypingCenter,
+		List<String> procedure, List<String> paramAssoc, String baseUrl)
+					throws SolrServerException {
+		Map<String, AnatomyPageTableRow> res = new HashMap<>();
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&fq=(anatomy_id:%22MA:0000031%22%20OR%20intermediate_anatomy_id:%22MA:0000031%22%20OR%20selected_top_level_anatomy_id:%22MA0000031%22)
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*");
+		if (anatomyId != null) {
+			query.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR "
+					+ ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
+					+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
+		}
+
+		query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ")
+				.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"")
+				.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
+				.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
+						+ ":\"expression\"" + ")") // only have expressed and
+													// not expressed ingnore
+													// ambiguous and no tissue
+				.setRows(Integer.MAX_VALUE).setFields(ObservationDTO.SEX, ObservationDTO.ALLELE_SYMBOL,
+						ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.ANATOMY_ID,
+						ObservationDTO.ANATOMY_TERM, ObservationDTO.PROCEDURE_STABLE_ID, ObservationDTO.DATASOURCE_NAME,
+						// ObservationDTO.PARAMETER_ASSOCIATION_VALUE,
+						ObservationDTO.GENE_SYMBOL, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.PARAMETER_NAME,
+						ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PROCEDURE_NAME,
+						ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.INTERMEDIATE_ANATOMY_ID,
+						ObservationDTO.INTERMEDIATE_ANATOMY_TERM, ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID,
+						ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, ObservationDTO.CATEGORY);
+
+		if (anatomyTerms != null) {
+			query.addFilterQuery(ObservationDTO.ANATOMY_TERM + ":\""
+					+ StringUtils.join(anatomyTerms, "\" OR " + ObservationDTO.ANATOMY_TERM + ":\"") + "\"");
+		}
+		if (phenotypingCenter != null) {
+			query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\""
+					+ StringUtils.join(phenotypingCenter, "\" OR " + ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"");
+		}
+		if (procedure != null) {
+			query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\""
+					+ StringUtils.join(procedure, "\" OR " + ObservationDTO.PROCEDURE_NAME + ":\"") + "\"");
+		}
+		 if (paramAssoc != null) {
+		 query.addFilterQuery(ObservationDTO.CATEGORY
+		 + ":\""
+		 + StringUtils.join(paramAssoc, "\" OR "
+		 + ObservationDTO.CATEGORY + ":\"")
+		 + "\"");
+		 }
+
+		System.out.println("SOLR URL WAS " + experimentSolr.getBaseURL() + "/select?" + query);
+		List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
+		System.out.println("anatomy response size=" + response.size());
+		for (ObservationDTO observation : response) {
+
+			// for (String expressionValue :
+			// observation.getDistinctParameterAssociationsValue()) {
+			String expressionValue = observation.getCategory();
+
+			AnatomyPageTableRow row = new AnatomyPageTableRow(observation, anatomyId, baseUrl, expressionValue);
+			if (res.containsKey(row.getKey())) {
+				row = res.get(row.getKey());
+				row.addSex(observation.getSex());
+				// row.addImage();
+			}
+			res.put(row.getKey(), row);
+
+			// }
+		}
+
+		return new ArrayList<>(res.values());
+
+	}
+
+	/**
+	 * @author ilinca
+	 * @since 2016/07/08
+	 * @param anatomyId
+	 * @return List of gene ids with positive expression in given anatomy term. 
+	 * @throws SolrServerException
+	 */
+	public List<String> getGenesWithExpression(String anatomyId) throws SolrServerException{
+		
+		List<String> geneIds = new ArrayList<>();
+		SolrQuery q = new SolrQuery();
+		q.setQuery(ObservationDTO.CATEGORY + ":\"expression\"" )
+			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"");
+		if (anatomyId != null){
+			q.setFilterQueries(ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\" OR " +ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\"" );
+		}
+		q.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1)
+			.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
+		
+		for (Count value: experimentSolr.query(q).getFacetFields().get(0).getValues()){
+			geneIds.add(value.getName());
+		}
+		return geneIds;
+		
+	}
+	
+	
 	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs,
 			boolean embryo) {
 
@@ -1016,4 +1130,44 @@ public class ExpressionService extends BasicService {
 
 	}
 
+	public Map<String, Set<String>> getFacets(String anatomyId)
+			throws SolrServerException {
+		System.out.println("calling get facetes");
+				Map<String, Set<String>> res = new HashMap<>();
+				SolrQuery query = new SolrQuery();
+				query.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
+
+				if (anatomyId != null) {
+					query.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
+							+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
+				}
+				query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
+				.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
+						+ ":\"expression\"" + ")"); // only have expressed and
+													// not expressed ingnore
+													// ambiguous and no tissue
+				//query.addFilterQuery("(" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"no expression\" OR " + ImageDTO.PARAMETER_ASSOCIATION_VALUE
+				//		+ ":\"expression\"" + ")");
+				query.setFacet(true);
+				query.setFacetLimit(-1);
+				query.setFacetMinCount(1);
+				query.addFacetField(ObservationDTO.ANATOMY_TERM);
+				query.addFacetField(ObservationDTO.PHENOTYPING_CENTER);
+				query.addFacetField(ObservationDTO.PROCEDURE_NAME);
+				query.addFacetField(ObservationDTO.CATEGORY);
+
+				QueryResponse response = experimentSolr.query(query);
+				System.out.println("facet query="+query);
+				for (FacetField facetField : response.getFacetFields()) {
+					Set<String> filter = new TreeSet<>();
+					for (Count facet : facetField.getValues()) {
+							filter.add(facet.getName());
+						
+					}
+					
+					res.put(facetField.getName(), filter);
+				}
+
+				return res;
+		}
 }
