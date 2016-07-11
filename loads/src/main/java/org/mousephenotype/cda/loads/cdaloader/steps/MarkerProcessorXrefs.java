@@ -18,50 +18,52 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Xref;
-import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.FileHeading;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by mrelac on 09/06/16.
  */
-public class MarkerProcessorXrefs implements ItemProcessor<FieldSet, GenomicFeature> {
+public class MarkerProcessorXrefs implements ItemProcessor<List<Xref>, List<Xref>> {
 
-    public final Set<String> errMessages              = new HashSet<>();
-    private Map<String, GenomicFeature> genomicFeatures;
-    private       int        lineNumber               = 0;
-    private final Logger     logger                   = LoggerFactory.getLogger(this.getClass());
+    public final Set<String>            errMessages = new HashSet<>();
+    private Map<String, GenomicFeature> genes;
+    private       int                   lineNumber  = 0;
+    private final Logger                logger      = LoggerFactory.getLogger(this.getClass());
 
-    // The following ints define the column offset of the given column in the GENE_TYPES file.
-    public final static int OFFSET_MGI_ACCESSION_ID = 0;
-    public final static int OFFSET_ENTREZ_GENE_ID   = 4;
-    public final static int OFFSET_ENSEMBL_GENE_ID  = 9;
-    public final static int OFFSET_VEGA_GENE_ID     = 14;
-    public final static int OFFSET_CCDS_ID          = 19;
-
-    // The following strings define the column names in the MARKER_LIST file.
-    private final static String HEADING_MGI_ACCESSION_ID = "MGI Accession ID";
-    private final static String HEADING_ENTREZ_GENE_ID   = "EntrezGene ID";
-    private final static String HEADING_ENSEMBL_GENE_ID  = "Ensembl Gene ID";
-    private final static String HEADING_VEGA_GENE_ID     = "VEGA Gene ID";
-    private final static String HEADING_CCDS_ID          = "CCDS IDs";
-
-    public FileHeading[] fileHeadings = new FileHeading[] {
-              new FileHeading(OFFSET_MGI_ACCESSION_ID, HEADING_MGI_ACCESSION_ID)
-            , new FileHeading(OFFSET_ENTREZ_GENE_ID, HEADING_ENTREZ_GENE_ID)
-            , new FileHeading(OFFSET_ENSEMBL_GENE_ID, HEADING_ENSEMBL_GENE_ID)
-            , new FileHeading(OFFSET_VEGA_GENE_ID, HEADING_VEGA_GENE_ID)
-            , new FileHeading(OFFSET_CCDS_ID, HEADING_CCDS_ID)
+    private final String[] expectedHeadings = new String[]{
+              "MGI Accession ID"        // A
+            , "Marker Symbol"           // B - (unused)
+            , "Marker Name"             // C - (unused)
+            , "Feature Type"            // D - (unused)
+            , "EntrezGene ID"           // E
+            , "NCBI Gene chromosome"    // F - (unused)
+            , "NCBI Gene start"         // G - (unused)
+            , "NCBI Gene end"           // H - (unused)
+            , "NCBI Gene strand"        // I - (unused)
+            , "Ensembl Gene ID"         // J
+            , "Ensembl Gene chromosome" // K - (unused)
+            , "Ensembl Gene start"      // L - (unused)
+            , "Ensembl Gene end"        // M - (unused)
+            , "Ensembl Gene strand"     // N - (unused)
+            , "VEGA Gene ID"            // O
+            , "VEGA Gene chromosome"    // P - (unused)
+            , "VEGA Gene start"         // Q - (unused)
+            , "VEGA Gene end"           // R - (unused)
+            , "VEGA Gene strand"        // S - (unused)
+            , "CCDS IDs"                // T
+            , "HGNC ID"                 // U - (unused)
+            , "HomoloGene ID"           // V - (unused)
     };
 
     @Autowired
@@ -70,89 +72,70 @@ public class MarkerProcessorXrefs implements ItemProcessor<FieldSet, GenomicFeat
 
 
     public MarkerProcessorXrefs(Map<String, GenomicFeature> genomicFeatures) {
-        this.genomicFeatures = genomicFeatures;
+        this.genes = genomicFeatures;
     }
-
-    public class XrefNode {
-        private final int idOffset;
-        private final DbIdType dbIdType;
-        private int count;
-
-        public XrefNode(int idOffset, DbIdType dbIdType) {
-            this.idOffset = idOffset;
-            this.dbIdType = dbIdType;
-            this.count    = 0;
-        }
-
-        public int getCount() {
-            return count;
-        }
-    }
-
-    private final Map<Integer, XrefNode> xrefNodesMap = new HashMap<Integer, XrefNode>() {{
-        put(OFFSET_ENTREZ_GENE_ID, new XrefNode(OFFSET_ENTREZ_GENE_ID, DbIdType.EntrezGene));
-        put(OFFSET_ENSEMBL_GENE_ID, new XrefNode(OFFSET_ENSEMBL_GENE_ID, DbIdType.Ensembl));
-        put(OFFSET_VEGA_GENE_ID, new XrefNode(OFFSET_VEGA_GENE_ID, DbIdType.VEGA));
-        put(OFFSET_CCDS_ID, new XrefNode(OFFSET_CCDS_ID, DbIdType.cCDS));
-    }};
-
 
     @Override
-    public GenomicFeature process(FieldSet item) throws Exception {
+    public List<Xref> process(List<Xref> xrefs) throws Exception {
 
         lineNumber++;
 
         // Validate the file using the heading names.
+        // xref[0] = entrez. xref[1] = ensembl. xref[2] = vega. xref[3] = ccds.
         if (lineNumber == 1) {
-            RunStatus status = sqlLoaderUtils.validateHeadings(item.getValues(),fileHeadings);
-            if (status.hasErrors()) {
-                throw new CdaLoaderException(status.toStringErrorMessages());
+            String[] actualHeadings = new String[] {
+                  xrefs.get(0).getAccession()       // A
+                , "Marker Symbol"                   // B - (unused)
+                , "Marker Name"                     // C - (unused)
+                , "Feature Type"                    // D - (unused)
+                , xrefs.get(0).getXrefAccession()   // E
+                , "NCBI Gene chromosome"            // F - (unused)
+                , "NCBI Gene start"                 // G - (unused)
+                , "NCBI Gene end"                   // H - (unused)
+                , "NCBI Gene strand"                // I - (unused)
+                , xrefs.get(1).getXrefAccession()   // J
+                , "Ensembl Gene chromosome"         // K - (unused)
+                , "Ensembl Gene start"              // L - (unused)
+                , "Ensembl Gene end"                // M - (unused)
+                , "Ensembl Gene strand"             // N - (unused)
+                , xrefs.get(2).getXrefAccession()   // O
+                , "VEGA Gene chromosome"            // P - (unused)
+                , "VEGA Gene start"                 // Q - (unused)
+                , "VEGA Gene end"                   // R - (unused)
+                , "VEGA Gene strand"                // S - (unused)
+                , xrefs.get(3).getXrefAccession()   // T
+                , "HGNC ID"                         // U - (unused)
+                , "HomoloGene ID"                   // V - (unused)
+            };
+
+            for (int i = 0; i < expectedHeadings.length; i++) {
+                if ( ! expectedHeadings[i].equals(actualHeadings[i])) {
+                    throw new CdaLoaderException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
+                }
             }
 
             return null;
         }
 
-        GenomicFeature feature  = null;
-
-        String mgiAccessionId = item.getValues()[OFFSET_MGI_ACCESSION_ID];
-        String[] ids;
-
-        for (XrefNode xrefNode : xrefNodesMap.values()) {
-            if (item.getFieldCount() > xrefNode.idOffset) {
-                ids = item.getValues()[xrefNode.idOffset].split(",");
-                for (String id : ids) {
-                    feature = genomicFeatures.get(mgiAccessionId);
-                    if (feature != null) {
-                        if (feature.getXrefs() == null) {
-                            feature.setXrefs(new LinkedList<>());               // Make sure xrefs list is not null.
-                        }                                                       // mgi sometimes fills null ids with the string "null".
-                        if ((id != null) && ( ! id.isEmpty()) && ( ! id.toLowerCase().equals("null"))) {
-                            Xref xref = new Xref();
-                            xref.setAccession(mgiAccessionId);
-                            xref.setDatabaseId(DbIdType.MGI.intValue());
-                            xref.setXrefAccession(id);
-                            xref.setXrefDatabaseId(xrefNode.dbIdType.intValue());
-                            feature.addXref(xref);
-
-                            xrefNode.count++;
-                        }
-                    }
-                }
+        // If there are any Xref instances, add them to the gene.
+        if ( ! xrefs.isEmpty()) {
+            GenomicFeature gene = genes.get(xrefs.get(0).getAccession());
+            if (gene == null) {
+//                logger.error("Line {}: no gene for xref {}.", lineNumber, xrefs.get(0));
+                return null;
             }
+
+            gene.getXrefs().addAll(xrefs);
         }
 
-        return feature;
+        return xrefs;
     }
 
     public Set<String> getErrMessages() {
         return errMessages;
     }
 
-    public Map<String, GenomicFeature> getGenomicFeatures() {
-        return genomicFeatures;
-    }
-
-    public Map<Integer, XrefNode> getXrefNodesMap() {
-        return xrefNodesMap;
+    public Map<String, GenomicFeature> getGenes() {
+        return genes;
     }
 }

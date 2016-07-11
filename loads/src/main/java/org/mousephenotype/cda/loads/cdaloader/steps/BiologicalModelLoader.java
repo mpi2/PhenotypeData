@@ -195,9 +195,10 @@ public class BiologicalModelLoader implements InitializingBean, Step {
             }
 
             stop = new Date();
-            logger.info("Wrote {} bioModels to database in {}",
+            logger.info("  Wrote {} bioModels to database in {}",
                     bioModels.size(),
                     commonUtils.formatDateDifference(start, stop));
+            logger.info("");
 
             return ((BiologicalModelProcessor) bioModelProcessor).getErrMessages();
         }

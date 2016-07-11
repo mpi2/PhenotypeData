@@ -37,10 +37,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAggregator, BiologicalModelAggregator> {
 
     private int                                    addedBioModelsCount = 0;
-    private Map<String, String> alleleSymbolToAccessionIdMap = new HashMap<>(); // key = allele symbol. Value = allele accession id
-    private Map<String, Allele>                    alleles;                     // Alleles mapped by allele accession id
-    private Map<String, BiologicalModelAggregator> bioModels = new HashMap<>(); // bioModel mapped by allele symbol
-    private Map<String, GenomicFeature>            genomicFeatures;             // Genes mapped by marker accession id
+    private Map<String, String>                    alleleSymbolToAccessionIdMap;    // key = allele symbol. Value = allele accession id
+    private Map<String, Allele>                    alleles;                         // Alleles mapped by allele accession id
+    private Map<String, BiologicalModelAggregator> bioModels = new HashMap<>();     // bioModel mapped by allele symbol
+    private Map<String, GenomicFeature>            genes;                           // Genes mapped by marker accession id
     protected int                                  lineNumber = 0;
 
     private int multipleAllelesPerRowCount = 0;
@@ -54,9 +54,9 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
     private SqlLoaderUtils sqlLoaderUtils;
 
 
-    public BiologicalModelProcessor(Map<String, Allele> alleles, Map<String, GenomicFeature> genomicFeatures) {
+    public BiologicalModelProcessor(Map<String, Allele> alleles, Map<String, GenomicFeature> genes) {
         this.alleles = alleles;
-        this.genomicFeatures = genomicFeatures;
+        this.genes = genes;
     }
 
     @Override
@@ -77,7 +77,14 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
             return null;
         }
 
-        if (alleleSymbolToAccessionIdMap.isEmpty()) {
+        if ((genes == null) || (genes.isEmpty())) {
+            genes = sqlLoaderUtils.getGenes();
+        }
+        if ((alleles == null) || (alleles.isEmpty())) {
+            alleles = sqlLoaderUtils.getAlleles();
+        }
+        if (alleleSymbolToAccessionIdMap == null) {
+            alleleSymbolToAccessionIdMap = new HashMap<>(150000);
             for (Allele allele : alleles.values()) {
                 alleleSymbolToAccessionIdMap.put(allele.getSymbol(), allele.getId().getAccession());
             }
@@ -85,7 +92,7 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
 
         String alleleAccessionId = alleleSymbolToAccessionIdMap.get(bioModel.getAlleleSymbol());
         if (alleleAccessionId == null) {
-            logger.warn("No allele accession id found for allele symbol '" + bioModel.getAlleleSymbol() + "'. Skipping...");
+//            logger.warn("No allele accession id found for allele symbol '" + bioModel.getAlleleSymbol() + "'. Skipping...");
             return null;
         }
 
@@ -105,8 +112,8 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
         return errMessages;
     }
 
-    public Map<String, GenomicFeature> getGenomicFeatures() {
-        return genomicFeatures;
+    public Map<String, GenomicFeature> getGenes() {
+        return genes;
     }
 
     public int getAddedBioModelsCount() {

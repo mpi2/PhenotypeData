@@ -45,7 +45,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
     private      OntologyTerm                biotypeTm1e;
     public final Set<String>                 errMessages         = ConcurrentHashMap.newKeySet();     // This is the java 8 way to create a concurrent hash set.
     private      Map<String, OntologyTerm>   featureTypes;
-    private      Map<String, GenomicFeature> genomicFeatures;
+    private      Map<String, GenomicFeature> genes;
     protected    int                         lineNumber          = 0;
     private final Logger                     logger              = LoggerFactory.getLogger(this.getClass());
     private      int                         withdrawnGenesCount = 0;
@@ -58,8 +58,8 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
     public abstract Allele setGene(Allele allele) throws CdaLoaderException;
 
 
-    public AlleleProcessorAbstract(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes) {
-        this.genomicFeatures = genomicFeatures;
+    public AlleleProcessorAbstract(Map<String, GenomicFeature> genes, Map<String, OntologyTerm> featureTypes) {
+        this.genes = genes;
         this.featureTypes = featureTypes;
     }
 
@@ -112,8 +112,8 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
         return errMessages;
     }
 
-    public Map<String, GenomicFeature> getGenomicFeatures() {
-        return genomicFeatures;
+    public Map<String, GenomicFeature> getGenes() {
+        return genes;
     }
 
     public int getAddedAllelesCount() {
@@ -181,15 +181,15 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
      * @return the allele being processed, with the gene component set.
      */
     protected Allele setGeneNullIsOk(Allele allele) {
-        GenomicFeature gene = null;
+        GenomicFeature gene;
         if ((allele.getGene() == null)
              || (allele.getGene().getId().getAccession().trim().isEmpty())
-             || (genomicFeatures.get(allele.getGene().getId().getAccession())) == null)
+             || (genes.get(allele.getGene().getId().getAccession())) == null)
         {
             allelesWithoutGenesCount++;
             gene = null;
         } else {
-            gene = genomicFeatures.get(allele.getGene().getId().getAccession());
+            gene = genes.get(allele.getGene().getId().getAccession());
         }
 
         allele.setGene(gene);
@@ -218,7 +218,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
         if ((allele.getGene() == null) || (allele.getGene().getId().getAccession().trim().isEmpty())) {
             gene = null;
         } else {
-            gene = genomicFeatures.get(allele.getGene().getId().getAccession());
+            gene = genes.get(allele.getGene().getId().getAccession());
             if (gene == null) {
                 withdrawnGenesCount++;
 
@@ -232,7 +232,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
                 logger.warn("MGI report file is out-of-sync. Adding withdrawn gene {} to allele {}.",
                         gene.toString(), allele.toString());
 
-                sqlLoaderUtils.updateGenomicFeature(gene, null);
+                sqlLoaderUtils.insertGene(gene, null);
             }
         }
 

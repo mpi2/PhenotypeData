@@ -17,9 +17,9 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.LineMapperFieldSet;
-import org.mousephenotype.cda.loads.cdaloader.support.LogStatusStepListener;
+import org.mousephenotype.cda.loads.cdaloader.support.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobInterruptedException;
@@ -30,7 +30,8 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -48,21 +49,77 @@ public class MarkerLoader implements InitializingBean, Step {
     private final Logger                       logger     = LoggerFactory.getLogger(this.getClass());
     public        Map<FilenameKeys, String>    markerKeys = new HashMap<>();
 
-    private FlatFileItemReader<FieldSet> geneTypesReader  = new FlatFileItemReader<>();
-    private FlatFileItemReader<FieldSet> markerListReader = new FlatFileItemReader<>();
-    private FlatFileItemReader<FieldSet> xrefsReader      = new FlatFileItemReader<>();
+    private FlatFileItemReader<GenomicFeature> genesReader           = new FlatFileItemReader<>();
+//    private FlatFileItemReader<GenomicFeature> geneCoordinatesReader = new FlatFileItemReader<>();
+    private FlatFileItemReader<List<Xref>>     xrefsReader           = new FlatFileItemReader<>();
 
     public enum FilenameKeys {
-          GENE_TYPES
-        , MARKER_LIST
+          MARKER_LIST
+        , MARKER_COORDINATES
         , XREFS
     }
 
-    @Autowired
-    private ItemProcessor markerProcessorGeneTypes;
+
+    // Fields within MRK_List1.rpt:
+    private final String[] genesColumnNames = new String[] {
+            "mgiMarkerAccessionId"      // A - MGI Accession ID
+          , "chromosome"                // B - Chromosome
+          , "cMposition"                // C - cM Position
+          , "start"                     // D - Start Coordinate
+          , "end"                       // E - End Coordinate
+          , "strand"                    // F - Strand
+          , "symbol"                    // G - Symbol
+          , "status"                    // H - Status
+          , "name"                      // I - Name
+          , "biotype"                   // J - Marker Type
+          , "subtype"                   // K - Marker Subtype
+          , "synonyms"                  // L - Synonyms (| - delimited)
+        };
+
+//    // Fields within MGI_GTGUP.gff:
+//    private final String[] geneCoordinatesColumnNames = new String[] {
+//            "chromosome"             // A - Chromosome
+//          , "unused_2"               // B - Source of Feature (not used)
+//          , "biotype"                // C - Marker Type
+//          , "start"                  // D - Start Coordinate
+//          , "end"                    // E - End Coordinate
+//          , "unused_6"               // F - Empty Column
+//          , "strand"                 // G - Strand
+//          , "unused_8"               // H - Empty Column
+//          , "composite"              // I - "ID=mgiMarkerAccessionId;Name=symbol;Note=marker feature" (i.e. Feature Type or subtype)
+//    };
+
+    // Fields within MGI_Gene.rpt:
+    private final String[] xrefColumnNames = new String[] {
+            "mgiMarkerAccessionId"    // A - MGI Accession ID
+          , "unused_2"                // B - Marker Symbol
+          , "unused_3"                // C - Marker Name
+          , "unused_4"                // D - Feature Type
+          , "entrezId"                // E - EntrezGene ID
+          , "unused_6"                // F - NCBI Gene chromosome
+          , "unused_7"                // G - NCBI Gene start
+          , "unused_8"                // H - NCBI Gene end
+          , "unused_9"                // I - NCBI Gene strand
+          , "ensemblId"               // J - Ensembl Gene ID
+          , "unused_11"               // K - Ensembl Gene chromosom
+          , "unused_12"               // L - Ensembl Gene start
+          , "unused_13"               // M - Ensembl Gene end
+          , "unused_14"               // N - Ensembl Gene strand
+          , "vegaId"                  // O - VEGA Gene ID
+          , "unused_16"               // P - VEGA Gene chromosome
+          , "unused_17"               // Q - VEGA Gene start
+          , "unused_18"               // R - VEGA Gene end
+          , "unused_19"               // S - VEGA Gene strand
+          , "ccdsId"                  // T - CCDS IDs
+          , "unused_21"               // U - HGNC ID
+          , "unused_22"               // V - HomoloGene ID
+        };
 
     @Autowired
-    private ItemProcessor markerProcessorMarkerList;
+    private ItemProcessor markerProcessorGenes;
+
+//    @Autowired
+//    private ItemProcessor markerProcessorGeneCoordinates;
 
     @Autowired
     private ItemProcessor markerProcessorXrefs;
@@ -80,14 +137,39 @@ public class MarkerLoader implements InitializingBean, Step {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        geneTypesReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.GENE_TYPES)));
-        geneTypesReader.setLineMapper(new LineMapperFieldSet());
 
-        markerListReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.MARKER_LIST)));
-        markerListReader.setLineMapper(new LineMapperFieldSet());
+        genesReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.MARKER_LIST)));
+        genesReader.setComments(new String[] { "#" });
+        genesReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
+        DefaultLineMapper<GenomicFeature> lineMapperGenes = new DefaultLineMapper<>();
+        DelimitedLineTokenizer tokenizerGenes  = new DelimitedLineTokenizer("\t");
+        tokenizerGenes.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
+        tokenizerGenes.setNames(genesColumnNames);
+        lineMapperGenes.setLineTokenizer(tokenizerGenes);
+        lineMapperGenes.setFieldSetMapper(new GenesFieldSetMapper());
+        genesReader.setLineMapper(lineMapperGenes);
+
+//        geneCoordinatesReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.MARKER_COORDINATES)));
+//        geneCoordinatesReader.setComments(new String[] { "#" });
+//        geneCoordinatesReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
+//        DefaultLineMapper<GenomicFeature> lineMapperGeneCoordinates = new DefaultLineMapper<>();
+//        DelimitedLineTokenizer tokenizerGeneCoordinates  = new DelimitedLineTokenizer("\t");
+//        tokenizerGeneCoordinates.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
+//        tokenizerGeneCoordinates.setNames(geneCoordinatesColumnNames);
+//        lineMapperGeneCoordinates.setLineTokenizer(tokenizerGeneCoordinates);
+//        lineMapperGeneCoordinates.setFieldSetMapper(new GeneCoordinatesFieldSetMapper());
+//        geneCoordinatesReader.setLineMapper(lineMapperGeneCoordinates);
 
         xrefsReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.XREFS)));
-        xrefsReader.setLineMapper(new LineMapperFieldSet());
+        xrefsReader.setComments(new String[] { "#" });
+        xrefsReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
+        DefaultLineMapper<List<Xref>> lineMapperXrefs = new DefaultLineMapper<>();
+        DelimitedLineTokenizer  tokenizerXrefs  = new DelimitedLineTokenizer("\t");
+        tokenizerXrefs.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
+        tokenizerXrefs.setNames(xrefColumnNames);
+        lineMapperXrefs.setLineTokenizer(tokenizerXrefs);
+        lineMapperXrefs.setFieldSetMapper(new XrefFieldSetMapper());
+        xrefsReader.setLineMapper(lineMapperXrefs);
     }
 
 
@@ -131,23 +213,22 @@ public class MarkerLoader implements InitializingBean, Step {
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
 
-        Step loadGeneTypesStep = stepBuilderFactory.get("markerLoaderGeneTypesStep")
-                .listener(new MarkerLoaderGeneTypesStepListener())
+        // Don't add the writer here. The MarkerLoaderXrefsStepListener writes all of the data in the map when all reading and processing is done.
+        Step loadGenesStep = stepBuilderFactory.get("markerLoaderGenesStep")
+                .listener(new MarkerLoaderGenesStepListener())
                 .chunk(1000)
-                .reader(geneTypesReader)
-                .processor(markerProcessorGeneTypes)
-                // Don't add a writer here, as this processing simply populates the featureTypes, genomicFeatures, and sequenceRegions maps.
+                .reader(genesReader)
+                .processor(markerProcessorGenes)
                 .build();
 
-        Step loadMarkerListStep = stepBuilderFactory.get("markerLoaderMarkerListStep")
-                .listener(new MarkerLoaderMarkerListStepListener())
-                .chunk(1000)
-                .reader(markerListReader)
-                .processor(markerProcessorMarkerList)
-                // Don't add a writer here, as this processing simply populates the featureTypes, genomicFeatures, and sequenceRegions maps.
-                .build();
+//        Step loadGeneCoordinatesStep = stepBuilderFactory.get("markerLoaderGeneCoordinatesStep")
+//                .listener(new MarkerLoaderGeneCoordinatesStepListener())
+//                .chunk(1000)
+//                .reader(geneCoordinatesReader)
+//                .processor(markerProcessorGeneCoordinates)
+//                // Don't add a writer here, as this processing simply populates the featureTypes, genomicFeatures, and sequenceRegions maps.
+//                .build();
 
-        // NOTE: The MarkerLoaderXrefsStepListener writes all of the data in the genomicFeatures map.
         Step loadXrefsStep = stepBuilderFactory.get("markerLoaderXrefsStep")
                 .listener(new MarkerLoaderXrefsStepListener())
                 .chunk(1000)
@@ -157,10 +238,12 @@ public class MarkerLoader implements InitializingBean, Step {
                 .build();
 
         List<Flow> flows = new ArrayList<>();
-        flows.add(new FlowBuilder<Flow>("markerLoaderGeneTypesFlow")
-                .from(loadGeneTypesStep).end());
-        flows.add(new FlowBuilder<Flow>("markerLoaderMarkerListFlow")
-                .from(loadMarkerListStep).end());
+
+        // GeneCoordinates (MGI_GTGUP.gff) doesn't have the gene name, which is required for INSERT.
+//        flows.add(new FlowBuilder<Flow>("markerLoaderGeneCoordinatesFlow")
+//                .from(loadGeneCoordinatesStep).end());
+        flows.add(new FlowBuilder<Flow>("markerLoaderGenesFlow")
+                .from(loadGenesStep).end());
         flows.add(new FlowBuilder<Flow>("markerLoaderXrefsFlow")
                 .from(loadXrefsStep).end());
 
@@ -175,51 +258,42 @@ public class MarkerLoader implements InitializingBean, Step {
                 .execute(stepExecution);
     }
 
-    public class MarkerLoaderGeneTypesStepListener extends LogStatusStepListener {
+    public class MarkerLoaderGenesStepListener extends LogStatusStepListener {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("GENE TYPES: Added {} new Marker gene types to map from file {} in {}",
-                    ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getAddedGeneTypesCount(),
-                    markerKeys.get(FilenameKeys.GENE_TYPES),
-                    commonUtils.formatDateDifference(start, stop));
-
-            return ((MarkerProcessorGeneTypes) markerProcessorGeneTypes).getErrMessages();
-        }
-    }
-
-    public class MarkerLoaderMarkerListStepListener extends LogStatusStepListener {
-
-        @Override
-        protected Set<String> logStatus() {
-            logger.info("MARKER LIST: Added {} new Marker gene types to map and updated {} Marker gene types from file {} in {}",
-                    ((MarkerProcessorMarkerList) markerProcessorMarkerList).getAddedMarkerListCount(),
-                    ((MarkerProcessorMarkerList) markerProcessorMarkerList).getUpdatedMarkerListCount(),
+            logger.info("GENES: Added {} new genes to map from file {} in {}.",
+                    ((MarkerProcessorGenes) markerProcessorGenes).getAddedGenesCount(),
                     markerKeys.get(FilenameKeys.MARKER_LIST),
                     commonUtils.formatDateDifference(start, stop));
 
-            return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
+            return ((MarkerProcessorGenes) markerProcessorGenes).getErrMessages();
         }
     }
+
+//    public class MarkerLoaderGeneCoordinatesStepListener extends LogStatusStepListener {
+//
+//        @Override
+//        protected Set<String> logStatus() {
+//            logger.info("");
+//            logger.info("GENE COORDINATES: Added {} new Marker gene types to map from file {} in {}",
+//                    ((MarkerProcessorGeneCoordinates) markerProcessorGeneCoordinates).getAddedCoordinatesCount(),
+//                    markerKeys.get(FilenameKeys.MARKER_COORDINATES),
+//                    commonUtils.formatDateDifference(start, stop));
+//
+//            return ((MarkerProcessorGeneCoordinates) markerProcessorGeneCoordinates).getErrMessages();
+//        }
+//    }
 
     public class MarkerLoaderXrefsStepListener extends LogStatusStepListener {
         @Override
         protected Set<String> logStatus() {
-            Map<Integer, MarkerProcessorXrefs.XrefNode> xrefNodeMap = ((MarkerProcessorXrefs) markerProcessorXrefs).getXrefNodesMap();
 
-            logger.info("XREF: Added {} new EntrezGene, {} new Ensembl, {} new VEGA, and {} new cCDS Xrefs to map from file {} in {}",
-                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENTREZ_GENE_ID).getCount(),
-                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_ENSEMBL_GENE_ID).getCount(),
-                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_VEGA_GENE_ID).getCount(),
-                    xrefNodeMap.get(MarkerProcessorXrefs.OFFSET_CCDS_ID).getCount(),
-                    markerKeys.get(FilenameKeys.XREFS),
-                    commonUtils.formatDateDifference(start, stop));
-
-            // Write the genomicFeatures map to the database.
+            // Write the genes to the database.
             start = new Date();
-            logger.info("Writing genes to database");
+            logger.info("Writing genes, synonyms, and xrefs to database");
 
-            List<GenomicFeature> genes = new ArrayList(((MarkerProcessorXrefs) markerProcessorXrefs).getGenomicFeatures().values());
+            List<GenomicFeature> genes = new ArrayList(((MarkerProcessorXrefs) markerProcessorXrefs).getGenes().values());
             try {
                 writer.write(genes);
             } catch (Exception e) {
@@ -227,11 +301,16 @@ public class MarkerLoader implements InitializingBean, Step {
             }
 
             stop = new Date();
-            logger.info("Wrote {} genes to database in {}",
-                    genes.size(),
-                    commonUtils.formatDateDifference(start, stop));
+            logger.info("  Wrote {} genes and {} synonyms from file {} and {} xrefs from file {} to database in {}",
+                      writer.getWrittenGenes()
+                    , writer.getWrittenSynonyms()
+                    , markerKeys.get(FilenameKeys.MARKER_LIST)
+                    , writer.getWrittenXrefs()
+                    , markerKeys.get(FilenameKeys.XREFS)
+                    , commonUtils.formatDateDifference(start, stop));
+            logger.info("");
 
-            return ((MarkerProcessorMarkerList) markerProcessorMarkerList).getErrMessages();
+            return ((MarkerProcessorXrefs) markerProcessorXrefs).getErrMessages();
         }
     }
 }

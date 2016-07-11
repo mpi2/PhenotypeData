@@ -16,12 +16,17 @@
 
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.*;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -40,12 +45,10 @@ import java.util.Map;
 @Configuration
 public class ConfigBeans {
 
-    private Map<String, OntologyTerm>   markerProcessorFeatureTypes = new HashMap<>();
-    private Map<String, OntologyTerm>   mgiFeatureTypes             = new HashMap<>();
+    private Map<String, OntologyTerm>   mgiFeatureTypes;
 
     private Map<String, Allele>         alleles         = new HashMap<>(150000);    // key = allele accession id
     private Map<String, GenomicFeature> genes           = new HashMap<>(150000);    // key = marker accession id
-    private Map<String, SequenceRegion> sequenceRegions = new HashMap<>(150000);    // key = name (seq_name)
     private Map<String, Strain>         strains         = new HashMap<>(150000);    // key = strain accession id
 
     @NotNull
@@ -94,7 +97,7 @@ public class ConfigBeans {
         , MGI_Gene
         , MGI_Gene_Model_Coord
         , MGI_GenePheno
-        , MGI_GTGUP
+//        , MGI_GTGUP
         , MGI_PhenoGenoMP
         , MGI_PhenotypicAllele
         , MGI_QTLAllele
@@ -132,7 +135,7 @@ public class ConfigBeans {
             , new DownloadFilename(DownloadFileEnum.MGI_Gene, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene.rpt", cdaWorkspace + "/MGI_Gene.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord, "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_GenePheno, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_GTGUP, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff", DbIdType.MGI.intValue())
+//            , new DownloadFilename(DownloadFileEnum.MGI_GTGUP, "ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_PhenoGenoMP, "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenoGenoMP.rpt", cdaWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_PhenotypicAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenotypicAllele.rpt", cdaWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele, "ftp://ftp.informatics.jax.org/pub/reports/MGI_QTLAllele.rpt", cdaWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
@@ -191,9 +194,6 @@ public class ConfigBeans {
     @Bean(name = "alleleProcessorPhenotypic")
     public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
         mgiFeatureTypes = sqlLoaderUtils().getOntologyTerms(DbIdType.MGI.intValue());
-        if (genes.isEmpty()) {
-            genes =  sqlLoaderUtils().getGenes();
-        }
         return new AlleleProcessorPhenotypic(genes, mgiFeatureTypes);
     }
 
@@ -244,12 +244,6 @@ public class ConfigBeans {
 
     @Bean(name = "bioModelProcessor")
     public BiologicalModelProcessor bioModelProcessor() {
-        if (alleles.isEmpty()) {
-            alleles = sqlLoaderUtils().getAlleles();
-        }
-        if (genes.isEmpty()) {
-            genes = sqlLoaderUtils().getGenes();
-        }
         return new BiologicalModelProcessor(alleles, genes);
     }
 
@@ -271,21 +265,22 @@ public class ConfigBeans {
     @Bean(name = "markerLoader")
     public MarkerLoader markerLoader() throws CdaLoaderException {
         Map<MarkerLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
-        filenameKeys.put(MarkerLoader.FilenameKeys.GENE_TYPES, downloadFilenameMap.get(DownloadFileEnum.MGI_GTGUP).targetFilename);
         filenameKeys.put(MarkerLoader.FilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
+//        filenameKeys.put(MarkerLoader.FilenameKeys.MARKER_COORDINATES, downloadFilenameMap.get(DownloadFileEnum.MGI_GTGUP).targetFilename);
         filenameKeys.put(MarkerLoader.FilenameKeys.XREFS, downloadFilenameMap.get(DownloadFileEnum.MGI_Gene).targetFilename);
 
         return new MarkerLoader(filenameKeys);
     }
 
-    @Bean(name = "markerProcessorGeneTypes")
-    public MarkerProcessorGeneTypes markerProcessorGeneTypes() {
-        return new MarkerProcessorGeneTypes(genes, markerProcessorFeatureTypes, sequenceRegions);
+    @Bean(name = "markerProcessorGenes")
+    public MarkerProcessorGenes markerProcessorGenes() {
+//        coordinates = markerProcessorGeneCoordinates().getCoordinates();
+        return new MarkerProcessorGenes(genes);
     }
 
-    @Bean(name = "markerProcessorMarkerList")
-    public MarkerProcessorMarkerList markerProcessorMarkerList() {
-        return new MarkerProcessorMarkerList(genes, markerProcessorFeatureTypes, sequenceRegions);
+    @Bean(name = "markerProcessorGeneCoordinates")
+    public MarkerProcessorGeneCoordinates markerProcessorGeneCoordinates() {
+        return new MarkerProcessorGeneCoordinates(genes);
     }
 
     @Bean(name = "markerProcessorXrefs")

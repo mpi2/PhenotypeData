@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,9 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mrelac on 26/04/16.
@@ -40,8 +43,15 @@ public class MarkerWriter implements ItemWriter {
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
-    private MarkerPSSetter pss = new MarkerPSSetter();
+    private MarkerPSSetter       pss     = new MarkerPSSetter();
+    private Map<String, Integer> written = new HashMap<>();
 
+    public MarkerWriter() {
+
+        written.put("genes", 0);
+        written.put("synonyms", 0);
+        written.put("xrefs", 0);
+    }
 
     /**
      * Process the supplied data element. Will not be called with any null items
@@ -54,9 +64,18 @@ public class MarkerWriter implements ItemWriter {
     @Override
     public void write(List items) throws Exception {
         for (Object genomicFeature1 : items) {
-            GenomicFeature feature = (GenomicFeature) genomicFeature1;
-            pss.setFeature(feature);
-            sqlLoaderUtils.updateGenomicFeature(feature, pss);
+            GenomicFeature gene = (GenomicFeature) genomicFeature1;
+            pss.setFeature(gene);
+
+            try {
+                Map<String, Integer> counts = sqlLoaderUtils.insertGene(gene, pss);
+                written.put("genes", written.get("genes") + counts.get("genes"));
+                written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
+                written.put("xrefs", written.get("xrefs") + counts.get("xrefs"));
+
+            } catch (Exception e) {
+                throw new CdaLoaderException(e.getLocalizedMessage() + "\n\t gene: " + gene);
+            }
         }
     }
 
@@ -110,5 +129,17 @@ public class MarkerWriter implements ItemWriter {
             }
             ps.setString(14, feature.getStatus());                          // status
         }
+    }
+
+    public int getWrittenGenes() {
+        return written.get("genes");
+    }
+
+    public int getWrittenSynonyms() {
+        return written.get("synonyms");
+    }
+
+    public int getWrittenXrefs() {
+        return written.get("xrefs");
     }
 }

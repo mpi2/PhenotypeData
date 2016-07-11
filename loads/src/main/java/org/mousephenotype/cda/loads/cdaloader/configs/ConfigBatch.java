@@ -88,7 +88,7 @@ public class ConfigBatch {
         Job[] jobs = new Job[] {
                   databaseInitialiserJob()
 //                , downloaderJob()
-                , dbLoaderJob()
+             ,    dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -188,5 +188,12 @@ public class ConfigBatch {
                 .next(bioModelsFlow)
                 .end()
                 .build();
+
+
+//        return jobBuilderFactory.get("dbLoaderJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(bioModelsFlow)
+//                .end()
+//                .build();
     }
 }

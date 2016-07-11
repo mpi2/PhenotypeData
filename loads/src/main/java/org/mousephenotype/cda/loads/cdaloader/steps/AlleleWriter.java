@@ -41,6 +41,7 @@ public class AlleleWriter implements ItemWriter {
     private SqlLoaderUtils sqlLoaderUtils;
 
     private AllelePSSetter pss = new AllelePSSetter();
+    private int written = 0;
 
 
     /**
@@ -57,7 +58,7 @@ public class AlleleWriter implements ItemWriter {
         for (Object allele1 : items) {
             Allele allele = (Allele) allele1;
             pss.setAllele(allele);
-            sqlLoaderUtils.updateAllele(allele, pss);
+            written += sqlLoaderUtils.insertAllele(allele, pss);
         }
     }
 
@@ -90,5 +91,9 @@ public class AlleleWriter implements ItemWriter {
             ps.setString(7, allele.getSymbol());                            // symbol
             ps.setString(8, allele.getName());                              // name
         }
+    }
+
+    public int getWritten() {
+        return written;
     }
 }
