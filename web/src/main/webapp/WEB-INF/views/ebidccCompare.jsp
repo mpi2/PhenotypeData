@@ -33,6 +33,9 @@
 									<p>EBI calls with same MP but different pValue at DCC: ${differentPvalue} (${differentPvalue/total*100})</p>
 									<p>EBI calls with more general call at DCC (DCC calls the parent, i.e. "abnormal" instead of "decreased"): ${moreGeneralCallDcc} (${moreGeneralCallDcc/total*100})</p>
 									<p>EBI calls with more general call at EBI (EBI calls the parent, i.e. "abnormal" instead of "decreased"): ${moreGeneralCallEbi} (${moreGeneralCallEbi/total*100})</p>
+									<p>EBI calls not significant in DCC: ${notSignifAnyMore} (${notSignifAnyMore/total*100})</p>
+									<p>EBI and DC calls are significant but different MPs are assigned: ${differentMps} (${differentMps/total*100})</p>
+									<p>EBI calls missing from DCC, but for un-analysed parameters: ${ignore} (${ignore/total*100})</p>
 									<p>Total EBI calls: ${total}</p>
 								</div>					
 							</div>
