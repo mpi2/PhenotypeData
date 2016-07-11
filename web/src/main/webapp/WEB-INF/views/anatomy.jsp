@@ -109,7 +109,7 @@
 						                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
 						                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
 						                                  <c:forEach var="facet" items="${phenoFacet.value}">
-						                                       <option>${facet.key}</option>
+						                                       <option>${facet}</option>
 						                                  </c:forEach>
 						                             </select> 
 						                        </c:forEach>
