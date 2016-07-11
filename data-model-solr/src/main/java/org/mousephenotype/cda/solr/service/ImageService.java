@@ -210,15 +210,18 @@ System.out.println("calling get images for Anatomy");
 		query.addFacetField(ImageDTO.PHENOTYPING_CENTER);
 		query.addFacetField(ImageDTO.PROCEDURE_NAME);
 		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
-
+System.out.println("images query facet="+query);
 		QueryResponse response = solr.query(query);
 
 		for (FacetField facetField : response.getFacetFields()) {
 			Set<String> filter = new TreeSet<>();
 			for (Count facet : facetField.getValues()) {
-				filter.add(facet.getName());
+				if (facet.getName().equals("expression") || facetField.getName().equals("no expression")) {
+					filter.add(facet.getName());
+				}
 			}
-			res.put(facetField.getName(), filter);
+				res.put(facetField.getName(), filter);
+			
 		}
 
 		return res;
