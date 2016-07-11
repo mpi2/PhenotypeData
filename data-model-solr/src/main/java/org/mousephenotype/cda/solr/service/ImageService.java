@@ -187,10 +187,10 @@ System.out.println("calling get images for Anatomy");
 		return new ArrayList<>(res.values());
 	}
 
-	public Map<String, Map<String, Long>> getFacets(String anatomyId)
+	public Map<String, Set<String>> getFacets(String anatomyId)
 	throws SolrServerException {
 
-		Map<String, Map<String, Long>> res = new HashMap<>();
+		Map<String, Set<String>> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ");
 
@@ -198,7 +198,11 @@ System.out.println("calling get images for Anatomy");
 			query.addFilterQuery("(" + ImageDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
 					+ ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
 		}
-
+		query.addFilterQuery(ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
+		.addFilterQuery("(" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"no expression\" OR " + ObservationDTO.PARAMETER_ASSOCIATION_VALUE
+				+ ":\"expression\"" + ")"); // only have expressed and
+											// not expressed ingnore
+											// ambiguous and no tissue
 		query.setFacet(true);
 		query.setFacetLimit(-1);
 		query.setFacetMinCount(1);
@@ -206,15 +210,18 @@ System.out.println("calling get images for Anatomy");
 		query.addFacetField(ImageDTO.PHENOTYPING_CENTER);
 		query.addFacetField(ImageDTO.PROCEDURE_NAME);
 		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
-
+System.out.println("images query facet="+query);
 		QueryResponse response = solr.query(query);
 
 		for (FacetField facetField : response.getFacetFields()) {
-			Map<String, Long> filter = new HashMap<>();
+			Set<String> filter = new TreeSet<>();
 			for (Count facet : facetField.getValues()) {
-				filter.put(facet.getName(), facet.getCount());
+				if (!facet.getName().equals("tissue not available") && !facet.getName().equals("ambiguous")) {
+					filter.add(facet.getName());
+				}
 			}
-			res.put(facetField.getName(), filter);
+				res.put(facetField.getName(), filter);
+			
 		}
 
 		return res;
