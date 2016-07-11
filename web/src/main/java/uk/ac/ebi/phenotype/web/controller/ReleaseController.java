@@ -187,7 +187,7 @@ public class ReleaseController {
 						"Center by center",
 						"Number of lines",
 						"lines",
-						"lineProcedureChart");
+						"lineProcedureChart", "checkAllProcedures", "uncheckAllProcedures");
 
 		List<AggregateCountXYBean> callBeans = analyticsDAO.getAllProcedurePhenotypeCalls();
 		String callProcedureChart =
@@ -198,7 +198,7 @@ public class ReleaseController {
 						"Center by center",
 						"Number of phenotype calls",
 						"calls",
-						"callProcedureChart");
+						"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
 
 		Map<String, List<String>> statisticalMethods = analyticsDAO.getAllStatisticalMethods();
 
@@ -218,7 +218,7 @@ public class ReleaseController {
 						statisticalMethod,
 						"Frequency",
 						"",
-						statisticalMethodsShortName.get(statisticalMethod)+"Chart");
+						statisticalMethodsShortName.get(statisticalMethod)+"Chart", "xxx", "xxx");
 				distributionCharts.put(statisticalMethodsShortName.get(statisticalMethod)+"Chart", chart);
 			}
 		}
@@ -235,7 +235,8 @@ public class ReleaseController {
 			trendsMap.put(trendsVariables[i], analyticsDAO.getHistoricalData(trendsVariables[i]));
 		}
 
-		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allReleases, "Genes/Mutant Lines/MP Calls", "Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true, "trendsChart");
+		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allReleases, "Genes/Mutant Lines/MP Calls", 
+				"Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true, "trendsChart", null, null);
 
 		Map<String, List<AggregateCountXYBean>> datapointsTrendsMap = new HashMap<String, List<AggregateCountXYBean>>();
 		String[] status = new String[] {"QC_passed", "QC_failed", "issues"};
@@ -250,7 +251,8 @@ public class ReleaseController {
 			}
 		}
 
-		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allReleases, "Data points", "", "Data points", null, false, "datapointsTrendsChart");
+		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allReleases, "Data points", "", 
+				"Data points", null, false, "datapointsTrendsChart", "checkAllDataPoints", "uncheckAllDataPoints");
 
 		/**
 		 * Drill down by top level phenotypes
@@ -267,14 +269,16 @@ public class ReleaseController {
 			topLevelMap.put(metaInfo.get("top_level_"+topLevelsMPsArray[i]), analyticsDAO.getHistoricalData("top_level_"+topLevelsMPsArray[i]+"_calls"));
 		}
 
-		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", "MP Calls", null, false, "topLevelTrendsChart");
+		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", 
+				"MP Calls", null, false, "topLevelTrendsChart", "checkAllTopLevels", "uncheckAllTopLevels");
 
 		TreeMap<String, TreeMap<String, Long>> annotationDistribution = new TreeMap<>();
 		annotationDistribution.put(ZygosityType.heterozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.heterozygote, null));
 		annotationDistribution.put(ZygosityType.homozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.homozygote, null));
 		annotationDistribution.put(ZygosityType.hemizygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote, null));
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", " lines", "distribution");
+			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", 
+			" lines", "distribution", null, null);
 
 		Set<String> allPhenotypingCenters = as.getFacets(AlleleDTO.PHENOTYPING_CENTRE);
 		TreeMap<String, TreeMap<String, Long>> phenotypingDistribution = new TreeMap<>();
@@ -284,7 +288,8 @@ public class ReleaseController {
 			}
 		}
 		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-		gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", "phenotypeStatusByCenterChart");
+				gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", 
+				"phenotypeStatusByCenterChart", "checkAllPhenByCenter", "uncheckAllPhenByCenter");
 
 		Set<String> allGenotypingCenters = as.getFacets(AlleleDTO.PRODUCTION_CENTRE);
 		TreeMap<String, TreeMap<String, Long>> genotypingDistribution = new TreeMap<>();
@@ -294,7 +299,8 @@ public class ReleaseController {
 			}
 		}
 		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-		gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", "genotypeStatusByCenterChart");
+				gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", 
+				"genotypeStatusByCenterChart", "checkAllGenByCenter", "uncheckAllGenByCenter");
 
 		HashMap<SignificantType, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
 		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary, "Distribution of Phenotype Calls", "sexualDimorphismChart" );

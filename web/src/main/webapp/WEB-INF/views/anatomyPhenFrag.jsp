@@ -7,7 +7,8 @@
 					    <thead>
 					    <tr>
 					        <th class="headerSort">Phenotype</th>
-					        <th class="headerSort">Genes</th>
+					        <th class="headerSort">Genes (phenotype only)</th>
+					        <th class="headerSort">Genes (phenotype and expression)</th>
 					    </tr>
 					    </thead>
 					    <tbody>
@@ -20,9 +21,13 @@
 					            </td>
 					            
 					            <td>
-					            	<c:forEach var="gene" items="${row.getGenes()}" varStatus="geneStatus">
-					            		<a href="${baseUrl}/genes/${gene.accessionId}">${gene.symbol}</a><c:if test="${!geneStatus.last}">,&nbsp;</c:if>
-					            	</c:forEach>
+					           		<c:set var="first" value="true"/>
+					            	<c:forEach var="gene" items="${row.getGenes()}" varStatus="geneStatus"><c:if test="${!genesWithExpression.contains(gene.accessionId)}"><c:if test="${!geneStatus.first and not first}">, </c:if><a href="${baseUrl}/genes/${gene.accessionId}">${gene.symbol}</a><c:set var="first" value="false"/></c:if></c:forEach>
+					            </td>
+					            
+					            <td>
+					            	<c:set var="first" value="true"/>
+					            	<c:forEach var="gene" items="${row.getGenes()}" varStatus="geneStatus"><c:if test="${genesWithExpression.contains(gene.accessionId)}"><c:if test="${not geneStatus.first and not first}">, </c:if><a href="${baseUrl}/genes/${gene.accessionId}">${gene.symbol}</a><c:set var="first" value="false"/></c:if></c:forEach>
 					            </td>
 					            					           	
 					        </tr>

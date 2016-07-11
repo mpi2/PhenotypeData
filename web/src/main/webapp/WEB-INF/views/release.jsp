@@ -204,6 +204,10 @@
                                             ${lineProcedureChart}
                                         </script>
                                     </div>
+	
+	                                <a id="checkAllProcedures" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+    								<a id="uncheckAllProcedures"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+    								<div class="clear both"></div>
 
                                     <h3>Allele Types</h3>
                                     <table id="allele_types">
@@ -266,12 +270,18 @@
 				         	<div id="genotypeStatusByCenterChart">
 				         		<script type="text/javascript">${genotypingDistributionChart}</script>
 							</div>
-							</div>
+							<a id="checkAllGenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+    						<a id="uncheckAllGenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+    						<div class="clear both"></div>
+						</div>
 			       		<div class="half">
 				         	<div id="phenotypeStatusByCenterChart">
 				         		<script type="text/javascript">${phenotypingDistributionChart}</script>
-								</div>
 							</div>
+							<a id="checkAllPhenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+    						<a id="uncheckAllPhenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+    						<div class="clear both"></div>
+						</div>
 			   	   	<div class="clear"></div>
 			      </div>
 			      <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
@@ -366,16 +376,21 @@
 							<div class="container span12">
 
 							<div id="callProcedureChart">
-							<script type="text/javascript">
-								${callProcedureChart}
-							</script>
+								<script type="text/javascript">
+									${callProcedureChart}
+								</script>
 							</div>
+							
+							<a id="checkAllPhenCalls" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+    						<a id="uncheckAllPhenCalls"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+    						<div class="clear both"></div>
+							<br/><br/>
 
-                            <h3>Phenotype Associations Overview
+                            <h2>Phenotype Associations Overview
                                 <span class="documentation">
                                     <a href='' id='phenomePanel' class="fa fa-question-circle pull-right"></a>
                                 </span>
-                            </h3>
+                            </h2>
 
 							<p>We provide a 'phenome' overview of statistically significant calls.
 							By following the links below, you'll access the details of the phenotype calls for each center.</p>
@@ -471,6 +486,10 @@
                                         ${datapointsTrendsChart}
                                     </script>
                                 </div>
+                                <a id="checkAllDataPoints" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+    							<a id="uncheckAllDataPoints"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+    							<div class="clear both"></div>
+								<br/><br/>
                                 <br/>
                                 <br/>
                                 <br/>
@@ -480,6 +499,9 @@
                                         ${topLevelTrendsChart}
                                     </script>
                                 </div>
+                                <a id="checkAllTopLevels" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+    							<a id="uncheckAllTopLevels"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+    							<div class="clear both"></div>
                                 <br/>
                                 <br/>
                                 <br/>
