@@ -252,6 +252,7 @@ public class AnatomyController {
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
+		System.out.println("phenoFacets="+phenoFacets);
         return phenoFacets;
     }
 

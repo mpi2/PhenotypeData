@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.annotation.PostConstruct;
 
@@ -1131,7 +1132,7 @@ public class ExpressionService extends BasicService {
 
 	public Map<String, Set<String>> getFacets(String anatomyId)
 			throws SolrServerException {
-
+		System.out.println("calling get facetes");
 				Map<String, Set<String>> res = new HashMap<>();
 				SolrQuery query = new SolrQuery();
 				query.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
@@ -1145,7 +1146,8 @@ public class ExpressionService extends BasicService {
 						+ ":\"expression\"" + ")"); // only have expressed and
 													// not expressed ingnore
 													// ambiguous and no tissue
-
+				//query.addFilterQuery("(" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"no expression\" OR " + ImageDTO.PARAMETER_ASSOCIATION_VALUE
+				//		+ ":\"expression\"" + ")");
 				query.setFacet(true);
 				query.setFacetLimit(-1);
 				query.setFacetMinCount(1);
@@ -1155,12 +1157,14 @@ public class ExpressionService extends BasicService {
 				query.addFacetField(ObservationDTO.CATEGORY);
 
 				QueryResponse response = experimentSolr.query(query);
-
+				System.out.println("facet query="+query);
 				for (FacetField facetField : response.getFacetFields()) {
 					Set<String> filter = new TreeSet<>();
 					for (Count facet : facetField.getValues()) {
-						filter.add(facet.getName());
+							filter.add(facet.getName());
+						
 					}
+					
 					res.put(facetField.getName(), filter);
 				}
 
