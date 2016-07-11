@@ -55,11 +55,11 @@ public class StrainWriter implements ItemWriter {
                 List<Strain> strains = (List<Strain>) strain1;
 
                 for (Strain strain : strains) {
-                    sqlLoaderUtils.updateStrain(strain);
+                    sqlLoaderUtils.insertStrain(strain);
                 }
             } else {
                 Strain strain = (Strain) strain1;
-                sqlLoaderUtils.updateStrain(strain);
+                sqlLoaderUtils.insertStrain(strain);
             }
         }
     }

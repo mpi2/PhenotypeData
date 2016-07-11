@@ -62,7 +62,7 @@ public class StrainProcessorMgi implements ItemProcessor<Strain, Strain> {
 
         Allele allele = allelesMap.get(strain.getId().getAccession());
         if (allele != null) {
-            logger.warn("Strain {} is already in the allele table as allele {}", strain.toString(), allele);
+            logger.warn("Strain {} is already in the allele table", strain.getId().toString());
             strainIsAlleleCount++;
             return null;
         } else if ( ! strainNameToAccessionIdMap.containsKey(strain.getName())) {

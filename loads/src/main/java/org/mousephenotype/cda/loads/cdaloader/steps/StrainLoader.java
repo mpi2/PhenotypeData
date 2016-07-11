@@ -181,7 +181,7 @@ public class StrainLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("MGI: Added {} mgi strains (with no synonyms) from file {} in {}. StrainIsAllele count: {}.",
+            logger.info("MGI: Added {} mgi strains (with no synonyms) to database from file {} in {}. StrainIsAllele count: {}.",
                     ((StrainProcessorMgi)strainProcessorMgi).getAddedMgiStrainsCount(),
                     strainKeys.get(FilenameKeys.MGI),
                     commonUtils.formatDateDifference(start, stop),
@@ -195,7 +195,12 @@ public class StrainLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("IMSR: Added {} Eucomm strains and {} Eucomm synonyms from file {} in {}. StrainNotSynonym count: {}. AddedStrainNotSynonym count: {}. StrainIsAllele count: {}.",
+
+            int totalStrainsAdded =
+                  ((StrainProcessorMgi)strainProcessorMgi).getAddedMgiStrainsCount()
+                + ((StrainProcessorImsr)strainProcessorImsr).getAddedEucommStrainsCount();
+
+            logger.info("IMSR: Added {} Eucomm strains and {} Eucomm synonyms to database from file {} in {}. StrainNotSynonym count: {}. AddedStrainNotSynonym count: {}. StrainIsAllele count: {}.",
                     ((StrainProcessorImsr)strainProcessorImsr).getAddedEucommStrainsCount(),
                     ((StrainProcessorImsr)strainProcessorImsr).getAddedEucommSynonymsCount(),
                     strainKeys.get(FilenameKeys.IMSR),
@@ -203,6 +208,8 @@ public class StrainLoader implements InitializingBean, Step {
                     ((StrainProcessorImsr)strainProcessorImsr).getStrainNotSynonymCount(),
                     ((StrainProcessorImsr)strainProcessorImsr).getAddedStrainNotSynonymCount(),
                     ((StrainProcessorImsr)strainProcessorImsr).getStrainIsAlleleCount());
+            logger.info("  Wrote {} strains to database.", totalStrainsAdded);
+            logger.info("");
 
             return ((StrainProcessorImsr) strainProcessorImsr).getErrorMessages();
         }
