@@ -225,7 +225,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                 // Skip this one: pValue not significant OR phenotypeTerm is an anatomy term (MA)
 	            // OR phenotype term is an embronic anatomy term (EMAP)
 ////                if ((pValue != null && pValue >= 0.0001) || phenotypeTerm.startsWith("MA:") || phenotypeTerm.startsWith("EMAP:")) {
-                if (pValue != null || phenotypeTerm.startsWith("MA:") || phenotypeTerm.startsWith("EMAP:")) {
+                if (pValue == null || phenotypeTerm.startsWith("MA:") || phenotypeTerm.startsWith("EMAP:")) {
                 	continue;
                 }
 
