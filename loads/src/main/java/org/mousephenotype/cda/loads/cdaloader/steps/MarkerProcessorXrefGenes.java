@@ -34,12 +34,13 @@ import java.util.Set;
 /**
  * Created by mrelac on 09/06/16.
  */
-public class MarkerProcessorXrefs implements ItemProcessor<List<Xref>, List<Xref>> {
+public class MarkerProcessorXrefGenes implements ItemProcessor<List<Xref>, List<Xref>> {
 
     public final Set<String>            errMessages = new HashSet<>();
     private Map<String, GenomicFeature> genes;
     private       int                   lineNumber  = 0;
     private final Logger                logger      = LoggerFactory.getLogger(this.getClass());
+    private       int                   xrefsAdded  = 0;
 
     private final String[] expectedHeadings = new String[]{
               "MGI Accession ID"        // A
@@ -71,7 +72,7 @@ public class MarkerProcessorXrefs implements ItemProcessor<List<Xref>, List<Xref
     private SqlLoaderUtils sqlLoaderUtils;
 
 
-    public MarkerProcessorXrefs(Map<String, GenomicFeature> genomicFeatures) {
+    public MarkerProcessorXrefGenes(Map<String, GenomicFeature> genomicFeatures) {
         this.genes = genomicFeatures;
     }
 
@@ -126,9 +127,12 @@ public class MarkerProcessorXrefs implements ItemProcessor<List<Xref>, List<Xref
             }
 
             gene.getXrefs().addAll(xrefs);
+            xrefsAdded += xrefs.size();
+
+            return xrefs;
         }
 
-        return xrefs;
+        return null;
     }
 
     public Set<String> getErrMessages() {
@@ -137,5 +141,9 @@ public class MarkerProcessorXrefs implements ItemProcessor<List<Xref>, List<Xref
 
     public Map<String, GenomicFeature> getGenes() {
         return genes;
+    }
+
+    public int getXrefsAdded() {
+        return xrefsAdded;
     }
 }
