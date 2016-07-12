@@ -725,7 +725,6 @@ public class ExpressionService extends BasicService {
 
 		System.out.println("SOLR URL WAS " + experimentSolr.getBaseURL() + "/select?" + query);
 		List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
-		System.out.println("anatomy response size=" + response.size());
 		for (ObservationDTO observation : response) {
 
 			// for (String expressionValue :
@@ -1132,7 +1131,6 @@ public class ExpressionService extends BasicService {
 
 	public Map<String, Set<String>> getFacets(String anatomyId)
 			throws SolrServerException {
-		System.out.println("calling get facetes");
 				Map<String, Set<String>> res = new HashMap<>();
 				SolrQuery query = new SolrQuery();
 				query.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
@@ -1157,7 +1155,6 @@ public class ExpressionService extends BasicService {
 				query.addFacetField(ObservationDTO.CATEGORY);
 
 				QueryResponse response = experimentSolr.query(query);
-				System.out.println("facet query="+query);
 				for (FacetField facetField : response.getFacetFields()) {
 					Set<String> filter = new TreeSet<>();
 					for (Count facet : facetField.getValues()) {
