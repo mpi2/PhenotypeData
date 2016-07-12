@@ -101,6 +101,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 
 		}
 
+		
         this.setExpression(expressionValue);
         this.setAnatomy(anatomyTerms);
 
@@ -116,6 +117,9 @@ public class AnatomyPageTableRow extends DataTableRow{
 
         this.setEvidenceLink(buildImageUrl(baseUrl, anatomyId, anatomy.get(anatomyIds.indexOf(anatomyId)), expressionValue));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
+        if(expressionValue.equals("ambiguous")){
+			System.out.println("odd expression value for row="+this);
+		}
     }
     
    
@@ -237,5 +241,14 @@ public class AnatomyPageTableRow extends DataTableRow{
 
 		this.anatomyLinks = anatomyLinks;
 	}
+
+
+	@Override
+	public String toString() {
+		return "AnatomyPageTableRow [expression=" + expression + ", anatomy=" + anatomy + ", anatomyLinks="
+				+ anatomyLinks + ", numberOfImages=" + numberOfImages + "]";
+	}
+	
+	
 
 }
