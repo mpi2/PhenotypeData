@@ -88,7 +88,7 @@ public class ConfigBatch {
         Job[] jobs = new Job[] {
                   databaseInitialiserJob()
 //                , downloaderJob()
-             ,    dbLoaderJob()
+                , dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
