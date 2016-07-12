@@ -42,6 +42,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
+
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
@@ -168,7 +170,7 @@ public class ImageService implements WebStatus{
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 		for (ImageDTO image : response) {
 			for (String expressionValue : image.getDistinctParameterAssociationsValue()) {
-				if (paramAssoc == null || paramAssoc.contains(expressionValue)) {
+				if (expressionValue.equals("expression") || expressionValue.equals("no expression")) {
 					AnatomyPageTableRow row = new AnatomyPageTableRow(image, anatomyId, baseUrl, expressionValue);
 					if (res.containsKey(row.getKey())) {
 						row = res.get(row.getKey());
