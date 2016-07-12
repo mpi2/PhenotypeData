@@ -109,8 +109,20 @@
 						                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
 						                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
 						                                  <c:forEach var="facet" items="${phenoFacet.value}">
-						                                       <option>${facet}</option>
+						                                 <%--  <c:choose>
+						                                  
+						                                  <c:when test="${facet eq 'expression' }">
+						                                       <option value="${facet}">${facet}</option>
+						                                  </c:when>
+						                                  <c:when test="${facet eq 'no expression' }">
+						                                  <option value="${facet}">${facet}</option>
+						                                  </c:when>
+						                                  <c:otherwise> --%>
+						                                  	<option value="${facet}">${facet}</option>
+						                                 <%--  </c:otherwise>
+						                                  </c:choose> --%>
 						                                  </c:forEach>
+						                                  
 						                             </select> 
 						                        </c:forEach>
 						                        <div class="clear"></div>
@@ -253,6 +265,7 @@
 						var values = [];
 						for(var  i=0; i < selector.options.length; i++ ) {
 							if (selector.options[i].selected && (selector.options[i].value != "")) {
+								console.log("name="+selector.options[i].text())
 								values .push(selector.options[i].value);
 							}
 						}

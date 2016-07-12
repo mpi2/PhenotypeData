@@ -155,7 +155,7 @@ public class AnatomyPageTableRow extends DataTableRow{
     		url += "&" + ImageDTO.PARAMETER_STABLE_ID + "=" + getParameter().getStableId();
     	}
     	if ( expressionValue != null){
-    		url += "&" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + "=" + expressionValue;
+    		url += "&" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + "=\"" + expressionValue+"\"";
     	}
     	if( zygosity!=null){
     		url+= "&" +ImageDTO.ZYGOSITY+"="+zygosity;
