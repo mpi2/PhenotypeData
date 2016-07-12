@@ -236,7 +236,6 @@ public class AnatomyController {
 			tempFromCategorical=expressionService.getFacets(anatomyId);
 			//we need to merge the options from each data source categorical and images - note categorical==parameter_association_value
 			for(String key: tempFromImages.keySet()){
-				System.out.println("key="+key);
 				if(key.equals(ImageDTO.PARAMETER_ASSOCIATION_VALUE)){
 					tempFromImages.get(key).addAll(tempFromCategorical.get(ObservationDTO.CATEGORY));
 				}else{
