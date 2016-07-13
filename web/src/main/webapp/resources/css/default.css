@@ -286,7 +286,7 @@ div.searchcontent {
     background: none;
 }
 
-#bigsearchbox input     { color: grey; border: 2px solid #0978a1; width: 385px; height: 18px !important;
+#bigsearchbox input     { color: grey; border: 2px solid #0978a1; width: 385px; height: 20px !important;
     font-size: 16px; line-height: 0px;}
 #bigsearchbox i#sicon { position: absolute; top: -1px;}
 #bigsearchbox i#clearIcon {
