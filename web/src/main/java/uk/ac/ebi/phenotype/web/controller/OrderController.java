@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,10 +24,15 @@ public class OrderController {
 		row.setStrainOfOrigin("C57BL/6N");
 		row.setAlleleType("Reporter-tagged deletion allele (post-Cre)");
 		GeneTargetDetail detail=new GeneTargetDetail();
-		
-		List<GeneTargetDetail> geneTargetDetails=new GeneTargetDetail();
+		detail.setLabel("Target Vector Map");
+		detail.setLink("https://www.i-dcc.org/imits/targ_rep/alleles/4973/allele-image-cre?simple=true.jpg.jpg");
+		List<GeneTargetDetail> geneTargetDetails=new ArrayList<>();
+		geneTargetDetails.add(detail);
 		row.setGeneTargetDetails(geneTargetDetails);
 
+		List<OrderTableRow> orderRows=new ArrayList<>();
+		orderRows.add(row);
+		model.addAttribute("orderRows", orderRows);
 		return "orderSectionFrag";
 	}
 
