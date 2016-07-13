@@ -18,8 +18,8 @@ package org.mousephenotype.cda.loads.cdaloader.support;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,77 +114,10 @@ public class SqlLoaderUtils {
         try {
 
             count = jdbcTemplate.update("INSERT INTO allele (acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol, name) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", pss);
+                                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", pss);
 
         } catch (DuplicateKeyException e) {
 
-        }
-
-        return count;
-    }
-
-    /**
-     * If {@link BiologicalModelAggregator} doesn't exist, insert it into the database.
-     *
-     * @param bioModel the {@link BiologicalModelAggregator} instance to be inserted
-     * @param bioModelPss - the biological_model prepared statement setter
-     * @param bioModelAllelePss - the biological_model_allele prepared statement setter
-     * @param bioModelGenomicFeaturePss - the biological_model_genomic_feature prepared statement setter
-     * @param bioModelPhenotypePss - the biological_model_phenotype prepared statement setter
-     *
-     * @return the number of {@code bioModel}s inserted
-     */
-    public int updateBioModel(BiologicalModelAggregator bioModel,
-                              PreparedStatementSetter bioModelPss,
-                              PreparedStatementSetter bioModelAllelePss,
-                              PreparedStatementSetter bioModelGenomicFeaturePss,
-                              PreparedStatementSetter bioModelPhenotypePss) throws CdaLoaderException
-    {
-        int count = 0;
-
-        try {
-
-            count = jdbcTemplate.update("INSERT INTO biological_model (db_id, allelic_composition, genetic_background) " +
-                                "VALUES (?, ?, ?)", bioModelPss);
-
-            int bioModelId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()",Integer.class);
-            bioModel.setBiologicalModelId(bioModelId);
-        } catch (DuplicateKeyException e) {
-            logger.warn("Duplicate biological_model entry: {}. biological model not added.", bioModel);
-            return count;
-        }
-
-        try {
-
-            count = jdbcTemplate.update("INSERT INTO biological_model_allele (biological_model_id, allele_acc, allele_db_id) " +
-                                "VALUES (?, ?, ?)", bioModelAllelePss);
-
-        } catch (DuplicateKeyException e) {
-
-            logger.warn("Duplicate biological_model_allele entry: {}. biological model not added.", bioModel);
-            return count;
-        }
-
-        try {
-
-            count = jdbcTemplate.update("INSERT INTO biological_model_genomic_feature (biological_model_id, gf_acc, gf_db_id) " +
-                                "VALUES (?, ?, ?)", bioModelGenomicFeaturePss);
-
-        } catch (DuplicateKeyException e) {
-
-            logger.warn("Duplicate biological_model_genomic_feature entry: {}. biological model not added.", bioModel);
-            return count;
-        }
-        
-        try {
-
-            count = jdbcTemplate.update("INSERT INTO biological_model_phenotype (biological_model_id, phenotype_acc, phenotype_db_id) " +
-                                "VALUES (?, ?, ?)", bioModelPhenotypePss);
-
-        } catch (DuplicateKeyException e) {
-
-            logger.warn("Duplicate biological_model_phenotype entry: {}. biological model not added.", bioModel);
-            return count;
         }
 
         return count;
@@ -255,6 +188,92 @@ public class SqlLoaderUtils {
         logger.info("Loading genes complete.");
 
         return genes;
+    }
+
+    /**
+     * If {@link BiologicalModelAggregator} doesn't exist, insert it into the database.
+     *
+     * @param bioModel the {@link BiologicalModelAggregator} instance to be inserted
+     *
+     * @return the number of {@code bioModel}s inserted
+     */
+    public Map<String, Integer> insertBioModel(BiologicalModelAggregator bioModel) throws CdaLoaderException {
+
+        int count;
+        Map<String, Integer> counts = new HashMap<String, Integer>();
+        counts.put("bioModels", 0);
+        counts.put("bioModelAlleles", 0);
+        counts.put("bioModelGenomicFeatures", 0);
+        counts.put("bioModelPhenotypes", 0);
+
+        try {
+            count = jdbcTemplate.update("INSERT INTO biological_model (db_id, allelic_composition, genetic_background) " +
+                                                "VALUES (?, ?, ?)", DbIdType.MGI.intValue(), bioModel.getAllelicComposition(), bioModel.getGeneticBackground());
+
+            int bioModelId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()",Integer.class);
+            bioModel.setBiologicalModelId(bioModelId);
+
+            counts.put("bioModels", counts.get("bioModels") + count);
+
+        } catch (DuplicateKeyException e) {
+            logger.warn("Duplicate biological_model entry: {}. biological model not added.", bioModel);
+            return counts;
+        } catch (Exception e) {
+            logger.warn("Skipping bioModel {}: {}", bioModel, e.getLocalizedMessage());
+        }
+
+        for (String alleleAccessionId : bioModel.getAlleleAccessionIds()) {
+            try {
+                count = jdbcTemplate.update("INSERT INTO biological_model_allele (biological_model_id, allele_acc, allele_db_id) " +
+                                             "VALUES (?, ?, ?)", bioModel.getBiologicalModelId(), alleleAccessionId, DbIdType.MGI.intValue());
+
+                counts.put("bioModelAlleles", counts.get("bioModelAlleles") + count);
+
+            } catch (DuplicateKeyException e) {
+
+                logger.warn("Duplicate biological_model_allele entry: {}. biological model not added.", bioModel);
+                return counts;
+
+            } catch (Exception e) {
+                logger.warn("Skipping bioModel {}: {}", bioModel, e.getLocalizedMessage());
+            }
+        }
+
+        for (String markerAccessionId : bioModel.getMarkerAccessionIds()) {
+            try {
+
+                count = jdbcTemplate.update("INSERT INTO biological_model_genomic_feature (biological_model_id, gf_acc, gf_db_id) " +
+                                            "VALUES (?, ?, ?)", bioModel.getBiologicalModelId(), markerAccessionId, DbIdType.MGI.intValue());
+
+                counts.put("bioModelGenomicFeatures", counts.get("bioModelGenomicFeatures") + count);
+
+            } catch (DuplicateKeyException e) {
+
+                logger.warn("Duplicate biological_model_genomic_feature entry: {}. biological model not added.", bioModel);
+                return counts;
+            } catch (Exception e) {
+                logger.warn("Skipping bioModel {}: {}", bioModel, e.getLocalizedMessage());
+            }
+        }
+
+        for (String phenotypeAccessionId : bioModel.getMpAccessionIds()) {
+            try {
+
+                count = jdbcTemplate.update("INSERT INTO biological_model_phenotype (biological_model_id, phenotype_acc, phenotype_db_id) " +
+                                            "VALUES (?, ?, ?)", bioModel.getBiologicalModelId(), phenotypeAccessionId, DbIdType.MGI.intValue());
+
+                counts.put("bioModelPhenotypes", counts.get("bioModelPhenotypes") + count);
+
+            } catch (DuplicateKeyException e) {
+
+                logger.warn("Duplicate biological_model_phenotype entry: {}. biological model not added.", bioModel);
+                return counts;
+            } catch (Exception e) {
+                logger.warn("Skipping bioModel {}: {}", bioModel, e.getLocalizedMessage());
+            }
+        }
+
+        return counts;
     }
 
     /**
@@ -765,30 +784,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return retVal;
     }
 
-    @Deprecated
-    public RunStatus validateHeadings(String[] headingRow, FileHeading[] headings) {
-        String    actualValue   = "";
-        String    expectedValue = "";
-        int       offset        = 0;
-        RunStatus status        = new RunStatus();
-
-        try {
-            for (int i = 0; i < headings.length; i++) {
-                offset = headings[i].offset;
-                expectedValue = headings[i].heading;
-                actualValue = headingRow[offset];
-                if ( ! expectedValue.equals(actualValue)) {
-                    status.addError("Expected column " + offset
-                            + " to equal " + expectedValue + " but was " + actualValue);
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            status.addError("Index out of bounds. Expected column " + expectedValue + " at offset " + offset + ". Heading row = " + headingRow);
-        }
-
-        return status;
-    }
-
 
     // ROW MAPPERS
 
@@ -924,22 +919,23 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             Datasource datasource = new Datasource();
             datasource.setId(rs.getInt("coord_system_db_id"));
 
-            Strain strain = null;
-            try {
-                String coordSystemStrainAcc = rs.getString("coord_system_strain_acc");      // This, and coord_system_strain_db_id, can be null.
-                if (coordSystemStrainAcc != null) {
-                    strain = getStrain(rs.getString("coord_system_strain_acc"));
-                }
-            } catch (Exception e) {
-                logger.error("EXCEPTION: " + e.getLocalizedMessage());
-                e.printStackTrace();
-            }
+            // NOTE: LOADING THE STRAIN COMPONENT ADDS A TREMENDOUS AMOUNT OF TIME; THUS, IT'S DISABLED.
+//            Strain strain = null;
+//            try {
+//                String coordSystemStrainAcc = rs.getString("coord_system_strain_acc");      // This, and coord_system_strain_db_id, can be null.
+//                if (coordSystemStrainAcc != null) {
+//                    strain = getStrain(rs.getString("coord_system_strain_acc"));
+//                }
+//            } catch (Exception e) {
+//                logger.error("EXCEPTION: " + e.getLocalizedMessage());
+//                e.printStackTrace();
+//            }
 
             CoordinateSystem coordinateSystem = new CoordinateSystem();
             coordinateSystem.setDatasource(datasource);
             coordinateSystem.setName(rs.getString("coord_system_name"));
             coordinateSystem.setId(rs.getInt("coord_system_id"));
-            coordinateSystem.setStrain(strain);
+//            coordinateSystem.setStrain(strain);
 
             region.setCoordinateSystem(coordinateSystem);
             region.setName(rs.getString("seq_name"));

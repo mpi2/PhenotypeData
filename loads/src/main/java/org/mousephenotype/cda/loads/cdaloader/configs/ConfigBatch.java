@@ -86,9 +86,9 @@ public class ConfigBatch {
     @Bean
     public Job[] runJobs() throws CdaLoaderException {
         Job[] jobs = new Job[] {
-                  databaseInitialiserJob()
+//                  databaseInitialiserJob()
 //                , downloaderJob()
-                , dbLoaderJob()
+                  dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -155,45 +155,49 @@ public class ConfigBatch {
 //        Flow ontologyFlow = synchronousFlowBuilder.build();
 
         // Ontologies - parallel flows.
-        List<Flow> parallelFlows = new ArrayList<>();
-        for (int i = 0; i < ontologyLoaderList.size(); i++) {
-            OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
-            parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i + "_parallelFlow").from(ontologyLoader).end());
-        }
-        FlowBuilder<Flow> parallelFlowBuilder = new FlowBuilder<Flow>("ontologyLoaderParallelFlows").start(parallelFlows.get(0));
-        for (int i = 1; i < parallelFlows.size(); i++) {
-            SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
-            parallelFlowBuilder.split(executor).add(parallelFlows.get(i));
-        }
-        Flow ontologyFlow = parallelFlowBuilder.build();
-
-        // Markers - Gene types and subtypes, marker lists, VEGA, Ensembl, EntrezGene, and cCDS models
-        Flow markersFlow = new FlowBuilder<Flow>("markersFlow").from(markerLoader).end();
-
-        // Alleles
-        Flow allelesFlow = new FlowBuilder<Flow>("allelesFlow").from(alleleLoader).end();
-
-        // Strains - mgi, imsr (the order is important)
-        Flow strainsFlow = new FlowBuilder<Flow>("strainsFlow").from(strainLoader).end();
-
+//        List<Flow> parallelFlows = new ArrayList<>();
+//        for (int i = 0; i < ontologyLoaderList.size(); i++) {
+//            OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
+//            parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i + "_parallelFlow").from(ontologyLoader).end());
+//        }
+//        FlowBuilder<Flow> parallelFlowBuilder = new FlowBuilder<Flow>("ontologyLoaderParallelFlows").start(parallelFlows.get(0));
+//        for (int i = 1; i < parallelFlows.size(); i++) {
+//            SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
+//            parallelFlowBuilder.split(executor).add(parallelFlows.get(i));
+//        }
+//        Flow ontologyFlow = parallelFlowBuilder.build();
+//
+//        // Markers - Gene types and subtypes, marker lists, VEGA, Ensembl, EntrezGene, and cCDS models
+//        Flow markersFlow = new FlowBuilder<Flow>("markersFlow").from(markerLoader).end();
+//
+//        // Alleles
+//        Flow allelesFlow = new FlowBuilder<Flow>("allelesFlow").from(alleleLoader).end();
+//
+//        // Strains - mgi, imsr (the order is important)
+//        Flow strainsFlow = new FlowBuilder<Flow>("strainsFlow").from(strainLoader).end();
+//
         // Biological Models
         Flow bioModelsFlow = new FlowBuilder<Flow>("bioModelsFlow").from(bioModelLoader).end();
 
-        return jobBuilderFactory.get("dbLoaderJob")
-                .incrementer(new RunIdIncrementer())
-                .start(ontologyFlow)
-                .next(markersFlow)
-                .next(allelesFlow)
-                .next(strainsFlow)
-                .next(bioModelsFlow)
-                .end()
-                .build();
-
-
+//        // phenotyped colonies
+//        Flow phenotypedColoniesFlow = new FlowBuilder<Flow>("imitsFlow").from(phenotypedColoniesLoader).end();
+//
 //        return jobBuilderFactory.get("dbLoaderJob")
 //                .incrementer(new RunIdIncrementer())
-//                .start(bioModelsFlow)
+//                .start(ontologyFlow)
+//                .next(markersFlow)
+//                .next(allelesFlow)
+//                .next(strainsFlow)
+//                .next(bioModelsFlow)
 //                .end()
 //                .build();
+
+
+        return jobBuilderFactory.get("dbLoaderJob")
+                .incrementer(new RunIdIncrementer())
+//                .start(phenotypedColoniesFlow)
+                .start(bioModelsFlow)
+                .end()
+                .build();
     }
 }

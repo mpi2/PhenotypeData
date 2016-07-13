@@ -37,10 +37,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAggregator, BiologicalModelAggregator> {
 
     private int                                    addedBioModelsCount = 0;
-    private Map<String, String>                    alleleSymbolToAccessionIdMap;    // key = allele symbol. Value = allele accession id
-    private Map<String, Allele>                    alleles;                         // Alleles mapped by allele accession id
-    private Map<String, BiologicalModelAggregator> bioModels = new HashMap<>();     // bioModel mapped by allele symbol
-    private Map<String, GenomicFeature>            genes;                           // Genes mapped by marker accession id
+    private Map<String, String>                    alleleSymbolToAccessionIdMap;        // key = allele symbol. Value = allele accession id
+    private Map<String, Allele>                    alleles;                             // Alleles mapped by allele accession id
+    private Map<String, BiologicalModelAggregator> bioModels = new HashMap<>(60000);    // bioModel mapped by allelic_composition + genetic_background
+    private Map<String, GenomicFeature>            genes;                               // Genes mapped by marker accession id
     protected int                                  lineNumber = 0;
 
     private int multipleAllelesPerRowCount = 0;
@@ -60,23 +60,24 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
     }
 
     @Override
-    public BiologicalModelAggregator process(BiologicalModelAggregator bioModel) throws Exception {
+    public BiologicalModelAggregator process(BiologicalModelAggregator newBioModel) throws Exception {
 
         lineNumber++;
 
         // Skip rows with multiple alleles. Our model doesn't yet handle them. Multiple alleleSymbol values are
         // separated by "|". Multiple mgiMarkerAccessionId values are separated by ",".
-        if (bioModel.getAlleleSymbol().contains("|")) {
-            logger.debug("Line {}: Skipping because of multiple alleles: {}", lineNumber, bioModel.getAllelicComposition());
+        if (newBioModel.getAlleleSymbol().contains("|")) {
+            logger.debug("Line {}: Skipping because of multiple alleles: {}", lineNumber, newBioModel.getAllelicComposition());
             multipleAllelesPerRowCount++;
             return null;
         }
-        if (bioModel.getMpAccessionId().contains(",")) {
-            logger.debug("Line {}: Skipping because of multiple genes: {}", lineNumber, bioModel.getMpAccessionId());
+        if (newBioModel.getMarkerAccessionIds().toArray(new String[0])[0].contains(",")) {
+            logger.debug("Line {}, bioModel {}: Skipping because of multiple marker accession ids: {}", lineNumber, newBioModel.toString(), newBioModel.getMarkerAccessionIds().toArray(new String[0])[0]);
             multipleGenesPerRowCount++;
             return null;
         }
 
+        // Populate the necessary collections.
         if ((genes == null) || (genes.isEmpty())) {
             genes = sqlLoaderUtils.getGenes();
         }
@@ -90,18 +91,29 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
             }
         }
 
-        String alleleAccessionId = alleleSymbolToAccessionIdMap.get(bioModel.getAlleleSymbol());
+        // Look up the allele accession id and put it in the newBioModel.
+        String alleleAccessionId = alleleSymbolToAccessionIdMap.get(newBioModel.getAlleleSymbol());
         if (alleleAccessionId == null) {
-//            logger.warn("No allele accession id found for allele symbol '" + bioModel.getAlleleSymbol() + "'. Skipping...");
+            logger.warn("No allele accession id found for allele symbol '" + newBioModel.getAlleleSymbol() + "'. Skipping...");
             return null;
         }
+        newBioModel.getAlleleAccessionIds().add(alleleAccessionId);
 
-        bioModel.setAlleleAccessionId(alleleAccessionId);
+        // Try to fetch the bioModel from the hash. If it doesn't exist, create it, add it, and return it.
+        String key = newBioModel.getAllelicComposition() + "_" + newBioModel.getGeneticBackground();
+        BiologicalModelAggregator existingBioModel = bioModels.get(key);
+        if (existingBioModel == null) {
+            addedBioModelsCount++;
+            BiologicalModelAggregator bioModel = new BiologicalModelAggregator(newBioModel);
+            bioModels.put(key, bioModel);
+            return bioModel;
+        }
 
-        bioModels.put(bioModel.getAlleleSymbol(), bioModel);
-        addedBioModelsCount++;
+        existingBioModel.getAlleleAccessionIds().add(alleleAccessionId);
+        existingBioModel.getMarkerAccessionIds().add(newBioModel.getMarkerAccessionIds().toArray(new String[0])[0]);
+        existingBioModel.getMpAccessionIds().add(newBioModel.getMpAccessionIds().toArray(new String[0])[0]);
 
-        return bioModel;
+        return existingBioModel;
     }
 
     public Map<String, Allele> getAlleles() {

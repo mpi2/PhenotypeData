@@ -48,7 +48,7 @@ import java.util.*;
  * Created by mrelac on 13/04/2016.
  *
  */
-public class BiologicalModelLoader implements InitializingBean, Step {
+public class PhenotypedColoniesLoader implements InitializingBean, Step {
 
     public Map<FilenameKeys, String> bioModelKeys = new HashMap<>();
     private final Logger             logger       = LoggerFactory.getLogger(this.getClass());
@@ -70,7 +70,7 @@ public class BiologicalModelLoader implements InitializingBean, Step {
     private BiologicalModelWriter writer;
 
 
-    public BiologicalModelLoader(Map<FilenameKeys, String> bioModelKeys) throws CdaLoaderException {
+    public PhenotypedColoniesLoader(Map<FilenameKeys, String> bioModelKeys) throws CdaLoaderException {
         this.bioModelKeys = bioModelKeys;
     }
 
