@@ -16,21 +16,48 @@
 
 package org.mousephenotype.cda.loads.cdaloader.support;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by mrelac on 27/06/16.
  */
-
-
-
 public class BiologicalModelAggregator {
 
-    private String allelicComposition;
-    private String alleleSymbol;
-    private int    biologicalModelId;
-    private String geneticBackground;
-    private String alleleAccessionId;
-    private String mpAccessionId;
-    private String markerAccessionId;
+    private String      allelicComposition;
+    private String      alleleSymbol;
+    private int         biologicalModelId;
+    private String      geneticBackground;
+    private Set<String> alleleAccessionIds = new HashSet<>();
+    private Set<String> mpAccessionIds     = new HashSet<>();
+    private Set<String> markerAccessionIds = new HashSet<>();
+
+    public BiologicalModelAggregator() {
+
+    }
+
+    /**
+     * Creates a new bioModel instance from the given one.
+     * @param bioModel source bio model
+     */
+    public BiologicalModelAggregator(BiologicalModelAggregator bioModel) {
+        clone(bioModel);
+    }
+
+    public BiologicalModelAggregator clone(BiologicalModelAggregator bioModel) {
+        this.allelicComposition = bioModel.allelicComposition;
+        this.alleleSymbol = bioModel.alleleSymbol;
+        this.biologicalModelId = bioModel.biologicalModelId;
+        this.geneticBackground = bioModel.geneticBackground;
+        this.alleleAccessionIds = new HashSet<>();
+        this.alleleAccessionIds.addAll(bioModel.getAlleleAccessionIds());
+        this.mpAccessionIds = new HashSet<>();
+        this.mpAccessionIds.addAll(bioModel.getMpAccessionIds());
+        this.markerAccessionIds = new HashSet<>();
+        this.markerAccessionIds.addAll(bioModel.getMarkerAccessionIds());
+
+        return this;
+    }
 
     public String getAllelicComposition() {
         return allelicComposition;
@@ -64,28 +91,28 @@ public class BiologicalModelAggregator {
         this.geneticBackground = geneticBackground;
     }
 
-    public String getAlleleAccessionId() {
-        return alleleAccessionId;
+    public Set<String> getAlleleAccessionIds() {
+        return alleleAccessionIds;
     }
 
-    public void setAlleleAccessionId(String alleleAccessionId) {
-        this.alleleAccessionId = alleleAccessionId;
+    public void setAlleleAccessionIds(Set<String> alleleAccessionIds) {
+        this.alleleAccessionIds = alleleAccessionIds;
     }
 
-    public String getMpAccessionId() {
-        return mpAccessionId;
+    public Set<String> getMpAccessionIds() {
+        return mpAccessionIds;
     }
 
-    public void setMpAccessionId(String mpAccessionId) {
-        this.mpAccessionId = mpAccessionId;
+    public void setMpAccessionIds(Set<String> mpAccessionIds) {
+        this.mpAccessionIds = mpAccessionIds;
     }
 
-    public String getMarkerAccessionId() {
-        return markerAccessionId;
+    public Set<String> getMarkerAccessionIds() {
+        return markerAccessionIds;
     }
 
-    public void setMarkerAccessionId(String markerAccessionId) {
-        this.markerAccessionId = markerAccessionId;
+    public void setMarkerAccessionIds(Set<String> markerAccessionIds) {
+        this.markerAccessionIds = markerAccessionIds;
     }
 
     @Override
@@ -95,9 +122,6 @@ public class BiologicalModelAggregator {
                 ", alleleSymbol='" + alleleSymbol + '\'' +
                 ", biologicalModelId=" + biologicalModelId +
                 ", geneticBackground='" + geneticBackground + '\'' +
-                ", alleleAccessionId='" + alleleAccessionId + '\'' +
-                ", mpAccessionId='" + mpAccessionId + '\'' +
-                ", markerAccessionId='" + markerAccessionId + '\'' +
                 '}';
     }
 }

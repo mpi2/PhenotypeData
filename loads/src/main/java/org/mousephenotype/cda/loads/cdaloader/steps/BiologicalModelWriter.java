@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
-import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.slf4j.Logger;
@@ -24,26 +23,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mrelac on 26/04/16.
  */
 public class BiologicalModelWriter implements ItemWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Map<String, Integer> written = new HashMap<>();
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
     private SqlLoaderUtils sqlLoaderUtils;
 
-    private BioModelPSSetter bioModelPss = new BioModelPSSetter();
-    private BioModelAllelePSSetter bioModelAllelePss = new BioModelAllelePSSetter();
-    private BioModelGenomicFeaturePSSetter bioModelGenomicFeaturePss = new BioModelGenomicFeaturePSSetter();
-    private BioModelPhenotypePSSetter bioModelPhenotypePss = new BioModelPhenotypePSSetter();
+    public BiologicalModelWriter() {
+
+        written.put("bioModels", 0);
+        written.put("bioModelAlleles", 0);
+        written.put("bioModelGenomicFeatures", 0);
+        written.put("bioModelPhenotypes", 0);
+    }
 
 
     /**
@@ -58,88 +60,24 @@ public class BiologicalModelWriter implements ItemWriter {
     public void write(List items) throws Exception {
         for (Object bioModel1 : items) {
             BiologicalModelAggregator bioModel = (BiologicalModelAggregator) bioModel1;
-            bioModelPss.setBioModel(bioModel);
-            bioModelAllelePss.setBioModel(bioModel);
-            bioModelGenomicFeaturePss.setBioModel(bioModel);
-            bioModelPhenotypePss.setBioModel(bioModel);
-            sqlLoaderUtils.updateBioModel(bioModel, bioModelPss, bioModelAllelePss, bioModelGenomicFeaturePss, bioModelPhenotypePss);
+            Map<String, Integer> counts = sqlLoaderUtils.insertBioModel(bioModel);
+            written.put("bioModels", written.get("bioModels") + counts.get("bioModels"));
+            written.put("bioModelAlleles", written.get("bioModelAlleles") + counts.get("bioModelAlleles"));
+            written.put("bioModelGenomicFeatures", written.get("bioModelGenomicFeatures") + counts.get("bioModelGenomicFeatures"));
+            written.put("bioModelPhenotypes", written.get("bioModelPhenotypes") + counts.get("bioModelPhenotypes"));
         }
     }
 
-    public class BioModelPSSetter implements PreparedStatementSetter {
-        private BiologicalModelAggregator bioModel;
-
-
-        public void setBioModel(BiologicalModelAggregator bioModel) {
-                this.bioModel = bioModel;
-            }
-
-        @Override
-        public void setValues(PreparedStatement ps) throws SQLException {
-
-//          INSERT INTO biological_model (db_id, allelic_composition, genetic_background)
-//          VALUES (?, ?, ?)
-
-            ps.setInt(1, DbIdType.MGI.intValue());
-            ps.setString(2, bioModel.getAllelicComposition());
-            ps.setString(3, bioModel.getGeneticBackground());
-        }
-    }
-
-    public class BioModelAllelePSSetter implements PreparedStatementSetter {
-        private BiologicalModelAggregator bioModel;
-
-        public void setBioModel(BiologicalModelAggregator bioModel) {
-            this.bioModel = bioModel;
-        }
-
-        @Override
-        public void setValues(PreparedStatement ps) throws SQLException {
-
-//          INSERT INTO biological_model_allele (biological_model_id, allele_acc, allele_db_id)
-//          VALUES (?, ?, ?)
-
-            ps.setInt(1, bioModel.getBiologicalModelId());
-            ps.setString(2, bioModel.getAlleleAccessionId());
-            ps.setInt(3, DbIdType.MGI.intValue());
-        }
-    }
-
-    public class BioModelGenomicFeaturePSSetter implements PreparedStatementSetter {
-        private BiologicalModelAggregator bioModel;
-
-        public void setBioModel(BiologicalModelAggregator bioModel) {
-            this.bioModel = bioModel;
-        }
-
-        @Override
-        public void setValues(PreparedStatement ps) throws SQLException {
-
-//          INSERT INTO biological_model_genomic_feature (biological_model_id, gf_acc, gf_db_id)
-//          VALUES (?, ?, ?)
-
-            ps.setInt(1, bioModel.getBiologicalModelId());
-            ps.setString(2, bioModel.getMarkerAccessionId());
-            ps.setInt(3, DbIdType.MGI.intValue());
-        }
-    }
-
-    public class BioModelPhenotypePSSetter implements PreparedStatementSetter {
-        private BiologicalModelAggregator bioModel;
-
-        public void setBioModel(BiologicalModelAggregator bioModel) {
-            this.bioModel = bioModel;
-        }
-
-        @Override
-        public void setValues(PreparedStatement ps) throws SQLException {
-
-//          INSERT INTO biological_model_phenotype (biological_model_id, phenotype_acc, phenotype_db_id)
-//          VALUES (?, ?, ?)
-
-            ps.setInt(1, bioModel.getBiologicalModelId());
-            ps.setString(2, bioModel.getMpAccessionId());
-            ps.setInt(3, DbIdType.MP.intValue());
-        }
+    /**
+     * @return a {@code Map} of counts written to the bioModel tables, indexed by name:
+     * <ul>
+     *     <li>bioModels</li>
+     *     <li>bioModelAlleles</li>
+     *     <li>bioModelGenomicFeatures</li>
+     *     <li>bioModelPhenotypes</li>
+     * </ul>
+     */
+    public Map<String, Integer> getWritten() {
+        return written;
     }
 }
