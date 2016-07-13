@@ -388,24 +388,17 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		int rows = 0;
 		String statusQuery="SELECT count(*) FROM phenotype_procedure";
 
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
 
-		try (Connection connection = getConnection()) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(statusQuery)) {
 
-			statement = connection.prepareStatement(statusQuery);
-			resultSet = statement.executeQuery();
+			ResultSet resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
-
-
-			rows=resultSet.getInt(1);
-
+				rows = resultSet.getInt(1);
 			}
 			statement.close();
 
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 
 		}

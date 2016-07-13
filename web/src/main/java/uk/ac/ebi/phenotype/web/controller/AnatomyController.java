@@ -147,6 +147,7 @@ public class AnatomyController {
 			if(res.containsKey(row.getKey())){
 				AnatomyPageTableRow tempRow = res.get(row.getKey());
 				if(tempRow.getNumberOfImages()>0){
+					System.out.println("cat row exp="+row.getExpression()+ " image row expression="+tempRow.getExpression());
 					res.put(row.getKey(), tempRow);//always keep the row that has image links in preference to catagorical as we want the image link
 				}else{
 					res.put(row.getKey(), row);
@@ -236,7 +237,6 @@ public class AnatomyController {
 			tempFromCategorical=expressionService.getFacets(anatomyId);
 			//we need to merge the options from each data source categorical and images - note categorical==parameter_association_value
 			for(String key: tempFromImages.keySet()){
-				System.out.println("key="+key);
 				if(key.equals(ImageDTO.PARAMETER_ASSOCIATION_VALUE)){
 					tempFromImages.get(key).addAll(tempFromCategorical.get(ObservationDTO.CATEGORY));
 				}else{
