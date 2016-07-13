@@ -42,6 +42,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
+
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
@@ -114,7 +116,6 @@ public class ImageService implements WebStatus{
 			List<String> anatomyTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc, String baseUrl)
 			throws SolrServerException {
-System.out.println("calling get images for Anatomy");
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 
@@ -167,10 +168,9 @@ System.out.println("calling get images for Anatomy");
 		}
 
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
-		System.out.println("image response size="+response.size());
 		for (ImageDTO image : response) {
 			for (String expressionValue : image.getDistinctParameterAssociationsValue()) {
-				if (paramAssoc == null || paramAssoc.contains(expressionValue)) {
+				if (expressionValue.equals("expression") || expressionValue.equals("no expression")) {
 					AnatomyPageTableRow row = new AnatomyPageTableRow(image, anatomyId, baseUrl, expressionValue);
 					if (res.containsKey(row.getKey())) {
 						row = res.get(row.getKey());
@@ -210,7 +210,6 @@ System.out.println("calling get images for Anatomy");
 		query.addFacetField(ImageDTO.PHENOTYPING_CENTER);
 		query.addFacetField(ImageDTO.PROCEDURE_NAME);
 		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
-System.out.println("images query facet="+query);
 		QueryResponse response = solr.query(query);
 
 		for (FacetField facetField : response.getFacetFields()) {
