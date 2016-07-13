@@ -670,7 +670,18 @@
 								<div id="allele2"></div>
 							</div>
 						</div><!-- End of Order Mouse and ES Cells -->
+						
+						
+						<div class="section" id="order2">
+							<h2 class="title documentation" id="order-panel">Order Mouse and ES Cells<span
+									class="documentation"><a href='' id='orderSection' class="fa fa-question-circle pull-right"></a></span>
+							</h2>
 
+							<div class="inner">
+								<jsp:include page="${baseUrl}/orderSection/${acc}"></jsp:include>
+								blah
+							</div>
+						</div>
 
 					</div>	<!--end of node wrapper: immediate container of all sections  -->
 				</div> <!-- end of content -->
