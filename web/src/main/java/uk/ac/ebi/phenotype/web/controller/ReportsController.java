@@ -78,7 +78,6 @@ public class ReportsController {
 		int moreGeneralCallDcc = 0;
 		int moreGeneralCallEbi = 0;
 		int ignore = 0;
-		int notSignifAnyMore = 0;
 		int differentMps = 0;
 		List<CallDTO> ebiList = getCalls(postqcService.getTabbedCallSummary());
 		List<CallDTO> dccList = getCalls(preqcService.getTabbedCallSummary());
@@ -98,6 +97,7 @@ public class ReportsController {
 			keyNoPvalNoMp.put(dcc.getKeyNoPvalNoMp(), dcc);
 			keyExact.add(dcc.getKey());
 			keyNoPval.put(dcc.getKeyNoPval(), dcc);
+			System.out.println("_____ " +dcc.getKeyNoPvalNoMp() + "\t" + dcc.getKeyNoPval() );
 		}
 		
 		
@@ -109,29 +109,20 @@ public class ReportsController {
 			if (keyExact.contains(ebi.getKey())){
 					exact ++;
 					someMatch = true;
-			} else if (keyNoPval.containsKey(ebi.getKeyNoPval()) && keyNoPval.get(ebi.getKeyNoPval()).pValue < 0.0001){
+			} else if (keyNoPval.containsKey(ebi.getKeyNoPval())){
 					differentPvalue ++;
 					someMatch = true;
 			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp())
-				&& ebi.mpParentIds.contains(keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpTermId) 
-				&& keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).pValue < 0.0001){
+				&& ebi.mpParentIds.contains(keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpTermId)){
 					moreGeneralCallDcc ++;
 					someMatch = true;
 					break;
 			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp()) 
-				&& keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpParentIds.contains(ebi.mpTermId) 
-				&& keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).pValue < 0.0001){
+				&& keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpParentIds.contains(ebi.mpTermId)){
 					moreGeneralCallEbi ++;
 					someMatch = true;
 					break;
-			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp()) 
-				&& keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).pValue > 0.00001){
-					notSignifAnyMore ++;
-					someMatch = true;
-					break;
-			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp()) 
-				&& keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).pValue < 0.00001 
-				&& !ebi.mpTermId.equals(keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpTermId)){
+			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp())){
 					differentMps ++;
 					someMatch = true;
 					break;
@@ -166,10 +157,9 @@ public class ReportsController {
 		labelToNumber.put("Same MP, different p-value", differentPvalue);
 		labelToNumber.put("More general call at the DCC", moreGeneralCallDcc);
 		labelToNumber.put("More general call at the EBI", moreGeneralCallEbi);
-		labelToNumber.put("Call not significant in DCC ", notSignifAnyMore);
 		labelToNumber.put("MPs are different and significant ", differentMps);
 		labelToNumber.put("No match but parameter is not analysed statistically ", ignore);
-		labelToNumber.put("No match", ebiList.size()-differentPvalue-moreGeneralCallDcc-exact-moreGeneralCallEbi-ignore-differentMps-notSignifAnyMore);		
+		labelToNumber.put("No match", ebiList.size()-differentPvalue-moreGeneralCallDcc-exact-moreGeneralCallEbi-ignore-differentMps);		
 		
 		model.addAttribute("chart", PieChartCreator.getPieChart(labelToNumber, "chartDiv", "How do EBI calls match the ones at the DCC?", "", null));
 		
@@ -178,7 +168,6 @@ public class ReportsController {
 		model.addAttribute("moreGeneralCallDcc", moreGeneralCallDcc);
 		model.addAttribute("moreGeneralCallEbi", moreGeneralCallEbi);
 		model.addAttribute("ignore", ignore);
-		model.addAttribute("notSignifAnyMore", notSignifAnyMore);
 		model.addAttribute("differentMps", differentMps);
 		model.addAttribute("total", ebiList.size());
 		

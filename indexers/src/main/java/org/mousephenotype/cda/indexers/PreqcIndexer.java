@@ -57,7 +57,6 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("preqcIndexing")
     SolrServer preqcIndexing;
 
-
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
