@@ -197,7 +197,7 @@ public class BiologicalModelLoader implements InitializingBean, Step {
             stop = new Date();
             Map<String, Integer> counts = writer.getWritten();
             logger.info("  Wrote {} bioModels, {} bioModelAlleles, {} bioModelGenomicFeatures, and {} bioModelPhenotypes to database in {}",
-                    counts.get("bioModel"), counts.get("bioModelAlleles"), counts.get("bioModelGenomicFeatures"), counts.get("bioModelPhenotypes"),
+                    counts.get("bioModels"), counts.get("bioModelAlleles"), counts.get("bioModelGenomicFeatures"), counts.get("bioModelPhenotypes"),
                     commonUtils.formatDateDifference(start, stop));
             logger.info("");
 

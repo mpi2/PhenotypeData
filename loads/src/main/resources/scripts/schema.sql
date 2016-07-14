@@ -78,6 +78,7 @@ DROP TABLE IF EXISTS phenotype_pipeline_procedure;
 DROP TABLE IF EXISTS phenotype_procedure;
 DROP TABLE IF EXISTS phenotype_procedure_meta_data;
 DROP TABLE IF EXISTS phenotype_procedure_parameter;
+DROP TABLE IF EXISTS phenotyped_colony;
 DROP TABLE IF EXISTS project;
 DROP TABLE IF EXISTS seq_region;
 DROP TABLE IF EXISTS strain;
@@ -1320,6 +1321,36 @@ CREATE TABLE genes_secondary_project (
   secondary_project_id       VARCHAR(20) NOT NULL
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+
+CREATE TABLE phenotyped_colony (
+	id                                          INT(11)     NOT NULL AUTO_INCREMENT,
+	colony_name                                 VARCHAR(64) NOT NULL,
+	es_cell_name                                VARCHAR(64),
+	gf_acc                                      VARCHAR(20) NOT NULL,
+	gf_db_id                                    INT(11)     NOT NULL,
+	allele_acc                                  VARCHAR(20) NOT NULL,
+	allele_db_id                                INT(11)     NOT NULL,
+	strain_acc                                  VARCHAR(20) NOT NULL,
+	strain_db_id                                INT(11)     NOT NULL,
+	production_centre_organisation_id           INT(11)     NOT NULL,
+	production_consortium_project_id            INT(11)     NOT NULL,
+	phenotyping_centre_organisation_id          INT(11)     NOT NULL,
+	phenotyping_consortium_project_id           INT(11)     NOT NULL,
+	cohort_production_centre_organisation_id    INT(11)     NOT NULL,
+
+	PRIMARY KEY (id),
+	KEY colony_name_idx (colony_name),
+	KEY phenotypedColony_genomicFeature_idx (gf_acc, gf_db_id),
+	KEY phenotypedColony_Allele_idx (allele_acc, allele_db_id),
+	KEY phenotypedColony_Strain_idx (strain_acc, strain_db_id),
+	KEY production_centre_organisation_id_idx(production_centre_organisation_id),
+	KEY production_consortium_project_id_idx(production_consortium_project_id),
+	KEY phenotyping_centre_organisation_id_idx(phenotyping_centre_organisation_id),
+	KEY phenotyping_consortium_project_id_idx(phenotyping_consortium_project_id),
+	KEY cohort_production_centre_organisation_id_idx(cohort_production_centre_organisation_id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 -- -----------------------------------------------------------
 -- Tables to store statistical results

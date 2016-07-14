@@ -88,7 +88,7 @@ public class ConfigBeans {
     public DownloadFilename[] filenames;
     private enum DownloadFileEnum {
           report
-        , EBI_PhenotypedColonies
+        , EBI_PhenotypedColony
         , ES_CellLine
         , EUCOMM_Allele
         , HMD_HumanPhenotype
@@ -150,7 +150,7 @@ public class ConfigBeans {
             , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele, "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
 
           // iMits phenotyped colony report
-            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColonies, "https://www.mousephenotype.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdaWorkspace + "/EBI_phenbotyped_colonies.tsv", DbIdType.IMPC.intValue())
+            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "https://www.mousephenotype.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdaWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
 
             // OWL ontologies
             , new DownloadOntologyFilename(DownloadFileEnum.eco, "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdaWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
@@ -197,6 +197,19 @@ public class ConfigBeans {
     // LOADERS, PROCESSORS, AND WRITERS
 
 
+    @Bean(name = "alleleLoader")
+    public AlleleLoader alleleLoader() throws CdaLoaderException {
+        Map<AlleleLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
+        filenameKeys.put(AlleleLoader.FilenameKeys.EUCOMM, downloadFilenameMap.get(DownloadFileEnum.EUCOMM_Allele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.GENOPHENO, downloadFilenameMap.get(DownloadFileEnum.MGI_GenePheno).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.KOMP, downloadFilenameMap.get(DownloadFileEnum.KOMP_Allele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.NORCOMM, downloadFilenameMap.get(DownloadFileEnum.NorCOMM_Allele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.PHENOTYPIC, downloadFilenameMap.get(DownloadFileEnum.MGI_PhenotypicAllele).targetFilename);
+        filenameKeys.put(AlleleLoader.FilenameKeys.QTL, downloadFilenameMap.get(DownloadFileEnum.MGI_QTLAllele).targetFilename);
+
+        return new AlleleLoader(filenameKeys);
+    }
+
     @Bean(name = "alleleProcessorPhenotypic")
     public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
         mgiFeatureTypes = sqlLoaderUtils().getOntologyTerms(DbIdType.MGI.intValue());
@@ -228,19 +241,6 @@ public class ConfigBeans {
         return new AlleleProcessorQtl(genes, mgiFeatureTypes);
     }
 
-    @Bean(name = "alleleLoader")
-    public AlleleLoader alleleLoader() throws CdaLoaderException {
-        Map<AlleleLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
-        filenameKeys.put(AlleleLoader.FilenameKeys.EUCOMM, downloadFilenameMap.get(DownloadFileEnum.EUCOMM_Allele).targetFilename);
-        filenameKeys.put(AlleleLoader.FilenameKeys.GENOPHENO, downloadFilenameMap.get(DownloadFileEnum.MGI_GenePheno).targetFilename);
-        filenameKeys.put(AlleleLoader.FilenameKeys.KOMP, downloadFilenameMap.get(DownloadFileEnum.KOMP_Allele).targetFilename);
-        filenameKeys.put(AlleleLoader.FilenameKeys.NORCOMM, downloadFilenameMap.get(DownloadFileEnum.NorCOMM_Allele).targetFilename);
-        filenameKeys.put(AlleleLoader.FilenameKeys.PHENOTYPIC, downloadFilenameMap.get(DownloadFileEnum.MGI_PhenotypicAllele).targetFilename);
-        filenameKeys.put(AlleleLoader.FilenameKeys.QTL, downloadFilenameMap.get(DownloadFileEnum.MGI_QTLAllele).targetFilename);
-
-        return new AlleleLoader(filenameKeys);
-    }
-
     @Bean(name = "alleleWriter")
     public AlleleWriter alleleWriter() {
         return new AlleleWriter();
@@ -248,17 +248,17 @@ public class ConfigBeans {
 
 
 
-    @Bean(name = "bioModelProcessor")
-    public BiologicalModelProcessor bioModelProcessor() {
-        return new BiologicalModelProcessor(alleles, genes);
-    }
-
     @Bean(name = "bioModelLoader")
     public BiologicalModelLoader bioModelLoader() throws CdaLoaderException {
         Map<BiologicalModelLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(BiologicalModelLoader.FilenameKeys.MGI_PhenoGenoMP, downloadFilenameMap.get(DownloadFileEnum.MGI_PhenoGenoMP).targetFilename);
 
         return new BiologicalModelLoader(filenameKeys);
+    }
+
+    @Bean(name = "bioModelProcessor")
+    public BiologicalModelProcessor bioModelProcessor() {
+        return new BiologicalModelProcessor(alleles, genes);
     }
 
     @Bean(name = "bioModelWriter")
@@ -283,11 +283,6 @@ public class ConfigBeans {
     @Bean(name = "markerProcessorGenes")
     public MarkerProcessorGenes markerProcessorGenes() {
         return new MarkerProcessorGenes(genes);
-    }
-
-    @Bean(name = "markerProcessorGeneCoordinates")
-    public MarkerProcessorGeneCoordinates markerProcessorGeneCoordinates() {
-        return new MarkerProcessorGeneCoordinates(genes);
     }
 
     @Bean(name = "markerProcessorXrefGenes")
@@ -316,6 +311,7 @@ public class ConfigBeans {
     }
 
 
+    
     @Bean(name = "ontologyLoaderList")
     public List<OntologyLoader> ontologyLoader() throws CdaLoaderException {
         List<OntologyLoader> ontologyloaderList = new ArrayList<>();
@@ -336,6 +332,27 @@ public class ConfigBeans {
     }
 
 
+
+    @Bean(name = "phenotypedcolonyLoader")
+    public PhenotypedColonyLoader phenotypedcolonyLoader() throws CdaLoaderException {
+        Map<PhenotypedColonyLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
+        filenameKeys.put(PhenotypedColonyLoader.FilenameKeys.EBI_PhenotypedColony, downloadFilenameMap.get(DownloadFileEnum.EBI_PhenotypedColony).targetFilename);
+
+        return new PhenotypedColonyLoader(filenameKeys);
+    }
+
+    @Bean(name = "phenotypedColonyProcessor")
+    public PhenotypedColonyProcessor phenotypedColonyProcessor() throws CdaLoaderException {
+        return new PhenotypedColonyProcessor(alleles, genes, strains);
+    }
+
+    @Bean(name = "phenotypedColonyWriter")
+    public PhenotypedColonyWriter phenotypedColonyWriter() {
+        return new PhenotypedColonyWriter();
+    }
+
+
+    
     @Bean(name = "strainLoader")
     public StrainLoader strainLoader() throws CdaLoaderException {
         Map<StrainLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
