@@ -37,6 +37,15 @@
                           		${target.label} <a href="${target.link}" target="_blank">link here</a>
                           	</c:forEach>
                           </td>
+                          <td>
+                          	<a href="${row.orderTargetVectorUrl}">Vector button</a>
+                          </td>
+                          <td>
+                          	<a href="${row.orderEsCellUrl}">ES Cell button</a>
+                          </td>
+                          <td>
+                          	<a href="${row.orderMouseUrl}">Mouse button</a>
+                          </td>
                             
                         </tr>
 
