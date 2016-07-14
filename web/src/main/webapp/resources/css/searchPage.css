@@ -146,7 +146,7 @@ div#leftSideBar {
 	font-weight: bold;
 }
 div.mpi2-search {
-	margin-top: 37px;
+	margin-top: -29px;
 }
 div.mpi2-search .dataTable td a {
 	margin-right: 5px !important;
@@ -222,7 +222,7 @@ ul.tabLabel li {
 	border-bottom: none;
 	border-radius: 5px 5px 0 0;
 	background-color: #0978A1;
-	cursor: pointer;
+	/*cursor: pointer !important;*/
 }
 
 ul.tabLabel li a {
@@ -233,7 +233,8 @@ ul.tabLabel li a {
 	font-size: 20px;
 	vertical-align: middle;
 	/*border: 1px solid red;*/
-	/*display: block;*/
+	cursor: pointer;
+	display: block;
 }
 
 ul.tabLabel li:hover {
@@ -253,6 +254,7 @@ li.noData:hover {
 	border: 1px solid grey !important;
 	border-bottom: none !important;
 	background-color: white !important;
+	cursor: default !important;
 }
 
 li.currDataType {
@@ -413,13 +415,15 @@ div.searchcontent {
 }
 #bigsearchbox input {
 	width: 905px;
+	height: 45px !important;
+	padding: 0;
 }
-#bigsearchbox i#sicon { position: absolute; top: 10px;}
+#bigsearchbox i#sicon { position: absolute; top: 14px;}
 #bigsearchbox i#clearIcon {
-	top: 22px;
+	top: 27px;
 }
 i.searchExample {
-	top: 20px;
+	top: 22px;
 }
 #batchQryLink {
 	display: block;
@@ -493,6 +497,7 @@ a.facetPanel {
 
 div.hideme > .region-content {
 	float: right !important;
+	top: 0px !important;
 }
 span.expdata {
 	text-align: center;
