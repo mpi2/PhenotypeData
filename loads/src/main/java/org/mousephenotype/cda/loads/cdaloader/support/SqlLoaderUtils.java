@@ -468,6 +468,30 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return ontologyTerms;
     }
 
+    public Map<String, Organisation> getOrganisations() {
+        Map<String, Organisation> organisations = new ConcurrentHashMap<>();
+
+        List<Organisation> organisationList = jdbcTemplate.query("SELECT * FROM organisation", new OrganisationRowMapper());
+
+        for (Organisation organisation : organisationList) {
+            organisations.put(organisation.getName(), organisation);
+        }
+
+        return organisations;
+    }
+
+    public Map<String, Project> getProjects() {
+        Map<String, Project> projects = new ConcurrentHashMap<>();
+
+        List<Project> projectList = jdbcTemplate.query("SELECT * FROM project", new ProjectRowMapper());
+
+        for (Project project : projectList) {
+            projects.put(project.getName(), project);
+        }
+
+        return projects;
+    }
+
     /**
      * Try to insert the ontology term. If the insert fails, return. If it succeeds, try to insert the synonyms and consider ids.
      *
@@ -521,6 +545,58 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
 
         return counts;
+    }
+
+
+
+    /**
+     * Try to insert the phenotyped colony. Return the count of inserted phenotype colonies.
+     *
+     * @param phenotypedColony the {@link PhenotypedColony} to be inserted
+     *
+     * @return the count of inserted phenotype colonies.
+     */
+    public int insertPhenotypedColony(PhenotypedColony phenotypedColony) throws CdaLoaderException {
+        int count = 0;
+
+        // Insert PhenotypedColony if it does not exist.
+        try {
+
+            count = jdbcTemplate.update("INSERT INTO phenotyped_colony (" +
+                                        " colony_name," +
+                                        " es_cell_name," +
+                                        " gf_acc," +
+                                        " gf_db_id," +
+                                        " allele_acc," +
+                                        " allele_db_id," +
+                                        " strain_acc," +
+                                        " strain_db_id," +
+                                        " production_centre_organisation_id," +
+                                        " production_consortium_project_id," +
+                                        " phenotyping_centre_organisation_id," +
+                                        " phenotyping_consortium_project_id," +
+                                        " cohort_production_centre_organisation_id" +
+                                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                        phenotypedColony.getColonyName(),
+                                        (phenotypedColony.getEs_cell_name() == null ? null : phenotypedColony.getEs_cell_name()),
+                                        phenotypedColony.getGene().getId().getAccession(),
+                                        DbIdType.MGI.intValue(),
+                                        phenotypedColony.getAllele().getId().getAccession(),
+                                        DbIdType.MGI.intValue(),
+                                        phenotypedColony.getStrain().getId().getAccession(),
+                                        DbIdType.MGI.intValue(),
+                                        phenotypedColony.getProductionCentre().getId(),
+                                        phenotypedColony.getProductionConsortium().getId(),
+                                        phenotypedColony.getPhenotypingCentre().getId(),
+                                        phenotypedColony.getPhenotypingConsortium().getId(),
+                                        phenotypedColony.getCohortProductionCentre().getId()
+                                       );
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return count;
     }
 
 
@@ -896,6 +972,58 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             term.setReplacementAcc(rs.getString("replacement_acc"));
 
             return term;
+        }
+    }
+
+    public class OrganisationRowMapper implements RowMapper<Organisation> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public Organisation mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Organisation organisation = new Organisation();
+
+            organisation.setId(rs.getInt("id"));
+            organisation.setName(rs.getString("name"));
+            organisation.setFullname(rs.getString("fullname"));
+            organisation.setCountry(rs.getString("country"));
+
+            return organisation;
+        }
+    }
+
+    public class ProjectRowMapper implements RowMapper<Project> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Project project = new Project();
+
+            project.setId(rs.getInt("id"));
+            project.setName(rs.getString("name"));
+            project.setFullname(rs.getString("fullname"));
+            project.setDescription(rs.getString("description"));
+
+            return project;
         }
     }
 

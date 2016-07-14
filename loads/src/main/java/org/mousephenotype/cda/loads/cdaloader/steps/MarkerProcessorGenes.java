@@ -80,7 +80,6 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
 
     public MarkerProcessorGenes(Map<String, GenomicFeature> genes) {
         this.genes = genes;
-//        this.coordinates = coordinates;
     }
 
     /**

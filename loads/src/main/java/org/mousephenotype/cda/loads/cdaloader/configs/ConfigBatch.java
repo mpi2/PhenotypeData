@@ -81,6 +81,9 @@ public class ConfigBatch {
     @Autowired
     public StrainLoader strainLoader;
 
+    @Autowired
+    public PhenotypedColonyLoader phenotypedColonyLoader;
+
 
 
     @Bean
@@ -88,7 +91,7 @@ public class ConfigBatch {
         Job[] jobs = new Job[] {
 //                  databaseInitialiserJob()
 //                , downloaderJob()
-                  dbLoaderJob()
+                   dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -176,12 +179,12 @@ public class ConfigBatch {
 //        // Strains - mgi, imsr (the order is important)
 //        Flow strainsFlow = new FlowBuilder<Flow>("strainsFlow").from(strainLoader).end();
 //
-        // Biological Models
-        Flow bioModelsFlow = new FlowBuilder<Flow>("bioModelsFlow").from(bioModelLoader).end();
+//        // Biological Models
+//        Flow bioModelsFlow = new FlowBuilder<Flow>("bioModelsFlow").from(bioModelLoader).end();
 
-//        // phenotyped colonies
-//        Flow phenotypedColoniesFlow = new FlowBuilder<Flow>("imitsFlow").from(phenotypedColoniesLoader).end();
-//
+        // phenotyped colonies
+        Flow phenotypedColoniesFlow = new FlowBuilder<Flow>("imitsFlow").from(phenotypedColonyLoader).end();
+
 //        return jobBuilderFactory.get("dbLoaderJob")
 //                .incrementer(new RunIdIncrementer())
 //                .start(ontologyFlow)
@@ -189,14 +192,15 @@ public class ConfigBatch {
 //                .next(allelesFlow)
 //                .next(strainsFlow)
 //                .next(bioModelsFlow)
+//                .next(phenotypedColoniesFlow)
 //                .end()
 //                .build();
 
 
         return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
-//                .start(phenotypedColoniesFlow)
-                .start(bioModelsFlow)
+//                .start(bioModelsFlow)
+                .start(phenotypedColoniesFlow)
                 .end()
                 .build();
     }
