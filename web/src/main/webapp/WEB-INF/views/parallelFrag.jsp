@@ -68,7 +68,7 @@
 
 		var colors = {
 		    "Mutant" : '#0978A1',
-		//	"WT" : '#EF7B0B',
+			"Normal" :'#602619',
 			"Mean" : '#EF7B0B'/*,
 			"MRC Harwell" : 'rgb(119, 119, 119)',
 			"TCP" : '#16532D',

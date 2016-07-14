@@ -28,8 +28,8 @@ import java.util.*;
  */
 public class ParallelCoordinatesDTO {
 
-	public static final String DEFAULT = " Default value"; 
-	public static final String MEAN = " Mean value"; // Leave the space so that it gets sorted at the top
+	public static final String DEFAULT = "Default value"; 
+	public static final String MEAN = "Mean value"; 
 	public static final String GROUP_WT = "WT";
 	public static final String GROUP_MUTANT = "Mutant";
 
