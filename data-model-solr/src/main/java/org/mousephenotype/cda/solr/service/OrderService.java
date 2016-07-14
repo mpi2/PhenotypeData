@@ -9,6 +9,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneTargetDetail;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,19 +69,19 @@ public class OrderService {
         
 	}
 	
-public List<Allele2DTO> getProducts(String geneAcc) throws SolrServerException{
+public List<ProductDTO> getProducts(String geneAcc) throws SolrServerException{
 		
-		String q = "type:allele AND mgi_accession_id:\"" + geneAcc+ "\"";//&start=0&rows=100&hl=true&wt=json";
+		String q = "mgi_accession_id:\"" + geneAcc+ "\"";//&start=0&rows=100&hl=true&wt=json";
 		SolrQuery query=new SolrQuery();
 		query.setQuery(q);
 		query.setRows(Integer.MAX_VALUE);
 		System.out.println("query for allele2="+query);
-		QueryResponse response = allele2Core.query(query);
+		QueryResponse response = productCore.query(query);
 		System.out.println("number found of allele2 docs="+response.getResults().getNumFound());
-		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
-		System.out.println("number of allele2DTOs is "+allele2DTOs.size());
+		List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
+		System.out.println("number of allele2DTOs is "+productDTOs.size());
 		
-        return allele2DTOs;
+        return productDTOs;
 
         
 	}
