@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
+import static org.junit.Assert.*;
+
 import javax.validation.constraints.NotNull;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -69,7 +71,7 @@ public class OrderServiceTest {
 	public void getAlleleDocsTest(){
 		String geneAcc="MGI:1859328";
 		try {
-			orderService.getAlleleDocs(geneAcc);
+			assertTrue(orderService.getAllele2DTOs(geneAcc).size()>2);
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
