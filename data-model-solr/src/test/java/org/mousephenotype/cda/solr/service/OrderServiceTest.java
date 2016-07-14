@@ -78,6 +78,17 @@ public class OrderServiceTest {
 		}
 	}
 	
+	@Test
+	public void getProductDocsTest(){
+		String geneAcc="MGI:1859328";
+		try {
+			assertTrue(orderService.getProducts(geneAcc).size()>2);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	
 	
 }
