@@ -271,52 +271,64 @@ p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1p
 .reposition             { position: absolute; color: #666; margin-top: 2em; }
 .reposition .btn        { background: #0978a1; }
 .reposition .btn:hover  { background: #777; }
+
+div.searchcontent {
+    position: relative;
+    width: 960px;
+    margin-top: -45px;
+}
 /*#bigsearchbox           { background: #0978a1; padding: 0.5em; } /* for the search page */
-#bigsearchbox           {  padding: 3px; padding-left: 2px; width: 420px; margin-top: -28px; margin-right: 50px;
-							height: 30px; float: right; background: none;
+#bigsearchbox           {
+    /*padding: 3px; padding-left: 2px; width: 420px; margin-top: -28px; margin-right: 50px;*/
+							/*height: 30px; float: right; background: none;*/
+    float: right;
+    width: 420px;
+    background: none;
 }
 
-div#footerline #bigsearchbox {display: none;}
-
-#bigsearchbox input     { color: grey; border: 2px solid #0978a1; width: 380px; height: 20px !important; font-size: 16px; line-height: 0px; padding: 3px 0 6px 5px;}
-#bigsearchbox i#sicon { position: absolute; top: -6px;}
+#bigsearchbox input     { color: grey; border: 2px solid #0978a1; width: 385px; height: 20px !important;
+    font-size: 16px; line-height: 0px;}
+#bigsearchbox i#sicon { position: absolute; top: -1px;}
 #bigsearchbox i#clearIcon {
     position: absolute;
-    top: 13px;
+    top: 12px;
     margin-left: -20px;
     cursor: pointer;
 }
+div#footerline #bigsearchbox {display: none;}
 nav#mn {width: 950px;}
 div#block-menu-block-1  {
 	float: left;
 }
 
- /* for the search page */
 i.searchExample {
-	float: right;
+	position: absolute;
 	text-decoration: none;
-	/*border-radius: 3px;
-    border: 1px solid white;*/
-    margin: 0px 0px 0 0px;
-    padding: 5px 20px 0px 0px;
+	top: 6px;
+    right: 25px;
     width: 0px;
     height: 0px;
     color: #0978a1 !important;
     text-align: center;
     font-size: 25px;
 }
+#batchQryLink {
+    float: right;
+    padding: 0;
+    font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
+    font-size: 12px;
+    visibility: hidden;
+}
+i.batchQuery {
+    padding-right: 5px;
+}
 a#batchquery {
-	float: right;
-	margin-top: -20px;
-	margin-right: 80px;
 	text-decoration: none;
     color: rgb(9,120,161);
+    margin-right: 30px;
 }
 a#batchquery:hover {
     text-decoration: underline;
-}
-i.batchQuery {
-	padding-right: 5px;
 }
 
 /* Block IMPReSS */

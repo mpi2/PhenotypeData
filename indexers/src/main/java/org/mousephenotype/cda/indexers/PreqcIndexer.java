@@ -57,7 +57,6 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("preqcIndexing")
     SolrServer preqcIndexing;
 
-
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
@@ -235,9 +234,9 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 // Skip if we already have this data postQC
                 phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
-////                if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
-////                    continue;
-////                }
+                if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
+                	continue;
+                }
 
                 GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
 

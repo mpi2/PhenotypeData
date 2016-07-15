@@ -1,5 +1,22 @@
 /* Additional styling written at EBI */
 
+.buttonForHighcharts{
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight:bold;
+	float:right;
+	color:black;
+	margin-left:2em;
+	text-decoration: none;
+}
+
+.buttonForHighcharts i{
+	background:rgb(9, 120, 161);
+	color:white;
+	margin:auto;
+	width:1.5em;
+}
+
 .quarter {
 	width:25%;
 	float: left;

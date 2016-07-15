@@ -11,6 +11,10 @@
 	<jsp:attribute name="header">       
         <link type="text/css" rel="stylesheet" href="${baseUrl}/css/ontologyBrowser.css"/>
         <link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jstree.min.css"/>
+
+		<style>
+			/*#ontotree { margin-top: 80px;}*/
+		</style>
 	</jsp:attribute>
 
 	<jsp:attribute name="addToFooter">	
@@ -83,7 +87,7 @@
 					 r.push(data.instance.get_node(data.selected[i]).text);
 				 }
 				 var nodeHref = data.node.original.href;
-				 window.location.href = "${baseUrl}" + nodeHref;
+				 window.location.href = "${baseUrl}" + nodeHref.replace("/data","");
 			 }).jstree();
 
 		

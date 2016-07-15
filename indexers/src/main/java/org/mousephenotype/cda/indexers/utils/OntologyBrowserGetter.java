@@ -236,9 +236,9 @@ public class OntologyBrowserGetter {
 				+ "_node2term WHERE term_id = ?)";
 
 		Map<String, String> nameMap = new HashMap<>();
-		nameMap.put("ma", "/anatomy");
-		nameMap.put("emapa", "/anatomy");
-		nameMap.put("mp", "/phenotypes");
+		nameMap.put("ma", "/data/anatomy");
+		nameMap.put("emapa", "/data/anatomy");
+		nameMap.put("mp", "/data/phenotypes");
 
 
 		String pageBaseUrl =  nameMap.get(ontologyName);

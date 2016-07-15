@@ -2,11 +2,11 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.Allele2Service;
@@ -33,26 +33,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
-
 /**
  * Class to handle the nagios web status monitoring pages
- * 
+ *
  * @author jwarren
  *
  */
 @Controller
 public class WebStatusController {
 
-	@Autowired
-	private PhenotypeSummaryDAO phenSummary;
-
-	// @Autowired
-	// private PhenotypeCallSummarySolr phenoDAO;
-
-	// uses admintools db which we don't need for web so don't status test it.
-	// @Autowired
-	// private GwasDAO gwasDao;
+	public static final Integer TIMEOUT_INTERVAL = 2;
 
 	@Autowired
 	ObservationService observationService;
@@ -94,14 +84,11 @@ public class WebStatusController {
 	AutoSuggestService autoSuggestService;
 
 	@Autowired
-	private OntologyTermDAO ontoTermDao;
-
-	@Autowired
 	private PhenotypePipelineDAO ppDAO;
 
 	@Autowired
 	PhenodigmService phenodigmService;
-	
+
 	@Autowired
 	OmeroStatusService omeroStatusService;
 
@@ -111,12 +98,16 @@ public class WebStatusController {
 
 	@Autowired
 	Allele2Service allele2;
+
 	@Autowired
 	EucommCreProductService eucommCreProductService;
+
 	@Autowired
 	EucommToolsProductService eucommToolsProductService;
+
 	@Autowired
 	EucommToolsCreAllele2Service eucommToolsCreAllele2Service;
+
 	List<WebStatus> imitsWebStatusObjects;
 
 	@PostConstruct
@@ -139,7 +130,6 @@ public class WebStatusController {
 		webStatusObjects.add(geneService);
 		webStatusObjects.add(diseaseService);
 		webStatusObjects.add(autoSuggestService);
-		webStatusObjects.add(ontoTermDao);
 		webStatusObjects.add(ppDAO);
 		webStatusObjects.add(phenodigmService);
 		//webStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second!
@@ -153,20 +143,40 @@ public class WebStatusController {
 
 	@RequestMapping("/webstatus")
 	public String webStatus(Model model, HttpServletResponse response) {
+
+
+		ExecutorService executor = Executors.newCachedThreadPool();
+
 		boolean ok = true;
-		// System.out.println("calling webstatus controller");
+
 		// check our core solr instances are returning via the services
 		List<WebStatusModel> webStatusModels = new ArrayList<>();
 		for (WebStatus status : webStatusObjects) {
+
+			Future<Long> future = null;
+
 			String name = status.getServiceName();
 			long number = 0;
 			try {
-				number = status.getWebStatus();
+
+				//				number = status.getWebStatus();
+
+				// This block causes the method reference getWebStatus to be submitted to the executor
+				// And then "get"ted from the future.  If the request is not complete in 2 seconds (more than enough time)
+				// then timeout and throw an exception
+				Callable<Long> task = status::getWebStatus;
+				future = executor.submit(task);
+				number = future.get(TIMEOUT_INTERVAL, TimeUnit.SECONDS);
+
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+
+				// Cancel the ongoing call
+				if (future!=null) {future.cancel(true);}
+
 				ok = false;
 				e.printStackTrace();
 			}
+
 			WebStatusModel wModel = new WebStatusModel(name, number);
 			webStatusModels.add(wModel);
 		}
@@ -176,15 +186,27 @@ public class WebStatusController {
 		// check the imits services
 		List<WebStatusModel> imitsWebStatusModels = new ArrayList<>();
 		for (WebStatus status : imitsWebStatusObjects) {
+
+			Future<Long> future = null;
 			String name = status.getServiceName();
 			long number = 0;
+
 			try {
-				number = status.getWebStatus();
+				// number = status.getWebStatus();
+
+				// This block causes the method reference getWebStatus to be submitted to the executor
+				// And then "get"ted from the future.  If the request is not complete in 2 seconds (more than enough time)
+				// then timeout and throw an exception
+				Callable<Long> task = status::getWebStatus;
+				future = executor.submit(task);
+				number = future.get(TIMEOUT_INTERVAL, TimeUnit.SECONDS);
+
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				ok = true;// set the status still to be ok as imits isn't a core
-							// service - ie the website will function without
-							// it?
+
+				// Cancel the ongoing call
+				if (future!=null) {future.cancel(true);}
+
+				// Do not change the website status for an unavailable non-critical resource
 				e.printStackTrace();
 			}
 			WebStatusModel wModel = new WebStatusModel(name, number);

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -67,5 +68,46 @@ public class MarkerBean {
 		return result;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MarkerBean other = (MarkerBean) obj;
+		if (accessionId == null) {
+			if (other.accessionId != null)
+				return false;
+		} else if (!accessionId.equals(other.accessionId))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (symbol == null) {
+			if (other.symbol != null)
+				return false;
+		} else if (!symbol.equals(other.symbol))
+			return false;
+		if (synonyms == null) {
+			if (other.synonyms != null)
+				return false;
+		} else if (!synonyms.equals(other.synonyms))
+			return false;
+		return true;
+	}
 	
+	public static Comparator<MarkerBean> getComparatorBySymbol(){
+		Comparator<MarkerBean> comp = new Comparator<MarkerBean>(){
+		    @Override
+		    public int compare(MarkerBean a, MarkerBean b)
+		    {
+		    	return a.getSymbol().compareTo(b.getSymbol());
+		    }
+		};
+		return comp;
+	}
 }

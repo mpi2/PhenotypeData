@@ -33,11 +33,13 @@
 			}));
 
 			// Add grey background lines for context.
-			background = svg.append("svg:g").attr("class", "background").selectAll("path").data(cars).enter().append("svg:path").attr("d", path);
+			background = svg.append("svg:g").attr("class", "background").selectAll("path").data(cars).enter().append("svg:path").attr("d", path).attr("style", function(d) {
+				return getStyles(d,"background");
+			});
 
 			// Add blue foreground lines for focus.
 			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path).attr("style", function(d) {
-				return "stroke:" + colors[d.group] + ";";
+				return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");
 			});
 
 			// Add a group element for each dimension.
@@ -81,6 +83,27 @@
 				return v == null || v == "NA" ? x(d) : null;
 			}
 
+			
+			function getStyles(d, plan){
+				var style = "";
+				if (d.group == "Normal" || d.group == "Mean") {
+					style = "stroke-opacity: 1;";
+					if (plan == "background"){
+						style += " stroke:" + colors[d.group] + ";"
+					}
+					
+				} else {
+					if (plan == "foreground"){
+						style = "stroke-opacity: 0.35;";
+					} else if (plan == "background"){
+						style = "stroke-opacity: 1;";
+					}else {
+						style = "stroke-opacity: 0.45;";
+					}
+				}
+				return style;
+			}
+			
 			// Returns the path for a given data point.
 			function path(d) {
 				//return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
@@ -162,7 +185,7 @@
 						text.remove();
 					}
 					highlighted = svg.append("svg:g").attr("class", "highlight").selectAll("path").data([ model.get('filtered')[i] ]).enter().append("svg:path").attr("d", path).attr("style", function(d) {
-						return "stroke:" + colors[d.group] + ";";
+						return "stroke:" + colors[d.group] + ";"; + getStyles(d,"foreground");
 					});
 
 					highlighted2 = svg.append("svg:g").attr("class", "highlight2").selectAll(".serie").data(dimensions).enter().append("svg:circle").filter(function(d) {

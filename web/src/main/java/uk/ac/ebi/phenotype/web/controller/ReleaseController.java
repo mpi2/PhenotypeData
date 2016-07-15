@@ -37,6 +37,8 @@ import org.mousephenotype.cda.solr.service.AlleleService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -52,6 +54,8 @@ import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
 @Controller
 public class ReleaseController {
+
+	private final Logger logger = LoggerFactory.getLogger(ReleaseController.class);
 
 	@Autowired
 	private AnalyticsDAO analyticsDAO;
@@ -71,6 +75,9 @@ public class ReleaseController {
 	@Autowired
 	private UnidimensionalChartAndTableProvider chartProvider;
 
+	Double CACHE_REFRESH_PERCENT = 0.05; // 5%
+	Map<String, String> cachedMetaInfo = null;
+
 	public static Map<String, String> statisticalMethodsShortName = new HashMap<>();
 	static {
 		statisticalMethodsShortName.put("Fisher's exact test", "Fisher");
@@ -79,13 +86,40 @@ public class ReleaseController {
 		statisticalMethodsShortName.put("Mixed Model framework, linear mixed-effects model, equation withoutWeight", "MMlme");
 	}
 
+	/**
+	 * Return the meta information about the data release
+	 *
+	 * If the data is cached, return the cached data
+	 *
+	 * Sometimes (defined by CACHE_REFRESH_PERCENT), refresh the cached data
+	 *
+	 * @return map of the meta data
+	 * @throws SQLException
+	 */
+	private Map<String, String> getMetaInfo() throws SQLException {
+		Map<String, String> metaInfo = cachedMetaInfo;
+
+		if (metaInfo == null || Math.random() < CACHE_REFRESH_PERCENT) {
+			metaInfo = analyticsDAO.getMetaData();
+			synchronized (this) {
+				cachedMetaInfo = metaInfo;
+			}
+			logger.info("Refreshing metadata cache");
+		}
+
+		return metaInfo;
+	}
+
 	@RequestMapping(value="/release.json", method=RequestMethod.GET)
 	public ResponseEntity<String> getJsonReleaseInformation() {
 
-		Map<String, String> metaInfo = null;
 		try {
-			metaInfo = analyticsDAO.getMetaData();
+
+			// 10% of the time refresh the cached metadata info
+			Map<String, String> metaInfo = getMetaInfo();
+
 			JSONObject json = new JSONObject(metaInfo);
+
 			return new ResponseEntity<>(json.toString(), createResponseHeaders(), HttpStatus.OK);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -94,6 +128,7 @@ public class ReleaseController {
 
 
 	}
+
 	private HttpHeaders createResponseHeaders() {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -104,7 +139,8 @@ public class ReleaseController {
 	public String getReleaseInformation(
 		Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
-		Map<String, String> metaInfo = analyticsDAO.getMetaData();
+		// 10% of the time refresh the cached metadata info
+		Map<String, String> metaInfo = getMetaInfo();
 
 		/*
 		 * What are the different Phenotyping centers?
@@ -151,7 +187,7 @@ public class ReleaseController {
 						"Center by center",
 						"Number of lines",
 						"lines",
-						"lineProcedureChart");
+						"lineProcedureChart", "checkAllProcedures", "uncheckAllProcedures");
 
 		List<AggregateCountXYBean> callBeans = analyticsDAO.getAllProcedurePhenotypeCalls();
 		String callProcedureChart =
@@ -162,7 +198,7 @@ public class ReleaseController {
 						"Center by center",
 						"Number of phenotype calls",
 						"calls",
-						"callProcedureChart");
+						"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
 
 		Map<String, List<String>> statisticalMethods = analyticsDAO.getAllStatisticalMethods();
 
@@ -182,7 +218,7 @@ public class ReleaseController {
 						statisticalMethod,
 						"Frequency",
 						"",
-						statisticalMethodsShortName.get(statisticalMethod)+"Chart");
+						statisticalMethodsShortName.get(statisticalMethod)+"Chart", "xxx", "xxx");
 				distributionCharts.put(statisticalMethodsShortName.get(statisticalMethod)+"Chart", chart);
 			}
 		}
@@ -199,7 +235,8 @@ public class ReleaseController {
 			trendsMap.put(trendsVariables[i], analyticsDAO.getHistoricalData(trendsVariables[i]));
 		}
 
-		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allReleases, "Genes/Mutant Lines/MP Calls", "Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true, "trendsChart");
+		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allReleases, "Genes/Mutant Lines/MP Calls", 
+				"Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true, "trendsChart", null, null);
 
 		Map<String, List<AggregateCountXYBean>> datapointsTrendsMap = new HashMap<String, List<AggregateCountXYBean>>();
 		String[] status = new String[] {"QC_passed", "QC_failed", "issues"};
@@ -214,7 +251,8 @@ public class ReleaseController {
 			}
 		}
 
-		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allReleases, "Data points", "", "Data points", null, false, "datapointsTrendsChart");
+		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allReleases, "Data points", "", 
+				"Data points", null, false, "datapointsTrendsChart", "checkAllDataPoints", "uncheckAllDataPoints");
 
 		/**
 		 * Drill down by top level phenotypes
@@ -231,14 +269,16 @@ public class ReleaseController {
 			topLevelMap.put(metaInfo.get("top_level_"+topLevelsMPsArray[i]), analyticsDAO.getHistoricalData("top_level_"+topLevelsMPsArray[i]+"_calls"));
 		}
 
-		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", "MP Calls", null, false, "topLevelTrendsChart");
+		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", 
+				"MP Calls", null, false, "topLevelTrendsChart", "checkAllTopLevels", "uncheckAllTopLevels");
 
 		TreeMap<String, TreeMap<String, Long>> annotationDistribution = new TreeMap<>();
 		annotationDistribution.put(ZygosityType.heterozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.heterozygote, null));
 		annotationDistribution.put(ZygosityType.homozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.homozygote, null));
 		annotationDistribution.put(ZygosityType.hemizygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote, null));
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", " lines", "distribution");
+			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", 
+			" lines", "distribution", null, null);
 
 		Set<String> allPhenotypingCenters = as.getFacets(AlleleDTO.PHENOTYPING_CENTRE);
 		TreeMap<String, TreeMap<String, Long>> phenotypingDistribution = new TreeMap<>();
@@ -248,7 +288,8 @@ public class ReleaseController {
 			}
 		}
 		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-		gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", "phenotypeStatusByCenterChart");
+				gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", 
+				"phenotypeStatusByCenterChart", "checkAllPhenByCenter", "uncheckAllPhenByCenter");
 
 		Set<String> allGenotypingCenters = as.getFacets(AlleleDTO.PRODUCTION_CENTRE);
 		TreeMap<String, TreeMap<String, Long>> genotypingDistribution = new TreeMap<>();
@@ -258,7 +299,8 @@ public class ReleaseController {
 			}
 		}
 		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-		gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", "genotypeStatusByCenterChart");
+				gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", 
+				"genotypeStatusByCenterChart", "checkAllGenByCenter", "uncheckAllGenByCenter");
 
 		HashMap<SignificantType, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
 		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary, "Distribution of Phenotype Calls", "sexualDimorphismChart" );

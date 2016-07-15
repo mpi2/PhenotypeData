@@ -9,6 +9,12 @@
 <c:forEach var="categoricalChartDataObject"	items="${categoricalResultAndChart.maleAndFemale}"	varStatus="chartLoop">
 
 	<div id="chart${experimentNumber}"></div>
+	
+	<a id="checkAll" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+    <a id="uncheckAll"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+    
+    <div class="clear both"></div>
+    
 	<script type="text/javascript">	${categoricalChartDataObject.chart} </script>
 
 	<div style="overflow: hidden; overflow-x: auto;">

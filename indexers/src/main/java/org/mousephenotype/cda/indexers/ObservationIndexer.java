@@ -38,9 +38,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDAO;
+import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -86,8 +84,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	@Autowired
 	MaOntologyDAO maOntologyService;
 
+//	@Autowired
+//	EmapOntologyDAO emapOntologyService;
+
 	@Autowired
-	EmapOntologyDAO emapOntologyService;
+	EmapaOntologyDAO emapaOntologyService;
+
 
 	Map<String, BiologicalDataBean> biologicalData = new HashMap<>();
 	Map<String, BiologicalDataBean> lineBiologicalData = new HashMap<>();
@@ -96,6 +98,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
 	Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
 
+	Map<String, EmapaOntologyDAO.Emapa> emap2emapaIdMap = new HashMap<>();
 	Map<Integer, String> anatomyMap = new HashMap<>();
 
 	Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
@@ -176,6 +179,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			populateIpgttWeightMap();
 			logger.debug("  map size: " + ipgttWeightMap.size());
 
+			logger.debug("populating emap to emapa map");
+			populateEmap2EmapaMap();
+			logger.debug(" map size: "+ emap2emapaIdMap.size());
+
 			logger.debug("populating anatomy map");
 			populateAnatomyMap();
 			logger.debug("  map size: " + anatomyMap.size());
@@ -225,6 +232,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "LEFT OUTER JOIN text_observation tro ON o.id=tro.id "
 				+ "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
 				+ "INNER JOIN experiment e on eo.experiment_id=e.id " + "WHERE o.missing=0";
+
 		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
 			p.setFetchSize(Integer.MIN_VALUE);
@@ -243,9 +251,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							Integer seqId = Integer.parseInt(r.getString("sequence_id"));
 							o.setSequenceId(seqId);
 						}
-
 					}
-
 				}
 
 				ZonedDateTime dateOfExperiment = null;
@@ -277,7 +283,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 					if (anatomyTermId != null) {
 
-
 						if (o.getAnatomyId() == null) {
 							// Initialize all the collections of anatomy terms
 							o.setAnatomyId(new ArrayList<>());
@@ -294,8 +299,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						OntologyDAO ontoService = null;
 						if (anatomyTermId.startsWith("MA:")) {
 							ontoService = maOntologyService;
-						} else if (anatomyTermId.startsWith("EMAP:")) {
-							ontoService = emapOntologyService;
+						} else if (anatomyTermId.startsWith("EMAPA:")) {
+							ontoService = emapaOntologyService;
 						}
 
 						OntologyTermBean term = ontoService.getTerm(anatomyTermId);
@@ -307,16 +312,15 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 							if (ontoService != null) {
 
-								if (ontoService.getIntermediatesDetail(anatomyTermId) != null) {
-									o.getIntermediateAnatomyId().addAll(ontoService.getIntermediatesDetail(anatomyTermId).getIds());
-									o.getIntermediateAnatomyTerm().addAll(ontoService.getIntermediatesDetail(anatomyTermId).getNames());
-									o.getIntermediateAnatomyTermSynonym().addAll(ontoService.getIntermediatesDetail(anatomyTermId).getSynonyms());
-								}
-								if (ontoService.getTopLevelDetail(anatomyTermId) != null) {
-									o.getSelectedTopLevelAnatomyId().addAll(ontoService.getTopLevelDetail(anatomyTermId).getIds());
-									o.getSelectedTopLevelAnatomyTerm().addAll(ontoService.getTopLevelDetail(anatomyTermId).getNames());
-									o.getSelectedTopLevelAnatomyTermSynonym().addAll(ontoService.getTopLevelDetail(anatomyTermId).getSynonyms());
-								}
+								OntologyDetail selectedTopLevels = ontoService.getSelectedTopLevelDetails(anatomyTermId);
+								o.setSelectedTopLevelAnatomyId(selectedTopLevels.getIds());
+								o.setSelectedTopLevelAnatomyTerm(selectedTopLevels.getNames());
+								o.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevels.getSynonyms());
+
+								OntologyDetail intermediates = ontoService.getIntermediatesDetail(anatomyTermId);
+								o.setIntermediateAnatomyId(intermediates.getIds());
+								o.setIntermediateAnatomyTerm(intermediates.getNames());
+								o.setIntermediateAnatomyTermSynonym(intermediates.getSynonyms());
 							}
 						}
 					}
@@ -1037,6 +1041,16 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	}
 
 	/**
+	 * Return map of EMAP => EMAPA
+	 *
+	 * @exception SQLException
+	 *                When a database error occurrs
+	 */
+	void populateEmap2EmapaMap() throws SQLException {
+		emap2emapaIdMap = emapaOntologyService.populateEmap2EmapaMap();
+	}
+
+	/**
 	 * Return map of specimen ID => weight for
 	 *
 	 * @exception SQLException
@@ -1044,7 +1058,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 */
 	void populateAnatomyMap() throws SQLException {
 
-		String query = "SELECT DISTINCT p.id, o.ontology_acc " +
+		String query = "SELECT DISTINCT p.id, p.stable_id, o.ontology_acc " +
 			"FROM phenotype_parameter p " +
 			"INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
 			"INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id " +
@@ -1053,7 +1067,14 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-				anatomyMap.put(resultSet.getInt("id"), resultSet.getString("ontology_acc"));
+				String ontoAcc = resultSet.getString("ontology_acc");
+				if (ontoAcc != null) {
+					anatomyMap.put(resultSet.getInt("id"),
+							ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc).getEmapaId() : ontoAcc);
+				}
+				else {
+					logger.error("Parameter {} missing ontology association: ", resultSet.getString("stable_id"));
+				}
 			}
 		}
 
