@@ -10,9 +10,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
-import org.mousephenotype.cda.solr.web.dto.GeneTargetDetail;
+import org.mousephenotype.cda.solr.web.dto.LinkDetails;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,9 +47,41 @@ public class OrderService {
 			String alleleName=allele.getAlleleName();
 			row.setAlleleName(alleleName);
 			row.setAlleleDescription(allele.getAlleleDescription());
+			List<LinkDetails> targetLinks=new ArrayList<>();
+			
 			
 			//row.setNoProductInfo(allele.get);
 			List<ProductDTO> productsForAllele = alleleNameToProductsMap.get(alleleName);
+			System.out.println("alleName="+alleleName);
+			LinkDetails vectorTargetMap=null;
+			for(ProductDTO prod:productsForAllele){
+				//ProductDTO prod=productsForAllele.get(0);
+				vectorTargetMap=new LinkDetails();
+				vectorTargetMap.setLabel("Target vector map");
+				List<String> colonSeperatedMap=prod.getOtherLinks();
+				if(colonSeperatedMap!=null){
+					for (String link : colonSeperatedMap) {
+						if (link.startsWith("allele_image")) {
+							vectorTargetMap.setLink(link.replace("allele_image:", ""));
+						}
+					}
+				}
+				
+				
+			}
+			for(ProductDTO prod: productsForAllele){
+				System.out.println("prod= "+prod);
+			}
+			LinkDetails geneTargetMap=new LinkDetails();
+			geneTargetMap.setLabel("Targeted gene map");
+			geneTargetMap.setLink(allele.getAlleleImage());
+			targetLinks.add(geneTargetMap);
+			if(vectorTargetMap!=null){
+			targetLinks.add(vectorTargetMap);
+			}
+			row.setOrderTargetVectorUrl(allele.getAlleleImage());
+			
+			row.setGeneTargetDetails(targetLinks);
 			orderTableRows.add(row);
 			
 		}
@@ -61,10 +92,10 @@ public class OrderService {
 		row.setAlleleName("Cpsf3tm1b(EUCOMM)Wtsi");
 		row.setStrainOfOrigin("C57BL/6N");
 		row.setAlleleDescription("Reporter-tagged deletion allele (post-Cre)");
-		GeneTargetDetail detail=new GeneTargetDetail();
+		LinkDetails detail=new LinkDetails();
 		detail.setLabel("Target Vector Map");
 		detail.setLink("https://www.i-dcc.org/imits/targ_rep/alleles/4973/allele-image-cre?simple=true.jpg.jpg");
-		List<GeneTargetDetail> geneTargetDetails=new ArrayList<>();
+		List<LinkDetails> geneTargetDetails=new ArrayList<>();
 		geneTargetDetails.add(detail);
 		row.setGeneTargetDetails(geneTargetDetails);
 		orderTableRows.add(row);

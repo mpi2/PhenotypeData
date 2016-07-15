@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.solr.service.dto;
 
+import java.util.List;
+
 import org.apache.solr.client.solrj.beans.Field;
 
 public class ProductDTO {
@@ -41,6 +43,17 @@ public class ProductDTO {
 	public static final String STATUS = "status";
 	@Field(STATUS)
 	private String status;
+	
+	public static final String OTHER_LINKS="other_links";
+	@Field(OTHER_LINKS)
+	private List<String> otherLinks;//image link to the vector map
+	
+	public List<String> getOtherLinks() {
+		return otherLinks;
+	}
+	public void setOtherLinks(List<String> otherLinks) {
+		this.otherLinks = otherLinks;
+	}
 	public String getProductId() {
 		return productId;
 	}
@@ -112,6 +125,13 @@ public class ProductDTO {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	@Override
+	public String toString() {
+		return "ProductDTO [productId=" + productId + ", alleleId=" + alleleId + ", markerSymbol=" + markerSymbol
+				+ ", mgiAccessionId=" + mgiAccessionId + ", alleleType=" + alleleType + ", alleleName=" + alleleName
+				+ ", alleleHasIssues=" + alleleHasIssues + ", type=" + type + ", name=" + name + ", productionCentre="
+				+ productionCentre + ", productionCompleted=" + productionCompleted + ", status=" + status + "]";
 	}
 			
 }
