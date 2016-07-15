@@ -52,9 +52,6 @@ public class OrderTableRow {
 		this.orderMouseDetails = orderMouseDetails;
 	}
 
-	private String orderTargetVectorUrl;
-	private String orderEsCellUrl;
-	private String orderMouseUrl;
 	
 	//when no product add some info
 	private String noProductInfo;
@@ -83,30 +80,6 @@ public class OrderTableRow {
 
 	public void setGeneTargetDetails(List<LinkDetails> geneTargetDetails) {
 		this.geneTargetDetails = geneTargetDetails;
-	}
-
-	public String getOrderTargetVectorUrl() {
-		return orderTargetVectorUrl;
-	}
-
-	public void setOrderTargetVectorUrl(String orderTargetVectorUrl) {
-		this.orderTargetVectorUrl = orderTargetVectorUrl;
-	}
-
-	public String getOrderEsCellUrl() {
-		return orderEsCellUrl;
-	}
-
-	public void setOrderEsCellUrl(String orderEsCellUrl) {
-		this.orderEsCellUrl = orderEsCellUrl;
-	}
-
-	public String getOrderMouseUrl() {
-		return orderMouseUrl;
-	}
-
-	public void setOrderMouseUrl(String orderMouseUrl) {
-		this.orderMouseUrl = orderMouseUrl;
 	}
 
 	public String getNoProductInfo() {
