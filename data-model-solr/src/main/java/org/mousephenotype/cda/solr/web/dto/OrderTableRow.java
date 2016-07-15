@@ -20,8 +20,38 @@ public class OrderTableRow {
 		this.alleleDescription = alleleDescription;
 	}
 
-	private List<GeneTargetDetail> geneTargetDetails;
+	private List<LinkDetails> geneTargetDetails;
+	private List<LinkDetails> orderTargetVectorDetails;
 	
+
+	public List<LinkDetails> getOrderTargetVectorDetails() {
+		return orderTargetVectorDetails;
+	}
+
+	public void setOrderTargetVectorDetails(List<LinkDetails> orderTargetVectorDetails) {
+		this.orderTargetVectorDetails = orderTargetVectorDetails;
+	}
+
+	private List<LinkDetails> orderEsCellDetails;
+	
+	public List<LinkDetails> getOrderEsCellDetails() {
+		return orderEsCellDetails;
+	}
+
+	public void setOrderEsCelltDetails(List<LinkDetails> orderEsCellDetails) {
+		this.orderEsCellDetails = orderEsCellDetails;
+	}
+
+	private List<LinkDetails> orderMouseDetails;
+	
+	public List<LinkDetails> getOrderMouseDetails() {
+		return orderMouseDetails;
+	}
+
+	public void setOrderMouseDetails(List<LinkDetails> orderMouseDetails) {
+		this.orderMouseDetails = orderMouseDetails;
+	}
+
 	private String orderTargetVectorUrl;
 	private String orderEsCellUrl;
 	private String orderMouseUrl;
@@ -47,11 +77,11 @@ public class OrderTableRow {
 
 	
 
-	public List<GeneTargetDetail> getGeneTargetDetails() {
+	public List<LinkDetails> getGeneTargetDetails() {
 		return geneTargetDetails;
 	}
 
-	public void setGeneTargetDetails(List<GeneTargetDetail> geneTargetDetails) {
+	public void setGeneTargetDetails(List<LinkDetails> geneTargetDetails) {
 		this.geneTargetDetails = geneTargetDetails;
 	}
 
@@ -86,4 +116,5 @@ public class OrderTableRow {
 	public void setNoProductInfo(String noProductInfo) {
 		this.noProductInfo = noProductInfo;
 	}
+
 }

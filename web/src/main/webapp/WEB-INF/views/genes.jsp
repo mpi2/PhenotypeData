@@ -678,8 +678,7 @@
 							</h2>
 
 							<div class="inner">
-								<jsp:include page="${baseUrl}/orderSection/${acc}"></jsp:include>
-								blah
+								<div id="order_product"></div>
 							</div>
 						</div>
 
