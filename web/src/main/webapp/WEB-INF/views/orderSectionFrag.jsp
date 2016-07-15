@@ -30,7 +30,7 @@
                          	${row.strainOfOrigin}
                          </td>
                          <td>
-                         	${row.alleleType}
+                         	${row.alleleDescription}
                          </td>
                           <td>
                           <c:forEach var="target" items="${row.geneTargetDetails}">

@@ -10,8 +10,16 @@ import java.util.List;
 public class OrderTableRow {
 	private String alleleName;
 	private String strainOfOrigin;
-	private String alleleType;
+	private String alleleDescription;
 	
+	public String getAlleleDescription() {
+		return alleleDescription;
+	}
+
+	public void setAlleleDescription(String alleleDescription) {
+		this.alleleDescription = alleleDescription;
+	}
+
 	private List<GeneTargetDetail> geneTargetDetails;
 	
 	private String orderTargetVectorUrl;
@@ -37,13 +45,7 @@ public class OrderTableRow {
 		this.strainOfOrigin = strainOfOrigin;
 	}
 
-	public String getAlleleType() {
-		return alleleType;
-	}
-
-	public void setAlleleType(String alleleType) {
-		this.alleleType = alleleType;
-	}
+	
 
 	public List<GeneTargetDetail> getGeneTargetDetails() {
 		return geneTargetDetails;

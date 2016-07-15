@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.OrderService;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class OrderController {
 	OrderService orderService;
 	
 	@RequestMapping("/orderSection/{acc}")
-	public String orderSection(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes){
+	public String orderSection(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
 		System.out.println("orderSection being called!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc);
 		
