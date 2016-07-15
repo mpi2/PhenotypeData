@@ -61,8 +61,8 @@ public class OrderService {
 				List<String> colonSeperatedMap=prod.getOtherLinks();
 				if(colonSeperatedMap!=null){
 					for (String link : colonSeperatedMap) {
-						if (link.startsWith("allele_image")) {
-							vectorTargetMap.setLink(link.replace("allele_image:", ""));
+						if (link.startsWith("design_link")) {
+							vectorTargetMap.setLink(link.replace("design_link:", ""));
 						}
 					}
 				}
@@ -79,7 +79,6 @@ public class OrderService {
 			if(vectorTargetMap!=null){
 			targetLinks.add(vectorTargetMap);
 			}
-			row.setOrderTargetVectorUrl(allele.getAlleleImage());
 			
 			row.setGeneTargetDetails(targetLinks);
 			orderTableRows.add(row);
