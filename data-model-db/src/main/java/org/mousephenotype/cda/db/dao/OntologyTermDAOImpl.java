@@ -138,26 +138,18 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 	@Override
 	public long getWebStatus() throws Exception {
 		int rows = 0;
-		String statusQuery="SELECT count(*) FROM ontodb_komp2.ma_node2term";
+		String statusQuery="SELECT count(*) FROM ontology_term";
 
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(statusQuery)) {
 
-		try (Connection connection = getConnection()) {
-
-			statement = connection.prepareStatement(statusQuery);
-			resultSet = statement.executeQuery();
+			ResultSet resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
-
-
-			rows=resultSet.getInt(1);
-
+				rows = resultSet.getInt(1);
 			}
 			statement.close();
 
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 
 		}

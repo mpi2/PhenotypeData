@@ -52,15 +52,11 @@ public class SearchConfig {
     public String getFqStr(String coreName, String fqStr) {
 
         Map<String, String> coreDefault = new HashMap<>();
-        if ( coreName.equals("gene") && fqStr ==  null) {
-            coreDefault.put("gene", "marker_type:\"protein coding gene\"");
-        }
-        else {
-            coreDefault.put("gene", "*:*");
-        }
-        coreDefault.put("mp", "top_level_mp_term:*");
+
+        coreDefault.put("gene", "*:*");
+        coreDefault.put("mp", "*:*");
         coreDefault.put("disease", "*:*");
-        coreDefault.put("anatomy", "selected_top_level_anatomy_term:*");
+        coreDefault.put("anatomy", "*:*");
         coreDefault.put("impc_images", "*:*");
         //coreDefault.put("images", "*:*");
 

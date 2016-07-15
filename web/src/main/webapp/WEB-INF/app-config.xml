@@ -103,7 +103,7 @@
 				<!--<entry key="version" value="${pom.version}" />-->
 				<entry key="baseUrl" value="${baseUrl}" />
 				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
-				<entry key="solrUrl" value="${solr.host}" />
+				<entry key="solrUrl" value="${solrUrl}" />
 				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
 				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />

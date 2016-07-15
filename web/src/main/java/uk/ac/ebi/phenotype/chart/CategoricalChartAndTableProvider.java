@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,7 +83,7 @@ public class CategoricalChartAndTableProvider {
 	throws SQLException, IOException, URISyntaxException {
 
 		logger.debug("running categorical data");
-		List<String> categories = this.getCategories(parameter);		
+		List<String> categories = parameter.getCategoriesUserInterfaceFreindly();		
 		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 		categoricalResultAndCharts.setExperiment(experiment);
 		List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment.getResults();
@@ -187,7 +186,7 @@ public class CategoricalChartAndTableProvider {
 
 		}// end of gender
 
-		String chartNew = this.createCategoricalHighChartUsingObjects(numberString, chartData, parameter, experiment);
+		String chartNew = this.createCategoricalChartFromObjects(numberString, chartData, parameter, experiment);
 		chartData.setChart(chartNew);
 		categoricalResultAndCharts.add(chartData);
 		categoricalResultAndCharts.setStatsResults(experiment.getResults());
@@ -201,23 +200,19 @@ public class CategoricalChartAndTableProvider {
 		String procedureName)
 	throws SQLException {
 
-		// do the charts
 		ChartData chartData = new ChartData();
 		List<ChartData> categoricalResultAndCharts = new ArrayList<ChartData>();
-//		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) { 
-//		if (mutantSet.getCount() > 0){
+		String chartNew = this.createCategoricalChartOverview(controlSet, mutantSet, model, parameter, procedureName, chartData);
+
 		/* 2015/08/20 Ilinca : Commented out if for empty control sets as the FER an VIA never have control data.  */
-			// if size is greater than one i.e. we have more than the control data then
-			// draw charts and tables
-			String chartNew = this.createCategoricalHighChartUsingObjectsOverview(controlSet, mutantSet, model, parameter, procedureName, chartData);
-			chartData.setChart(chartNew);
-			categoricalResultAndCharts.add(chartData);
-//		}
+		chartData.setChart(chartNew);
+		categoricalResultAndCharts.add(chartData);
+
 		return categoricalResultAndCharts;
 	}
 
 
-	private String createCategoricalHighChartUsingObjectsOverview(CategoricalSet controlSet,
+	private String createCategoricalChartOverview(CategoricalSet controlSet,
 	CategoricalSet mutantSet,
 	Model model,
 	Parameter parameter, String procedureName,
@@ -268,7 +263,7 @@ public class CategoricalChartAndTableProvider {
 		try {
 			Iterator<Entry<String, List<Long>>> it = categories.entrySet().iterator();
 			while (it.hasNext()) {
-				Map.Entry pairs = (Map.Entry) it.next();
+				Map.Entry<String, List<Long>> pairs = (Map.Entry<String, List<Long>>) it.next();
 				List<Long> data = (List<Long>) pairs.getValue();
 				JSONObject dataset1 = new JSONObject();// e.g. normal
 				dataset1.put("name", pairs.getKey());
@@ -286,8 +281,6 @@ public class CategoricalChartAndTableProvider {
 		}
 
 		String chartId = "single-chart-div";
-		// replace space in MRC Harwell with underscore so valid javascritp variable
-		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
 		+ "colors:" + colors + ", "
@@ -308,83 +301,51 @@ public class CategoricalChartAndTableProvider {
 	}
 
 
-	private String createCategoricalHighChartUsingObjects(String chartId,
+	private String createCategoricalChartFromObjects(String chartId,
 	CategoricalChartDataObject chartData, Parameter parameter,
 	ExperimentDTO experiment)
 	throws SQLException {
 
-		// int size=categoricalBarCharts.size()+1;//to know which div to render
-		// to not 0 index as using loop count in jsp
 		JSONArray seriesArray = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
 		String title = parameter.getName();
-		// try {
-
-		// logger.debug("call to highchart" + " sex=" + sex + " title="
-		// + title + " xAxisCategories=" + xAxisCategories
-		// + "  categoricalDataTypesTitles="
-		// + categoricalDataTypesTitles
-		// + " seriesDataForCategoricalType="
-		// + seriesDataForCategoricalType);
-		// "{ chart: { renderTo: 'female', type: 'column' }, title: { text: '' }, xAxis: { categories: [] }, yAxis: { min: 0, title: { text: '' } },  plotOptions: { column: { stacking: 'percent' } }, series: [ { name: 'Abnormal Femur', color: '#AA4643', data: [2, 2, 3] },{ name: 'Normal', color: '#4572A7', data: [5, 3, 4] }] }"
-
 		List<CategoricalSet> catSets = chartData.getCategoricalSets();
 		// get a list of unique categories
 		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();
 		// keep the order so we have normal first!
-		// for (CategoricalSet catSet: catSets) {
 		CategoricalSet catSet1 = catSets.get(0);
 		// assume each cat set has the same number of categories
 		for (CategoricalDataObject catObject : catSet1.getCatObjects()) {
 			String category = catObject.getCategory();
-			// if(!category.equals("")){
 			categories.put(category, new ArrayList<Long>());
-			// }
 		}
-		// }
-
-		for (CategoricalSet catSet : catSets) {// loop through control, then
-												// hom, then het etc
+		
+		// loop through control, then hom, then het etc
+		for (CategoricalSet catSet : catSets) {
 			xAxisCategoriesArray.put(catSet.getName());
-			for (CategoricalDataObject catObject : catSet.getCatObjects()) {// each
-																			// cat
-																			// object
-																			// represents
+			for (CategoricalDataObject catObject : catSet.getCatObjects()) {
 				List<Long> catData = categories.get(catObject.getCategory());
 				catData.add(catObject.getCount());
 			}
 		}
 
 		try {
-			// int i = 0;
-			Iterator it = categories.entrySet().iterator();
+			Iterator<Entry<String, List<Long>>> it = categories.entrySet().iterator();
 			while (it.hasNext()) {
-				Map.Entry pairs = (Map.Entry) it.next();
+				Map.Entry<String, List<Long>> pairs = (Map.Entry<String, List<Long>>) it.next();
 				List<Long> data = (List<Long>) pairs.getValue();
 				JSONObject dataset1 = new JSONObject();// e.g. normal
 				dataset1.put("name", pairs.getKey());
-				// System.out.println("paris key="+pairs.getKey());
-				// dataset1.put("color", color);
 				JSONArray dataset = new JSONArray();
 
 				for (Long singleValue : data) {
-					// if (i == 0) {
-					// sex = SexType.female;
-					// } else {
-					// sex=SexType.male;
-					// }
-					// //System.out.println("single value="+singleValue);
 					dataset.put(singleValue);
-					// dataset1.put("color", ChartColors.getRgbaString(sex, i,
-					// ChartColors.alphaScatter));
-					// i++;
 				}
 				dataset1.put("data", dataset);
 				seriesArray.put(dataset1);
 
 			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -405,70 +366,26 @@ public class CategoricalChartAndTableProvider {
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart_"
-		+ chartId
-		+ "; $(document).ready(function() { chart_"
-		+ chartId
-		+ " = new Highcharts.Chart({ "
-		+ "tooltip : "+ toolTipFunction
-		+ ", colors:" + colors
-		+ ", chart: { renderTo: 'chart"	+ chartId + "', type: 'column' }, "
-		+ "title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + WordUtils.capitalize(title) + "</span>', useHTML:true  }, "
-		+ "credits: { enabled: false }, "
-		+ "subtitle: {  useHTML: true,  text: '" + procedureDescription + "', x: -20 }, "
-		+ "xAxis: { categories: "+ xAxisCategoriesArray+ "}, "
-		+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  "
-		+ "plotOptions: { column: { stacking: 'percent' } }, "
-		+ "series: "+ seriesArray + " });   });});";
-		// logger.debug(javascript);
-		// categoricalBarCharts.add(javascript);
+			+ chartId
+			+ "; $(document).ready(function() { chart_"
+			+ chartId
+			+ " = new Highcharts.Chart({ "
+			+ "tooltip : "+ toolTipFunction
+			+ ", colors:" + colors
+			+ ", chart: { renderTo: 'chart"	+ chartId + "', type: 'column' }, "
+			+ "title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + WordUtils.capitalize(title) + "</span>', useHTML:true  }, "
+			+ "credits: { enabled: false }, "
+			+ "subtitle: {  useHTML: true,  text: '" + procedureDescription + "', x: -20 }, "
+			+ "xAxis: { categories: "+ xAxisCategoriesArray+ "}, "
+			+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  labels: {  formatter: function() { return this.value +'%';   }  }},  "
+			+ "plotOptions: { column: { stacking: 'percent' } }, "
+			+ "series: "+ seriesArray + " });  });  "
+			+ ChartUtils.getSelectAllButtonJs("chart_"+ chartId, "checkAll", "uncheckAll")
+			+ "});";
 		chartData.setChart(javascript);
 		chartData.setChartIdentifier(chartId);
 
 		return javascript;
-	}
-
-
-	private void removeColumnsWithZeroData(List<String> xAxisCategories,
-	List<List<Long>> seriesDataForCategoricalType) {
-
-		Set<Integer> removeColumns = new HashSet<Integer>();
-		for (int i = 0; i < seriesDataForCategoricalType.get(0).size(); i++) {
-			int count = 0;
-			for (int j = 0; j < seriesDataForCategoricalType.size(); j++) {
-				// logger.debug("checking cell with data="+seriesDataForCategoricalType.get(j).get(i));
-				count += seriesDataForCategoricalType.get(j).get(i);
-			}
-			if (count == 0) {
-				// remove the column as there is no data
-				removeColumns.add(i);
-			}
-			logger.debug("end of checking column");
-		}
-		if (!removeColumns.isEmpty()) {
-			for (Integer column : removeColumns) {
-				for (List<Long> ll : seriesDataForCategoricalType) {
-					ll.remove(column.intValue());
-					// logger.debug("removedcell="+column.intValue());
-				}
-				String removedCat = xAxisCategories.remove(column.intValue());
-				// logger.debug("removedCat="+removedCat);
-			}
-		}
-	}
-
-
-	public List<String> getCategories(Parameter parameter) {
-
-		// List<ParameterOption> options = parameter.getOptions();
-		// List<String> categories = new ArrayList<String>();
-		//
-		// for (ParameterOption option : options) {
-		// categories.add(option.getName());
-		// }
-		// //exclude - "no data", "not defined" etc
-		// List<String>okCategoriesList=CategoriesExclude.getInterfaceFreindlyCategories(categories);
-		// return okCategoriesList;
-		return parameter.getCategoriesUserInterfaceFreindly();
 	}
 
 }

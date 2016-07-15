@@ -17,6 +17,8 @@
 
 	<jsp:body>
 
+		<div id='datasets'></div>
+
 		<div id="tabs">
 			<ul class="tabLabel">
 				<li id="geneT"><a href="${baseUrl}/search/gene?kw=*">Genes</a></li>
@@ -64,6 +66,7 @@
 					</div>
 				</div>
 			</div>
+			<div style="clear: both"></div>
 		</div>
 
 		<div id="mpTab" class="hideme">
@@ -100,6 +103,7 @@
 					</div>
 				</div>
 			</div>
+			<div style="clear: both"></div>
 		</div>
 
 		<div id="diseaseTab" class="hideme">
@@ -123,7 +127,6 @@
 						</div>
 					</div>
 				</div>
-
 			</div>
 
 			<div class="region region-content">
@@ -136,6 +139,7 @@
 					</div>
 				</div>
 			</div>
+			<div style="clear: both"></div>
 		</div>
 
 		<div id="anatomyTab" class="hideme">
@@ -159,7 +163,6 @@
 						</div>
 					</div>
 				</div>
-
 			</div>
 
 			<div class="region region-content">
@@ -172,6 +175,7 @@
 					</div>
 				</div>
 			</div>
+			<div style="clear: both"></div>
 		</div>
 
 		<div id="impc_imagesTab" class="hideme">
@@ -208,6 +212,7 @@
 					</div>
 				</div>
 			</div>
+			<div style="clear: both"></div>
 		</div>
 
 
@@ -245,6 +250,7 @@
 					</div>
 				</div>
 			</div>
+			<div style="clear: both"></div>
 		</div>
 
 		<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
@@ -256,25 +262,42 @@
 			$(document).ready(function(){
 				'use strict';
 
+				var srchMsg;
+				if ( window.location.search != '' ){
+					srchMsg = "Resutls found by your search keyword are grouped in the following categories:";
+				}
+				else {
+					srchMsg = "Results found are grouped in the following categories:";
+				}
+				$('#datasets').html(srchMsg);
+
 				$.fn.qTip({'pageName':'search'});
 
 				// populate facet counts to all "tabs"
-				$('ul.tabLabel li').each(function(){
-					var id = $(this).attr('id').replace('T','');
-					//if ( id == 'gene' ){id += '2'}  // count for protein coding gene only
+				<%--$('ul.tabLabel li').each(function(){--%>
+					<%--var id = $(this).attr('id').replace('T','');--%>
+					<%--//if ( id == 'gene' ){id += '2'}  // count for protein coding gene only--%>
 
-					if (${facetCount}[id] == 0){
-						$(this).find('a').addClass('noData');
+					<%--if (${facetCount}[id] == 0){--%>
+						<%--$(this).addClass('noData');--%>
+						<%--$(this).find('a').addClass('noData')--%>
+					<%--}--%>
 
-					}
-					//$(this).find('a').append("<div class='tabfc'> ("+${facetCount}[id]+")</div>");
-					//$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");
-
-				});
+					<%--$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");--%>
+				<%--});--%>
 
 				// so that we don't see the "tabs" appear w/o facet counts
 				// because the counts are appended after those "tabs" markup are loaded
 				$('ul.tabLabel li').css('visibility', 'visible');
+
+//
+//				$('ul.tabLabel li.noData').mouseover(function(){
+//					// no background change for zero count dataset
+//					//$(this).parent().css({'background-color':'white','border':'1px solid grey','border-bottom':'none'});
+//				}).click(function(){
+//					return false;
+//				});
+
 				$('div#resultMsg').css('border-top', '1px solid grey');
 
 				var path = window.location.pathname.replace(baseUrl, '');
@@ -365,14 +388,12 @@
 
 				//---------------------- end of parse URL ----------------------------
 
-
-				// remove active tab highlight
-				$("ul.tabLabel > li a").removeClass('currDataType');
-
-
 				$("ul.tabLabel > li a").each(function(){
+					$(this).removeClass('currDataType noData'); // reset
+					$(this).parent().removeClass('noData'); // reset
 
 					var thisId = $(this).parent().attr('id').replace("T","");
+
 					// ----------- update "tab" url ---------------------
 
 					var currKw = $.fn.fetchUrlParams('kw');
@@ -388,25 +409,34 @@
 						if ( query.indexOf(":") != -1 ){
 							query = query.replace(":", "\\%3A");
 						}
-						console.log("search.jsp: " + baseUrl + '/search/' + thisId + '?kw=' + query)
-						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
-					}
+						//console.log("search.jsp: " + baseUrl + '/search/' + thisId + '?kw=' + query)
 
-					// ----------- end of update "tab" url ---------------------
+						if (${facetCount}[thisId] == 0) {
+							$(this).attr('href', '');
+							$(this).addClass('noData');
+							$(this).parent().addClass('noData');
+						}
+						else {
+							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
+						}
+
+					}
 
 					// ----------- highlights current "tab" and populates its facet filters and dataTable -----------
 					if ( thisId == coreName ){
 
 						// update "tab" link url
 						if ( $.fn.fetchUrlParams('fq') != undefined ){
-
 							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query + '&fq=' + $.fn.fetchUrlParams('fq'));
 						}
 						else {
-							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
+							if (${facetCount}[thisId] == 0) {
+								$(this).attr('href', '');
+							}
+							else {
+								$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
+							}
 						}
-
-						//$(this).addClass('currDataType').click();
 
 						$(this).parent().addClass('currDataType');//.click();
 
@@ -507,7 +537,6 @@
 							// add Download
 							addDownloadTool();
 
-
 							// highlight synonyms
 							highlighSynonym();
 
@@ -515,6 +544,12 @@
 							addRegisterInterestJs();
 						}
 					}
+
+					$(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");
+
+					$('li.noData').click(function(){
+						return false;
+					});
 
 				});
 				// ----------- highlights current "tab" and populates facet filters and dataTable -----------

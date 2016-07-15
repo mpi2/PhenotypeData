@@ -81,7 +81,7 @@
         <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
         <link rel="stylesheet" href="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.css">
         <link rel="stylesheet" href="${baseUrl}/js/vendor/DataTables-1.10.4/extensions/TableTools/css/dataTables.tableTools.min.css">
-		<link rel="stylesheet" href="${baseUrl}/css/searchPage.css">
+		<%--<link rel="stylesheet" href="${baseUrl}/css/searchPage.css">--%>
 
         <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
         <%--<link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />--%>
@@ -226,25 +226,36 @@
                     <div class="breadcrumb">
 
                         <a href="${drupalBaseUrl}">Home</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
+                    </div>
+                        <%--<div class='searchcontent'>--%>
+                            <%--<div id='bigsearchbox' class='block'>--%>
+                                <%--<div class='content'>--%>
+                                    <%--<p><i id='sicon' class='fa fa-search'></i></p>--%>
+                                    <%--<div class='ui-widget'>--%>
+                                        <%--<input id='s' value="search">--%>
+                                        <%--<i id='clearIcon' class='fa fa-times'></i>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                            <%--<a><i class='fa fa-question-circle fa-2x searchExample'></i></a>--%>
+                            <%--<div style="clear: both"></div>--%>
+                        <%--</div>--%>
 
-                        <div class='searchcontent'>
-                            <div id='bigsearchbox' class='block'>
-                                <div class='content'>
-                                    <p><i id='sicon' class='fa fa-search'></i></p>
-                                    <div class='ui-widget'>
-                                        <input id='s' value="search">
-                                        <i id='clearIcon' class='fa fa-times'></i>
-                                        <a><i class='fa fa-question-circle fa-2x searchExample'></i></a>
-                                    </div>
-
-                                </div>
-                            </div>
+                        <%--<div id='batchQryLink'>--%>
+                        	<%--<a id='batchquery' href='${baseUrl}/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch search</span></a>--%>
+                        <%--</div>--%>
+                    <div class='searchcontent'>
+                        <div id='bigsearchbox' class='block'>
+                            <i id='sicon' class='fa fa-search'></i>
+                            <input id='s' value="search">
+                            <i id='clearIcon' class='fa fa-times'></i>
                         </div>
-
+                        <a><i class='fa fa-question-circle fa-2x searchExample'></i></a>
+                        <div style="clear: both"></div>
                         <div id='batchQryLink'>
-                        	<a id='batchquery' href='${baseUrl}/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch search</span></a>
+                            <a id='batchquery' href='${baseUrl}/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch search</span></a>
                         </div>
-
+                        <div style="clear: both"></div>
                     </div>
 
                     <jsp:doBody />
