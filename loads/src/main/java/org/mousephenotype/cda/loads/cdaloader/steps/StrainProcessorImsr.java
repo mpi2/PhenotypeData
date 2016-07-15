@@ -134,6 +134,8 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
                     addedStrainNotSynonymCount++;
                     Synonym newSynonym = new Synonym();
                     newSynonym.setSymbol(strain.getName());
+                    newSynonym.setAccessionId(strainAsSynonym.getId().getAccession());
+                    newSynonym.setDbId(strainAsSynonym.getId().getDatabaseId());
                     strainAsSynonym.getSynonyms().add(newSynonym);
                     strainsMap.put(strainAsSynonym.getId().getAccession(), strainAsSynonym);
                     sqlLoaderUtils.insertStrainSynonym(strainAsSynonym, newSynonym);
@@ -159,6 +161,12 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
                     return null;
                 }
                 strain.setBiotype(biotype);
+                if (strain.getSynonyms() != null) {
+                    for (Synonym synonym : strain.getSynonyms()) {
+                        synonym.setAccessionId(strain.getId().getAccession());
+                        synonym.setDbId(strain.getId().getDatabaseId());
+                    }
+                }
 
                 strainsMap.put(strain.getId().getAccession(), strain);
                 strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());

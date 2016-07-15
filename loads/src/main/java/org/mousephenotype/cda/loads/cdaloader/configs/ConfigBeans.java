@@ -212,33 +212,32 @@ public class ConfigBeans {
 
     @Bean(name = "alleleProcessorPhenotypic")
     public AlleleProcessorPhenotypic alleleProcessorPhenotypic() {
-        mgiFeatureTypes = sqlLoaderUtils().getOntologyTerms(DbIdType.MGI.intValue());
-        return new AlleleProcessorPhenotypic(genes, mgiFeatureTypes);
+        return new AlleleProcessorPhenotypic(genes);
     }
 
     @Bean(name = "alleleProcessorEucomm")
     public AlleleProcessorEucomm alleleProcessorEucomm() {
-        return new AlleleProcessorEucomm(genes, mgiFeatureTypes);
+        return new AlleleProcessorEucomm(genes);
     }
 
     @Bean(name = "alleleProcessorKomp")
     public AlleleProcessorKomp alleleProcessorKomp() {
-        return new AlleleProcessorKomp(genes, mgiFeatureTypes);
+        return new AlleleProcessorKomp(genes);
     }
 
     @Bean(name = "alleleProcessorNorcomm")
     public AlleleProcessorNorcomm alleleProcessorNorcomm() {
-        return new AlleleProcessorNorcomm(genes, mgiFeatureTypes);
+        return new AlleleProcessorNorcomm(genes);
     }
 
     @Bean(name = "alleleProcessorGenopheno")
     public AlleleProcessorGenopheno alleleProcessorGenopheno() {
-        return new AlleleProcessorGenopheno(genes, mgiFeatureTypes);
+        return new AlleleProcessorGenopheno(genes);
     }
 
     @Bean(name = "alleleProcessorQtl")
     public AlleleProcessorQtl alleleProcessorQtl() {
-        return new AlleleProcessorQtl(genes, mgiFeatureTypes);
+        return new AlleleProcessorQtl(genes);
     }
 
     @Bean(name = "alleleWriter")

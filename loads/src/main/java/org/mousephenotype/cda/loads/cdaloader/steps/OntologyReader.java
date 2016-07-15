@@ -18,8 +18,9 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.loads.cdaloader.support.OntologyParser;
+import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.support.OntologyParser;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,11 +81,11 @@ public class OntologyReader implements ItemReader<OntologyTerm> {
             try {
                 terms = new OntologyParser(sourceFilename, prefix).getTerms();
                 logger.info("");
-                logger.info("FILENAME: " + sourceFilename);
-                logger.info("PREFIX: " + prefix);
-                logger.info("TERMS COUNT: " + terms.size());
+                logger.info("FILENAME: {}. PREFIX: {}. TERMS COUNT: {}.",
+                            sourceFilename, prefix, terms.size());
 
             } catch (OWLOntologyCreationException e) {
+
                 throw new CdaLoaderException(e);
             }
         }
@@ -92,6 +93,12 @@ public class OntologyReader implements ItemReader<OntologyTerm> {
         if (readIndex < terms.size()) {
             term = terms.get(readIndex);
             term.setId(new DatasourceEntityId(term.getId().getAccession(), dbId));
+            if (term.getSynonyms() != null) {
+                for (Synonym synonym : term.getSynonyms()) {
+                    synonym.setAccessionId(term.getId().getAccession());
+                    synonym.setDbId(term.getId().getDatabaseId());
+                }
+            }
         }
 
         readIndex++;
