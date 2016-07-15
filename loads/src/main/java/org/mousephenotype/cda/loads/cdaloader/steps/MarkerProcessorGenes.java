@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.SequenceRegion;
+import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
@@ -149,8 +150,13 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
         gene.setSequenceRegion(sequenceRegions.get(gene.getSequenceRegion().getName()));
         gene.setStatus(SqlLoaderUtils.STATUS_ACTIVE);
         gene.setSubtype(subtype);
-
         genes.put(gene.getId().getAccession(), gene);
+        if (gene.getSynonyms() != null) {
+            for (Synonym synonym : gene.getSynonyms()) {
+                synonym.setAccessionId(gene.getId().getAccession());
+                synonym.setDbId(gene.getId().getDatabaseId());
+            }
+        }
         addedGenesCount++;
 
         return gene;

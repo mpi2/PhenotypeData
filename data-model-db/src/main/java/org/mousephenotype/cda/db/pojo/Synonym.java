@@ -69,11 +69,12 @@ public class Synonym {
 		this.dbId = dbId;
 	}
 
-	/* (non-Javadoc)
-             * @see java.lang.Object#toString()
-             */
 	@Override
 	public String toString() {
-		return "Synonym [symbol=" + symbol + "]";
+		return "Synonym{" +
+				"symbol='" + symbol + '\'' +
+				", accessionId='" + accessionId + '\'' +
+				", dbId=" + dbId +
+				'}';
 	}
 }

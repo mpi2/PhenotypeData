@@ -44,7 +44,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
     private      OntologyTerm                biotypeTm1a;
     private      OntologyTerm                biotypeTm1e;
     public final Set<String>                 errMessages         = ConcurrentHashMap.newKeySet();     // This is the java 8 way to create a concurrent hash set.
-    private      Map<String, OntologyTerm>   featureTypes;
+    private      Map<String, OntologyTerm>   mgiFeatureTypes;
     private      Map<String, GenomicFeature> genes;
     protected    int                         lineNumber          = 0;
     private final Logger                     logger              = LoggerFactory.getLogger(this.getClass());
@@ -58,9 +58,8 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
     public abstract Allele setGene(Allele allele) throws CdaLoaderException;
 
 
-    public AlleleProcessorAbstract(Map<String, GenomicFeature> genes, Map<String, OntologyTerm> featureTypes) {
+    public AlleleProcessorAbstract(Map<String, GenomicFeature> genes) {
         this.genes = genes;
-        this.featureTypes = featureTypes;
     }
 
     @Override
@@ -77,6 +76,11 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
                         + allele.getId().getAccession() + "'. Gene: '"
                         + allele.getGene().getId().getAccession() + "'");
             }
+        }
+
+        // Initialise collections.
+        if (mgiFeatureTypes == null) {
+            mgiFeatureTypes = sqlLoaderUtils.getOntologyTerms(DbIdType.MGI.intValue());
         }
 
         if (alleles.containsKey(allele.getId().getAccession())) {
@@ -140,7 +144,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
      * @return If the biotype was found, returns the allele being processed; otherwise, returns null.
      */
     protected Allele setBiotypeSkipAlleleIfNoBiotypeFound(Allele allele) {
-        OntologyTerm biotype = featureTypes.get(allele.getBiotype().getName());
+        OntologyTerm biotype = mgiFeatureTypes.get(allele.getBiotype().getName());
         if (biotype == null) {
             logger.warn("Line {} : NO biotype FOR allele {}. Skipped...", lineNumber, allele.toString());
             return null;

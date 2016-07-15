@@ -41,6 +41,7 @@ public class SqlLoaderUtils {
     private Map<String, List<ConsiderId>> considerIds;      // keyed by ontology term accession id
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
     private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strain id (int)
+    private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -329,9 +330,13 @@ public class SqlLoaderUtils {
         for (Synonym synonym : gene.getSynonyms()) {
             try {
                 count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                            gene.getId().getAccession(), gene.getId().getDatabaseId(), synonym.getSymbol());
+                                            synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
                 
                 counts.put("synonyms", counts.get("synonyms") + count);
+
+                if (count > 0) {
+                    updateSynonymMap(synonym.getAccessionId(), synonym);
+                }
                 
             } catch (DuplicateKeyException dke) {
                 
@@ -522,9 +527,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         for (Synonym synonym : term.getSynonyms()) {
             try {
                 count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                            term.getId().getAccession(), term.getId().getDatabaseId(), synonym.getSymbol());
+                                            synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
                 
                 counts.put("synonyms", counts.get("synonyms") + count);
+
+                if (count > 0) {
+                    updateSynonymMap(synonym.getAccessionId(), synonym);
+                }
                 
             } catch (DuplicateKeyException dke) {
                 
@@ -657,7 +666,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     /**
      * Returns the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
      *
-     * @param accessionId the desired accessino id
+     * @param accessionId the desired strain accession id
      *
      * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
      *
@@ -671,11 +680,15 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         Map<String, Strain> strains = new ConcurrentHashMap<>(100000);
 
+        logger.info("Loading strains.");
+
         List<Strain> strainList = jdbcTemplate.query("SELECT * FROM strain", new StrainRowMapper());
 
         for (Strain strain : strainList) {
             strains.put(strain.getId().getAccession(), strain);
         }
+
+        logger.info("Loading strains complete.");
 
         return strains;
     }
@@ -709,9 +722,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         for (Synonym synonym : strain.getSynonyms()) {
             try {
                 count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                            strain.getId().getAccession(), strain.getId().getDatabaseId(), synonym.getSymbol());
+                                            synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
 
                 counts.put("synonyms", counts.get("synonyms") + count);
+
+                if (count > 0) {
+                    updateSynonymMap(synonym.getAccessionId(), synonym);
+                }
 
             } catch (DuplicateKeyException dke) {
 
@@ -732,15 +749,21 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      * @throws CdaLoaderException if synonym already exists
      */
     public int insertStrainSynonym(Strain strain, Synonym synonym) throws CdaLoaderException {
-        int synonymCount;
+        int count = 0;
 
-        synonymCount = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                   strain.getId().getAccession(), strain.getId().getDatabaseId(), synonym.getSymbol());
+        try {
+            count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
+                                        synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
 
-        List<Synonym> tmpSynonymList = new ArrayList<>();
-        tmpSynonymList.add(synonym);
+            if (count > 0) {
+                updateSynonymMap(synonym.getAccessionId(), synonym);
+            }
 
-        return synonymCount;
+        } catch (DuplicateKeyException dke) {
+
+        }
+
+        return count;
     }
 
 
@@ -778,18 +801,46 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
     private Map<String, List<Synonym>> getSynonyms() {
-        Map<String, List<Synonym>> synonyms = new ConcurrentHashMap<>(100000);
+        if (synonyms == null) {
+            synonyms = new ConcurrentHashMap<>(100000);
+            String lastAcc = "";
+            List<Synonym> synonymList = jdbcTemplate.query("SELECT * FROM synonym ORDER BY acc", new SynonymRowMapper());
+            List<Synonym> accSynonyms = new ArrayList<>();
+            for (Synonym synonym : synonymList) {
+                if ( ! lastAcc.equals(synonym.getAccessionId())) {
+                    if ( ! accSynonyms.isEmpty()) {
+                        synonyms.put(lastAcc, accSynonyms);
+                        accSynonyms = new ArrayList<>();
+                    }
+                }
 
-        List<Synonym> synonymList = jdbcTemplate.query("SELECT * FROM synonym", new SynonymRowMapper());
-
-        for (Synonym synonym : synonymList) {
-            if ( ! synonyms.containsKey(synonym.getAccessionId())) {
-                synonyms.put(synonym.getAccessionId(), new ArrayList<>());
+                lastAcc = synonym.getAccessionId();
+                accSynonyms.add(synonym);
             }
-            synonyms.get(synonym.getAccessionId()).add(synonym);
+
+            if ( ! accSynonyms.isEmpty()) {
+                synonyms.put(lastAcc, accSynonyms);
+            }
         }
 
         return synonyms;
+    }
+
+    /**
+     * Add the given synonym to the synonyms map, keyed by accessionId. If there is no entry yet for that accessionId,
+     * create one first.
+     *
+     * @param accessionId the synonyms map key
+     * @param synonym the synonym to add
+     */
+    private void updateSynonymMap(String accessionId, Synonym synonym) {
+        List<Synonym> accSynonyms = getSynonyms().get(accessionId);
+        if (accSynonyms == null) {
+            accSynonyms = new ArrayList<>();
+            getSynonyms().put(accessionId, accSynonyms);
+        }
+
+        accSynonyms.add(synonym);
     }
 
 

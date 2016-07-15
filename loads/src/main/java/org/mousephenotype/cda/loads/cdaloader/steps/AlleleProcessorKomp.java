@@ -18,7 +18,6 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +44,8 @@ public class AlleleProcessorKomp extends AlleleProcessorAbstract {
         return super.setGeneNullMeansAddWithdraw(allele);
     }
 
-    public AlleleProcessorKomp(Map<String, GenomicFeature> genomicFeatures, Map<String, OntologyTerm> featureTypes) {
-        super(genomicFeatures, featureTypes);
+    public AlleleProcessorKomp(Map<String, GenomicFeature> genes) {
+        super(genes);
     }
 
     @Override
