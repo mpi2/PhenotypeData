@@ -41,6 +41,7 @@ public class SqlLoaderUtils {
     private Map<String, List<ConsiderId>> considerIds;      // keyed by ontology term accession id
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
     private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strain id (int)
+    private Map<String, Strain>           strains;          // keyed by accession id
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -108,17 +109,27 @@ public class SqlLoaderUtils {
      *
      * @return the count of inserted alleles.
      */
-    public int insertAllele(Allele allele, PreparedStatementSetter pss) throws CdaLoaderException {
+    public int insertAllele(Allele allele) throws CdaLoaderException {
         int count = 0;
 
         // Insert Allele if it does not exist.
         try {
 
             count = jdbcTemplate.update("INSERT INTO allele (acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol, name) " +
-                                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", pss);
+                                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                        allele.getId().getAccession(),
+                                        allele.getId().getDatabaseId(),
+                                        (allele.getGene() == null ? null : allele.getGene().getId().getAccession()),
+                                        (allele.getGene() == null ? null : allele.getGene().getId().getDatabaseId()),
+                                        allele.getBiotype().getId().getAccession(),
+                                        allele.getBiotype().getId().getDatabaseId(),
+                                        allele.getSymbol(),
+                                        allele.getName());
 
         } catch (DuplicateKeyException e) {
 
+        } catch (Exception e) {
+            logger.error("Error inserting allele {}: {}. Record skipped...", allele, e.getLocalizedMessage());
         }
 
         return count;
@@ -678,17 +689,19 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
     public Map<String, Strain> getStrains() throws CdaLoaderException {
 
-        Map<String, Strain> strains = new ConcurrentHashMap<>(100000);
+        if ((strains == null) || strains.isEmpty()) {
+            strains = new ConcurrentHashMap<>(100000);
 
-        logger.info("Loading strains.");
+            logger.info("Loading strains.");
 
-        List<Strain> strainList = jdbcTemplate.query("SELECT * FROM strain", new StrainRowMapper());
+            List<Strain> strainList = jdbcTemplate.query("SELECT * FROM strain", new StrainRowMapper());
 
-        for (Strain strain : strainList) {
-            strains.put(strain.getId().getAccession(), strain);
+            for (Strain strain : strainList) {
+                strains.put(strain.getId().getAccession(), strain);
+            }
+
+            logger.info("Loading strains complete.");
         }
-
-        logger.info("Loading strains complete.");
 
         return strains;
     }

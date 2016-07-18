@@ -233,6 +233,14 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
                         phenotypedColonyKeys.get(FilenameKeys.EBI_PhenotypedColony),
                         commonUtils.formatDateDifference(start, stop));
             
+            Set<String> missingStrains = ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getMissingStrains();
+            if ( ! missingStrains.isEmpty()) {
+                logger.info("Missing strains:");
+                for (String strain : missingStrains.toArray(new String[0])) {
+                    logger.warn("\t" + strain);
+                }
+            }
+            
             Set<String> missingOrganisations = ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getMissingOrganisations();
             if ( ! missingOrganisations.isEmpty()) {
                 logger.info("Missing organisations:");
