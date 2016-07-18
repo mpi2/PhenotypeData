@@ -223,7 +223,7 @@ public class ParallelCoordinatesDTO {
 		if (sortMap.containsKey(parameterStableId)){
 			return sortMap.get(parameterStableId);
 		} else {
-			System.out.println("WARNING: Parameter unsorted " + parameterStableId);
+			System.out.println("WARNING: Parameter unsorted " + parameterStableId + ". Aks Terry or Nat to fing a place for it in the order we have for each procedure." ); 
 			int hash = 100000 + getHash(parameterStableId);
 			if (hash % 100 == 0){
 				hash += 1;
