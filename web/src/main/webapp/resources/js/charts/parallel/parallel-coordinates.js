@@ -10,7 +10,7 @@
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
 
 		var cars = model.get('data');
-
+		
 		self.update = function(data, defaults) {
 			cars = data;
 		};
@@ -24,7 +24,7 @@
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
 
 			var svg = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-
+			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
 				return d != "name" && d != "group" && d != "accession" && d != "id" && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
@@ -69,6 +69,9 @@
 			// Add an axis and title.
 			g.append("svg:g").attr("class", "axis").each(function(d) {
 				d3.select(this).call(axis.scale(y[d]));
+			}).append("a").attr("xlink:href", function(d) {
+				console.log("382491896");
+				return links[d];
 			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
 				return "rotate(-90)";
 			}).text(String).classed("axis-label", true).append("svg:title").text(String);
