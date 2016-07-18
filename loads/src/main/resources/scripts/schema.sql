@@ -393,9 +393,9 @@ CREATE TABLE synonym (
 	db_id                      INT(10) NOT NULL,
 	symbol                     VARCHAR(8192) NOT NULL,
 
-	PRIMARY KEY (acc, db_id, symbol(300)),
+	PRIMARY KEY (acc, db_id, symbol(250)),
 	KEY genomic_feature_acc_idx (acc),
-	KEY synonym_symbol_idx (symbol(333))
+	KEY synonym_symbol_idx (symbol(250))
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 

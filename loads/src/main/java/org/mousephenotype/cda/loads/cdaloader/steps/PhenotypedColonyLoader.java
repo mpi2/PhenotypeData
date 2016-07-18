@@ -235,7 +235,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             
             Set<String> missingStrains = ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getMissingStrains();
             if ( ! missingStrains.isEmpty()) {
-                logger.info("Missing strains:");
+                logger.warn("Missing strains:");
                 for (String strain : missingStrains.toArray(new String[0])) {
                     logger.warn("\t" + strain);
                 }
@@ -243,7 +243,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             
             Set<String> missingOrganisations = ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getMissingOrganisations();
             if ( ! missingOrganisations.isEmpty()) {
-                logger.info("Missing organisations:");
+                logger.warn("Missing organisations:");
                 for (String organisation : missingOrganisations.toArray(new String[0])) {
                     logger.warn("\t" + organisation);
                 }
@@ -251,7 +251,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             
             Set<String> missingProjects = ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getMissingProjects();
             if ( ! missingProjects.isEmpty()) {
-                logger.info("Missing projects:");
+                logger.warn("Missing projects:");
                 for (String project : missingProjects.toArray(new String[0])) {
                     logger.warn("\t" + project);
                 }
