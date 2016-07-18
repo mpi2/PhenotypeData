@@ -176,18 +176,19 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         }
 
         if (allele == null) {
-            allele = new Allele();
-            DatasourceEntityId id = new DatasourceEntityId();
-            id.setAccession(newPhenotypedColony.getAllele().getSymbol());
-            id.setDatabaseId(DbIdType.IMPC.intValue());
-            allele.setId(id);
-            allele.setGene(gene);
-            allele.setSymbol(newPhenotypedColony.getAllele().getSymbol());
-            allele.setName(allele.getSymbol());
-            OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(26, "MmusDv:0000041");        // FIXME FIXME FIXME Use "unknown" for now.
-            allele.setBiotype(biotype);
-            alleles.put(allele.getId().getAccession(), allele);
-            addedAllelesCount += sqlLoaderUtils.insertAllele(allele);
+            logger.warn("Would have created new allele from symbol {}", newPhenotypedColony.getAllele().getSymbol());
+//            allele = new Allele();
+//            DatasourceEntityId id = new DatasourceEntityId();
+//            id.setAccession(newPhenotypedColony.getAllele().getId().getAccession());
+//            id.setDatabaseId(DbIdType.IMPC.intValue());
+//            allele.setId(id);
+//            allele.setGene(gene);
+//            allele.setSymbol(newPhenotypedColony.getAllele().getSymbol());
+//            allele.setName(allele.getSymbol());
+//            OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(26, "MmusDv:0000041");        // FIXME FIXME FIXME Use "unknown" for now.
+//            allele.setBiotype(biotype);
+//            alleles.put(allele.getId().getAccession(), allele);
+//            addedAllelesCount += sqlLoaderUtils.insertAllele(allele);
         }
         newPhenotypedColony.setAllele(allele);
 
@@ -201,7 +202,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
         String strainAccessionId = strainNameToAccessionIdMap.get(newPhenotypedColony.getStrain().getName());
         if (strainAccessionId == null) {
-            missingStrains.add("Skipped unrecognised strain name: " + newPhenotypedColony.getStrain().getName());
+            missingStrains.add("Skipped unknown strain name: " + newPhenotypedColony.getStrain().getName());
             return null;
         }
         Strain strain = strains.get(strainAccessionId);
@@ -228,7 +229,7 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
 
         Organisation productionCentre = organisations.get(newPhenotypedColony.getProductionCentre().getName());
         if (productionCentre == null) {
-            missingOrganisations.add("Skipped unknown productionCentre " + newPhenotypedColony.getProductionCentre());
+            missingOrganisations.add("Skipped unknown productionCentre " + newPhenotypedColony.getProductionCentre().getName());
             return null;
         } else {
             newPhenotypedColony.setProductionCentre(productionCentre);
@@ -236,7 +237,7 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
 
         Project productionConsortium = projects.get(newPhenotypedColony.getProductionConsortium().getName());
         if (productionConsortium == null) {
-            missingProjects.add("Skipped unknown productionConsortium " + newPhenotypedColony.getProductionConsortium());
+            missingProjects.add("Skipped unknown productionConsortium " + newPhenotypedColony.getProductionConsortium().getName());
             return null;
         } else {
             newPhenotypedColony.setProductionConsortium(productionConsortium);
@@ -244,7 +245,7 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
 
         Organisation phenotypingCentre = organisations.get(newPhenotypedColony.getPhenotypingCentre().getName());
         if (phenotypingCentre == null) {
-            missingOrganisations.add("Skipped nknown phenotypingCentre " + newPhenotypedColony.getPhenotypingCentre());
+            missingOrganisations.add("Skipped unknown phenotypingCentre " + newPhenotypedColony.getPhenotypingCentre().getName());
             return null;
         } else {
             newPhenotypedColony.setPhenotypingCentre(phenotypingCentre);
@@ -252,7 +253,7 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
 
         Project phenotypingConsortium = projects.get(newPhenotypedColony.getPhenotypingConsortium().getName());
         if (phenotypingConsortium == null) {
-            missingProjects.add("Skipped unknown phenotypingConsortium " + newPhenotypedColony.getPhenotypingConsortium());
+            missingProjects.add("Skipped unknown phenotypingConsortium " + newPhenotypedColony.getPhenotypingConsortium().getName());
             return null;
         } else {
             newPhenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
@@ -260,7 +261,7 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
 
         Organisation cohortProductionCentre = organisations.get(newPhenotypedColony.getCohortProductionCentre().getName());
         if (cohortProductionCentre == null) {
-            missingOrganisations.add("Skipped unknown cohortProductionCentre " + newPhenotypedColony.getCohortProductionCentre());
+            missingOrganisations.add("Skipped unknown cohortProductionCentre " + newPhenotypedColony.getCohortProductionCentre().getName());
             return null;
         } else {
             newPhenotypedColony.setCohortProductionCentre(cohortProductionCentre);
