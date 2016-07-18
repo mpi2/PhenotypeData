@@ -366,7 +366,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("PHENOTYPIC: Added {} new alleles to map from file {} in {}. Alleles without genes: {}.",
+            logger.info("PHENOTYPIC: Added {} new alleles to database from file {} in {}. Alleles without genes: {}.",
                     ((AlleleProcessorPhenotypic) alleleProcessorPhenotypic).getAddedAllelesCount(),
                     alleleKeys.get(FilenameKeys.PHENOTYPIC),
                     commonUtils.formatDateDifference(start, stop),
@@ -380,7 +380,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("QTL: Added {} new alleles to map from file {} in {}. Alleles without genes: {}.",
+            logger.info("QTL: Added {} new alleles to database from file {} in {}. Alleles without genes: {}.",
                     ((AlleleProcessorQtl) alleleProcessorQtl).getAddedAllelesCount(),
                     alleleKeys.get(FilenameKeys.QTL),
                     commonUtils.formatDateDifference(start, stop),
@@ -394,7 +394,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("EUCOMM: Added {} new alleles to map from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
+            logger.info("EUCOMM: Added {} new alleles to database from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
                     ((AlleleProcessorEucomm) alleleProcessorEucomm).getAddedAllelesCount(),
                     alleleKeys.get(FilenameKeys.EUCOMM),
                     commonUtils.formatDateDifference(start, stop),
@@ -409,7 +409,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("KOMP: Added {} new alleles to map from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
+            logger.info("KOMP: Added {} new alleles to database from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
                     ((AlleleProcessorKomp) alleleProcessorKomp).getAddedAllelesCount(),
                     alleleKeys.get(FilenameKeys.KOMP),
                     commonUtils.formatDateDifference(start, stop),
@@ -424,7 +424,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("NORCOMM: Added {} new alleles to map from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
+            logger.info("NORCOMM: Added {} new alleles to database from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
                     ((AlleleProcessorNorcomm) alleleProcessorNorcomm).getAddedAllelesCount(),
                     alleleKeys.get(FilenameKeys.NORCOMM),
                     commonUtils.formatDateDifference(start, stop),
@@ -440,7 +440,7 @@ public class AlleleLoader implements InitializingBean, Step {
         @Override
         protected Set<String> logStatus() {
 
-            logger.info("GENOPHENO: Added {} new alleles to map from file {} in {}. Alleles without genes: {}.",
+            logger.info("GENOPHENO: Added {} new alleles to database from file {} in {}. Alleles without genes: {}.",
                     ((AlleleProcessorGenopheno) alleleProcessorGenopheno).getAddedAllelesCount(),
                     alleleKeys.get(FilenameKeys.GENOPHENO),
                     commonUtils.formatDateDifference(start, stop),

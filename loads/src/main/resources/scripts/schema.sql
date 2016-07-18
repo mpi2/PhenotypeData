@@ -299,7 +299,7 @@ CREATE TABLE external_db (
  * This table will store the ontological terms we need for controlled vocabulary
  */
 CREATE TABLE ontology_term (
-	acc                        VARCHAR(20) NOT NULL,
+	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
 	name                       TEXT NOT NULL,
 	description                TEXT,
@@ -363,7 +363,7 @@ CREATE TABLE seq_region (
  * that can be mapped through formal genetic analysis
  */
 CREATE TABLE genomic_feature (
-	acc                        VARCHAR(20) NOT NULL,
+	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
 	symbol                     VARCHAR(100) NOT NULL,
 	name                       VARCHAR(200) NOT NULL,
@@ -389,7 +389,7 @@ CREATE TABLE genomic_feature (
 
 CREATE TABLE synonym (
 
-	acc                        VARCHAR(20) NOT NULL,
+	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
 	symbol                     VARCHAR(8192) NOT NULL,
 
@@ -405,7 +405,7 @@ CREATE TABLE synonym (
 CREATE TABLE xref (
 
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	acc                        VARCHAR(20) NOT NULL,
+	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
 	xref_acc                   VARCHAR(20) NOT NULL,
 	xref_db_id                 INT(10) NOT NULL,
@@ -423,7 +423,7 @@ CREATE TABLE xref (
  */
 CREATE TABLE allele (
 
-	acc                       VARCHAR(20) NOT NULL,
+	acc                       VARCHAR(30) NOT NULL,
 	db_id                     INT(10) NOT NULL,
 	gf_acc                    VARCHAR(20),
 	gf_db_id                  INT(10),
@@ -725,8 +725,8 @@ CREATE TABLE categorical_observation (
  */
 CREATE TABLE consider_id (
 
-	ontology_term_acc          VARCHAR(20) NOT NULL,
-	acc                        VARCHAR(20) NOT NULL,
+	ontology_term_acc          VARCHAR(30) NOT NULL,
+	acc                        VARCHAR(30) NOT NULL,
 
   FOREIGN KEY ontology_term_acc_fk (ontology_term_acc) REFERENCES ontology_term (acc)
 
@@ -1317,7 +1317,7 @@ CREATE TABLE procedure_meta_data (
 
 CREATE TABLE genes_secondary_project (
 
-  acc                        VARCHAR(20) NOT NULL,
+	acc                        VARCHAR(30) NOT NULL,
   secondary_project_id       VARCHAR(20) NOT NULL
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;

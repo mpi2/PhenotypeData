@@ -58,7 +58,7 @@ public class AlleleWriter implements ItemWriter {
         for (Object allele1 : items) {
             Allele allele = (Allele) allele1;
             pss.setAllele(allele);
-            written += sqlLoaderUtils.insertAllele(allele, pss);
+            written += sqlLoaderUtils.insertAllele(allele);
         }
     }
 
