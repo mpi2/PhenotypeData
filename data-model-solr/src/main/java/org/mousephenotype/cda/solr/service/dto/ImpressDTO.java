@@ -267,7 +267,6 @@ public class ImpressDTO {
 		return emapId;
 	}
 
-
 	public void setEmapId(String emapId) {
 		this.emapId = emapId;
 	}
@@ -277,7 +276,7 @@ public class ImpressDTO {
 		return emapTerm;
 	}
 
-
+	
 	public List<String> getIncreasedMpTerm() {
 		return increasedMpTerm;
 	}
