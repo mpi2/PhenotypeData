@@ -18,7 +18,10 @@
 <!-- script src="${baseUrl}/js/charts/parallel/pie.js"></script-->
 <script src="${baseUrl}/js/charts/parallel/options.js"></script>
 
-<h3>Procedures displayed: ${procedure}</h3>	
+<h3>Procedures displayed: <c:forEach var="procedure" items="${selectedProcedures}" varStatus="loop">
+		                    		<a href="/impress/protocol/${procedure.getStableKey()}">${procedure.getName()}</a><c:if test="${!loop.last}">,</c:if>
+		                    	</c:forEach>
+</h3>	
 <!-- div><a href="#" id="inverted" class="right toggle">Dark</a></div-->
 <!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
 <div id="row-fluid">
