@@ -9,15 +9,22 @@
 <c:if test="${orderRows.size() > 0}">
 <table class="reduce nonwrap">        
         <thead>
+        		 <tr>
+                        <th style="border-bottom:0px;"></th>
+                        <th style="border-bottom:0px;"></th>
+                        <th style="border-bottom:0px;"></th>
+                        <th colspan="3" style="text-align:center;">Product Ordering</th>
+                        
+                      
+                </tr>
                 <tr>
                         <th>MGI Allele</th>
-                        <th>Strain of Origin</th>
-                        <th>Allele Type</th>
-                        <th>Gene Targeting Details</th>
+                        <th style="width:22%">Allele Type</th>
+                        <th style="width:22%">Gene Targeting Details</th>
                         <th>Target Vector</th>
                         <th>ES Cells</th>
                         <th>Mouse</th>
-                        <th>Control</th>
+                      
                 </tr>
         </thead>
         <tbody>
@@ -26,19 +33,31 @@
                          <td>
                          	${row.alleleName}
                          </td>
-                         <td>
+                         <%-- <td>
                          	${row.strainOfOrigin}
-                         </td>
+                         </td> --%>
                          <td>
                          	${row.alleleDescription}
                          </td>
-                          <td>
+                          <td style="text-align:left">
                           <c:forEach var="target" items="${row.geneTargetDetails}">
                           
-                               <span>&nbsp;&nbsp;${target.label}</span>
-                               <div style="padding:3px;"><a class="fancybox" target="_blank" href="${target.link}.jpg" fullRes="${target.link}.jpg" original="${target.link}.jpg">
-                                                <i class="fa fa-th-list fa-lg"></i></a>
+                               
+                               <div style="padding:3px;"><span>${target.label}</span>
+                               		<span id="imitsIconsContainer" style="float:right;">
+	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
+	                                   
+	                                   		<i class="fa fa-th-list fa-lg"></i>
+	                                   
+	                                   </a>
+	                                 <c:if test="${not empty target.genbankLink}">
+		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg"></i></a>
+		                                
+	                               	</c:if>
+	                               </span>
                                </div>
+                              
+                              
                                <%-- <c:if test="${not empty alleleProduct['genbank_file']}">
                                	<div style="padding:3px;"><a href="${alleleProduct['genbank_file']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                </c:if> --%>

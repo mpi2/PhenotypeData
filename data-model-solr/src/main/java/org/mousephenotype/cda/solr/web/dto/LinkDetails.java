@@ -9,6 +9,8 @@ public class LinkDetails {
 	private String label;
 	private String link;
 	private String contact;
+	private String genbankLink;
+	
 	
 	public String getContact() {
 		return contact;
@@ -29,6 +31,13 @@ public class LinkDetails {
 		this.link = link;
 	}
 	
+	
+	public String getGenbankLink() {
+		return genbankLink;
+	}
+	public void setGenbankLink(String genbankLink) {
+		this.genbankLink = genbankLink;
+	}
 	
 	@Override
 	public String toString() {

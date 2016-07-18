@@ -41,7 +41,7 @@ public class OrderService {
 		
 		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc);
 		Map<String,List<ProductDTO>> alleleNameToProductsMap=this.getProducts(acc);
-		//
+	
 		for(Allele2DTO allele: allele2DTOs){
 			OrderTableRow row=new OrderTableRow();
 			String alleleName=allele.getAlleleName();
@@ -53,33 +53,50 @@ public class OrderService {
 			//row.setNoProductInfo(allele.get);
 			List<ProductDTO> productsForAllele = alleleNameToProductsMap.get(alleleName);
 			System.out.println("alleName="+alleleName);
-			LinkDetails vectorTargetMap=null;
-			for(ProductDTO prod:productsForAllele){
-				//ProductDTO prod=productsForAllele.get(0);
-				vectorTargetMap=new LinkDetails();
-				vectorTargetMap.setLabel("Target vector map");
-				List<String> colonSeperatedMap=prod.getOtherLinks();
-				if(colonSeperatedMap!=null){
-					for (String link : colonSeperatedMap) {
-						if (link.startsWith("design_link")) {
-							vectorTargetMap.setLink(link.replace("design_link:", ""));
+			System.out.println("products size="+productsForAllele.size());
+			LinkDetails vectorTargetMap = null;
+			for (ProductDTO prod : productsForAllele) {
+				// ProductDTO prod=productsForAllele.get(0);
+				if (prod.getType().equals("targeting_vector")) {
+					vectorTargetMap = new LinkDetails();//create a new target map link for vector
+					List<String> colonSeperatedMap = prod.getOtherLinks();
+					if (colonSeperatedMap != null) {
+						for (String link : colonSeperatedMap) {
+							
+							if (link.startsWith("allele_image")) {
+								System.out.println("allele_image=" + link);
+								String productAlleleImage = link.replace("allele_image:", "");
+								System.out.println("productAlleleImage=" + productAlleleImage);
+
+								vectorTargetMap.setLabel("Target vector map");
+								vectorTargetMap.setLink(productAlleleImage);
+							}
+
+							if (link.startsWith("genbank_file")) {
+								System.out.println("genbank_file=" + link);
+								String genbankLink = link.replace("genbank_file:", "");
+								System.out.println("genbank_file link=" + genbankLink);
+								vectorTargetMap.setGenbankLink(genbankLink);
+							}
 						}
 					}
+
 				}
-				
-				
 			}
 			for(ProductDTO prod: productsForAllele){
 				System.out.println("prod= "+prod);
 			}
+			
+			if(vectorTargetMap!=null){
+				targetLinks.add(vectorTargetMap);
+				}
 			LinkDetails geneTargetMap=new LinkDetails();
 			geneTargetMap.setLabel("Targeted gene map");
-			geneTargetMap.setLink(allele.getAlleleImage());
+			geneTargetMap.setLink(allele.getAlleleSimpleImage());
+			geneTargetMap.setGenbankLink(allele.getGenbankFile());
 			targetLinks.add(geneTargetMap);
-			if(vectorTargetMap!=null){
-			targetLinks.add(vectorTargetMap);
-			}
 			
+
 			row.setGeneTargetDetails(targetLinks);
 			orderTableRows.add(row);
 			
