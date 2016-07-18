@@ -16,6 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -88,16 +90,15 @@ public class ParallelCoordinatesController {
 			
 			String mappedHostname = (String)request.getAttribute("mappedHostname") + (String)request.getAttribute("baseUrl");
 			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname));
-			String title = "";
+			List<Procedure> procedures = new ArrayList<>();
 			
-			for (int i = 0;  i < procedureIds.size()-1; i++){
+			for (int i = 0;  i < procedureIds.size(); i++){
 				String p = procedureIds.get(i);
-				title += pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + ", ";
+				procedures.add(pp.getProcedureByMatchingStableId(p + "%").get(0));
 			}
-			title += pp.getProcedureByMatchingStableId(procedureIds.get(procedureIds.size()-1) + "%").get(0).getName();
-
+			
 			model.addAttribute("dataJs", data + ";");
-			model.addAttribute("procedure", title);
+			model.addAttribute("selectedProcedures", procedures);
 			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
 			
 		}
