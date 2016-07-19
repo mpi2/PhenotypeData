@@ -24,22 +24,12 @@ import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadi
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -92,7 +82,7 @@ public class SpecimenLoader {
         // parameter to indicate the database password
         parser.accepts("password").withRequiredArg().ofType(String.class);
 
-        // parameter to indicate the database password
+        // parameter to indicate the whether or not to truncate the tables first.
         parser.accepts("truncate").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);
