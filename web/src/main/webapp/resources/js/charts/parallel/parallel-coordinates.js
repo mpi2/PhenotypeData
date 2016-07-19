@@ -20,12 +20,10 @@
 		var axisColors = {};
 		var cars = model.get('data');
 		
-		console.log(groups);
 		var i = 0;
 		for (var key in groups){
 			if (!axisColors[groups[key]]){
 				axisColors[groups[key]] = labelColorList[i];
-				console.log("Axis color  "  + axisColors[groups[key]]);
 				i++;
 			}
 		}
@@ -92,7 +90,7 @@
 				return links[d];
 			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
 				return "rotate(-90)";
-			}).text(String).style("fill", function(d) { console.log("Fill:::" + axisColors[groups[d]]); return axisColors[groups[d]]; }).classed("axis-label", true).attr("class", function(d) {
+			}).text(String).style("fill", function(d) { return axisColors[groups[d]]; }).classed("axis-label", true).attr("class", function(d) {
 				return groups[d].replace(/ /g, "_");
 			}).append("svg:title").text(String);
 
