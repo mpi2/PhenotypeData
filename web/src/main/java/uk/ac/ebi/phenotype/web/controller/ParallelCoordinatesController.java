@@ -16,8 +16,11 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,10 +28,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 @Controller
 public class ParallelCoordinatesController {
@@ -82,22 +88,22 @@ public class ParallelCoordinatesController {
 		if (procedureIds == null){
 			
 			model.addAttribute("procedure", "");
-			model.addAttribute("dataJs", getJsonForParallelCoordinates(null) + ";");	
+			model.addAttribute("dataJs", getJsonForParallelCoordinates(null, null) + ";");	
 			
 		} else {
 			
 			String mappedHostname = (String)request.getAttribute("mappedHostname") + (String)request.getAttribute("baseUrl");
-			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname));
-			String title = "";
+			List<ParameterDTO> parameters = impressService.getParametersByProcedure(procedureIds, "unidimensional");
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname), parameters);
+			List<Procedure> procedures = new ArrayList<>();
 			
-			for (int i = 0;  i < procedureIds.size()-1; i++){
+			for (int i = 0;  i < procedureIds.size(); i++){
 				String p = procedureIds.get(i);
-				title += pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + ", ";
+				procedures.add(pp.getProcedureByMatchingStableId(p + "%").get(0));
 			}
-			title += pp.getProcedureByMatchingStableId(procedureIds.get(procedureIds.size()-1) + "%").get(0).getName();
-
+			
 			model.addAttribute("dataJs", data + ";");
-			model.addAttribute("procedure", title);
+			model.addAttribute("selectedProcedures", procedures);
 			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
 			
 		}
@@ -114,10 +120,12 @@ public class ParallelCoordinatesController {
 	 * @param rows
 	 * @return Parsed rows into the json format needed for the parallel coordinates
 	 */
-	protected String getJsonForParallelCoordinates(Map<String, ParallelCoordinatesDTO> rows){
+	protected String getJsonForParallelCoordinates(Map<String, ParallelCoordinatesDTO> rows, List<ParameterDTO> parameters){
 		
 		String data = "[";
 		String defaultMeans = "";
+		String res = "var foods = []; \nvar defaults = {};" ;
+		
 		
 		if (rows != null){
 			int i = 0;
@@ -143,12 +151,22 @@ public class ParallelCoordinatesController {
 	    		}
 	    	}
 	    	data +=  "]";
-	    	return "var foods = " + data.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
+
+	    	res = "var foods = " + data.toString() + "; \n\n var defaults = " + defaultMeans +";"  + "var links = {\"Min left eye lens density\":\"AAA\"};";
 	    	
-		} else {
-			
-	    	return "var foods = []; \nvar defaults = {};" ;
+	    	if (parameters != null){
+	    		res += "var links = {";
+	    		Set<String> parameterNames =  new HashSet<>();
+	    		for (ParameterDTO p : parameters){
+	    			if (!parameterNames.contains(p.getName())){
+	    				parameterNames.add(p.getName());
+	    				res += "\"" + p.getName() + "\":\"" + ImpressService.getParameterUrl(p.getStableKey()) + "\", ";
+	    			}
+	    		}
+	    		res += "};";
+	    	}
 	    	
-		}
+		} 
+		return res;
 	}
 }
