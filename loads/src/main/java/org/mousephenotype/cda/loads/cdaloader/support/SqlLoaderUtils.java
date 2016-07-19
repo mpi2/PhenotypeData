@@ -595,7 +595,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                                         " production_consortium_project_id," +
                                         " phenotyping_centre_organisation_id," +
                                         " phenotyping_consortium_project_id," +
-                                        " cohort_production_centre_organisation_id" +
+                                        " cohort_production_centre_organisation_id)" +
                                         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                         phenotypedColony.getColonyName(),
                                         (phenotypedColony.getEs_cell_name() == null ? null : phenotypedColony.getEs_cell_name()),
