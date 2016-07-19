@@ -261,7 +261,7 @@
           else {
             sib.addClass('showme');
             if ( $(this).hasClass('alleleDesign') ){
-              //alert(baseUrl + "/data/release.json");
+              console.log(baseUrl + "/release.json");
               $.ajax({
                 url : baseUrl + "/release.json",
                 //url : "http://dev.mousephenotype.org/data/release.json",
