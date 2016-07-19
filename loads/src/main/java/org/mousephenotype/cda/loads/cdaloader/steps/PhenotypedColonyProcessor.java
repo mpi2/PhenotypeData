@@ -177,6 +177,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
         if (allele == null) {
             logger.warn("Would have created new allele from symbol {}", newPhenotypedColony.getAllele().getSymbol());
+            return null;
 //            allele = new Allele();
 //            DatasourceEntityId id = new DatasourceEntityId();
 //            id.setAccession(newPhenotypedColony.getAllele().getId().getAccession());

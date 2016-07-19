@@ -208,7 +208,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
                 .chunk(1000)
                 .reader(phenotypedColonyReader)
                 .processor(phenotypedColonyProcessor)
-//                .writer(writer)
+                .writer(writer)
                 .build();
 
         // Synchronous flows.
