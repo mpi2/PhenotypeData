@@ -265,7 +265,7 @@
 
         //alert(baseUrl + "/data/release.json");
         $.ajax({
-          url : baseUrl + "/data/release.json",
+          url : baseUrl + "/release.json",
           //url : "http://dev.mousephenotype.org/data/release.json",
           dataType : 'jsonp',
           //jsonp : 'json.wrf',
