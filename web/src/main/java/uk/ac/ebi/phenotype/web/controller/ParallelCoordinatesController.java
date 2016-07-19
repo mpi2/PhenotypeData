@@ -126,7 +126,6 @@ public class ParallelCoordinatesController {
 		String defaultMeans = "";
 		String res = "var foods = []; \nvar defaults = {};" ;
 		
-		
 		if (rows != null){
 			int i = 0;
 	    	for (String key: rows.keySet()){
@@ -152,18 +151,24 @@ public class ParallelCoordinatesController {
 	    	}
 	    	data +=  "]";
 
-	    	res = "var foods = " + data.toString() + "; \n\n var defaults = " + defaultMeans +";"  + "var links = {\"Min left eye lens density\":\"AAA\"};";
+	    	res = "var foods = " + data.toString() + "; \n\n var defaults = " + defaultMeans +";";
 	    	
 	    	if (parameters != null){
 	    		res += "var links = {";
+	    		String groups = "var groups = {";
 	    		Set<String> parameterNames =  new HashSet<>();
 	    		for (ParameterDTO p : parameters){
 	    			if (!parameterNames.contains(p.getName())){
 	    				parameterNames.add(p.getName());
 	    				res += "\"" + p.getName() + "\":\"" + ImpressService.getParameterUrl(p.getStableKey()) + "\", ";
+	    				for (String procedure : p.getProcedureNames()){
+	    					groups += "\"" + p.getName() + "\":\"" + procedure  + "\", ";
+	    				}
 	    			}
 	    		}
+	    		groups += "};";
 	    		res += "};";
+	    		res += groups;
 	    	}
 	    	
 		} 
