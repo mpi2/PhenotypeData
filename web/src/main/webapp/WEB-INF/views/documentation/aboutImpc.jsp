@@ -278,7 +278,8 @@
                   console.log(response);
                   $('span#es').html("test");
                 },
-                error: function(){
+                error: function(e){
+                  console.log(e);
                 }
               });
             }
