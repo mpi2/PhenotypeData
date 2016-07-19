@@ -252,6 +252,8 @@
 
     <script>
       $(document).ready(function(){
+
+        var baseUrl = '//' + hostname + '/data';
         $('span.work').click(function(){
           console.log('hideme');
           var sib = $(this).siblings('div.hideme');
@@ -261,6 +263,7 @@
           else {
             sib.addClass('showme');
             if ( $(this).hasClass('alleleDesign') ){
+
               console.log(baseUrl + "/release.json");
               $.ajax({
                 url : baseUrl + "/release.json",
