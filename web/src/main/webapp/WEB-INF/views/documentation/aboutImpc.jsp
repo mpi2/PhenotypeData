@@ -252,7 +252,8 @@
 
     <script>
       $(document).ready(function(){
-
+        var hostname = window.location.host;
+        var baseUrl = '//' + hostname + '/data';
 
         $('span.work').click(function(){
 
