@@ -252,8 +252,7 @@
 
     <script>
       $(document).ready(function(){
-        var hostname = window.location.host;
-        var baseUrl = '//' + hostname + '/data';
+
 
         $('span.work').click(function(){
 
@@ -271,7 +270,7 @@
                 timeout : 5000,
                 success: function(response) {
 
-//                  console.log(response.alleles_NCOM + " number KO ES cell lines");
+                 // console.log(response.alleles_NCOM + " number KO ES cell lines");
 
                   $('span#es').text("test");
 
