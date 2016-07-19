@@ -80,7 +80,7 @@ public class ParallelCoordinatesDTO {
 				Collections.sort(values, this.values.values().iterator().next().getComparatorByTerry());
 
 				for (MeanBean mean : values){
-					res += "\"" + mean.parameterName + "\": ";
+					res += "\"" + mean.getParameterName() + "\": ";
 					res += mean.mean;
 					i++;
 					if (i < this.values.size()){
@@ -89,6 +89,7 @@ public class ParallelCoordinatesDTO {
 				}
 			}
 		}
+		
 		return res;
 	}
 
