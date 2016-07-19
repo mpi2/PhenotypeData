@@ -137,7 +137,7 @@
     <div class="secSep"></div>
     <h1 name="howdoesimpcwork">How does IMPC work?</h1>
 
-    <div ><span class="work">Allele design</span>
+    <div ><span class="work alleleDesign">Allele design</span>
       <div class="hideme"> <img src="${baseUrl}/img/alleleDesign.png" />
         <p></p>
         <span id="es">X number KO ES cell lines</span>
@@ -260,25 +260,27 @@
           }
           else {
             sib.addClass('showme');
+            if ( $(this).hasClass('alleleDesign') ){
+              //alert(baseUrl + "/data/release.json");
+              $.ajax({
+                url : baseUrl + "/release.json",
+                //url : "http://dev.mousephenotype.org/data/release.json",
+                dataType : 'jsonp',
+                //jsonp : 'json.wrf',
+                timeout : 5000,
+                success: function(response) {
+
+                  //var stats = JSON.parse(response);
+                  console.log(response);
+                  $('span#es').html("test");
+                },
+                error: function(){
+                }
+              });
+            }
           }
         });
 
-        //alert(baseUrl + "/data/release.json");
-        $.ajax({
-          url : baseUrl + "/release.json",
-          //url : "http://dev.mousephenotype.org/data/release.json",
-          dataType : 'jsonp',
-          //jsonp : 'json.wrf',
-          timeout : 5000,
-          success: function(response) {
-
-            //var stats = JSON.parse(response);
-            console.log(response);
-            $('span#es').html("test");
-          },
-          error: function(){
-          }
-        });
 
 
 
