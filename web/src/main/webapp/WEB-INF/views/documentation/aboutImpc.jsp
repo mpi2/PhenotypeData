@@ -140,7 +140,7 @@
     <div ><span class="work alleleDesign">Allele design</span>
       <div class="hideme"> <img src="${baseUrl}/img/alleleDesign.png" />
         <p></p>
-        <span id="es">X number KO ES cell lines</span>
+        <span id="es"></span>
         <span id="crispr">X number of KO CRISPR cell lines</span>
       </div>
     </div>
@@ -252,11 +252,10 @@
 
     <script>
       $(document).ready(function(){
-        var hostname = window.location.hostname;
-        var baseUrl = '//' + hostname + '/data';
+
 
         $('span.work').click(function(){
-          console.log('hideme');
+
           var sib = $(this).siblings('div.hideme');
           if ( sib.hasClass("showme") ){
             sib.removeClass('showme');
@@ -265,22 +264,21 @@
             sib.addClass('showme');
             if ( $(this).hasClass('alleleDesign') ){
 
-              console.log(baseUrl + "/release.json");
               $.ajax({
                 url : baseUrl + "/release.json",
                 //url : "http://dev.mousephenotype.org/data/release.json",
-                dataType : 'jsonp',
-                //jsonp : 'json.wrf',
                 timeout : 5000,
                 success: function(response) {
 
-                  //var stats = JSON.parse(response);
-                  console.log(response);
-                  $('span#es').html("test");
+//                  console.log(response.alleles_NCOM + " number KO ES cell lines");
+
+                  $('span#es').text("test");
+
                 },
-                error: function(e){
-                  console.log(e);
+                error: function(){
+                  console.log("ajax error")
                 }
+
               });
             }
           }
