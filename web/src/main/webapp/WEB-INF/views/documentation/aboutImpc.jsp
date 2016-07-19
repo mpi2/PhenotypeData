@@ -252,8 +252,9 @@
 
     <script>
       $(document).ready(function(){
-
+        var hostname = window.location.hostname;
         var baseUrl = '//' + hostname + '/data';
+
         $('span.work').click(function(){
           console.log('hideme');
           var sib = $(this).siblings('div.hideme');
