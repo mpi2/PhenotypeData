@@ -341,7 +341,7 @@ public class ImpressService extends BasicService implements WebStatus {
 			query.setFilterQueries(ImpressDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedureStableIds, "* OR " + ImpressDTO.PROCEDURE_STABLE_ID + ":") + "*");
 		}
 		query.setFields(ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.PARAMETER_STABLE_KEY,
-				ImpressDTO.UNIT, ImpressDTO.REQUIRED);
+				ImpressDTO.UNIT, ImpressDTO.REQUIRED, ImpressDTO.PROCEDURE_NAME);
 		if (observationType != null){
 			query.addFilterQuery(ImpressDTO.OBSERVATION_TYPE + ":" + observationType);
 		}
@@ -357,6 +357,7 @@ public class ImpressService extends BasicService implements WebStatus {
 			param.setId(doc.getParameterId());
 			param.setUnit(doc.getUnit());
 			param.setRequired(doc.isRequired());
+			param.addProcedureNames(doc.getProcedureName());
 			parameters.add(param);
 		}
 

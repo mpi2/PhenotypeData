@@ -4,12 +4,31 @@
 	// http://bl.ocks.org/mbostock/3709000
 
 	window.parallel = function(model, colors, defaults) {
+		
+		var labelColorList = ['#16532D',  
+		      				'rgb(36, 139, 75)',
+		      				'rgb(191, 75, 50)',
+		      				'rgb(255, 201, 67)',
+		      				'rgb(191, 151, 50)',
+		      				'rgb(247, 157, 70)',
+		      				'#0978A1'];
+		
 		var self = {}, dimensions, dragging = {}, highlighted = null, highlighted2 = null, container = d3.select("#parallel");
 		var text = null;
 
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
-
+		var axisColors = {};
 		var cars = model.get('data');
+		
+		console.log(groups);
+		var i = 0;
+		for (var key in groups){
+			if (!axisColors[groups[key]]){
+				axisColors[groups[key]] = labelColorList[i];
+				console.log("Axis color  "  + axisColors[groups[key]]);
+				i++;
+			}
+		}
 		
 		self.update = function(data, defaults) {
 			cars = data;
@@ -70,11 +89,12 @@
 			g.append("svg:g").attr("class", "axis").each(function(d) {
 				d3.select(this).call(axis.scale(y[d]));
 			}).append("a").attr("xlink:href", function(d) {
-				console.log("382491896");
 				return links[d];
 			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
 				return "rotate(-90)";
-			}).text(String).classed("axis-label", true).append("svg:title").text(String);
+			}).text(String).style("fill", function(d) { console.log("Fill:::" + axisColors[groups[d]]); return axisColors[groups[d]]; }).classed("axis-label", true).attr("class", function(d) {
+				return groups[d].replace(/ /g, "_");
+			}).append("svg:title").text(String);
 
 			// Add and store a brush for each axis.
 			g.append("svg:g").attr("class", "brush").each(function(d) {
@@ -83,7 +103,7 @@
 
 			function position(d) {
 				var v = dragging[d];
-				return v == null || v == "NA" ? x(d) : null;
+				return v == null || v == "N/A" ? x(d) : null;
 			}
 
 			
@@ -112,7 +132,7 @@
 				//return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
 				return line(dimensions.map(function(p) {
 					// check for undefined values
-					if (d[p] == null || d[p] == "NA") {
+					if (d[p] == null || d[p] == "N/A") {
 						return [ x(p), y[p](defaults[p]) ];
 					} else {
 						return [ x(p), y[p](d[p]) ];
@@ -192,7 +212,7 @@
 					});
 
 					highlighted2 = svg.append("svg:g").attr("class", "highlight2").selectAll(".serie").data(dimensions).enter().append("svg:circle").filter(function(d) {
-						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "NA";
+						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "N/A";
 					}).attr("cx", function(d) {
 						return x(d);
 					}).attr("cy", function(d) {
@@ -203,7 +223,7 @@
 					});
 
 					text = svg.append("svg:g").attr("class", "label").selectAll("text").data(dimensions).enter().append("text").filter(function(d) {
-						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "NA";
+						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "N/A";
 					});
 
 					text.attr("x", function(d) {
