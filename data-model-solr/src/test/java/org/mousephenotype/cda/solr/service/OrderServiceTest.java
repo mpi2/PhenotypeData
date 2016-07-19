@@ -71,7 +71,7 @@ public class OrderServiceTest {
 	public void getAlleleDocsTest(){
 		String geneAcc="MGI:1859328";
 		try {
-			assertTrue(orderService.getAllele2DTOs(geneAcc).size()>2);
+			assertTrue(orderService.getAllele2DTOs(geneAcc, Integer.MAX_VALUE).size()>2);
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -82,7 +82,7 @@ public class OrderServiceTest {
 	public void getProductDocsTest(){
 		String geneAcc="MGI:1859328";
 		try {
-			assertTrue(orderService.getProducts(geneAcc).size()>2);
+			assertTrue(orderService.getProductsForGene(geneAcc).size()>2);
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -43,7 +43,7 @@ jQuery(document).ready(	function() {
         
         try {
             $.ajax({
-                    url: baseUrl + '/orderSection/' + gene_id,
+                    url: baseUrl + '/orderSection?acc=' + gene_id,
 
                     timeout: 5000,
                     success: function (response) {

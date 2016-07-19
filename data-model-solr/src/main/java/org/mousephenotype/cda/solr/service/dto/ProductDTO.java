@@ -48,6 +48,23 @@ public class ProductDTO {
 	@Field(OTHER_LINKS)
 	private List<String> otherLinks;//image link to the vector map
 	
+	public static final String ORDER_LINKS="other_links";
+	@Field(ORDER_LINKS)
+	private List<String> orderLinks;//image link to the vector map
+	
+	public static final String ORDER_NAMES="other_names";
+	@Field(ORDER_NAMES)
+	private List<String> orderNames;
+	
+	public void setOrderNames(List<String> orderNames) {
+		this.orderNames = orderNames;
+	}
+	public List<String> getOrderLinks() {
+		return orderLinks;
+	}
+	public void setOrderLinks(List<String> orderLinks) {
+		this.orderLinks = orderLinks;
+	}
 	public List<String> getOtherLinks() {
 		return otherLinks;
 	}
@@ -132,6 +149,10 @@ public class ProductDTO {
 				+ ", mgiAccessionId=" + mgiAccessionId + ", alleleType=" + alleleType + ", alleleName=" + alleleName
 				+ ", alleleHasIssues=" + alleleHasIssues + ", type=" + type + ", name=" + name + ", productionCentre="
 				+ productionCentre + ", productionCompleted=" + productionCompleted + ", status=" + status + "]";
+	}
+	public List<String> getOrderNames() {
+		return this.orderNames;
+		
 	}
 			
 }
