@@ -28,8 +28,8 @@ import java.util.*;
  */
 public class ParallelCoordinatesDTO {
 
-	public static final String DEFAULT = " Default value"; 
-	public static final String MEAN = " Mean value"; // Leave the space so that it gets sorted at the top
+	public static final String DEFAULT = "Default value"; 
+	public static final String MEAN = "Mean value"; 
 	public static final String GROUP_WT = "WT";
 	public static final String GROUP_MUTANT = "Mutant";
 
@@ -80,7 +80,7 @@ public class ParallelCoordinatesDTO {
 				Collections.sort(values, this.values.values().iterator().next().getComparatorByTerry());
 
 				for (MeanBean mean : values){
-					res += "\"" + mean.parameterName + "\": ";
+					res += "\"" + mean.getParameterName() + "\": ";
 					res += mean.mean;
 					i++;
 					if (i < this.values.size()){
@@ -89,6 +89,7 @@ public class ParallelCoordinatesDTO {
 				}
 			}
 		}
+		
 		return res;
 	}
 
@@ -223,7 +224,7 @@ public class ParallelCoordinatesDTO {
 		if (sortMap.containsKey(parameterStableId)){
 			return sortMap.get(parameterStableId);
 		} else {
-			System.out.println("WARNING: Parameter unsorted " + parameterStableId);
+			System.out.println("WARNING: Parameter unsorted " + parameterStableId + ". Aks Terry or Nat to fing a place for it in the order we have for each procedure." ); 
 			int hash = 100000 + getHash(parameterStableId);
 			if (hash % 100 == 0){
 				hash += 1;

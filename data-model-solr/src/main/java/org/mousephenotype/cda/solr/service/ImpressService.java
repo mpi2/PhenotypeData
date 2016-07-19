@@ -543,4 +543,13 @@ public class ImpressService extends BasicService implements WebStatus {
 		return "ImpressService (pipeline core)";
 	}
 
+	
+	public static String getProcedureUrl(Integer procedureStableKey){
+		return "/impress/protocol/" + procedureStableKey;
+	}
+
+	public static String getParameterUrl(Integer parameterStableKey){
+		return "/impress/parameterontologies/" + parameterStableKey ;
+	}
+	
 }

@@ -10,7 +10,7 @@
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
 
 		var cars = model.get('data');
-
+		
 		self.update = function(data, defaults) {
 			cars = data;
 		};
@@ -24,7 +24,7 @@
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
 
 			var svg = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-
+			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
 				return d != "name" && d != "group" && d != "accession" && d != "id" && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
@@ -33,11 +33,13 @@
 			}));
 
 			// Add grey background lines for context.
-			background = svg.append("svg:g").attr("class", "background").selectAll("path").data(cars).enter().append("svg:path").attr("d", path);
+			background = svg.append("svg:g").attr("class", "background").selectAll("path").data(cars).enter().append("svg:path").attr("d", path).attr("style", function(d) {
+				return getStyles(d,"background");
+			});
 
 			// Add blue foreground lines for focus.
 			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path).attr("style", function(d) {
-				return "stroke:" + colors[d.group] + ";";
+				return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");
 			});
 
 			// Add a group element for each dimension.
@@ -67,6 +69,9 @@
 			// Add an axis and title.
 			g.append("svg:g").attr("class", "axis").each(function(d) {
 				d3.select(this).call(axis.scale(y[d]));
+			}).append("a").attr("xlink:href", function(d) {
+				console.log("382491896");
+				return links[d];
 			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
 				return "rotate(-90)";
 			}).text(String).classed("axis-label", true).append("svg:title").text(String);
@@ -81,6 +86,27 @@
 				return v == null || v == "NA" ? x(d) : null;
 			}
 
+			
+			function getStyles(d, plan){
+				var style = "";
+				if (d.group == "Normal" || d.group == "Mean") {
+					style = "stroke-opacity: 1;";
+					if (plan == "background"){
+						style += " stroke:" + colors[d.group] + ";"
+					}
+					
+				} else {
+					if (plan == "foreground"){
+						style = "stroke-opacity: 0.35;";
+					} else if (plan == "background"){
+						style = "stroke-opacity: 1;";
+					}else {
+						style = "stroke-opacity: 0.45;";
+					}
+				}
+				return style;
+			}
+			
 			// Returns the path for a given data point.
 			function path(d) {
 				//return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
@@ -162,7 +188,7 @@
 						text.remove();
 					}
 					highlighted = svg.append("svg:g").attr("class", "highlight").selectAll("path").data([ model.get('filtered')[i] ]).enter().append("svg:path").attr("d", path).attr("style", function(d) {
-						return "stroke:" + colors[d.group] + ";";
+						return "stroke:" + colors[d.group] + ";"; + getStyles(d,"foreground");
 					});
 
 					highlighted2 = svg.append("svg:g").attr("class", "highlight2").selectAll(".serie").data(dimensions).enter().append("svg:circle").filter(function(d) {
