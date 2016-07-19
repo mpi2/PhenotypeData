@@ -36,24 +36,32 @@ public class OrderService {
 	
    
 	
-	public List<OrderTableRow> getOrderTableRows(String acc) throws SolrServerException {
+	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows) throws SolrServerException {
 		List<OrderTableRow> orderTableRows=new ArrayList<>();
+		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows);
+		Map<String,List<ProductDTO>> alleleNameToProductsMap=null;
+		if(acc!=null){
+			alleleNameToProductsMap=this.getProductsForGene(acc);
+		}
 		
-		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc);
-		Map<String,List<ProductDTO>> alleleNameToProductsMap=this.getProducts(acc);
 	
 		for(Allele2DTO allele: allele2DTOs){
+			if(acc==null){
+				alleleNameToProductsMap=this.getProductsForAllele(allele.getAlleleName());
+			}
 			OrderTableRow row=new OrderTableRow();
+			List<LinkDetails> orderEsCellDetails=new ArrayList<LinkDetails>();
+			List<LinkDetails> orderTargetVectorDetails=new ArrayList<LinkDetails>();
+			List<LinkDetails> orderMouseDetails=new ArrayList<LinkDetails>();
 			String alleleName=allele.getAlleleName();
 			row.setAlleleName(alleleName);
 			row.setAlleleDescription(allele.getAlleleDescription());
 			List<LinkDetails> targetLinks=new ArrayList<>();
+			//Map mouseOrderCenter=new HashMap<>();
 			
 			
 			//row.setNoProductInfo(allele.get);
 			List<ProductDTO> productsForAllele = alleleNameToProductsMap.get(alleleName);
-			System.out.println("alleName="+alleleName);
-			System.out.println("products size="+productsForAllele.size());
 			LinkDetails vectorTargetMap = null;
 			for (ProductDTO prod : productsForAllele) {
 				// ProductDTO prod=productsForAllele.get(0);
@@ -64,10 +72,7 @@ public class OrderService {
 						for (String link : colonSeperatedMap) {
 							
 							if (link.startsWith("allele_image")) {
-								System.out.println("allele_image=" + link);
 								String productAlleleImage = link.replace("allele_image:", "");
-								System.out.println("productAlleleImage=" + productAlleleImage);
-
 								vectorTargetMap.setLabel("Target vector map");
 								vectorTargetMap.setLink(productAlleleImage);
 							}
@@ -82,10 +87,16 @@ public class OrderService {
 					}
 
 				}
+//				if(prod.getType().equals("mouse") && prod.getOrderLinks().size()>0){
+//					LinkDetails mouseOrder=new LinkDetails();
+//					//mouseOrder.setLabel(prod.getOrderNames());
+//					orderMouseDetails.add(mouseOrder);
+//					
+//				}
 			}
-			for(ProductDTO prod: productsForAllele){
-				System.out.println("prod= "+prod);
-			}
+//			for(ProductDTO prod: productsForAllele){
+//				System.out.println("prod= "+prod);
+//			}
 			
 			if(vectorTargetMap!=null){
 				targetLinks.add(vectorTargetMap);
@@ -98,6 +109,12 @@ public class OrderService {
 			
 
 			row.setGeneTargetDetails(targetLinks);
+			
+			row.setOrderEsCelltDetails(orderEsCellDetails);
+			
+			row.setOrderTargetVectorDetails(orderTargetVectorDetails);
+			
+			row.setOrderMouseDetails(orderMouseDetails);
 			orderTableRows.add(row);
 			
 		}
@@ -118,13 +135,15 @@ public class OrderService {
 		return orderTableRows;
 	}
 	
-	protected List<Allele2DTO> getAllele2DTOs(String geneAcc) throws SolrServerException{
-		
-		String q = "mgi_accession_id:\"" + geneAcc+ "\"";//&start=0&rows=100&hl=true&wt=json";
+	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows) throws SolrServerException{
+		String q="*:*";//default if no gene specified
+		if(geneAcc!=null){
+			q = "mgi_accession_id:\"" + geneAcc+ "\"";//&start=0&rows=100&hl=true&wt=json";
+		}
 		SolrQuery query=new SolrQuery();
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
-		query.setRows(Integer.MAX_VALUE);
+		query.setRows(rows);
 		System.out.println("query for alleles="+query);
 		QueryResponse response = allele2Core.query(query);
 		System.out.println("number found of allele2 docs="+response.getResults().getNumFound());
@@ -136,9 +155,23 @@ public class OrderService {
         
 	}
 	
-	protected Map<String,List<ProductDTO>> getProducts(String geneAcc) throws SolrServerException{
+	protected Map<String,List<ProductDTO>> getProductsForAllele(String alleleName) throws SolrServerException{
+		return this.getProducts(null, alleleName);
+	}
+	
+	protected Map<String,List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException{
+		return this.getProducts(geneAcc, null);
+	}
+	
+	protected Map<String,List<ProductDTO>> getProducts(String geneAcc, String alleleName) throws SolrServerException{
 		Map<String,List<ProductDTO>> alleleNameToProductsMap=new HashMap<>();
-		String q = "mgi_accession_id:\"" + geneAcc+ "\"";//&start=0&rows=100&hl=true&wt=json";
+		String q ="*:*";
+		if(geneAcc!=null){
+			q = "mgi_accession_id:\"" + geneAcc+ "\"";
+		}
+		if(alleleName!=null){
+			q = "allele_name:\"" + alleleName+ "\"";
+		}
 		SolrQuery query=new SolrQuery();
 		query.setQuery(q);
 		query.setRows(Integer.MAX_VALUE);
