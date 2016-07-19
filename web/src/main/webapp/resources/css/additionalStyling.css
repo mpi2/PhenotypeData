@@ -1,7 +1,11 @@
 /* Additional styling written at EBI */
 
+text.axis-label {
+	fill: #0978a1;
+}
+
 h3 a {
-	color:#0978a1;
+	color: #0978a1;
 }
 .buttonForHighcharts{
 	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, Helvetica, sans-serif;
