@@ -15,12 +15,12 @@
 		
 		var self = {}, dimensions, dragging = {}, highlighted = null, highlighted2 = null, container = d3.select("#parallel");
 		var text = null;
-
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
 		var axisColors = {};
 		var cars = model.get('data');
-		
 		var i = 0;
+		var inactiveGroups = [];
+		
 		for (var key in groups){
 			if (!axisColors[groups[key]]){
 				axisColors[groups[key]] = labelColorList[i];
@@ -29,21 +29,22 @@
 		}
 		
 		self.update = function(data, defaults) {
-			cars = data;
 		};
 
+		function redraw(){
+			self.render();
+		}
+		
 		self.render = function() {
 
 			container.selectAll("svg").remove();
-
-			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2];
-
-			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
-
+			// Styling config
 			var cellWidth = 16;
 			var cellPadding = 10;
 			var cellHeight = 12;
-			console.log ("dkahflkeuw " + Object.keys(axisColors).length);
+			
+			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2];
+			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
 			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			var labelXStart = []; 
 			
@@ -52,13 +53,14 @@
 			    .enter()
 			    .append("g")
 			    .attr("class", "legendCells")
-			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 0)"});
+			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 0)"})
+			    .classed("legendCellInactive", function(d){ return (inactiveGroups.indexOf(d) >=0 );});
 			
 			legend.selectAll("g.legendCells")
 				.append("rect")
 			    .attr("height", cellHeight)
 			    .attr("width", cellWidth)
-			    .style("fill", function(d) {return axisColors[d];});
+			    .style("fill", function(d) {return (inactiveGroups.indexOf(d) >=0 ) ? "grey" : axisColors[d];});
 		    
 			legend.selectAll("g.legendCells")
 		    	.append("text")
@@ -69,14 +71,19 @@
 				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
 				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
 			
+			
 			// Click actions on legend items
 			legend.selectAll(".legendCells, .legendCells rect").on("click", function() { 
 				if (!d3.select(this).classed("legendCellInactive")){ // toggle to inactive
 					d3.select(this).classed("legendCellInactive", true);
 					d3.select(this).selectAll("rect").style("fill", "grey");
+					inactiveGroups.push(d3.select(this).select("text").text());
+					redraw();
 				} else { // toggle to active
 					d3.select(this).classed("legendCellInactive", false);
-					d3.select(this).selectAll("rect").style("fill", axisColors[d3.select(this).selectAll("text").text()]);
+					d3.select(this).selectAll("rect").style("fill", axisColors[d3.select(this).selectAll("text").text()]);					
+					inactiveGroups.splice(inactiveGroups.indexOf(d3.select(this).selectAll("text").text()),1);
+					redraw();
 				}
 			});
 			
@@ -92,7 +99,7 @@
 			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
-				return d != "name" && d != "group" && d != "accession" && d != "id" && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
+				return d != "name" && d != "group" && d != "accession" && d != "id" && inactiveGroups.indexOf(groups[d]) < 0 && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
 					return +p[d];
 				})).range([ h, 0 ]));
 			}));
