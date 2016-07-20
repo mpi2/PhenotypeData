@@ -547,6 +547,9 @@
 
 					$(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");
 
+					$('li.noData').click(function(){
+						return false;
+					});
 
 				});
 				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
