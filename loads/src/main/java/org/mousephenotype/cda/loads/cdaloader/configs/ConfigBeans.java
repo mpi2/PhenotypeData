@@ -23,10 +23,8 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.*;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -191,8 +189,8 @@ public class ConfigBeans {
     }
 
     @Bean(name = "sqlLoaderUtils")
-    public SqlLoaderUtils sqlLoaderUtils() {
-        return new SqlLoaderUtils();
+    public CdaLoaderUtils sqlLoaderUtils() {
+        return new CdaLoaderUtils();
     }
 
 

@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.support;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.loads.LoaderUtils;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by mrelac on 27/05/16.
  */
-public class SqlLoaderUtils {
+public class CdaLoaderUtils {
 
     private Map<String, List<ConsiderId>> considerIds;      // keyed by ontology term accession id
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
@@ -44,7 +45,8 @@ public class SqlLoaderUtils {
     private Map<String, Strain>           strains;          // keyed by accession id
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private       LoaderUtils loaderUtils = new LoaderUtils();
+    private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
 
     public static final String FEATURES_UNKNOWN    = "unknown";
 
@@ -59,7 +61,6 @@ public class SqlLoaderUtils {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
 
 
     /**
@@ -416,7 +417,7 @@ public class SqlLoaderUtils {
     * @throws CdaLoaderException
     */
     public OntologyTerm getMappedBiotype(int dbId, String term) throws CdaLoaderException {
-        String mappedTerm = getMappedTerm(term);
+        String mappedTerm = loaderUtils.translateTerm(term);
 
         return getOntologyTerm(dbId, mappedTerm);
     }
@@ -723,7 +724,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         // Try to insert strain. Ignore DuplicateKeyExceptions.
         try {
             count = jdbcTemplate.update("INSERT INTO strain (acc, db_id, biotype_acc, biotype_db_id, name) VALUES (?, ?, ?, ?, ?)",
-                    strain.getId().getAccession(), strain.getId().getDatabaseId(), strain.getBiotype().getId().getAccession(), strain.getBiotype().getId().getDatabaseId(), strain.getName());
+                                        strain.getId().getAccession(),
+                                        strain.getId().getDatabaseId(),
+                                        (strain.getBiotype() == null ? null : strain.getBiotype().getId().getAccession()),
+                                        (strain.getBiotype() == null ? null : strain.getBiotype().getId().getDatabaseId()),
+                                        strain.getName());
 
             counts.put("strains", counts.get("strains") + count);
 
@@ -732,19 +737,21 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
 
         // Try to insert synonyms. Ignore DuplicateKeyExceptions.
-        for (Synonym synonym : strain.getSynonyms()) {
-            try {
-                count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                            synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
+        if (strain.getSynonyms() != null) {
+            for (Synonym synonym : strain.getSynonyms()) {
+                try {
+                    count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
+                                                synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
 
-                counts.put("synonyms", counts.get("synonyms") + count);
+                    counts.put("synonyms", counts.get("synonyms") + count);
 
-                if (count > 0) {
-                    updateSynonymMap(synonym.getAccessionId(), synonym);
+                    if (count > 0) {
+                        updateSynonymMap(synonym.getAccessionId(), synonym);
+                    }
+
+                } catch (DuplicateKeyException dke) {
+
                 }
-
-            } catch (DuplicateKeyException dke) {
-
             }
         }
 
@@ -901,27 +908,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
 
         return xrefs;
-    }
-
-
-    // MISCELLANEOUS FUNCTIONS
-
-
-
-    private final String[][] mappedTerms = new String[][] {
-              { "congenic strain",   "congenic" }
-            , { "coisogenic strain", "coisogenic" }
-    };
-    public String getMappedTerm(String term) {
-        String retVal = term;
-        for (int i = 0; i < mappedTerms.length; i++) {
-            if (term.equals(mappedTerms[i][0])) {
-                retVal = mappedTerms[i][1];
-                break;
-            }
-        }
-
-        return retVal;
     }
 
 

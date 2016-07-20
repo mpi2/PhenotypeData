@@ -16,10 +16,12 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.loads.LoaderUtils;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -40,7 +42,6 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
     private int                           addedStrainsCount = 0;
     private Map<String, List<String>>     alleleSymbolToAccessionIdMap;                 // key = allele symbol. Value = list of allele accession ids
     private Map<String, Allele>           alleles;                                      // Alleles mapped by allele accession id
-    private Map<String, PhenotypedColony> phenotypedColonies = new HashMap<>(60000);    // phenotyped colonies mapped by colony name
     private Map<String, GenomicFeature>   genes;                                        // Genes mapped by marker accession id
     private Map<String, Organisation>     organisations;                                // Organisations mapped by name
     private Map<String, Project>          projects;                                     // Projects mapped by name
@@ -53,12 +54,13 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
     Set<String> missingProjects = ConcurrentHashMap.newKeySet();
     Set<String> missingStrains = ConcurrentHashMap.newKeySet();
 
-    private final Logger     logger      = LoggerFactory.getLogger(this.getClass());
-    public final Set<String> errMessages = ConcurrentHashMap.newKeySet();       // This is the java 8 way to create a concurrent hash set.
+    private       LoaderUtils loaderUtils = new LoaderUtils();
+    private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
+    public final  Set<String> errMessages = ConcurrentHashMap.newKeySet();       // This is the java 8 way to create a concurrent hash set.
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
     private final String[] expectedHeadings = new String[] {
               "Marker Symbol"
@@ -108,18 +110,18 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
                 }
             }
 
-            organisations = sqlLoaderUtils.getOrganisations();
-            projects = sqlLoaderUtils.getProjects();
+            organisations = cdaLoaderUtils.getOrganisations();
+            projects = cdaLoaderUtils.getProjects();
 
             return null;
         }
 
         // Populate the necessary collections.
         if ((genes == null) || (genes.isEmpty())) {
-            genes = sqlLoaderUtils.getGenes();
+            genes = cdaLoaderUtils.getGenes();
         }
         if ((alleles == null) || (alleles.isEmpty())) {
-            alleles = sqlLoaderUtils.getAlleles();
+            alleles = cdaLoaderUtils.getAlleles();
         }
         if (alleleSymbolToAccessionIdMap == null) {
             alleleSymbolToAccessionIdMap = new HashMap<>(150000);
@@ -133,7 +135,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             }
         }
         if ((strains == null) || (strains.isEmpty())) {
-            strains = sqlLoaderUtils.getStrains();
+            strains = cdaLoaderUtils.getStrains();
         }
         if (strainNameToAccessionIdMap == null) {
             strainNameToAccessionIdMap = new HashMap<>(150000);
@@ -142,26 +144,31 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             }
         }
 
-        // FIXME FIXME FIXME - Team needs to check this!
         // Look up the gene. Insert it if it doesn't yet exist.
         GenomicFeature gene = genes.get(newPhenotypedColony.getGene().getId().getAccession());
         if (gene == null) {
+            String markerAccessionId = newPhenotypedColony.getGene().getId().getAccession();
+            String markerSymbol = newPhenotypedColony.getGene().getSymbol();
+
             gene = new GenomicFeature();
             DatasourceEntityId id = new DatasourceEntityId();
-            id.setAccession(newPhenotypedColony.getGene().getId().getAccession());
+            id.setAccession(markerAccessionId);
             id.setDatabaseId(DbIdType.IMPC.intValue());
             gene.setId(id);
-            gene.setSymbol(newPhenotypedColony.getGene().getSymbol());
-            gene.setName(gene.getSymbol());
-            OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(26, "MmusDv:0000041");        // FIXME FIXME FIXME Use "unknown" for now.
+            gene.setSymbol(markerSymbol);
+            gene.setName(markerSymbol);
+            OntologyTerm biotype = cdaLoaderUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), "unknown");       // name = "unknown" (description = "A gene with no subtype")
             gene.setBiotype(biotype);
-            Map<String, Integer> counts = sqlLoaderUtils.insertGene(gene, null);
-            genes.put(gene.getId().getAccession(), gene);
-            addedGenesCount += counts.get("genes");
+            gene.setStatus(CdaLoaderUtils.STATUS_ACTIVE);
+            Map<String, Integer> counts = cdaLoaderUtils.insertGene(gene, null);
+            if (counts.get("genes") > 0) {
+                addedGenesCount += counts.get("genes");
+                genes.put(gene.getId().getAccession(), gene);
+                logger.warn("markerAccessionId {} not in database. Inserted gene with marker symbol {}", markerAccessionId, markerSymbol);
+            }
         }
         newPhenotypedColony.setGene(gene);
 
-        // FIXME FIXME FIXME - Team needs to check this!
         // Look up allele by symbol. There can be multiple alleleAccessionIds for a single symbol. Look for the allele
         // symbol in the list of allele accession ids returned from alleleSymbolToAccessionIdMap and, if it is still not found, insert it.
         List<String> alleleAccessionIds = alleleSymbolToAccessionIdMap.get(newPhenotypedColony.getAllele().getSymbol());
@@ -176,59 +183,64 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         }
 
         if (allele == null) {
-            logger.warn("Would have created new allele from symbol {}", newPhenotypedColony.getAllele().getSymbol());
-            return null;
-//            allele = new Allele();
-//            DatasourceEntityId id = new DatasourceEntityId();
-//            id.setAccession(newPhenotypedColony.getAllele().getId().getAccession());
-//            id.setDatabaseId(DbIdType.IMPC.intValue());
-//            allele.setId(id);
-//            allele.setGene(gene);
-//            allele.setSymbol(newPhenotypedColony.getAllele().getSymbol());
-//            allele.setName(allele.getSymbol());
-//            OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(26, "MmusDv:0000041");        // FIXME FIXME FIXME Use "unknown" for now.
-//            allele.setBiotype(biotype);
-//            alleles.put(allele.getId().getAccession(), allele);
-//            addedAllelesCount += sqlLoaderUtils.insertAllele(allele);
+
+            String alleleSymbol = newPhenotypedColony.getAllele().getSymbol();
+            String alleleAccessionId = "NULL-" + DigestUtils.md5Hex(newPhenotypedColony.getAllele().getSymbol()).substring(0,9).toUpperCase();
+
+//            logger.debug("Allele symbol {} not in database. Inserting with alleleAccessionId {}", alleleSymbol, alleleAccessionId);
+
+            allele = new Allele();
+            DatasourceEntityId id = new DatasourceEntityId();
+            id.setAccession(alleleAccessionId);
+            id.setDatabaseId(DbIdType.MGI.intValue());
+            allele.setId(id);
+            allele.setGene(gene);
+            allele.setSymbol(newPhenotypedColony.getAllele().getSymbol());
+            allele.setName(newPhenotypedColony.getAllele().getSymbol());
+            OntologyTerm biotype = new OntologyTerm("CV:00000013", DbIdType.MGI.intValue());
+            allele.setBiotype(biotype);
+            int count = cdaLoaderUtils.insertAllele(allele);
+            if (count > 0) {
+                addedAllelesCount += count;
+                alleles.put(allele.getId().getAccession(), allele);
+                List<String> alleleList = new ArrayList<>();
+                alleleList.add(allele.getId().getAccession());
+                alleleSymbolToAccessionIdMap.put(allele.getSymbol(), alleleList);
+            }
         }
         newPhenotypedColony.setAllele(allele);
 
-        // FIXME FIXME FIXME - Team needs to check this!
-        // Look up strain by name. Look for the strain name in the strainNameToAccessionIdMap and, if it is still not found, insert it.
-        // NOTE: there can be multiple strains on one line, separated by a semicolon. Add an entry to the database for
-        //       every such strain.
-
-
-
-
-        String strainAccessionId = strainNameToAccessionIdMap.get(newPhenotypedColony.getStrain().getName());
+        // Look up strain by name in the strainNameToAccessionIdMap and, if it is not found, insert it.
+        String strainName = newPhenotypedColony.getStrain().getName();
+        String strainAccessionId = strainNameToAccessionIdMap.get(strainName);
+        Strain strain;
         if (strainAccessionId == null) {
-            missingStrains.add("Skipped unknown strain name: " + newPhenotypedColony.getStrain().getName());
-            return null;
-        }
-        Strain strain = strains.get(strainAccessionId);
-        if (strain == null) {
-            strain = new Strain();
+            String datasourceAccName = "IMPC";
+            String hex = DigestUtils.md5Hex(strainName).substring(0, 5).toUpperCase();
+            String strainAcc = datasourceAccName + "-" + hex;
+
+//            logger.debug("Strain name {} not in database. Inserting as an {} strain with strainAccessionId {}", strainName, datasourceAccName, strainAcc);
+
             DatasourceEntityId id = new DatasourceEntityId();
-            id.setAccession(newPhenotypedColony.getStrain().getId().getAccession());
-            id.setDatabaseId(DbIdType.IMPC.intValue());
+            id.setAccession(strainAcc);
+            id.setDatabaseId(DbIdType.MGI.intValue());
+
+            strain = new Strain();
             strain.setId(id);
-            strain.setName(newPhenotypedColony.getStrain().getName());
-logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
-            OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(26, "MmusDv:0000041");        // FIXME FIXME FIXME Use "unknown" for now.
-            strain.setBiotype(biotype);
-            Map<String, Integer> counts = sqlLoaderUtils.insertStrain(strain);
-            strains.put(strain.getId().getAccession(), strain);
-            addedStrainsCount += counts.get("strains");
+            strain.setName(strainName);
+            Map<String, Integer> counts = cdaLoaderUtils.insertStrain(strain);
+            if (counts.get("strains") > 0) {
+                addedStrainsCount += counts.get("strains");
+                strains.put(strain.getId().getAccession(), strain);
+                strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
+            }
+        } else {
+            strain = strains.get(strainAccessionId);
         }
         newPhenotypedColony.setStrain(strain);
 
-
-
-
-
-
-        Organisation productionCentre = organisations.get(newPhenotypedColony.getProductionCentre().getName());
+        String mappedOrganisation = loaderUtils.translateTerm(newPhenotypedColony.getProductionCentre().getName());
+        Organisation productionCentre = organisations.get(mappedOrganisation);
         if (productionCentre == null) {
             missingOrganisations.add("Skipped unknown productionCentre " + newPhenotypedColony.getProductionCentre().getName());
             return null;
@@ -236,7 +248,8 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
             newPhenotypedColony.setProductionCentre(productionCentre);
         }
 
-        Project productionConsortium = projects.get(newPhenotypedColony.getProductionConsortium().getName());
+        String mappedProject = loaderUtils.translateTerm(newPhenotypedColony.getProductionConsortium().getName());
+        Project productionConsortium = projects.get(mappedProject);
         if (productionConsortium == null) {
             missingProjects.add("Skipped unknown productionConsortium " + newPhenotypedColony.getProductionConsortium().getName());
             return null;
@@ -244,7 +257,8 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
             newPhenotypedColony.setProductionConsortium(productionConsortium);
         }
 
-        Organisation phenotypingCentre = organisations.get(newPhenotypedColony.getPhenotypingCentre().getName());
+        String mappedPhenotypingCentre = loaderUtils.translateTerm(newPhenotypedColony.getPhenotypingCentre().getName());
+        Organisation phenotypingCentre = organisations.get(mappedPhenotypingCentre);
         if (phenotypingCentre == null) {
             missingOrganisations.add("Skipped unknown phenotypingCentre " + newPhenotypedColony.getPhenotypingCentre().getName());
             return null;
@@ -252,7 +266,8 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
             newPhenotypedColony.setPhenotypingCentre(phenotypingCentre);
         }
 
-        Project phenotypingConsortium = projects.get(newPhenotypedColony.getPhenotypingConsortium().getName());
+        String mappedPhenotypingConsortium = loaderUtils.translateTerm(newPhenotypedColony.getPhenotypingConsortium().getName());
+        Project phenotypingConsortium = projects.get(mappedPhenotypingConsortium);
         if (phenotypingConsortium == null) {
             missingProjects.add("Skipped unknown phenotypingConsortium " + newPhenotypedColony.getPhenotypingConsortium().getName());
             return null;
@@ -260,7 +275,8 @@ logger.info("  Adding strain {}." , newPhenotypedColony.getStrain().getName());
             newPhenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
         }
 
-        Organisation cohortProductionCentre = organisations.get(newPhenotypedColony.getCohortProductionCentre().getName());
+        String mappedCohortProductionCentre = loaderUtils.translateTerm(newPhenotypedColony.getCohortProductionCentre().getName());
+        Organisation cohortProductionCentre = organisations.get(mappedCohortProductionCentre);
         if (cohortProductionCentre == null) {
             missingOrganisations.add("Skipped unknown cohortProductionCentre " + newPhenotypedColony.getCohortProductionCentre().getName());
             return null;

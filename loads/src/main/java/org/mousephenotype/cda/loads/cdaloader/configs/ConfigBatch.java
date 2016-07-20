@@ -89,9 +89,9 @@ public class ConfigBatch {
     @Bean
     public Job[] runJobs() throws CdaLoaderException {
         Job[] jobs = new Job[] {
-//                  databaseInitialiserJob()
-//                , downloaderJob()
-                  dbLoaderJob()
+                  databaseInitialiserJob()
+                , downloaderJob()
+                , dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -185,22 +185,22 @@ public class ConfigBatch {
         // phenotyped colonies
         Flow phenotypedColoniesFlow = new FlowBuilder<Flow>("phenotypedColoniesFlow").from(phenotypedColonyLoader).end();
 
-//        return jobBuilderFactory.get("dbLoaderJob")
-//                .incrementer(new RunIdIncrementer())
-//                .start(ontologyFlow)
-//                .next(markersFlow)
-//                .next(allelesFlow)
-//                .next(strainsFlow)
-//                .next(bioModelsFlow)
-////                .next(phenotypedColoniesFlow)
-//                .end()
-//                .build();
-
-
         return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
-                .start(phenotypedColoniesFlow)
+                .start(ontologyFlow)
+                .next(markersFlow)
+                .next(allelesFlow)
+                .next(strainsFlow)
+                .next(bioModelsFlow)
+                .next(phenotypedColoniesFlow)
                 .end()
                 .build();
+
+
+//        return jobBuilderFactory.get("dbLoaderJob")
+//                .incrementer(new RunIdIncrementer())
+//                .start(phenotypedColoniesFlow)
+//                .end()
+//                .build();
     }
 }

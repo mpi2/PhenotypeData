@@ -22,7 +22,7 @@ import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -52,7 +52,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
     public abstract Allele setBiotype(Allele allele) throws CdaLoaderException;
     public abstract Allele setGene(Allele allele) throws CdaLoaderException;
@@ -80,7 +80,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
 
         // Initialise collections.
         if (mgiFeatureTypes == null) {
-            mgiFeatureTypes = sqlLoaderUtils.getOntologyTerms(DbIdType.MGI.intValue());
+            mgiFeatureTypes = cdaLoaderUtils.getOntologyTerms(DbIdType.MGI.intValue());
         }
 
         if (alleles.containsKey(allele.getId().getAccession())) {
@@ -167,8 +167,8 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
      */
     protected Allele setBiotypeMouseMutants(Allele allele) throws CdaLoaderException {
         if (biotypeTm1a == null) {
-            biotypeTm1a = sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), SqlLoaderUtils.BIOTYPE_TM1A_STRING);
-            biotypeTm1e = sqlLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), SqlLoaderUtils.BIOTYPE_TM1E_STRING);
+            biotypeTm1a = cdaLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), CdaLoaderUtils.BIOTYPE_TM1A_STRING);
+            biotypeTm1e = cdaLoaderUtils.getOntologyTerm(DbIdType.MGI.intValue(), CdaLoaderUtils.BIOTYPE_TM1E_STRING);
         }
 
         allele.setBiotype(allele.getSymbol().contains("tm1a") ? biotypeTm1a : biotypeTm1e);
@@ -226,17 +226,17 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
             if (gene == null) {
                 withdrawnGenesCount++;
 
-                OntologyTerm biotype = sqlLoaderUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), SqlLoaderUtils.BIOTYPE_GENE_STRING);
+                OntologyTerm biotype = cdaLoaderUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), CdaLoaderUtils.BIOTYPE_GENE_STRING);
                 gene = new GenomicFeature();
                 gene.setId(new DatasourceEntityId(allele.getGene().getId().getAccession(), DbIdType.MGI.intValue()));
                 gene.setBiotype(biotype);
                 gene.setSymbol(allele.getGene().getSymbol());
                 gene.setName(allele.getGene().getSymbol());
-                gene.setStatus(SqlLoaderUtils.STATUS_WITHDRAWN);
+                gene.setStatus(CdaLoaderUtils.STATUS_WITHDRAWN);
                 logger.warn("MGI report file is out-of-sync. Adding withdrawn gene {} to allele {}.",
                         gene.toString(), allele.toString());
 
-                sqlLoaderUtils.insertGene(gene, null);
+                cdaLoaderUtils.insertGene(gene, null);
             }
         }
 

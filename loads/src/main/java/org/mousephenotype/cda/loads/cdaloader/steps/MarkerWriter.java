@@ -18,7 +18,7 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -41,7 +41,7 @@ public class MarkerWriter implements ItemWriter {
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
     private MarkerPSSetter       pss     = new MarkerPSSetter();
     private Map<String, Integer> written = new HashMap<>();
@@ -68,7 +68,7 @@ public class MarkerWriter implements ItemWriter {
             pss.setFeature(gene);
 
             try {
-                Map<String, Integer> counts = sqlLoaderUtils.insertGene(gene, pss);
+                Map<String, Integer> counts = cdaLoaderUtils.insertGene(gene, pss);
                 written.put("genes", written.get("genes") + counts.get("genes"));
                 written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
                 written.put("xrefs", written.get("xrefs") + counts.get("xrefs"));

@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -34,7 +34,7 @@ public class OntologyWriter implements ItemWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
 
     /**
@@ -51,7 +51,7 @@ public class OntologyWriter implements ItemWriter {
         for (Object term1 : items) {
             OntologyTerm term = (OntologyTerm) term1;
 
-            sqlLoaderUtils.insertOntologyTerm(term);
+            cdaLoaderUtils.insertOntologyTerm(term);
         }
     }
 }

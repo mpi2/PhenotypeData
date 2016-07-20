@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -32,7 +32,7 @@ public class AlleleProcessorGenopheno extends AlleleProcessorAbstract {
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
     @Override
     public Allele setBiotype(Allele allele) throws CdaLoaderException {
@@ -58,7 +58,7 @@ public class AlleleProcessorGenopheno extends AlleleProcessorAbstract {
 
         allele = super.process(allele);
         if (allele != null) {
-            allele.setName(SqlLoaderUtils.NAME_NOT_SPECIFIED);
+            allele.setName(CdaLoaderUtils.NAME_NOT_SPECIFIED);
         }
 
 //        if (lineNumber % 10000 == 0) {

@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.loads.cdaloader.support.BiologicalModelAggregator;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -37,7 +37,7 @@ public class BiologicalModelWriter implements ItemWriter {
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
     public BiologicalModelWriter() {
 
@@ -60,7 +60,7 @@ public class BiologicalModelWriter implements ItemWriter {
     public void write(List items) throws Exception {
         for (Object bioModel1 : items) {
             BiologicalModelAggregator bioModel = (BiologicalModelAggregator) bioModel1;
-            Map<String, Integer> counts = sqlLoaderUtils.insertBioModel(bioModel);
+            Map<String, Integer> counts = cdaLoaderUtils.insertBioModel(bioModel);
             written.put("bioModels", written.get("bioModels") + counts.get("bioModels"));
             written.put("bioModelAlleles", written.get("bioModelAlleles") + counts.get("bioModelAlleles"));
             written.put("bioModelGenomicFeatures", written.get("bioModelGenomicFeatures") + counts.get("bioModelGenomicFeatures"));
