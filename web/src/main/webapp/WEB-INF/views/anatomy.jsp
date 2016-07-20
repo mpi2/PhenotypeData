@@ -96,9 +96,11 @@
 							</div>
 							
 							<div class="section" id="expression"> 
+							
 								<h2 class="title">Reporter gene expression associated with ${anatomy.getAnatomyTerm()}</h2>
 									<div class="inner">
 										<div class="container span12">
+										<div id="spinner"></div>
 										  <div id="filterParams" >
 							                     <c:forEach var="filterParameters" items="${paramValues.fq}">
 							                         ${filterParameters}
@@ -181,22 +183,9 @@
 		  function initAnatomyDataTable(){
 			  
 				var aDataTblCols = [0,1,2,3,4,5,6,7,8];
+				console.log("initialising anatomy table");
 				$('table#anatomy').dataTable( {
-						"aoColumns": [
-						              { "sType": "html", "mRender":function( data, type, full ) {
-						            	  return (type === "filter") ? $(data).text() : data;
-						              }},
-						              { "sType": "html", "mRender":function( data, type, full ) {
-						            	  return (type === "filter") ? $(data).text() : data;
-						              }},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "integer"},
-						              { "sType": "html"}
-						              ],
+					"order": [[ 7, 'desc' ], [ 0, 'asc' ]],/*  order by desc number of images and then gene symbol alphabetically on startup */
 							"bDestroy": true,
 							"bFilter":false,
 							"bPaginate":true,
@@ -224,6 +213,8 @@
 				}).done(function( html ) {
 					$("#anatomy_wrapper").html(html);
 					initAnatomyDataTable();
+					console.log('stoping spinner now');
+					$('#spinner').html('');
 				});
 			}
 			
@@ -318,6 +309,8 @@
 			var previousParams=$("#filterParams").html();
 			
 			function refreshAnatomyFrag(dropdownsList) {
+				console.log('starting spinner now');
+				 $("#spinner").html('<i class="fa fa-refresh fa-spin"></i>');
 				var rootUrl = window.location.href;
 				var newUrl = rootUrl.replace("anatomy", "anatomyFrag").split("#")[0];
 				newUrl += '?';

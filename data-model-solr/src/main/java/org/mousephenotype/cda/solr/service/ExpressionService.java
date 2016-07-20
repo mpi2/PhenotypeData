@@ -725,7 +725,6 @@ public class ExpressionService extends BasicService {
 
 		System.out.println("SOLR URL WAS " + experimentSolr.getBaseURL() + "/select?" + query);
 		List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
-		System.out.println("anatomy response size=" + response.size());
 		for (ObservationDTO observation : response) {
 
 			// for (String expressionValue :
@@ -1132,18 +1131,8 @@ public class ExpressionService extends BasicService {
 
 	public Map<String, Set<String>> getFacets(String anatomyId)
 			throws SolrServerException {
-		System.out.println("calling get facetes");
 				Map<String, Set<String>> res = new HashMap<>();
-				SolrQuery query = new SolrQuery();
-				query.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
-
-				if (anatomyId != null) {
-					query.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
-							+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
-				}
-				query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
-				.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
-						+ ":\"expression\"" + ")"); // only have expressed and
+				SolrQuery query = getBasicExpressionQuery(anatomyId); // only have expressed and
 													// not expressed ingnore
 													// ambiguous and no tissue
 				//query.addFilterQuery("(" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"no expression\" OR " + ImageDTO.PARAMETER_ASSOCIATION_VALUE
@@ -1157,7 +1146,6 @@ public class ExpressionService extends BasicService {
 				query.addFacetField(ObservationDTO.CATEGORY);
 
 				QueryResponse response = experimentSolr.query(query);
-				System.out.println("facet query="+query);
 				for (FacetField facetField : response.getFacetFields()) {
 					Set<String> filter = new TreeSet<>();
 					for (Count facet : facetField.getValues()) {
@@ -1170,4 +1158,55 @@ public class ExpressionService extends BasicService {
 
 				return res;
 		}
+
+	private SolrQuery getBasicExpressionQuery(String anatomyId) {
+		SolrQuery query = new SolrQuery();
+		query.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ*");
+
+		if (anatomyId != null) {
+			query.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
+					+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
+		}
+		query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
+		.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
+				+ ":\"expression\"" + ")");
+		return query;
+	}
+	
+	/**
+	 * Method that checks the impc images and categorical obeservations for expression data which is either expressed or not expressed.
+	 * @param anatomyId
+	 * @return
+	 * @throws SolrServerException 
+	 */
+	public boolean expressionDataAvailable(String anatomyId) throws SolrServerException{
+		boolean expressionData=false;
+		SolrQuery query = getBasicExpressionQuery(anatomyId);
+		query.setRows(0);
+		QueryResponse response = experimentSolr.query(query);
+		if(response.getResults().getNumFound() >0){
+			expressionData= true;
+		}
+		
+		//check the impc images core
+		if(this.impcImagesHasExpression(anatomyId)){
+			expressionData=true;
+		}
+		return expressionData;
+	}
+
+	private boolean impcImagesHasExpression(String anatomyId) throws SolrServerException {
+		SolrQuery solrQuery=new SolrQuery();
+		solrQuery.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
+		solrQuery.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
+				+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
+		if(imagesSolr.query(solrQuery).getResults().getNumFound()>0){
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	
 }

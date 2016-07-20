@@ -50,6 +50,7 @@ import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
@@ -98,6 +99,9 @@ public class DataTableController {
 
     @Autowired
     private MpService mpService;
+    
+    @Autowired
+    ExpressionService expressionService;
 
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
@@ -1010,12 +1014,11 @@ public class DataTableController {
 
 			// developmental stage
 			rowData.add(doc.getString("stage"));
-
-			//get expression only images
-			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomyId, config, 1);
-			JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-
-			rowData.add(expressionImageDocs.size() == 0 ? "No" : "<a href='" + baseUrl + "/anatomy/" + anatomyId + "#maHasExp" + "'>Yes</a>");
+			//display yes or no in anatomy search results in the LacZ Expression Data column 
+			boolean expressionDataAvailable = hasExpressionData(anatomyId);
+			
+			
+			rowData.add(expressionDataAvailable ? "<a href='" + baseUrl + "/anatomy/" + anatomyId + "#maHasExp" + "'>Yes</a>" :  "No");
 
 			// link out to ontology browser page
 			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + anatomyId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
@@ -1036,6 +1039,26 @@ public class DataTableController {
 
 		return j.toString();
     }
+
+	private boolean hasExpressionData(String anatomyId) throws IOException, URISyntaxException {
+		boolean expressionDataAvailable=false;
+		//check legacy Sanger images for any images
+		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomyId, config, 1);
+		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
+		if(expressionImageDocs.size()>0){
+			expressionDataAvailable=true;
+		}
+		//check experiment core for expression categorical data and impc images for parameter associated expression data
+		try {
+			if(expressionService.expressionDataAvailable(anatomyId)){
+				expressionDataAvailable=true;
+			}
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return expressionDataAvailable;
+	}
 
     public String parseJsonforImpcImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
 

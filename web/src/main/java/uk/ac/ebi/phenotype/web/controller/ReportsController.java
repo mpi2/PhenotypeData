@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -76,7 +78,6 @@ public class ReportsController {
 		int moreGeneralCallDcc = 0;
 		int moreGeneralCallEbi = 0;
 		int ignore = 0;
-		int notSignifAnyMore = 0;
 		int differentMps = 0;
 		List<CallDTO> ebiList = getCalls(postqcService.getTabbedCallSummary());
 		List<CallDTO> dccList = getCalls(preqcService.getTabbedCallSummary());
@@ -87,37 +88,46 @@ public class ReportsController {
 		ignoreList.add("IMPC_GPO");ignoreList.add("IMPC_EMO");ignoreList.add("IMPC_GPO");ignoreList.add("IMPC_EVO");ignoreList.add("IMPC_GPM");ignoreList.add("IMPC_EVM");
 		ignoreList.add("IMPC_GEL");ignoreList.add("IMPC_HPL");ignoreList.add("IMPC_HEL");ignoreList.add("IMPC_EOL");ignoreList.add("IMPC_GPL");ignoreList.add("IMPC_EVL");
 		
+		Map<String, CallDTO> keyNoPvalNoMp = new HashMap<>();
+		Set<String> keyExact = new HashSet<>();
+		Map<String, CallDTO> keyNoPval = new HashMap<>();
+		
+
+		for (CallDTO dcc: dccList){
+			keyNoPvalNoMp.put(dcc.getKeyNoPvalNoMp(), dcc);
+			keyExact.add(dcc.getKey());
+			keyNoPval.put(dcc.getKeyNoPval(), dcc);
+			System.out.println("_____ " +dcc.getKeyNoPvalNoMp() + "\t" + dcc.getKeyNoPval() );
+		}
+		
+		
+		
 		for (CallDTO ebi: ebiList){
 			
 			boolean someMatch = false; 
-			for (CallDTO dcc: dccList){
-				if (ebi.getKey().equalsIgnoreCase(dcc.getKey())){
+				
+			if (keyExact.contains(ebi.getKey())){
 					exact ++;
 					someMatch = true;
-					break;
-				} else if (ebi.getKeyNoPval().equalsIgnoreCase(dcc.getKeyNoPval()) && dcc.pValue < 0.00001){
+			} else if (keyNoPval.containsKey(ebi.getKeyNoPval())){
 					differentPvalue ++;
 					someMatch = true;
-					break;
-				} else if (ebi.getKeyNoPvalNoMp().equalsIgnoreCase(dcc.getKeyNoPvalNoMp()) && ebi.mpParentIds.contains(dcc.mpTermId) && dcc.pValue < 0.00001){
+			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp())
+				&& ebi.mpParentIds.contains(keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpTermId)){
 					moreGeneralCallDcc ++;
 					someMatch = true;
 					break;
-				} else if (dcc.getKeyNoPvalNoMp().equalsIgnoreCase(ebi.getKeyNoPvalNoMp()) && dcc.mpParentIds.contains(ebi.mpTermId) && dcc.pValue < 0.00001){
+			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp()) 
+				&& keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpParentIds.contains(ebi.mpTermId)){
 					moreGeneralCallEbi ++;
 					someMatch = true;
 					break;
-				} else if (ebi.getKeyNoPvalNoMp().equalsIgnoreCase(dcc.getKeyNoPvalNoMp()) && ebi.mpParentIds.contains(dcc.mpTermId) && dcc.pValue > 0.00001){
-					notSignifAnyMore ++;
-					someMatch = true;
-					break;
-				} else if (ebi.getKeyNoPvalNoMp().equalsIgnoreCase(dcc.getKeyNoPvalNoMp()) && ebi.mpParentIds.contains(dcc.mpTermId) && dcc.pValue < 0.00001 && !ebi.mpTermId.equals(dcc.mpTermId)){
+			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp())){
 					differentMps ++;
 					someMatch = true;
 					break;
-				}
 			}
-			
+		
 			if (!someMatch && ignoreList.contains(ebi.parameterStableId.substring(0,8))){
 				ignore++;
 				someMatch = true;
@@ -147,10 +157,9 @@ public class ReportsController {
 		labelToNumber.put("Same MP, different p-value", differentPvalue);
 		labelToNumber.put("More general call at the DCC", moreGeneralCallDcc);
 		labelToNumber.put("More general call at the EBI", moreGeneralCallEbi);
-		labelToNumber.put("Call not significant in DCC ", notSignifAnyMore);
 		labelToNumber.put("MPs are different and significant ", differentMps);
 		labelToNumber.put("No match but parameter is not analysed statistically ", ignore);
-		labelToNumber.put("No match", ebiList.size()-differentPvalue-moreGeneralCallDcc-exact-moreGeneralCallEbi-ignore-differentMps-notSignifAnyMore);		
+		labelToNumber.put("No match", ebiList.size()-differentPvalue-moreGeneralCallDcc-exact-moreGeneralCallEbi-ignore-differentMps);		
 		
 		model.addAttribute("chart", PieChartCreator.getPieChart(labelToNumber, "chartDiv", "How do EBI calls match the ones at the DCC?", "", null));
 		
@@ -159,7 +168,6 @@ public class ReportsController {
 		model.addAttribute("moreGeneralCallDcc", moreGeneralCallDcc);
 		model.addAttribute("moreGeneralCallEbi", moreGeneralCallEbi);
 		model.addAttribute("ignore", ignore);
-		model.addAttribute("notSignifAnyMore", notSignifAnyMore);
 		model.addAttribute("differentMps", differentMps);
 		model.addAttribute("total", ebiList.size());
 		

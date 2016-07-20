@@ -1,5 +1,26 @@
 /* Additional styling written at EBI */
 
+.legendCells {
+	cursor: pointer;
+}
+
+.legendCellInactive{
+	fill: grey;
+}
+
+text.legendLabels {
+	font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+text.axis-label {
+	fill: #0978a1;
+}
+
+h3 a {
+	color: #0978a1;
+}
 .buttonForHighcharts{
 	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, Helvetica, sans-serif;
 	font-size: 12px;
@@ -290,7 +311,7 @@ button.exportButton{
 .onethirdForPie               { float: left; width: 33%; }
 
 li img.thumbnailStyle{
-	max-width: 200px; max-height: 200px;width:auto; height:auto;
+	max-width: 95px; max-height: 200px;width:auto; height:auto;
 }
 
 td h4 a{

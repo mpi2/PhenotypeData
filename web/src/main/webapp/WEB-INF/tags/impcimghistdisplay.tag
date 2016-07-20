@@ -20,8 +20,8 @@ allele = allele.replaceAll("##", "</sup>");
         
          <!-- used for lacz expression pages -->
          		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
-         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" class="thumbnailStyle"></a>
-         		<div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
+         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
+         		<div class="caption" style="height:100px;width:100px; overflow:auto;word-wrap: break-word;">
      
                                                 <c:if test="${not empty img.gene_symbol}"><a href="${baseUrl}/genes/${img.gene_accession_id}">${img.gene_symbol}</a><br/></c:if>
                                                 <c:if test="${not empty category}"><a href="${href}">${category}</a><br/></c:if>

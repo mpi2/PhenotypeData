@@ -3,6 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 
+
 			<table id="anatomy" class="table tableSorter">
 					    <thead>
 					    <tr>
@@ -30,12 +31,13 @@
 					             	</c:if>
 					            </td>
 					            <td>
-					            	<c:if test="${row.expression eq 'expression'}">
+					            	<%-- <c:if test="${row.expression eq 'expression'}">
 					            		detected
 					            	</c:if>
 					            	<c:if test="${row.expression eq 'no expression'}">
 					            		non detected
-					            	</c:if>
+					            	</c:if> --%>
+					            	${row.expression}
 					            </td>
 					           	<td>${row.anatomyLinks}</td>
 					            <td>${row.zygosity.getShortName()}</td>

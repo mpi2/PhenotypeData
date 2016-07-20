@@ -330,7 +330,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl)
 	throws SolrServerException{
 
-    	TreeMap<String, ParallelCoordinatesDTO> row = new TreeMap<>();
+    	TreeMap<String, ParallelCoordinatesDTO> row = new TreeMap<>(getParallelCoordsComparator());
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
@@ -371,6 +371,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
         	query.addField(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE);
         	query.addField(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE);
         	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
+        	query.addField(StatisticalResultDTO.PROCEDURE_NAME);
         	query.setRows(1000000);
 
         	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
@@ -388,6 +389,22 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	}
 
+	private Comparator<String> getParallelCoordsComparator(){
+		return new Comparator<String>() {
+			
+			@Override
+			public int compare(String o1, String o2) {
+				if ((o1.equals(ParallelCoordinatesDTO.DEFAULT) || o1.equals(ParallelCoordinatesDTO.MEAN)) && !o2.equals(ParallelCoordinatesDTO.DEFAULT) && !o2.equals(ParallelCoordinatesDTO.MEAN)){
+					return 1;
+				} else  if ((o2.equals(ParallelCoordinatesDTO.DEFAULT) || o2.equals(ParallelCoordinatesDTO.MEAN)) && !o1.equals(ParallelCoordinatesDTO.DEFAULT) && !o1.equals(ParallelCoordinatesDTO.MEAN)){
+					return -1;
+				} else {
+					return o1.compareTo(o2);
+				}
+			}
+		};
+	}
+	
 
 	private TreeMap<String, ParallelCoordinatesDTO> addDefaultValues(TreeMap<String, ParallelCoordinatesDTO> beans, List<ParameterDTO> allParameterNames) {
 
