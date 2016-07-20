@@ -44,7 +44,7 @@
 			var cellPadding = 10;
 			var cellHeight = 12;
 			console.log ("dkahflkeuw " + Object.keys(axisColors).length);
-			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellPadding + cellHeight) * Object.keys(axisColors).length).append("svg:g").attr("class", "highcharts-legend");
+			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			var labelXStart = []; 
 			
 			legend.selectAll("g.legendCells")
@@ -58,17 +58,15 @@
 				.append("rect")
 			    .attr("height", cellHeight)
 			    .attr("width", cellWidth)
-			    .style("fill", function(d) {return axisColors[d];})
-			    .style("stroke", "black")
-			    .style("stroke-width", "2px");
+			    .style("fill", function(d) {return axisColors[d];});
 		    
 			legend.selectAll("g.legendCells")
 		    	.append("text")
-		    	.attr("class", "breakLabels")
+		    	.attr("class", "legendLabels")
 		    	.style("pointer-events", "none");
 						
 			legend.selectAll("g.legendCells")
-				.select("text.breakLabels").style("display", "block")
+				.select("text.legendLabels").style("display", "block")
 				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
 				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
 			
@@ -76,7 +74,7 @@
 				var res = labelXStart.reduce(function(a, b) {
 					  return a + b;
 					}, 0);
-				labelXStart[i] = cellWidth + cellPadding*2 + d.length * 6;
+				labelXStart[i] = cellWidth + cellPadding*2 + d.length * 7;
 				return res;
 			}
 			

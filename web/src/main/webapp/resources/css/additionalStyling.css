@@ -1,5 +1,10 @@
 /* Additional styling written at EBI */
 
+text.legendLabels {
+	font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+}
 
 text.axis-label {
 	fill: #0978a1;
