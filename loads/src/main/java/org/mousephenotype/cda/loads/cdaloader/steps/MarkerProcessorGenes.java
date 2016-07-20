@@ -22,7 +22,7 @@ import org.mousephenotype.cda.db.pojo.SequenceRegion;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -55,7 +55,7 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
     private final String[] expectedHeadings = new String[] {
               "MGI Accession ID"
@@ -74,8 +74,8 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
 
 
     private void initialise() throws Exception {
-        featureTypes = sqlLoaderUtils.getOntologyTerms(DbIdType.Genome_Feature_Type.intValue());
-        sequenceRegions = sqlLoaderUtils.getSequenceRegions();
+        featureTypes = cdaLoaderUtils.getOntologyTerms(DbIdType.Genome_Feature_Type.intValue());
+        sequenceRegions = cdaLoaderUtils.getSequenceRegions();
     }
 
 
@@ -148,7 +148,7 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
         gene.setBiotype(featureTypes.get(gene.getBiotype().getName()));
         gene.getId().setDatabaseId(DbIdType.MGI.intValue());
         gene.setSequenceRegion(sequenceRegions.get(gene.getSequenceRegion().getName()));
-        gene.setStatus(SqlLoaderUtils.STATUS_ACTIVE);
+        gene.setStatus(CdaLoaderUtils.STATUS_ACTIVE);
         gene.setSubtype(subtype);
         genes.put(gene.getId().getAccession(), gene);
         if (gene.getSynonyms() != null) {

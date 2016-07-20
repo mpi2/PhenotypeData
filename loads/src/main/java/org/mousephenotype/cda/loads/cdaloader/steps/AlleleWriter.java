@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -38,7 +38,7 @@ public class AlleleWriter implements ItemWriter {
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
     private AllelePSSetter pss = new AllelePSSetter();
     private int written = 0;
@@ -58,7 +58,7 @@ public class AlleleWriter implements ItemWriter {
         for (Object allele1 : items) {
             Allele allele = (Allele) allele1;
             pss.setAllele(allele);
-            written += sqlLoaderUtils.insertAllele(allele);
+            written += cdaLoaderUtils.insertAllele(allele);
         }
     }
 

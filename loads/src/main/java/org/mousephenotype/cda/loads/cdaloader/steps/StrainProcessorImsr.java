@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -54,7 +54,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
 
     public StrainProcessorImsr(Map<String, Allele> allelesMap, Map<String, Strain> strainsMap) {
@@ -130,7 +130,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
 
                 Strain strainAsSynonym = strainsMap.get(strainAsSynonymAccessionId);
 
-                if (sqlLoaderUtils.getSynonym(strainAsSynonymAccessionId, strain.getName()) == null) {
+                if (cdaLoaderUtils.getSynonym(strainAsSynonymAccessionId, strain.getName()) == null) {
                     addedStrainNotSynonymCount++;
                     Synonym newSynonym = new Synonym();
                     newSynonym.setSymbol(strain.getName());
@@ -138,7 +138,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
                     newSynonym.setDbId(strainAsSynonym.getId().getDatabaseId());
                     strainAsSynonym.getSynonyms().add(newSynonym);
                     strainsMap.put(strainAsSynonym.getId().getAccession(), strainAsSynonym);
-                    sqlLoaderUtils.insertStrainSynonym(strainAsSynonym, newSynonym);
+                    cdaLoaderUtils.insertStrainSynonym(strainAsSynonym, newSynonym);
 
                     return null;
                 }
@@ -155,7 +155,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
                 strain.getId().setDatabaseId(DbIdType.MGI.intValue());
 
                 // Call the remaining methods to finish setting the strain instance.
-                OntologyTerm biotype = sqlLoaderUtils.getMappedBiotype(DbIdType.MGI.intValue(), strain.getBiotype().getName());
+                OntologyTerm biotype = cdaLoaderUtils.getMappedBiotype(DbIdType.MGI.intValue(), strain.getBiotype().getName());
                 if (biotype == null) {
                     logger.warn("Line {} : NO biotype FOR strain {}.", lineNumber, strain.toString());
                     return null;

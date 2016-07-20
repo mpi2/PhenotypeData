@@ -87,6 +87,12 @@ public class OntologyTerm {
 		super();
 	}
 
+	public OntologyTerm(String accessionId, int dbId) {
+		this.id = new DatasourceEntityId();
+		this.id.setAccession(accessionId);
+		this.id.setDatabaseId(dbId);
+	}
+
 	public List<ConsiderId> getConsiderIds() {
 		return considerIds;
 	}

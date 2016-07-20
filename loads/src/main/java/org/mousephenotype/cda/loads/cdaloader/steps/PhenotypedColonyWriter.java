@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -34,7 +34,7 @@ public class PhenotypedColonyWriter implements ItemWriter {
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
     private int count = 0;
 
@@ -52,7 +52,7 @@ public class PhenotypedColonyWriter implements ItemWriter {
         for (Object phenotypedColony1 : items) {
             PhenotypedColony phenotypedColony = (PhenotypedColony) phenotypedColony1;
 
-            count += sqlLoaderUtils.insertPhenotypedColony(phenotypedColony);
+            count += cdaLoaderUtils.insertPhenotypedColony(phenotypedColony);
         }
     }
 

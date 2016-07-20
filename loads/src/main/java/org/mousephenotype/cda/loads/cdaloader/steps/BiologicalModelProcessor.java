@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.loads.cdaloader.support.BiologicalModelAggregator;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.CdaLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -51,7 +51,7 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
-    private SqlLoaderUtils sqlLoaderUtils;
+    private CdaLoaderUtils cdaLoaderUtils;
 
 
     public BiologicalModelProcessor(Map<String, Allele> alleles, Map<String, GenomicFeature> genes) {
@@ -79,10 +79,10 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
 
         // Populate the necessary collections.
         if ((genes == null) || (genes.isEmpty())) {
-            genes = sqlLoaderUtils.getGenes();
+            genes = cdaLoaderUtils.getGenes();
         }
         if ((alleles == null) || (alleles.isEmpty())) {
-            alleles = sqlLoaderUtils.getAlleles();
+            alleles = cdaLoaderUtils.getAlleles();
         }
         if (alleleSymbolToAccessionIdMap == null) {
             alleleSymbolToAccessionIdMap = new HashMap<>(150000);

@@ -136,22 +136,22 @@ public class SpecimenLoader {
                 ResultSet rs;
 
                 // center
-                centerPk = LoaderUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                centerPk = DccLoaderUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 if (centerPk < 1) {
-                    centerPk = LoaderUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                    centerPk = DccLoaderUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 }
 
                 // statuscode
                 if (specimen.getStatusCode() != null) {
-                    StatusCode existingStatuscode = LoaderUtils.selectOrInsertStatuscode(connection,
-                            specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
+                    StatusCode existingStatuscode = DccLoaderUtils.selectOrInsertStatuscode(connection,
+                                                                                            specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
                     statuscodePk = existingStatuscode.getHjid();
                 } else {
                     statuscodePk = null;
                 }
 
                 // specimen
-                Specimen existingSpecimen = LoaderUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
+                Specimen existingSpecimen = DccLoaderUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
                 if (existingSpecimen != null) {
                     specimenPk = existingSpecimen.getHjid();
                     // Validate that this specimen's info matches the existing one in the database.
@@ -298,7 +298,7 @@ public class SpecimenLoader {
                     ps.execute();
                 } catch (SQLException e) {
                     // Duplicate specimen
-                    System.out.println("DUPLICATE SPECIMEN: " + LoaderUtils.dumpSpecimen(connection, centerPk, specimenPk));
+                    System.out.println("DUPLICATE SPECIMEN: " + DccLoaderUtils.dumpSpecimen(connection, centerPk, specimenPk));
                     connection.rollback();
                     continue;
                 }
