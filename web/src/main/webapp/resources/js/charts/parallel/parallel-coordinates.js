@@ -4,12 +4,29 @@
 	// http://bl.ocks.org/mbostock/3709000
 
 	window.parallel = function(model, colors, defaults) {
+		
+		var labelColorList = ['#16532D',  
+		      				'rgb(36, 139, 75)',
+		      				'rgb(191, 75, 50)',
+		      				'rgb(255, 201, 67)',
+		      				'rgb(191, 151, 50)',
+		      				'rgb(247, 157, 70)',
+		      				'#0978A1'];
+		
 		var self = {}, dimensions, dragging = {}, highlighted = null, highlighted2 = null, container = d3.select("#parallel");
 		var text = null;
 
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
-
+		var axisColors = {};
 		var cars = model.get('data');
+		
+		var i = 0;
+		for (var key in groups){
+			if (!axisColors[groups[key]]){
+				axisColors[groups[key]] = labelColorList[i];
+				i++;
+			}
+		}
 		
 		self.update = function(data, defaults) {
 			cars = data;
@@ -23,7 +40,64 @@
 
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
 
-			var svg = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+			var cellWidth = 16;
+			var cellPadding = 10;
+			var cellHeight = 12;
+			console.log ("dkahflkeuw " + Object.keys(axisColors).length);
+			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
+			var labelXStart = []; 
+			
+			legend.selectAll("g.legendCells")
+			    .data(Object.keys(axisColors))
+			    .enter()
+			    .append("g")
+			    .attr("class", "legendCells")
+			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 0)"});
+			
+			legend.selectAll("g.legendCells")
+				.append("rect")
+			    .attr("height", cellHeight)
+			    .attr("width", cellWidth)
+			    .style("fill", function(d) {return axisColors[d];});
+		    
+			legend.selectAll("g.legendCells")
+		    	.append("text")
+		    	.attr("class", "legendLabels");
+						
+			legend.selectAll("g.legendCells")
+				.select("text.legendLabels").style("display", "block")
+				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
+				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
+			
+			// Click actions on legend items
+			legend.selectAll(".legendCells, .legendCells rect").on("click", function() { 
+				if (!d3.select(this).classed("legendCellInactive")){ // toggle to inactive
+					d3.select(this).classed("legendCellInactive", true);
+					d3.select(this).selectAll("rect").style("fill", "grey");
+				} else { // toggle to active
+					d3.select(this).classed("legendCellInactive", false);
+					d3.select(this).selectAll("rect").style("fill", axisColors[d3.select(this).selectAll("text").text()]);
+				}
+			});
+			
+			function getXTransform(d,i){ 
+				var res = labelXStart.reduce(function(a, b) {
+					  return a + b;
+					}, 0);
+				labelXStart[i] = cellWidth + cellPadding*2 + d.length * 7;
+				return res;
+			}
+			
+//			
+//            legend.selectAll("g.legendCells")
+//            	.attr("transform", function(d,i) {console.log("llll " + d.length); return "translate(" + (d.length * 3) + ", 0)" });
+
+		    legend.append("text")
+		    	.text("Legend")
+		    	.attr("y", -7);
+			
+			var outer = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]);
+			var svg = outer.append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
@@ -63,27 +137,30 @@
 				delete dragging[d];
 				transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
 				transition(foreground).attr("d", path);
-				background.attr("d", path).transition().delay(500).duration(0).attr("visibility", null);
+				background.attr("d", path).transition().delay(50).duration(0).attr("visibility", null);
 			}));
 
 			// Add an axis and title.
 			g.append("svg:g").attr("class", "axis").each(function(d) {
 				d3.select(this).call(axis.scale(y[d]));
 			}).append("a").attr("xlink:href", function(d) {
-				console.log("382491896");
 				return links[d];
 			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
 				return "rotate(-90)";
-			}).text(String).classed("axis-label", true).append("svg:title").text(String);
+			}).text(String).style("fill", function(d) { return axisColors[groups[d]]; }).classed("axis-label", true).attr("class", function(d) {
+				return groups[d].replace(/ /g, "_");
+			}).append("svg:title").text(String);
 
 			// Add and store a brush for each axis.
 			g.append("svg:g").attr("class", "brush").each(function(d) {
 				d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brush", brush));
 			}).selectAll("rect").attr("x", -12).attr("width", 24);
 
+		
+			
 			function position(d) {
 				var v = dragging[d];
-				return v == null || v == "NA" ? x(d) : null;
+				return v == null || v == "N/A" ? x(d) : null;
 			}
 
 			
@@ -112,7 +189,7 @@
 				//return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
 				return line(dimensions.map(function(p) {
 					// check for undefined values
-					if (d[p] == null || d[p] == "NA") {
+					if (d[p] == null || d[p] == "N/A") {
 						return [ x(p), y[p](defaults[p]) ];
 					} else {
 						return [ x(p), y[p](d[p]) ];
@@ -192,7 +269,7 @@
 					});
 
 					highlighted2 = svg.append("svg:g").attr("class", "highlight2").selectAll(".serie").data(dimensions).enter().append("svg:circle").filter(function(d) {
-						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "NA";
+						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "N/A";
 					}).attr("cx", function(d) {
 						return x(d);
 					}).attr("cy", function(d) {
@@ -203,7 +280,7 @@
 					});
 
 					text = svg.append("svg:g").attr("class", "label").selectAll("text").data(dimensions).enter().append("text").filter(function(d) {
-						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "NA";
+						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "N/A";
 					});
 
 					text.attr("x", function(d) {
