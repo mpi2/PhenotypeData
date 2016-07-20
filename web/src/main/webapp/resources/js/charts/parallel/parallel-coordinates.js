@@ -34,7 +34,7 @@
 
 		self.render = function() {
 
-			container.select("svg").remove();
+			container.selectAll("svg").remove();
 
 			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2];
 
@@ -87,17 +87,8 @@
 				labelXStart[i] = cellWidth + cellPadding*2 + d.length * 7;
 				return res;
 			}
-			
-//			
-//            legend.selectAll("g.legendCells")
-//            	.attr("transform", function(d,i) {console.log("llll " + d.length); return "translate(" + (d.length * 3) + ", 0)" });
-
-		    legend.append("text")
-		    	.text("Legend")
-		    	.attr("y", -7);
-			
-			var outer = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]);
-			var svg = outer.append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+				
+			var svg = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
