@@ -69,7 +69,16 @@
 				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
 				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
 			
-			legend.selectAll(".legendCells").on("click", function() { console.log("LOGGG"); });
+			// Click actions on legend items
+			legend.selectAll(".legendCells, .legendCells rect").on("click", function() { 
+				if (!d3.select(this).classed("legendCellInactive")){ // toggle to inactive
+					d3.select(this).classed("legendCellInactive", true);
+					d3.select(this).selectAll("rect").style("fill", "grey");
+				} else { // toggle to active
+					d3.select(this).classed("legendCellInactive", false);
+					d3.select(this).selectAll("rect").style("fill", axisColors[d3.select(this).selectAll("text").text()]);
+				}
+			});
 			
 			function getXTransform(d,i){ 
 				var res = labelXStart.reduce(function(a, b) {
