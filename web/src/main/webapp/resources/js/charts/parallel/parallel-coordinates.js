@@ -40,7 +40,56 @@
 
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
 
-			var svg = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+			var cellWidth = 16;
+			var cellPadding = 10;
+			var cellHeight = 12;
+			console.log ("dkahflkeuw " + Object.keys(axisColors).length);
+			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellPadding + cellHeight) * Object.keys(axisColors).length).append("svg:g").attr("class", "highcharts-legend");
+			var labelXStart = []; 
+			
+			legend.selectAll("g.legendCells")
+			    .data(Object.keys(axisColors))
+			    .enter()
+			    .append("g")
+			    .attr("class", "legendCells")
+			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 0)"});
+			
+			legend.selectAll("g.legendCells")
+				.append("rect")
+			    .attr("height", cellHeight)
+			    .attr("width", cellWidth)
+			    .style("fill", function(d) {return axisColors[d];})
+			    .style("stroke", "black")
+			    .style("stroke-width", "2px");
+		    
+			legend.selectAll("g.legendCells")
+		    	.append("text")
+		    	.attr("class", "breakLabels")
+		    	.style("pointer-events", "none");
+						
+			legend.selectAll("g.legendCells")
+				.select("text.breakLabels").style("display", "block")
+				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
+				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
+			
+			function getXTransform(d,i){ 
+				var res = labelXStart.reduce(function(a, b) {
+					  return a + b;
+					}, 0);
+				labelXStart[i] = cellWidth + cellPadding*2 + d.length * 6;
+				return res;
+			}
+			
+//			
+//            legend.selectAll("g.legendCells")
+//            	.attr("transform", function(d,i) {console.log("llll " + d.length); return "translate(" + (d.length * 3) + ", 0)" });
+
+		    legend.append("text")
+		    	.text("Legend")
+		    	.attr("y", -7);
+			
+			var outer = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]);
+			var svg = outer.append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
@@ -80,7 +129,7 @@
 				delete dragging[d];
 				transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
 				transition(foreground).attr("d", path);
-				background.attr("d", path).transition().delay(500).duration(0).attr("visibility", null);
+				background.attr("d", path).transition().delay(50).duration(0).attr("visibility", null);
 			}));
 
 			// Add an axis and title.
@@ -99,6 +148,8 @@
 				d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brush", brush));
 			}).selectAll("rect").attr("x", -12).attr("width", 24);
 
+		
+			
 			function position(d) {
 				var v = dragging[d];
 				return v == null || v == "N/A" ? x(d) : null;
