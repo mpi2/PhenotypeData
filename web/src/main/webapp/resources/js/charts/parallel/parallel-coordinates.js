@@ -62,13 +62,14 @@
 		    
 			legend.selectAll("g.legendCells")
 		    	.append("text")
-		    	.attr("class", "legendLabels")
-		    	.style("pointer-events", "none");
+		    	.attr("class", "legendLabels");
 						
 			legend.selectAll("g.legendCells")
 				.select("text.legendLabels").style("display", "block")
 				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
 				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
+			
+			legend.selectAll(".legendCells").on("click", function() { console.log("LOGGG"); });
 			
 			function getXTransform(d,i){ 
 				var res = labelXStart.reduce(function(a, b) {

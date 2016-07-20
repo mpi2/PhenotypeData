@@ -1,5 +1,9 @@
 /* Additional styling written at EBI */
 
+.legendCells {
+	cursor: pointer;
+}
+
 text.legendLabels {
 	font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;
     font-size: 12px;
