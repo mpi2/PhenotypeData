@@ -181,22 +181,9 @@
 		  function initAnatomyDataTable(){
 			  
 				var aDataTblCols = [0,1,2,3,4,5,6,7,8];
+				console.log("initialising anatomy table");
 				$('table#anatomy').dataTable( {
-						"aoColumns": [
-						              { "sType": "html", "mRender":function( data, type, full ) {
-						            	  return (type === "filter") ? $(data).text() : data;
-						              }},
-						              { "sType": "html", "mRender":function( data, type, full ) {
-						            	  return (type === "filter") ? $(data).text() : data;
-						              }},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "integer"},
-						              { "sType": "html"}
-						              ],
+					"order": [[ 7, 'desc' ], [ 0, 'asc' ]],/*  order by desc number of images and then gene symbol alphabetically on startup */
 							"bDestroy": true,
 							"bFilter":false,
 							"bPaginate":true,
