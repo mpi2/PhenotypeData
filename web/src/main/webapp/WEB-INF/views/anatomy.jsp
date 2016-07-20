@@ -96,9 +96,11 @@
 							</div>
 							
 							<div class="section" id="expression"> 
+							
 								<h2 class="title">Reporter gene expression associated with ${anatomy.getAnatomyTerm()}</h2>
 									<div class="inner">
 										<div class="container span12">
+										<div id="spinner"></div>
 										  <div id="filterParams" >
 							                     <c:forEach var="filterParameters" items="${paramValues.fq}">
 							                         ${filterParameters}
@@ -211,6 +213,8 @@
 				}).done(function( html ) {
 					$("#anatomy_wrapper").html(html);
 					initAnatomyDataTable();
+					console.log('stoping spinner now');
+					$('#spinner').html('');
 				});
 			}
 			
@@ -305,6 +309,8 @@
 			var previousParams=$("#filterParams").html();
 			
 			function refreshAnatomyFrag(dropdownsList) {
+				console.log('starting spinner now');
+				 $("#spinner").html('<i class="fa fa-refresh fa-spin"></i>');
 				var rootUrl = window.location.href;
 				var newUrl = rootUrl.replace("anatomy", "anatomyFrag").split("#")[0];
 				newUrl += '?';
