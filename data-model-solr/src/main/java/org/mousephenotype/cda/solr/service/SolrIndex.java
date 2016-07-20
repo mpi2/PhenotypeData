@@ -471,9 +471,8 @@ public class SolrIndex {
                 String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
                 String downloadUrl=doc.getString("download_url");
                 //System.out.println("full size path="+downloadUrl);
-                String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
-                String smallThumbNailPath = thumbnailPath + "/200/";
-                String largeThumbNailPath = thumbnailPath + "/800/";
+                String thumbnailPath = fullSizePath.replace("render_image", "render_birds_eye_view");
+                String smallThumbNailPath = thumbnailPath + "/";
                 img = "<img src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
                 	img="<img style='width: 200px' src='" + pdfThumbnailUrl + "'/>";
