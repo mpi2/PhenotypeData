@@ -257,6 +257,34 @@ public class ImpressService extends BasicService implements WebStatus {
 				doc.getFirstValue(ImpressDTO.PIPELINE_NAME).toString());
 
 	}
+	
+	public ProcedureDTO getProcedureByStableId(String procedureStableId) {
+
+		ProcedureDTO procedure = new ProcedureDTO();
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId)
+				.setFields(ImpressDTO.PROCEDURE_ID,
+						ImpressDTO.PROCEDURE_NAME,
+						ImpressDTO.PROCEDURE_STABLE_ID,
+						ImpressDTO.PROCEDURE_STABLE_KEY);
+
+			QueryResponse response = solr.query(query);
+
+			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
+
+			procedure.setStableId(imd.getProcedureStableId().toString());
+			procedure.setName(imd.getProcedureName().toString());
+			procedure.setStableKey(imd.getProcedureStableKey());
+			return procedure;
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 
 	public ProcedureDTO getProcedureByStableKey(String procedureStableKey) {
 
