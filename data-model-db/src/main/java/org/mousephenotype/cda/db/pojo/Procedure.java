@@ -209,5 +209,5 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
         Procedure p = (Procedure) o;
         return this.getName().compareTo(p.getName());
     }
-
+    
 }
