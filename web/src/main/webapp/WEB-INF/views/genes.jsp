@@ -67,28 +67,10 @@
 					};
 					</script>
 					<![endif]-->
+					
 					<script>
 						//new dcc.PhenoHeatMap('procedural', 'phenodcc-heatmap', 'Fam63a', 'MGI:1922257', 6, '//dev.mousephenotype.org/heatmap/rest/heatmap/');
-						new dcc.PhenoHeatMap({
-							/* identifier of <div> node that will host the heatmap */
-							'container': 'phenodcc-heatmap',
-							/* colony identifier (MGI identifier) */
-							'mgiid': '${gene.mgiAccessionId}',
-							/* default usage mode: ontological or procedural */
-							'mode': 'ontological',
-							/* number of phenotype columns to use per section */
-							'ncol': 5,
-							/* heatmap title to use */
-							'title': '${gene.markerSymbol}',
-							'url': {
-								/* the base URL of the heatmap javascript source */
-								'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-								/* the base URL of the heatmap data source */
-								'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
-								/* function that generates target URL for data visualisation */
-								'viz': dcc.heatmapUrlGenerator
-							}
-						});
+						
 					</script>
 				</c:if>
 
@@ -107,7 +89,7 @@
 					var gene_id = '${acc}';
 
 					$(document).ready(function() {
-
+						var heatmap_generated=0;
 						var expressionTab = 0;
 						var hash = location.hash;
 						if (hash.indexOf("tabs-") > -1){
@@ -146,6 +128,37 @@
 								$(this).text("Hide expression table");
 							}
 						});
+						
+						$('#heatmap_link').click(function(){
+							console.log('heatmap link clicked');
+							
+							$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
+							if(!heatmap_generated){
+								new dcc.PhenoHeatMap({
+									/* identifier of <div> node that will host the heatmap */
+									'container': 'phenodcc-heatmap',
+									/* colony identifier (MGI identifier) */
+									'mgiid': '${gene.mgiAccessionId}',
+									/* default usage mode: ontological or procedural */
+									'mode': 'ontological',
+									/* number of phenotype columns to use per section */
+									'ncol': 5,
+									/* heatmap title to use */
+									'title': '${gene.markerSymbol}',
+									'url': {
+										/* the base URL of the heatmap javascript source */
+										'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
+										/* the base URL of the heatmap data source */
+										'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
+										/* function that generates target URL for data visualisation */
+										'viz': dcc.heatmapUrlGenerator
+									}
+								});
+								heatmap_generated=1;
+							}
+						});
+						
+						
 
 //						$('li.showAdultImage').click(function(){
 //							$("#exptabs").tabs({ active: 1 });
@@ -381,6 +394,8 @@
 								<div class="inner">
 
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
+									
+									<a id="heatmap_link">preliminary data</a>
 								</div>
 
 							</div>
@@ -390,7 +405,7 @@
 							<!-- phenotype heatmap -->
 							<c:if test="${phenotypeStarted}">
 
-								<div class="section">
+								<div id="heatmap_toggle_div" class="section hidden">
 									<h2 class="title" id="heatmap">Phenotype heatmap <span
 											class="documentation"><a href='' id='heatmapSection'
 																	 class="fa fa-question-circle pull-right"></a></span>
