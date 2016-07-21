@@ -95,15 +95,17 @@ public class ParallelCoordinatesController {
 			String mappedHostname = (String)request.getAttribute("mappedHostname") + (String)request.getAttribute("baseUrl");
 			List<ParameterDTO> parameters = impressService.getParametersByProcedure(procedureIds, "unidimensional");
 			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname), parameters);
-			List<Procedure> procedures = new ArrayList<>();
-			
+			String procedures = "{" ;
 			for (int i = 0;  i < procedureIds.size(); i++){
 				String p = procedureIds.get(i);
-				procedures.add(pp.getProcedureByMatchingStableId(p + "%").get(0));
+				procedures += (i != 0) ? "," :"";
+				procedures += "\"" + pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + "\":\"" + ImpressService.getProcedureUrl(pp.getProcedureByMatchingStableId(p + "%").get(0).getStableKey())  + "\"";
 			}
+			procedures += "}";
 			
 			model.addAttribute("dataJs", data + ";");
 			model.addAttribute("selectedProcedures", procedures);
+			System.out.println("PROCEDURESS " + procedures);
 			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
 			
 		}
