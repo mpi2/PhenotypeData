@@ -919,7 +919,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					//Hash the ID
 					loadId = DigestUtils.md5Hex(loadId).substring(0,5).toUpperCase();
 
-					experimenterData.get(resultSet.getInt("experiment_id")).add(parameterName + ": " + loadId);
+					experimenterData.get(resultSet.getInt("experiment_id")).add(parameterName + " = " + loadId);
 
 				}
 
