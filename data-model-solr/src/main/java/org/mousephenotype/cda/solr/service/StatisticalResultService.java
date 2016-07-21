@@ -371,6 +371,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
         	query.addField(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE);
         	query.addField(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE);
         	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
+        	query.addField(StatisticalResultDTO.PROCEDURE_NAME);
         	query.setRows(1000000);
 
         	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
