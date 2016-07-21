@@ -105,22 +105,26 @@
 						
 						$('#heatmap_link').click(function(){
 							console.log('heatmap link clicked');
+							
+							/* //load the css
+							var cssId = 'myCss';  // you could encode the css path itself to generate id..
+							if (!document.getElementById(cssId))
+							{
+							    var head  = document.getElementsByTagName('head')[0];
+							    var link  = document.createElement('link');
+							    link.id   = cssId;
+							    link.rel  = 'stylesheet';
+							    link.type = 'text/css';
+							    link.href = '${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css';
+							    link.media = 'all';
+							    head.appendChild(link);
+							} */
+							
 							if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
 								$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
 								if(!heatmap_generated){
-									//load the css
-									var cssId = 'myCss';  // you could encode the css path itself to generate id..
-										if (!document.getElementById(cssId))
-										{
-										    var head  = document.getElementsByTagName('head')[0];
-										    var link  = document.createElement('link');
-										    link.id   = cssId;
-										    link.rel  = 'stylesheet';
-										    link.type = 'text/css';
-										    link.href = '${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css';
-										    link.media = 'all';
-										    head.appendChild(link);
-										}
+									
+								
 									
 									
 									
@@ -353,6 +357,18 @@
 
 				</style>
 
+				<c:if test="${phenotypeStarted}">
+					<!--[if !IE]><!-->
+					<link rel="stylesheet" type="text/css"
+						  href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
+					<!--<![endif]-->
+					<!--[if IE 8]>
+					<link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
+					<![endif]-->
+					<!--[if gte IE 9]>
+					<link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
+					<![endif]-->
+				</c:if>
 
 
 			</jsp:attribute>
