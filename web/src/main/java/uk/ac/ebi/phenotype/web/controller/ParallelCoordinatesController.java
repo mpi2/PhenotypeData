@@ -16,7 +16,6 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,10 +54,6 @@ public class ParallelCoordinatesController {
 
 	@Autowired
 	ImpressService impressService;
-
-	@Autowired
-	PhenotypePipelineDAO pp;
-
 	
 	@RequestMapping(value="/parallel", method=RequestMethod.GET)
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
@@ -98,8 +92,9 @@ public class ParallelCoordinatesController {
 			String procedures = "{" ;
 			for (int i = 0;  i < procedureIds.size(); i++){
 				String p = procedureIds.get(i);
+				ProcedureDTO proc = impressService.getProcedureByStableId(p + "*");
 				procedures += (i != 0) ? "," :"";
-				procedures += "\"" + pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + "\":\"" + ImpressService.getProcedureUrl(pp.getProcedureByMatchingStableId(p + "%").get(0).getStableKey())  + "\"";
+				procedures += "\"" + proc.getName() + "\":\"" + ImpressService.getProcedureUrl(proc.getStableKey())  + "\"";
 			}
 			procedures += "}";
 			
