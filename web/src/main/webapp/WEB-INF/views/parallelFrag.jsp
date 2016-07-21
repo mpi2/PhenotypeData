@@ -18,11 +18,6 @@
 <!-- script src="${baseUrl}/js/charts/parallel/pie.js"></script-->
 <script src="${baseUrl}/js/charts/parallel/options.js"></script>
 
-<h3>Procedures displayed: <c:forEach var="procedure" items="${selectedProcedures}" varStatus="loop">
-		                  		<a href="/impress/protocol/${procedure.getStableKey()}">${procedure.getName()}</a><c:if test="${!loop.last}">,</c:if>
-		                  </c:forEach>
-</h3>	
-
 <!-- div><a href="#" id="inverted" class="right toggle">Dark</a></div-->
 <!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
 <div id="row-fluid">
@@ -41,8 +36,18 @@
 
 
 <script type="text/javascript">
+	
+	var selectedProcedures =  ${selectedProcedures};
+	
 	$(function() {
 				
+		$('#parallel-title').html("Gene KO effect comparator ");
+		var selectedProceduresIterator = 1; 
+		Object.keys(selectedProcedures).forEach(function(key){
+			$('#parallel-title').append("<a class=\"bluelink\" href=\"" + selectedProcedures[key] + "\">" + key + "</a>");
+			$('#parallel-title').append( (selectedProceduresIterator++ < Object.keys(selectedProcedures).length) ? ", " : "");
+		});
+		
 		/** Add widgets **/
 		$('#widgets_pc').html("");
 		$('#widgets_pc').append('<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>');

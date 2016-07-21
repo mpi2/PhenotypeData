@@ -891,10 +891,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			nameMap.put(fields[0], fields[1]);
 		}
 
-		String query = "SELECT experiment_id, value, parameter_id, p.name " +
+		String query = "SELECT DISTINCT experiment_id, value, parameter_id, p.name " +
 			"FROM procedure_meta_data m " +
 			"INNER JOIN phenotype_parameter p ON p.stable_id=m.parameter_id " +
-			"WHERE name LIKE '%experimenter%' ";
+			"WHERE name LIKE '%experimenter%' AND value IS NOT NULL ";
 
 		try (PreparedStatement p = connection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
@@ -905,6 +905,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				}
 
 				String ids = resultSet.getString("value");
+				String parameterName = resultSet.getString("name");
 
 				for (String id : ids.split(",")) {
 
@@ -916,9 +917,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					}
 
 					//Hash the ID
-					loadId = DigestUtils.md5Hex(loadId).substring(0,5);
+					loadId = DigestUtils.md5Hex(loadId).substring(0,5).toUpperCase();
 
-					experimenterData.get(resultSet.getInt("experiment_id")).add("Experimenter ID:" + id);
+					experimenterData.get(resultSet.getInt("experiment_id")).add(parameterName + ": " + loadId);
 
 				}
 
