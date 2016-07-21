@@ -1,5 +1,9 @@
 /* Additional styling written at EBI */
 
+a.bluelink 	{
+	color: #0978a1;
+}
+
 .legendCells {
 	cursor: pointer;
 }
