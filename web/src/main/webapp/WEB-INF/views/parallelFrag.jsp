@@ -39,8 +39,6 @@
 	
 	var selectedProcedures =  ${selectedProcedures};
 	
-	console.log(selectedProcedures);
-	
 	$(function() {
 				
 		$('#parallel-title').html("Gene KO effect comparator ");

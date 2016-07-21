@@ -105,7 +105,6 @@ public class ParallelCoordinatesController {
 			
 			model.addAttribute("dataJs", data + ";");
 			model.addAttribute("selectedProcedures", procedures);
-			System.out.println("PROCEDURESS " + procedures);
 			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
 			
 		}
