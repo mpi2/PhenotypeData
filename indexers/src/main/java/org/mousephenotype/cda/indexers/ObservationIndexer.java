@@ -15,7 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,11 +34,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+import javax.management.monitor.StringMonitor;
 import javax.sql.DataSource;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.xmlbeans.impl.xb.ltgfmt.TestCase;
+import org.apache.xmlbeans.impl.xb.xsdschema.ListDocument;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.*;
@@ -54,6 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -90,6 +99,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	@Autowired
 	EmapaOntologyDAO emapaOntologyService;
 
+	@Value("${experimenterIdMap}")
+	String experimenterIdMap;
 
 	Map<String, BiologicalDataBean> biologicalData = new HashMap<>();
 	Map<String, BiologicalDataBean> lineBiologicalData = new HashMap<>();
@@ -107,6 +118,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	Map<Integer, List<WeightBean>> weightMap = new HashMap<>();
 	Map<Integer, WeightBean> ipgttWeightMap = new HashMap<>();
+	Map<Integer, List<String>> experimenterData = new HashMap<>();
+
 
 	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
@@ -154,6 +167,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			logger.debug("populating datasource map");
 			populateDatasourceDataMap();
+
+			logger.debug("populating experimenter map");
+			populateExperimenterDataMap();
+			logger.debug("  map size: " + experimenterData.size());
 
 			logger.debug("populating categorynames map");
 			populateCategoryNamesDataMap();
@@ -341,6 +358,15 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				String metadataCombined = r.getString("metadata_combined");
 				if (!r.wasNull()) {
 					o.setMetadata(new ArrayList<>(Arrays.asList(metadataCombined.split("::"))));
+				}
+
+				// Add experimenter ID(s) to the metadata
+				if (experimenterData.containsKey(o.getExperimentId())) {
+					if (o.getMetadata()==null) {
+						o.setMetadata(new ArrayList<>(experimenterData.get(o.getExperimentId())));
+					} else {
+						o.getMetadata().addAll(experimenterData.get(o.getExperimentId()));
+					}
 				}
 
 				// Add the Biological data
@@ -854,6 +880,51 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		}
 
 		return parameters;
+	}
+
+	void populateExperimenterDataMap() throws SQLException, IOException {
+
+		Map<String, String> nameMap = new HashMap<>();
+		List<String> lines = Files.readAllLines(Paths.get(experimenterIdMap));
+		for (String line : lines) {
+			String [] fields = line.split("\t");
+			nameMap.put(fields[0], fields[1]);
+		}
+
+		String query = "SELECT experiment_id, value, parameter_id, p.name " +
+			"FROM procedure_meta_data m " +
+			"INNER JOIN phenotype_parameter p ON p.stable_id=m.parameter_id " +
+			"WHERE name LIKE '%experimenter%' ";
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+			while (resultSet.next()) {
+
+				if ( ! experimenterData.containsKey(resultSet.getInt("experiment_id"))) {
+					experimenterData.put(resultSet.getInt("experiment_id"), new ArrayList<>());
+				}
+
+				String ids = resultSet.getString("value");
+
+				for (String id : ids.split(",")) {
+
+					String loadId = id;
+
+					//Translate the experimenter ID if needed
+					if (nameMap.containsKey(id)) {
+						loadId = nameMap.get(id);
+					}
+
+					//Hash the ID
+					loadId = DigestUtils.md5Hex(loadId).substring(0,5);
+
+					experimenterData.get(resultSet.getInt("experiment_id")).add("Experimenter ID:" + id);
+
+				}
+
+			}
+		}
+
 	}
 
 	void populateDatasourceDataMap() throws SQLException {
