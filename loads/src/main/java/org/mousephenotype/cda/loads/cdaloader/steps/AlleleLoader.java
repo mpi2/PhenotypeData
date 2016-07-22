@@ -44,7 +44,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * Loads the alleles from the mgi report files.
+ * Loads the alleles from the mgi IMSR_report files.
  *
  * Created by mrelac on 13/04/2016.
  *

@@ -39,7 +39,7 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
     private int                                    addedBioModelsCount = 0;
     private Map<String, String>                    alleleSymbolToAccessionIdMap;        // key = allele symbol. Value = allele accession id
     private Map<String, Allele>                    alleles;                             // Alleles mapped by allele accession id
-    private Map<String, BiologicalModelAggregator> bioModels = new HashMap<>(60000);    // bioModel mapped by allelic_composition + genetic_background
+    private Map<String, BiologicalModelAggregator> bioModels = new HashMap<>();         // bioModel mapped by allelic_composition + genetic_background
     private Map<String, GenomicFeature>            genes;                               // Genes mapped by marker accession id
     protected int                                  lineNumber = 0;
 
@@ -85,7 +85,7 @@ public class BiologicalModelProcessor implements ItemProcessor<BiologicalModelAg
             alleles = cdaLoaderUtils.getAlleles();
         }
         if (alleleSymbolToAccessionIdMap == null) {
-            alleleSymbolToAccessionIdMap = new HashMap<>(150000);
+            alleleSymbolToAccessionIdMap = new HashMap<>();
             for (Allele allele : alleles.values()) {
                 alleleSymbolToAccessionIdMap.put(allele.getSymbol(), allele.getId().getAccession());
             }

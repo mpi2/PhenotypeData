@@ -149,7 +149,7 @@ public class ConfigBatch {
 //        List<Flow> synchronousFlows = new ArrayList<>();
 //        for (int i = 0; i < ontologyLoaderList.size(); i++) {
 //            OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
-//            synchronousFlows.add(new FlowBuilder<Flow>("ontology_" + i + "_synchronousFlow").from(ontologyLoader).end());
+//            synchronousFlows.add(new FlowBuilder<Flow>("ontology_" + ontologyLoader.getName() + "_synchronousFlow").from(ontologyLoader).end());
 //        }
 //        FlowBuilder<Flow> synchronousFlowBuilder = new FlowBuilder<Flow>("ontologyLoaderFlow").start(synchronousFlows.get(0));
 //        for (int i = 1; i < synchronousFlows.size(); i++) {
@@ -161,7 +161,7 @@ public class ConfigBatch {
         List<Flow> parallelFlows = new ArrayList<>();
         for (int i = 0; i < ontologyLoaderList.size(); i++) {
             OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
-            parallelFlows.add(new FlowBuilder<Flow>("ontology_" + i + "_parallelFlow").from(ontologyLoader).end());
+            parallelFlows.add(new FlowBuilder<Flow>("ontology_" + ontologyLoader.getName() + "_parallelFlow").from(ontologyLoader).end());
         }
         FlowBuilder<Flow> parallelFlowBuilder = new FlowBuilder<Flow>("ontologyLoaderParallelFlows").start(parallelFlows.get(0));
         for (int i = 1; i < parallelFlows.size(); i++) {

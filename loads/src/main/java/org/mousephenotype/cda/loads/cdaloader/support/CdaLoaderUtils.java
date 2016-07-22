@@ -67,7 +67,7 @@ public class CdaLoaderUtils {
      * @return a list of all alleles, keyed by allele accession id
      */
     public Map<String, Allele> getAlleles() {
-        Map<String, Allele> alleles = new ConcurrentHashMap<>(120000);
+        Map<String, Allele> alleles = new ConcurrentHashMap<>();
 
         logger.info("Loading alleles.");
         List<Allele> allelesList = jdbcTemplate.query("SELECT * FROM allele", new AlleleRowMapper());
@@ -143,7 +143,7 @@ public class CdaLoaderUtils {
      */
     public Map<String, List<ConsiderId>> getConsiderIds() {
         if (considerIds == null) {
-            considerIds = new ConcurrentHashMap<>(100);
+            considerIds = new ConcurrentHashMap<>();
 
             List<ConsiderId> considerIdList = jdbcTemplate.query("SELECT * FROM consider_id", new ConsiderIdRowMapper());
 
@@ -189,7 +189,7 @@ public class CdaLoaderUtils {
      * @return the list of <code>GenomicFeature</code>s
      */
     public Map<String, GenomicFeature> getGenes() {
-        Map<String, GenomicFeature> genes = new ConcurrentHashMap<>(150000);
+        Map<String, GenomicFeature> genes = new ConcurrentHashMap<>();
 
         logger.info("Loading genes");
         List<GenomicFeature> geneList = jdbcTemplate.query("SELECT * FROM genomic_feature", new GenomicFeatureRowMapper());
@@ -368,7 +368,7 @@ public class CdaLoaderUtils {
 
     public Map<String, OntologyTerm> getOntologyTerms() {
         if (ontologyTerms == null) {
-            ontologyTerms = new ConcurrentHashMap(150000);
+            ontologyTerms = new ConcurrentHashMap();
 
             List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term", new OntologyTermRowMapper());
 
@@ -682,7 +682,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, Strain> getStrains() throws CdaLoaderException {
 
         if ((strains == null) || strains.isEmpty()) {
-            strains = new ConcurrentHashMap<>(100000);
+            strains = new ConcurrentHashMap<>();
 
             logger.info("Loading strains.");
 
@@ -813,7 +813,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
     private Map<String, List<Synonym>> getSynonyms() {
         if (synonyms == null) {
-            synonyms = new ConcurrentHashMap<>(100000);
+            synonyms = new ConcurrentHashMap<>();
             String lastAcc = "";
             List<Synonym> synonymList = jdbcTemplate.query("SELECT * FROM synonym ORDER BY acc", new SynonymRowMapper());
             List<Synonym> accSynonyms = new ArrayList<>();
@@ -887,7 +887,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
     public Map<String, List<Xref>> getXrefs() {
-        Map<String, List<Xref>> xrefs = new ConcurrentHashMap<>(150000);
+        Map<String, List<Xref>> xrefs = new ConcurrentHashMap<>();
 
         List<Xref> xrefList = jdbcTemplate.query("SELECT * FROM xref", new XrefRowMapper());
 

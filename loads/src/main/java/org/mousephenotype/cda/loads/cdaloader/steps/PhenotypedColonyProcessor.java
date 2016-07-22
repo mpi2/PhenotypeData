@@ -124,7 +124,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             alleles = cdaLoaderUtils.getAlleles();
         }
         if (alleleSymbolToAccessionIdMap == null) {
-            alleleSymbolToAccessionIdMap = new HashMap<>(150000);
+            alleleSymbolToAccessionIdMap = new HashMap<>();
             for (Allele allele : alleles.values()) {
                 List<String> alleleAccessionIdList = alleleSymbolToAccessionIdMap.get(allele.getSymbol());
                 if (alleleAccessionIdList == null) {
@@ -138,7 +138,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             strains = cdaLoaderUtils.getStrains();
         }
         if (strainNameToAccessionIdMap == null) {
-            strainNameToAccessionIdMap = new HashMap<>(150000);
+            strainNameToAccessionIdMap = new HashMap<>();
             for (Strain strain : strains.values()) {
                 strainNameToAccessionIdMap.put(strain.getName(), strain.getId().getAccession());
             }
