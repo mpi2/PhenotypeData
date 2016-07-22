@@ -45,7 +45,7 @@
 			
 			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2];
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
-			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
+			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding*2)).append("svg:g").attr("class", "highcharts-legend");
 			var labelXStart = []; 
 			
 			legend.selectAll("g.legendCells")
@@ -54,7 +54,7 @@
 			    .append("g")
 			    .attr("class", "legendCells")
 			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 0)"})
-			    .classed("legendCellInactive", function(d){ return (inactiveGroups.indexOf(d) >=0 );});
+			    .classed("legendCellInactive", function(d){ return (inactiveGroups.indexOf(d) >= 0 );});
 			
 			legend.selectAll("g.legendCells")
 				.append("rect")
@@ -97,6 +97,8 @@
 				
 			var svg = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 			
+			legend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)");
+			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
 				return d != "name" && d != "group" && d != "accession" && d != "id" && inactiveGroups.indexOf(groups[d]) < 0 && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
@@ -110,9 +112,11 @@
 			});
 
 			// Add blue foreground lines for focus.
-			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path).attr("style", function(d) {
-				return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");
-			});
+			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path)
+				.attr("style", function(d) {return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");})
+				.attr("class", function(d) {return d.name;})
+				.on("mouseover", function (d,i){ d3.select("#geneHover").html(d.name.split("(")[0]);})
+				.on("mouseout", function (d,i){ d3.select("#geneHover").html("");});
 
 			// Add a group element for each dimension.
 			var g = svg.selectAll(".dimension").data(dimensions).enter().append("svg:g").attr("class", "dimension").attr("transform", function(d) {

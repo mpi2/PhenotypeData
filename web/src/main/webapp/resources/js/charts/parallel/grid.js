@@ -16,7 +16,7 @@
 	          id: col,
 	          name: function() { if (self.alias) { return self.alias[col]; } else { return col; } }(), 
 	          field: function() { return col;}(),
-	          formatter: linkFormatter = function ( row, cell, value, columnDef, dataContext ) {return '<a href="' + baseUrl + '/genes/' + value.split("(")[1].replace(")", "") + '"  target="_blank">'+value.split("(")[0] + '</a>';},
+	          formatter: linkFormatter = function ( row, cell, value, columnDef, dataContext ) {return '<a href="' + baseUrl + '/genes/' + value.split("(")[1].replace(")", "") + '"  target="_blank">'+ value.split("(")[0] + '</a>';},
 	          width: function() { if (col == "name") { return 180; } else if (col == "group") { return 60; } else { return 80; }}()
 	        }
     	  } else {
