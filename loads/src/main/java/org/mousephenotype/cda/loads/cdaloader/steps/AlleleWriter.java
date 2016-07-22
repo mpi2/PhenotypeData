@@ -23,24 +23,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.List;
 
 /**
  * Created by mrelac on 26/04/16.
  */
 public class AlleleWriter implements ItemWriter {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger   logger   = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("sqlLoaderUtils")
     private CdaLoaderUtils cdaLoaderUtils;
 
-    private AllelePSSetter pss = new AllelePSSetter();
     private int written = 0;
 
 
@@ -57,39 +52,7 @@ public class AlleleWriter implements ItemWriter {
 
         for (Object allele1 : items) {
             Allele allele = (Allele) allele1;
-            pss.setAllele(allele);
             written += cdaLoaderUtils.insertAllele(allele);
-        }
-    }
-
-    public class AllelePSSetter implements PreparedStatementSetter {
-        private Allele allele;
-
-        public void setAllele(Allele allele) {
-            this.allele = allele;
-        }
-
-        @Override
-        public void setValues(PreparedStatement ps) throws SQLException {
-            String geneAcc = (allele.getGene() == null ? null : allele.getGene().getId().getAccession());
-            Integer geneDbId = (allele.getGene() == null ? null : allele.getGene().getId().getDatabaseId());
-
-//          INSERT INTO allele (acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol, name) 
-//          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-
-            ps.setString(1, allele.getId().getAccession());                 // acc
-            ps.setInt(2, allele.getId().getDatabaseId());                   // db_id
-            if (geneAcc == null) {
-                ps.setNull(3, Types.VARCHAR);                               // gf_acc
-                ps.setNull(4, Types.INTEGER);                               // gf_db_id
-            } else {
-                ps.setString(3, geneAcc);                                   // gf_acc
-                ps.setInt(4, geneDbId);                                     // gf_db_id
-            }
-            ps.setString(5, allele.getBiotype().getId().getAccession());    // biotype_acc
-            ps.setInt(6, allele.getBiotype().getId().getDatabaseId());      // biotype_db_id
-            ps.setString(7, allele.getSymbol());                            // symbol
-            ps.setString(8, allele.getName());                              // name
         }
     }
 

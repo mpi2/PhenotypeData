@@ -236,7 +236,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
                 logger.warn("MGI report file is out-of-sync. Adding withdrawn gene {} to allele {}.",
                         gene.toString(), allele.toString());
 
-                cdaLoaderUtils.insertGene(gene, null);
+                cdaLoaderUtils.insertGene(gene);
             }
         }
 

@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -296,7 +295,7 @@ public class CdaLoaderUtils {
      *
      * @return a map, keyed by type (genes, synonyms, xrefs) of the number of {@code gene} components inserted
      */
-    public Map<String, Integer> insertGene(GenomicFeature gene, PreparedStatementSetter pss) throws CdaLoaderException {
+    public Map<String, Integer> insertGene(GenomicFeature gene) throws CdaLoaderException {
 
         int count;
         Map<String, Integer> counts = new HashMap<String, Integer>();
@@ -306,30 +305,22 @@ public class CdaLoaderUtils {
 
         // Try to insert gene. Ignore DuplicateKeyExceptions.
         try {
-            if (pss != null) {
-
-                count = jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", pss);
-
-            } else {
-
-                count = jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        gene.getId().getAccession(),
-                        gene.getId().getDatabaseId(),
-                        gene.getSymbol(),
-                        gene.getName(),
-                        gene.getBiotype().getId().getAccession(),
-                        gene.getBiotype().getId().getDatabaseId(),
-                        gene.getSubtype() == null ? null : gene.getSubtype().getId().getAccession(),
-                        gene.getSubtype() == null ? null : gene.getSubtype().getId().getDatabaseId(),
-                        gene.getSequenceRegion() == null ? null : gene.getSequenceRegion().getId(),
-                        gene.getStart(),
-                        gene.getEnd(),
-                        gene.getStrand(),
-                        gene.getcMposition(),
-                        gene.getStatus());
-            }
+            count = jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    gene.getId().getAccession(),
+                    gene.getId().getDatabaseId(),
+                    gene.getSymbol(),
+                    gene.getName(),
+                    gene.getBiotype().getId().getAccession(),
+                    gene.getBiotype().getId().getDatabaseId(),
+                    gene.getSubtype() == null ? null : gene.getSubtype().getId().getAccession(),
+                    gene.getSubtype() == null ? null : gene.getSubtype().getId().getDatabaseId(),
+                    gene.getSequenceRegion() == null ? null : gene.getSequenceRegion().getId(),
+                    gene.getStart(),
+                    gene.getEnd(),
+                    gene.getStrand(),
+                    gene.getcMposition(),
+                    gene.getStatus());
             
             counts.put("genes", counts.get("genes") + count);
             
@@ -1097,7 +1088,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             Datasource datasource = new Datasource();
             datasource.setId(rs.getInt("coord_system_db_id"));
 
-            // NOTE: LOADING THE STRAIN COMPONENT ADDS A TREMENDOUS AMOUNT OF TIME; THUS, IT'S DISABLED.
+            // NOTE: LOADING THE STRAIN COMPONENT ADDS A TREMENDOUS AMOUNT OF TIME, SO IT'S DISABLED.
 //            Strain strain = null;
 //            try {
 //                String coordSystemStrainAcc = rs.getString("coord_system_strain_acc");      // This, and coord_system_strain_db_id, can be null.
