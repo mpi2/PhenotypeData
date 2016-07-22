@@ -362,6 +362,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	public List<ParameterDTO> getParametersByProcedure(List<String> procedureStableIds, String observationType)
 	throws SolrServerException{
 
+		
 		List<ParameterDTO> parameters = new ArrayList<>();
 		SolrQuery query = new SolrQuery().setQuery("*:*");
 
@@ -373,7 +374,7 @@ public class ImpressService extends BasicService implements WebStatus {
 		if (observationType != null){
 			query.addFilterQuery(ImpressDTO.OBSERVATION_TYPE + ":" + observationType);
 		}
-		query.setRows(1000000);
+		query.setRows(Integer.MAX_VALUE);
 
 		QueryResponse response = solr.query(query);
 
