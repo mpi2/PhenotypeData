@@ -81,6 +81,25 @@ public class Strain {
 		this.synonyms.add(synonym);
 	}
 
+	/**
+	 * Returns the synonym from the list of synonyms if it exists; null otherwise.
+	 *
+	 * @param symbol the desired synonym symbol
+	 *
+	 * @return the synonym from the list of synonyms if it exists; null otherwise.
+     */
+	public Synonym getSynonym(String symbol) {
+		if (synonyms != null) {
+			for (Synonym synonym : synonyms) {
+				if (synonym.getSymbol().equals(symbol)) {
+					return synonym;
+				}
+			}
+		}
+
+		return null;
+	}
+
 
 	/**
 	 * @return the id
@@ -129,8 +148,42 @@ public class Strain {
 		this.name = name;
 	}
 
-
+	@Override
 	public String toString() {
-		return "Id: " + id + "; Name: " + name + ";";
+
+		return "Strain{" +
+				"id=" + id +
+				", biotype=" + (biotype == null ? "null" : biotype) +
+				", name='" + name + '\'' +
+				", synonyms=[" + toStringSynonyms() + "]" +
+				'}';
+	}
+	public String toStringSynonyms() {
+		String synonymSymbols = "";
+		if (synonyms == null) {
+			return "";
+		}
+		for (int i = 0; i < synonyms.size(); i++) {
+			if (i > 0)
+				synonymSymbols += ", ";
+			synonymSymbols += synonyms.get(i).getSymbol();
+		}
+
+		return synonymSymbols;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Strain strain = (Strain) o;
+
+		return id.equals(strain.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
 	}
 }
