@@ -94,7 +94,7 @@
 //			$('#legend').append("<div class='item'><div class='color' style='background: " + colors[group] + "';></div><div class='key'>" + group + "</div></div>");
 //		});
 
-		var pc = parallel(dimensions, colors, defaults);
+		var pc = parallel(dimensions, colors, defaults, highlighter);
 //		var pie = piegroups(foods, foodgroups, colors, 'group');
 //		var totals = pietotals([ 'in', 'out' ], [ _(foods).size(), 0 ]);
 

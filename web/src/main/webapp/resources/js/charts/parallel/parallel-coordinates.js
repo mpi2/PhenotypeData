@@ -3,7 +3,7 @@
 	// Example for hover-over lines 
 	// http://bl.ocks.org/mbostock/3709000
 
-	window.parallel = function(model, colors, defaults) {
+	window.parallel = function(model, colors, defaults, highlighter) {
 		
 		var labelColorList = ['#16532D',  
 		      				'rgb(36, 139, 75)',
@@ -12,7 +12,7 @@
 		      				'rgb(191, 151, 50)',
 		      				'rgb(247, 157, 70)',
 		      				'#0978A1'];
-		
+		var trueSelf = this;
 		var self = {}, dimensions, dragging = {}, highlighted = null, highlighted2 = null, container = d3.select("#parallel");
 		var text = null;
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
@@ -20,6 +20,9 @@
 		var cars = model.get('data');
 		var i = 0;
 		var inactiveGroups = [];
+		var geneList = [];
+		cars.map(function(d,i){geneList.push(d.name);});
+		
 		
 		for (var key in groups){
 			if (!axisColors[groups[key]]){
@@ -45,7 +48,7 @@
 			
 			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2];
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
-			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding*2)).append("svg:g").attr("class", "highcharts-legend");
+			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			var labelXStart = []; 
 			
 			legend.selectAll("g.legendCells")
@@ -115,7 +118,7 @@
 			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path)
 				.attr("style", function(d) {return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");})
 				.attr("class", function(d) {return d.name;})
-				.on("mouseover", function (d,i){ d3.select("#geneHover").html(d.name.split("(")[0]);})
+				.on("mouseover", function (d,i){ d3.select("#geneHover").html(d.name.split("(")[0]); highlighter.select(geneList.indexOf(d.name));})
 				.on("mouseout", function (d,i){ d3.select("#geneHover").html("");});
 
 			// Add a group element for each dimension.
