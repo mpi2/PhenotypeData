@@ -96,8 +96,8 @@
       }
     },
     update: function() {
+    	
       var self = this;
-     
       var data = _(this.model.get('filtered')).map(function(obj) {
         obj.id = self.counter++;
         for (var k in obj){
