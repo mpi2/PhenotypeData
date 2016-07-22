@@ -16,10 +16,17 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
-import net.sf.json.JSONObject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
-import java.util.*;
+import net.sf.json.JSONObject;
 
 /**
  * @since 2015/07
@@ -40,26 +47,36 @@ public class ParallelCoordinatesDTO {
 	List<ParameterDTO> allColumns;
 
 
-	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, List<ParameterDTO> allColumns){
+	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, Collection<ParameterDTO> parameters){
 
 		this.geneAccession = geneAccession;
 		this.geneSymbol = geneSymbol;
 		this.group = group;
 		values = new HashMap<>();
-		this.allColumns = allColumns;
+		this.allColumns = new ArrayList<>(parameters);
 
 		for (ParameterDTO parameter: allColumns){
 			if (getSortValue(parameter.getStableId()) % 100 != 0){
-				values.put(parameter.getName(), new MeanBean( null, parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
+				values.put(parameter.getName(), new MeanBean( parameter.getUnit(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
 			}
 		}
 	}
 
 
-	public void addValue( String unit, String parameterStableId, String parameterName, Integer parameterStableKey, Double mean){
+	/**
+	 * Keeps max value only 
+	 * @param unit
+	 * @param parameterStableId
+	 * @param parameterName
+	 * @param parameterStableKey
+	 * @param mean
+	 */
+	public void addValue( ParameterDTO parameter, Double mean){
 
-		if (getSortValue(parameterStableId) % 100 != 0){
-			values.put(parameterName, new MeanBean( unit, parameterStableId, parameterName, parameterStableKey, mean));
+		if (getSortValue(parameter.getStableId()) % 100 != 0){ // we want to display the param
+			if (!values.containsKey(parameter.getName()) || (values.containsKey(parameter.getName()) && (values.get(parameter.getName()).mean == null || Math.abs(values.get(parameter.getName()).mean) > Math.abs(mean)))){
+				values.put(parameter.getName(), new MeanBean( parameter.getUnit(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), mean));
+			}
 		}
 
 	}

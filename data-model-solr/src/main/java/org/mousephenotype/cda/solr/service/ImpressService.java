@@ -15,6 +15,14 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -33,8 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 
 /**
@@ -257,6 +263,34 @@ public class ImpressService extends BasicService implements WebStatus {
 				doc.getFirstValue(ImpressDTO.PIPELINE_NAME).toString());
 
 	}
+	
+	public ProcedureDTO getProcedureByStableId(String procedureStableId) {
+
+		ProcedureDTO procedure = new ProcedureDTO();
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId)
+				.setFields(ImpressDTO.PROCEDURE_ID,
+						ImpressDTO.PROCEDURE_NAME,
+						ImpressDTO.PROCEDURE_STABLE_ID,
+						ImpressDTO.PROCEDURE_STABLE_KEY);
+
+			QueryResponse response = solr.query(query);
+
+			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
+
+			procedure.setStableId(imd.getProcedureStableId().toString());
+			procedure.setName(imd.getProcedureName().toString());
+			procedure.setStableKey(imd.getProcedureStableKey());
+			return procedure;
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 
 	public ProcedureDTO getProcedureByStableKey(String procedureStableKey) {
 
@@ -334,6 +368,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	public List<ParameterDTO> getParametersByProcedure(List<String> procedureStableIds, String observationType)
 	throws SolrServerException{
 
+		
 		List<ParameterDTO> parameters = new ArrayList<>();
 		SolrQuery query = new SolrQuery().setQuery("*:*");
 
@@ -345,7 +380,7 @@ public class ImpressService extends BasicService implements WebStatus {
 		if (observationType != null){
 			query.addFilterQuery(ImpressDTO.OBSERVATION_TYPE + ":" + observationType);
 		}
-		query.setRows(1000000);
+		query.setRows(Integer.MAX_VALUE);
 
 		QueryResponse response = solr.query(query);
 
