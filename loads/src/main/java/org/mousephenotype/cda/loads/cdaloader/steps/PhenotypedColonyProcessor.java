@@ -160,7 +160,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             OntologyTerm biotype = cdaLoaderUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), "unknown");       // name = "unknown" (description = "A gene with no subtype")
             gene.setBiotype(biotype);
             gene.setStatus(CdaLoaderUtils.STATUS_ACTIVE);
-            Map<String, Integer> counts = cdaLoaderUtils.insertGene(gene, null);
+            Map<String, Integer> counts = cdaLoaderUtils.insertGene(gene);
             if (counts.get("genes") > 0) {
                 addedGenesCount += counts.get("genes");
                 genes.put(gene.getId().getAccession(), gene);
