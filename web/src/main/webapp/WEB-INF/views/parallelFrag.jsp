@@ -118,7 +118,6 @@
 			var data = dimensions.get('data');
 			var defaultValues = defaults;
 			var filtered = dimensions.get('filtered');
-			console.log("change filtered. Selected  " + filtered.length);
 			var data_size = _(data).size();
 			var filtered_size = _(filtered).size();
 ///			pie.update(filtered);
