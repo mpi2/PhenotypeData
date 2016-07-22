@@ -119,7 +119,7 @@
 				.attr("style", function(d) {return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");})
 				.attr("class", function(d) {return d.name;})
 				.on("mouseover", function (d,i){ d3.select("#geneHover").html(d.name.split("(")[0]); highlighter.select(geneList.indexOf(d.name));})
-				.on("mouseout", function (d,i){ d3.select("#geneHover").html("");});
+				.on("mouseout", function (d,i){ d3.select("#geneHover").html(""); highlighter.deselect(); });
 
 			// Add a group element for each dimension.
 			var g = svg.selectAll(".dimension").data(dimensions).enter().append("svg:g").attr("class", "dimension").attr("transform", function(d) {
