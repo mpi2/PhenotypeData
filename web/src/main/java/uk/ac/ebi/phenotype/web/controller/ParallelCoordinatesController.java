@@ -128,7 +128,7 @@ public class ParallelCoordinatesController {
 		res.append("var foods = []; \nvar defaults = {};");
 		if (rows != null){
 			int i = 0;
-	    	for (String key: rows.keySet()){
+			for (String key: rows.keySet()){
 	    		ParallelCoordinatesDTO bean = rows.get(key);
 	    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
 		    		i++;
