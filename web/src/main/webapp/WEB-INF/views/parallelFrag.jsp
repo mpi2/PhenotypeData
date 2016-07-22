@@ -71,10 +71,7 @@
 
 		var columns = _(foods[0]).keys();
 		var axes = _(columns).without('name', 'accession', 'group');
-
 		var foodgroups = [ "Mutant", "Mean"];
-		// "MRC Harwell", "TCP", "JAX", "WTSI", "BCM", "UC Davis", "ICS", "HMGU", "NING", "RBRC" ];
-
 		var colors = {
 		    "Mutant" : '#0978A1',
 			"Normal" :'#602619',
@@ -121,6 +118,7 @@
 			var data = dimensions.get('data');
 			var defaultValues = defaults;
 			var filtered = dimensions.get('filtered');
+			console.log("change filtered. Selected  " + filtered.length);
 			var data_size = _(data).size();
 			var filtered_size = _(filtered).size();
 ///			pie.update(filtered);
