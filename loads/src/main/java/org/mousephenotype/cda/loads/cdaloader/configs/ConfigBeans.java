@@ -45,9 +45,9 @@ public class ConfigBeans {
 
     private Map<String, OntologyTerm>   mgiFeatureTypes;
 
-    private Map<String, Allele>         alleles         = new HashMap<>(150000);    // key = allele accession id
-    private Map<String, GenomicFeature> genes           = new HashMap<>(150000);    // key = marker accession id
-    private Map<String, Strain>         strains         = new HashMap<>(150000);    // key = strain accession id
+    private Map<String, Allele>         alleles = new HashMap<>();    // key = allele accession id
+    private Map<String, GenomicFeature> genes   = new HashMap<>();    // key = marker accession id
+    private Map<String, Strain>         strains = new HashMap<>();    // key = strain accession id
 
     @NotNull
     @Value("${cdaload.workspace}")
@@ -87,7 +87,7 @@ public class ConfigBeans {
 
     public DownloadFilename[] filenames;
     private enum DownloadFileEnum {
-          report
+          IMSR_report
         , EBI_PhenotypedColony
         , ES_CellLine
         , EUCOMM_Allele
@@ -126,7 +126,7 @@ public class ConfigBeans {
 
         filenames = new DownloadFilename[] {
           // imsr
-              new DownloadFilename(DownloadFileEnum.report, "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdaWorkspace + "/report.txt", DbIdType.IMSR.intValue())
+              new DownloadFilename(DownloadFileEnum.IMSR_report, "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdaWorkspace + "/IMSR_report.txt", DbIdType.IMSR.intValue())
 
           // mgi reports
             , new DownloadFilename(DownloadFileEnum.ES_CellLine, "ftp://ftp.informatics.jax.org/pub/reports/ES_CellLine.rpt", cdaWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
@@ -356,7 +356,7 @@ public class ConfigBeans {
     public StrainLoader strainLoader() throws CdaLoaderException {
         Map<StrainLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(StrainLoader.FilenameKeys.MGI, downloadFilenameMap.get(DownloadFileEnum.MGI_Strain).targetFilename);
-        filenameKeys.put(StrainLoader.FilenameKeys.IMSR, downloadFilenameMap.get(DownloadFileEnum.report).targetFilename);
+        filenameKeys.put(StrainLoader.FilenameKeys.IMSR, downloadFilenameMap.get(DownloadFileEnum.IMSR_report).targetFilename);
 
         return new StrainLoader(filenameKeys);
     }

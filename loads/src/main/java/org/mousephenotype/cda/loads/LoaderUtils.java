@@ -16,6 +16,9 @@
 
 package org.mousephenotype.cda.loads;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * Created by mrelac on 20/07/16.
  */
@@ -27,18 +30,19 @@ public class LoaderUtils {
      *
      * Key terms in this array (column 0) should be entered in lowercase.
      */
-    private final String[][] mappedTerms = new String[][] {
-         //     External name        CDA name
-              { "coisogenic strain", "coisogenic" }
-            , { "congenic strain",   "congenic" }
-            , { "eucomm-eumodic",    "EUMODIC" }
-            , { "harwell",           "MRC Harwell" }
-            , { "mgp legacy",        "MGP" }
-            , { "monterotondo",      "EMBL Monterotondo" }
-            , { "riken brc",         "RBRC" }
-            , { "ucd",               "UC Davis" }
-            , { "ucd-komp",          "UC Davis" }
-    };
+    private final Map<String, String> mappedTerms = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+        //   External name        CDA name
+        put("coisogenic strain", "coisogenic");
+        put("congenic strain",   "congenic");
+        put("eucomm-eumodic",    "EUMODIC");
+        put("harwell",           "MRC Harwell");
+        put("mgp legacy",        "MGP");
+        put("monterotondo",      "EMBL Monterotondo");
+        put("riken brc",         "RBRC");
+        put("ucd",               "UC Davis");
+        put("ucd-komp",          "UC Davis");
+    }};
+
 
     /**
      * Translates a term case insensitively, lowercasing {@code term} and returning the standard CDA translated term,
@@ -49,12 +53,6 @@ public class LoaderUtils {
      * @return the translated term, if found; the orignal term, untranslated, otherwise.
      */
     public String translateTerm(String term) {
-        for (int i = 0; i < mappedTerms.length; i++) {
-            if (term.toLowerCase().equals(mappedTerms[i][0])) {
-                return mappedTerms[i][1];
-            }
-        }
-
-        return term;
+        return (mappedTerms.containsKey(term) ? mappedTerms.get(term) : term);
     }
 }

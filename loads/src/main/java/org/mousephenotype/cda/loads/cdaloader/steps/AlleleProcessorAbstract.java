@@ -233,7 +233,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
                 gene.setSymbol(allele.getGene().getSymbol());
                 gene.setName(allele.getGene().getSymbol());
                 gene.setStatus(CdaLoaderUtils.STATUS_WITHDRAWN);
-                logger.warn("MGI report file is out-of-sync. Adding withdrawn gene {} to allele {}.",
+                logger.warn("MGI IMSR_report file is out-of-sync. Adding withdrawn gene {} to allele {}.",
                         gene.toString(), allele.toString());
 
                 cdaLoaderUtils.insertGene(gene);

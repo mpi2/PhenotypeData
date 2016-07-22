@@ -46,7 +46,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
     private       Map<String, Strain> strainsMap;                                           // Key = accession id. Value = Strain instance.
     private       Map<String, String> strainNameToAccessionIdMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);    // key = strain name (strainStock). Value = strain accession id with the same strain name
 
-    // The following  strings define the column headings in the report.txt file.
+    // The following  strings define the column headings in the IMSR_report.txt file.
     public final static String HEADING_ACCESSION_ID = "Strain ID";
     public final static String HEADING_NAME         = "Strain/Stock";
     public final static String HEADING_SYNONYMS     = "Synonyms";
@@ -105,7 +105,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
         }
 
         /*
-        * Sometimes the report.txt file incorrectly reports a strain name as a synonym. To handle this situation:
+        * Sometimes the IMSR_report.txt file incorrectly reports a strain name as a synonym. To handle this situation:
         * For each synonym:
         *     If the synonym symbol exists in the strainNameToAccessionIdMap
         *         If that strain's synonyms do not contain the name as a synonym,

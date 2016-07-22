@@ -46,8 +46,8 @@ public enum DbIdType {
     IMPC(22),
     _3i(23),
     MPATH(24),
-    EMAPA(25),
-    MmusDv(26);
+    MmusDv(25),
+    EMAPA(26);
 
     private final int value;
 
