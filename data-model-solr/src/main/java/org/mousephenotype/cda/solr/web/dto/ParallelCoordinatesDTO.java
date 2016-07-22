@@ -16,10 +16,17 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
-import net.sf.json.JSONObject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
-import java.util.*;
+import net.sf.json.JSONObject;
 
 /**
  * @since 2015/07
