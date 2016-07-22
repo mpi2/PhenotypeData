@@ -16,7 +16,9 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +29,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,10 +57,6 @@ public class ParallelCoordinatesController {
 
 	@Autowired
 	ImpressService impressService;
-
-	@Autowired
-	PhenotypePipelineDAO pp;
-
 	
 	@RequestMapping(value="/parallel", method=RequestMethod.GET)
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
@@ -82,9 +79,9 @@ public class ParallelCoordinatesController {
 	
 	@RequestMapping(value="/parallelFrag", method=RequestMethod.GET)
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, 	@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
-	throws SolrServerException{
+	throws SolrServerException, MalformedURLException, IOException, URISyntaxException{
 
-		long time = System.currentTimeMillis();
+		long totalTime = System.currentTimeMillis();
 		if (procedureIds == null){
 			
 			model.addAttribute("procedure", "");
@@ -98,8 +95,9 @@ public class ParallelCoordinatesController {
 			String procedures = "{" ;
 			for (int i = 0;  i < procedureIds.size(); i++){
 				String p = procedureIds.get(i);
+				ProcedureDTO proc = impressService.getProcedureByStableId(p + "*");
 				procedures += (i != 0) ? "," :"";
-				procedures += "\"" + pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + "\":\"" + ImpressService.getProcedureUrl(pp.getProcedureByMatchingStableId(p + "%").get(0).getStableKey())  + "\"";
+				procedures += "\"" + proc.getName() + "\":\"" + ImpressService.getProcedureUrl(proc.getStableKey())  + "\"";
 			}
 			procedures += "}";
 			
@@ -109,7 +107,7 @@ public class ParallelCoordinatesController {
 			
 		}
 		
-		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - time) + " ms.");
+		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - totalTime) + " ms.");
 
 		return "parallelFrag";
 	}
@@ -123,56 +121,58 @@ public class ParallelCoordinatesController {
 	 */
 	protected String getJsonForParallelCoordinates(Map<String, ParallelCoordinatesDTO> rows, List<ParameterDTO> parameters){
 		
-		String data = "[";
+		StringBuffer data = new StringBuffer();
+		data.append("[");
 		String defaultMeans = "";
-		String res = "var foods = []; \nvar defaults = {};" ;
-		
+		StringBuffer res = new StringBuffer();
+		res.append("var foods = []; \nvar defaults = {};");
 		if (rows != null){
 			int i = 0;
-	    	for (String key: rows.keySet()){
+			for (String key: rows.keySet()){
 	    		ParallelCoordinatesDTO bean = rows.get(key);
 	    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
 		    		i++;
 		    		String currentRow = bean.toString(false);
 		    		if (!currentRow.equals("")){
-			    		data += "{" + currentRow + "}";
+		    			data.append("{").append(currentRow).append("}");
 			    		if (i < rows.values().size()){
-			    			data += ", ";
+			    			data.append(", ");
 			    		}
 		    		}
 	    		}
 	    		else {
 	    			String currentRow = bean.toString(false);
 	    			defaultMeans += "{" + currentRow + "}\n";
-	    			data += "{" + currentRow + "}";
+	    			data.append("{").append(currentRow).append("}");
 		    		if (i < rows.values().size()){
-		    			data += ", ";
+		    			data.append(", ");
 		    		}
 	    		}
 	    	}
-	    	data +=  "]";
+	    	data.append("]");
 
-	    	res = "var foods = " + data.toString() + "; \n\n var defaults = " + defaultMeans +";";
+	    	res.append("var foods = ").append(data).append("; \n\n var defaults = ").append(defaultMeans).append(";");
 	    	
 	    	if (parameters != null){
-	    		res += "var links = {";
+	    		res.append("var links = {");
 	    		String groups = "var groups = {";
 	    		Set<String> parameterNames =  new HashSet<>();
 	    		for (ParameterDTO p : parameters){
 	    			if (!parameterNames.contains(p.getName())){
 	    				parameterNames.add(p.getName());
-	    				res += "\"" + p.getName() + "\":\"" + ImpressService.getParameterUrl(p.getStableKey()) + "\", ";
+	    				res.append("\"").append(p.getName()).append("\":\"").append(ImpressService.getParameterUrl(p.getStableKey())).append("\", ");
 	    				for (String procedure : p.getProcedureNames()){
 	    					groups += "\"" + p.getName() + "\":\"" + procedure  + "\", ";
 	    				}
 	    			}
 	    		}
 	    		groups += "};";
-	    		res += "};";
-	    		res += groups;
+	    		res.append("};");
+	    		res.append(groups);
 	    	}
 	    	
 		} 
-		return res;
+		
+		return res.toString();
 	}
 }

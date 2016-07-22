@@ -15,6 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -36,29 +57,35 @@ import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OrganisationDAO;
 import org.mousephenotype.cda.db.dao.ProjectDAO;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.service.dto.*;
-import org.mousephenotype.cda.solr.web.dto.*;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
+import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
+import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
+import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO.MeanBean;
+import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 /**
  * Latest version pulled in 2015/07/07
  * @author tudose
@@ -328,9 +355,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
 	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl)
-	throws SolrServerException{
-
-    	TreeMap<String, ParallelCoordinatesDTO> row = new TreeMap<>(getParallelCoordsComparator());
+	throws SolrServerException, MalformedURLException, IOException, URISyntaxException{
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
@@ -356,33 +381,33 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	}
 
     	List<ParameterDTO> parameters = new ArrayList<>(parameterUniqueByStableId);
-
-    	for (ParameterDTO p: parameters){
-
-    		query = new SolrQuery();
-        	query.setQuery("-" + StatisticalResultDTO.STATISTICAL_METHOD + ":Wilcoxon*"); // Decided to omit Wilcoxon because it does not adjust for batch or center effecnt and the value for genotyope effect does not have the same meaning as for the other values.
-        	query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" + p.getStableId() + "\"");
-        	query.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
-        	query.set("group", true);
-        	query.set("group.limit", 10000);
-        	query.set("group.field", StatisticalResultDTO.MARKER_SYMBOL);
-        	query.addField(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE);
-        	query.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
-        	query.addField(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE);
-        	query.addField(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE);
-        	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
-        	query.addField(StatisticalResultDTO.PROCEDURE_NAME);
-        	query.setRows(1000000);
-
-        	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
-        		query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
-        	}
-
-        	row = addMaxGenotypeEffect(solr.query(query), row, p, parameters, baseUrl);
+    	Map<String, ParameterDTO> parameterMap = new HashMap<>();
+    	for (ParameterDTO p: parameterUniqueByStableId){
+    		parameterMap.put(p.getStableId(), p);
     	}
 
-    	row = addDefaultValues(row, parameters);
+    	query = new SolrQuery();
+    	query.setQuery("-" + StatisticalResultDTO.STATISTICAL_METHOD + ":Wilcoxon*"); // Decided to omit Wilcoxon because it does not adjust for batch or center effect and the value for genotyope effect does not have the same meaning as for the other values.
+    	query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" + 
+    			StringUtils.join(parameters.stream().map(ParameterDTO::getStableId).collect(Collectors.toList()), "\" OR " + StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"") + "\"");
+    	query.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
 
+    	query.addField(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE);
+    	query.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
+    	query.addField(StatisticalResultDTO.PARAMETER_STABLE_ID);
+    	query.addField(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE);
+    	query.addField(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE);
+    	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
+    	query.addField(StatisticalResultDTO.PROCEDURE_NAME);
+    	query.addField(StatisticalResultDTO.MARKER_SYMBOL);
+    	query.setRows(Integer.MAX_VALUE);
+
+    	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
+    		query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
+    	}
+    	List<StatisticalResultDTO> result = solr.query(query).getBeans(StatisticalResultDTO.class);
+    	TreeMap<String, ParallelCoordinatesDTO> row = addMaxGenotypeEffects(result, parameterMap, baseUrl);
+    	row = addDefaultValues(row, parameters);
     	row = addMeanValues(row, parameters);
 
     	return row;
@@ -411,7 +436,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, "Normal", allParameterNames);
 
 	    for (ParameterDTO param : allParameterNames){
-	        currentBean.addValue(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), new Double(0.0));
+	        currentBean.addValue(param, new Double(0.0));
 	    }
 
 	    beans.put(ParallelCoordinatesDTO.DEFAULT, currentBean);
@@ -443,7 +468,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	    for (ParameterDTO param : allParameterNames){
 	    	Double mean = new Double(sum.get(param.getName())/n.get(param.getName()));
-	        currentBean.addValue(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), mean);
+	        currentBean.addValue(param, mean);
 	    }
 
 	    beans.put(ParallelCoordinatesDTO.MEAN, currentBean);
@@ -452,59 +477,39 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	}
 
-    private TreeMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, TreeMap<String, ParallelCoordinatesDTO> beans, ParameterDTO p, List<ParameterDTO> allParameterNames, String baseUrl) {
+	private TreeMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffects(List<StatisticalResultDTO> docs, Map<String, ParameterDTO> parameters, String baseUrl) {
 
-    	 List<Group> solrGroups = response.getGroupResponse().getValues().get(0).getValues();
+		TreeMap<String, ParallelCoordinatesDTO> beans = new TreeMap<>(getParallelCoordsComparator());
 
+	   	 for (StatisticalResultDTO doc: docs) {
+	
+	         String geneAccession = null;
+	         Double val = 0.0;
+	
+	         if (doc.getGenotypeEffectParameterEstimate() != null){
+	        	 val = doc.getGenotypeEffectParameterEstimate();
+	         }
+	         if (doc.getFemaleKoParameterEstimate() != null && Math.abs(val) < Math.abs(doc.getFemaleKoParameterEstimate())){
+	        	 val = doc.getFemaleKoParameterEstimate();
+		     }
+	         if (doc.getMaleKoParameterEstimate() != null && Math.abs(val) < Math.abs(doc.getMaleKoParameterEstimate())){
+	             val = doc.getMaleKoParameterEstimate();
+		     }
+	         if (geneAccession == null){
+	           	 geneAccession = doc.getMarkerAccessionId();
+	         }
+	         
+	         String gene = doc.getMarkerSymbol();	
+	         String group = (gene == null) ? "WT " : "Mutant";
+	         ParameterDTO p = parameters.get(doc.getParameterStableId());
+		     ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group) ? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  geneAccession, group, parameters.values());
+		     currentBean.addValue(p, val);
+		     beans.put(gene + " " + group, currentBean);
+	    }
 
-    	 for (Group gr : solrGroups) {
-
-    		 SolrDocumentList resDocs = gr.getResult();
-        	 HashMap<String, Double> dataByGroup = new HashMap<>(); // <center, maxValue> for each gene
-             String geneAccession = null;
-
-        	 for (int i = 0; i < resDocs.getNumFound(); i ++) {
-
-        		 SolrDocument doc = resDocs.get(i);
-                 String center = doc.getFieldValue(StatisticalResultDTO.PHENOTYPING_CENTER).toString();
-                 Double val = 0.0;
-
-                 if (!dataByGroup.containsKey(center)){
-                	 dataByGroup.put(center, null);
-                 }
-
-                 if (doc.containsKey(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE)){
-                	val = new Double(doc.getFieldValue(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE).toString());
-                 }
-                 if (doc.containsKey(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE) && Math.abs(val) < Math.abs(new Double(doc.getFieldValue(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE).toString()))){
-	               	val = new Double(doc.getFieldValue(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE).toString());
-	             }
-                 if (doc.containsKey(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE) && Math.abs(val) < Math.abs(new Double(doc.getFieldValue(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE).toString()))){
-               		 val = new Double(doc.getFieldValue(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE).toString());
-	             }
-
-                 if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
-            		 dataByGroup.put(center, val);
-            	 }
-                 if (geneAccession == null){
-                	 geneAccession = doc.getFieldValue(StatisticalResultDTO.MARKER_ACCESSION_ID).toString();
-                 }
-             }
-
-             String gene = gr.getGroupValue();
-
-             for (String center : dataByGroup.keySet()){
-
-            	 String group = (gene == null) ? "WT " : "Mutant";
-	             ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group)? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  geneAccession, group, allParameterNames);
-	             currentBean.addValue(p.getUnit(), p.getStableId(), p.getName(), null, dataByGroup.get(center));
-	             beans.put(gene + " " + group, currentBean);
-             }
-         }
-
-         return beans;
+        return beans;
 	}
-
+	
 
 	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, List<String> strains, String biologicalSample, String[] center, String[] sex)
 	throws SolrServerException {
