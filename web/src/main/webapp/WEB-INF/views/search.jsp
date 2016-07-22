@@ -27,6 +27,7 @@
 				<li id="anatomyT"><a href="${baseUrl}/search/anatomy?kw=*">Anatomy</a></li>
 				<li id="impc_imagesT"><a href="${baseUrl}/search/impc_images?kw=*&showImgView=false">Images</a></li>
 				<!-- li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li-->
+				<li id="allele2T"><a href="${baseUrl}/search/allele2?kw=*&showImgView=false">Products</a></li>
 			</ul>
 		</div>
 		<!--<div><div id="resultMsg"></div><div class='saveTable'></div></div>-->
@@ -230,6 +231,43 @@
 							<ul>
 								<li class="fmcat" id="images">
 									<span class="flabel">Images</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<div class="clear"></div>
+						<div class='saveTable'></div>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable, mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+
+		<div id="allele2Tab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="allele2">
+									<span class="flabel">Products</span>
 									<span class="fcount"></span>
 									<ul></ul>
 								</li>
@@ -542,6 +580,10 @@
 
 							// register interest js
 							addRegisterInterestJs();
+
+							if (coreName == 'allele2'){
+								decodeAlleleName();
+							}
 						}
 					}
 
@@ -559,6 +601,12 @@
 				fetchResultByFilters();
 
 				//------------------------- FUNCTIONS ------------------------
+
+			function decodeAlleleName(){
+				$('span.allelename').each(function(){
+					$(this).html(decodeURI($(this).html()));
+				});
+			}
 
 			function highlighSynonym(){
 

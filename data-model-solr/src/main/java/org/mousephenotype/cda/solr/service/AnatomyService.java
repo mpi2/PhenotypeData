@@ -229,7 +229,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		solrQuery.setFields(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-
+		System.out.println("AnatomyService: " + solrQuery);
 		ArrayList<String> uberonIds = new ArrayList<String>();
 		if (res.getNumFound() > 1) {
 			System.err.println("Warning - more than 1 anatomy term found where we only expect one doc!");

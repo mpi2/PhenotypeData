@@ -9,10 +9,18 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/anatomy?kw=*">anatomy</a> &raquo; ${anatomy.getAnatomyTerm()}</jsp:attribute>
 	<jsp:attribute name="header">
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
-        
+        <style>
+			ul#tissues li.mahighlight {
+				color: #E2701E;
+			}
+
+		</style>
+
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
        	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
        	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>
+		<script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>
        	    	
 	</jsp:attribute>
 	
@@ -70,13 +78,18 @@
 												</c:forEach>
 											</p>	
 										</c:if>	
-										<p class="with-label"> <span class="label">Stage </span>
+										<p class="with-label"> <span class="label">Stage</span>
 											<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
 											<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
 										</p>
-										
+
+										<c:if test="${not empty anatomogram}">
+											<p class="with-label"> <span class="label" id="anatomogram"></span>
+											<span id="tissueList"></span></p>
+										</c:if>
+
 									</div>
-						
+									<%--<div class="clear"></div>--%>
 									<div id="parentChild" class="half">
 										<h4>Browse mouse anatomy ontology</h4>
 										<c:if test="${hasChildren && hasParents}">
@@ -92,7 +105,8 @@
 									</div>
 										
 									<div class="clear"></div>
-								</div>					
+								</div>
+
 							</div>
 							
 							<div class="section" id="expression"> 
@@ -326,6 +340,114 @@
 				newUrl += selectedFilters;
 				refreshAnatomyTable(newUrl);
 				return false;
+			}
+
+		console.log('${anatomogram}');
+
+			if (Object.keys('${anatomogram}')) {
+
+				// anatomogram stuff
+				var expData = JSON.parse('${anatomogram}');
+				var topLevelName2maIdMap = expData.topLevelName2maIdMap;
+				var maId2UberonMap = expData.maId2UberonMap;
+				var uberon2MaIdMap = expData.uberon2MaIdMap;
+				var maId2topLevelNameMap = expData.maId2topLevelNameMap;
+
+				var anatomogramData = {
+
+					"maleAnatomogramFile": "mouse_male.svg",
+					"toggleButtonMaleImageTemplate": "/resources/images/male",
+					"femaleAnatomogramFile": "mouse_female.svg",
+					"toggleButtonFemaleImageTemplate": "/resources/images/female",
+					"brainAnatomogramFile": "mouse_brain.svg",
+					"toggleButtonBrainImageTemplate": "/resources/images/brain",
+
+					// all tested tissues (expressed + tested but not expressed)
+					"allSvgPathIds": expData.allPaths,
+					// test only
+					//"allSvgPathIds": [],
+					//"allSvgPathIds": ["UBERON_0000029", "UBERON_0001736", "UBERON_0001831"], // lymph nodes
+					//"allSvgPathIds": ["UBERON_0000947", "UBERON_0001981", "UBERON_0001348", "UBERON_0001347", "EFO_0000962"],
+
+					"contextRoot": "/gxa"
+				};
+
+				// tissues having expressions
+				var profileRows = [
+					{
+						"name": "tissues with expression",
+						"expressions": expData.expression
+					}
+				];
+
+				//console.log(profileRows);
+
+				var eventEmitter = expressionAtlasAnatomogram.eventEmitter;
+
+				expressionAtlasAnatomogram.render(
+						document.getElementById("anatomogram"),
+						anatomogramData,
+						profileRows,
+						"grey",
+						"red"
+						// "vader" is equivalent to <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/vader/jquery-ui.css">
+				);
+
+				// top level MA term talks to anatomogram
+				var topListContainer = $("<ul></ul>").attr({'id':'tissues'});
+
+				var topLevelNames = Object.keys(topLevelName2maIdMap);
+				//console.log("top level names : "+ topLevelNames);
+				for ( var n=0; n<topLevelNames.length; n++) {
+					var liContainer = $("<li></li>").append(topLevelNames[n]);
+					topListContainer.append(liContainer);
+				}
+				$('span#tissueList').html(topListContainer);
+
+				$("ul#tissues li").on("mouseover", function() {
+					var topname = $(this).text();
+
+					var maIds = topLevelName2maIdMap[topname];
+
+					var uberonIds = [];
+					for( var a=0; a<maIds.length; a++){
+						uberonIds = uberonIds.concat(maId2UberonMap[maIds[a]]);
+					}
+					uberonIds = $.fn.getUnique(uberonIds);
+
+					//console.log(topname + " : " + uberonIds);
+
+					eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
+					//eventEmitter.emit("gxaHeatmapColumnHoverChange", "UBERON_0000955"); // test for brain
+				}).on("mouseout", function(){
+					eventEmitter.emit("gxaHeatmapColumnHoverChange", "");
+				});
+
+				// anatomogram tissue talks to MA list
+				eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
+					//console.log(e)
+
+					var maIds = uberon2MaIdMap[e];
+					var topLevelNames = [];
+					for( var i=0; i<maIds.length; i++) {
+						var tops = maId2topLevelNameMap[maIds[i]];
+						for (var j=0; j<tops.length; j++){
+							topLevelNames.push(tops[j]);
+						}
+					}
+
+					topLevelNames = $.fn.getUnique(topLevelNames);
+
+					$('ul#tissues li').each(function () {
+						if ($.fn.inArray($(this).text(), topLevelNames)) {
+							$(this).addClass("mahighlight");
+						}
+					});
+
+				});
+				eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
+					$('ul#tissues li').removeClass("mahighlight");
+				});
 			}
 			
 	});				
