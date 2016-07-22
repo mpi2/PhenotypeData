@@ -12,7 +12,6 @@
 		      				'rgb(191, 151, 50)',
 		      				'rgb(247, 157, 70)',
 		      				'#0978A1'];
-		var trueSelf = this;
 		var self = {}, dimensions, dragging = {}, highlighted = null, highlighted2 = null, container = d3.select("#parallel");
 		var text = null;
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
@@ -23,7 +22,6 @@
 		var geneList = [];
 		cars.map(function(d,i){geneList.push(d.name);});
 		
-		
 		for (var key in groups){
 			if (!axisColors[groups[key]]){
 				axisColors[groups[key]] = labelColorList[i];
@@ -32,7 +30,9 @@
 		}
 		
 		self.update = function(data, defaults) {
-		};
+  			cars = data;
+  		};
+
 
 		function redraw(){
 			self.render();
@@ -50,6 +50,8 @@
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
 			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			var labelXStart = []; 
+
+			legend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)");
 			
 			legend.selectAll("g.legendCells")
 			    .data(Object.keys(axisColors))
@@ -99,8 +101,6 @@
 			}
 				
 			var svg = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-			
-			legend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)");
 			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
@@ -205,6 +205,7 @@
 			// Handles a brush event, toggling the display of foreground lines.
 			function brush() {
 				var actives = dimensions.filter(function(p) {
+					console.log("Call this " + p);
 					return !y[p].brush.empty();
 				});
 
