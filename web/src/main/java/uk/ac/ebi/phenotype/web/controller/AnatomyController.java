@@ -27,13 +27,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
-import org.mousephenotype.cda.solr.service.AnatomyService;
-import org.mousephenotype.cda.solr.service.ExpressionService;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.OntologyBean;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -121,8 +117,11 @@ public class AnatomyController {
 		Map<String, Integer> pieData = new HashMap<>();
 		pieData.put("Phenotype present ", genesWithPhenotype);
 		pieData.put("No phenotype ", genesWithoutPhenotype);
-		
-		
+		List<AnatomogramDataBean> anatomogramDataBeans = getAnatomogramBeanByAnatomyTerm(anatomyTerm);
+		System.out.println("check bean: "+ anatomogramDataBeans);
+		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
+
+		System.out.println("check anatomogram: " + anatomogram);
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("genesWithExpression", expressionService.getGenesWithExpression(anatomy));
@@ -134,9 +133,26 @@ public class AnatomyController {
         // Stuff for parent-child display
         model.addAttribute("hasChildren", (anatomyTerm.getChildAnatomyId() != null && anatomyTerm.getChildAnatomyId().size() > 0) ? true : false);
         model.addAttribute("hasParents", (anatomyTerm.getParentAnatomyId() != null && anatomyTerm.getParentAnatomyId().size() > 0) ? true : false);
+		model.addAttribute("anatomogram", anatomogram);
 
         return "anatomy";
 
+	}
+
+	private List<AnatomogramDataBean> getAnatomogramBeanByAnatomyTerm(AnatomyDTO anatomyTerm) throws SolrServerException {
+
+		List<AnatomogramDataBean> AnatomogramDataBeans = new ArrayList<>();
+		AnatomogramDataBean bean = new AnatomogramDataBean();
+		bean.setMaId(anatomyTerm.getAnatomyId());
+		bean.setMaTerm(anatomyTerm.getAnatomyTerm());
+		// this method for getting uberon ids needs to be changed so
+		// we get the associated intermediate terms so we include
+		// all possible uberon ids
+		// higher up the tree to display on the anatomogram
+		bean = anatomyService.getUberonIdAndTopLevelMaTerm(bean);
+		AnatomogramDataBeans.add(bean);
+
+		return AnatomogramDataBeans;
 	}
 
 	private ArrayList<AnatomyPageTableRow> collapseCategoricalAndImageRows(List<AnatomyPageTableRow> anatomyTable,

@@ -80,6 +80,9 @@ public class SolrIndex {
 	@Qualifier("impcImagesCore")
 	HttpSolrServer impcImagesCore;
 
+	@Autowired
+	@Qualifier("allele2Core")
+	HttpSolrServer allele2Core;
 
 	private List<String> phenoStatuses = new ArrayList<String>();
 
@@ -95,6 +98,7 @@ public class SolrIndex {
 			case "disease" : return diseaseCore;
 			case "anatomy" : return anatomyCore;
 			case "impc_images" : return impcImagesCore;
+			case "allele2" : return allele2Core;
 		}
 		return geneCore;
 	}
@@ -376,7 +380,13 @@ public class SolrIndex {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json";
 //			System.out.println("IKMC ALLELE PARAMS: " + url);
-		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) { // download search page result
+		}
+		else if ( mode.equals("allele2Grid")){
+			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
+					+ iDisplayLength;
+			//System.out.println("ALLELE2 PARAMS: " + url);
+		}
+		else if (mode.equals("all") || mode.equals("page") || mode.equals("")) { // download search page result
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows=" + iDisplayLength;
 			if (core.equals("images") && !showImgView) {
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";

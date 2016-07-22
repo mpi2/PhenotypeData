@@ -206,7 +206,7 @@ div#tabs {
 }
 
 ul.tabLabel{
-	margin-left: 30px;
+	margin-left: 15px;
 	margin-bottom: 0px;
 	height: 27px;
 	/*border-bottom: 1px solid grey;*/
@@ -226,7 +226,7 @@ ul.tabLabel li {
 }
 
 ul.tabLabel li a {
-	padding: 0 30px 2px 30px;
+	padding: 0 15px 2px 15px;
 	color: white;
 	text-decoration: none;
 	font-weight: bold;

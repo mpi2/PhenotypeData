@@ -101,6 +101,9 @@ public class SearchController {
 			Model model) throws IOException, URISyntaxException {
 
 //		System.out.println("path: /search/" + dataType);
+		if ( query.equals("*") ){
+			query = "*:*";
+		}
 
 		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
 	}
@@ -190,40 +193,37 @@ public class SearchController {
 	public JSONObject fetchAllFacetCounts(String dataType, String query, String fqStr, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 
 		JSONObject qryBrokerJson = new JSONObject();
+		if ( query.equals("*") ){
+			query = "*:*";
+		}
 		String qStr = "q=" + query;
 
 		String fqStrOri = fqStr;
-		String defaultFq = searchConfig.getFqStr(dataType, fqStr);
+		String defaultFq = searchConfig.getFqStr(dataType);
 		fqStr = fqStr == null ? defaultFq : defaultFq + " AND " + fqStr;
 
+		String qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
 		Map<String, String> coreFq = new HashMap<>();
 
-		List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images"});
+
+		List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "allele2"});
 		for( int i=0; i<cores.size(); i++ ){
 			String thisCore = cores.get(i);
 			if ( dataType.equals(thisCore) ){
-				coreFq.put(dataType, "&fq="+fqStr);
+				//coreFq.put(dataType, "&fq="+fqStr);
+				qryBrokerJson.put(thisCore, qStr + "&fq="+fqStr + qfDefTypeWt);
 			}
 			else {
-				coreFq.put(thisCore, "&fq=" + searchConfig.getFqStr(thisCore, fqStrOri));
+				//coreFq.put(thisCore, "&fq=" + searchConfig.getFqStr(thisCore, fqStrOri));
+				qryBrokerJson.put(thisCore, qStr + "&fq=" + searchConfig.getFqStr(thisCore) + qfDefTypeWt);
 			}
+
 		}
 
-		String qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
-
-		qryBrokerJson.put("gene", qStr + coreFq.get("gene") + qfDefTypeWt);
-		qryBrokerJson.put("mp", qStr + coreFq.get("mp") + qfDefTypeWt);
-		qryBrokerJson.put("disease", qStr + coreFq.get("disease") + qfDefTypeWt);
-		qryBrokerJson.put("anatomy", qStr + coreFq.get("anatomy") + qfDefTypeWt);
-		//qryBrokerJson.put("images", 	qStr + coreFq.get("images") + qfDefTypeWt);
-		qryBrokerJson.put("impc_images", qStr + coreFq.get("impc_images") + qfDefTypeWt);
-
-//		System.out.println("gene: " + qStr + coreFq.get("gene") + qfDefTypeWt);
-//		System.out.println("mp: " + qStr + coreFq.get("mp") + qfDefTypeWt);
-//		System.out.println("disease: " + qStr + coreFq.get("disease") + qfDefTypeWt);
-//		System.out.println("anatomy: " + qStr + coreFq.get("anatomy") + qfDefTypeWt);
-//		System.out.println("impc_images: " + qStr + coreFq.get("impc_images") + qfDefTypeWt);
-//		System.out.println("images: " + qStr + coreFq.get("images") + qfDefTypeWt);
+		// test
+//		for ( String core : cores ){
+//			System.out.println(core + " : " + qryBrokerJson.get(core));
+//		}
 
 		String subfacet = null;
 		return queryBrokerController.createJsonResponse(subfacet, qryBrokerJson, request);

@@ -54,6 +54,9 @@
 		else if ( core == "images" ){
 			displayImagesFacet(json);
 		}
+		else if ( core == "allele2" ){
+			displayProductFacet(json);
+		}
 		$('div.facetSrchMsg').html("");
 	}
 
@@ -819,6 +822,121 @@
 
 	}
 
+	function displayProductFacet(json) {
+console.log(json);
+		var self = this;
+		var numFound = json.iTotalRecords;
+		var foundMatch = {'mutation_type_str':0, 'allele_category_str':0, 'es_cell_available':0, 'mouse_available':0, 'targeting_vector_available':0};
+
+		var coreName = "allele2";
+		$('li#'+ coreName + ' > span.fcount').text(numFound);
+
+		/*-------------------------------------------------------*/
+		/* ------ displaying sidebar and update dataTable ------ */
+		/*-------------------------------------------------------*/
+
+		if (numFound > 0) {
+
+			// Subfacets: availability for es cells, mouse, targeting vector
+			//var thisUlContainer = $("<ul></ul>");
+
+			var oSubFacets = {'targeting_vector_available':'Targeting Vector Available', 'es_cell_available':'ES Cell Availale', 'mouse_available':'Mouse Available'};
+			for ( var fq in oSubFacets ){
+
+				var aData = json.facet_fields[fq];
+				for ( var i=0; i<aData.length; i=i+2 ){
+
+					var subFacetName = aData[i];
+					if ( subFacetName == "true") { // ie, available
+						var displayedSubFacetName = oSubFacets[fq];
+						var liContainer = $("<li></li>").attr({'class': 'fcat ' + fq});
+						var count = aData[i + 1];
+						foundMatch[fq]++;
+
+						var coreField = coreName + '|' + fq + '|';
+						var trClass = fq + 'Tr';
+						var isGrayout = count == 0 ? 'grayout' : '';
+						liContainer.removeClass('grayout').addClass(isGrayout);
+
+						var chkbox = $('<input></input>').attr({
+							'type': 'checkbox',
+							'rel': coreField + subFacetName + '|' + count + '|' + fq
+						});
+						var flabel = $('<span></span>').attr({'class': 'flabel'}).text(displayedSubFacetName);
+						var fcount = $('<span></span>').attr({'class': 'fcount'}).text(count);
+
+						liContainer.append(chkbox, flabel, fcount);
+						//thisUlContainer.append(liContainer);
+						$('div.flist li#' + coreName + ' > ul').append(liContainer);
+					}
+				}
+			}
+
+
+			// Subfacets: mutation_tyoe / allele category
+			var oSubFacets1 = {'mutation_type_str':'Mutation Type', 'allele_category_str':'Allele Category'};
+			for ( var fq in oSubFacets1 ){
+				var label = oSubFacets1[fq];
+				var aData = json.facet_fields[fq];
+
+				//table.append($('<tr></tr>').attr({'class':'facetSubCat '+ trCap + ' ' + fq}).append($('<td></td>').attr({'colspan':3}).text(label)));
+				var thisFacetSect = $("<li class='fcatsection " + fq + "'></li>");
+				thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));
+
+				var unclassified;
+				var thisUlContainer = $("<ul></ul>");
+
+				for ( var i=0; i<aData.length; i=i+2 ){
+					var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
+
+					var subFacetName = aData[i];
+
+					var count = aData[i+1];
+					foundMatch[fq]++;
+
+					var coreField = coreName + '|'+ fq + '|';
+					var trClass = fq+'Tr';
+					var isGrayout = count == 0 ? 'grayout' : '';
+					liContainer.removeClass('grayout').addClass(isGrayout);
+
+					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count + '|' +fq});
+					var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
+					var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+
+					liContainer.append(chkbox, flabel, fcount);
+					thisUlContainer.append(liContainer);
+				}
+
+				thisFacetSect.append(thisUlContainer);
+				$('div.flist li#' + coreName + ' > ul').append(thisFacetSect);
+			}
+
+
+			// no actions allowed when facet count is zero
+			$.fn.cursorUpdate(coreName, 'not-allowed');
+
+			// mutation_type is open and rest of disease subfacets are collapsed by default
+			$('div.flist li#allele2 > ul li:nth-child(1)').addClass('open');
+
+			var selectorBase = 'div.flist li#' + coreName;
+			// collapse all subfacet first, then open the first one that has matches
+			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
+			$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+
+			// change cursor for grayout filter
+			$.fn.cursorUpdate(coreName, 'not-allowed');
+
+			$.fn.initFacetToggles(coreName);
+
+			$('li#' + coreName + ' li.fcat input').click(function(){
+
+				// highlight the item in facet
+				updateCheckedFilter($(this));
+			});
+
+		}
+
+	}
 
 	function updateCheckedFilter(thisObj){
 		if ( !thisObj.siblings('span.flabel').hasClass('filterCheck')) {

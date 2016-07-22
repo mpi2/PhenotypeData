@@ -45,11 +45,12 @@ public class SearchConfig {
         sorting.put("anatomy", "&sort=term asc");
         sorting.put("impc_images", "");  // these have multivalue fields, not sortable
         //sorting.put("images", "");  // these have multivalue fields, not sortable
+        sorting.put("allele2", "&sort=allele_name asc");
 
         return sorting.get(coreName);
     }
 
-    public String getFqStr(String coreName, String fqStr) {
+    public String getFqStr(String coreName) {
 
         Map<String, String> coreDefault = new HashMap<>();
 
@@ -59,6 +60,7 @@ public class SearchConfig {
         coreDefault.put("anatomy", "*:*");
         coreDefault.put("impc_images", "*:*");
         //coreDefault.put("images", "*:*");
+        coreDefault.put("allele2", "*:*");
 
         return coreDefault.get(coreName);
     }
@@ -121,6 +123,7 @@ public class SearchConfig {
         labelMap.put("anatomy", "Anatomy");
         labelMap.put("impc_images", "IMPC Images");
         //labelMap.put("images", "Images");
+        labelMap.put("allele2", "Products");
     }
     public String getBreadcrumLabel(String coreName) {
       return labelMap.get(coreName);
@@ -191,12 +194,23 @@ public class SearchConfig {
 //                "smallThumbnailFilePath",
 //                "largeThumbnailFilePath");
 
+        List<String> allele2Fields = Arrays.asList("marker_symbol",
+                "allele_name",
+                "mutation_type",
+                "es_cell_available",
+                "mouse_available",
+                "targeting_vector_available",
+                "allele_category"
+              );
+
+
         fieldMap.put("gene", geneFields);
         fieldMap.put("mp", mpFields);
         fieldMap.put("disease", diseaseFields);
         fieldMap.put("anatomy", anatomyFields);
         fieldMap.put("impc_images", impc_imagesFields);
         //fieldMap.put("images", imagesFields);
+        fieldMap.put("allele2", allele2Fields);
 
     }
 
@@ -225,6 +239,7 @@ public class SearchConfig {
         List<String> anatomyFacets =  Arrays.asList("selected_top_level_anatomy_term", "stage");
         //List<String> imagesFacets =  Arrays.asList("procedure_name", "top_level_mp_term", "selected_top_level_anatomy_term", "marker_type");
         List<String> impc_imagesFacets =  Arrays.asList("procedure_name", "selected_top_level_anatomy_term", "stage");
+        List<String> allele2Facets =  Arrays.asList("mutation_type_str", "es_cell_available", "mouse_available", "targeting_vector_available", "allele_category_str");
 
         facetMap.put("gene", geneFacets);
         facetMap.put("mp", mpFacets);
@@ -232,6 +247,7 @@ public class SearchConfig {
         facetMap.put("anatomy", anatomyFacets);
         //facetMap.put("images", imagesFacets);
         facetMap.put("impc_images", impc_imagesFacets);
+        facetMap.put("allele2", allele2Facets);
 
     }
 
@@ -242,6 +258,7 @@ public class SearchConfig {
         facetSortMap.put("anatomy", "index");
         facetSortMap.put("impc_images", "index");
         //facetSortMap.put("images", "index");
+        facetSortMap.put("allele2", "count");
     }
 
     public String getBqStr(String coreName, String q) {
@@ -289,6 +306,9 @@ public class SearchConfig {
 //                    + " expName:(" + q + ")^500"
 //                    + " symbol:(" + q + ")^500");
 //        }
+        else if (coreName.equals("allele2")) {
+            bqMap.put("allele2", "allele_name:(" + q + ")^500");
+        }
 
         return "&bq=" + bqMap.get(coreName);
 
@@ -305,6 +325,7 @@ public class SearchConfig {
 
         List<String> impc_imagesCols = Arrays.asList("Name", "Images");
         List<String> imagesCols = Arrays.asList("Name", "Image(s)");
+        List<String> allele2Cols = Arrays.asList("Allele name", "Gene Symbol", "Mutation Type");
 
         gridHeaderMap.put("gene", geneCols);
         gridHeaderMap.put("mp", mpCols);
@@ -312,6 +333,8 @@ public class SearchConfig {
         gridHeaderMap.put("anatomy", maCols);
         gridHeaderMap.put("impc_images", impc_imagesCols);
         //gridHeaderMap.put("images", imagesCols);
+        gridHeaderMap.put("allele2", allele2Cols);
+
     }
 
 

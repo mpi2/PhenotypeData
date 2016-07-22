@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.sql.Connection;
@@ -607,12 +608,52 @@ public class DataTableController {
             jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName);
         } else if (mode.equals("gene2go")) {
             jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
-        }
+        } else if (mode.equals("allele2Grid")) {
+			jsonStr = parseJsonforProductDataTable(json, request, solrCoreName);
+		}
 
         return jsonStr;
     }
 
-    public String parseJsonforGoDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, String evidRank) {
+	public String parseJsonforProductDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) throws UnsupportedEncodingException {
+
+		String baseUrl = request.getAttribute("baseUrl").toString();
+
+		JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);
+
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+		int totalDocs = json.getJSONObject("response").getInt("numFound");
+
+		j.put("iTotalRecords", totalDocs);
+		j.put("iTotalDisplayRecords", totalDocs);
+		j.put("iDisplayStart", request.getAttribute("displayStart"));
+		j.put("iDisplayLength", request.getAttribute("displayLength"));
+
+		for (int i = 0; i < docs.size(); i ++) {
+			List<String> rowData = new ArrayList<String>();
+
+			// array element is an alternate of facetField and facetCount
+			JSONObject doc = docs.getJSONObject(i);
+
+			String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
+			String markerSymbol = doc.getString("marker_symbol");
+			String mutationType = doc.getString("mutation_type");
+
+			rowData.add(alleleName);
+			rowData.add(markerSymbol);
+			rowData.add(mutationType);
+
+			j.getJSONArray("aaData").add(rowData);
+		}
+
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+		j.put("facet_fields", facetFields);
+
+		return j.toString();
+	}
+
+	public String parseJsonforGoDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, String evidRank) {
 
         String hostName = request.getAttribute("mappedHostname").toString();
         String baseUrl = request.getAttribute("baseUrl").toString();
