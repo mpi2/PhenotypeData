@@ -106,6 +106,9 @@ public class GenomicFeature {
 	@Column(name = "cm_position")
 	private String cMposition;
 
+	@Column(name = "status")
+	private String status;
+
 	public GenomicFeature() {
 		super();
 	}
@@ -315,6 +318,21 @@ public class GenomicFeature {
 		this.cMposition = cMposition;
 	}
 
+	/**
+	 * @return the status
+     */
+	public String getStatus() {
+		return status;
+	}
+
+	/**
+	 * Set status
+	 *
+	 * @param status
+     */
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
 	@Override
 	public String toString() {

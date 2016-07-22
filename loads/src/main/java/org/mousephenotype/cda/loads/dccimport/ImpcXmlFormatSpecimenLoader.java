@@ -26,7 +26,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
@@ -49,7 +48,7 @@ import static org.mousephenotype.cda.db.utilities.SqlUtils.setSqlParameter;
 /**
  * Load specimen data that was encoded using the IMPC XML format
  */
-@Component
+//@Component
 public class ImpcXmlFormatSpecimenLoader {
 
 	// Required by the Harwell DCC export utilities
