@@ -69,7 +69,7 @@
 			'defaultValues' : defaults
 		});
 
-		var columns = _(foods[0]).keys();
+		var columns = _(foods[0]).keys().filter(function(d,i){ return (d != "group");}); // don't show group column in table
 		var axes = _(columns).without('name', 'accession', 'group');
 		var foodgroups = [ "Mutant", "Mean"];
 		var colors = {
