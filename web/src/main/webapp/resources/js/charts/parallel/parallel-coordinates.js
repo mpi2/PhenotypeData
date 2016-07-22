@@ -205,7 +205,6 @@
 			// Handles a brush event, toggling the display of foreground lines.
 			function brush() {
 				var actives = dimensions.filter(function(p) {
-					console.log("Call this " + p);
 					return !y[p].brush.empty();
 				});
 
