@@ -47,7 +47,7 @@
         
        <!-- <th class="headerSort">Source</th> -->
         <th>P Value</th>
-        <th class="headerSort">Graph</th>
+        <th class="headerSort">Data</th>
     </tr>
     </thead>
     <tbody>

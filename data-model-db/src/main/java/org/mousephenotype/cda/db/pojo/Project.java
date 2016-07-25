@@ -177,6 +177,11 @@ public class Project implements Serializable {
 		return true;
 	}
 
-
-
+	@Override
+	public String toString() {
+		return "Project{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				'}';
+	}
 }

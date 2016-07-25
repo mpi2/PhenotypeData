@@ -30,12 +30,12 @@ import java.nio.file.Paths;
  * Created by mrelac on 22/06/2015.
  *
  * This class encapsulates the code and data necessary to represent the PhenotypeArchive data loading step that fetches
- * the imsr report file.
+ * the imsr IMSR_report file.
  */
 public class DownloadIMSRReport {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String IMSR_URL = "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=";
-    private final String TARGET = "./imsr/report.txt";
+    private final String TARGET = "./imsr/IMSR_report.txt";
 
     public DownloadIMSRReport() throws IOException {
 

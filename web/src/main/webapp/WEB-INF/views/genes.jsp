@@ -24,9 +24,7 @@
 			            <li><a href="#top">Gene</a></li>
 			            <li><a href="#section-associations">Phenotype Associations</a></li>
 			            <!--  always a section for this even if says no phenotypes found - do not putting in check here -->
-			            <%-- <c:if test="${phenotypeStarted}">--%>
-			                <li><a href="#heatmap">Heatmap</a></li>
-				        <%-- </c:if>--%>
+			            
 
 						<li><a href="#section-expression">Expression</a></li>
 
@@ -49,30 +47,6 @@
 
 				</div>
 				<!--  end of floating menu for genes page -->
-
-				<c:if test="${phenotypeStarted}">
-					<script type="text/javascript"
-							src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
-					<!--[if !IE]><!-->
-					<script>
-						dcc.heatmapUrlGenerator = function (genotype_id, type) {
-							return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
-						};
-					</script>
-					<!--<![endif]-->
-					<!--[if gte IE 9]>
-					<script>
-					dcc.heatmapUrlGenerator = function(genotype_id, type) {
-					return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
-					};
-					</script>
-					<![endif]-->
-					
-					<script>
-						//new dcc.PhenoHeatMap('procedural', 'phenodcc-heatmap', 'Fam63a', 'MGI:1922257', 6, '//dev.mousephenotype.org/heatmap/rest/heatmap/');
-						
-					</script>
-				</c:if>
 
 			</jsp:attribute>
 
@@ -132,30 +106,68 @@
 						$('#heatmap_link').click(function(){
 							console.log('heatmap link clicked');
 							
-							$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
-							if(!heatmap_generated){
-								new dcc.PhenoHeatMap({
-									/* identifier of <div> node that will host the heatmap */
-									'container': 'phenodcc-heatmap',
-									/* colony identifier (MGI identifier) */
-									'mgiid': '${gene.mgiAccessionId}',
-									/* default usage mode: ontological or procedural */
-									'mode': 'ontological',
-									/* number of phenotype columns to use per section */
-									'ncol': 5,
-									/* heatmap title to use */
-									'title': '${gene.markerSymbol}',
-									'url': {
-										/* the base URL of the heatmap javascript source */
-										'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-										/* the base URL of the heatmap data source */
-										'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
-										/* function that generates target URL for data visualisation */
-										'viz': dcc.heatmapUrlGenerator
-									}
-								});
-								heatmap_generated=1;
-							}
+							/* //load the css
+							var cssId = 'myCss';  // you could encode the css path itself to generate id..
+							if (!document.getElementById(cssId))
+							{
+							    var head  = document.getElementsByTagName('head')[0];
+							    var link  = document.createElement('link');
+							    link.id   = cssId;
+							    link.rel  = 'stylesheet';
+							    link.type = 'text/css';
+							    link.href = '${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css';
+							    link.media = 'all';
+							    head.appendChild(link);
+							} */
+							
+							if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
+								$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
+								if(!heatmap_generated){
+									
+								
+									
+									
+									
+									//load the js required to make the heatmap css as well on dev took 600ms or more.
+									
+									var script = document.createElement('script');
+									script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
+									script.onload = function () {
+										
+										//do stuff with the script
+										new dcc.PhenoHeatMap({
+											/* identifier of <div> node that will host the heatmap */
+											'container': 'phenodcc-heatmap',
+											/* colony identifier (MGI identifier) */
+											'mgiid': '${gene.mgiAccessionId}',
+											/* default usage mode: ontological or procedural */
+											'mode': 'ontological',
+											/* number of phenotype columns to use per section */
+											'ncol': 5,
+											/* heatmap title to use */
+											'title': '${gene.markerSymbol}',
+											'url': {
+												/* the base URL of the heatmap javascript source */
+												'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
+												/* the base URL of the heatmap data source */
+												'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
+												/* function that generates target URL for data visualisation */
+												'viz': dcc.heatmapUrlGenerator
+											}
+										});
+										heatmap_generated=1;
+										
+									};
+	
+								document.head.appendChild(script);
+									
+									
+									
+								}//end of if heatmap generated
+							
+						}
+							
+							
 						});
 						
 						
@@ -358,6 +370,7 @@
 					<![endif]-->
 				</c:if>
 
+
 			</jsp:attribute>
 
 		<jsp:body>
@@ -395,7 +408,7 @@
 
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
 									
-									<a id="heatmap_link">preliminary data</a>
+									<a id="heatmap_link">Show Preliminary Data</a>
 								</div>
 
 							</div>
