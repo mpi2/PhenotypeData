@@ -665,7 +665,7 @@ public class FileExportController {
 					: (iDisplayStart + iDisplayLength) * 2;
 
 			for (int i = start; i < end; i = i + 2) {
-				List<String> data = new ArrayList();
+				List<String> data = new ArrayList<>();
 				// array element is an alternate of facetField and facetCount
 
 				String[] names = sumFacets.get(i).toString().split("_");

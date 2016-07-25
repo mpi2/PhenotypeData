@@ -20,7 +20,7 @@
 		var i = 0;
 		var inactiveGroups = [];
 		var geneList = [];
-		cars.map(function(d,i){geneList.push(d.name);});
+		model.get('filtered').map(function(d,i){geneList.push(d.name);});
 		
 		for (var key in groups){
 			if (!axisColors[groups[key]]){
@@ -31,8 +31,12 @@
 		
 		self.update = function(data, defaults) {
   			cars = data;
+  			geneList = [];
+  			model.get('filtered').map(function(d,i){geneList.push(d.name);});
   		};
 
+  		model.bind('change:filtered', function() { self.update()});
+  		
 
 		function redraw(){
 			self.render();
@@ -205,7 +209,6 @@
 			// Handles a brush event, toggling the display of foreground lines.
 			function brush() {
 				var actives = dimensions.filter(function(p) {
-					console.log("Call this " + p);
 					return !y[p].brush.empty();
 				});
 
@@ -293,8 +296,7 @@
 						return x(d) + 5;
 					}).attr("y", function(d) {
 						return y[d](defaults[d]) - 5;
-					}).text("No data")
-					;
+					}).text("No data");
 
 				}
 			};

@@ -99,7 +99,7 @@
       var self = this;
       var filter = this.get('filter');
       for (key in this.get('filter')) {
-    	  if (d[key] == null || d[key] == 'NA'){
+    	  if (d[key] == null || d[key] == 'N/A'){
     		  if ((self.get('defaultValues'))[key] < filter[key].min || ((self.get('defaultValues'))[key] > filter[key].max)){
     			  return false;
   			  }

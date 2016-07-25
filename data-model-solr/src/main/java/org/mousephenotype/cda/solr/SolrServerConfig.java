@@ -146,9 +146,7 @@ public class SolrServerConfig {
 
 	//ANATOMY
 	@Bean(name = "anatomyCore")
-	HttpSolrServer getAnatomyCore() {
-		return new HttpSolrServer(solrBaseUrl + "/anatomy");
-	}
+	HttpSolrServer getAnatomyCore() { return new HttpSolrServer(solrBaseUrl + "/anatomy");	}
 
 	//MP
 	@Bean(name = "mpCore")

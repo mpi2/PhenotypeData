@@ -181,7 +181,7 @@ public class MpService extends BasicService implements WebStatus{
 	throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId + " AND " + MpDTO.MP_ID + ":\"" + termId + "\"")
+				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
 				.setRows(1);
 		solrQuery.addField(MpDTO.CHILDREN_JSON);
 

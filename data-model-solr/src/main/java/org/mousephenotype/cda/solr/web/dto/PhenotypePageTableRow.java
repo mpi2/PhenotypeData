@@ -100,7 +100,7 @@ public class PhenotypePageTableRow extends DataTableRow {
      * ! Keep in synch with order in getTabbedToString !
      */
     public static String getTabbedHeader(){
-    	return "Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tGraph";
+    	return "Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tData";
     }
     
     /**
