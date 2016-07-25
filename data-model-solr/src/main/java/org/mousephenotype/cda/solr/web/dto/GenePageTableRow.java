@@ -21,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.service.ImageService;
 
 
 /**
