@@ -639,10 +639,12 @@ public class DataTableController {
 			String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
 			String markerSymbol = doc.getString("marker_symbol");
 			String mutationType = doc.getString("mutation_type");
+			String order = "<i class=\"fa fa-shopping-cart\"></i>";
 
 			rowData.add(alleleName);
 			rowData.add(markerSymbol);
 			rowData.add(mutationType);
+			rowData.add(order);
 
 			j.getJSONArray("aaData").add(rowData);
 		}

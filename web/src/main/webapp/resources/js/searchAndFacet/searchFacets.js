@@ -914,8 +914,8 @@
 			// no actions allowed when facet count is zero
 			$.fn.cursorUpdate(coreName, 'not-allowed');
 
-			// mutation_type is open and rest of disease subfacets are collapsed by default
-			$('div.flist li#allele2 > ul li:nth-child(1)').addClass('open');
+			// mutation_type is open and rest of product subfacets are collapsed by default
+			$('div.flist li#' + coreName + '> ul li:nth-child(1)').addClass('open');
 
 			var selectorBase = 'div.flist li#' + coreName;
 			// collapse all subfacet first, then open the first one that has matches
@@ -938,6 +938,7 @@
 	}
 
 	function updateCheckedFilter(thisObj){
+
 		if ( !thisObj.siblings('span.flabel').hasClass('filterCheck')) {
 			thisObj.siblings('span.flabel').addClass('filterCheck');
 		}
