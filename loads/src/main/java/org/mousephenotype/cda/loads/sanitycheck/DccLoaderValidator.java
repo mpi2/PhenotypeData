@@ -131,14 +131,6 @@ public class DccLoaderValidator {
                 results2.add(getData(rs2));
             }
 
-
-            results1.add(Arrays.asList(new String[] { "Bad", "Bad", "Bad", "Bad" } ));
-            results1.add(Arrays.asList(new String[] { "Bad1", "Bad", "Bad", "Bad" } ));
-            results1.add(Arrays.asList(new String[] { "Bad2", "Bad", "Bad", "Bad" } ));
-            results1.add(Arrays.asList(new String[] { "Bad3", "Bad", "Bad", "Bad" } ));
-            results1.add(Arrays.asList(new String[] { "Bad4", "Bad", "Bad", "Bad" } ));
-
-
             // Log the rows found in results1 but not found in results2.
             results1.removeAll(results2);
 
