@@ -69,7 +69,7 @@
 			'defaultValues' : defaults
 		});
 
-		var columns = _(foods[0]).keys();
+		var columns = _(foods[0]).keys().filter(function(d,i){ return (d != "group");}); // don't show group column in table
 		var axes = _(columns).without('name', 'accession', 'group');
 		var foodgroups = [ "Mutant", "Mean"];
 		var colors = {
@@ -118,12 +118,10 @@
 			var data = dimensions.get('data');
 			var defaultValues = defaults;
 			var filtered = dimensions.get('filtered');
-			console.log("change filtered. Selected  " + filtered.length);
 			var data_size = _(data).size();
 			var filtered_size = _(filtered).size();
 ///			pie.update(filtered);
 //			totals.update([ filtered_size, data_size - filtered_size ]);
-
 			var opacity = _([ 2 / Math.pow(filtered_size, 0.37), 100 ]).min();
 			$('#line_opacity').val(opacity).change();
 		});

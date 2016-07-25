@@ -16,8 +16,10 @@
 
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.*;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
@@ -31,11 +33,15 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -84,10 +90,30 @@ public class ConfigBatch {
     @Autowired
     public PhenotypedColonyLoader phenotypedColonyLoader;
 
+    @Autowired
+    @Qualifier("cdaload")
+    private DataSource cdaDatasource;
 
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    private SqlUtils sqlUtils = new SqlUtils();
 
     @Bean
     public Job[] runJobs() throws CdaLoaderException {
+
+        // Populate Spring Batch tables if necessary.
+        try {
+            boolean exists = sqlUtils.columnInSchemaMysql(cdaDatasource.getConnection(), "BATCH_JOB_INSTANCE", "JOB_INSTANCE_ID");
+            if ( ! exists) {
+                logger.info("Creating SPRING BATCH tables");
+                org.springframework.core.io.Resource r = new ClassPathResource("org/springframework/batch/core/schema-mysql.sql");
+                ResourceDatabasePopulator p = new ResourceDatabasePopulator(r);
+                p.execute(cdaDatasource);
+            }
+
+        } catch (Exception e) {
+            throw new CdaLoaderException("Unable to create Spring Batch tables.");
+        }
+
         Job[] jobs = new Job[] {
                   databaseInitialiserJob()
                 , downloaderJob()

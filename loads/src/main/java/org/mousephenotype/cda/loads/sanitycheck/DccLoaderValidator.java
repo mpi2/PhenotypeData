@@ -35,18 +35,20 @@ import java.util.*;
  *
  * This class is intended to be a command-line callable java main program that validates a pair of dcc data loaded databases.
  *
- * Usage:   --profile=shanti -DskipTests
+ * Usage:   java -jar loads-1.0.0-exec.jar org.mousephenotype/cda/loads/sanitycheck/Application --profile=shanti -DskipTests
  *
  * In the 'shanti' properties file (in ~/configfiles/shanti/application.properties), specify the following token lvalues:
- *      # dccloader1 is meant to be the old database.
- *      datasource.dccloader1.url=jdbc:mysql://mysql-mi-dev:4356/dccimportImpc_4_3?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
- *      datasource.dccloader1.username=xxxxxxxx
- *      datasource.dccloader1.password=xxxxxxxx
- *
- *      # dccloader2 is meant to be the new database.
- *      datasource.dccloader2.url=jdbc:mysql://mysql-mi-dev:4356/dccimportImpc_4_4?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
- *      datasource.dccloader2.username=xxxxxxxx
- *      datasource.dccloader2.password=xxxxxxxx
+
+# dccloader1 is meant to be the old database.
+datasource.dccloader1.url=jdbc:mysql://mysql-mi-dev:4356/dccimportImpc_4_3?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
+datasource.dccloader1.username=xxxxxxxx
+datasource.dccloader1.password=xxxxxxxx
+
+# dccloader2 is meant to be the new database.
+datasource.dccloader2.url=jdbc:mysql://mysql-mi-dev:4356/dccimportImpc_4_4?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
+datasource.dccloader2.username=xxxxxxxx
+datasource.dccloader2.password=xxxxxxxx
+
  */
 @Component
 public class DccLoaderValidator {
@@ -128,14 +130,6 @@ public class DccLoaderValidator {
             while (rs2.next()) {
                 results2.add(getData(rs2));
             }
-
-
-            results1.add(Arrays.asList(new String[] { "Bad", "Bad", "Bad", "Bad" } ));
-            results1.add(Arrays.asList(new String[] { "Bad1", "Bad", "Bad", "Bad" } ));
-            results1.add(Arrays.asList(new String[] { "Bad2", "Bad", "Bad", "Bad" } ));
-            results1.add(Arrays.asList(new String[] { "Bad3", "Bad", "Bad", "Bad" } ));
-            results1.add(Arrays.asList(new String[] { "Bad4", "Bad", "Bad", "Bad" } ));
-
 
             // Log the rows found in results1 but not found in results2.
             results1.removeAll(results2);

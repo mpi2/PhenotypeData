@@ -299,11 +299,19 @@ public class AnatomyService extends BasicService implements WebStatus {
 	public String getChildrenJson(String nodeId, String termId)
 			throws SolrServerException{
 
+		// Node_id is unique in ontodb for each ontology.
+		// But we are mixing ontologies here so need to use a combination of node_id and anotomy_id prefix for uniqueness
+		String qStr = null;
+		if ( termId.startsWith("MA:") ){
+			qStr = "MA*";
+		}
+		else if ( termId.startsWith("EMAPA:") ){
+			qStr = "EMAPA*";
+		}
 		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId + " AND " + AnatomyDTO.ANATOMY_ID + ":\"" + termId + "\"")
+				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId + " AND " + AnatomyDTO.ANATOMY_ID + ":" + qStr)
 				.setRows(1);
 		solrQuery.addField(AnatomyDTO.CHILDREN_JSON);
-
 		QueryResponse rsp = solr.query(solrQuery);
 		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
 
