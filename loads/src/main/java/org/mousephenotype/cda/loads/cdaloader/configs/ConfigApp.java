@@ -46,18 +46,19 @@ import java.util.Properties;
 public class ConfigApp {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Bean(name = "komp2Loads")
+	@Bean(name = "cdaload")
 	@Primary
-    @ConfigurationProperties(prefix = "datasource.komp2Loads")
-	public DataSource komp2Loads() {
+    @ConfigurationProperties(prefix = "cdaload")
+	public DataSource cdaload() {
         DataSource ds = DataSourceBuilder.create().build();
+
 		return ds;
 	}
 
-	@Bean(name = "komp2TxManager")
+	@Bean(name = "cdaloadTxManager")
     @Primary
 	public PlatformTransactionManager txManager() {
-		return new DataSourceTransactionManager(komp2Loads());
+		return new DataSourceTransactionManager(cdaload());
 	}
 
     protected Properties buildHibernateProperties() {
@@ -73,7 +74,7 @@ public class ConfigApp {
    	}
 
    	@Bean(name = "sessionFactory")
-    @Qualifier("komp2Loads")
+    @Qualifier("cdaload")
    	@Primary
    	public SessionFactory sessionFactory(DataSource dataSource) {
 
@@ -86,7 +87,7 @@ public class ConfigApp {
     @Bean
    	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
    		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-   		emf.setDataSource(komp2Loads());
+   		emf.setDataSource(cdaload());
    		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.loads.cdaloader"});
 
    		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -98,6 +99,6 @@ public class ConfigApp {
 
 	@Bean
 	public JdbcTemplate jdbcTemplate() {
-		return new JdbcTemplate(komp2Loads());
+		return new JdbcTemplate(cdaload());
 	}
 }
