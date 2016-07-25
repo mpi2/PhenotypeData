@@ -53,10 +53,6 @@ public class ConfigBeans {
     @Value("${cdaload.workspace}")
     protected String cdaWorkspace;
 
-    @NotNull
-    @Value("${owlpath}")
-    protected String owlpath;
-
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
