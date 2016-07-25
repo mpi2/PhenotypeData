@@ -21,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.service.ImageService;
 
 
 /**
@@ -98,7 +97,7 @@ public class GenePageTableRow extends DataTableRow {
      * ! Keep in synch with order in getTabbedToString !
      */
     public static String getTabbedHeader(){
-    	return "Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tGraph";
+    	return "Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tData";
     }
     
     /**
