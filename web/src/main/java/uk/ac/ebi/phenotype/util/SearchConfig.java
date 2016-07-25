@@ -325,7 +325,7 @@ public class SearchConfig {
 
         List<String> impc_imagesCols = Arrays.asList("Name", "Images");
         List<String> imagesCols = Arrays.asList("Name", "Image(s)");
-        List<String> allele2Cols = Arrays.asList("Allele name", "Gene Symbol", "Mutation Type");
+        List<String> allele2Cols = Arrays.asList("Allele name", "Gene Symbol", "Mutation Type", "Order");
 
         gridHeaderMap.put("gene", geneCols);
         gridHeaderMap.put("mp", mpCols);
