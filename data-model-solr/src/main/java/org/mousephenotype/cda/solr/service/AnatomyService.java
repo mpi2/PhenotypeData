@@ -312,7 +312,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId + " AND " + AnatomyDTO.ANATOMY_ID + ":" + qStr)
 				.setRows(1);
 		solrQuery.addField(AnatomyDTO.CHILDREN_JSON);
-		System.out.println("solrqry: "+ solrQuery);
 		QueryResponse rsp = solr.query(solrQuery);
 		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
 
