@@ -24,6 +24,7 @@ package org.mousephenotype.cda.db.pojo;
  */
 
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 
 @Embeddable
@@ -32,7 +33,10 @@ public class Synonym {
 	private String symbol;
 
 	// These transient fields were added to provide a place to save the parent's accessionId and dbId for data loading.
+	@Transient
 	private String accessionId;
+
+	@Transient
 	private int dbId;
 
 	public Synonym() {
