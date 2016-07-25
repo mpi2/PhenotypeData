@@ -823,7 +823,6 @@
 	}
 
 	function displayProductFacet(json) {
-console.log(json);
 		var self = this;
 		var numFound = json.iTotalRecords;
 		var foundMatch = {'mutation_type_str':0, 'allele_category_str':0, 'es_cell_available':0, 'mouse_available':0, 'targeting_vector_available':0};
