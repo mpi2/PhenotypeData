@@ -98,7 +98,7 @@ public class GenePageTableRow extends DataTableRow {
      * ! Keep in synch with order in getTabbedToString !
      */
     public static String getTabbedHeader(){
-    	return "Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tGraph";
+    	return "Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tData";
     }
     
     /**
