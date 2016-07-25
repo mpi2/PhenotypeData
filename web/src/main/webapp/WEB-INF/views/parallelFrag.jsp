@@ -18,11 +18,6 @@
 <!-- script src="${baseUrl}/js/charts/parallel/pie.js"></script-->
 <script src="${baseUrl}/js/charts/parallel/options.js"></script>
 
-<h3>Procedures displayed: <c:forEach var="procedure" items="${selectedProcedures}" varStatus="loop">
-		                  		<a href="/impress/protocol/${procedure.getStableKey()}">${procedure.getName()}</a><c:if test="${!loop.last}">,</c:if>
-		                  </c:forEach>
-</h3>	
-
 <!-- div><a href="#" id="inverted" class="right toggle">Dark</a></div-->
 <!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
 <div id="row-fluid">
@@ -41,8 +36,18 @@
 
 
 <script type="text/javascript">
+	
+	var selectedProcedures =  ${selectedProcedures};
+	
 	$(function() {
 				
+		$('#parallel-title').html("Gene KO effect comparator ");
+		var selectedProceduresIterator = 1; 
+		Object.keys(selectedProcedures).forEach(function(key){
+			$('#parallel-title').append("<a class=\"bluelink\" href=\"" + selectedProcedures[key] + "\">" + key + "</a>");
+			$('#parallel-title').append( (selectedProceduresIterator++ < Object.keys(selectedProcedures).length) ? ", " : "");
+		});
+		
 		/** Add widgets **/
 		$('#widgets_pc').html("");
 		$('#widgets_pc').append('<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>');
@@ -64,12 +69,9 @@
 			'defaultValues' : defaults
 		});
 
-		var columns = _(foods[0]).keys();
+		var columns = _(foods[0]).keys().filter(function(d,i){ return (d != "group");}); // don't show group column in table
 		var axes = _(columns).without('name', 'accession', 'group');
-
 		var foodgroups = [ "Mutant", "Mean"];
-		// "MRC Harwell", "TCP", "JAX", "WTSI", "BCM", "UC Davis", "ICS", "HMGU", "NING", "RBRC" ];
-
 		var colors = {
 		    "Mutant" : '#0978A1',
 			"Normal" :'#602619',
@@ -89,7 +91,7 @@
 //			$('#legend').append("<div class='item'><div class='color' style='background: " + colors[group] + "';></div><div class='key'>" + group + "</div></div>");
 //		});
 
-		var pc = parallel(dimensions, colors, defaults);
+		var pc = parallel(dimensions, colors, defaults, highlighter);
 //		var pie = piegroups(foods, foodgroups, colors, 'group');
 //		var totals = pietotals([ 'in', 'out' ], [ _(foods).size(), 0 ]);
 
@@ -120,7 +122,6 @@
 			var filtered_size = _(filtered).size();
 ///			pie.update(filtered);
 //			totals.update([ filtered_size, data_size - filtered_size ]);
-
 			var opacity = _([ 2 / Math.pow(filtered_size, 0.37), 100 ]).min();
 			$('#line_opacity').val(opacity).change();
 		});

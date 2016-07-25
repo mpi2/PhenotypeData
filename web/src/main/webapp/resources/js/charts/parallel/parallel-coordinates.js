@@ -3,7 +3,7 @@
 	// Example for hover-over lines 
 	// http://bl.ocks.org/mbostock/3709000
 
-	window.parallel = function(model, colors, defaults) {
+	window.parallel = function(model, colors, defaults, highlighter) {
 		
 		var labelColorList = ['#16532D',  
 		      				'rgb(36, 139, 75)',
@@ -12,7 +12,6 @@
 		      				'rgb(191, 151, 50)',
 		      				'rgb(247, 157, 70)',
 		      				'#0978A1'];
-		
 		var self = {}, dimensions, dragging = {}, highlighted = null, highlighted2 = null, container = d3.select("#parallel");
 		var text = null;
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
@@ -20,6 +19,8 @@
 		var cars = model.get('data');
 		var i = 0;
 		var inactiveGroups = [];
+		var geneList = [];
+		model.get('filtered').map(function(d,i){geneList.push(d.name);});
 		
 		for (var key in groups){
 			if (!axisColors[groups[key]]){
@@ -29,7 +30,13 @@
 		}
 		
 		self.update = function(data, defaults) {
-		};
+  			cars = data;
+  			geneList = [];
+  			model.get('filtered').map(function(d,i){geneList.push(d.name);});
+  		};
+
+  		model.bind('change:filtered', function() { self.update()});
+  		
 
 		function redraw(){
 			self.render();
@@ -45,8 +52,10 @@
 			
 			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2];
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
-			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
+			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			var labelXStart = []; 
+
+			legend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)");
 			
 			legend.selectAll("g.legendCells")
 			    .data(Object.keys(axisColors))
@@ -54,7 +63,7 @@
 			    .append("g")
 			    .attr("class", "legendCells")
 			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 0)"})
-			    .classed("legendCellInactive", function(d){ return (inactiveGroups.indexOf(d) >=0 );});
+			    .classed("legendCellInactive", function(d){ return (inactiveGroups.indexOf(d) >= 0 );});
 			
 			legend.selectAll("g.legendCells")
 				.append("rect")
@@ -110,9 +119,11 @@
 			});
 
 			// Add blue foreground lines for focus.
-			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path).attr("style", function(d) {
-				return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");
-			});
+			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path)
+				.attr("style", function(d) {return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");})
+				.attr("class", function(d) {return d.name;})
+				.on("mouseover", function (d,i){ d3.select("#geneHover").html(d.name.split("(")[0]); highlighter.select(geneList.indexOf(d.name));})
+				.on("mouseout", function (d,i){ d3.select("#geneHover").html(""); highlighter.deselect(); });
 
 			// Add a group element for each dimension.
 			var g = svg.selectAll(".dimension").data(dimensions).enter().append("svg:g").attr("class", "dimension").attr("transform", function(d) {
@@ -285,8 +296,7 @@
 						return x(d) + 5;
 					}).attr("y", function(d) {
 						return y[d](defaults[d]) - 5;
-					}).text("No data")
-					;
+					}).text("No data");
 
 				}
 			};

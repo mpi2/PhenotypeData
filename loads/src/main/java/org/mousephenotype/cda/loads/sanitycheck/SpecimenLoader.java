@@ -24,22 +24,12 @@ import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadi
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -92,7 +82,7 @@ public class SpecimenLoader {
         // parameter to indicate the database password
         parser.accepts("password").withRequiredArg().ofType(String.class);
 
-        // parameter to indicate the database password
+        // parameter to indicate the whether or not to truncate the tables first.
         parser.accepts("truncate").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);
@@ -146,22 +136,22 @@ public class SpecimenLoader {
                 ResultSet rs;
 
                 // center
-                centerPk = LoaderUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                centerPk = DccLoaderUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 if (centerPk < 1) {
-                    centerPk = LoaderUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                    centerPk = DccLoaderUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 }
 
                 // statuscode
                 if (specimen.getStatusCode() != null) {
-                    StatusCode existingStatuscode = LoaderUtils.selectOrInsertStatuscode(connection,
-                            specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
+                    StatusCode existingStatuscode = DccLoaderUtils.selectOrInsertStatuscode(connection,
+                                                                                            specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
                     statuscodePk = existingStatuscode.getHjid();
                 } else {
                     statuscodePk = null;
                 }
 
                 // specimen
-                Specimen existingSpecimen = LoaderUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
+                Specimen existingSpecimen = DccLoaderUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
                 if (existingSpecimen != null) {
                     specimenPk = existingSpecimen.getHjid();
                     // Validate that this specimen's info matches the existing one in the database.
@@ -308,7 +298,7 @@ public class SpecimenLoader {
                     ps.execute();
                 } catch (SQLException e) {
                     // Duplicate specimen
-                    System.out.println("DUPLICATE SPECIMEN: " + LoaderUtils.dumpSpecimen(connection, centerPk, specimenPk));
+                    System.out.println("DUPLICATE SPECIMEN: " + DccLoaderUtils.dumpSpecimen(connection, centerPk, specimenPk));
                     connection.rollback();
                     continue;
                 }

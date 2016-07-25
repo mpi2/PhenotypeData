@@ -20,7 +20,6 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILAR
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Dimension;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ParameterAssociation;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Procedure;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ProcedureMetadata;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
@@ -43,9 +42,9 @@ import java.util.List;
 /**
  * Created by mrelac on 02/03/2016.
  */
-public class LoaderUtils {
+public class DccLoaderUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoaderUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(DccLoaderUtils.class);
 
     public static String dumpSpecimen(Connection connection, long centerPk, long specimenPk) {
         String retVal = "";
