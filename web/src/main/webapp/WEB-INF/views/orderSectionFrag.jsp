@@ -12,7 +12,7 @@
         		 <tr>
                         <th style="border-bottom:0px;"></th>
                         <th style="border-bottom:0px;"></th>
-                        <th style="border-bottom:0px;"></th>
+                        <th colspan="3" style="border-bottom:0px;">Targeting Detail</th>
                         <th colspan="3" style="text-align:center;">Product Ordering</th>
                         
                       
@@ -20,72 +20,112 @@
                 <tr>
                         <th>MGI Allele</th>
                         <th style="width:22%">Allele Type</th>
-                        <th style="width:22%">Gene Targeting Details</th>
-                        <th>Target Vector</th>
-                        <th>ES Cells</th>
+                        
+                        <th>Gene/Vector</th>
+                        <th>Map</th>
+                        <th>Sequence
+                        <th>Vector</th>
+                        <th>ES Cell</th>
                         <th>Mouse</th>
                       
                 </tr>
         </thead>
         <tbody>
                 <c:forEach var="row" items="${orderRows}" varStatus="status">
+                <c:set var="rowSpan" value="1"></c:set>
+                <c:if test="${fn:length(row.geneTargetDetails)>0 }">
+                	<c:set var="rowSpan" value="${fn:length(row.geneTargetDetails)}"></c:set>
+                </c:if>
                         <tr>
-                         <td>
+                        
+                         <td rowspan="${rowSpan}">
+                         <c:out value="${rowSpan}"></c:out>
                          	${row.alleleName}
                          </td>
                          <%-- <td>
                          	${row.strainOfOrigin}
                          </td> --%>
-                         <td>
+                         <td rowspan="${rowSpan}">
                          	${row.alleleDescription}
                          </td>
-                          <td style="text-align:left">
-                          <c:forEach var="target" items="${row.geneTargetDetails}">
+                          
+                          <c:set var="target" value="${row.geneTargetDetails[0]}"></c:set>
                           
                                
-                               <div style="padding:3px;"><span>${target.label}</span>
-                               		<span id="imitsIconsContainer" style="float:right;">
+                               <td>${target.label}</td>
+                               <td>
+                               		
 	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
 	                                   
-	                                   		<i class="fa fa-th-list fa-lg"></i>
+	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   
 	                                   </a>
+	                                </td>
+	                                <td>
 	                                 <c:if test="${not empty target.genbankLink}">
-		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg"></i></a>
+		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
 		                                
 	                               	</c:if>
-	                               </span>
-                               </div>
+	                               	</td>
+	                              
+                               
                               
                               
                                <%-- <c:if test="${not empty alleleProduct['genbank_file']}">
                                	<div style="padding:3px;"><a href="${alleleProduct['genbank_file']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                </c:if> --%>
-                          	</c:forEach>
+                          	
+                          
+                          <td rowspan="${rowSpan}">
+                          <c:if test="${row.targetingVectorAvailable}">
+                          	<a class="btn" href="#blah"><i class="fa fa-shopping-cart"></i></a>
+                          </c:if>
                           </td>
-                          <td>
-                          <c:forEach var="orderVector" items="${row.orderTargetVectorDetails}">
-                          	<a class="btn btn-sm" href="${orderVector.link}"><i class="fa fa-shopping-cart">${orderVector.label}</i></a>
-                          </c:forEach>
+                          <td rowspan="${rowSpan}">
+                           <c:if test="${not empty row.esCellAvailable}">
+                          	<a class="btn btn-lg" href="${orderEsCell.link}"><i class="fa fa-shopping-cart"></i></a>
+                          </c:if>
                           </td>
-                          <td>
-                          <c:forEach var="orderEsCell" items="${row.orderEsCellDetails}">
-                          	<a class="btn btn-sm" href="${orderEsCell.link}"><i class="fa fa-shopping-cart">${orderEsCell.label}</i></a>
-                          </c:forEach>
-                          </td>
-                          <td>
-                          <c:forEach var="orderMouse" items="${row.orderMouseDetails}">
-                          	<a class="btn btn-sm" href="${orderMouse.link}"><i class="fa fa-shopping-cart">${orderMouse.label}</i></a>
-                          </c:forEach>
+                          <td rowspan="${rowSpan}">
+                           <c:if test="${row.mouseAvailable}">
+                          	<a class="btn" href="${orderMouse.link}"><i class="fa fa-shopping-cart"></i></a>
+                          </c:if>
                           </td>
                             
                         </tr>
+                        <c:if test="${rowSpan==2 }">
+                         <c:set var="target" value="${row.geneTargetDetails[1]}"></c:set>
+                        <tr>
+                     
+                        
+		                               		<td>targetlabel=${target.label}</td>
+                               		<td>
+                               		
+	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
+	                                   
+	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
+	                                   
+	                                   </a>
+	                                </td>
+	                                <td>
+	                                 <c:if test="${not empty target.genbankLink}">
+		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
+		                                
+	                               	</c:if>
+	                               	</td>
+	                               	
+                       
+                        
+                        <tr>    
+                        
+                        </c:if>
 
 
                 </c:forEach>
         </tbody>
 
 </table>
+<a class="btn" href=""><i class="fa fa-shopping-cart">blah</i></a>
 </c:if>
     
     

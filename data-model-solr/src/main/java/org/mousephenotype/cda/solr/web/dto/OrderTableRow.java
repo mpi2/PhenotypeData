@@ -2,6 +2,8 @@ package org.mousephenotype.cda.solr.web.dto;
 
 import java.util.List;
 
+import org.apache.solr.client.solrj.beans.Field;
+
 /**
  * Represent the data in the order table on the gene page and possibly the new order tab on search
  * @author jwarren
@@ -11,6 +13,32 @@ public class OrderTableRow {
 	private String alleleName;
 	private String strainOfOrigin;
 	private String alleleDescription;
+	private Boolean targetingVectorAvailable;
+	private Boolean esCellAvailable;
+	
+	
+private Boolean mouseAvailable;
+	
+	public Boolean getMouseAvailable() {
+		return mouseAvailable;
+	}
+	public void setMouseAvailable(Boolean mouseAvailable) {
+		this.mouseAvailable = mouseAvailable;
+	}
+
+	public Boolean getEsCellAvailable() {
+		return esCellAvailable;
+	}
+	public void setEsCellAvailable(Boolean esCellAvailable) {
+		this.esCellAvailable = esCellAvailable;
+	}
+	
+	public Boolean getTargetingVectorAvailable() {
+		return targetingVectorAvailable;
+	}
+	public void setTargetingVectorAvailable(Boolean targetingVectorAvailable) {
+		this.targetingVectorAvailable = targetingVectorAvailable;
+	}
 	
 	public String getAlleleDescription() {
 		return alleleDescription;

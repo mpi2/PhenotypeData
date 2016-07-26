@@ -57,6 +57,9 @@ public class OrderService {
 			row.setAlleleName(alleleName);
 			row.setAlleleDescription(allele.getAlleleDescription());
 			List<LinkDetails> targetLinks=new ArrayList<>();
+			row.setTargetingVectorAvailable(allele.getTargetingVectorAvailable());
+			row.setEsCellAvailable(allele.getEsCellAvailable());
+			row.setMouseAvailable(allele.getMouseAvailable());
 			//Map mouseOrderCenter=new HashMap<>();
 			
 			
@@ -73,7 +76,7 @@ public class OrderService {
 							
 							if (link.startsWith("allele_image")) {
 								String productAlleleImage = link.replace("allele_image:", "");
-								vectorTargetMap.setLabel("Target vector map");
+								vectorTargetMap.setLabel("Vector");
 								vectorTargetMap.setLink(productAlleleImage);
 							}
 
@@ -102,7 +105,7 @@ public class OrderService {
 				targetLinks.add(vectorTargetMap);
 				}
 			LinkDetails geneTargetMap=new LinkDetails();
-			geneTargetMap.setLabel("Targeted gene map");
+			geneTargetMap.setLabel("Gene");
 			geneTargetMap.setLink(allele.getAlleleSimpleImage());
 			geneTargetMap.setGenbankLink(allele.getGenbankFile());
 			targetLinks.add(geneTargetMap);
