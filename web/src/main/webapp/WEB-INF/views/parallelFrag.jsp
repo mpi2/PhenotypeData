@@ -103,9 +103,9 @@
 		});
 
 		// vertical full screen
-		var parallel_height = $(window).height() - 64 - 12 - 120 - 320;
-		if (parallel_height < 340)
-			parallel_height = 340; // min height
+		var parallel_height = $(window).height() - 64- 12  - 120 - 320;
+		if (parallel_height < 380)
+			parallel_height = 380; // min height
 		$('#parallel').css({
 			height : parallel_height + 'px',
 			width : '100%'
