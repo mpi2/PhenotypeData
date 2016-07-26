@@ -37,9 +37,9 @@
   		};
 
   		model.bind('change:filtered', function() { self.update()});
-  		
 
 		function redraw(){
+			cars = model.get('data');
 			self.render();
 		}
 		
@@ -85,7 +85,7 @@
 				if (!d3.select(this).classed("legendCellInactive")){ // toggle to inactive
 					d3.select(this).classed("legendCellInactive", true);
 					d3.select(this).selectAll("rect").style("fill", "grey");
-					inactiveGroups.push(d3.select(this).select("text").text());
+					inactiveGroups.push(d3.select(this).selectAll("text").text());
 					redraw();
 				} else { // toggle to active
 					d3.select(this).classed("legendCellInactive", false);
