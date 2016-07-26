@@ -14,7 +14,7 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads;
+package org.mousephenotype.cda.loads.legacy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
