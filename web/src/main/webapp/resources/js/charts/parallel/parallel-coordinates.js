@@ -53,10 +53,8 @@
 			
 			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2] - 2*(cellPadding + cellHeight);
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
-			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
+			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			var labelXStart = []; 
-
-			legend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)");
 			
 			legend.selectAll("g.legendCells")
 			    .data(Object.keys(axisColors))
@@ -114,6 +112,7 @@
 				.style("text-anchor", "start").attr("x", cellWidth + cellPadding)
 				.attr("y", 5 + (cellHeight / 2)).text(function(d) {return d;});
 		
+			lineLegend.append("text").attr("id","geneHover").attr("transform", "translate(0,28)").classed("legendLabels", "true");
 			
 			function getXTransform(d,i){ 
 				var res = labelXStart.reduce(function(a, b) {
@@ -141,7 +140,7 @@
 			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path)
 				.attr("style", function(d) {return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");})
 				.attr("class", function(d) {return d.name;})
-				.on("mouseover", function (d,i){ d3.select("#geneHover").html(d.name.split("(")[0]); highlighter.select(geneList.indexOf(d.name));})
+				.on("mouseover", function (d,i){ d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;    " + d.name.split("(")[0] + ""); highlighter.select(geneList.indexOf(d.name));})
 				.on("mouseout", function (d,i){ d3.select("#geneHover").html(""); highlighter.deselect(); });
 
 			// Add a group element for each dimension.
