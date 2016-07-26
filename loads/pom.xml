@@ -165,7 +165,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.mousephenotype.cda.loads.dataimporter.DataimporterValidate</mainClass>
+                    <mainClass>org.mousephenotype.cda.loads.dataimporter.DataImporterValidate</mainClass>
                 </configuration>
                 <executions>
                     <execution>
