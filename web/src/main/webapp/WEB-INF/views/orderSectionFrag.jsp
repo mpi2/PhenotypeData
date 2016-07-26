@@ -12,8 +12,8 @@
         		 <tr>
                         <th style="border-bottom:0px;"></th>
                         <th style="border-bottom:0px;"></th>
-                        <th colspan="3" style="border-bottom:0px;">Targeting Detail</th>
-                        <th colspan="3" style="text-align:center;">Product Ordering</th>
+                        <th colspan="3" style="border-bottom:0px; border-right:thin double #777; border-left:thin double #777;">Targeting Detail</th>
+                        <th colspan="3" style="border-bottom:0px; text-align:center;">Product Ordering</th>
                         
                       
                 </tr>
@@ -21,9 +21,9 @@
                         <th>MGI Allele</th>
                         <th style="width:22%">Allele Type</th>
                         
-                        <th>Gene/Vector</th>
+                        <th style="border-left:thin double #777;">Gene/Vector</th>
                         <th>Map</th>
-                        <th>Sequence
+                        <th style="border-right:thin double #777;">Sequence
                         <th>Vector</th>
                         <th>ES Cell</th>
                         <th>Mouse</th>
@@ -36,7 +36,7 @@
                 <c:if test="${fn:length(row.geneTargetDetails)>0 }">
                 	<c:set var="rowSpan" value="${fn:length(row.geneTargetDetails)}"></c:set>
                 </c:if>
-                        <tr>
+                      <tr>
                         
                          <td rowspan="${rowSpan}">
                          <c:out value="${rowSpan}"></c:out>
@@ -52,7 +52,7 @@
                           <c:set var="target" value="${row.geneTargetDetails[0]}"></c:set>
                           
                                
-                               <td>${target.label}</td>
+                               <td style="text-align: center; border-left:thin double #777;">${target.label}</td>
                                <td>
                                		
 	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
@@ -60,13 +60,12 @@
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   
 	                                   </a>
-	                                </td>
-	                                <td>
-	                                 <c:if test="${not empty target.genbankLink}">
+	                            </td>
+	                            <td style="border-right:thin double #777;" >
+	                                <c:if test="${not empty target.genbankLink}">
 		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
-		                                
 	                               	</c:if>
-	                               	</td>
+	                            </td>
 	                              
                                
                               
@@ -76,17 +75,17 @@
                                </c:if> --%>
                           	
                           
-                          <td rowspan="${rowSpan}">
+                          <td style="text-align: center;" rowspan="${rowSpan}">
                           <c:if test="${row.targetingVectorAvailable}">
-                          	<a class="btn" href="#blah"><i class="fa fa-shopping-cart"></i></a>
+                          	<a class="btn" href=""><i class="fa fa-shopping-cart"></i></a>
                           </c:if>
                           </td>
-                          <td rowspan="${rowSpan}">
+                          <td style="text-align: center;" rowspan="${rowSpan}">
                            <c:if test="${not empty row.esCellAvailable}">
                           	<a class="btn btn-lg" href="${orderEsCell.link}"><i class="fa fa-shopping-cart"></i></a>
                           </c:if>
                           </td>
-                          <td rowspan="${rowSpan}">
+                          <td style="text-align: center;" rowspan="${rowSpan}">
                            <c:if test="${row.mouseAvailable}">
                           	<a class="btn" href="${orderMouse.link}"><i class="fa fa-shopping-cart"></i></a>
                           </c:if>
@@ -98,25 +97,23 @@
                         <tr>
                      
                         
-		                               		<td>targetlabel=${target.label}</td>
-                               		<td>
+		                            <td style="text-align: center; border-left:thin double #777;">${target.label}</td>
+                               		<td >
                                		
 	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
-	                                   
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
-	                                   
 	                                   </a>
 	                                </td>
-	                                <td>
-	                                 <c:if test="${not empty target.genbankLink}">
+	                                <td style="border-right:thin double #777;">
+	                                	<c:if test="${not empty target.genbankLink}">
 		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
 		                                
-	                               	</c:if>
+	                               		</c:if>
 	                               	</td>
 	                               	
                        
                         
-                        <tr>    
+                        </tr>    
                         
                         </c:if>
 
@@ -125,7 +122,6 @@
         </tbody>
 
 </table>
-<a class="btn" href=""><i class="fa fa-shopping-cart">blah</i></a>
 </c:if>
     
     
