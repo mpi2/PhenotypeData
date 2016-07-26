@@ -67,9 +67,6 @@ public class TestConfig {
     @Value("${datasource.komp2.url}")
     private String datasourceKomp2Url;
 
-    @Value("${phenodigm.solrserver}")
-    private String phenodigmSolrserver;
-
     @Value("${solr.host}")
     private String solrHost;
 
@@ -82,7 +79,6 @@ public class TestConfig {
     @PostConstruct
     public void initialise() {
         logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
-        logger.info("phenodigm.solrserver: " + phenodigmSolrserver);
         logger.info("solr.host:            " + solrHost);
         logger.info("baseUrl:              " + baseUrl);
         logger.info("internalSolrUrl:      " + internalSolrUrl);

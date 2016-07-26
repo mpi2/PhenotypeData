@@ -55,37 +55,32 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 	private final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
 
 
-	@NotNull
-    @Value("${phenodigm.solrserver}")
-    private String phenodigmSolrServer;
-
-
     @Autowired
     @Qualifier("autosuggestIndexing")
     private SolrServer autosuggestCore;
 
     @Autowired
-    @Qualifier("geneIndexing")
+    @Qualifier("geneCore")
     private SolrServer geneCore;
 
     @Autowired
-    @Qualifier("mpIndexing")
+    @Qualifier("mpCore")
     private SolrServer mpCore;
 
     @Autowired
-    @Qualifier("diseaseIndexing")
+    @Qualifier("diseaseCore")
     private SolrServer diseaseCore;
 
     @Autowired
-    @Qualifier("anatomyIndexing")
+    @Qualifier("anatomyCore")
     private SolrServer anatomyCore;
 
+	@Autowired
+	@Qualifier("phenodigmCore")
+	private SolrServer phenodigmCore;
 
-    @Autowired
+	@Autowired
    	private GwasDAO gwasDao;
-
-
-    private SolrServer phenodigmCore;
 
     public static final long MIN_EXPECTED_ROWS = 218000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
@@ -147,8 +142,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     }
 
     private void initializeSolrCores() {
-
-        final String PHENODIGM_URL = phenodigmSolrServer;
 
         // Use system proxy if set for external solr servers
         if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
