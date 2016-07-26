@@ -5,12 +5,13 @@
 
 	window.parallel = function(model, colors, defaults, highlighter) {
 		
-		var labelColorList = ['#16532D',  
+		var labelColorList = [
 		      				'rgb(36, 139, 75)',
 		      				'rgb(191, 75, 50)',
 		      				'rgb(255, 201, 67)',
 		      				'rgb(191, 151, 50)',
 		      				'rgb(247, 157, 70)',
+		      				'#16532D',  
 		      				'#0978A1'];
 		var self = {}, dimensions, dragging = {}, highlighted = null, highlighted2 = null, container = d3.select("#parallel");
 		var text = null;
