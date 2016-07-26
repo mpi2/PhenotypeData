@@ -14,17 +14,18 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
+package org.mousephenotype.cda.loads.dataimporter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
-import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -50,8 +51,12 @@ datasource.dccloader2.username=xxxxxxxx
 datasource.dccloader2.password=xxxxxxxx
 
  */
-@Component
-public class DccLoaderValidator {
+@Import(ConfigDataImporter.class)
+public class DataImporterValidate implements CommandLineRunner {
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(DataImporterValidate.class, args);
+    }
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -99,8 +104,14 @@ public class DccLoaderValidator {
     private JdbcTemplate jdbctemplate2;
 
 
-    @Bean
-    public int run() throws DccLoaderException {
+//    @Bean
+//    public int run() throws DataImporterException {
+
+
+
+
+    @Override
+    public void run(String... args) throws Exception {
         String db1Name = "unknown";
         String db2Name = "unknown";
 
@@ -109,6 +120,10 @@ public class DccLoaderValidator {
             db2Name = jdbctemplate2.getDataSource().getConnection().getCatalog();
 
         } catch (SQLException e) {
+
+            logger.error(e.getLocalizedMessage());
+            return;
+
         }
 
         logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
@@ -151,7 +166,7 @@ public class DccLoaderValidator {
 
         logger.info("VALIDATION COMPLETE.");
 
-        return 0;
+//        return 0;
     }
 
     private String formatString(String[] row, int cellWidth) {
@@ -175,9 +190,9 @@ public class DccLoaderValidator {
      *
      * @return the row's cells in a {@link List<String>}
      *
-     * @throws DccLoaderException
+     * @throws DataImporterException
      */
-    private List<String> getData(SqlRowSet rs) throws DccLoaderException {
+    private List<String> getData(SqlRowSet rs) throws DataImporterException {
         List<String> newRow = new ArrayList<>();
 
         SqlRowSetMetaData md = rs.getMetaData();
@@ -201,7 +216,7 @@ public class DccLoaderValidator {
 
                 default:
                     System.out.println("SQLTYPE: " + sqlType);
-                    throw new DccLoaderException("No rule to handle sql type '" + md.getColumnTypeName(i) + "' (" + sqlType + ").");
+                    throw new DataImporterException("No rule to handle sql type '" + md.getColumnTypeName(i) + "' (" + sqlType + ").");
             }
         }
 

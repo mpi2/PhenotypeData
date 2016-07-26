@@ -14,10 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+package org.mousephenotype.cda.loads.dataimporter;
 
 /**
  * Created by mrelac on 19/07/2016.
@@ -37,10 +34,10 @@ datasource.dccloader2.username=xxxxxxxx
 datasource.dccloader2.password=xxxxxxxx
 
  */
-@SpringBootApplication
-public class Application {
+//@SpringBootApplication
+public class DataimporterValidator {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(Application.class, args);
-    }
+//    public static void main(String[] args) throws Exception {
+//        SpringApplication.run(DataimporterValidator.class, args);
+//    }
 }

@@ -14,16 +14,18 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
+package org.mousephenotype.cda.loads.cdaloader;
 
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Created by mrelac on 02/03/2016.
- *
- * This class acts as a Specimen dto. Since Specimen is abstract, this definition allows us to instantiate and
- * initialise Specimen objects.
+ * Created by mrelac on 12/04/2016.
  */
-public class SpecimenCDA extends Specimen {
+@SpringBootApplication
+public class CdaloaderCreateAndInitDb {
 
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(CdaloaderCreateAndInitDb.class, args);
+    }
 }
