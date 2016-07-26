@@ -202,13 +202,12 @@ input.auto              { width: auto; }
 /* Buttons */
 .af-button-large,
 input[type="submit"],
-.btn                    { display: inline-block; white-space:nowrap; word-wrap: normal; border: none; color: #fff; text-decoration: none; background: #0978A1; color: #fff; padding: .3em .6em; cursor: pointer; -webkit-transition: all 0.3s ease-in-out; -moz-transition: all 0.3s ease-in-out; -o-transition: all 0.3s ease-in-out; transition: all 0.3s ease-in-out; }
+.btn                    { display: inline-block; white-space:nowrap; word-wrap: normal; border: none; color: #fff; text-decoration: none; background: #0978A1; color: #fff; padding: .3em .6em; cursor: pointer; -webkit-transition: all 0.3s ease-in-out; -moz-transition: all 0.1s ease-in-out; -o-transition: all 0.1s ease-in-out; transition: all 0.3s ease-in-out; }
 .af-button-large:hover,
 input[type="submit"]:hover,
-.btn:hover              { text-decoration: none; color: #fff; background-color: #0978a1; }
+.btn:hover              { text-decoration: none; color: #fff; background-color: #EF7B0B; }
 .btn i                  { margin-right: 0.3em; }
-/*td .btn                 { background-color: #eee; color: #777; }*/
-td .btn:hover           { background-color: #08788f; color: #fff; }
+td .btn:hover           { background-color: #EF7B0B; color: #fff; }
 .btn.editlink           { opacity: 0.3; }
 .btn.editlink:hover     { opacity: 1; }
 p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1px dotted; }
