@@ -639,7 +639,7 @@ public class DataTableController {
 			String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
 			String markerSymbol = doc.getString("marker_symbol");
 			String mutationType = doc.getString("mutation_type");
-			String order = "<i class=\"fa fa-shopping-cart\"></i>";
+			String order = "<i class=\"fa fa-shopping-cart\"><a href=''>Targeting vector</a><br><a href=''>Es Cell</a><br><a href=''>Mouse</a></i>";
 
 			rowData.add(alleleName);
 			rowData.add(markerSymbol);
