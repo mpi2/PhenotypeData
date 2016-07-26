@@ -21,7 +21,7 @@
 		var i = 0;
 		var inactiveGroups = [];
 		var geneList = [];
-		model.get('filtered').map(function(d,i){geneList.push(d.name);});
+		model.get('filtered').map(function(d,i){geneList.push(d.gene);});
 		
 		for (var key in groups){
 			if (!axisColors[groups[key]]){
@@ -33,7 +33,7 @@
 		self.update = function(data, defaults) {
   			cars = data;
   			geneList = [];
-  			model.get('filtered').map(function(d,i){geneList.push(d.name);});
+  			model.get('filtered').map(function(d,i){geneList.push(d.gene);});
   		};
 
   		model.bind('change:filtered', function() { self.update()});
@@ -126,7 +126,7 @@
 			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
-				return d != "name" && d != "group" && d != "accession" && d != "id" && inactiveGroups.indexOf(groups[d]) < 0 && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
+				return d != "gene" && d != "group" && d != "accession" && d != "id" && inactiveGroups.indexOf(groups[d]) < 0 && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
 					return +p[d];
 				})).range([ h, 0 ]));
 			}));
@@ -139,8 +139,8 @@
 			// Add blue foreground lines for focus.
 			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path)
 				.attr("style", function(d) {return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");})
-				.attr("class", function(d) {return d.name;})
-				.on("mouseover", function (d,i){ d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;    " + d.name.split("(")[0] + ""); highlighter.select(geneList.indexOf(d.name));})
+				.attr("class", function(d) {return d.gene;})
+				.on("mouseover", function (d,i){ d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;    " + d.gene.split("(")[0] + ""); highlighter.select(geneList.indexOf(d.gene));})
 				.on("mouseout", function (d,i){ d3.select("#geneHover").html(""); highlighter.deselect(); });
 
 			// Add a group element for each dimension.
