@@ -156,7 +156,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
 
-        initializeSolrCores();
         initializeDatabaseConnections();
         initialiseSupportingBeans();
 
@@ -298,39 +297,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             throw new IndexerException(e);
         }
 
-    }
-
-
-    /**
-     * Initialize the phenodigm core -- using a proxy if configured.
-     * <p/>
-     * A proxy is specified by supplying two JVM variables
-     * - externalProxyHost the host (not including the protocol)
-     * - externalProxyPort the integer port number
-     */
-    private void initializeSolrCores() {
-
-        final String PHENODIGM_URL = phenodigmSolrServer;
-
-        // Use system proxy if set for external solr servers
-        if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
-
-            String PROXY_HOST = System.getProperty("externalProxyHost");
-            Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
-
-            HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
-
-            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
-
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
-
-        } else {
-
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
-
-        }
     }
 
 
