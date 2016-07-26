@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -41,14 +42,16 @@ import java.util.Date;
  */
 public class DatabaseInitialiser implements Tasklet, InitializingBean {
 
-    CommonUtils commonUtils = new CommonUtils();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final CommonUtils commonUtils = new CommonUtils();
+    private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
+    private final String      mysql       = commonUtils.getMysqlFullpath();
 
-    @Value("${cdaload.dbhostname}")
     private String dbhostname;
-
-    @Value("${cdaload.dbport}")
     private String dbport;
+
+
+    @Value("${cdaload.url}")
+    private String cdaUrl;
 
     @Value("${cdaload.dbname}")
     private String dbname;
@@ -59,12 +62,13 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean {
     @Value("${cdaload.password}")
     private String dbpassword;
 
-    @Value("${cdaload.mysql}")
-    private String mysql;
-
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        URL url = new URL(cdaUrl.replace("jdbc:mysql:", "http:"));     // Replace the jdbc:mysql: protocol with http. URL barks at jdbc:mysql:.
+        dbhostname = url.getHost();
+        dbport = (url.getPort() == -1 ? "3306" : Integer.toString(url.getPort()));
+
   	    Assert.notNull(mysql, "mysql executable must be set");
         Assert.notNull(dbhostname, "dbhostname must be set");
         Assert.notNull(dbport, "dbport must be set");
