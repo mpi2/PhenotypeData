@@ -27,20 +27,20 @@
       this.model.bind('change:removefilter', function() { self.clearfilters(); });
       
       this.cols = _(this.columns).map(function(col) {
-    	  if (col == 'name'){
+    	  if (col == 'gene'){
 	        return {
 	          id: col,
 	          name: function() { if (self.alias) { return self.alias[col]; } else { return col; } }(), 
 	          field: function() { return col;}(),
 	          formatter: linkFormatter = function ( row, cell, value, columnDef, dataContext ) {return '<a href="' + baseUrl + '/genes/' + value.split("(")[1].replace(")", "") + '"  target="_blank">'+value.split("(")[0] + '</a>';},
-	          width: function() { if (col == "name") { return 180; } else if (col == "group") { return 100; } else { return 80; }}()
+	          width: function() { if (col == "gene") { return 180; } else if (col == "group") { return 100; } else { return 80; }}()
 	        }
     	  } else {
     		  return {
     	          id: col,
     	          name: function() { if (self.alias) { return self.alias[col]; } else { return col; } }(), 
     	          field: function() { return col;}(),
-    	          width: function() { if (col == "name") { return 180; } else if (col == "group") { return 100; } else { return 80; }}()
+    	          width: function() { if (col == "gene") { return 180; } else if (col == "group") { return 100; } else { return 80; }}()
     		  }
     	  }
       });
