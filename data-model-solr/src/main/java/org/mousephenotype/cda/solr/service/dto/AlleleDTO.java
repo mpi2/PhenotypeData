@@ -62,6 +62,9 @@ public class AlleleDTO {
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
 
+	public static final String IKMC_PROJECT = "ikmc_project";
+	public static final String GENE_ALLELE = "gene_allele";
+
 	public static final String CHR_NAME = "chr_name";
 	public static final String CHR_START = "chr_start";
 	public static final String CHR_END = "chr_end";
@@ -213,6 +216,7 @@ public class AlleleDTO {
 
 	@Field(ALLELE_NAME)
 	private List<String> alleleName = new ArrayList<>();
+
 	@Field(ALLELE_ACCESSION_ID)
 	private List<String> alleleAccessionIds = new ArrayList<>();
 	@Field(IMITS_ES_CELL_STATUS)
@@ -230,6 +234,10 @@ public class AlleleDTO {
 	@Field(PHENOTYPING_CENTRE)
 	private List<String> phenotypingCentre = new ArrayList<>();
 
+	@Field(IKMC_PROJECT)
+	private String ikmcProject;
+	@Field(GENE_ALLELE)
+	private String geneAllele;
 
 	@Field(GO_TERM_ID)
 	private List<String> goTermIds = new ArrayList<>();
@@ -682,6 +690,28 @@ public class AlleleDTO {
 		this.alleleAccessionIds = alleleAccessionIds;
 	}
 
+
+	/**
+	 * @return the IKMC project
+	 */
+	public String getIkmcProject() {
+		return ikmcProject;
+	}
+
+	public void setIkmcProject(String ikmcProject) {
+		this.ikmcProject = ikmcProject;
+	}
+
+	/**
+	 * @return the gene,allele string concatenated, like eg, Rabl6tm1b(KOMP)Wtsi
+	 */
+	public String getGeneAllele() {
+		return geneAllele;
+	}
+
+	public void setGeneAllele(String geneAllele) {
+		this.geneAllele = geneAllele;
+	}
 
 	/**
 	 * @return the imitsEsCellStatus

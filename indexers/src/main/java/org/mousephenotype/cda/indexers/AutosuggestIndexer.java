@@ -29,6 +29,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
+import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -44,10 +45,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @EnableAutoConfiguration
 public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRunner {
@@ -63,6 +61,10 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     @Autowired
     @Qualifier("autosuggestIndexing")
     private SolrServer autosuggestCore;
+
+    @NotNull
+    @Value("${imits.solr.host}")
+    private String imitsSolrHost;
 
     @Autowired
     @Qualifier("geneIndexing")
@@ -84,7 +86,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     @Autowired
    	private GwasDAO gwasDao;
 
-
+    private SolrServer sangerAlleleCore;
     private SolrServer phenodigmCore;
 
     public static final long MIN_EXPECTED_ROWS = 218000;
@@ -139,6 +141,15 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     Set<String> gwasUpstreamGeneSymbolSet = new HashSet();
     Set<String> gwasDownstreamGeneSymbolSet = new HashSet();
 
+    // allele2 (for product tab on search page)
+    Set<String> allele2AlleleNameSet = new HashSet();
+    Set<String> allele2MarkerSymbolSet = new HashSet();
+    Set<String> allele2MarkerSynonymSet = new HashSet();
+    Set<String> allele2IkmcProjectSet = new HashSet();
+    Set<String> allele2GeneAlleleSet = new HashSet();
+    Map<String, List<String>> markerSymbolSynonymsMap = new HashMap<>();
+
+
     String mapKey;
 
     @Override
@@ -148,6 +159,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
     private void initializeSolrCores() {
 
+        final String SANGER_ALLELE_URL = imitsSolrHost +"/allele2";
         final String PHENODIGM_URL = phenodigmSolrServer;
 
         // Use system proxy if set for external solr servers
@@ -162,15 +174,16 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
+            this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
             this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
 
         } else {
 
+            this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
             this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
 
         }
     }
-
 
 
     @Override
@@ -187,6 +200,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             populateMpAutosuggestTerms();
             populateDiseaseAutosuggestTerms();
             populateAnatomyAutosuggestTerms();
+            populateProductAutosuggestTerms(); // must run after populateGeneAutosuggestTerms to use the map markerSymbolSynonymsMap
             populateHpAutosuggestTerms();
             populateGwasAutosuggestTerms();
 
@@ -200,7 +214,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
-
 
     private void populateGeneAutosuggestTerms() throws SolrServerException, IOException {
 
@@ -231,6 +244,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                     case GeneDTO.MARKER_SYMBOL:
                         mapKey = gene.getMarkerSymbol();
                         if (markerSymbolSet.add(mapKey)) {
+                            markerSymbolSynonymsMap.put(mapKey, new ArrayList<String>());
                             a.setMarkerSymbol(gene.getMarkerSymbol());
                             beans.add(a);
                         }
@@ -245,8 +259,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                     case GeneDTO.MARKER_SYNONYM:
                         if (gene.getMarkerSynonym() != null) {
                             for (String s : gene.getMarkerSynonym()) {
-                                mapKey = s;
-                                if (markerSynonymSet.add(mapKey)) {
+                                markerSymbolSynonymsMap.get(gene.getMarkerSymbol()).add(s);
+                                if (markerSynonymSet.add(s)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMarkerSynonym(s);
                                     asyn.setDocType("gene");
@@ -289,6 +303,15 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
 
         }
+        Iterator it = markerSymbolSynonymsMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            System.out.println("CHK: "+pair.getKey() + " = " + pair.getValue());
+           // it.remove(); // avoids a ConcurrentModificationException
+        }
+        System.out.println("check map size: "+ markerSymbolSynonymsMap.size());
+        System.out.println("chk syn: " + markerSymbolSynonymsMap.get("P2rx4"));
+
     }
 
     private void populateMpAutosuggestTerms() throws SolrServerException, IOException {
@@ -841,6 +864,87 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 documentCount += beans.size();
                 autosuggestCore.addBeans(beans, 60000);
             }
+        }
+    }
+
+    private void populateProductAutosuggestTerms() throws SolrServerException, IOException {
+
+        //List<String> productFields = Arrays.asList(AlleleDTO.MARKER_SYMBOL, AlleleDTO.ALLELE_NAME, AlleleDTO.IKMC_PROJECT);
+        List<String> productFields = Arrays.asList(AlleleDTO.MARKER_SYMBOL, AlleleDTO.ALLELE_NAME);
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .setFields(StringUtils.join(productFields, ","))
+                .setRows(Integer.MAX_VALUE);
+
+        QueryResponse response = sangerAlleleCore.query(query);
+        System.out.println(" docs found: " + response.getResults().getNumFound());
+        List<AlleleDTO> alleles = response.getBeans(AlleleDTO.class);
+//       List<AlleleDTO> alleles = sangerAlleleCore.query(query).getBeans(AlleleDTO.class);
+
+        String docType = "allele2";
+
+        for (AlleleDTO allele : alleles) {
+
+            Set<AutosuggestBean> beans = new HashSet<>();
+            for (String field : productFields) {
+
+                AutosuggestBean a = new AutosuggestBean();
+                a.setDocType(docType);
+
+                switch (field) {
+                    case AlleleDTO.MARKER_SYMBOL:
+                        mapKey = allele.getMarkerSymbol();
+                        if (markerSymbolSet.add(mapKey)) {
+                            a.setMarkerSymbol(mapKey);
+                            beans.add(a);
+                            if ( mapKey.equals("P2rx4")) {
+                                System.out.println("check set size: " + markerSymbolSynonymsMap.size());
+                            }
+                           // System.out.println("symbol: "+mapKey);
+                            if ( markerSymbolSynonymsMap.get(mapKey) != null ) {
+                                System.out.println("symbol2: "+mapKey);
+                                for (String syn : markerSymbolSynonymsMap.get(mapKey)) {
+                                    AutosuggestBean syna = new AutosuggestBean();
+                                    syna.setDocType(docType);
+                                    syna.setMarkerSynonym(syn);
+                                    beans.add(syna);
+                                }
+                            }
+                        }
+                        break;
+//                    case AlleleDTO.IKMC_PROJECT:
+//                        mapKey = allele.getIkmcProject();
+//                        if (allele2IkmcProjectSet.add(mapKey)) {
+//                            a.setIkmcProject(mapKey);
+//                            beans.add(a);
+//                        }
+//                        break;
+                    case AlleleDTO.ALLELE_NAME:
+                        List<String> names = allele.getAlleleName();
+                        for( String mapKey : names) {
+                            if (allele2AlleleNameSet.add(mapKey)) {
+                                a.setAlleleName(mapKey);
+                                beans.add(a);
+
+                                String markerSymbol = allele.getMarkerSymbol();
+                                if (allele2GeneAlleleSet.add(markerSymbol)) {
+                                    AutosuggestBean ga = new AutosuggestBean();
+                                    ga.setDocType(docType);
+                                    ga.setGeneAllele(markerSymbol + " " + mapKey);
+                                    beans.add(ga);
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+
+            if ( ! beans.isEmpty()) {
+                documentCount += beans.size();
+                autosuggestCore.addBeans(beans, 60000);
+            }
+
         }
     }
 

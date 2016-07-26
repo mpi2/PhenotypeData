@@ -81,6 +81,11 @@ public class AutosuggestBean {
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_TERM = "disease_term";
 	public static final String DISEASE_ALTS = "disease_alts";
+
+	public static final String IKMC_PROJECT = "ikmc_project";
+	public static final String ALLELE_NAME = "allele_name";
+	public static final String GENE_ALLELE = "gene_allele";
+
 	public static final String AUTO_SUGGEST = "auto_suggest";
 
 	public static final String GWAS_MGI_GENE_ID = "gwas_mgi_gene_id";
@@ -251,6 +256,13 @@ public class AutosuggestBean {
 
 	@Field(DISEASE_ALTS)
 	private String diseaseAlts;
+
+	@Field(IKMC_PROJECT)
+	private String ikmcProject;
+	@Field(ALLELE_NAME)
+	private String alleleName;
+	@Field(GENE_ALLELE)
+	private String geneAllele;
 
 	@Field(AUTO_SUGGEST)
 	private List<String> autosuggest;
@@ -700,6 +712,30 @@ public class AutosuggestBean {
 		this.diseaseAlts = diseaseAlts;
 	}
 
+	public String getIkmcProject() {
+		return ikmcProject;
+	}
+
+	public void setIkmcProject(String ikmcProject) {
+		this.ikmcProject = ikmcProject;
+	}
+
+	public String getAlleleName() {
+		return alleleName;
+	}
+
+	public void setAlleleName(String alleleName) {
+		this.alleleName = alleleName;
+	}
+
+	public String getGeneAllele() {
+		return geneAllele;
+	}
+
+	public void setGeneAllele(String geneAllele) {
+		this.geneAllele = geneAllele;
+	}
+
 	public List<String> getAutosuggest() {
 		return autosuggest;
 	}
@@ -892,6 +928,9 @@ public class AutosuggestBean {
 		if (diseaseId != null ? !diseaseId.equals(that.diseaseId) : that.diseaseId != null) return false;
 		if (diseaseTerm != null ? !diseaseTerm.equals(that.diseaseTerm) : that.diseaseTerm != null) return false;
 		if (diseaseAlts != null ? !diseaseAlts.equals(that.diseaseAlts) : that.diseaseAlts != null) return false;
+		if (ikmcProject != null ? !ikmcProject.equals(that.ikmcProject) : that.ikmcProject != null) return false;
+		if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) return false;
+		if (geneAllele != null ? !geneAllele.equals(that.geneAllele) : that.geneAllele != null) return false;
 		if (autosuggest != null ? !autosuggest.equals(that.autosuggest) : that.autosuggest != null) return false;
 		if (gwasMgiGeneId != null ? !gwasMgiGeneId.equals(that.gwasMgiGeneId) : that.gwasMgiGeneId != null)
 			return false;
@@ -914,7 +953,7 @@ public class AutosuggestBean {
 			return false;
 		if (gwasDownstreamGene != null ? !gwasDownstreamGene.equals(that.gwasDownstreamGene) : that.gwasDownstreamGene != null)
 			return false;
-		return !(gwasSnpId != null ? !gwasSnpId.equals(that.gwasSnpId) : that.gwasSnpId != null);
+		return gwasSnpId != null ? gwasSnpId.equals(that.gwasSnpId) : that.gwasSnpId == null;
 
 	}
 
@@ -971,6 +1010,9 @@ public class AutosuggestBean {
 		result = 31 * result + (diseaseId != null ? diseaseId.hashCode() : 0);
 		result = 31 * result + (diseaseTerm != null ? diseaseTerm.hashCode() : 0);
 		result = 31 * result + (diseaseAlts != null ? diseaseAlts.hashCode() : 0);
+		result = 31 * result + (ikmcProject != null ? ikmcProject.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (geneAllele != null ? geneAllele.hashCode() : 0);
 		result = 31 * result + (autosuggest != null ? autosuggest.hashCode() : 0);
 		result = 31 * result + (gwasMgiGeneId != null ? gwasMgiGeneId.hashCode() : 0);
 		result = 31 * result + (gwasMgiGeneSymbol != null ? gwasMgiGeneSymbol.hashCode() : 0);
@@ -986,7 +1028,6 @@ public class AutosuggestBean {
 		result = 31 * result + (gwasSnpId != null ? gwasSnpId.hashCode() : 0);
 		return result;
 	}
-
 
 	@Override
 	public String toString() {
@@ -1042,6 +1083,9 @@ public class AutosuggestBean {
 				", diseaseId='" + diseaseId + '\'' +
 				", diseaseTerm='" + diseaseTerm + '\'' +
 				", diseaseAlts='" + diseaseAlts + '\'' +
+				", ikmcProject='" + ikmcProject + '\'' +
+				", alleleName='" + alleleName + '\'' +
+				", geneAllele='" + geneAllele + '\'' +
 				", autosuggest=" + autosuggest +
 				", gwasMgiGeneId='" + gwasMgiGeneId + '\'' +
 				", gwasMgiGeneSymbol='" + gwasMgiGeneSymbol + '\'' +
