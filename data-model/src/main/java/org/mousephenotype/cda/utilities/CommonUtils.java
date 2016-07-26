@@ -16,6 +16,9 @@
 
 package org.mousephenotype.cda.utilities;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DateFormat;
@@ -132,6 +135,22 @@ public class CommonUtils {
 	    codeRank.put("ND", 1);
 
     	return codeRank;
+    }
+
+    public String getMysqlFullpath() {
+        try {
+            Process p = Runtime.getRuntime().exec("which mysql");
+            p.waitFor();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line = reader.readLine();
+            reader.close();
+
+            return line;
+        }
+
+        catch(Exception e1) {}
+
+        return "";
     }
 
     /**

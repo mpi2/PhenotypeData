@@ -50,18 +50,18 @@
 		
 		/** Add widgets **/
 		$('#widgets_pc').html("");
-		$('#widgets_pc').append('<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>');
+//		$('#widgets_pc').append('<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>');
 
 		$('#widgets_pc').append('<a href="#" id="export_selected" class="button right filter_control btn" title = "Export raw data in the table">Export</a>');
 		$('#widgets_pc').append('<a href="#" id="remove_filters" class="button right filter_control btn" title = "Remove filters">Clear filters</a>');
 		$('#widgets_pc').append('<br/>');
-		$('#widgets_pc').append('<div class="right"><input type="range" min="0" max="1" value="0.2" step="0.01"	name="power" list="powers" id="line_opacity"></input>Opacity: <span id="opacity_level">20%</span></div>');
+//		$('#widgets_pc').append('<div class="right"><input type="range" min="0" max="1" value="0.2" step="0.01"	name="power" list="powers" id="line_opacity"></input>Opacity: <span id="opacity_level">20%</span></div>');
 		
 		var dimensions = new Filter({
 			defaultValues : defaults
 		});
 		var highlighter = new Selector();
-
+		$('body').addClass("shadows");
 		dimensions.set({
 			data : foods
 		});
@@ -103,9 +103,9 @@
 		});
 
 		// vertical full screen
-		var parallel_height = $(window).height() - 64 - 12 - 120 - 320;
-		if (parallel_height < 340)
-			parallel_height = 340; // min height
+		var parallel_height = $(window).height() - 64- 12  - 120 - 320;
+		if (parallel_height < 380)
+			parallel_height = 380; // min height
 		$('#parallel').css({
 			height : parallel_height + 'px',
 			width : '100%'

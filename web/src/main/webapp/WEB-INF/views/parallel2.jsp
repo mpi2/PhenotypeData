@@ -57,7 +57,7 @@
 							</div>
 		                	<div class="clear"></div>
 	                    </form>
-									
+							
 						<div id="chart-and-table">
 							<div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
 						</div>

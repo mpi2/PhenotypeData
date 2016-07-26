@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.cdaloader.support;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
-import org.mousephenotype.cda.loads.LoaderUtils;
+import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

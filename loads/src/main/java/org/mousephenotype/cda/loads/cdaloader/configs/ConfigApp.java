@@ -16,23 +16,14 @@
 
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
-import org.hibernate.SessionFactory;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @ComponentScan("org.mousephenotype.cda.loads.cdaloader")
@@ -54,48 +45,6 @@ public class ConfigApp {
 
 		return ds;
 	}
-
-	@Bean(name = "cdaloadTxManager")
-    @Primary
-	public PlatformTransactionManager txManager() {
-		return new DataSourceTransactionManager(cdaload());
-	}
-
-    protected Properties buildHibernateProperties() {
-   		Properties hibernateProperties = new Properties();
-
-   		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-   		hibernateProperties.setProperty("hibernate.show_sql", "false");
-   		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-   		hibernateProperties.setProperty("hibernate.format_sql", "true");
-   		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-
-   		return hibernateProperties;
-   	}
-
-   	@Bean(name = "sessionFactory")
-    @Qualifier("cdaload")
-   	@Primary
-   	public SessionFactory sessionFactory(DataSource dataSource) {
-
-   		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dataSource);
-        sessionBuilder.scanPackages("org.mousephenotype.cda.loads.cdaloader");
-
-   		return sessionBuilder.buildSessionFactory();
-   	}
-
-    @Bean
-   	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-   		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-   		emf.setDataSource(cdaload());
-   		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.loads.cdaloader"});
-
-   		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-   		emf.setJpaVendorAdapter(vendorAdapter);
-   		emf.setJpaProperties(buildHibernateProperties());
-
-   		return emf;
-   	}
 
 	@Bean
 	public JdbcTemplate jdbcTemplate() {
