@@ -14,7 +14,7 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads;
+package org.mousephenotype.cda.loads.legacy;
 
 /**
  * This class encapsulates the code and data necessary to represent an IMSR input file record.
