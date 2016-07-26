@@ -51,11 +51,12 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
 	private final Logger logger = LoggerFactory.getLogger(DiseaseIndexer.class);
 
 
-    @NotNull
-    @Value("${phenodigm.solrserver}")
-    private String phenodigmSolrServer;
 
-    @Autowired
+	@Autowired
+	@Qualifier("phenodigmCore")
+	private SolrServer phenodigmCore;
+
+	@Autowired
     @Qualifier("geneCore")
     private SolrServer geneCore;
 
@@ -63,14 +64,10 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
     @Qualifier("diseaseIndexing")
     private SolrServer diseaseIndexing;
 
-
-
     public static final int MAX_DISEASES = 10000;
 
     // Map disease ID to list of gene data objects
     private static Map<String, GeneData> geneLookup = new HashMap<>();
-
-    private SolrServer phenodigmCore;
 
     public DiseaseIndexer() {
 

@@ -64,9 +64,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
 
-	@NotNull
-    @Value("${phenodigm.solrserver}")
-    private String phenodigmSolrServer;
+
+	@Autowired
+	@Qualifier("phenodigmCore")
+	private SolrServer phenodigmCore;
 
     @Autowired
     @Qualifier("alleleCore")
@@ -95,7 +96,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("mpIndexing")
     private SolrServer mpIndexing;
 
-    private SolrServer phenodigmCore;
     @Autowired
     MpOntologyDAO mpOntologyService;
 
@@ -140,16 +140,16 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    
+
     @Override
-    public RunStatus validateBuild() 
+    public RunStatus validateBuild()
     throws IndexerException {
         return super.validateBuild(mpIndexing);
     }
 
 
     @Override
-    public RunStatus run() 
+    public RunStatus run()
     throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
@@ -242,7 +242,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
 
-    private int sumPhenotypingCalls(String mpId) 
+    private int sumPhenotypingCalls(String mpId)
     throws SolrServerException {
 
     	List<SolrServer> ss = new ArrayList<>();
@@ -268,7 +268,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return calls;
     }
 
-    private void populateGene2MpCalls() 
+    private void populateGene2MpCalls()
     throws SQLException {
 
     	String qry = "select mp_acc, count(*) as calls from phenotype_call_summary where p_value < 0.0001 group by mp_acc";
@@ -334,9 +334,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
 
-    private void initialiseSupportingBeans() 
+    private void initialiseSupportingBeans()
     throws IndexerException {
-    	
+
         try {
             // Grab all the supporting database content
             mphpBeans = getMPHPBeans();
@@ -369,9 +369,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    private Map<String, List<MPHPBean>> getMPHPBeans() 
+    private Map<String, List<MPHPBean>> getMPHPBeans()
     throws IndexerException {
-    	
+
         Map<String, List<MPHPBean>> beans = new HashMap<>();
         int count;
 
@@ -401,9 +401,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<Integer>> getNodeIds() 
+    private Map<String, List<Integer>> getNodeIds()
     throws SQLException {
-    	
+
         Map<String, List<Integer>> beans = new HashMap<>();
         String q = "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
         PreparedStatement ps = ontoDbConnection.prepareStatement(q);
@@ -424,9 +424,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<Integer, List<MPTopLevelTermBean>> getTopLevelTerms() 
+    private Map<Integer, List<MPTopLevelTermBean>> getTopLevelTerms()
     throws SQLException {
-    	
+
         Map<Integer, List<MPTopLevelTermBean>> beans = new HashMap<>();
         String q = "select lv.node_id as mp_node_id, ti.term_id, ti.name, ti.definition, concat(ti.name, '___', ti.term_id) as top_level_mp_term_id from mp_node_top_level lv inner join mp_node2term nt on lv.top_level_node_id=nt.node_id inner join mp_term_infos ti on nt.term_id=ti.term_id and ti.term_id!='MP:0000001'";
         PreparedStatement ps = ontoDbConnection.prepareStatement(q);
@@ -459,7 +459,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
      * @return the map.
      * @throws SQLException
      */
-    private Map<Integer, List<Integer>> getIntermediateNodeIds() 
+    private Map<Integer, List<Integer>> getIntermediateNodeIds()
     throws SQLException {
 
     	Map<Integer, List<Integer>> beans = new HashMap<>();
@@ -488,9 +488,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
      * @return the map.
      * @throws SQLException
      */
-    private Map<Integer, List<Integer>> getChildNodeIds() 
+    private Map<Integer, List<Integer>> getChildNodeIds()
     throws SQLException {
-    	
+
         Map<Integer, List<Integer>> beans = new HashMap<>();
 
         String q = "select node_id, child_node_id from mp_node_subsumption_fullpath";
@@ -511,9 +511,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<Integer, List<MPTermNodeBean>> getIntermediateTerms() 
+    private Map<Integer, List<MPTermNodeBean>> getIntermediateTerms()
     throws SQLException {
-    	
+
         Map<Integer, List<MPTermNodeBean>> beans = new HashMap<>();
 
         String q = "select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
@@ -539,9 +539,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<Integer, List<Integer>> getParentNodeIds() 
+    private Map<Integer, List<Integer>> getParentNodeIds()
     throws SQLException {
-    	
+
         Map<Integer, List<Integer>> beans = new HashMap<>();
 
         String q = "select parent_node_id, child_node_id from mp_parent_children";
@@ -562,9 +562,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getMPTermSynonyms() 
+    private Map<String, List<String>> getMPTermSynonyms()
     throws SQLException {
-    
+
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select term_id, syn_name from mp_synonyms";
@@ -585,9 +585,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<MPTermNodeBean>> getMATermNodes() 
+    private Map<String, List<MPTermNodeBean>> getMATermNodes()
     throws SQLException {
-    	
+
         Map<String, List<MPTermNodeBean>> beans = new HashMap<>();
 
         String q = "select mp.term_id, ti.term_id as ma_term_id, ti.name as ma_term_name from mp_mappings mp inner join ma_term_infos ti on mp.mapped_term_id=ti.term_id and mp.ontology='MA'";
@@ -612,9 +612,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    public Map<String, List<String>> getMaTopLevelNodes() 
+    public Map<String, List<String>> getMaTopLevelNodes()
     throws SQLException {
-    	
+
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
@@ -635,9 +635,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<MPTermNodeBean>> getMAChildLevelNodes() 
+    private Map<String, List<MPTermNodeBean>> getMAChildLevelNodes()
     throws SQLException {
-    	
+
         Map<String, List<MPTermNodeBean>> beans = new HashMap<>();
 
         String q = "select ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term from ma_term_infos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id";
@@ -662,9 +662,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getMATermSynonyms() 
+    private Map<String, List<String>> getMATermSynonyms()
     throws SQLException {
-    	
+
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select term_id, syn_name from ma_synonyms";
@@ -685,9 +685,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getOntologySubsets() 
+    private Map<String, List<String>> getOntologySubsets()
     throws SQLException {
-    	
+
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select term_id, subset from mp_term_subsets";
@@ -708,9 +708,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getGOIds() 
+    private Map<String, List<String>> getGOIds()
     throws SQLException {
-    	
+
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select distinct x.xref_id, ti.term_id from mp_dbxrefs x inner join mp_term_infos ti on x.term_id=ti.term_id and x.xref_id like 'GO:%'";
@@ -731,9 +731,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1() 
+    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1()
     throws SQLException {
-    	
+
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
         String q = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where p_value <= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
@@ -765,9 +765,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getImpcPipe() 
+    private Map<String, List<String>> getImpcPipe()
     throws SQLException {
-    	
+
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value < 0.0001 and external_db_id = 22";
@@ -788,9 +788,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getLegacyPipe() 
+    private Map<String, List<String>> getLegacyPipe()
     throws SQLException {
-    	
+
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value < 0.0001 and external_db_id = 12";
@@ -811,9 +811,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary2() 
+    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary2()
     throws SQLException {
-    	
+
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
         String q = "select distinct gf_acc, mp_acc, parameter_id, procedure_id, pipeline_id, concat(parameter_id,'_',procedure_id,'_',pipeline_id) as ididid, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
@@ -845,9 +845,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<MPStrainBean>> getStrains() 
+    private Map<String, List<MPStrainBean>> getStrains()
     throws SQLException {
-    	
+
         Map<String, List<MPStrainBean>> beans = new HashMap<>();
 
         String q = "select distinct name, acc from strain where db_id=3";
@@ -873,9 +873,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<ParamProcedurePipelineBean>> getPPPBeans() 
+    private Map<String, List<ParamProcedurePipelineBean>> getPPPBeans()
     throws SQLException {
-    	
+
         Map<String, List<ParamProcedurePipelineBean>> beans = new HashMap<>();
 
         String q = "select concat(pp.id,'_',pproc.id,'_',ppipe.id) as ididid, pp.name as parameter_name, pp.stable_key as parameter_stable_key, pp.stable_id as parameter_stable_id, pproc.name as procedure_name, pproc.stable_key as procedure_stable_key, pproc.stable_id as procedure_stable_id, ppipe.name as pipeline_name, ppipe.stable_key as pipeline_key, ppipe.stable_id as pipeline_stable_id from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id";
