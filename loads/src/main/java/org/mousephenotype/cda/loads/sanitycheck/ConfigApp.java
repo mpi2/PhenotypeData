@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.sanitycheck;
 
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
@@ -30,7 +29,6 @@ import javax.sql.DataSource;
 @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
 @PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
                 ignoreResourceNotFound=true)
-@EnableAutoConfiguration
 /**
  * Created by mrelac on 12/04/2016.
  */
