@@ -87,7 +87,7 @@ public class ParallelCoordinatesDTO {
 		String res = "";
 
 		if (onlyComplete && isComplete() || !onlyComplete){
-			res += "\"name\": \"" + geneSymbol + "(" + geneAccession + ")\",";
+			res += "\"gene\": \"" + geneSymbol + "(" + geneAccession + ")\",";
 			res += "\"group\": \"" + group + "\",";
 			int i = 0;
 
