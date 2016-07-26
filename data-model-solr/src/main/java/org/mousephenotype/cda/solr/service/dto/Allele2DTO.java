@@ -78,6 +78,37 @@ public class Allele2DTO {
 	@Field(LINKS)
 	private List<String> links;
 	
+	public static final String TARGETING_VECTOR_AVAILABLE="targeting_vector_available";
+	@Field(TARGETING_VECTOR_AVAILABLE)
+	private Boolean targetingVectorAvailable;
+	
+	public static final String ES_CELL_AVAILABLE="es_cell_available";
+	@Field(ES_CELL_AVAILABLE)
+	private Boolean esCellAvailable;
+	
+	
+	public static final String MOUSE_AVAILABLE="mouse_available";
+	@Field(MOUSE_AVAILABLE)
+	private Boolean mouseAvailable;
+	
+	public Boolean getMouseAvailable() {
+		return mouseAvailable;
+	}
+	public void setMouseAvailable(Boolean mouseAvailable) {
+		this.mouseAvailable = mouseAvailable;
+	}
+	public Boolean getEsCellAvailable() {
+		return esCellAvailable;
+	}
+	public void setEsCellAvailable(Boolean esCellAvailable) {
+		this.esCellAvailable = esCellAvailable;
+	}
+	public Boolean getTargetingVectorAvailable() {
+		return targetingVectorAvailable;
+	}
+	public void setTargetingVectorAvailable(Boolean targetingVectorAvailable) {
+		this.targetingVectorAvailable = targetingVectorAvailable;
+	}
 	public String getMarkerSymmobl() {
 		return markerSymmobl;
 	}

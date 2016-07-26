@@ -207,8 +207,8 @@ input[type="submit"],
 input[type="submit"]:hover,
 .btn:hover              { text-decoration: none; color: #fff; background-color: #0978a1; }
 .btn i                  { margin-right: 0.3em; }
-td .btn                 { background-color: #eee; color: #777; }
-td .btn:hover           { background-color: #0978a1; color: #fff; }
+/*td .btn                 { background-color: #eee; color: #777; }*/
+td .btn:hover           { background-color: #08788f; color: #fff; }
 .btn.editlink           { opacity: 0.3; }
 .btn.editlink:hover     { opacity: 1; }
 p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1px dotted; }
