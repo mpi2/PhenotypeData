@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
+package org.mousephenotype.cda.loads.dataimporter;
 
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
@@ -42,9 +42,9 @@ import java.util.List;
 /**
  * Created by mrelac on 02/03/2016.
  */
-public class DccLoaderUtils {
+public class DataImporterUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(DccLoaderUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataImporterUtils.class);
 
     public static String dumpSpecimen(Connection connection, long centerPk, long specimenPk) {
         String retVal = "";

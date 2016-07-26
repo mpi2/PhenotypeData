@@ -14,30 +14,30 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
+package org.mousephenotype.cda.loads.dataimporter;
 
 /**
  * Created by mrelac on 24/07/2015.
  */
-public class DccLoaderException extends Exception {
+public class DataImporterException extends Exception {
 
-    public DccLoaderException() {
+    public DataImporterException() {
         super();
     }
 
-    public DccLoaderException(String message) {
+    public DataImporterException(String message) {
         super(message);
     }
 
-    public DccLoaderException(String message, Throwable cause) {
+    public DataImporterException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public DccLoaderException(Throwable cause) {
+    public DataImporterException(Throwable cause) {
         super(cause);
     }
 
-    public DccLoaderException(String message, Throwable cause, boolean enableSuppression, boolean writeableStackTrace) {
+    public DataImporterException(String message, Throwable cause, boolean enableSuppression, boolean writeableStackTrace) {
         super(message, cause, enableSuppression, writeableStackTrace);
     }
 }

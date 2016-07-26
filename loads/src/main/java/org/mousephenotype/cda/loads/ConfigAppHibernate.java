@@ -16,28 +16,12 @@
 
 package org.mousephenotype.cda.loads;
 
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.*;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
-
-import javax.sql.DataSource;
-import java.util.Properties;
-
-@Configuration
-@ComponentScan("org.mousephenotype.cda.loads")
-@PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
-@PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
-                ignoreResourceNotFound=true)
-@EnableAutoConfiguration
+//@Configuration
+//@ComponentScan("org.mousephenotype.cda.loads")
+//@PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
+//@PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
+//                ignoreResourceNotFound=true)
+//@EnableAutoConfiguration
 /**
  * Created by mrelac on 26/07/2016.
  *
@@ -49,54 +33,54 @@ public class ConfigAppHibernate {
 
 	// REQUIRED FOR HIBERNATE
 
-	@Bean(name = "komp2Datasource")
-	@Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
-	public DataSource komp2Datasource() {
-        DataSource ds = DataSourceBuilder.create().build();
-
-		return ds;
-	}
-
-	@Bean(name = "komp2TxManager")
-    @Primary
-	public PlatformTransactionManager txManager() {
-		return new DataSourceTransactionManager(komp2Datasource());
-	}
-
-    protected Properties buildHibernateProperties() {
-   		Properties hibernateProperties = new Properties();
-
-   		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-   		hibernateProperties.setProperty("hibernate.show_sql", "false");
-   		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-   		hibernateProperties.setProperty("hibernate.format_sql", "true");
-   		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-
-   		return hibernateProperties;
-   	}
-
-   	@Bean(name = "sessionFactory")
-    @Qualifier("komp2Datasource")
-   	@Primary
-   	public SessionFactory sessionFactory(DataSource dataSource) {
-
-   		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dataSource);
-        sessionBuilder.scanPackages("org.mousephenotype.cda.loads");
-
-   		return sessionBuilder.buildSessionFactory();
-   	}
-
-    @Bean
-   	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-   		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-   		emf.setDataSource(komp2Datasource());
-   		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.loads"});
-
-   		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-   		emf.setJpaVendorAdapter(vendorAdapter);
-   		emf.setJpaProperties(buildHibernateProperties());
-
-   		return emf;
-   	}
+//	@Bean(name = "komp2Datasource")
+//	@Primary
+//    @ConfigurationProperties(prefix = "datasource.komp2")
+//	public DataSource komp2Datasource() {
+//        DataSource ds = DataSourceBuilder.create().build();
+//
+//		return ds;
+//	}
+//
+//	@Bean(name = "komp2TxManager")
+//    @Primary
+//	public PlatformTransactionManager txManager() {
+//		return new DataSourceTransactionManager(komp2Datasource());
+//	}
+//
+//    protected Properties buildHibernateProperties() {
+//   		Properties hibernateProperties = new Properties();
+//
+//   		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+//   		hibernateProperties.setProperty("hibernate.show_sql", "false");
+//   		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
+//   		hibernateProperties.setProperty("hibernate.format_sql", "true");
+//   		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+//
+//   		return hibernateProperties;
+//   	}
+//
+//   	@Bean(name = "sessionFactory")
+//    @Qualifier("komp2Datasource")
+//   	@Primary
+//   	public SessionFactory sessionFactory(DataSource dataSource) {
+//
+//   		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dataSource);
+//        sessionBuilder.scanPackages("org.mousephenotype.cda.loads");
+//
+//   		return sessionBuilder.buildSessionFactory();
+//   	}
+//
+//    @Bean
+//   	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+//   		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
+//   		emf.setDataSource(komp2Datasource());
+//   		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.loads"});
+//
+//   		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//   		emf.setJpaVendorAdapter(vendorAdapter);
+//   		emf.setJpaProperties(buildHibernateProperties());
+//
+//   		return emf;
+//   	}
 }
