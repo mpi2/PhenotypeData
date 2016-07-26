@@ -51,7 +51,7 @@
 			var cellPadding = 10;
 			var cellHeight = 12;
 			
-			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2];
+			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2] - 2*(cellPadding + cellHeight);
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
 			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
 			var labelXStart = []; 
