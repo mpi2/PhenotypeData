@@ -52,7 +52,7 @@ public class ConfigAppHibernate {
 	@Bean(name = "komp2Datasource")
 	@Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
-	public DataSource cdaload() {
+	public DataSource komp2Datasource() {
         DataSource ds = DataSourceBuilder.create().build();
 
 		return ds;
@@ -61,7 +61,7 @@ public class ConfigAppHibernate {
 	@Bean(name = "komp2TxManager")
     @Primary
 	public PlatformTransactionManager txManager() {
-		return new DataSourceTransactionManager(cdaload());
+		return new DataSourceTransactionManager(komp2Datasource());
 	}
 
     protected Properties buildHibernateProperties() {
@@ -82,7 +82,7 @@ public class ConfigAppHibernate {
    	public SessionFactory sessionFactory(DataSource dataSource) {
 
    		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dataSource);
-        sessionBuilder.scanPackages("org.mousephenotype.cda.loads.cdaloader");
+        sessionBuilder.scanPackages("org.mousephenotype.cda.loads");
 
    		return sessionBuilder.buildSessionFactory();
    	}
@@ -90,8 +90,8 @@ public class ConfigAppHibernate {
     @Bean
    	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
    		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-   		emf.setDataSource(cdaload());
-//   		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.loads.cdaloader"});
+   		emf.setDataSource(komp2Datasource());
+   		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.loads"});
 
    		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
    		emf.setJpaVendorAdapter(vendorAdapter);
