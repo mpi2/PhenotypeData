@@ -62,7 +62,7 @@ public class AbrChartAndTableProvider {
 	public String getChart(Integer pipelineId, String acc, List<String> genderList, List<String> zyList,
 			String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String chartId) throws SolrServerException{
 
-    	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap<>(); // <control/experim, ArrayList<dataToPlot>>
+    	Map<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap<>(); // <control/experim, ArrayList<dataToPlot>>
     	data.put(ChartUtils.getLabel(null, SexType.female), new ArrayList<UnidimensionalStatsObject>() );
     	data.put(ChartUtils.getLabel(null,  SexType.male), new ArrayList<UnidimensionalStatsObject>() );
     	for (String zygosity: zyList){
@@ -118,7 +118,7 @@ public class AbrChartAndTableProvider {
 	}
 
 
-	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities, String chartId) throws SolrServerException{
+	public String getCustomChart(Map<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities, String chartId) throws SolrServerException{
 
 		JSONArray categories = new JSONArray();
 		String title = "Evoked ABR Threshold (6, 12, 18, 24, 30 kHz)";
