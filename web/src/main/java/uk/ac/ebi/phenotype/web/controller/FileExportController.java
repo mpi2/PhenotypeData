@@ -16,8 +16,25 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -25,13 +42,24 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.db.dao.*;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.dao.AlleleDAO;
+import org.mousephenotype.cda.db.dao.GwasDAO;
+import org.mousephenotype.cda.db.dao.GwasDTO;
+import org.mousephenotype.cda.db.dao.OrganisationDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.db.dao.StrainDAO;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Pipeline;
+import org.mousephenotype.cda.db.pojo.ReferenceDTO;
+import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
-import org.mousephenotype.cda.solr.generic.util.Tools;
-import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
@@ -49,25 +77,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 @Controller
 public class FileExportController {
@@ -78,9 +95,6 @@ public class FileExportController {
 
 	@Autowired
 	private GeneService geneService;
-
-	@Autowired
-	private ImageService imageService;
 
 	@Autowired
 	private MpService mpService;
@@ -106,9 +120,6 @@ public class FileExportController {
 
 	@Autowired
 	AlleleDAO alleleDAO;
-
-	@Autowired
-	private PhenotypeCallSummarySolr phenoDAO;
 
 	private String NO_INFO_MSG = "No information available";
 
@@ -160,7 +171,6 @@ public class FileExportController {
 			@RequestParam(value = "strain", required = false) String strainParameter)
 					throws SolrServerException, IOException, URISyntaxException {
 
-		Organisation phenotypingCenter = organisationDao.getOrganisationByName(phenotypingCenterParameter);
 		Pipeline pipeline = ppDAO.getPhenotypePipelineByStableId(pipelineStableId);
 		Parameter parameter = ppDAO.getParameterByStableId(parameterStableId);
 		if (alleleAccession!=null) {
@@ -169,8 +179,6 @@ public class FileExportController {
 		Allele allele = alleleDAO.getAlleleByAccession(alleleAccessionId);
 		SexType sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]) : null;
 		List<String> zygosities = (zygositiesParameter == null) ? null : Arrays.asList(zygositiesParameter);
-		String center = phenotypingCenter.getName();
-		Integer centerId = phenotypingCenter.getId();
 		String geneAcc = allele.getGene().getId().getAccession();
 		String alleleAcc = allele.getId().getAccession();
 
@@ -182,8 +190,8 @@ public class FileExportController {
 			}
 		}
 
-		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getId(), pipeline.getId(),
-				geneAcc, sex, centerId, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
+		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getStableId(), pipeline.getId(),
+				geneAcc, sex, phenotypingCenterParameter, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
 
 		List<String> rows = new ArrayList<>();
 		rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain",
@@ -201,7 +209,7 @@ public class FileExportController {
 			for (ObservationDTO observation : observations) {
 				List<String> row = new ArrayList<>();
 				row.add("Exp" + i.toString());
-				row.add(center);
+				row.add(phenotypingCenterParameter);
 				row.add(pipelineStableId);
 				row.add(procedureStableId);
 				row.add(parameterStableId);
@@ -248,14 +256,9 @@ public class FileExportController {
 		@RequestParam(value = "iDisplayLength", required = true) Integer iDisplayLength,
 		HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
-
-
 		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		Boolean legacyOnly = false;
-		String gridFields = null;
-
 		String solrFilters = "q=" + query + "&fq=" + fqStr;
-
 		List<String> dataRows = new ArrayList<>();
 
 		if ( dataType.equals("alleleRef") ){
@@ -390,10 +393,10 @@ public class FileExportController {
 			}
 
 			if (solrCoreName.equalsIgnoreCase("experiment")) {
-				ArrayList<Integer> phenotypingCenterIds = new ArrayList<Integer>();
+				ArrayList<String> phenotypingCenters = new ArrayList<String>();
 				try {
 					for (int i = 0; i < phenotypingCenter.length; i++) {
-						phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " ")).getId());
+						phenotypingCenters.add(phenotypingCenter[i].replaceAll("%20", " "));
 					}
 				} catch (NullPointerException e) {
 					log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
@@ -404,7 +407,7 @@ public class FileExportController {
 				}
 				String s = (sex.equalsIgnoreCase("null")) ? null : sex;
 				dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s,
-						phenotypingCenterIds, zygList, strains, pipelineStableId);
+						phenotypingCenters, zygList, strains, pipelineStableId);
 			} else if (dogoterm) {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -429,20 +432,20 @@ public class FileExportController {
 
 
 	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
-			String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity,
+			String allele[], String gender, ArrayList<String> phenotypingCenters, List<String> zygosity,
 			String[] strain, String[] pipelines)
 					throws SolrServerException, IOException, URISyntaxException, SQLException {
 
-		List<String> rows = new ArrayList();
+		List<String> rows = new ArrayList<>();
 		SexType sex = null;
 		if (gender != null) {
 			sex = SexType.valueOf(gender);
 		}
-		if (phenotypingCenterIds == null) {
+		if (phenotypingCenters == null) {
 			throw new RuntimeException("ERROR: phenotypingCenterIds is null. Expected non-null value.");
 		}
-		if (phenotypingCenterIds.isEmpty()) {
-			phenotypingCenterIds.add(null);
+		if (phenotypingCenters.isEmpty()) {
+			phenotypingCenters.add(null);
 		}
 
 		if (strain == null || strain.length == 0) {
@@ -466,7 +469,7 @@ public class FileExportController {
 		List<ExperimentDTO> experimentList;
 		for (int k = 0; k < parameterStableId.length; k++) {
 			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++) {
-				for (Integer pCenter : phenotypingCenterIds) {
+				for (String pCenter : phenotypingCenters) {
 					for (Integer pipelineId : pipelineIds) {
 						for (int strainI = 0; strainI < strain.length; strainI++) {
 							for (int alleleI = 0; alleleI < allele.length; alleleI++) {
@@ -519,12 +522,12 @@ public class FileExportController {
 		// String impressBaseUrl = request.getAttribute("drupalBaseUrl") +
 		// "/impress/impress/displaySOP/";
 
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 		rowData.add("Parameter\tProcedure\tProcedure Impress link\tPipeline"); // column
 																				// names
 
 		for (int i = 0; i < docs.size(); i++) {
-			List<String> data = new ArrayList();
+			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 			data.add(doc.getString("parameter_name"));
 
@@ -560,7 +563,7 @@ public class FileExportController {
 
 		String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
 
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 
 		String mpBaseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
 		String maBaseUrl = request.getAttribute("baseUrl") + "/anatomy/";
@@ -576,10 +579,10 @@ public class FileExportController {
 
 				JSONObject doc = docs.getJSONObject(i);
 
-				List<String> data = new ArrayList();
-				List<String> lists = new ArrayList();
-				List<String> termLists = new ArrayList();
-				List<String> link_lists = new ArrayList();
+				List<String> data = new ArrayList<>();
+				List<String> lists = new ArrayList<>();
+				List<String> termLists = new ArrayList<>();
+				List<String> link_lists = new ArrayList<>();
 
 				String[] fields = { "expName", "annotationTermId", "symbol_gene" };
 				for (String fld : fields) {
@@ -708,12 +711,11 @@ public class FileExportController {
 
 		// currently just use the solr field value
 		// String mediaBaseUrl = config.get("impcMediaBaseUrl").replace("https:", "http:");
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 
         //String mediaBaseUrl = config.get("mediaBaseUrl");
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
-		String mpBaseUrl = baseUrl + "/phenotypes/";
 		String maBaseUrl = baseUrl + "/anatomy/";
 		String geneBaseUrl = baseUrl + "/genes/";
 
@@ -727,7 +729,7 @@ public class FileExportController {
 																										// names
 
 			for (int i = 0; i < docs.size(); i++) {
-				List<String> data = new ArrayList();
+				List<String> data = new ArrayList<>();
 				JSONObject doc = docs.getJSONObject(i);
 
 				// String[] fields = {"annotationTermName", "annotationTermId",
@@ -735,8 +737,6 @@ public class FileExportController {
 				String[] fields = { "procedure_name", "gene_symbol", "ma_term" };
 				for (String fld : fields) {
 					if (doc.has(fld)) {
-						List<String> lists = new ArrayList();
-
 						if (fld.equals("gene_symbol")) {
 
 							data.add(doc.getString("gene_symbol"));
@@ -792,10 +792,7 @@ public class FileExportController {
 
 			rowData.add(
 					"Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column
-																																// names
-
-			String fqStr = query;
-
+																																// name
 			String defaultQStr = "observation_type:image_record&qf=auto_suggest&defType=edismax";
 
 			if (query != "") {
@@ -805,9 +802,6 @@ public class FileExportController {
 			}
 
 			String defaultFqStr = "fq=(biological_sample_group:experimental)";
-
-			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-
 			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl2);
 
 			int numFacets = annots.size();
@@ -818,7 +812,7 @@ public class FileExportController {
 
 			for (int i = start; i < end; i++) {
 
-				List<String> data = new ArrayList();
+				List<String> data = new ArrayList<>();
 
 				AnnotNameValCount annot = annots.get(i);
 
@@ -866,13 +860,13 @@ public class FileExportController {
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
 
 		System.out.println("baseUrl: " + baseUrl);
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 		rowData.add(
 				"Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids\tPostqc call(s)"); // column
 																																																																													// names
 
 		for (int i = 0; i < docs.size(); i++) {
-			List<String> data = new ArrayList();
+			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
 			data.add(doc.getString("mp_term"));
@@ -887,7 +881,7 @@ public class FileExportController {
 			}
 
 			if (doc.has("mp_term_synonym")) {
-				List<String> syns = new ArrayList();
+				List<String> syns = new ArrayList<>();
 				JSONArray syn = doc.getJSONArray("mp_term_synonym");
 				for (int t = 0; t < syn.size(); t++) {
 					syns.add(syn.getString(t));
@@ -898,7 +892,7 @@ public class FileExportController {
 			}
 
 			if (doc.has("top_level_mp_term")) {
-				List<String> tops = new ArrayList();
+				List<String> tops = new ArrayList<>();
 				JSONArray top = doc.getJSONArray("top_level_mp_term");
 				for (int t = 0; t < top.size(); t++) {
 					tops.add(top.getString(t));
@@ -941,13 +935,13 @@ public class FileExportController {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 		rowData.add(
 				"Mouse anatomy term\tMouse anatomy id\tMouse anatomy id link\tMouse anatomy synonym\tLacZ Expression Images"); // column
 																																						// names
 
 		for (int i = 0; i < docs.size(); i++) {
-			List<String> data = new ArrayList();
+			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
 			data.add(doc.getString(AnatomyDTO.ANATOMY_TERM));
@@ -956,7 +950,7 @@ public class FileExportController {
 			data.add(hostName + baseUrl + anatomyId);
 
 			if (doc.has(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
-				List<String> syns = new ArrayList();
+				List<String> syns = new ArrayList<>();
 				JSONArray syn = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
 				for (int t = 0; t < syn.size(); t++) {
 					syns.add(syn.getString(t));
@@ -980,20 +974,20 @@ public class FileExportController {
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 
 		rowData.add(
 				"Gene symbol\tHuman ortholog\tGene id\tGene name\tGene synonym\tProduction status\tPhenotype status\tPhenotype status link"); // column
 																																				// names
 
 		for (int i = 0; i < docs.size(); i++) {
-			List<String> data = new ArrayList();
+			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
 			data.add(doc.getString("marker_symbol"));
 
 			if (doc.containsKey("human_gene_symbol")) {
-				List<String> hsynData = new ArrayList();
+				List<String> hsynData = new ArrayList<>();
 
 				JSONArray hs = doc.getJSONArray("human_gene_symbol");
 				for (int s = 0; s < hs.size(); s++) {
@@ -1022,7 +1016,7 @@ public class FileExportController {
 			}
 
 			if (doc.has("marker_synonym")) {
-				List<String> synData = new ArrayList();
+				List<String> synData = new ArrayList<>();
 				JSONArray syn = doc.getJSONArray("marker_synonym");
 				for (int s = 0; s < syn.size(); s++) {
 					synData.add(syn.getString(s));
@@ -1106,7 +1100,7 @@ public class FileExportController {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 		// column names
 		rowData.add("Disease id" + "\tDisease id link" + "\tDisease name" + "\tSource");
 //				+ "\tCurated genes from human (OMIM, Orphanet)" + "\tCurated genes from mouse (MGI)"
@@ -1117,7 +1111,7 @@ public class FileExportController {
 //				+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus");
 
 		for (int i = 0; i < docs.size(); i++) {
-			List<String> data = new ArrayList();
+			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
 			String omimId = doc.getString("disease_id");
@@ -1171,7 +1165,7 @@ public class FileExportController {
 			JSONArray _clanDescs = doc.containsKey("clan_desc") ? doc.getJSONArray("clan_desc") : new JSONArray();
 
 			if (_pfamaIds.size() == 0) {
-				List<String> data = new ArrayList();
+				List<String> data = new ArrayList<>();
 				data.add(doc.getString("marker_symbol"));
 				data.add(hostName + baseUrl + gId);
 				data.add(phenoStatus);
@@ -1185,7 +1179,7 @@ public class FileExportController {
 			} else {
 				for (int j = 0; j < _clanIds.size(); j++) {
 
-					List<String> data = new ArrayList();
+					List<String> data = new ArrayList<>();
 					data.add(doc.getString("marker_symbol"));
 					data.add(hostName + baseUrl + gId);
 					data.add(phenoStatus);
@@ -1207,7 +1201,7 @@ public class FileExportController {
 		rowData.add(referenceDAO.heading);
 		List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
 		for (ReferenceDTO reference : references) {
-			List<String> row = new ArrayList();
+			List<String> row = new ArrayList<>();
 			row.add(StringUtils.join(reference.getAlleleSymbols(), "|"));
 			row.add(StringUtils.join(reference.getAlleleAccessionIds(), "|"));
 			row.add(StringUtils.join(reference.getImpcGeneLinks(), "|"));
@@ -1226,98 +1220,7 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeAlleleRefEditExportRows(int iDisplayLength, int iDisplayStart, String sSearch,
-			String dumpMode) throws SQLException {
-
-		Connection conn = admintoolsDataSource.getConnection();
-		String like = "%" + sSearch + "%";
-
-		String query = null;
-
-		if (!sSearch.isEmpty()) {
-			query = "select * from allele_ref where " + " acc like ?" + " or symbol like ?" + " or pmid like ?"
-					+ " or date_of_publication like ?" + " or grant_id like ?" + " or agency like ?"
-					+ " or acronym like ?" + " order by reviewed desc" + " limit ?, ?";
-		} else {
-			query = "select * from allele_ref order by reviewed desc limit ?,?";
-		}
-
-		// System.out.println("query: "+ query);
-		String mgiAlleleBaseUrl = "http://www.informatics.jax.org/allele/";
-
-		List<String> rowData = new ArrayList<>();
-
-		String fields = "Reviewed" + "\tMGI allele symbol" + "\tMGI allele id" + "\tMGI allele link"
-				+ "\tMGI allele name" + "\tPMID" + "\tDate of publication" + "\tGrant id" + "\tGrant agency"
-				+ "\tGrant acronym" + "\tPaper link";
-
-		rowData.add(fields);
-
-		try (PreparedStatement p2 = conn.prepareStatement(query)) {
-			if (!sSearch.isEmpty()) {
-				for (int i = 1; i < 10; i++) {
-					p2.setString(i, like);
-					if (i == 8) {
-						p2.setInt(i, iDisplayStart);
-					} else if (i == 9) {
-						p2.setInt(i, iDisplayLength);
-					}
-				}
-			} else {
-				p2.setInt(1, iDisplayStart);
-				p2.setInt(2, iDisplayLength);
-			}
-
-			ResultSet resultSet = p2.executeQuery();
-
-			while (resultSet.next()) {
-
-				List<String> data = new ArrayList<String>();
-
-				data.add(resultSet.getString("reviewed"));
-
-				// rowData.add(resultSet.getString("acc"));
-				String alleleSymbol = Tools.superscriptify(resultSet.getString("symbol"));
-				data.add(alleleSymbol);
-
-				String acc = resultSet.getString("acc");
-				String alLink = acc.equals("") ? "" : mgiAlleleBaseUrl + resultSet.getString("acc");
-
-				data.add(acc);
-				data.add(alLink);
-
-				data.add(resultSet.getString("name"));
-
-				// rowData.add(resultSet.getString("name"));
-				data.add(resultSet.getString("pmid"));
-				data.add(resultSet.getString("date_of_publication"));
-				data.add(resultSet.getString("grant_id"));
-				data.add(resultSet.getString("agency"));
-				data.add(resultSet.getString("acronym"));
-
-				String url = resultSet.getString("paper_url");
-				if (url.equals("")) {
-					data.add(url);
-				} else {
-					String[] urls = resultSet.getString("paper_url").split(",");
-					List<String> links = new ArrayList<>();
-					for (int i = 0; i < urls.length; i++) {
-						links.add(urls[i]);
-					}
-					data.add(StringUtils.join(links, "|"));
-				}
-
-				rowData.add(StringUtils.join(data, "\t"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		conn.close();
-		// System.out.println("Rows returned: "+rowData.size());
-		return rowData;
-	}
-
+	
 	private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request,
 			boolean hasgoterm, boolean gocollapse) {
 
@@ -1328,7 +1231,7 @@ public class FileExportController {
 
 		// List<String> evidsList = new
 		// ArrayList<String>(Arrays.asList(request.getParameter("goevids").split(",")));
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 		// column names
 
 		String fields = null;
@@ -1358,7 +1261,7 @@ public class FileExportController {
 
 			if (!doc.containsKey("evidCodeRank")) {
 
-				List<String> data = new ArrayList();
+				List<String> data = new ArrayList<>();
 				data.add(doc.getString("marker_symbol"));
 				data.add(hostName + baseUrl + gId);
 				data.add(phenoStatus);
@@ -1371,7 +1274,7 @@ public class FileExportController {
 
 				rowData.add(StringUtils.join(data, "\t"));
 			} else if (gocollapse) {
-				List<String> data = new ArrayList();
+				List<String> data = new ArrayList<>();
 				data.add(doc.getString("marker_symbol"));
 				data.add(hostName + baseUrl + gId);
 				data.add(Integer.toString(doc.getInt("go_count")));
@@ -1401,7 +1304,7 @@ public class FileExportController {
 
 					if (codeRank.get(evid) == evidCodeRank) {
 
-						List<String> data = new ArrayList();
+						List<String> data = new ArrayList<>();
 
 						data.add(doc.getString("marker_symbol"));
 						data.add(hostName + baseUrl + gId);
@@ -1451,7 +1354,7 @@ public class FileExportController {
 		// System.out.println("FileExportController FOUND " +
 		// gwasMappings.size() + " phenotype to gwas trait mappings");
 
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 		rowData.add(gridFields);
 
 		for (GwasDTO gw : gwasMappings) {
@@ -1461,7 +1364,7 @@ public class FileExportController {
 				continue;
 			}
 
-			List<String> data = new ArrayList();
+			List<String> data = new ArrayList<>();
 			data.add(gw.getMgiGeneSymbol());
 			data.add(gw.getMgiGeneId());
 			data.add(gw.getMgiAlleleId());
@@ -1497,16 +1400,8 @@ public class FileExportController {
 			@RequestParam(value = "gridFields", required = true) String gridFields,
 
 		HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
-
-		String dumpMode = "all";
-
 		List<String> queryIds = Arrays.asList(idlist.split(","));
-		Long time = System.currentTimeMillis();
-
-		List<String> mgiIds = new ArrayList<>();
-		List<GeneDTO> genes = new ArrayList<>();
 		List<QueryResponse> solrResponses = new ArrayList<>();
-
 		List<String> batchIdList = new ArrayList<>();
 		String batchIdListStr = null;
 
@@ -1557,13 +1452,9 @@ public class FileExportController {
 			results.addAll(solrResponse.getResults());
 		}
 
-		int totalDocs = results.size();
-		//System.out.println("TOTAL DOCS FOUND: " + totalDocs);
-
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String NA = "Info not available";
-		String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
 		String oriDataTypeNAme = dataTypeName;
 
 		if (dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")) {
@@ -1604,7 +1495,7 @@ public class FileExportController {
 			colList.add(cols[i]);
 		}
 
-		List<String> rowData = new ArrayList();
+		List<String> rowData = new ArrayList<>();
 		rowData.add(StringUtils.join(colList, "\t"));
 
 		for (int i = 0; i < results.size(); i++) {
@@ -1632,29 +1523,15 @@ public class FileExportController {
 					GeneIdentifier geneIdentifier = new GeneIdentifier(mgi_gene_id, mgi_gene_id);
 					List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
 					try {
-						// log.info("{} - getting disease-gene associations
-						// using cutoff {}", geneIdentifier, rawScoreCutoff);
 						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier,
 								rawScoreCutoff);
-						//System.out.println("received " + diseaseAssociationSummarys.size() + " disease-gene associations");
-						// log.info("{} - received {} disease-gene
-						// associations", geneIdentifier,
-						// diseaseAssociationSummarys.size());
 					} catch (RuntimeException e) {
 						log.error(ExceptionUtils.getFullStackTrace(e));
-						// log.error("Error retrieving disease data for {}",
-						// geneIdentifier);
 					}
 
 					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
 						AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
 						if (associationSummary.isAssociatedInHuman()) {
-							// System.out.println("DISEASE ID: " +
-							// diseaseAssociationSummary.getDiseaseIdentifier().toString());
-							// System.out.println("DISEASE ID: " +
-							// diseaseAssociationSummary.getDiseaseIdentifier().getDatabaseAcc());
-							// System.out.println("DISEASE TERM: " +
-							// diseaseAssociationSummary.getDiseaseTerm());
 							orthologousDiseaseIdAssociations
 									.add(diseaseAssociationSummary.getDiseaseIdentifier().toString());
 							orthologousDiseaseTermAssociations.add(diseaseAssociationSummary.getDiseaseTerm());
@@ -1667,7 +1544,7 @@ public class FileExportController {
 				}
 			}
 
-			List<String> data = new ArrayList();
+			List<String> data = new ArrayList<>();
 
 			// for (String fieldName : doc.getFieldNames()) {
 			for (int k = 0; k < cols.length; k++) {
@@ -1785,31 +1662,24 @@ public class FileExportController {
 						} catch (ClassCastException c) {
 							value = docMap.get(fieldName).toString();
 						}
-
-						// System.out.println("row " + i + ": field: " + k + "
-						// -- " + fieldName + " - " + value);
-
 						data.add(value);
 					} catch (Exception e) {
 						// e.printStackTrace();
 						if (e.getMessage().equals("java.lang.Integer cannot be cast to java.lang.String")) {
 							Collection<Object> vals = docMap.get(fieldName);
 							if (vals.size() > 0) {
-								Iterator it = vals.iterator();
-								String value = (String) it.next();
-								// String value = Integer.toString(val);
+								String value = (String) vals.iterator().next();
 								data.add(value);
 							}
 						}
 					}
 				}
 			}
-			// System.out.println("DATA: "+ StringUtils.join(data, "\t") );
 			rowData.add(StringUtils.join(data, "\t"));
 		}
 
 		// find the ids that are not found and displays them to users
-		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
+		ArrayList<String> nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
 
 
 		for (int i = 0; i < nonFoundIds.size(); i++) {

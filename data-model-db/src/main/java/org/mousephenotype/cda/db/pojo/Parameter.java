@@ -683,23 +683,23 @@ public class Parameter extends PipelineEntry {
 	public List<String> getCategoriesUserInterfaceFreindly(){
 		List<ParameterOption> options = this.getOptions();
 		List<String> categories = new ArrayList<String>();
-                boolean useDescription=false;
-                if(options.size()>0){
-                    String name=options.get(0).getName();
-                    if(StringUtils.isNumeric(name)){
-                        useDescription=true;
-                    }
-                }
+        boolean useDescription = false;
+        if(options.size()>0){
+	        String name=options.get(0).getName();
+	        if(StringUtils.isNumeric(name)){
+	        	useDescription = true;
+	        }
+        }
 		for (ParameterOption option : options) {
-                    String label=option.getName();
-                    //this is a hack as impress holds some numeric categories which shouldn't be????
-                    if(useDescription==true && option.getDescription()!=null && !option.getDescription().equals("")){
-                       label=option.getDescription();
-                    }
-			categories.add(label);
+			String label=option.getName();
+            //this is a hack as impress holds some numeric categories which shouldn't be????
+            if(useDescription == true && option.getDescription() != null && !option.getDescription().equals("")){
+            	label = option.getDescription();
+            }
+            categories.add(label);
 		}
 		//exclude - "no data", "not defined" etc
-		List<String> okCategoriesList= CategoriesExclude.getInterfaceFreindlyCategories(categories);
+		List<String> okCategoriesList = CategoriesExclude.getInterfaceFreindlyCategories(categories);
 		return okCategoriesList;
 	}
 	

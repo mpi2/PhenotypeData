@@ -43,6 +43,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.slf4j.Logger;
@@ -78,12 +79,12 @@ public class CategoricalChartAndTableProvider {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public CategoricalResultAndCharts doCategoricalData(ExperimentDTO experiment, Parameter parameter,
+	public CategoricalResultAndCharts doCategoricalData(ExperimentDTO experiment, ParameterDTO parameter,
 	String acc, String numberString, BiologicalModel expBiologicalModel)
 	throws SQLException, IOException, URISyntaxException {
 
 		logger.debug("running categorical data");
-		List<String> categories = parameter.getCategoriesUserInterfaceFreindly();		
+		List<String> categories = parameter.getCategories();		
 		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 		categoricalResultAndCharts.setExperiment(experiment);
 		List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment.getResults();
@@ -302,7 +303,7 @@ public class CategoricalChartAndTableProvider {
 
 
 	private String createCategoricalChartFromObjects(String chartId,
-	CategoricalChartDataObject chartData, Parameter parameter,
+	CategoricalChartDataObject chartData, ParameterDTO parameter,
 	ExperimentDTO experiment)
 	throws SQLException {
 

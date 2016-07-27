@@ -832,8 +832,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         
         url += q;
         
-        System.out.println("SOLR URL ___  " + url);
-
         return createPhenotypeResultFromSolrResponse(url, isPreQc);
 
     }

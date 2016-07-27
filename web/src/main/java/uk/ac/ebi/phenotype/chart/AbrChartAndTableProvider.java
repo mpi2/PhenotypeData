@@ -63,9 +63,9 @@ public class AbrChartAndTableProvider {
 
 
 	public String getChart(Integer pipelineId, String acc, List<String> genderList, List<String> zyList,
-			Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession, String chartId){
+			String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String chartId){
 
-    	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap(); // <control/experim, ArrayList<dataToPlot>>
+    	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap<>(); // <control/experim, ArrayList<dataToPlot>>
     	data.put(ChartUtils.getLabel(null, SexType.female), new ArrayList<UnidimensionalStatsObject>() );
     	data.put(ChartUtils.getLabel(null,  SexType.male), new ArrayList<UnidimensionalStatsObject>() );
     	for (String zygosity: zyList){
@@ -85,7 +85,7 @@ public class AbrChartAndTableProvider {
 
     		Integer paramId = pipelineDAO.getParameterByStableId(parameterStableId).getId();
     		try {
-    			ExperimentDTO experiment = es.getSpecificExperimentDTO(paramId, pipelineId, acc, genderList, zyList, phenotypingCenterId, strain, metadataGroup, alleleAccession);
+    			ExperimentDTO experiment = es.getSpecificExperimentDTO(paramId, pipelineId, acc, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession);
 
     			if (experiment != null){
 			    	zygosities = experiment.getZygosities();
