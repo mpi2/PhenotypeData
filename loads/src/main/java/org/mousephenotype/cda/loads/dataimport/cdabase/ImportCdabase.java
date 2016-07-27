@@ -14,9 +14,10 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.dataimport.cdabase.configs;
+package org.mousephenotype.cda.loads.dataimport.cdabase;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.dataimport.cdabase.configs.CdabaseConfigApp;
 import org.mousephenotype.cda.loads.dataimport.cdabase.steps.*;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,9 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -52,9 +54,13 @@ import java.util.concurrent.Executors;
 /**
  * Created by mrelac on 12/04/2016.
  */
-@Configuration
 @EnableBatchProcessing
-public class CdabaseConfigBatch {
+@Import(CdabaseConfigApp.class)
+public class ImportCdabase implements CommandLineRunner {
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(ImportCdabase.class, args);
+    }
 
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
@@ -91,13 +97,17 @@ public class CdabaseConfigBatch {
     public PhenotypedColonyLoader phenotypedColonyLoader;
 
     @Autowired
-    @Qualifier("cdaBaseLoad")
+    @Qualifier("cdabase")
     private DataSource cdabaseDatasource;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     private SqlUtils sqlUtils = new SqlUtils();
 
-    @Bean
+    @Override
+    public void run(String... args) throws Exception {
+        runJobs();
+    }
+
     public Job[] runJobs() throws DataImportException {
 
         // Populate Spring Batch tables if necessary.

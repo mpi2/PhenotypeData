@@ -20,7 +20,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -28,26 +31,26 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan("org.mousephenotype.cda.loads.dataimport.cdabase")
 @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
-@PropertySource(value="file:${user.home}/configfiles/${profile}/cdaBaseLoad.properties",
+@PropertySource(value="file:${user.home}/configfiles/${profile}/cdabase.properties",
                 ignoreResourceNotFound=true)
 @EnableAutoConfiguration
 /**
  * Created by mrelac on 12/04/2016.
  */
 public class CdabaseConfigApp {
+
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Bean(name = "cdaBaseLoad")
-	@Primary
-    @ConfigurationProperties(prefix = "cdaBaseLoad")
-	public DataSource cdaBaseLoad() {
-        DataSource ds = DataSourceBuilder.create().build();
+	@Bean(name = "cdabase")
+    @ConfigurationProperties(prefix = "cdabase")
+	public DataSource cdabase() {
+        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 
 		return ds;
 	}
 
 	@Bean
 	public JdbcTemplate jdbcTemplate() {
-		return new JdbcTemplate(cdaBaseLoad());
+		return new JdbcTemplate(cdabase());
 	}
 }

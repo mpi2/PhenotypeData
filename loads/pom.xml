@@ -17,7 +17,6 @@
     <name>loads</name>
     <description>Code for loading the database for the www.mousephenotype.org post qc part of the website</description>
 
-
     <dependencies>
 
         <dependency>
@@ -157,6 +156,12 @@
           <artifactId>hsqldb</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-loader</artifactId>
+            <version>1.2.5.RELEASE</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -165,7 +170,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.mousephenotype.cda.loads.dataimport.dcc.ValidateImport</mainClass>
+                    <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>
                 </configuration>
                 <executions>
                     <execution>
