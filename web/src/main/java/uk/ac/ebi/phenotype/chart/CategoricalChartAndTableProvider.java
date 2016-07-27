@@ -35,7 +35,6 @@ import org.json.JSONObject;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -51,6 +50,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+
+import scala.Console;
 
 @Service
 public class CategoricalChartAndTableProvider {
@@ -81,6 +82,7 @@ public class CategoricalChartAndTableProvider {
 	throws SQLException, IOException, URISyntaxException {
 
 		logger.debug("running categorical data");
+		System.out.println("PARAMETER categories " + parameter.getCategories().size());
 		List<String> categories = parameter.getCategories();		
 		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 		categoricalResultAndCharts.setExperiment(experiment);
@@ -101,6 +103,7 @@ public class CategoricalChartAndTableProvider {
 				CategoricalDataObject controlCatData = new CategoricalDataObject();
 				controlCatData.setName(WordUtils.capitalize(sexType.name()) + " Control");
 				controlCatData.setCategory(category);
+				System.out.println("CATEGORY is " + category);
 				long controlCount = 0;
 				
 				for (ObservationDTO control : experiment.getControls()) {
