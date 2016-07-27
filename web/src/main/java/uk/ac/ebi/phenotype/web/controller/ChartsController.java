@@ -110,6 +110,7 @@ public class ChartsController {
 
     @Autowired
     Utilities impressUtilities;
+    
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 

@@ -17,7 +17,6 @@ package org.mousephenotype.cda.solr.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,7 +27,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -65,9 +63,6 @@ public class ExperimentService{
     
     @Autowired
     ImpressService is;
-
-    @Autowired
-    PhenotypePipelineDAO parameterDAO;
 
     @Autowired
     private StatisticalResultService statisticalResultService;
@@ -558,12 +553,6 @@ public class ExperimentService{
     public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) 
     throws SolrServerException {
         return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
-    }
-
-    
-    public String getCategoryLabels(int parameterId, String category) 
-    throws SQLException {
-        return parameterDAO.getCategoryDescription(parameterId, category);
     }
 
     /**

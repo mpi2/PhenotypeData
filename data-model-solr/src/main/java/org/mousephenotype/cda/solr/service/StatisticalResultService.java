@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -56,6 +57,7 @@ import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OrganisationDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.dao.ProjectDAO;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
@@ -106,6 +108,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     @Autowired
     OrganisationDAO organisationDAO;
 
+    @NotNull @Autowired
+    protected PhenotypePipelineDAO pipelineDAO;
+    
     @Autowired
 	@Qualifier("postqcService")
     AbstractGenotypePhenotypeService gpService;
