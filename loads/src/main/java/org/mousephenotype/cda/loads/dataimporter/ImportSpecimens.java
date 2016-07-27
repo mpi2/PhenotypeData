@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
+package org.mousephenotype.cda.loads.dataimporter;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -39,14 +39,14 @@ import java.util.List;
  * specimen files currently found at /nfs/komp2/web/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the source file, target database name and authentication, and spring context file.
  */
-public class SpecimenLoader {
+public class ImportSpecimens {
     /**
      * Load specimen data that was encoded using the IMPC XML format
      */
 
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
-    private static final Logger logger = LoggerFactory.getLogger(SpecimenLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImportSpecimens.class);
 
     private String filename;
     private String username = "";
@@ -56,9 +56,9 @@ public class SpecimenLoader {
 
     private Connection connection;
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DccLoaderException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DataImporterException {
 
-        SpecimenLoader main = new SpecimenLoader();
+        ImportSpecimens main = new ImportSpecimens();
         main.initialize(args);
         main.run();
 
@@ -112,8 +112,8 @@ public class SpecimenLoader {
         logger.info("Loading specimen file {}", filename);
     }
 
-    private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DccLoaderException {
-        List<CentreSpecimen> centerSpecimens = XMLUtils.unmarshal(SpecimenLoader.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
+    private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DataImporterException {
+        List<CentreSpecimen> centerSpecimens = XMLUtils.unmarshal(ImportSpecimens.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
 
         if (centerSpecimens.size() == 0) {
             logger.error("{} failed to unmarshall", filename);
@@ -136,59 +136,59 @@ public class SpecimenLoader {
                 ResultSet rs;
 
                 // center
-                centerPk = DccLoaderUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                centerPk = DataImporterUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 if (centerPk < 1) {
-                    centerPk = DccLoaderUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                    centerPk = DataImporterUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 }
 
                 // statuscode
                 if (specimen.getStatusCode() != null) {
-                    StatusCode existingStatuscode = DccLoaderUtils.selectOrInsertStatuscode(connection,
-                                                                                            specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
+                    StatusCode existingStatuscode = DataImporterUtils.selectOrInsertStatuscode(connection,
+                                                                                               specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
                     statuscodePk = existingStatuscode.getHjid();
                 } else {
                     statuscodePk = null;
                 }
 
                 // specimen
-                Specimen existingSpecimen = DccLoaderUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
+                Specimen existingSpecimen = DataImporterUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
                 if (existingSpecimen != null) {
                     specimenPk = existingSpecimen.getHjid();
                     // Validate that this specimen's info matches the existing one in the database.
                     if ( ! specimen.getPipeline().equals(existingSpecimen.getPipeline())) {
-                        throw new DccLoaderException("pipeline mismatch (pk " + specimenPk + "). Existing pipeline: '" + specimen.getPipeline() + "'. This pipeline: '" + existingSpecimen.getPipeline() + "'.");
+                        throw new DataImporterException("pipeline mismatch (pk " + specimenPk + "). Existing pipeline: '" + specimen.getPipeline() + "'. This pipeline: '" + existingSpecimen.getPipeline() + "'.");
                     }
                     if ( ! specimen.getGender().value().equals(existingSpecimen.getGender().value())) {
-                        throw new DccLoaderException("project mismatch (pk " + specimenPk + "). Existing project: '" + specimen.getProject() + "'. This project: '" + existingSpecimen.getProject() + "'.");
+                        throw new DataImporterException("project mismatch (pk " + specimenPk + "). Existing project: '" + specimen.getProject() + "'. This project: '" + existingSpecimen.getProject() + "'.");
                     }
                     if ( ! specimen.getGender().value().equals(existingSpecimen.getGender().value())) {
-                        throw new DccLoaderException("gender mismatch (pk " + specimenPk + "). Existing gender: '" + specimen.getGender().value() + "'. This gender: '" + existingSpecimen.getGender().value() + "'.");
+                        throw new DataImporterException("gender mismatch (pk " + specimenPk + "). Existing gender: '" + specimen.getGender().value() + "'. This gender: '" + existingSpecimen.getGender().value() + "'.");
                     }
                     if ( specimen.isIsBaseline() != existingSpecimen.isIsBaseline()) {
-                        throw new DccLoaderException("isBaseline mismatch (pk " + specimenPk + "). Existing isBaseline: '" + (specimen.isIsBaseline() ? 1 : 0) + "'. This isBaseline: '" + existingSpecimen.isIsBaseline() + "'.");
+                        throw new DataImporterException("isBaseline mismatch (pk " + specimenPk + "). Existing isBaseline: '" + (specimen.isIsBaseline() ? 1 : 0) + "'. This isBaseline: '" + existingSpecimen.isIsBaseline() + "'.");
                     }
                     if ( ! specimen.getLitterId().equals(existingSpecimen.getLitterId())) {
-                        throw new DccLoaderException("litterId mismatch. (pk " + specimenPk + "). Existing litterId: '" + specimen.getLitterId() + "'. This litterId: '" + existingSpecimen.getLitterId() + "'.");
+                        throw new DataImporterException("litterId mismatch. (pk " + specimenPk + "). Existing litterId: '" + specimen.getLitterId() + "'. This litterId: '" + existingSpecimen.getLitterId() + "'.");
                     }
                     if ( ! specimen.getPhenotypingCentre().value().equals(existingSpecimen.getPhenotypingCentre().value())) {
-                        throw new DccLoaderException("phenotypingCenter mismatch. (pk " + specimenPk + "). Existing phenotypingCenter: '" + specimen.getPhenotypingCentre().value()
+                        throw new DataImporterException("phenotypingCenter mismatch. (pk " + specimenPk + "). Existing phenotypingCenter: '" + specimen.getPhenotypingCentre().value()
                                 + "'. This phenotypingCenter: '" + existingSpecimen.getPhenotypingCentre() + "'.");
                     }
                     if (specimen.getProductionCentre() == null) {
                         if (existingSpecimen.getProductionCentre() != null) {
-                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter is null. this productionCenter: '" + existingSpecimen.getProductionCentre());
+                            throw new DataImporterException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter is null. this productionCenter: '" + existingSpecimen.getProductionCentre());
                         }
                     } else {
                         if ( ! specimen.getProductionCentre().value().equals(existingSpecimen.getProductionCentre().value())) {
-                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter: '" + specimen.getProductionCentre().value()
+                            throw new DataImporterException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter: '" + specimen.getProductionCentre().value()
                                     + "'. This productionCenter: '" + existingSpecimen.getProductionCentre().value() + "'.");
                         }
                     }
                     if ( ! specimen.getStrainID().equals(existingSpecimen.getStrainID())) {
-                        throw new DccLoaderException("strainId mismatch. (pk " + specimenPk + "). Existing strainId: '" + specimen.getStrainID() + "'. This strainId: '" + existingSpecimen.getStrainID() + "'.");
+                        throw new DataImporterException("strainId mismatch. (pk " + specimenPk + "). Existing strainId: '" + specimen.getStrainID() + "'. This strainId: '" + existingSpecimen.getStrainID() + "'.");
                     }
                     if ( ! specimen.getZygosity().value().equals(existingSpecimen.getZygosity().value())) {
-                        throw new DccLoaderException("zygosity mismatch. (pk " + specimenPk + "). Existing zygosity: '" + specimen.getZygosity().value() + "'. This zygosity: '" + existingSpecimen.getZygosity().value() + "'.");
+                        throw new DataImporterException("zygosity mismatch. (pk " + specimenPk + "). Existing zygosity: '" + specimen.getZygosity().value() + "'. This zygosity: '" + existingSpecimen.getZygosity().value() + "'.");
                     }
                 } else {
                     query = "INSERT INTO specimen (" +
@@ -245,7 +245,7 @@ public class SpecimenLoader {
                     ps.setDate(1, new java.sql.Date(mouse.getDOB().getTime().getTime()));
                     ps.setLong(2, specimenPk);
                 } else {
-                    throw new DccLoaderException("Unknown specimen type '" + specimen.getClass().getSimpleName());
+                    throw new DataImporterException("Unknown specimen type '" + specimen.getClass().getSimpleName());
                 }
                 ps.execute();
 
@@ -286,7 +286,7 @@ public class SpecimenLoader {
 
                 // chromosomalAlteration
                 if ( ! specimen.getChromosomalAlteration().isEmpty()) {
-                    throw new DccLoaderException("chromosomalAlteration is not yet supported. Records found!");
+                    throw new DataImporterException("chromosomalAlteration is not yet supported. Records found!");
                 }
 
                 // center_specimen
@@ -298,7 +298,7 @@ public class SpecimenLoader {
                     ps.execute();
                 } catch (SQLException e) {
                     // Duplicate specimen
-                    System.out.println("DUPLICATE SPECIMEN: " + DccLoaderUtils.dumpSpecimen(connection, centerPk, specimenPk));
+                    System.out.println("DUPLICATE SPECIMEN: " + DataImporterUtils.dumpSpecimen(connection, centerPk, specimenPk));
                     connection.rollback();
                     continue;
                 }

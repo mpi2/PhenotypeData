@@ -55,37 +55,32 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 	private final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
 
 
-	@NotNull
-    @Value("${phenodigm.solrserver}")
-    private String phenodigmSolrServer;
-
-
     @Autowired
     @Qualifier("autosuggestIndexing")
     private SolrServer autosuggestCore;
 
     @Autowired
-    @Qualifier("geneIndexing")
+    @Qualifier("geneCore")
     private SolrServer geneCore;
 
     @Autowired
-    @Qualifier("mpIndexing")
+    @Qualifier("mpCore")
     private SolrServer mpCore;
 
     @Autowired
-    @Qualifier("diseaseIndexing")
+    @Qualifier("diseaseCore")
     private SolrServer diseaseCore;
 
     @Autowired
-    @Qualifier("anatomyIndexing")
+    @Qualifier("anatomyCore")
     private SolrServer anatomyCore;
 
+	@Autowired
+	@Qualifier("phenodigmCore")
+	private SolrServer phenodigmCore;
 
-    @Autowired
+	@Autowired
    	private GwasDAO gwasDao;
-
-
-    private SolrServer phenodigmCore;
 
     public static final long MIN_EXPECTED_ROWS = 218000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
@@ -146,40 +141,12 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         return super.validateBuild(autosuggestCore);
     }
 
-    private void initializeSolrCores() {
-
-        final String PHENODIGM_URL = phenodigmSolrServer;
-
-        // Use system proxy if set for external solr servers
-        if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
-
-            String PROXY_HOST = System.getProperty("externalProxyHost");
-            Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
-
-            HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
-
-            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
-
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
-
-        } else {
-
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
-
-        }
-    }
-
-
-
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         try {
-            initializeSolrCores();
 
             autosuggestCore.deleteByQuery("*:*");
 

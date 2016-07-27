@@ -29,7 +29,7 @@ import java.util.TimeZone;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigIndexers.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 @Transactional
 public class ObservationIndexerTest {
 
@@ -44,6 +44,7 @@ public class ObservationIndexerTest {
     @Before
     public void setUp() throws Exception {
 	    observationIndexer = new ObservationIndexer();
+	    observationIndexer.setConnection(ds.getConnection());
     }
 
     @Test

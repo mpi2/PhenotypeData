@@ -26,10 +26,12 @@ package org.mousephenotype.cda.db.pojo;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.*;
+import org.springframework.data.annotation.*;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,18 +61,9 @@ public class OntologyTerm {
     @Column(name = "replacement_acc")
 	private String replacementAcc;
 
-    @ElementCollection
-   	@CollectionTable(
-   		name="consider_id",
-        joinColumns= {
-            @JoinColumn(name="acc"),
-            @JoinColumn(name="db_id"),
-        }
-   	)
-   	@LazyCollection(LazyCollectionOption.FALSE)
-   	@Fetch(FetchMode.SELECT)
+	@Transient
 	private List<ConsiderId> considerIds = new ArrayList<>();
-	
+
 	@ElementCollection
 	@CollectionTable(
 		name="synonym",
@@ -129,7 +122,7 @@ public class OntologyTerm {
 		this.description = description;
 	}
 
-		
+
 	public String getReplacementAcc() {
 		return replacementAcc;
 	}
