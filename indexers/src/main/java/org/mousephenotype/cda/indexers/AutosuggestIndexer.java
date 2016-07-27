@@ -142,6 +142,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     Set<String> gwasDownstreamGeneSymbolSet = new HashSet();
 
     // allele2 (for product tab on search page)
+    Set<String> allele2MgiAccsSet = new HashSet();
     Set<String> allele2AlleleNameSet = new HashSet();
     Set<String> allele2MarkerSymbolSet = new HashSet();
     Set<String> allele2MarkerSynonymSet = new HashSet();
@@ -160,6 +161,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     private void initializeSolrCores() {
 
         final String SANGER_ALLELE_URL = imitsSolrHost +"/allele2";
+        System.out.println("Sanger allele url: "+ SANGER_ALLELE_URL);
         final String PHENODIGM_URL = phenodigmSolrServer;
 
         // Use system proxy if set for external solr servers
@@ -303,14 +305,14 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
 
         }
-        Iterator it = markerSymbolSynonymsMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            System.out.println("CHK: "+pair.getKey() + " = " + pair.getValue());
-           // it.remove(); // avoids a ConcurrentModificationException
-        }
-        System.out.println("check map size: "+ markerSymbolSynonymsMap.size());
-        System.out.println("chk syn: " + markerSymbolSynonymsMap.get("P2rx4"));
+//        Iterator it = markerSymbolSynonymsMap.entrySet().iterator();
+//        while (it.hasNext()) {
+//            Map.Entry pair = (Map.Entry)it.next();
+//            System.out.println("CHK: "+pair.getKey() + " = " + pair.getValue());
+//           // it.remove(); // avoids a ConcurrentModificationException
+//        }
+//        System.out.println("check map size: "+ markerSymbolSynonymsMap.size());
+//        System.out.println("chk syn: " + markerSymbolSynonymsMap.get("P2rx4"));
 
     }
 
@@ -869,20 +871,21 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
     private void populateProductAutosuggestTerms() throws SolrServerException, IOException {
 
-        //List<String> productFields = Arrays.asList(AlleleDTO.MARKER_SYMBOL, AlleleDTO.ALLELE_NAME, AlleleDTO.IKMC_PROJECT);
-        List<String> productFields = Arrays.asList(AlleleDTO.MARKER_SYMBOL, AlleleDTO.ALLELE_NAME);
+        List<String> productFields = Arrays.asList(AlleleDTO.MARKER_SYMBOL, AlleleDTO.ALLELE_NAME, AlleleDTO.IKMC_PROJECT, AlleleDTO.MGI_ACCESSION_ID, AlleleDTO.ALLELE_MGI_ACCESSION_ID);
 
         SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
+                .setQuery("type:Allele")
                 .setFields(StringUtils.join(productFields, ","))
                 .setRows(Integer.MAX_VALUE);
 
         QueryResponse response = sangerAlleleCore.query(query);
         System.out.println(" docs found: " + response.getResults().getNumFound());
+        System.out.println("Query:" + query.toString());
         List<AlleleDTO> alleles = response.getBeans(AlleleDTO.class);
+        System.out.println("number of alleles: "+ alleles.size());
 //       List<AlleleDTO> alleles = sangerAlleleCore.query(query).getBeans(AlleleDTO.class);
 
-        String docType = "allele2";
+        String docType = "product";
 
         for (AlleleDTO allele : alleles) {
 
@@ -895,15 +898,11 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 switch (field) {
                     case AlleleDTO.MARKER_SYMBOL:
                         mapKey = allele.getMarkerSymbol();
-                        if (markerSymbolSet.add(mapKey)) {
+                        if (allele2MarkerSymbolSet.add(mapKey)) {
                             a.setMarkerSymbol(mapKey);
                             beans.add(a);
-                            if ( mapKey.equals("P2rx4")) {
-                                System.out.println("check set size: " + markerSymbolSynonymsMap.size());
-                            }
-                           // System.out.println("symbol: "+mapKey);
+
                             if ( markerSymbolSynonymsMap.get(mapKey) != null ) {
-                                System.out.println("symbol2: "+mapKey);
                                 for (String syn : markerSymbolSynonymsMap.get(mapKey)) {
                                     AutosuggestBean syna = new AutosuggestBean();
                                     syna.setDocType(docType);
@@ -913,13 +912,31 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             }
                         }
                         break;
-//                    case AlleleDTO.IKMC_PROJECT:
-//                        mapKey = allele.getIkmcProject();
-//                        if (allele2IkmcProjectSet.add(mapKey)) {
-//                            a.setIkmcProject(mapKey);
-//                            beans.add(a);
-//                        }
-//                        break;
+                    case AlleleDTO.MGI_ACCESSION_ID:
+                        mapKey = allele.getMgiAccessionId();
+                        if (allele2MgiAccsSet.add(mapKey)) {
+                            a.setMgiAccessionId(mapKey);
+                            beans.add(a);
+                        }
+                        break;
+                    case AlleleDTO.ALLELE_MGI_ACCESSION_ID:
+                        mapKey = allele.getAlleleMgiAccessionId();
+                        if (allele2MgiAccsSet.add(mapKey)) {
+                            a.setAlleleMgiAccessionId(mapKey);
+                            beans.add(a);
+                        }
+                        break;
+                    case AlleleDTO.IKMC_PROJECT:
+                        List<String> ikmcProjects = allele.getIkmcProject();
+                        if ( ikmcProjects != null ) {
+                            for (String ikmcProject : ikmcProjects) {
+                                if (allele2IkmcProjectSet.add(mapKey)) {
+                                    a.setIkmcProject(ikmcProject);
+                                    beans.add(a);
+                                }
+                            }
+                        }
+                        break;
                     case AlleleDTO.ALLELE_NAME:
                         List<String> names = allele.getAlleleName();
                         for( String mapKey : names) {

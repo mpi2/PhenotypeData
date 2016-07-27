@@ -53,6 +53,7 @@ public class AlleleDTO {
 	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
 	public static final String ALLELE_NAME = "allele_name";
 	public static final String ALLELE_ACCESSION_ID = "allele_accession_id";
+	public static final String ALLELE_MGI_ACCESSION_ID = "allele_mgi_accession_id";
 	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
 	public static final String ES_CELL_STATUS = "es_cell_status";
 	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
@@ -219,6 +220,9 @@ public class AlleleDTO {
 
 	@Field(ALLELE_ACCESSION_ID)
 	private List<String> alleleAccessionIds = new ArrayList<>();
+	@Field(ALLELE_MGI_ACCESSION_ID)
+	private String alleleMgiAccessionId;
+
 	@Field(IMITS_ES_CELL_STATUS)
 	private String imitsEsCellStatus;
 	@Field(ES_CELL_STATUS)
@@ -235,7 +239,7 @@ public class AlleleDTO {
 	private List<String> phenotypingCentre = new ArrayList<>();
 
 	@Field(IKMC_PROJECT)
-	private String ikmcProject;
+	private List<String> ikmcProject;
 	@Field(GENE_ALLELE)
 	private String geneAllele;
 
@@ -691,14 +695,22 @@ public class AlleleDTO {
 	}
 
 
+	public String getAlleleMgiAccessionId() {
+		return alleleMgiAccessionId;
+	}
+
+	public void setAlleleMgiAccessionId(String alleleMgiAccessionId) {
+		this.alleleMgiAccessionId = alleleMgiAccessionId;
+	}
+
 	/**
-	 * @return the IKMC project
+	 * @return the IKMC project of List of String
 	 */
-	public String getIkmcProject() {
+	public List<String> getIkmcProject() {
 		return ikmcProject;
 	}
 
-	public void setIkmcProject(String ikmcProject) {
+	public void setIkmcProject(List<String> ikmcProject) {
 		this.ikmcProject = ikmcProject;
 	}
 
@@ -1468,6 +1480,7 @@ public class AlleleDTO {
 				", chrStrand='" + chrStrand + '\'' +
 				", alleleName=" + alleleName +
 				", alleleAccessionIds=" + alleleAccessionIds +
+				", alleleMgiAccessionId='" + alleleMgiAccessionId + '\'' +
 				", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
 				", esCellStatus=" + esCellStatus +
 				", imitsMouseStatus='" + imitsMouseStatus + '\'' +
@@ -1475,6 +1488,8 @@ public class AlleleDTO {
 				", phenotypeStatus=" + phenotypeStatus +
 				", productionCentre=" + productionCentre +
 				", phenotypingCentre=" + phenotypingCentre +
+				", ikmcProject=" + ikmcProject +
+				", geneAllele='" + geneAllele + '\'' +
 				", goTermIds=" + goTermIds +
 				", goTermNames=" + goTermNames +
 				", goTermDefs=" + goTermDefs +

@@ -28,6 +28,7 @@ public class AutosuggestBean {
 	public static final String DOCTYPE = "docType";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	public static final String MGI_ALLELE_ACCESSION_ID = "allele_accession_id";
+	public static final String ALLELE_MGI_ACCESSION_ID = "allele_mgi_accession_id";
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String MARKER_NAME = "marker_name";
 	public static final String MARKER_SYNONYM = "marker_synonym";
@@ -111,7 +112,10 @@ public class AutosuggestBean {
 
 	@Field(MGI_ALLELE_ACCESSION_ID)
 	private List<String> mgiAlleleAccessionIds;
-	
+
+	@Field(ALLELE_MGI_ACCESSION_ID)
+	private String alleleMgiAccessionId;
+
 	@Field(MARKER_SYMBOL)
 	private String markerSymbol;
 
@@ -326,6 +330,14 @@ public class AutosuggestBean {
 
 	public void setMgiAlleleAccessionIds(List<String> mgiAlleleAccessionIds) {
 		this.mgiAlleleAccessionIds = mgiAlleleAccessionIds;
+	}
+
+	public String getAlleleMgiAccessionId() {
+		return alleleMgiAccessionId;
+	}
+
+	public void setAlleleMgiAccessionId(String alleleMgiAccessionId) {
+		this.alleleMgiAccessionId = alleleMgiAccessionId;
 	}
 
 	public String getMarkerSymbol() {
@@ -840,7 +852,6 @@ public class AutosuggestBean {
 		this.gwasSnpId = gwasSnpId;
 	}
 
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -852,6 +863,8 @@ public class AutosuggestBean {
 		if (mgiAccessionId != null ? !mgiAccessionId.equals(that.mgiAccessionId) : that.mgiAccessionId != null)
 			return false;
 		if (mgiAlleleAccessionIds != null ? !mgiAlleleAccessionIds.equals(that.mgiAlleleAccessionIds) : that.mgiAlleleAccessionIds != null)
+			return false;
+		if (alleleMgiAccessionId != null ? !alleleMgiAccessionId.equals(that.alleleMgiAccessionId) : that.alleleMgiAccessionId != null)
 			return false;
 		if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
 		if (markerName != null ? !markerName.equals(that.markerName) : that.markerName != null) return false;
@@ -962,6 +975,7 @@ public class AutosuggestBean {
 		int result = docType != null ? docType.hashCode() : 0;
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
 		result = 31 * result + (mgiAlleleAccessionIds != null ? mgiAlleleAccessionIds.hashCode() : 0);
+		result = 31 * result + (alleleMgiAccessionId != null ? alleleMgiAccessionId.hashCode() : 0);
 		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
 		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
 		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
@@ -1035,6 +1049,7 @@ public class AutosuggestBean {
 				"docType='" + docType + '\'' +
 				", mgiAccessionId='" + mgiAccessionId + '\'' +
 				", mgiAlleleAccessionIds=" + mgiAlleleAccessionIds +
+				", alleleMgiAccessionId='" + alleleMgiAccessionId + '\'' +
 				", markerSymbol='" + markerSymbol + '\'' +
 				", markerName='" + markerName + '\'' +
 				", markerSynonym='" + markerSynonym + '\'' +
