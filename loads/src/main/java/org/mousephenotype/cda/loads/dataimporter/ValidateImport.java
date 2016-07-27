@@ -36,26 +36,26 @@ import java.util.*;
  *
  * This class is intended to be a command-line callable java main program that validates a pair of dcc data loaded databases.
  *
- * Usage:   java -jar loads-1.0.0-exec.jar org.mousephenotype/cda/loads/sanitycheck/Application --profile=shanti -DskipTests
+ * Usage:   java -jar loads-1.0.0-exec.jar org.mousephenotype/cda/loads/dataimporter/DataImporterValidate --profile=shanti --dccloader1.dbname=dccimportImpc_4_3 --dccloader2.dbname=dccimportImpc_4_3
  *
  * In the 'shanti' properties file (in ~/configfiles/shanti/application.properties), specify the following token lvalues:
 
 # dccloader1 is meant to be the old database.
-datasource.dccloader1.url=jdbc:mysql://mysql-mi-dev:4356/dccimportImpc_4_3?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
+datasource.dccloader1.url=jdbc:mysql://mysql-mi-dev:4356/${dccloader1.dbname}?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
 datasource.dccloader1.username=xxxxxxxx
 datasource.dccloader1.password=xxxxxxxx
 
 # dccloader2 is meant to be the new database.
-datasource.dccloader2.url=jdbc:mysql://mysql-mi-dev:4356/dccimportImpc_4_4?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
+datasource.dccloader2.url=jdbc:mysql://mysql-mi-dev:4356/${dccloader2.dbname}?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
 datasource.dccloader2.username=xxxxxxxx
 datasource.dccloader2.password=xxxxxxxx
 
  */
-@Import(ConfigDataImporter.class)
-public class DataImporterValidate implements CommandLineRunner {
+@Import(DataImporterConfig.class)
+public class ValidateImport implements CommandLineRunner {
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(DataImporterValidate.class, args);
+        SpringApplication.run(ValidateImport.class, args);
     }
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -104,16 +104,10 @@ public class DataImporterValidate implements CommandLineRunner {
     private JdbcTemplate jdbctemplate2;
 
 
-//    @Bean
-//    public int run() throws DataImporterException {
-
-
-
-
     @Override
     public void run(String... args) throws Exception {
-        String db1Name = "unknown";
-        String db2Name = "unknown";
+        String db1Name;
+        String db2Name;
 
         try {
             db1Name = jdbctemplate1.getDataSource().getConnection().getCatalog();
@@ -165,8 +159,6 @@ public class DataImporterValidate implements CommandLineRunner {
         }
 
         logger.info("VALIDATION COMPLETE.");
-
-//        return 0;
     }
 
     private String formatString(String[] row, int cellWidth) {
