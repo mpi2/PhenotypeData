@@ -53,19 +53,18 @@ public class ParallelCoordinatesController {
 
 	@Autowired
 	StatisticalResultService srs;
-	
 
 	@Autowired
 	ImpressService impressService;
+	
 	
 	@RequestMapping(value="/parallel", method=RequestMethod.GET)
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
 		TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
-		procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success"));
+		procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success", false));
 		
-
 		TreeSet<String> centers = new TreeSet<>();
 		centers.addAll(srs.getCenters(null, "unidimensional", "IMPC", "Success"));
 
@@ -108,7 +107,6 @@ public class ParallelCoordinatesController {
 		}
 		
 		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - totalTime) + " ms.");
-
 		return "parallelFrag";
 	}
 	
