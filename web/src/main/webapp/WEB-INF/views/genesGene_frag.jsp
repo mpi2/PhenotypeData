@@ -87,31 +87,32 @@
   </p>
 </c:if>
 
-<!-- show GWAS stuff for now -->
-<c:if test="${gwasPhenoMapping != null }">
 
-  <c:if test="${gwasPhenoMapping == 'no mapping' }">
-    <p class="with-label">
-    <span id="summaryGwasNoMapping" class="label">GWAS mapping</span>
-    <a target="_blank" href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-    </p>
-  </c:if>
-  <c:if test="${gwasPhenoMapping == 'indirect' }">
-    <p class="with-label">
-    <span id="summaryGwasIndirectMapping" class="label">GWAS mapping</span>
-    <a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-    <a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+<!-- do not show GWAS stuff for now -->
+<%--<c:if test="${gwasPhenoMapping != null }">--%>
 
-    </p>
-  </c:if>
-  <c:if test="${gwasPhenoMapping == 'direct' }">
-    <p class="with-label">
-    <span id="summaryGwasMapping" class="label">GWAS mapping</span>
-    <a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-    <a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
-    </p>
-  </c:if>
+  <%--<c:if test="${gwasPhenoMapping == 'no mapping' }">--%>
+    <%--<p class="with-label">--%>
+    <%--<span id="summaryGwasNoMapping" class="label">GWAS mapping</span>--%>
+    <%--<a target="_blank" href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;--%>
+    <%--</p>--%>
+  <%--</c:if>--%>
+  <%--<c:if test="${gwasPhenoMapping == 'indirect' }">--%>
+    <%--<p class="with-label">--%>
+    <%--<span id="summaryGwasIndirectMapping" class="label">GWAS mapping</span>--%>
+    <%--<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;--%>
+    <%--<a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;--%>
 
-</c:if>
+    <%--</p>--%>
+  <%--</c:if>--%>
+  <%--<c:if test="${gwasPhenoMapping == 'direct' }">--%>
+    <%--<p class="with-label">--%>
+    <%--<span id="summaryGwasMapping" class="label">GWAS mapping</span>--%>
+    <%--<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;--%>
+    <%--<a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;--%>
+    <%--</p>--%>
+  <%--</c:if>--%>
+
+<%--</c:if>--%>
 
 
