@@ -82,7 +82,6 @@ public class CategoricalChartAndTableProvider {
 	throws SQLException, IOException, URISyntaxException {
 
 		logger.debug("running categorical data");
-		System.out.println("PARAMETER categories " + parameter.getCategories().size());
 		List<String> categories = parameter.getCategories();		
 		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 		categoricalResultAndCharts.setExperiment(experiment);
@@ -103,7 +102,6 @@ public class CategoricalChartAndTableProvider {
 				CategoricalDataObject controlCatData = new CategoricalDataObject();
 				controlCatData.setName(WordUtils.capitalize(sexType.name()) + " Control");
 				controlCatData.setCategory(category);
-				System.out.println("CATEGORY is " + category);
 				long controlCount = 0;
 				
 				for (ObservationDTO control : experiment.getControls()) {
