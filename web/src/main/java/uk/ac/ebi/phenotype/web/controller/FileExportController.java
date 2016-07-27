@@ -45,26 +45,25 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.AlleleDAO;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
-import org.mousephenotype.cda.db.dao.OrganisationDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.db.dao.StrainDAO;
 import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.Pipeline;
 import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
@@ -100,20 +99,16 @@ public class FileExportController {
 	private MpService mpService;
 
 	@Autowired
+	private ImpressService impressService;
+
+	@Autowired
 	private ExperimentService experimentService;
 
 	@Autowired
 	private SolrIndex solrIndex;
 
-	@Autowired
-    @Qualifier("phenotypePipelineDAOImpl")
-	private PhenotypePipelineDAO ppDAO;
-
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
-
-	@Autowired
-	OrganisationDAO organisationDao;
 
 	@Autowired
 	StrainDAO strainDAO;
@@ -171,8 +166,8 @@ public class FileExportController {
 			@RequestParam(value = "strain", required = false) String strainParameter)
 					throws SolrServerException, IOException, URISyntaxException {
 
-		Pipeline pipeline = ppDAO.getPhenotypePipelineByStableId(pipelineStableId);
-		Parameter parameter = ppDAO.getParameterByStableId(parameterStableId);
+		ImpressBaseDTO pipeline = impressService.getPipeline(pipelineStableId);
+		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
 		}
@@ -459,7 +454,7 @@ public class FileExportController {
 		ArrayList<Integer> pipelineIds = new ArrayList<>();
 		if (pipelines != null) {
 			for (String pipe : pipelines) {
-				pipelineIds.add(ppDAO.getPhenotypePipelineByStableId(pipe).getId());
+				pipelineIds.add(impressService.getPipeline(pipe).getId());
 			}
 		}
 		if (pipelineIds.isEmpty()) {
@@ -477,7 +472,7 @@ public class FileExportController {
 										pCenter, zygosity, strain[strainI], null, false, allele[alleleI]);
 								if (experimentList.size() > 0) {
 									for (ExperimentDTO experiment : experimentList) {
-										rows.addAll(experiment.getTabbedToString(ppDAO));
+										rows.addAll(experiment.getTabbedToString());
 									}
 								}
 							}
