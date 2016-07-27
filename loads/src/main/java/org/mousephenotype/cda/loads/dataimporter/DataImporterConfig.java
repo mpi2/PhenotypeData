@@ -14,19 +14,21 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
+package org.mousephenotype.cda.loads.dataimporter;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan("org.mousephenotype.cda.loads.sanitycheck")
 @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
 @PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
                 ignoreResourceNotFound=true)
@@ -34,14 +36,14 @@ import javax.sql.DataSource;
 /**
  * Created by mrelac on 12/04/2016.
  */
-public class ConfigApp {
+public class DataImporterConfig {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Bean(name = "dccload1")
 	@Primary
     @ConfigurationProperties(prefix = "datasource.dccloader1")
 	public DataSource dccload1() {
-        DataSource ds = DataSourceBuilder.create().build();
+        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 		return ds;
 	}
 
@@ -60,10 +62,5 @@ public class ConfigApp {
 	@Bean(name = "jdbctemplate2")
 	public JdbcTemplate jdbctemplate2() {
 		return new JdbcTemplate(dccload2());
-	}
-
-	@Bean
-	public DccLoaderValidator dccLoaderValidator() {
-        return new DccLoaderValidator();
 	}
 }

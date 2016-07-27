@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
+package org.mousephenotype.cda.loads.dataimporter;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -40,14 +40,14 @@ import java.util.List;
  * experiment files currently found at /nfs/komp2/web/phenotype_data/impc. This class is meant to be an executable jar
   * whose arguments describe the source file, target database name and authentication, and spring context file.
  */
-public class ExperimentLoader {
+public class ImportExperiments {
     /**
      * Load specimen data that was encoded using the IMPC XML format
      */
 
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
-    private static final Logger logger = LoggerFactory.getLogger(ExperimentLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImportExperiments.class);
 
     private String filename;
     private String username = "";
@@ -57,9 +57,9 @@ public class ExperimentLoader {
 
     private Connection connection;
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DccLoaderException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DataImporterException {
 
-        ExperimentLoader main = new ExperimentLoader();
+        ImportExperiments main = new ImportExperiments();
         main.initialize(args);
         main.run();
 
@@ -105,8 +105,8 @@ public class ExperimentLoader {
         logger.info("Loading experiment file {}", filename);
     }
 
-    private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DccLoaderException {
-        List<CentreProcedure> centerProcedures = XMLUtils.unmarshal(ExperimentLoader.CONTEXT_PATH, CentreProcedureSet.class, filename).getCentre();
+    private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DataImporterException {
+        List<CentreProcedure> centerProcedures = XMLUtils.unmarshal(ImportExperiments.CONTEXT_PATH, CentreProcedureSet.class, filename).getCentre();
 
         if (centerProcedures.size() == 0) {
             logger.error("{} failed to unmarshall", filename);
@@ -123,23 +123,23 @@ public class ExperimentLoader {
             logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID());
 
             if (truncate) {
-                DccLoaderUtils.truncateExperimentTables(connection);
+                DataImporterUtils.truncateExperimentTables(connection);
             }
 
             connection.setAutoCommit(false);    // BEGIN TRANSACTION
 
             // Get centerPk
-            centerPk = DccLoaderUtils.getCenterPk(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+            centerPk = DataImporterUtils.getCenterPk(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
             if (centerPk < 1) {
                 System.out.println("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
                         + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
-                centerPk = DccLoaderUtils.insertIntoCenter(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+                centerPk = DataImporterUtils.insertIntoCenter(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
             }
 
             for (Experiment experiment : centerProcedure.getExperiment()) {
                 for (String specimenId : experiment.getSpecimenID()) {
                     // get specimenPk
-                    Specimen specimen = DccLoaderUtils.getSpecimen(connection, specimenId, centerProcedure.getCentreID().value());
+                    Specimen specimen = DataImporterUtils.getSpecimen(connection, specimenId, centerProcedure.getCentreID().value());
                     if (specimen == null) {
                         System.out.println("UNKNOWN SPECIMEN,CENTER: '" + specimenId + "," + centerProcedure.getCentreID().value() + "'. INSERTING...");
                         connection.rollback();
@@ -165,7 +165,7 @@ public class ExperimentLoader {
                         // procedure_procedureMetadata
                         if ((experiment.getProcedure().getProcedureMetadata() != null) && ( ! experiment.getProcedure().getProcedureMetadata().isEmpty())) {
                             for (ProcedureMetadata procedureMetadata : experiment.getProcedure().getProcedureMetadata()) {
-                                long procedureMetadataPk = DccLoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
+                                long procedureMetadataPk = DataImporterUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
                                 query = "INSERT INTO procedure_procedureMetadata(procedure_pk, procedureMetadata_pk) VALUES (?, ?)";
                                 ps = connection.prepareStatement(query);
                                 ps.setLong(1, procedurePk);
@@ -240,7 +240,7 @@ public class ExperimentLoader {
                                 query = "INSERT INTO line_statuscode (line_pk, statuscode_pk) VALUES (?, ?);";
                                 ps = connection.prepareStatement(query);
                                 for (StatusCode statuscode : line.getStatusCode()) {
-                                    StatusCode existingStatuscode = DccLoaderUtils.selectOrInsertStatuscode(connection, statuscode);
+                                    StatusCode existingStatuscode = DataImporterUtils.selectOrInsertStatuscode(connection, statuscode);
                                     long statuscodePk = existingStatuscode.getHjid();
                                     ps.setLong(1, linePk);
                                     ps.setLong(2, statuscodePk);
@@ -276,7 +276,7 @@ public class ExperimentLoader {
                     // experiment_statuscode
                     if ((experiment.getStatusCode() != null) && ( ! experiment.getStatusCode().isEmpty())) {
                         for (StatusCode statuscode : experiment.getStatusCode()) {
-                            long statuscodePk = DccLoaderUtils.selectOrInsertStatuscode(connection, statuscode).getHjid();
+                            long statuscodePk = DataImporterUtils.selectOrInsertStatuscode(connection, statuscode).getHjid();
                             ps = connection.prepareStatement("SELECT * FROM experiment_statuscode WHERE experiment_pk = ? and statuscode_pk = ?");
                             ps.setLong(1, experimentPk);
                             ps.setLong(2, statuscodePk);
@@ -399,7 +399,7 @@ public class ExperimentLoader {
                             // mediaParameter_parameterAssociation
                             if ((mediaParameter.getParameterAssociation() != null) && ( ! mediaParameter.getParameterAssociation().isEmpty())) {
                                 for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
-                                    long parameterAssociationPk = DccLoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
+                                    long parameterAssociationPk = DataImporterUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
                                     query = "INSERT INTO mediaParameter_parameterAssociation(mediaParameter_pk, parameterAssociation_pk) VALUES (?, ?)";
                                     ps = connection.prepareStatement(query);
                                     ps.setLong(1, mediaParameterPk);
@@ -411,7 +411,7 @@ public class ExperimentLoader {
                             // mediaParameter_procedureMetadata
                             if ((mediaParameter.getProcedureMetadata() != null) && ( ! mediaParameter.getProcedureMetadata().isEmpty())) {
                                 for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
-                                    long procedureMetadataPk = DccLoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
+                                    long procedureMetadataPk = DataImporterUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
                                     query = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_pk, procedureMetadata_pk) VALUES (?, ?)";
                                     ps = connection.prepareStatement(query);
                                     ps.setLong(1, mediaParameterPk);
@@ -474,7 +474,7 @@ public class ExperimentLoader {
                                         // mediaFile_parameterAssociation
                                         if ((mediaFile.getParameterAssociation() != null) && ( ! mediaFile.getParameterAssociation().isEmpty())) {
                                             for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
-                                                long parameterAssociationPk = DccLoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
+                                                long parameterAssociationPk = DataImporterUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
                                                 query = "INSERT INTO mediaFile_parameterAssociation(mediaFile_pk, parameterAssociation_pk) VALUES (?, ?)";
                                                 ps = connection.prepareStatement(query);
                                                 ps.setLong(1, mediaFilePk);
@@ -486,7 +486,7 @@ public class ExperimentLoader {
                                         // mediaFile_procedureMetadata
                                         if ((mediaFile.getProcedureMetadata() != null) && ( ! mediaFile.getProcedureMetadata().isEmpty())) {
                                             for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                                                long procedureMetadataPk = DccLoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
+                                                long procedureMetadataPk = DataImporterUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
 
                                                 query = "INSERT INTO mediaFile_procedureMetadata(mediaFile_pk, procedureMetadata_pk) VALUES (?, ?)";
                                                 ps = connection.prepareStatement(query);
@@ -531,7 +531,7 @@ public class ExperimentLoader {
                                 // seriesMediaParameterValue_parameterAssociation
                                 if ((seriesMediaParameterValue.getParameterAssociation() != null) && ( ! seriesMediaParameterValue.getParameterAssociation().isEmpty())) {
                                     for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                                        long parameterAssociationPk = DccLoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
+                                        long parameterAssociationPk = DataImporterUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
                                         query = "INSERT INTO seriesMediaParameterValue_parameterAssociation(seriesMediaParameterValue_pk, parameterAssociation_pk) VALUES (?, ?)";
                                         ps = connection.prepareStatement(query);
                                         ps.setLong(1, seriesMediaParameterValuePk);
@@ -554,7 +554,7 @@ public class ExperimentLoader {
                                 // seriesMediaParameterValue_procedureMetadata
                                 if ((seriesMediaParameterValue.getProcedureMetadata() != null) && ( ! seriesMediaParameterValue.getProcedureMetadata().isEmpty())) {
                                     for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
-                                        long procedureMetadataPk = DccLoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
+                                        long procedureMetadataPk = DataImporterUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
 
                                         query = "INSERT INTO seriesMediaParameterValue_procedureMetadata(seriesMediaParameterValue_pk, procedureMetadata_pk) VALUES (?, ?)";
                                         ps = connection.prepareStatement(query);

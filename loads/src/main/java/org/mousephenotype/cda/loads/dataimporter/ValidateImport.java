@@ -14,17 +14,18 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.sanitycheck;
+package org.mousephenotype.cda.loads.dataimporter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
-import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -35,23 +36,27 @@ import java.util.*;
  *
  * This class is intended to be a command-line callable java main program that validates a pair of dcc data loaded databases.
  *
- * Usage:   java -jar loads-1.0.0-exec.jar org.mousephenotype/cda/loads/sanitycheck/Application --profile=shanti -DskipTests
+ * Usage:   java -jar loads-1.0.0-exec.jar org.mousephenotype/cda/loads/dataimporter/DataImporterValidate --profile=shanti --dccloader1.dbname=dccimportImpc_4_3 --dccloader2.dbname=dccimportImpc_4_3
  *
  * In the 'shanti' properties file (in ~/configfiles/shanti/application.properties), specify the following token lvalues:
 
 # dccloader1 is meant to be the old database.
-datasource.dccloader1.url=jdbc:mysql://mysql-mi-dev:4356/dccimportImpc_4_3?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
+datasource.dccloader1.url=jdbc:mysql://mysql-mi-dev:4356/${dccloader1.dbname}?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
 datasource.dccloader1.username=xxxxxxxx
 datasource.dccloader1.password=xxxxxxxx
 
 # dccloader2 is meant to be the new database.
-datasource.dccloader2.url=jdbc:mysql://mysql-mi-dev:4356/dccimportImpc_4_4?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
+datasource.dccloader2.url=jdbc:mysql://mysql-mi-dev:4356/${dccloader2.dbname}?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
 datasource.dccloader2.username=xxxxxxxx
 datasource.dccloader2.password=xxxxxxxx
 
  */
-@Component
-public class DccLoaderValidator {
+@Import(DataImporterConfig.class)
+public class ValidateImport implements CommandLineRunner {
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(ValidateImport.class, args);
+    }
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -99,16 +104,20 @@ public class DccLoaderValidator {
     private JdbcTemplate jdbctemplate2;
 
 
-    @Bean
-    public int run() throws DccLoaderException {
-        String db1Name = "unknown";
-        String db2Name = "unknown";
+    @Override
+    public void run(String... args) throws Exception {
+        String db1Name;
+        String db2Name;
 
         try {
             db1Name = jdbctemplate1.getDataSource().getConnection().getCatalog();
             db2Name = jdbctemplate2.getDataSource().getConnection().getCatalog();
 
         } catch (SQLException e) {
+
+            logger.error(e.getLocalizedMessage());
+            return;
+
         }
 
         logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
@@ -150,8 +159,6 @@ public class DccLoaderValidator {
         }
 
         logger.info("VALIDATION COMPLETE.");
-
-        return 0;
     }
 
     private String formatString(String[] row, int cellWidth) {
@@ -175,9 +182,9 @@ public class DccLoaderValidator {
      *
      * @return the row's cells in a {@link List<String>}
      *
-     * @throws DccLoaderException
+     * @throws DataImporterException
      */
-    private List<String> getData(SqlRowSet rs) throws DccLoaderException {
+    private List<String> getData(SqlRowSet rs) throws DataImporterException {
         List<String> newRow = new ArrayList<>();
 
         SqlRowSetMetaData md = rs.getMetaData();
@@ -201,7 +208,7 @@ public class DccLoaderValidator {
 
                 default:
                     System.out.println("SQLTYPE: " + sqlType);
-                    throw new DccLoaderException("No rule to handle sql type '" + md.getColumnTypeName(i) + "' (" + sqlType + ").");
+                    throw new DataImporterException("No rule to handle sql type '" + md.getColumnTypeName(i) + "' (" + sqlType + ").");
             }
         }
 

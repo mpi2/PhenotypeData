@@ -22,10 +22,7 @@ package org.mousephenotype.cda.db.pojo;
  *
  */
 
-import javax.persistence.Embeddable;
 
-
-@Embeddable
 public class ConsiderId {
 
 	private String ontologyTermAccessionId;

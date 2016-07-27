@@ -77,7 +77,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
-	private static Connection connection;
+	private Connection connection;
 
 	@Autowired
 	SqlUtils sqlUtils;
@@ -961,66 +961,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	}
 
 	/**
-	 * Compare all weight dates to select the nearest to the date of experiment
-	 *
-	 * @param specimenID
-	 *            the specimen
-	 * @param dateOfExperiment
-	 *            the date
-	 * @return the nearest weight bean to the date of the experiment
-	 */
-	WeightBean getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
-
-		WeightBean nearest = null;
-
-		if (dateOfExperiment != null && weightMap.containsKey(specimenID)) {
-
-			for (WeightBean candidate : weightMap.get(specimenID)) {
-
-				if (nearest == null) {
-					nearest = candidate;
-					continue;
-				}
-
-				if (Math.abs(
-						dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math
-								.abs(dateOfExperiment.toInstant().toEpochMilli()
-										- nearest.date.toInstant().toEpochMilli())) {
-					nearest = candidate;
-				}
-			}
-		}
-
-		// Do not return weight that is > 4 days away from the experiment
-		// since the weight of the specimen become less and less relevant
-		// (Heuristic from Natasha Karp @ WTSI)
-		// 4 days = 345,600,000 ms
-		if (nearest != null && Math
-				.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
-			nearest = null;
-		}
-		return nearest;
-	}
-
-	/**
-	 * Select date of experiment
-	 *
-	 * @param specimenID
-	 *            the specimen
-	 * @return the nearest weight bean to the date of the experiment
-	 */
-	WeightBean getNearestIpgttWeight(Integer specimenID) {
-
-		WeightBean nearest = null;
-
-		if (ipgttWeightMap.containsKey(specimenID)) {
-			nearest = ipgttWeightMap.get(specimenID);
-		}
-
-		return nearest;
-	}
-
-	/**
 	 * Return map of specimen ID => List of all weights ordered by date ASC
 	 *
 	 * @exception SQLException
@@ -1151,8 +1091,72 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		}
 
 	}
+
+	/**
+	 * Compare all weight dates to select the nearest to the date of experiment
+	 *
+	 * @param specimenID
+	 *            the specimen
+	 * @param dateOfExperiment
+	 *            the date
+	 * @return the nearest weight bean to the date of the experiment
+	 */
+	WeightBean getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
+
+		WeightBean nearest = null;
+
+		if (dateOfExperiment != null && weightMap.containsKey(specimenID)) {
+
+			for (WeightBean candidate : weightMap.get(specimenID)) {
+
+				if (nearest == null) {
+					nearest = candidate;
+					continue;
+				}
+
+				if (Math.abs(
+					dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math
+					.abs(dateOfExperiment.toInstant().toEpochMilli()
+						- nearest.date.toInstant().toEpochMilli())) {
+					nearest = candidate;
+				}
+			}
+		}
+
+		// Do not return weight that is > 4 days away from the experiment
+		// since the weight of the specimen become less and less relevant
+		// (Heuristic from Natasha Karp @ WTSI)
+		// 4 days = 345,600,000 ms
+		if (nearest != null && Math
+			.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
+			nearest = null;
+		}
+		return nearest;
+	}
+
+	/**
+	 * Select date of experiment
+	 *
+	 * @param specimenID
+	 *            the specimen
+	 * @return the nearest weight bean to the date of the experiment
+	 */
+	WeightBean getNearestIpgttWeight(Integer specimenID) {
+
+		WeightBean nearest = null;
+
+		if (ipgttWeightMap.containsKey(specimenID)) {
+			nearest = ipgttWeightMap.get(specimenID);
+		}
+
+		return nearest;
+	}
+
 	public Connection getConnection() {
 		return connection;
+	}
+	public void setConnection(Connection connection) {
+		this.connection = connection;
 	}
 
 	Map<String, Map<String, String>> getTranslateCategoryNames() {
