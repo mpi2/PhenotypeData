@@ -30,7 +30,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
-@PropertySource(value="file:${user.home}/configfiles/${profile}/cdaBaseLoad.properties",
+@PropertySource(value="file:${user.home}/configfiles/${profile}/cdabase.properties",
                 ignoreResourceNotFound=true)
 @EnableAutoConfiguration
 /**
@@ -39,28 +39,28 @@ import javax.sql.DataSource;
 public class DataImportConfig {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Bean(name = "dccload1")
+	@Bean(name = "dcc1")
 	@Primary
-    @ConfigurationProperties(prefix = "datasource.dccloader1")
-	public DataSource dccload1() {
+    @ConfigurationProperties(prefix = "dcc1")
+	public DataSource dcc1() {
         DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 		return ds;
 	}
 
-	@Bean(name = "dccload2")
-    @ConfigurationProperties(prefix = "datasource.dccloader2")
-	public DataSource dccload2() {
+	@Bean(name = "dcc2")
+    @ConfigurationProperties(prefix = "dcc2")
+	public DataSource dcc2() {
         DataSource ds = DataSourceBuilder.create().build();
 		return ds;
 	}
 
 	@Bean(name = "jdbctemplate1")
 	public JdbcTemplate jdbctemplate1() {
-		return new JdbcTemplate(dccload1());
+		return new JdbcTemplate(dcc1());
 	}
 
 	@Bean(name = "jdbctemplate2")
 	public JdbcTemplate jdbctemplate2() {
-		return new JdbcTemplate(dccload2());
+		return new JdbcTemplate(dcc2());
 	}
 }
