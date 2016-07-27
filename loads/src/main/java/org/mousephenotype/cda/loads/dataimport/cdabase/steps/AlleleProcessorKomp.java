@@ -31,7 +31,7 @@ import java.util.Map;
 public class AlleleProcessorKomp extends AlleleProcessorAbstract {
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
     @Override

@@ -184,8 +184,8 @@ public class CdabaseConfigBeans {
         return downloaderList;
     }
 
-    @Bean(name = "sqlLoaderUtils")
-    public CdabaseLoaderUtils sqlLoaderUtils() {
+    @Bean(name = "cdabaseLoaderUtils")
+    public CdabaseLoaderUtils cdabaseLoaderUtils() {
         return new CdabaseLoaderUtils();
     }
 

@@ -54,7 +54,7 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
     public static final int         STRAND_COLUMN_SENTINAL = -4;        // Indicates the column is the 'strand' column.
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
     private final String[] expectedHeadings = new String[] {

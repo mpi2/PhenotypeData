@@ -49,7 +49,7 @@ public class StrainProcessorMgi implements ItemProcessor<Strain, Strain> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
 

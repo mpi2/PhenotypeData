@@ -51,7 +51,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
     private      int                         withdrawnGenesCount = 0;
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
     public abstract Allele setBiotype(Allele allele) throws DataImportException;

@@ -30,7 +30,7 @@ import java.util.Map;
 public class AlleleProcessorQtl extends AlleleProcessorAbstract {
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
     @Override
