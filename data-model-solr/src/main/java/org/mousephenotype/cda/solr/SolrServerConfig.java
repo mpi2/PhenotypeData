@@ -104,8 +104,11 @@ public class SolrServerConfig {
 
 	//Autosuggest
 	@Bean(name = "autosuggestCore")
+//	HttpSolrServer getAutosuggestCore() {
+//		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
+//	}
 	HttpSolrServer getAutosuggestCore() {
-		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
+		return new HttpSolrServer("http://localhost:8090/solr" + "/autosuggest");
 	}
 
 	//Disease
