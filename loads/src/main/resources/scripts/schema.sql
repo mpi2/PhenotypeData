@@ -395,7 +395,7 @@ CREATE TABLE synonym (
 	symbol                     VARCHAR(8192) NOT NULL,
 
 	--PRIMARY KEY (acc, db_id, symbol(250)),
-	PRIMARY KEY(id)
+	PRIMARY KEY(id),
 	KEY genomic_feature_acc_idx (acc),
 	KEY synonym_symbol_idx (symbol(250))
 
