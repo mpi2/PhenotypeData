@@ -117,13 +117,13 @@ public class TestConfigIndexers {
 		return sessionFactory;
 	}
 
-	@Bean(name = "komp2TxManager")
-	@Primary
-	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-		JpaTransactionManager tm = new JpaTransactionManager();
-		tm.setEntityManagerFactory(emf);
-		tm.setDataSource(komp2DataSource());
-		return tm;
-	}
+//	@Bean(name = "komp2TxManager")
+//	@Primary
+//	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+//		JpaTransactionManager tm = new JpaTransactionManager();
+//		tm.setEntityManagerFactory(emf);
+//		tm.setDataSource(komp2DataSource());
+//		return tm;
+//	}
 
 }

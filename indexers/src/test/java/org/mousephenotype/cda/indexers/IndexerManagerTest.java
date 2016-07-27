@@ -50,7 +50,7 @@ import static org.junit.Assert.fail;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigIndexers.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 @Transactional
 public class IndexerManagerTest {
 
@@ -724,7 +724,7 @@ public class IndexerManagerTest {
      public void testInstanceMultipleCores() {
         String testName = "testInstanceMultipleCores";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--cores=pipeline,allele,impc_images,ma,disease,mp" };
+        String[] args = new String[] { "--cores=pipeline,allele,impc_images,anatomy,disease,mp" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
@@ -758,7 +758,7 @@ public class IndexerManagerTest {
      public void testInstanceMultipleCoresNodeps() {
         String testName = "testInstanceMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[] { "--cores=pipeline,preqc,allele,impc_images,ma,disease,mp", "--nodeps" };
+        String[] args = new String[] { "--cores=pipeline,preqc,allele,impc_images,anatomy,disease,mp", "--nodeps" };
         System.out.println("Command line = " + StringUtils.join(args, ","));
         IndexerManager indexerManager = new IndexerManager();
 
