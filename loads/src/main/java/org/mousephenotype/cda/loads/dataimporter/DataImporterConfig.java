@@ -36,7 +36,7 @@ import javax.sql.DataSource;
 /**
  * Created by mrelac on 12/04/2016.
  */
-public class ConfigDataImporter {
+public class DataImporterConfig {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Bean(name = "dccload1")

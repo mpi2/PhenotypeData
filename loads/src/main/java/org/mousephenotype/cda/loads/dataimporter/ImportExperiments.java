@@ -40,14 +40,14 @@ import java.util.List;
  * experiment files currently found at /nfs/komp2/web/phenotype_data/impc. This class is meant to be an executable jar
   * whose arguments describe the source file, target database name and authentication, and spring context file.
  */
-public class ExperimentLoader {
+public class ImportExperiments {
     /**
      * Load specimen data that was encoded using the IMPC XML format
      */
 
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
-    private static final Logger logger = LoggerFactory.getLogger(ExperimentLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImportExperiments.class);
 
     private String filename;
     private String username = "";
@@ -59,7 +59,7 @@ public class ExperimentLoader {
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DataImporterException {
 
-        ExperimentLoader main = new ExperimentLoader();
+        ImportExperiments main = new ImportExperiments();
         main.initialize(args);
         main.run();
 
@@ -106,7 +106,7 @@ public class ExperimentLoader {
     }
 
     private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DataImporterException {
-        List<CentreProcedure> centerProcedures = XMLUtils.unmarshal(ExperimentLoader.CONTEXT_PATH, CentreProcedureSet.class, filename).getCentre();
+        List<CentreProcedure> centerProcedures = XMLUtils.unmarshal(ImportExperiments.CONTEXT_PATH, CentreProcedureSet.class, filename).getCentre();
 
         if (centerProcedures.size() == 0) {
             logger.error("{} failed to unmarshall", filename);
