@@ -319,8 +319,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 			}
 
-			System.out.println("SOLR QUERY:: "+ solr.getBaseURL() + "/select?" + query);
-			
 			QueryResponse response = solr.query(query);
 
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
