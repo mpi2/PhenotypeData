@@ -32,7 +32,6 @@ import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.Parameter;
@@ -44,6 +43,7 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.slf4j.Logger;
@@ -56,9 +56,6 @@ import org.springframework.ui.Model;
 public class CategoricalChartAndTableProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-
-	@Autowired
-	PhenotypePipelineDAO ppDAO;
 
 	@Autowired
 	ImpressService impressService;
@@ -103,7 +100,7 @@ public class CategoricalChartAndTableProvider {
 				}
 				CategoricalDataObject controlCatData = new CategoricalDataObject();
 				controlCatData.setName(WordUtils.capitalize(sexType.name()) + " Control");
-				controlCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
+				controlCatData.setCategory(category);
 				long controlCount = 0;
 				
 				for (ObservationDTO control : experiment.getControls()) {
@@ -116,7 +113,7 @@ public class CategoricalChartAndTableProvider {
 				}
 
 				controlCatData.setCount(controlCount);
-				logger.debug("control=" + sexType.name() + " count=" + controlCount + " category=" + ppDAO.getCategoryDescription(parameter.getId(), category));
+				logger.debug("control=" + sexType.name() + " count=" + controlCount + " category=" + category);
 				controlSet.add(controlCatData);
 			}
 			chartData.add(controlSet);
@@ -151,7 +148,7 @@ public class CategoricalChartAndTableProvider {
 
 					CategoricalDataObject expCatData = new CategoricalDataObject();
 					expCatData.setName(zType.name());
-					expCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
+					expCatData.setCategory(category);
 					expCatData.setCount(mutantCount);
 					CategoricalResult tempStatsResult = null;
 					for (StatisticalResult result : statsResults) {
@@ -355,7 +352,7 @@ public class CategoricalChartAndTableProvider {
 		// String chartId = bm.getId() + sex.name()+organisation.replace(" ",
 		// "_")+"_"+metadataGroup;
 
-		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
 			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
