@@ -217,6 +217,7 @@
         <field name="classification_tag" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="phenotype_sex" type="string" indexed="true" stored="true" multiValued="true"/> <!-- Sex for which the call will be made. One of [male], [female], [female,male], [] -->
 
+        <field name="significant" type="boolean" indexed="true" stored="true" multiValued="false"/>
 
         <!-- for copyfield -->
         <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
