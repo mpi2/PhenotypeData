@@ -1,8 +1,10 @@
 package org.mousephenotype.cda.indexers;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +88,72 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 	}
 
 	@Test
+	public void getSignificanceField() throws Exception {
+
+
+		// Results that have a p-value
+		List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
+			statisticalResultIndexer.getReferenceRangePlusResults(),
+			statisticalResultIndexer.getUnidimensionalResults(),
+			statisticalResultIndexer.getCategoricalResults()
+		);
+
+		for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
+
+			System.out.println("Assessing result of type " + r.getClass().getSimpleName());
+			List<StatisticalResultDTO> results = r.call();
+			for (StatisticalResultDTO result : results) {
+
+				// PhenStat results
+				if (result.getStatus().equals("Success") && result.getNullTestPValue()!=null) {
+					if (result.getNullTestPValue() <= AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD) {
+						assert (result.getSignificant());
+					} else {
+						assert ( ! result.getSignificant());
+					}
+				}
+
+				// Wilcoxon and fisher's exact results
+				if (result.getStatus().equals("Success") && result.getNullTestPValue()==null) {
+					if (result.getpValue() <= AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD) {
+						assert (result.getSignificant());
+					} else {
+						assert( ! result.getSignificant());
+					}
+				}
+
+				// Assert that failed results have a null signficance
+				if ( ! result.getStatus().equals("Success")) {
+					assert (result.getSignificant() == null);
+				}
+
+			}
+		}
+
+		// Results that do not have a p-value
+		resultGenerators = Arrays.asList(
+			statisticalResultIndexer.getViabilityResults(),
+			statisticalResultIndexer.getFertilityResults(),
+			statisticalResultIndexer.getEmbryoViabilityResults(),
+			statisticalResultIndexer.getEmbryoResults()
+		);
+
+		for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
+
+			System.out.println("Assessing result of type " + r.getClass().getSimpleName());
+			List<StatisticalResultDTO> results = r.call();
+			for (StatisticalResultDTO result : results) {
+
+				if (result.getStatus().equals("Success")) {
+					assert(result.getSignificant());
+				}
+			}
+		}
+
+
+	}
+
+	@Ignore
 	public void resultsUniqueIds() throws Exception {
 
 		List<String> ids = new ArrayList<>();
