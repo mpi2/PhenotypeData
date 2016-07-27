@@ -245,8 +245,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             ResultSet r = p.executeQuery();
             while (r.next()) {
 
-            	System.out.println("next " + r.getInt("id"));
-
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
                 doc.setId(r.getInt("id"));
