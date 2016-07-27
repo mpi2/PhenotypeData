@@ -43,7 +43,7 @@ public class MarkerProcessorXrefOthers implements ItemProcessor<List<Xref>, List
     private       int                   xrefsAdded;
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
 

@@ -36,7 +36,7 @@ public class BiologicalModelWriter implements ItemWriter {
     private Map<String, Integer> written = new HashMap<>();
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
     public BiologicalModelWriter() {

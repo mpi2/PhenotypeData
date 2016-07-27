@@ -68,7 +68,7 @@ public class MarkerProcessorXrefGenes implements ItemProcessor<List<Xref>, List<
     };
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
 

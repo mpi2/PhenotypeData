@@ -59,7 +59,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
     public final static String HEADING_STRAINTYPE   = "Type";
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
 

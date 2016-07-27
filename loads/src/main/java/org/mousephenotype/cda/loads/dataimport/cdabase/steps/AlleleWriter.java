@@ -33,7 +33,7 @@ public class AlleleWriter implements ItemWriter {
     private final Logger   logger   = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("sqlLoaderUtils")
+    @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
 
     private int written = 0;
