@@ -31,8 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
-import org.mousephenotype.cda.db.dao.OrganisationDAO;
-import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -107,9 +105,6 @@ public class ChartsController {
     
     @Autowired
     private ImpressService is;
-
-    @Autowired
-    Utilities impressUtilities;
     
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
