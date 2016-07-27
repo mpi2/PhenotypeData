@@ -274,7 +274,7 @@ p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1p
 
 div.searchcontent {
     position: relative;
-    width: 960px;
+    width: 100%;
     margin-top: -45px;
     z-index:0;
 }
