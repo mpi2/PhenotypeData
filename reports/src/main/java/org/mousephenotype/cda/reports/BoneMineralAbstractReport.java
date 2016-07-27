@@ -189,7 +189,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                         (Integer) Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),
                         doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),
                         SexType.valueOf(sex),
-                        doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER_ID).toString(),
+                        doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString(),
                         zygosities,
                         doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),
                         null,
