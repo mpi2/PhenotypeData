@@ -27,8 +27,11 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
 import java.io.BufferedReader;
@@ -40,7 +43,7 @@ import java.util.Date;
 /**
  * Created by mrelac on 13/04/2016.
  */
-public class DatabaseInitialiser implements Tasklet, InitializingBean {
+public class DatabaseInitialiser implements Tasklet, InitializingBean, ApplicationContextAware {
 
     private final CommonUtils commonUtils = new CommonUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
@@ -62,6 +65,8 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean {
     @Value("${cdabase.password}")
     private String dbpassword;
 
+    private ApplicationContext applicationContext;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -82,8 +87,7 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean {
 
         long startStep = new Date().getTime();
 
-        ClassLoader classloader = getClass().getClassLoader();
-        String filename = classloader.getResource("scripts/schema.sql").getPath();
+        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
 
         String[] commands = new String[] { "/bin/sh", "-c", mysql + " --host=" + dbhostname + " --port=" + dbport + " --user=" + dbusername + " --password=" + dbpassword + " " + dbname + " < " + filename };
 
@@ -123,5 +127,10 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean {
         return stepBuilderFactory.get("databaseInitialiserStep")
                 .tasklet(this)
                 .build();
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }
