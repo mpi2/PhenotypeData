@@ -46,6 +46,7 @@ public class ObservationDTOBase {
 	public final static String STRAIN_ACCESSION_ID = "strain_accession_id";
 	public final static String STRAIN_NAME = "strain_name";
 	public final static String GENETIC_BACKGROUND = "genetic_background";
+	public final static String ALLELIC_COMPOSITION = "allelic_composition";
 	public final static String PIPELINE_NAME = "pipeline_name";
 	public final static String PIPELINE_ID = "pipeline_id";
 	public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";
@@ -153,10 +154,13 @@ public class ObservationDTOBase {
     @Field(STRAIN_NAME)
     protected String strainName;
 
-    @Field(GENETIC_BACKGROUND)
-    protected String geneticBackground;
+	@Field(GENETIC_BACKGROUND)
+	protected String geneticBackground;
 
-    @Field(EXPERIMENT_SOURCE_ID)
+	@Field(ALLELIC_COMPOSITION)
+	protected String allelicComposition;
+
+	@Field(EXPERIMENT_SOURCE_ID)
     protected String experimentSourceId;
 
     @Field(GENE_SYMBOL)
@@ -1249,6 +1253,14 @@ public class ObservationDTOBase {
         this.geneticBackground = geneticBackground;
     }
 
+	public String getAllelicComposition() {
+		return allelicComposition;
+	}
+
+	public void setAllelicComposition(String allelicComposition) {
+		this.allelicComposition = allelicComposition;
+	}
+
 	public String getAlleleSymbol() {
 		return alleleSymbol;
 	}
@@ -1435,6 +1447,6 @@ public class ObservationDTOBase {
 		this.developmentalStageName = developmentalStageName;
 	}
 
-	
+
 
 }
