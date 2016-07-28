@@ -32,9 +32,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -87,7 +89,38 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
 
         long startStep = new Date().getTime();
 
-        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
+
+
+
+
+
+
+
+
+//        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
+        Resource r = applicationContext.getResource("classpath:scripts/schema.sql");
+
+        System.out.println("GOT RESOURCE");
+        System.out.println("r.filename = " + r.getFilename());
+        System.out.println("r.uriToString = " + r.getURI().toString());
+        System.out.println("r.urlToString = " + r.getURL().toString());
+        File     f = r.getFile();
+        System.out.println("absolutePath: " + f.getAbsolutePath());
+        System.out.println("canonicalPath: " + f.getCanonicalPath());
+        System.out.println("name: " + f.getName());
+        System.out.println("path: " + f.getPath());
+
+        String filename = f.getCanonicalPath();
+
+
+
+
+
+
+
+
+
+
 
         String[] commands = new String[] { "/bin/sh", "-c", mysql + " --host=" + dbhostname + " --port=" + dbport + " --user=" + dbusername + " --password=" + dbpassword + " " + dbname + " < " + filename };
 
