@@ -15,6 +15,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -54,9 +55,18 @@ public class ObservationIndexerTest {
 
         observationIndexer.populateBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
-        Assert.assertTrue(bioDataMap.size() > 1000);
 
-        logger.info("Size of biological data map {}", bioDataMap.size());
+        Assert.assertTrue(bioDataMap.size() > 1000);
+	    logger.info("Size of biological data map {}", bioDataMap.size());
+
+	    for (ObservationIndexer.BiologicalDataBean biologicalDataBean : bioDataMap.values()) {
+
+	    	if ( ! biologicalDataBean.sampleGroup.equals("control")) {
+			    Assert.assertTrue(! StringUtils.isEmpty(biologicalDataBean.alleleAccession));
+			    Assert.assertTrue(! StringUtils.isEmpty(biologicalDataBean.geneticBackground));
+		    }
+
+	    }
 
     }
 

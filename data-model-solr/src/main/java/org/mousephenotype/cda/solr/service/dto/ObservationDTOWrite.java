@@ -17,9 +17,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+/**
+ * This class is used for overriding the default Solr date stamp behaviour
+ *
+ */
 public class ObservationDTOWrite extends ObservationDTOBase {
 
-	
+
 	@Field(DATE_OF_EXPERIMENT)
 	private Iso8601ZonedDateTime solrDateOfExperiment;
 	private ZonedDateTime dateOfExperiment;
