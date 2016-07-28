@@ -107,9 +107,7 @@ public class PhenotypeSummaryDAO  {
 			for (SolrDocument doc: res){
 				if (isSignificant(doc)){
 					n += doc.containsKey(StatisticalResultDTO.PHENOTYPE_SEX) ? doc.getFieldValues(StatisticalResultDTO.PHENOTYPE_SEX).size() : 2;
-				} else if (doc.containsKey(StatisticalResultDTO.P_VALUE)){
-					break;
-				}
+				} 
 			}
 		}
 		return n;
@@ -119,17 +117,11 @@ public class PhenotypeSummaryDAO  {
 	
 	private boolean isSignificant (SolrDocument res){
 		
-		boolean result = false;
-		if ( res.containsKey(StatisticalResultDTO.P_VALUE)){
-			if (new Double(res.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
-				result = true;
-			}
-			// For VIA data we only get p-values in for the significant calls. The p-valuse can be quite high but are significant nontheless.
-			if (res.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString().contains("IMPC_VIA")){
-				result = true;
-			}
+		boolean significant = false;
+		if ( res.containsKey(StatisticalResultDTO.SIGNIFICANT)){
+			significant = res.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true");
 		}
-		return result;
+		return significant;
 		
 	}
 
