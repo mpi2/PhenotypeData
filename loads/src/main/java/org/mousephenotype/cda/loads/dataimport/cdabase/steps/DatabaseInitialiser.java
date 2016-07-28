@@ -89,76 +89,12 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
 
         long startStep = new Date().getTime();
 
-        logger.info("Creating cda_base tables");
+        logger.info("Create cda_base tables - start");
         org.springframework.core.io.Resource r = new ClassPathResource("scripts/schema.sql");
-//        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
         ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
-//        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
         p.execute(cdabase);
 
-//
-//
-//
-//
-//
-//
-////        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
-//        Resource r = applicationContext.getResource("file:scripts/schema.sql");
-//
-//        System.out.println("GOT RESOURCE");
-//        System.out.println("r.filename = " + r.getFilename());
-//        System.out.println("r.uriToString = " + r.getURI().toString());
-//        System.out.println("r.urlToString = " + r.getURL().toString());
-//
-//
-//
-//        File     f = r.getFile();
-//        System.out.println("absolutePath: " + f.getAbsolutePath());
-//        System.out.println("canonicalPath: " + f.getCanonicalPath());
-//        System.out.println("name: " + f.getName());
-//        System.out.println("path: " + f.getPath());
-//
-//        String filename = f.getCanonicalPath();
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//        String[] commands = new String[] { "/bin/sh", "-c", mysql + " --host=" + dbhostname + " --port=" + dbport + " --user=" + dbusername + " --password=" + dbpassword + " " + dbname + " < " + filename };
-//
-//        try {
-//            System.out.println("cmd = " + StringUtils.join(commands, " "));
-//            Process process = Runtime.getRuntime().exec(commands);
-//            BufferedReader stdInput = new BufferedReader(new
-//                    InputStreamReader(process.getInputStream()));
-//
-//            BufferedReader stdError = new BufferedReader(new
-//                 InputStreamReader(process.getErrorStream()));
-//
-//            int exitVal = process.waitFor();
-//            System.out.println("exitVal = " + exitVal);
-//            if (exitVal > 0) {
-//                String s = null;
-//                while ((s = stdInput.readLine()) != null) {
-//                    System.out.println(s);
-//                }
-//                while ((s = stdError.readLine()) != null) {
-//                    System.err.println(s);
-//                }
-//            }
-//        }
-//
-//        catch(IOException | InterruptedException e) {
-//            System.out.println("FAIL: " + e.getLocalizedMessage());
-//        }
-
-        logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.info("Create cda_base tables - end. Total elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
 
         return RepeatStatus.FINISHED;
     }
