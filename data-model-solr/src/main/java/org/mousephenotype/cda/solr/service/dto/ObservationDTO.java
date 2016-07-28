@@ -15,9 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -25,6 +22,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.TimeZone;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 public class ObservationDTO extends ObservationDTOBase {
 
@@ -45,7 +44,7 @@ public class ObservationDTO extends ObservationDTOBase {
      * @throws SQLException
      */
 
-    public String tabbedToString(PhenotypePipelineDAO ppDAO) throws SQLException {
+    public String tabbedToString() throws SQLException {
         String tabbed = pipelineName
                 + "\t" + pipelineStableId
                 + "\t" + procedureStableId
@@ -90,7 +89,7 @@ public class ObservationDTO extends ObservationDTOBase {
             tabbed += "\t" + dataPoint;
         }
         else if (observationType.equalsIgnoreCase("categorical")) {
-            tabbed += "\t" + ppDAO.getCategoryDescription(parameterId, category);
+            tabbed += "\t" + category;
         }
         else if (observationType.equalsIgnoreCase("time_series")) {
             tabbed += "\t" + dataPoint + "\t" + discretePoint;

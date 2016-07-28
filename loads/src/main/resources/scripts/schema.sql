@@ -389,11 +389,12 @@ CREATE TABLE genomic_feature (
 
 CREATE TABLE synonym (
 
+	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
 	symbol                     VARCHAR(8192) NOT NULL,
 
-	PRIMARY KEY (acc, db_id, symbol(250)),
+	PRIMARY KEY(id),
 	KEY genomic_feature_acc_idx (acc),
 	KEY synonym_symbol_idx (symbol(250))
 

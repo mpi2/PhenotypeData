@@ -103,7 +103,7 @@ public class ExpressionService extends BasicService {
 					throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + experimentOrControl);
 		if (StringUtils.isNotEmpty(metadataGroup)) {
 			solrQuery.addFilterQuery(ImageDTO.METADATA_GROUP + ":" + metadataGroup);
@@ -112,7 +112,7 @@ public class ExpressionService extends BasicService {
 			solrQuery.addFilterQuery(ImageDTO.STRAIN_NAME + ":" + strain);
 		}
 		if (sex != null) {
-			solrQuery.addFilterQuery("sex:" + sex.name());
+			solrQuery.addFilterQuery(ImageDTO.SEX + ":" + sex.name());
 		}
 		if (StringUtils.isNotEmpty(anatomy)) {
 			solrQuery.addFilterQuery(ImageDTO.PARAMETER_ASSOCIATION_NAME + ":\"" + anatomy + "\"");
@@ -138,7 +138,7 @@ public class ExpressionService extends BasicService {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:106209%22&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		SolrQuery solrQuery = new SolrQuery();
 		if (mgiAccession != null) {
-			solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+			solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		} else {
 			// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=biological_sample_group:control&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)&rows=100000
 			solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\"");
@@ -151,12 +151,7 @@ public class ExpressionService extends BasicService {
 					+ ":\"LacZ Images Wholemount\"");
 		}
 
-		// solrQuery.addFilterQuery(ImageDTO.ZYGOSITY
-		// + ":Homozygote");
-		// solrQuery.setFacetMinCount(1);
-		// solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
-		// solrQuery.addFacetField("ma_term");
 		solrQuery.setRows(100000);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
@@ -176,7 +171,7 @@ public class ExpressionService extends BasicService {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id:%22MGI:1351668%22&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(procedure_name:%22Adult%20LacZ%22)&rows=10000
 		SolrQuery solrQuery = new SolrQuery();
 		if (mgiAccession != null) {
-			solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+			solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		} else {
 			// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=biological_sample_group:control&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)&rows=100000
 			solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\"");
@@ -210,7 +205,7 @@ public class ExpressionService extends BasicService {
 		// "procedure_name": "Embryo LacZ",
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
 				+ ":\"LacZ Images Wholemount\"");// reduce the number to image
 													// parameters only as we are
@@ -219,7 +214,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
-		solrQuery.addFacetField("selected_top_level_anatomy_term");
+		solrQuery.addFacetField(ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		solrQuery.setRows(100000);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
@@ -234,7 +229,7 @@ public class ExpressionService extends BasicService {
 		// "procedure_name": "Embryo LacZ",
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 
 		solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
 		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
@@ -258,7 +253,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
-		solrQuery.addFacetField("parameter_stable_id");
+		solrQuery.addFacetField(ImageDTO.PARAMETER_STABLE_ID);
 		solrQuery.setRows(0);
 		QueryResponse response = experimentSolr.query(solrQuery);
 		List<FacetField> categoryParameterFields = response.getFacetFields();
@@ -274,7 +269,7 @@ public class ExpressionService extends BasicService {
 		// "procedure_name": "Embryo LacZ",
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_064_001" + " OR "
 				+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");// reduce
 																		// the
@@ -295,7 +290,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
-		solrQuery.addFacetField("selected_top_level_anatomy_term");
+		solrQuery.addFacetField(ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		solrQuery.setRows(100000);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;

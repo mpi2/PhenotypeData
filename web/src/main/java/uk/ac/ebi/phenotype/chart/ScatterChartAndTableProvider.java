@@ -29,17 +29,15 @@ import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,22 +49,12 @@ public class ScatterChartAndTableProvider {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
-	PhenotypePipelineDAO ppDAO;
-
-	@Autowired
 	UnidimensionalChartAndTableProvider unidimensionalChartAndTableProvider;
 
 	@Autowired
 	ImpressService impressService;
 
-	public String createScatter(ExperimentDTO experiment, Float min, Float max, String experimentNumber, Parameter parameter, JSONArray series) {
-
-		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
-		String procedureDescription = "";
-		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
-		}
-
+	public String createScatter(ExperimentDTO experiment, Float min, Float max, String experimentNumber, ParameterDTO parameter, JSONArray series) {
 
 		String chartString="	$(function () { "
 			+ "  chart71maleWTSI = new Highcharts.Chart({ "
@@ -136,7 +124,7 @@ public class ScatterChartAndTableProvider {
 	}
 
 
-	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax,Parameter parameter, String experimentNumber, BiologicalModel expBiologicalModel)
+	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax, ParameterDTO parameter, String experimentNumber, BiologicalModel expBiologicalModel)
 	throws IOException,	URISyntaxException {
 
 		JSONArray series=new JSONArray();

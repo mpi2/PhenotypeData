@@ -519,7 +519,7 @@ public class ImpressService extends BasicService implements WebStatus {
 		ParameterDTO param = new ParameterDTO();
 		SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
-				.setFields(ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_STABLE_KEY, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.OBSERVATION_TYPE)
+				.setFields(ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_STABLE_KEY, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.OBSERVATION_TYPE, ImpressDTO.CATEGORIES)
 				.setRows(1);
 		QueryResponse response = solr.query(query);
 		ImpressDTO dto = response.getBeans(ImpressDTO.class).get(0);
@@ -528,7 +528,7 @@ public class ImpressService extends BasicService implements WebStatus {
 		param.setStableKey(dto.getParameterStableKey());
 		param.setName(dto.getParameterName());
 		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
-
+		param.setCategories(dto.getCategories());
 		return param;
 	}
 
