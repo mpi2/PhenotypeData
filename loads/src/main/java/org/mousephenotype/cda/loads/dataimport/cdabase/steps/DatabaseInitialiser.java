@@ -32,6 +32,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 import java.io.BufferedReader;
@@ -97,7 +98,13 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
 
 
 //        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
-        File f = applicationContext.getResource("classpath:scripts/schema.sql").getFile();
+        Resource r = applicationContext.getResource("classpath:scripts/schema.sql");
+
+        System.out.println("GOT RESOURCE");
+        System.out.println("r.filename = " + r.getFilename());
+        System.out.println("r.uriToString = " + r.getURI().toString());
+        System.out.println("r.urlToString = " + r.getURL().toString());
+        File     f = r.getFile();
         System.out.println("absolutePath: " + f.getAbsolutePath());
         System.out.println("canonicalPath: " + f.getCanonicalPath());
         System.out.println("name: " + f.getName());
