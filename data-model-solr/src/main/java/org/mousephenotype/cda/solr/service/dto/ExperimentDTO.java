@@ -23,12 +23,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 
 public class ExperimentDTO {
 
@@ -59,31 +58,31 @@ public class ExperimentDTO {
     private Set<ObservationDTO> femaleControls;
     private String alleleAccession;
 
-    public List<String> getTabbedToString(PhenotypePipelineDAO ppDAO) throws SQLException {
+    public List<String> getTabbedToString() throws SQLException {
         List<String> rows = new ArrayList<String>();
         for (ObservationDTO obs : homozygoteMutants) {
             if (rows.size() == 0) {
                 rows.add(obs.getTabbedFields());
             }
-            rows.add(obs.tabbedToString(ppDAO));
+            rows.add(obs.tabbedToString());
         }
         for (ObservationDTO obs : heterozygoteMutants) {
             if (rows.size() == 0) {
                 rows.add(obs.getTabbedFields());
             }
-            rows.add(obs.tabbedToString(ppDAO));
+            rows.add(obs.tabbedToString());
         }
         for (ObservationDTO obs : hemizygoteMutants) {
             if (rows.size() == 0) {
                 rows.add(obs.getTabbedFields());
             }
-            rows.add(obs.tabbedToString(ppDAO));
+            rows.add(obs.tabbedToString());
         }
         for (ObservationDTO obs : controls) {
             if (rows.size() == 0) {
                 rows.add(obs.getTabbedFields());
             }
-            rows.add(obs.tabbedToString(ppDAO));
+            rows.add(obs.tabbedToString());
         }
 
         return rows;

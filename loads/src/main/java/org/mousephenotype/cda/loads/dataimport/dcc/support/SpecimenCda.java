@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.dataimport.dcc;
+package org.mousephenotype.cda.loads.dataimport.dcc.support;
 
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
 

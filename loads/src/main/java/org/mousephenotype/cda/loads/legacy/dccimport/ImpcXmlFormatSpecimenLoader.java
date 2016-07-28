@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.dccimport;
+package org.mousephenotype.cda.loads.legacy.dccimport;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -11,9 +11,9 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.StageUnitType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.loads.dccimport.imits.FileBasedImitsClient;
-import org.mousephenotype.cda.loads.dccimport.imits.ImitsClient;
-import org.mousephenotype.cda.loads.dccimport.imits.ImitsRestClient;
+import org.mousephenotype.cda.loads.legacy.dccimport.imits.FileBasedImitsClient;
+import org.mousephenotype.cda.loads.legacy.dccimport.imits.ImitsClient;
+import org.mousephenotype.cda.loads.legacy.dccimport.imits.ImitsRestClient;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;

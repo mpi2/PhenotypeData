@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -56,6 +57,7 @@ import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OrganisationDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.dao.ProjectDAO;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
@@ -106,6 +108,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     @Autowired
     OrganisationDAO organisationDAO;
 
+    @NotNull @Autowired
+    protected PhenotypePipelineDAO pipelineDAO;
+    
     @Autowired
 	@Qualifier("postqcService")
     AbstractGenotypePhenotypeService gpService;
@@ -274,7 +279,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
      * @param resource
      * @return List<ProcedureBean>
      */
-	public List<ImpressBaseDTO> getProcedures(String pipelineStableId, String observationType, String resource, Integer minParameterNumber, List<String> proceduresToSkip, String status){
+	public List<ImpressBaseDTO> getProcedures(String pipelineStableId, String observationType, String resource, Integer minParameterNumber, List<String> proceduresToSkip, String status, boolean includeWilcoxon){
 
 		List<ImpressBaseDTO> procedures = new ArrayList<>();
 
@@ -288,7 +293,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			query.set("group.field", StatisticalResultDTO.PROCEDURE_NAME);
 			query.setRows(10000);
 			query.set("group.limit", 1);
-
+			if (!includeWilcoxon){
+				query.addFilterQuery("-" + StatisticalResultDTO.STATISTICAL_METHOD + ":Wilcoxon*");
+			}
 			if (pipelineStableId != null){
 				query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
 			}
@@ -385,6 +392,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	for (ParameterDTO p: parameterUniqueByStableId){
     		parameterMap.put(p.getStableId(), p);
     	}
+    	
 
     	query = new SolrQuery();
     	query.setQuery("-" + StatisticalResultDTO.STATISTICAL_METHOD + ":Wilcoxon*"); // Decided to omit Wilcoxon because it does not adjust for batch or center effect and the value for genotyope effect does not have the same meaning as for the other values.

@@ -758,11 +758,6 @@
 					var uberon2MaIdMap = expData.uberon2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
-					//console.log("no expression: ")
-					//console.log(expData.noExpression);
-					//console.log("all paths: ")
-					//console.log(expData.allPaths);
-
 					var anatomogramData = {
 
 						"maleAnatomogramFile": "mouse_male.svg",
