@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.WordUtils;
-import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class ViabilityChartAndDataProvider {
 
 
-	public ViabilityDTO doViabilityData(Parameter parameter, ViabilityDTO viabilityDTO) {
+	public ViabilityDTO doViabilityData(ParameterDTO parameter, ViabilityDTO viabilityDTO) {
 		//we need 3 sets of data for the 3 graphs
 		Map<String, ObservationDTO> paramStableIdToObservation = viabilityDTO.getParamStableIdToObservation();
 		List<ObservationDTO> totals=new ArrayList<>();

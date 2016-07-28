@@ -193,7 +193,7 @@ input.auto              { width: auto; }
 #vnavi li + li          { margin-left: 1em; }
 
 /* Breadcrumb */
-.breadcrumb             { position: absolute; z-index: 0; margin-top: -4em; font-size: 0.8em; width:100%;}
+.breadcrumb             { position: absolute; z-index: 1; margin-top: -4em; font-size: 0.8em; width:100%;}
 .breadcrumb a           { color: rgb(9,120,161); }
 .breadcrumb a:hover     { color: rgb(9,120,161); text-decoration: underline; }
 .page-contact .breadcrumb,
@@ -274,9 +274,9 @@ p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1p
 
 div.searchcontent {
     position: relative;
-    width: 960px;
+    width: 100%;
     margin-top: -45px;
-    z-index:-10;
+    z-index:0;
 }
 /*#bigsearchbox           { background: #0978a1; padding: 0.5em; } /* for the search page */
 #bigsearchbox           {

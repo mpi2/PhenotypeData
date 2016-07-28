@@ -29,10 +29,8 @@ import java.util.Set;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.json.JSONArray;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -41,6 +39,8 @@ import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.mousephenotype.cda.web.ChartType;
 import org.slf4j.Logger;
@@ -53,11 +53,6 @@ public class UnidimensionalChartAndTableProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	private String axisFontSize = "15";
-
-	@Autowired
-	PhenotypePipelineDAO ppDAO;
-
 	@Autowired
 	ImpressService impressService;
 
@@ -67,7 +62,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * table at the bottom
 	 *
 	 */
-	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, Parameter parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle, BiologicalModel expBiologicalModel)
+	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, ParameterDTO parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle, BiologicalModel expBiologicalModel)
 	throws SQLException, IOException, URISyntaxException {
 
 		ChartData chartAndTable = null;
@@ -124,7 +119,7 @@ public class UnidimensionalChartAndTableProvider {
 		Map <String, Float> boxMinMax = ChartUtils.getMinMaxXAxis(chartsSeriesElementsList, experiment);
 		chartAndTable = processChartData(chartId, boxMinMax.get("min"), boxMinMax.get("max"), parameter, experiment, yAxisTitle, chartsSeriesElementsList);
 		String title = "<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>";
-		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
 			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
@@ -143,7 +138,7 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	public List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment, Parameter parameter, BiologicalModel expBiologicalModel) {
+	public List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment, ParameterDTO parameter, BiologicalModel expBiologicalModel) {
 
 		Map<String, String> usefulStrings = GraphUtils.getUsefulStrings(expBiologicalModel);
 		List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(parameter, experiment, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), usefulStrings.get("geneticBackground"));
@@ -162,7 +157,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param chartsSeriesElementsList
 	 * @return
 	 */
-	private ChartData processChartData(String chartId, Float yMin, Float yMax,Parameter parameter, ExperimentDTO experiment, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList) {
+	private ChartData processChartData(String chartId, Float yMin, Float yMax, ParameterDTO parameter, ExperimentDTO experiment, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList) {
 
 		String chartString = createContinuousBoxPlotChartsString(chartId, yMin, yMax, parameter, yAxisTitle, chartsSeriesElementsList, experiment);
 		ChartData cNTable = new ChartData();
@@ -182,22 +177,14 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param experiment
 	 * @return
 	 */
-	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,Parameter parameter, String yAxisTitle,
+	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,ParameterDTO parameter, String yAxisTitle,
 		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
 
 		JSONArray categories = new JSONArray();
 		String boxPlotObject = "";
-
 		String seriesData = "";
 		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 		int column = 0;
-
-
-		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
-		String procedureDescription = "";
-		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
-		}
 
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
 			// fist get the raw data for each column (only one column per data
@@ -447,7 +434,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param geneticBackground
 	 * @return
 	 */
-	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(Parameter parameter, ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
+	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(ParameterDTO parameter, ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
 
 		List<? extends StatisticalResult> results = experiment.getResults();
 		logger.debug("result=" + results);
@@ -464,14 +451,12 @@ public class UnidimensionalChartAndTableProvider {
 
 			// set up the mutant stats data
 			for (ZygosityType zType : experiment.getZygosities()) {
-				UnidimensionalStatsObject tempStatsObject = new UnidimensionalStatsObject();
 
+				UnidimensionalStatsObject tempStatsObject = new UnidimensionalStatsObject();
 				Set<ObservationDTO> mutants = experiment.getMutants(sexType, zType);
 				tempStatsObject = generateStats(experiment, tempStatsObject, mutants, zType, sexType);
 
 				for (StatisticalResult result : results) {
-				
-					UnidimensionalResult unidimensionalResult = (UnidimensionalResult) result;
 					if (result.getZygosityType().equals(zType)) {
 						tempStatsObject.setResult((UnidimensionalResult) result);
 					}

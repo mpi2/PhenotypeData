@@ -28,14 +28,14 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,17 +55,14 @@ public class AbrChartAndTableProvider {
 	@Autowired
 	ExperimentService es;
 
-    @Autowired
-    private PhenotypePipelineDAO pipelineDAO;
-
 	@Autowired
 	ImpressService impressService;
 
 
 	public String getChart(Integer pipelineId, String acc, List<String> genderList, List<String> zyList,
-			Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession, String chartId){
+			String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String chartId) throws SolrServerException{
 
-    	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap(); // <control/experim, ArrayList<dataToPlot>>
+    	Map<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap<>(); // <control/experim, ArrayList<dataToPlot>>
     	data.put(ChartUtils.getLabel(null, SexType.female), new ArrayList<UnidimensionalStatsObject>() );
     	data.put(ChartUtils.getLabel(null,  SexType.male), new ArrayList<UnidimensionalStatsObject>() );
     	for (String zygosity: zyList){
@@ -79,19 +76,19 @@ public class AbrChartAndTableProvider {
 
 		Set<ZygosityType> zygosities = null;
     	String procedureUrl = null;
-    	String unit = pipelineDAO.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnit();
+    	String unit = impressService.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnit();
 
     	for (String parameterStableId : Constants.ABR_PARAMETERS){
 
-    		Integer paramId = pipelineDAO.getParameterByStableId(parameterStableId).getId();
+    		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
     		try {
-    			ExperimentDTO experiment = es.getSpecificExperimentDTO(paramId, pipelineId, acc, genderList, zyList, phenotypingCenterId, strain, metadataGroup, alleleAccession);
+    			ExperimentDTO experiment = es.getSpecificExperimentDTO(parameter.getId(), pipelineId, acc, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession);
 
     			if (experiment != null){
 			    	zygosities = experiment.getZygosities();
 			    	Set<SexType> sexes = experiment.getSexes();
 					if (procedureUrl == null){
-						Procedure proc = pipelineDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
+						ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 						if (proc != null) {
 							procedureUrl = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
 						}
@@ -104,7 +101,7 @@ public class AbrChartAndTableProvider {
 					}
 				}
 				else {
-					emptyObj.setLabel(pipelineDAO.getParameterByStableId(parameterStableId).getName());
+					emptyObj.setLabel(parameter.getName());
 			    	data.get(ChartUtils.getLabel(null,  SexType.female)).add(emptyObj);
 			    	data.get(ChartUtils.getLabel(null,  SexType.male)).add(emptyObj);
 					for (String z : zyList){
@@ -121,7 +118,7 @@ public class AbrChartAndTableProvider {
 	}
 
 
-	public String getCustomChart(HashMap<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities, String chartId){
+	public String getCustomChart(Map<String, ArrayList<UnidimensionalStatsObject>> data, String procedureLink, String unit, Set<ZygosityType> zygosities, String chartId) throws SolrServerException{
 
 		JSONArray categories = new JSONArray();
 		String title = "Evoked ABR Threshold (6, 12, 18, 24, 30 kHz)";
@@ -142,7 +139,7 @@ public class AbrChartAndTableProvider {
 		sexes.add(SexType.female);
 
 		for (String abrId: Constants.ABR_PARAMETERS){
-			categories.put(pipelineDAO.getParameterByStableId(abrId).getName());
+			categories.put(impressService.getParameterByStableId(abrId).getName());
 			try {
 				categories.put(1, ""); // empty category with null data so that the points won't be connected
 			} catch (JSONException e) {
