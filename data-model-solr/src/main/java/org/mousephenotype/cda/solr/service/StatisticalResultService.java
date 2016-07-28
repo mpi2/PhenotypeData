@@ -58,7 +58,6 @@ import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OrganisationDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.dao.ProjectDAO;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Parameter;
@@ -117,9 +116,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
     @Autowired
     ImpressService impressService;
-
-    @Autowired
-    ProjectDAO projectDAO;
 
 	@Autowired @Qualifier("statisticalResultCore")
 	HttpSolrServer solr;
@@ -1025,6 +1021,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
     }
 
+    
     /**
      *
      * @param gene
@@ -1037,12 +1034,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     throws SolrServerException {
 
 		HashMap<String, SolrDocumentList> res = new HashMap<>();
-
 		String query = "*:*";
+		
 		if (gene.equalsIgnoreCase("*")) {
-			query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene;
+			query = StatisticalResultDTO.MARKER_ACCESSION_ID + ":" + gene;
 		} else {
-			query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
+			query = StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
 		}
 
 		SolrQuery solrQuery = new SolrQuery();
@@ -1051,30 +1048,30 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
 		solrQuery.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*");
 		solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
-		solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY,
-				GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
-				GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME,
-				GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
+		solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
+				StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.MARKER_SYMBOL,
+				StatisticalResultDTO.MP_TERM_ID, StatisticalResultDTO.MP_TERM_NAME,
+				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
 				StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME,
-				StatisticalResultDTO.PROCEDURE_STABLE_ID);
+				StatisticalResultDTO.PROCEDURE_STABLE_ID, StatisticalResultDTO.SIGNIFICANT);
 
 		if (zygosity != null) {
-			solrQuery.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
+			solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
 		}
 
 		SolrDocumentList result = solr.query(solrQuery).getResults();
 
 		for (SolrDocument doc : result) {
-			if (doc.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
-				for (Object topLevelMp : doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
+			if (doc.containsKey(StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID)) {
+				for (Object topLevelMp : doc.getFieldValues(StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID)) {
 					String id = topLevelMp.toString();
 					if (!res.containsKey(id)) {
 						res.put(id, new SolrDocumentList());
 					}
 					res.get(id).add(doc);
 				}
-			} else if (doc.containsKey(GenotypePhenotypeDTO.MP_TERM_ID)) {
-				for (Object topLevelMp : doc.getFieldValues(GenotypePhenotypeDTO.MP_TERM_ID)) {
+			} else if (doc.containsKey(StatisticalResultDTO.MP_TERM_ID)) {
+				for (Object topLevelMp : doc.getFieldValues(StatisticalResultDTO.MP_TERM_ID)) {
 					String id = topLevelMp.toString();
 					if (!res.containsKey(id)) {
 						res.put(id, new SolrDocumentList());
@@ -1086,7 +1083,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		return res;
     }
-
 
 
 
@@ -1284,7 +1280,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
             	HeatMapCell cell = new HeatMapCell();
             	SolrDocument doc = group.getResult().get(0);
             	cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
-            	if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
+            	if(doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")){
             		cell.setStatus("Significant call");
             	} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
             			cell.setStatus("Data analysed, no significant call");
