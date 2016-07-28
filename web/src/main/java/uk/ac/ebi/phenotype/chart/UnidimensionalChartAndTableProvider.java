@@ -424,12 +424,9 @@ public class UnidimensionalChartAndTableProvider {
 
 
 	/**
-	 *
- 	 * @param parameter
+	 * 
+	 * @param parameter
 	 * @param experiment
-	 * @param allelicCompositionString
-	 * @param symbol
-	 * @param geneticBackground
 	 * @return
 	 */
 	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(ParameterDTO parameter, ExperimentDTO experiment) {

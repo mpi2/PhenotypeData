@@ -46,7 +46,7 @@ public class ExperimentDTO {
     private Set<SexType> sexes;
     private ControlStrategy controlSelectionStrategy;
     private List<? extends StatisticalResult> results;
-    private String allelicComposition;
+    private String alleleSymobl;
     private String geneticBackgtround;
 
     private Set<ObservationDTO> homozygoteMutants;
@@ -126,13 +126,14 @@ public class ExperimentDTO {
 		this.controlSelectionStrategy = controlSelectionStrategy;
 	}
     
-    public String getAllelicComposition() {
-		return allelicComposition;
+
+	public String getAlleleSymobl() {
+		return alleleSymobl;
 	}
 
 
-	public void setAllelicComposition(String allelicComposition) {
-		this.allelicComposition = allelicComposition;
+	public void setAlleleSymobl(String alleleSymobl) {
+		this.alleleSymobl = alleleSymobl;
 	}
 
 
