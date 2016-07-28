@@ -24,26 +24,20 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
-import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.web.ChartType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class GraphUtils {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	ExperimentService experimentService;
-
-    @Autowired
-    private PhenotypePipelineDAO pipelineDAO;
 
 	public GraphUtils(ExperimentService experimentService) {
 
@@ -52,7 +46,7 @@ public class GraphUtils {
 
 
 	public Set<String> getGraphUrls(String acc,
-	Parameter parameter, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
+	ParameterDTO parameter, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
 	List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
 	throws SolrServerException {
 
@@ -75,7 +69,6 @@ public class GraphUtils {
 		String parameterStableId = parameter.getStableId();
 		String accessionAndParam = "accession=" + acc;
 
-		String phenoCenterString = "";
 		// for(String phenoCString: phenotypingCentersList) {
 		// phenoCenterString+=
 		// seperator+ObservationService.PHENOTYPING_CENTER+"="+phenoCString;
@@ -156,7 +149,7 @@ public class GraphUtils {
 	}
 
 
-	public static ChartType getDefaultChartType(Parameter parameter){
+	public static ChartType getDefaultChartType(ParameterDTO parameter){
 
 		if (Constants.ABR_PARAMETERS.contains(parameter.getStableId())){
 
@@ -167,9 +160,7 @@ public class GraphUtils {
 
 		}else{
 
-			Utilities impressUtilities = new Utilities();
-	        ObservationType observationTypeForParam = impressUtilities.checkType(parameter);
-
+	        ObservationType observationTypeForParam = parameter.getObservationType();
 	        switch (observationTypeForParam) {
 
                 case unidimensional:
