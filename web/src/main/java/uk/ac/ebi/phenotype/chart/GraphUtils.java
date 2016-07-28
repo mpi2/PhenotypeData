@@ -17,14 +17,12 @@ package uk.ac.ebi.phenotype.chart;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -176,23 +174,4 @@ public class GraphUtils {
 		return null;
 	}
 
-	public static Map<String, String> getUsefulStrings(BiologicalModel expBiologicalModel) {
-
-		Map<String, String> usefulStrings = new HashMap<String, String>();
-		if (expBiologicalModel == null) {
-			usefulStrings.put("allelicComposition", "unknown");
-			usefulStrings.put("geneticBackground", "unknown");
-			usefulStrings.put("symbol", "unknown");
-
-		} else {
-			String allelicCompositionString = expBiologicalModel.getAllelicComposition();
-			String symbol = expBiologicalModel.getAlleles().get(0).getSymbol();
-			String geneticBackgroundString = expBiologicalModel.getGeneticBackground();
-
-			usefulStrings.put("allelicComposition", allelicCompositionString);
-			usefulStrings.put("geneticBackground", geneticBackgroundString);
-			usefulStrings.put("symbol", symbol);
-		}
-		return usefulStrings;
-	}
 }
