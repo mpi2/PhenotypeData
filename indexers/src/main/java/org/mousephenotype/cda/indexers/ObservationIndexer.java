@@ -388,6 +388,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setStrainAccessionId(b.strainAcc);
 					o.setStrainName(b.strainName);
 					o.setGeneticBackground(b.geneticBackground);
+					o.setAllelicComposition(b.allelicComposition);
 					o.setPhenotypingCenter(b.phenotypingCenterName);
 					o.setPhenotypingCenterId(b.phenotypingCenterId);
 					o.setColonyId(b.colonyId);
@@ -433,6 +434,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setStrainAccessionId(b.strainAcc);
 					o.setStrainName(b.strainName);
 					o.setGeneticBackground(b.geneticBackground);
+					o.setAllelicComposition(b.allelicComposition);
 					o.setPhenotypingCenter(b.phenotypingCenterName);
 					o.setPhenotypingCenterId(b.phenotypingCenterId);
 
@@ -635,7 +637,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, "
 				+ "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, ls.developmental_stage_acc, ot.name AS developmental_stage_name, ot.acc as developmental_stage_acc,"
 				+ "bms.biological_model_id, "
-				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, "
+				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition, "
 				+ "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, "
 				+ "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bms.biological_model_id)  as allele_symbol, "
 				+ "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bms.biological_model_id) as acc, "
@@ -689,6 +691,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.strainAcc = resultSet.getString("strain_acc");
 				b.strainName = resultSet.getString("strain_name");
 				b.geneticBackground = resultSet.getString("genetic_background");
+				b.allelicComposition = resultSet.getString("allelic_composition");
 				b.zygosity = resultSet.getString("zygosity");
 				b.developmentalStageAcc = resultSet.getString("developmental_stage_acc");
 				b.developmentalStageName = resultSet.getString("developmental_stage_name");
@@ -716,12 +719,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 		String query = "SELECT e.id as experiment_id, e.colony_id, e.biological_model_id, "
 				+ "e.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, "
-				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, "
+				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition, "
 				+ "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=e.biological_model_id) as allele_accession, "
 				+ "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=e.biological_model_id)  as allele_symbol, "
 				+ "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=e.biological_model_id) as acc, "
 				+ "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=e.biological_model_id)  as symbol "
-				+ "FROM experiment e " + "INNER JOIN organisation org ON e.organisation_id=org.id "
+				+ "FROM experiment e "
+				+ "INNER JOIN organisation org ON e.organisation_id=org.id "
 				+ "INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=e.biological_model_id "
 				+ "INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc "
 				+ "INNER JOIN biological_model bm ON bm.id = e.biological_model_id";
@@ -740,6 +744,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.strainAcc = resultSet.getString("strain_acc");
 				b.strainName = resultSet.getString("strain_name");
 				b.geneticBackground = resultSet.getString("genetic_background");
+				b.allelicComposition = resultSet.getString("allelic_composition");
 				b.alleleAccession = resultSet.getString("allele_accession");
 				b.alleleSymbol = resultSet.getString("allele_symbol");
 				b.biologicalModelId = resultSet.getInt("biological_model_id");
@@ -754,7 +759,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							+ " (select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) as allele_symbol, "
 							+ " (select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bm.id) as acc, "
 							+ " (select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bm.id)  as symbol, "
-							+ " strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background "
+							+ " strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition "
 							+ " FROM live_sample ls "
 							+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id "
 							+ " INNER JOIN biological_model bm ON bm.id=bms.biological_model_id "
@@ -768,6 +773,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						b.strainAcc = resultSet2.getString("strain_acc");
 						b.strainName = resultSet2.getString("strain_name");
 						b.geneticBackground = resultSet2.getString("genetic_background");
+						b.allelicComposition = resultSet.getString("allelic_composition");
 						b.alleleAccession = resultSet2.getString("allele_accession");
 						b.alleleSymbol = resultSet2.getString("allele_symbol");
 						b.biologicalModelId = resultSet2.getInt("biological_model_id");
@@ -1204,6 +1210,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		public String strainAcc;
 		public String strainName;
 		public String geneticBackground;
+		public String allelicComposition;
 		public String zygosity;
 		public String developmentalStageAcc;
 		public String developmentalStageName;
