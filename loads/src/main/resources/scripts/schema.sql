@@ -236,9 +236,10 @@ CREATE TABLE project (
 	description              TEXT,
 
 	PRIMARY KEY (id),
-	UNIQUE KEY name_idx (name)
+	UNIQUE KEY name_idx (name(200))
 
-	) COLLATE=utf8_general_ci ENGINE=MyISAM;
+	) -- COLLATE=utf8_general_ci ENGINE=MyISAM;
+	 character set utf8mb4  COLLATE=utf8mb4_general_ci ENGINE=MyISAM;
 
 CREATE TABLE organisation (
 

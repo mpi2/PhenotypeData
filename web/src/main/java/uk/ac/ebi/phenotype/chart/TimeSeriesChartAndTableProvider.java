@@ -29,7 +29,6 @@ import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -63,7 +62,7 @@ public class TimeSeriesChartAndTableProvider {
 
 
 
-	public ChartData doTimeSeriesData(ExperimentDTO experiment,	ParameterDTO parameter, String experimentNumber, BiologicalModel expBiologicalModel)
+	public ChartData doTimeSeriesData(ExperimentDTO experiment,	ParameterDTO parameter, String experimentNumber)
 	throws IOException,	URISyntaxException {
 
 		ChartData chartNTableForParameter = null;

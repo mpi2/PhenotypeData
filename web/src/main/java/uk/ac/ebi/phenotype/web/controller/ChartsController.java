@@ -30,8 +30,6 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -75,9 +73,6 @@ import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 public class ChartsController {
 
     private final Logger log = LoggerFactory.getLogger(ChartsController.class);
-
-    @Autowired
-    private BiologicalModelDAO bmDAO;
 
     @Autowired
     private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
@@ -252,15 +247,7 @@ public class ChartsController {
         model.addAttribute("phenotypingCenter", phenotypingCenter);
 
         ExperimentDTO experiment = null;
-        if (parameterStableId.startsWith("IMPC_VIA_")) {
-			// Its a viability outcome param which means its a line level query
-            // so we don't use the normal experiment query in experiment service
-            ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
-            ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
-            model.addAttribute("viabilityDTO", viabilityDTO);
-            BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
-            setTitlesForGraph(model, expBiologicalModel);
-        }
+        
 
         // 29-Apr-2015 (mrelac) The team has determined that we don't display fertility graphs because Impress does not require all the supporting
         // data to be uploaded, and some centers don't upload it, so we don't know if the data is valid or not.
@@ -281,7 +268,16 @@ public class ChartsController {
 //        }
 
         experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
-
+        
+        if (parameterStableId.startsWith("IMPC_VIA_")) {
+			// Its a viability outcome param which means its a line level query
+            // so we don't use the normal experiment query in experiment service
+            ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+            ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
+            model.addAttribute("viabilityDTO", viabilityDTO);
+            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
+        }
+        
         if (experiment != null) {
             if (pipeline == null) {
                 // if we don't already have the pipeline from the url params get it via the experiment returned
@@ -293,8 +289,7 @@ public class ChartsController {
             }
 
             String xAxisTitle = xUnits;
-            BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
-            setTitlesForGraph(model, expBiologicalModel);
+            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
 
             try {
 				// if (chartType == null){
@@ -316,7 +311,7 @@ public class ChartsController {
 
                         case UNIDIMENSIONAL_SCATTER_PLOT:
 
-                            scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber, expBiologicalModel);
+                            scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
                             model.addAttribute("scatterChartAndData", scatterChartAndData);
 
                             if (observationTypeForParam.equals(ObservationType.unidimensional)) {
@@ -335,23 +330,23 @@ public class ChartsController {
 
 	                    case UNIDIMENSIONAL_BOX_PLOT:
 
-		                    unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
+		                    unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle);
 		                    model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 
-		                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber, expBiologicalModel);
+		                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
 		                    model.addAttribute("scatterChartAndData", scatterChartAndData);
 
 		                    break;
 
 	                    case CATEGORICAL_STACKED_COLUMN:
 
-                            categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
+                            categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
                             model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
                             break;
 
                         case TIME_SERIES_LINE:
 
-                            timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
+                            timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
                             model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
                             break;
 
@@ -380,23 +375,16 @@ public class ChartsController {
 
         return "chart";
     }
+    
 
-    private void setTitlesForGraph(Model model, BiologicalModel expBiologicalModel) {
+    private void setTitlesForGraph(Model model, String geneticBackground, String alleleSymbol) {
 
-        String allelicCompositionString = "unknown";
-        String symbol = "unknown";
-        String geneticBackgroundString = "unknown";
-
-        if (expBiologicalModel != null) {
-            allelicCompositionString = expBiologicalModel.getAllelicComposition();
-            symbol = expBiologicalModel.getAlleles().get(0).getSymbol();
-            geneticBackgroundString = expBiologicalModel.getGeneticBackground();
-            model.addAttribute("allelicCompositionString", allelicCompositionString);
-            model.addAttribute("symbol", symbol);
-            model.addAttribute("geneticBackgroundString", geneticBackgroundString);
-        }
+        model.addAttribute("symbol", (alleleSymbol != null) ? alleleSymbol : "unknown");
+        model.addAttribute("geneticBackgroundString",  (geneticBackground != null) ? geneticBackground : "unknown");
+    
     }
 
+    
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
     throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
