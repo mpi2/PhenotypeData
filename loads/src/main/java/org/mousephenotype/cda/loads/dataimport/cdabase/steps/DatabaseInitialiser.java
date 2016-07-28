@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,16 +28,15 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.util.Assert;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.sql.DataSource;
 import java.net.URL;
 import java.util.Date;
 
@@ -54,6 +52,8 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
     private String dbhostname;
     private String dbport;
 
+    @Autowired
+    DataSource cdabase;
 
     @Value("${cdabase.url}")
     private String cdaUrl;
@@ -89,66 +89,74 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
 
         long startStep = new Date().getTime();
 
+        logger.info("Creating cda_base tables");
+        org.springframework.core.io.Resource r = new ClassPathResource("scripts/schema.sql");
+//        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
+        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "utf8mb4", r);
+//        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
+        p.execute(cdabase);
 
-
-
-
-
-
-
-
-//        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
-        Resource r = applicationContext.getResource("classpath:scripts/schema.sql");
-
-        System.out.println("GOT RESOURCE");
-        System.out.println("r.filename = " + r.getFilename());
-        System.out.println("r.uriToString = " + r.getURI().toString());
-        System.out.println("r.urlToString = " + r.getURL().toString());
-        File     f = r.getFile();
-        System.out.println("absolutePath: " + f.getAbsolutePath());
-        System.out.println("canonicalPath: " + f.getCanonicalPath());
-        System.out.println("name: " + f.getName());
-        System.out.println("path: " + f.getPath());
-
-        String filename = f.getCanonicalPath();
-
-
-
-
-
-
-
-
-
-
-
-        String[] commands = new String[] { "/bin/sh", "-c", mysql + " --host=" + dbhostname + " --port=" + dbport + " --user=" + dbusername + " --password=" + dbpassword + " " + dbname + " < " + filename };
-
-        try {
-            System.out.println("cmd = " + StringUtils.join(commands, " "));
-            Process process = Runtime.getRuntime().exec(commands);
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(process.getInputStream()));
-
-            BufferedReader stdError = new BufferedReader(new
-                 InputStreamReader(process.getErrorStream()));
-
-            int exitVal = process.waitFor();
-            System.out.println("exitVal = " + exitVal);
-            if (exitVal > 0) {
-                String s = null;
-                while ((s = stdInput.readLine()) != null) {
-                    System.out.println(s);
-                }
-                while ((s = stdError.readLine()) != null) {
-                    System.err.println(s);
-                }
-            }
-        }
-
-        catch(IOException | InterruptedException e) {
-            System.out.println("FAIL: " + e.getLocalizedMessage());
-        }
+//
+//
+//
+//
+//
+//
+////        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
+//        Resource r = applicationContext.getResource("file:scripts/schema.sql");
+//
+//        System.out.println("GOT RESOURCE");
+//        System.out.println("r.filename = " + r.getFilename());
+//        System.out.println("r.uriToString = " + r.getURI().toString());
+//        System.out.println("r.urlToString = " + r.getURL().toString());
+//
+//
+//
+//        File     f = r.getFile();
+//        System.out.println("absolutePath: " + f.getAbsolutePath());
+//        System.out.println("canonicalPath: " + f.getCanonicalPath());
+//        System.out.println("name: " + f.getName());
+//        System.out.println("path: " + f.getPath());
+//
+//        String filename = f.getCanonicalPath();
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//        String[] commands = new String[] { "/bin/sh", "-c", mysql + " --host=" + dbhostname + " --port=" + dbport + " --user=" + dbusername + " --password=" + dbpassword + " " + dbname + " < " + filename };
+//
+//        try {
+//            System.out.println("cmd = " + StringUtils.join(commands, " "));
+//            Process process = Runtime.getRuntime().exec(commands);
+//            BufferedReader stdInput = new BufferedReader(new
+//                    InputStreamReader(process.getInputStream()));
+//
+//            BufferedReader stdError = new BufferedReader(new
+//                 InputStreamReader(process.getErrorStream()));
+//
+//            int exitVal = process.waitFor();
+//            System.out.println("exitVal = " + exitVal);
+//            if (exitVal > 0) {
+//                String s = null;
+//                while ((s = stdInput.readLine()) != null) {
+//                    System.out.println(s);
+//                }
+//                while ((s = stdError.readLine()) != null) {
+//                    System.err.println(s);
+//                }
+//            }
+//        }
+//
+//        catch(IOException | InterruptedException e) {
+//            System.out.println("FAIL: " + e.getLocalizedMessage());
+//        }
 
         logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
 
