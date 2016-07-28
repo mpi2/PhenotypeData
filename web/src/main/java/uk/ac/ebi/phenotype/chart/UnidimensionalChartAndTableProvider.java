@@ -29,7 +29,6 @@ import java.util.Set;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.json.JSONArray;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
@@ -62,7 +61,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * table at the bottom
 	 *
 	 */
-	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, ParameterDTO parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle, BiologicalModel expBiologicalModel)
+	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, ParameterDTO parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle)
 	throws SQLException, IOException, URISyntaxException {
 
 		ChartData chartAndTable = null;
@@ -114,7 +113,7 @@ public class UnidimensionalChartAndTableProvider {
 			genderAndRawDataMap.put(sexType, rawData);
 		}
 
-		List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(experiment, parameter, expBiologicalModel);
+		List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(experiment, parameter);
 		unidimensionalStatsObjects.addAll(unidimensionalStatsObject);
 		Map <String, Float> boxMinMax = ChartUtils.getMinMaxXAxis(chartsSeriesElementsList, experiment);
 		chartAndTable = processChartData(chartId, boxMinMax.get("min"), boxMinMax.get("max"), parameter, experiment, yAxisTitle, chartsSeriesElementsList);
@@ -138,10 +137,9 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	public List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment, ParameterDTO parameter, BiologicalModel expBiologicalModel) {
+	public List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment, ParameterDTO parameter) {
 
-		Map<String, String> usefulStrings = GraphUtils.getUsefulStrings(expBiologicalModel);
-		List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(parameter, experiment, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), usefulStrings.get("geneticBackground"));
+		List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(parameter, experiment);
 		return unidimensionalStatsObject;
 	}
 
@@ -434,7 +432,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param geneticBackground
 	 * @return
 	 */
-	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(ParameterDTO parameter, ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
+	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(ParameterDTO parameter, ExperimentDTO experiment) {
 
 		List<? extends StatisticalResult> results = experiment.getResults();
 		logger.debug("result=" + results);
@@ -462,9 +460,6 @@ public class UnidimensionalChartAndTableProvider {
 					}
 				}
 
-				tempStatsObject.setLine(allelicCompositionString);
-				tempStatsObject.setAllele(symbol);
-				tempStatsObject.setGeneticBackground(geneticBackground);
 				statsObjects.add(tempStatsObject);
 			}
 		}
