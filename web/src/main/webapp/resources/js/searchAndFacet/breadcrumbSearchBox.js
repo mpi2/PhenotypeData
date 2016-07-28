@@ -122,6 +122,7 @@ $(document).ready(function () {
 		$("input#s").val('');
 	});
 
+	solrUrl = "http://localhost:8090/solr";
 	$( "input#s" ).autocomplete({
 		source: function( request, response ) {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
@@ -236,10 +237,16 @@ $(document).ready(function () {
 			// we are choosing value from drop-down list so need to double quote the value for SOLR query
 			//document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
 
+			// product is from allele2: autosuggest dropdown shows "product" to the users, but we need to query by allele2 internally
+			if ( facet == 'product' ){
+				facet = "allele2";
+			}
+
 			var href = baseUrl + '/search/' + facet  + '?' + "kw=" + q;
 			if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
 				href += "&fq=" + facet2Fq[facet];
 			}
+
 			document.location.href = href;
 			// prevents escaped html tag displayed in input box
 			event.preventDefault(); return false;

@@ -53,10 +53,13 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 	private final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
 
 
-	@NotNull
-    @Value("${phenodigm.solrserver}")
-    private String phenodigmSolrServer;
+//	@NotNull
+//    @Value("${phenodigm.solrserver}")
+//    private String phenodigmSolrServer;
 
+    @Autowired
+    @Qualifier("phenodigmIndexing")
+    private SolrServer phenodigmCore;
 
     @Autowired
     @Qualifier("autosuggestIndexing")
@@ -87,7 +90,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
    	private GwasDAO gwasDao;
 
     private SolrServer sangerAlleleCore;
-    private SolrServer phenodigmCore;
 
     public static final long MIN_EXPECTED_ROWS = 218000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
@@ -161,8 +163,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     private void initializeSolrCores() {
 
         final String SANGER_ALLELE_URL = imitsSolrHost +"/allele2";
-        System.out.println("Sanger allele url: "+ SANGER_ALLELE_URL);
-        final String PHENODIGM_URL = phenodigmSolrServer;
 
         // Use system proxy if set for external solr servers
         if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
@@ -177,13 +177,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
             this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
-
         } else {
-
             this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
-
         }
     }
 
@@ -879,11 +874,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 .setRows(Integer.MAX_VALUE);
 
         QueryResponse response = sangerAlleleCore.query(query);
-        System.out.println(" docs found: " + response.getResults().getNumFound());
-        System.out.println("Query:" + query.toString());
         List<AlleleDTO> alleles = response.getBeans(AlleleDTO.class);
-        System.out.println("number of alleles: "+ alleles.size());
-//       List<AlleleDTO> alleles = sangerAlleleCore.query(query).getBeans(AlleleDTO.class);
 
         String docType = "product";
 
@@ -940,17 +931,18 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                     case AlleleDTO.ALLELE_NAME:
                         List<String> names = allele.getAlleleName();
                         for( String mapKey : names) {
+
+                            String markerSymbol = allele.getMarkerSymbol();
+                            if (allele2GeneAlleleSet.add(markerSymbol + " " + mapKey)) {
+                                AutosuggestBean ga = new AutosuggestBean();
+                                ga.setDocType(docType);
+                                ga.setGeneAllele(markerSymbol + " " + mapKey);
+                                beans.add(ga);
+                            }
+
                             if (allele2AlleleNameSet.add(mapKey)) {
                                 a.setAlleleName(mapKey);
                                 beans.add(a);
-
-                                String markerSymbol = allele.getMarkerSymbol();
-                                if (allele2GeneAlleleSet.add(markerSymbol)) {
-                                    AutosuggestBean ga = new AutosuggestBean();
-                                    ga.setDocType(docType);
-                                    ga.setGeneAllele(markerSymbol + " " + mapKey);
-                                    beans.add(ga);
-                                }
                             }
                         }
                         break;

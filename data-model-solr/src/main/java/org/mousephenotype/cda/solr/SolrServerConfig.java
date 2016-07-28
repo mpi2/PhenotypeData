@@ -43,11 +43,6 @@ public class SolrServerConfig {
 	ImpressService impressService;
 
 	@NotNull
-	@Value("${phenodigm.solrserver}")
-	private String phenodigmSolrUrl;
-
-
-	@NotNull
 	@Value("${imits.solr.host}")
 	private String imitsSolrBaseUrl;
 
@@ -92,8 +87,9 @@ public class SolrServerConfig {
 	//Phenodigm server for our Web Status currently only
 	@Bean(name = "phenodigmCore")
 	public HttpSolrServer getPhenodigmCore() {
-		return new HttpSolrServer(phenodigmSolrUrl);
+		return new HttpSolrServer(solrBaseUrl + "/phenodigm");
 	}
+
 
 	//Allele
 	@Bean(name = "alleleCore")
