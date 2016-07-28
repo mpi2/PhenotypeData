@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.dccimport;
+package org.mousephenotype.cda.loads.legacy.dccimport;
 /**
  * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
  * <p>

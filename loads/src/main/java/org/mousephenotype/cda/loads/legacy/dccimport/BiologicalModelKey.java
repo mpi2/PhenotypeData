@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.dccimport;
+package org.mousephenotype.cda.loads.legacy.dccimport;
 
 
 public class BiologicalModelKey {

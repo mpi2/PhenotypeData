@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.dccimport.imits;
+package org.mousephenotype.cda.loads.legacy.dccimport.imits;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;

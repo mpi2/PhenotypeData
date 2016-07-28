@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.mousephenotype.cda.loads.dccimport.imits;
+package org.mousephenotype.cda.loads.legacy.dccimport.imits;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
