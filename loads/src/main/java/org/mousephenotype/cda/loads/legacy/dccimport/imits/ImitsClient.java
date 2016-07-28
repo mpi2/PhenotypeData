@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.dccimport.imits;
+package org.mousephenotype.cda.loads.legacy.dccimport.imits;
 
 /**
  * Generic interface to get either a URL or file backed imits client

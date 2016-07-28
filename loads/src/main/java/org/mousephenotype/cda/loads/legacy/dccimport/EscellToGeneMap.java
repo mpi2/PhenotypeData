@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.dccimport;
+package org.mousephenotype.cda.loads.legacy.dccimport;
 
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.dao.AlleleDAO;

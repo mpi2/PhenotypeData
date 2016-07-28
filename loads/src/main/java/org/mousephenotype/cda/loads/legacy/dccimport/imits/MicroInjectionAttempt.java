@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.dccimport.imits;
+package org.mousephenotype.cda.loads.legacy.dccimport.imits;
 
 
 
