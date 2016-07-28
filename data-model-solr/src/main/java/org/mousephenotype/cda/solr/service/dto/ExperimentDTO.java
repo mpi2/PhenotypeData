@@ -46,6 +46,8 @@ public class ExperimentDTO {
     private Set<SexType> sexes;
     private ControlStrategy controlSelectionStrategy;
     private List<? extends StatisticalResult> results;
+    private String alleleSymobl;
+    private String geneticBackgtround;
 
     private Set<ObservationDTO> homozygoteMutants;
     private Set<ObservationDTO> heterozygoteMutants;
@@ -124,7 +126,33 @@ public class ExperimentDTO {
 		this.controlSelectionStrategy = controlSelectionStrategy;
 	}
     
-    public int getControlSampleSizeFemale() {
+
+	public String getAlleleSymobl() {
+		return alleleSymobl;
+	}
+
+
+	public void setAlleleSymobl(String alleleSymobl) {
+		this.alleleSymobl = alleleSymobl;
+	}
+
+
+	public String getGeneticBackgtround() {
+		return geneticBackgtround;
+	}
+
+
+	public void setGeneticBackgtround(String geneticBackgtround) {
+		this.geneticBackgtround = geneticBackgtround;
+	}
+
+
+	public void setHemizygoteMutants(Set<ObservationDTO> hemizygoteMutants) {
+		this.hemizygoteMutants = hemizygoteMutants;
+	}
+
+
+	public int getControlSampleSizeFemale() {
         return this.getFemaleControls().size();
     }
 

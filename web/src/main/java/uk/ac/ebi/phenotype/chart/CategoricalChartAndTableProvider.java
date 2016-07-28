@@ -32,7 +32,6 @@ import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
@@ -76,7 +75,7 @@ public class CategoricalChartAndTableProvider {
 	 * @throws URISyntaxException
 	 */
 	public CategoricalResultAndCharts doCategoricalData(ExperimentDTO experiment, ParameterDTO parameter,
-	String acc, String numberString, BiologicalModel expBiologicalModel)
+	String acc, String numberString)
 	throws SQLException, IOException, URISyntaxException {
 
 		logger.debug("running categorical data");

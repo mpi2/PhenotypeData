@@ -124,7 +124,7 @@ public class ScatterChartAndTableProvider {
 	}
 
 
-	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax, ParameterDTO parameter, String experimentNumber, BiologicalModel expBiologicalModel)
+	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax, ParameterDTO parameter, String experimentNumber)
 	throws IOException,	URISyntaxException {
 
 		JSONArray series=new JSONArray();
@@ -221,7 +221,7 @@ public class ScatterChartAndTableProvider {
 
 		List<UnidimensionalStatsObject> unidimensionalStatsObjects=null;
 		if(experiment.getObservationType().equals(ObservationType.unidimensional)) {
-			unidimensionalStatsObjects = unidimensionalChartAndTableProvider.createUnidimensionalStatsObjects(experiment, parameter, expBiologicalModel);
+			unidimensionalStatsObjects = unidimensionalChartAndTableProvider.createUnidimensionalStatsObjects(experiment, parameter);
 			scatterChartAndData.setUnidimensionalStatsObjects(unidimensionalStatsObjects);
 		}
 		return scatterChartAndData;

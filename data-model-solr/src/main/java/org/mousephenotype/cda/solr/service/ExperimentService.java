@@ -131,6 +131,13 @@ public class ExperimentService{
             if (experiment.getMetadata() == null) {
                 experiment.setMetadata(observation.getMetadata());
             }
+            
+            if (observation.getAlleleSymbol() != null){ 
+            	experiment.setAlleleSymobl(observation.getAlleleSymbol());
+            }
+            if (observation.getGeneticBackground()  != null){
+            	experiment.setGeneticBackgtround(observation.getGeneticBackground());
+            }
 
             if (experiment.getMetadataGroup() == null) {
                 // LOG.debug("metaDataGroup in observation="+observation.getMetadataGroup());
