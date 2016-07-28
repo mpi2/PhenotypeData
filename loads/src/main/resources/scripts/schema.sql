@@ -2410,6 +2410,7 @@ INSERT INTO ontology_term(acc, db_id, name, description) SELECT '36', db.id, 'ps
 INSERT INTO ontology_term(acc, db_id, name, description) SELECT '37', db.id, 'pseudogenic gene segment', 'A recombinational unit of a gene which when incorporated by somatic recombination in the final gene transcript results in a nonfunctional product.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
 INSERT INTO ontology_term(acc, db_id, name, description) SELECT '38', db.id, 'polymorphic pseudogene', 'Pseudogene owing to a SNP/DIP but in other individuals/haplotypes/strains the gene is translated.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
 INSERT INTO ontology_term(acc, db_id, name, description) SELECT '39', db.id, 'SRP RNA gene', 'A gene that encodes signal recognition particle RNA.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '40', db.id, 'ribozyme gene', ' - ' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
 
 
 -- it's a hack for SOLR indexing
