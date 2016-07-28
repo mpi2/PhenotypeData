@@ -97,7 +97,7 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
 
 
 //        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
-        File f = applicationContext.getResource("scripts/schema.sql").getFile();
+        File f = applicationContext.getResource("classpath:scripts/schema.sql").getFile();
         System.out.println("absolutePath: " + f.getAbsolutePath());
         System.out.println("canonicalPath: " + f.getCanonicalPath());
         System.out.println("name: " + f.getName());
