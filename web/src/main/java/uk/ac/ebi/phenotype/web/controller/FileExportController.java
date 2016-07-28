@@ -155,7 +155,7 @@ public class FileExportController {
 	@ResponseBody
 	@RequestMapping(value = "/exportraw", method = RequestMethod.GET)
 	public String getExperimentalData(
-			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenterParameter,
+			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter,
 			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId,
 			@RequestParam(value = "procedure_stable_id", required = true) String procedureStableId,
 			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId,
@@ -186,7 +186,7 @@ public class FileExportController {
 		}
 
 		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getStableId(), pipeline.getId(),
-				geneAcc, sex, phenotypingCenterParameter, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
+				geneAcc, sex, phenotypingCenter, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
 
 		List<String> rows = new ArrayList<>();
 		rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain",
@@ -204,10 +204,9 @@ public class FileExportController {
 			for (ObservationDTO observation : observations) {
 				List<String> row = new ArrayList<>();
 				row.add("Exp" + i.toString());
-				row.add(phenotypingCenterParameter);
+				row.add(phenotypingCenter);
 				row.add(pipelineStableId);
 				row.add(procedureStableId);
-				row.add(parameterStableId);
 				row.add(observation.getStrain());
 				row.add((observation.getGroup().equals("control")) ? "+/+" : observation.getColonyId());
 				row.add((observation.getGroup().equals("control")) ? "\"\"" : geneAcc);
@@ -388,7 +387,7 @@ public class FileExportController {
 			}
 
 			if (solrCoreName.equalsIgnoreCase("experiment")) {
-				ArrayList<String> phenotypingCenters = new ArrayList<String>();
+				List<String> phenotypingCenters = new ArrayList<String>();
 				try {
 					for (int i = 0; i < phenotypingCenter.length; i++) {
 						phenotypingCenters.add(phenotypingCenter[i].replaceAll("%20", " "));
@@ -427,7 +426,7 @@ public class FileExportController {
 
 
 	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
-			String allele[], String gender, ArrayList<String> phenotypingCenters, List<String> zygosity,
+			String allele[], String gender, List<String> phenotypingCenters, List<String> zygosity,
 			String[] strain, String[] pipelines)
 					throws SolrServerException, IOException, URISyntaxException, SQLException {
 
@@ -451,7 +450,7 @@ public class FileExportController {
 			allele = new String[1];
 			allele[0] = null;
 		}
-		ArrayList<Integer> pipelineIds = new ArrayList<>();
+		List<Integer> pipelineIds = new ArrayList<>();
 		if (pipelines != null) {
 			for (String pipe : pipelines) {
 				pipelineIds.add(impressService.getPipeline(pipe).getId());
@@ -1674,7 +1673,7 @@ public class FileExportController {
 		}
 
 		// find the ids that are not found and displays them to users
-		ArrayList<String> nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
+		List<String> nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
 
 
 		for (int i = 0; i < nonFoundIds.size(); i++) {
