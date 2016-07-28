@@ -2430,6 +2430,7 @@ INSERT INTO ontology_term(acc, db_id, name, description) SELECT '51', db.id, 're
 INSERT INTO ontology_term(acc, db_id, name, description) SELECT '52', db.id, 'telomere', 'A specific structure at the end of a linear chromosome, required for the integrity and maintenance of the end.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
 INSERT INTO ontology_term(acc, db_id, name, description) SELECT '53', db.id, 'unclassified other genome feature', 'A genome feature that cannot be classified in any currently recognized genome category.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
 INSERT INTO ontology_term(acc, db_id, name, description) SELECT '54', db.id, 'YAC end', 'A region of sequence from the end of a YAC clone that may provide a highly specific marker.' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
+INSERT INTO ontology_term(acc, db_id, name, description) SELECT '55', db.id, 'ribozyme gene', ' - ' FROM external_db db WHERE db.name = 'MGI Genome Feature Type' AND version = 'JAX';
 
 
 
