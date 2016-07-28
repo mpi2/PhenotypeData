@@ -275,7 +275,7 @@ public class ChartsController {
             ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
             ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
             model.addAttribute("viabilityDTO", viabilityDTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getGeneMarker(), experiment.getAllelicComposition());
+            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
         }
         
         if (experiment != null) {
@@ -289,7 +289,7 @@ public class ChartsController {
             }
 
             String xAxisTitle = xUnits;
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getGeneMarker(), experiment.getAllelicComposition());
+            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
 
             try {
 				// if (chartType == null){
@@ -377,10 +377,9 @@ public class ChartsController {
     }
     
 
-    private void setTitlesForGraph(Model model, String geneticBackground, String markerSymbol, String allelicComposition) {
+    private void setTitlesForGraph(Model model, String geneticBackground, String alleleSymbol) {
 
-    	model.addAttribute("allelicCompositionString", (allelicComposition != null) ? allelicComposition : "unknown");
-        model.addAttribute("symbol", (markerSymbol != null) ? markerSymbol : "unknown");
+        model.addAttribute("symbol", (alleleSymbol != null) ? alleleSymbol : "unknown");
         model.addAttribute("geneticBackgroundString",  (geneticBackground != null) ? geneticBackground : "unknown");
     
     }
