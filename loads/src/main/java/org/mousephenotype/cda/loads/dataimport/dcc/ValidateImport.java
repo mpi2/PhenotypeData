@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.dataimport.dcc;
 
+import org.mousephenotype.cda.loads.dataimport.dcc.configs.DataImportConfigApp;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ datasource.dccloader2.username=xxxxxxxx
 datasource.dccloader2.password=xxxxxxxx
 
  */
-@Import(DataImportConfig.class)
+@Import(DataImportConfigApp.class)
 public class ValidateImport implements CommandLineRunner {
 
     public static void main(String[] args) throws Exception {

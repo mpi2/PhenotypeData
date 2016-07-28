@@ -845,7 +845,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + mgiId + "\"").setRows(1);
-		if(fields !=null){
+		if(fields != null){
 			solrQuery.setFields(fields);
 		}
 
