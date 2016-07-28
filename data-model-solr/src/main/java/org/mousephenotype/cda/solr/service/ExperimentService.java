@@ -132,8 +132,8 @@ public class ExperimentService{
                 experiment.setMetadata(observation.getMetadata());
             }
             
-            if (observation.getAllelicComposition() != null){ 
-            	experiment.setAllelicComposition(observation.getAllelicComposition());
+            if (observation.getAlleleSymbol() != null){ 
+            	experiment.setAlleleSymobl(observation.getAlleleSymbol());
             }
             if (observation.getGeneticBackground()  != null){
             	experiment.setGeneticBackgtround(observation.getGeneticBackground());
