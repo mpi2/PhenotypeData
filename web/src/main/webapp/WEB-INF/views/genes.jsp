@@ -151,6 +151,7 @@
 											}
 										});
 										heatmap_generated=1;
+										
 									};
 									document.head.appendChild(script);
 								}//end of if heatmap generated

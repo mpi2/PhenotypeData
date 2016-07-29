@@ -98,7 +98,6 @@ public class MpService extends BasicService implements WebStatus{
 			.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\"");
 
 		QueryResponse rsp = solr.query(solrQuery);
-		System.out.println("RETURNED -- " + rsp.getResults().size() + " " + solr.getBaseURL() + "/select?" + solrQuery);
 		return rsp.getBeans(MpDTO.class);
 
 	}

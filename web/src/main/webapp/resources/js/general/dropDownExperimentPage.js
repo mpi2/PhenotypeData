@@ -12,7 +12,9 @@ $(document).ready(function(){
 	createDropdown(allDropdowns[1],"Allele: All", allDropdowns);
 	allDropdowns[2] = $('#phenotypingCenterFilter');
 	createDropdown(allDropdowns[2],"Center: All", allDropdowns);
-
+	allDropdowns[3] = $('#phenotypes');
+	createDropdown(allDropdowns[3],"Phenotype: All", allDropdowns);
+	
 	var geneId = window.location.href.split("geneAccession=")[1];
 	geneId = geneId.split("&")[0];
 	
@@ -42,11 +44,13 @@ $(document).ready(function(){
 				}
 				
 				if (selector.id === "phenotypingCenterFilter"){
-					reloadChartAndTable(geneId, values, allDropdowns[1].val(), allDropdowns[0].val());
+					reloadChartAndTable(geneId, values, allDropdowns[1].val(), allDropdowns[0].val(), allDropdowns[3].val());
 				} else if (selector.id === "alleleFilter") {
-					reloadChartAndTable(geneId, allDropdowns[2].val(), values, allDropdowns[0].val());
+					reloadChartAndTable(geneId, allDropdowns[2].val(), values, allDropdowns[0].val(), allDropdowns[3].val());
 				} else if (selector.id === "pipelinesFilter") {
-					reloadChartAndTable(geneId, allDropdowns[2].val(), allDropdowns[1].val(), values);
+					reloadChartAndTable(geneId, allDropdowns[2].val(), allDropdowns[1].val(), values, allDropdowns[3].val());
+				} else if (selector.id === "phenotypes") {
+					reloadChartAndTable(geneId, allDropdowns[2].val(), allDropdowns[1].val(), allDropdowns[0].val(), values);
 				}
 								
 			}, 
@@ -108,13 +112,14 @@ $(document).ready(function(){
 		$("option:selected").removeAttr("selected");
 	};
 	
-	function reloadChartAndTable(geneAccession, phenotypingCenter, allele, pipeline){
+	function reloadChartAndTable(geneAccession, phenotypingCenter, allele, pipeline, phenotypes){
 		
 	 	$( '#spinner-experiments-page' ).show();
 		var tableUrl = base_url + "/experimentsFrag?geneAccession=" + geneAccession;
 		tableUrl += getParametersForUrl(phenotypingCenter, "phenotypingCenter");
 		tableUrl += getParametersForUrl(allele, "alleleSymbol");
 		tableUrl += getParametersForUrl(pipeline, "pipelineName");
+		tableUrl += getParametersForUrl(phenotypes, "mpTermId");
 		
 		$.ajax({
 		  url: tableUrl,
