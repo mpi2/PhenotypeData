@@ -50,10 +50,20 @@ public class ValidateImport implements CommandLineRunner {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private String[] queries = null;
 
+    /**********************
+     * DATABASE: CDA_BASE
+     **********************
+    */
     private final String[] cdaBaseQueries = new String[] {
+            "SELECT acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol FROM allele;",
+            "SELECT * FROM biological_model",
             "SELECT * FROM ontology_term"
         };
 
+    /**********************
+     * DATABASES: DCC, 3I
+     **********************
+    */
     private final String[] dccQueries = new String[] {
             "SELECT\n" +
             "  c.centerId\n" +
@@ -224,6 +234,7 @@ public class ValidateImport implements CommandLineRunner {
         for (int i = 1; i <= md.getColumnCount(); i++) {
             int sqlType = md.getColumnType(i);
             switch (sqlType) {
+                case Types.CHAR:
                 case Types.VARCHAR:
                 case Types.LONGVARCHAR:
                     newRow.add(rs.getString(i));
