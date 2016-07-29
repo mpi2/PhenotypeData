@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
@@ -101,8 +100,7 @@ public class ExperimentsController {
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 
 		model.addAttribute("chart", chart);
-		model.addAttribute("rows", rows);
-		
+		model.addAttribute("rows", rows);		
 		model.addAttribute("experimentRows", experimentRows);
 		model.addAttribute("allelePageDTO", allelePageDTO);
 
@@ -116,29 +114,31 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
 			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
 			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
-			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+			@RequestParam(required = false, value = "mpTermId") List<String> mpTermIds,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
-
+	throws SolrServerException, IOException, URISyntaxException {
+		
 		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		
-		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, 
+					procedureStableId, resource, mpTermIds, graphBaseUrl));
 		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
 			rows += list.size();
 		}
 
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
-
+		Map<String, String> phenotypeTopLevels = srService.getTopLevelMPTerms(geneAccession, null);
 		List<MpDTO> mpTerms = new ArrayList<>();
-		mpTerms.addAll(mpService.getPhenotypes(mpTermId));
 		
+		mpTerms.addAll(mpService.getPhenotypes(mpTermIds));		
 		model.addAttribute("phenotypeFilters", mpTerms);
+		model.addAttribute("phenotypes", phenotypeTopLevels);
 		model.addAttribute("chart", chart);
 		model.addAttribute("rows", rows);
 		model.addAttribute("experimentRows", experimentRows);
@@ -183,7 +183,7 @@ public class ExperimentsController {
 			RedirectAttributes attributes)
 	throws Exception {
 
-		List<ExperimentsDataTableRow> experimentList = new ArrayList();
+		List<ExperimentsDataTableRow> experimentList = new ArrayList<>();
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		
 		for (List<ExperimentsDataTableRow> list : srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl).values()){
@@ -200,36 +200,11 @@ public class ExperimentsController {
 		
 	}
 	
-	
-	/**
-	 * Error handler for gene not found
-	 *
-	 * @param exception
-	 * @return redirect to error page
-	 *
-	 */
-	@ExceptionHandler(GenomicFeatureNotFoundException.class)
-	public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
-        ModelAndView mv = new ModelAndView("identifierError");
-        mv.addObject("errorMessage",exception.getMessage());
-        mv.addObject("acc",exception.getAcc());
-        mv.addObject("type","MGI gene");
-        mv.addObject("exampleURI", "/experiments/alleles/MGI:4436678?phenotyping_center=HMGU&pipeline_stable_id=ESLIM_001");
-        return mv;
-    }
-
-	@ExceptionHandler(JDBCConnectionException.class)
-	public ModelAndView handleJDBCConnectionException(JDBCConnectionException exception) {
-        ModelAndView mv = new ModelAndView("uncaughtException");
-        System.out.println(ExceptionUtils.getFullStackTrace(exception));
-        mv.addObject("errorMessage", "An error occurred connecting to the database");
-        return mv;
-    }
 
 	@ExceptionHandler(Exception.class)
 	public ModelAndView handleGeneralException(Exception exception) {
         ModelAndView mv = new ModelAndView("uncaughtException");
-        System.out.println(ExceptionUtils.getFullStackTrace(exception));
+        exception.printStackTrace();
         return mv;
     }
 
