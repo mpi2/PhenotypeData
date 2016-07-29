@@ -90,7 +90,7 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
         long startStep = new Date().getTime();
 
         logger.info("Create cda_base tables - start");
-        org.springframework.core.io.Resource r = new ClassPathResource("scripts/schema.sql");
+        org.springframework.core.io.Resource r = new ClassPathResource("scripts/cdabase/schema.sql");
         ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
         p.execute(cdabase);
 
