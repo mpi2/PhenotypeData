@@ -85,7 +85,7 @@ public class ExperimentsController {
 		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
-		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();;
+		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		
 		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
 		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
