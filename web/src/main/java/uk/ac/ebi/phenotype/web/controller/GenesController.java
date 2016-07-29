@@ -271,9 +271,9 @@ public class GenesController {
 		 * Phenotype Summary
 		 */
 
-		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
-		HashMap<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
-		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
+		Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
+		Map<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
+		Map<String, String> mpGroupsNotSignificant = new HashMap<> ();
 
 		String prodStatusIcons = "Production status not available.";
 		// Get list of tripels of pipeline, allele acc, phenotyping center
@@ -404,9 +404,9 @@ public class GenesController {
 	 * @param phenotypeSummaryObjects
 	 * @return
 	 */
-	public HashMap<String, String> getGroups (boolean significant, HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
+	public Map<String, String> getGroups (boolean significant, Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
 
-		HashMap<String, String> mpGroups = new HashMap<>();
+		Map<String, String> mpGroups = new HashMap<>();
 
 		for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 			for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)){
@@ -457,9 +457,9 @@ public class GenesController {
 		System.out.println("Gene is null? " + (gene == null) + " for " + acc);
 		UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
 
-		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
-		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
+		Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+		Map<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
+		Map<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
 		for (String str : mpGroupsSignificant.keySet()){
 			if (mpGroupsNotSignificant.keySet().contains(str)){
 				mpGroupsNotSignificant.remove(str);
