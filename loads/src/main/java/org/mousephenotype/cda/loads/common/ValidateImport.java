@@ -14,8 +14,10 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.dataimport.dcc;
+package org.mousephenotype.cda.loads.common;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import org.mousephenotype.cda.loads.dataimport.dcc.configs.DataImportConfigApp;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.slf4j.Logger;
@@ -37,25 +39,6 @@ import java.util.*;
  * Created by mrelac on 19/07/16.
  *
  * This class is intended to be a command-line callable java main program that validates a pair of dcc data loaded databases.
- *
- * Usage:
- *      java -cp loads-1.0.0-exec.jar
- *      -Dloader.main=org.mousephenotype....dcc.ValidateImport
- *      org.springframework.boot.loader.PropertiesLauncher
- *      --profile=dev
- *      --dccloader1.dbname=dccimportImpc_4_1
- *      --dccloader2.dbname=dccimportImpc_4_3
- *
- * The properties file should specify the following properties:
- *
- *     # dccloader1 is meant to be the old database.
- *     dcc1.url=xxxxxxxx
- *     dcc1.username=xxxxxxxx
- *     dcc1.password=xxxxxxxx
- *
- *     dcc2.url=xxxxxxxx
- *     dcc2.username=xxxxxxxx
- *     dcc2.password=xxxxxxxx
  */
 @Import(DataImportConfigApp.class)
 public class ValidateImport implements CommandLineRunner {
@@ -65,8 +48,13 @@ public class ValidateImport implements CommandLineRunner {
     }
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private String[] queries = null;
 
-    private final String[] queries = new String[] {
+    private final String[] cdaBaseQueries = new String[] {
+            "SELECT * FROM ontology_term"
+        };
+
+    private final String[] dccQueries = new String[] {
             "SELECT\n" +
             "  c.centerId\n" +
             ", c.pipeline\n" +
@@ -89,8 +77,6 @@ public class ValidateImport implements CommandLineRunner {
 
             "SELECT * FROM genotype",
 
-            "SELECT acc, db_id FROM ontology_term",
-
             "SELECT\n" +
             "  e.experimentId\n" +
             ", c.centerId\n" +
@@ -112,8 +98,45 @@ public class ValidateImport implements CommandLineRunner {
     private JdbcTemplate jdbctemplate2;
 
 
+
+    private void initialise(String[] args) throws DataImportException {
+
+        OptionParser parser = new OptionParser();
+
+        // parameter to indicate the database name
+        parser.accepts("query").withRequiredArg().ofType(String.class);
+        parser.accepts("profile").withRequiredArg().ofType(String.class);
+        parser.accepts("dbname1").withRequiredArg().ofType(String.class);
+        parser.accepts("dbname2").withRequiredArg().ofType(String.class);
+
+        OptionSet options = parser.parse(args);
+
+        if (options.valuesOf("query").isEmpty()) {
+            throw new DataImportException("Expected query={dcc | cdaBase}");
+        }
+        String queryString = (String) options.valuesOf("query").get(0);
+        switch (queryString.toLowerCase()) {
+            case "dcc":
+                queries = dccQueries;
+                break;
+
+            case "cdabase":
+                queries = cdaBaseQueries;
+                break;
+
+            default:
+                throw new DataImportException("Expected query = {dcc | cdaBase}");
+        }
+
+        logger.info("Using {} queries", queryString);
+    }
+
+
     @Override
     public void run(String... args) throws Exception {
+
+        initialise(args);
+
         String db1Name;
         String db2Name;
 
@@ -202,6 +225,7 @@ public class ValidateImport implements CommandLineRunner {
             int sqlType = md.getColumnType(i);
             switch (sqlType) {
                 case Types.VARCHAR:
+                case Types.LONGVARCHAR:
                     newRow.add(rs.getString(i));
                     break;
 

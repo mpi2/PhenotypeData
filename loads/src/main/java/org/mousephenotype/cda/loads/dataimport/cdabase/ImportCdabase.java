@@ -59,19 +59,9 @@ import java.util.concurrent.Executors;
 public class ImportCdabase implements CommandLineRunner {
 
     /**
-     * Usage:
-     * java -Dhttps.proxyHost=hx-wwwcache.ebi.ac.uk
-     *      -Dhttps.proxyPort=3128
-     *      -Dhttp.proxyHost=hx-wwwcache.ebi.ac.uk
-     *      -Dhttp.proxyPort=3128
-     *      -Dhttp.nonProxyHosts=*.ebi.ac.uk\|localhost\|127.0.0.1
-     *      -Dftp.proxyHost=hx-wwwcache.ebi.ac.uk
-     *      -Dftp.proxyPort=3128
-     *      -Dftp.nonProxyHosts=*.ebi.ac.uk\|localhost\|127.0.0.1
-     *      -cp /usr/.../loads-1.0.0-exec.jar
-     *      -Dloader.main=org.mousephenotype.....ImportCdabase
-     *      org.springframework.boot.loader.PropertiesLauncher
-     *      --profile=dev --cdabase.dbname=cda_base_x_y --cdabase.workspace=/usr/..../dataload_reports
+     * This class is intended to be a command-line callable java main program that creates (or truncates the tables in)
+     * the intermediate cda database 'cda_base' and initialises it with ontologies, strains, genes, alleles, synonyms,
+     * biological models, and phenotyped colony information read from reports.
      */
     public static void main(String[] args) throws Exception {
         SpringApplication.run(ImportCdabase.class, args);
