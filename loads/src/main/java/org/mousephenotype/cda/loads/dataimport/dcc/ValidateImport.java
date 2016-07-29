@@ -38,20 +38,24 @@ import java.util.*;
  *
  * This class is intended to be a command-line callable java main program that validates a pair of dcc data loaded databases.
  *
- * Usage:   java -jar loads-1.0.0-exec.jar org.mousephenotype/cda/loads/dataimport/DataImporterValidate --profile=shanti --dccloader1.dbname=dccimportImpc_4_3 --dccloader2.dbname=dccimportImpc_4_3
+ * Usage:
+ *      java -cp loads-1.0.0-exec.jar
+ *      -Dloader.main=org.mousephenotype....dcc.ValidateImport
+ *      org.springframework.boot.loader.PropertiesLauncher
+ *      --profile=dev
+ *      --dccloader1.dbname=dccimportImpc_4_1
+ *      --dccloader2.dbname=dccimportImpc_4_3
  *
- * In the 'shanti' properties file (in ~/configfiles/shanti/application.properties), specify the following token lvalues:
-
-# dccloader1 is meant to be the old database.
-datasource.dccloader1.url=jdbc:mysql://mysql-mi-dev:4356/${dccloader1.dbname}?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
-datasource.dccloader1.username=xxxxxxxx
-datasource.dccloader1.password=xxxxxxxx
-
-# dccloader2 is meant to be the new database.
-datasource.dccloader2.url=jdbc:mysql://mysql-mi-dev:4356/${dccloader2.dbname}?useSSL=false&autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull
-datasource.dccloader2.username=xxxxxxxx
-datasource.dccloader2.password=xxxxxxxx
-
+ * The properties file should specify the following properties:
+ *
+ *     # dccloader1 is meant to be the old database.
+ *     dcc1.url=xxxxxxxx
+ *     dcc1.username=xxxxxxxx
+ *     dcc1.password=xxxxxxxx
+ *
+ *     dcc2.url=xxxxxxxx
+ *     dcc2.username=xxxxxxxx
+ *     dcc2.password=xxxxxxxx
  */
 @Import(DataImportConfigApp.class)
 public class ValidateImport implements CommandLineRunner {
