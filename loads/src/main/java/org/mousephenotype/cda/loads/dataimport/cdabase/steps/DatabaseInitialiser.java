@@ -26,61 +26,34 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
-import java.net.URL;
 import java.util.Date;
 
 /**
  * Created by mrelac on 13/04/2016.
  */
-public class DatabaseInitialiser implements Tasklet, InitializingBean, ApplicationContextAware {
+public class DatabaseInitialiser implements Tasklet, InitializingBean {
 
     private final CommonUtils commonUtils = new CommonUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
-    private final String      mysql       = commonUtils.getMysqlFullpath();
-
-    private String dbhostname;
-    private String dbport;
 
     @Autowired
     DataSource cdabase;
 
-    @Value("${cdabase.url}")
-    private String cdaUrl;
-
     @Value("${cdabase.dbname}")
     private String dbname;
-
-    @Value("${cdabase.username}")
-    private String dbusername;
-
-    @Value("${cdabase.password}")
-    private String dbpassword;
-
-    private ApplicationContext applicationContext;
 
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        URL url = new URL(cdaUrl.replace("jdbc:mysql:", "http:"));     // Replace the jdbc:mysql: protocol with http. URL barks at jdbc:mysql:.
-        dbhostname = url.getHost();
-        dbport = (url.getPort() == -1 ? "3306" : Integer.toString(url.getPort()));
-
-  	    Assert.notNull(mysql, "mysql executable must be set");
-        Assert.notNull(dbhostname, "dbhostname must be set");
-        Assert.notNull(dbport, "dbport must be set");
-        Assert.notNull(dbusername, "dbusername must be set");
-        Assert.notNull(dbpassword, "dbpassword must be set");
+        Assert.notNull(cdabase, "cdabase must be set");
         Assert.notNull(dbname, "dbname must be set");
     }
 
@@ -89,12 +62,12 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
 
         long startStep = new Date().getTime();
 
-        logger.info("Create cda_base tables - start");
+        logger.info("Database '{}': Create cda_base tables - start", dbname);
         org.springframework.core.io.Resource r = new ClassPathResource("scripts/cdabase/schema.sql");
         ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
         p.execute(cdabase);
 
-        logger.info("Create cda_base tables - end. Total elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.info("Database '{}': Create cda_base tables - end. Total elapsed time: {}", dbname, commonUtils.msToHms(new Date().getTime() - startStep));
 
         return RepeatStatus.FINISHED;
     }
@@ -102,12 +75,7 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
     @StepScope
     public Step getStep(StepBuilderFactory stepBuilderFactory) {
         return stepBuilderFactory.get("databaseInitialiserStep")
-                .tasklet(this)
-                .build();
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+                                 .tasklet(this)
+                                 .build();
     }
 }
