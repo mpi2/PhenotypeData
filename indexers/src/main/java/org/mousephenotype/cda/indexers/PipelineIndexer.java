@@ -94,6 +94,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 		parameterToObservationTypeMap = getObservationTypeMap(runStatus);
 		paramIdToParameter = populateParamIdToParameterMap(runStatus);
+		addUnits();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
 		pipelines = populatePipelineList();
 		emap2EmapaMap = emapaService.populateEmap2EmapaMap();
@@ -150,8 +151,11 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						doc.setRequired(procedure.isRequired());
 						//doc.setDescription(procBean.description); -> maybe we don't need this. If we do, should differentiate from parameter description.
 						doc.setObservationType(param.getObservationType().name());
-						if (param.getUnit() != null){
-							doc.setUnit(param.getUnit());
+						if (param.getUnitX() != null){
+							doc.setUnitX(param.getUnitX());
+						}
+						if (param.getUnitY() != null){
+							doc.setUnitY(param.getUnitY());
 						}
 						doc.setMetadata(param.isMetadata());
 						doc.setIncrement(param.isIncrement());
@@ -287,7 +291,6 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				param.setDataType(resultSet.getString("datatype"));
 				param.setParameterType(resultSet.getString("parameter_type"));
 				param.setMetadata(resultSet.getBoolean("metadata"));
-				param.setUnit(resultSet.getString("unit"));
 				param.setDerived(resultSet.getBoolean("derived"));
 				param.setRequired(resultSet.getBoolean("required"));
 				param.setIncrement(resultSet.getBoolean("increment"));
@@ -315,7 +318,31 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	}
 
-	/**
+	private void addUnits() {
+
+		String query = "SELECT * FROM phenotype_parameter pp LEFT OUTER JOIN phenotype_parameter_lnk_increment ppli on pp.id = ppli.parameter_id " +
+				"LEFT OUTER JOIN phenotype_parameter_increment ppi ON ppli.increment_id = ppi.id ORDER BY pp.stable_id; ";
+
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				ParameterDTO param = paramIdToParameter.get(resultSet.getString("stable_id"));
+				if (resultSet.getString("increment_unit") != null) {
+					param.setUnitX(resultSet.getString("increment_unit"));
+					param.setUnitY(resultSet.getString("unit"));
+				} else {
+					param.setUnitX(resultSet.getString("unit"));
+				}
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+		/**
 	 * @since 2015/07/27
 	 * @author tudose
 	 * @param stableIdToParameter
