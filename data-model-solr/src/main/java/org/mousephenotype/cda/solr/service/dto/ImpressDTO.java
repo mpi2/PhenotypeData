@@ -54,7 +54,7 @@ public class ImpressDTO {
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 
 
-	public static final String MP_ID = MpDTO.MP_ID; // All possible MP terms 
+	public static final String MP_ID = MpDTO.MP_ID; // All possible MP terms
 	public static final String MP_TERM = MpDTO.MP_TERM;
 	public static final String MP_TERM_SYNONYM = MpDTO.MP_TERM_SYNONYM;
 	public static final String TOP_LEVEL_MP_ID = MpDTO.TOP_LEVEL_MP_ID;
@@ -102,7 +102,7 @@ public class ImpressDTO {
 
 	@Field(DECREASED_MP_TERM)
 	List<String> decreasedMpTerm;
-	
+
 	@Field(CATEGORIES)
 	private List<String> catgories;
 
@@ -276,7 +276,7 @@ public class ImpressDTO {
 		return emapTerm;
 	}
 
-	
+
 	public List<String> getIncreasedMpTerm() {
 		return increasedMpTerm;
 	}
@@ -315,12 +315,12 @@ public class ImpressDTO {
 	public void setDecreasedMpTerm(List<String> decreasedMpTerm) {
 		this.decreasedMpTerm = decreasedMpTerm;
 	}
-	
+
 	public void addDecreasedMpTerm(String mpTerm){
 		if (this.decreasedMpTerm == null){
 			this.decreasedMpTerm = new ArrayList<>();
 		}
-		decreasedMpId.add(mpTerm);
+		decreasedMpTerm.add(mpTerm);
 	}
 
 
@@ -417,7 +417,7 @@ public class ImpressDTO {
 		this.catgories = catgories;
 	}
 
-	
+
 	public String getObservationType() {
 		return observationType;
 	}
