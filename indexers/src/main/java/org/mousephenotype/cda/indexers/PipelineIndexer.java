@@ -325,7 +325,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
-			ParameterDTO param = paramIdToParameter.get(resultSet.getString("parameter_stable_id"));
+			ParameterDTO param = paramIdToParameter.get(resultSet.getString("stable_id"));
 			if (resultSet.getString("increment_unit") != null){
 				param.setUnitX(resultSet.getString("increment_unit"));
 				param.setUnitY(resultSet.getString("unit"));
