@@ -16,17 +16,10 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import net.sf.json.JSONObject;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
-import net.sf.json.JSONObject;
+import java.util.*;
 
 /**
  * @since 2015/07
@@ -57,25 +50,16 @@ public class ParallelCoordinatesDTO {
 
 		for (ParameterDTO parameter: allColumns){
 			if (getSortValue(parameter.getStableId()) % 100 != 0){
-				values.put(parameter.getName(), new MeanBean( parameter.getUnit(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
+				values.put(parameter.getName(), new MeanBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
 			}
 		}
 	}
 
-
-	/**
-	 * Keeps max value only 
-	 * @param unit
-	 * @param parameterStableId
-	 * @param parameterName
-	 * @param parameterStableKey
-	 * @param mean
-	 */
 	public void addValue( ParameterDTO parameter, Double mean){
 
 		if (getSortValue(parameter.getStableId()) % 100 != 0){ // we want to display the param
 			if (!values.containsKey(parameter.getName()) || (values.containsKey(parameter.getName()) && (values.get(parameter.getName()).mean == null || Math.abs(values.get(parameter.getName()).mean) > Math.abs(mean)))){
-				values.put(parameter.getName(), new MeanBean( parameter.getUnit(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), mean));
+				values.put(parameter.getName(), new MeanBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), mean));
 			}
 		}
 
