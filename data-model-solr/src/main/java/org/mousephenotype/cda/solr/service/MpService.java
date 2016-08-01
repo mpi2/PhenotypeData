@@ -98,7 +98,6 @@ public class MpService extends BasicService implements WebStatus{
 			.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\"");
 
 		QueryResponse rsp = solr.query(solrQuery);
-		System.out.println("RETURNED -- " + rsp.getResults().size() + " " + solr.getBaseURL() + "/select?" + solrQuery);
 		return rsp.getBeans(MpDTO.class);
 
 	}
@@ -181,7 +180,7 @@ public class MpService extends BasicService implements WebStatus{
 	throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId + " AND " + MpDTO.MP_ID + ":\"" + termId + "\"")
+				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
 				.setRows(1);
 		solrQuery.addField(MpDTO.CHILDREN_JSON);
 

@@ -51,11 +51,12 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
 	private final Logger logger = LoggerFactory.getLogger(DiseaseIndexer.class);
 
 
-    @NotNull
-    @Value("${phenodigm.solrserver}")
-    private String phenodigmSolrServer;
 
-    @Autowired
+	@Autowired
+	@Qualifier("phenodigmCore")
+	private SolrServer phenodigmCore;
+
+	@Autowired
     @Qualifier("geneCore")
     private SolrServer geneCore;
 
@@ -63,14 +64,10 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
     @Qualifier("diseaseIndexing")
     private SolrServer diseaseIndexing;
 
-
-
     public static final int MAX_DISEASES = 10000;
 
     // Map disease ID to list of gene data objects
     private static Map<String, GeneData> geneLookup = new HashMap<>();
-
-    private SolrServer phenodigmCore;
 
     public DiseaseIndexer() {
 
@@ -89,7 +86,6 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
         long start = System.currentTimeMillis();
 
         try {
-            initializeSolrCores();
             populateGenesLookup();
             diseaseIndexing.deleteByQuery("*:*");
             diseaseIndexing.commit();
@@ -187,38 +183,6 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
-    }
-
-    /**
-     * Initialize the phenodigm core -- using a proxy if configured.
-     * <p/>
-     * A proxy is specified by supplying two JVM variables - externalProxyHost
-     * the host (not including the protocol) - externalProxyPort the integer
-     * port number
-     */
-    private void initializeSolrCores() {
-
-        final String PHENODIGM_URL = phenodigmSolrServer;
-
-        // Use system proxy if set for external solr servers
-        if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
-
-            String PROXY_HOST = System.getProperty("externalProxyHost");
-            Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
-
-            HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
-
-            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
-
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
-
-        } else {
-
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
-
-        }
     }
 
     /**

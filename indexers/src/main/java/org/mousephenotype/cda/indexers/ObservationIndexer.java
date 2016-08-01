@@ -15,7 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,11 +34,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+import javax.management.monitor.StringMonitor;
 import javax.sql.DataSource;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.xmlbeans.impl.xb.ltgfmt.TestCase;
+import org.apache.xmlbeans.impl.xb.xsdschema.ListDocument;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.*;
@@ -54,6 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -68,7 +77,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
-	private static Connection connection;
+	private Connection connection;
 
 	@Autowired
 	SqlUtils sqlUtils;
@@ -90,6 +99,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	@Autowired
 	EmapaOntologyDAO emapaOntologyService;
 
+	@Value("${experimenterIdMap}")
+	String experimenterIdMap;
 
 	Map<String, BiologicalDataBean> biologicalData = new HashMap<>();
 	Map<String, BiologicalDataBean> lineBiologicalData = new HashMap<>();
@@ -107,6 +118,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	Map<Integer, List<WeightBean>> weightMap = new HashMap<>();
 	Map<Integer, WeightBean> ipgttWeightMap = new HashMap<>();
+	Map<Integer, List<String>> experimenterData = new HashMap<>();
+
 
 	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
@@ -154,6 +167,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			logger.debug("populating datasource map");
 			populateDatasourceDataMap();
+
+			logger.debug("populating experimenter map");
+			populateExperimenterDataMap();
+			logger.debug("  map size: " + experimenterData.size());
 
 			logger.debug("populating categorynames map");
 			populateCategoryNamesDataMap();
@@ -343,6 +360,15 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setMetadata(new ArrayList<>(Arrays.asList(metadataCombined.split("::"))));
 				}
 
+				// Add experimenter ID(s) to the metadata
+				if (experimenterData.containsKey(o.getExperimentId())) {
+					if (o.getMetadata()==null) {
+						o.setMetadata(new ArrayList<>(experimenterData.get(o.getExperimentId())));
+					} else {
+						o.getMetadata().addAll(experimenterData.get(o.getExperimentId()));
+					}
+				}
+
 				// Add the Biological data
 				String bioSampleId = r.getString("biological_sample_id");
 				if (r.wasNull()) {
@@ -362,6 +388,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setStrainAccessionId(b.strainAcc);
 					o.setStrainName(b.strainName);
 					o.setGeneticBackground(b.geneticBackground);
+					o.setAllelicComposition(b.allelicComposition);
 					o.setPhenotypingCenter(b.phenotypingCenterName);
 					o.setPhenotypingCenterId(b.phenotypingCenterId);
 					o.setColonyId(b.colonyId);
@@ -407,6 +434,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setStrainAccessionId(b.strainAcc);
 					o.setStrainName(b.strainName);
 					o.setGeneticBackground(b.geneticBackground);
+					o.setAllelicComposition(b.allelicComposition);
 					o.setPhenotypingCenter(b.phenotypingCenterName);
 					o.setPhenotypingCenterId(b.phenotypingCenterId);
 
@@ -609,7 +637,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, "
 				+ "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, ls.developmental_stage_acc, ot.name AS developmental_stage_name, ot.acc as developmental_stage_acc,"
 				+ "bms.biological_model_id, "
-				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, "
+				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition, "
 				+ "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, "
 				+ "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bms.biological_model_id)  as allele_symbol, "
 				+ "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bms.biological_model_id) as acc, "
@@ -663,6 +691,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.strainAcc = resultSet.getString("strain_acc");
 				b.strainName = resultSet.getString("strain_name");
 				b.geneticBackground = resultSet.getString("genetic_background");
+				b.allelicComposition = resultSet.getString("allelic_composition");
 				b.zygosity = resultSet.getString("zygosity");
 				b.developmentalStageAcc = resultSet.getString("developmental_stage_acc");
 				b.developmentalStageName = resultSet.getString("developmental_stage_name");
@@ -690,12 +719,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 		String query = "SELECT e.id as experiment_id, e.colony_id, e.biological_model_id, "
 				+ "e.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, "
-				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, "
+				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition, "
 				+ "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=e.biological_model_id) as allele_accession, "
 				+ "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=e.biological_model_id)  as allele_symbol, "
 				+ "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=e.biological_model_id) as acc, "
 				+ "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=e.biological_model_id)  as symbol "
-				+ "FROM experiment e " + "INNER JOIN organisation org ON e.organisation_id=org.id "
+				+ "FROM experiment e "
+				+ "INNER JOIN organisation org ON e.organisation_id=org.id "
 				+ "INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=e.biological_model_id "
 				+ "INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc "
 				+ "INNER JOIN biological_model bm ON bm.id = e.biological_model_id";
@@ -714,6 +744,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.strainAcc = resultSet.getString("strain_acc");
 				b.strainName = resultSet.getString("strain_name");
 				b.geneticBackground = resultSet.getString("genetic_background");
+				b.allelicComposition = resultSet.getString("allelic_composition");
 				b.alleleAccession = resultSet.getString("allele_accession");
 				b.alleleSymbol = resultSet.getString("allele_symbol");
 				b.biologicalModelId = resultSet.getInt("biological_model_id");
@@ -728,7 +759,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							+ " (select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) as allele_symbol, "
 							+ " (select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bm.id) as acc, "
 							+ " (select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bm.id)  as symbol, "
-							+ " strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background "
+							+ " strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition "
 							+ " FROM live_sample ls "
 							+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id "
 							+ " INNER JOIN biological_model bm ON bm.id=bms.biological_model_id "
@@ -742,6 +773,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						b.strainAcc = resultSet2.getString("strain_acc");
 						b.strainName = resultSet2.getString("strain_name");
 						b.geneticBackground = resultSet2.getString("genetic_background");
+						b.allelicComposition = resultSet.getString("allelic_composition");
 						b.alleleAccession = resultSet2.getString("allele_accession");
 						b.alleleSymbol = resultSet2.getString("allele_symbol");
 						b.biologicalModelId = resultSet2.getInt("biological_model_id");
@@ -856,6 +888,52 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		return parameters;
 	}
 
+	void populateExperimenterDataMap() throws SQLException, IOException {
+
+		Map<String, String> nameMap = new HashMap<>();
+		List<String> lines = Files.readAllLines(Paths.get(experimenterIdMap));
+		for (String line : lines) {
+			String [] fields = line.split("\t");
+			nameMap.put(fields[0], fields[1]);
+		}
+
+		String query = "SELECT DISTINCT experiment_id, value, parameter_id, p.name " +
+			"FROM procedure_meta_data m " +
+			"INNER JOIN phenotype_parameter p ON p.stable_id=m.parameter_id " +
+			"WHERE name LIKE '%experimenter%' AND value IS NOT NULL ";
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+			while (resultSet.next()) {
+
+				if ( ! experimenterData.containsKey(resultSet.getInt("experiment_id"))) {
+					experimenterData.put(resultSet.getInt("experiment_id"), new ArrayList<>());
+				}
+
+				String ids = resultSet.getString("value");
+				String parameterName = resultSet.getString("name");
+
+				for (String id : ids.split(",")) {
+
+					String loadId = id;
+
+					//Translate the experimenter ID if needed
+					if (nameMap.containsKey(id)) {
+						loadId = nameMap.get(id);
+					}
+
+					//Hash the ID
+					loadId = DigestUtils.md5Hex(loadId).substring(0,5).toUpperCase();
+
+					experimenterData.get(resultSet.getInt("experiment_id")).add(parameterName + " = " + loadId);
+
+				}
+
+			}
+		}
+
+	}
+
 	void populateDatasourceDataMap() throws SQLException {
 
 		List<String> queries = new ArrayList<>();
@@ -886,66 +964,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				}
 			}
 		}
-	}
-
-	/**
-	 * Compare all weight dates to select the nearest to the date of experiment
-	 *
-	 * @param specimenID
-	 *            the specimen
-	 * @param dateOfExperiment
-	 *            the date
-	 * @return the nearest weight bean to the date of the experiment
-	 */
-	WeightBean getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
-
-		WeightBean nearest = null;
-
-		if (dateOfExperiment != null && weightMap.containsKey(specimenID)) {
-
-			for (WeightBean candidate : weightMap.get(specimenID)) {
-
-				if (nearest == null) {
-					nearest = candidate;
-					continue;
-				}
-
-				if (Math.abs(
-						dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math
-								.abs(dateOfExperiment.toInstant().toEpochMilli()
-										- nearest.date.toInstant().toEpochMilli())) {
-					nearest = candidate;
-				}
-			}
-		}
-
-		// Do not return weight that is > 4 days away from the experiment
-		// since the weight of the specimen become less and less relevant
-		// (Heuristic from Natasha Karp @ WTSI)
-		// 4 days = 345,600,000 ms
-		if (nearest != null && Math
-				.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
-			nearest = null;
-		}
-		return nearest;
-	}
-
-	/**
-	 * Select date of experiment
-	 *
-	 * @param specimenID
-	 *            the specimen
-	 * @return the nearest weight bean to the date of the experiment
-	 */
-	WeightBean getNearestIpgttWeight(Integer specimenID) {
-
-		WeightBean nearest = null;
-
-		if (ipgttWeightMap.containsKey(specimenID)) {
-			nearest = ipgttWeightMap.get(specimenID);
-		}
-
-		return nearest;
 	}
 
 	/**
@@ -1079,8 +1097,72 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		}
 
 	}
+
+	/**
+	 * Compare all weight dates to select the nearest to the date of experiment
+	 *
+	 * @param specimenID
+	 *            the specimen
+	 * @param dateOfExperiment
+	 *            the date
+	 * @return the nearest weight bean to the date of the experiment
+	 */
+	WeightBean getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
+
+		WeightBean nearest = null;
+
+		if (dateOfExperiment != null && weightMap.containsKey(specimenID)) {
+
+			for (WeightBean candidate : weightMap.get(specimenID)) {
+
+				if (nearest == null) {
+					nearest = candidate;
+					continue;
+				}
+
+				if (Math.abs(
+					dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math
+					.abs(dateOfExperiment.toInstant().toEpochMilli()
+						- nearest.date.toInstant().toEpochMilli())) {
+					nearest = candidate;
+				}
+			}
+		}
+
+		// Do not return weight that is > 4 days away from the experiment
+		// since the weight of the specimen become less and less relevant
+		// (Heuristic from Natasha Karp @ WTSI)
+		// 4 days = 345,600,000 ms
+		if (nearest != null && Math
+			.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
+			nearest = null;
+		}
+		return nearest;
+	}
+
+	/**
+	 * Select date of experiment
+	 *
+	 * @param specimenID
+	 *            the specimen
+	 * @return the nearest weight bean to the date of the experiment
+	 */
+	WeightBean getNearestIpgttWeight(Integer specimenID) {
+
+		WeightBean nearest = null;
+
+		if (ipgttWeightMap.containsKey(specimenID)) {
+			nearest = ipgttWeightMap.get(specimenID);
+		}
+
+		return nearest;
+	}
+
 	public Connection getConnection() {
 		return connection;
+	}
+	public void setConnection(Connection connection) {
+		this.connection = connection;
 	}
 
 	Map<String, Map<String, String>> getTranslateCategoryNames() {
@@ -1128,6 +1210,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		public String strainAcc;
 		public String strainName;
 		public String geneticBackground;
+		public String allelicComposition;
 		public String zygosity;
 		public String developmentalStageAcc;
 		public String developmentalStageName;

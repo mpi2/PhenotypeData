@@ -24,9 +24,7 @@
 			            <li><a href="#top">Gene</a></li>
 			            <li><a href="#section-associations">Phenotype Associations</a></li>
 			            <!--  always a section for this even if says no phenotypes found - do not putting in check here -->
-			            <%-- <c:if test="${phenotypeStarted}">--%>
-			                <li><a href="#heatmap">Heatmap</a></li>
-				        <%-- </c:if>--%>
+			            
 
 						<li><a href="#section-expression">Expression</a></li>
 
@@ -50,48 +48,6 @@
 				</div>
 				<!--  end of floating menu for genes page -->
 
-				<c:if test="${phenotypeStarted}">
-					<script type="text/javascript"
-							src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
-					<!--[if !IE]><!-->
-					<script>
-						dcc.heatmapUrlGenerator = function (genotype_id, type) {
-							return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
-						};
-					</script>
-					<!--<![endif]-->
-					<!--[if gte IE 9]>
-					<script>
-					dcc.heatmapUrlGenerator = function(genotype_id, type) {
-					return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
-					};
-					</script>
-					<![endif]-->
-					<script>
-						//new dcc.PhenoHeatMap('procedural', 'phenodcc-heatmap', 'Fam63a', 'MGI:1922257', 6, '//dev.mousephenotype.org/heatmap/rest/heatmap/');
-						new dcc.PhenoHeatMap({
-							/* identifier of <div> node that will host the heatmap */
-							'container': 'phenodcc-heatmap',
-							/* colony identifier (MGI identifier) */
-							'mgiid': '${gene.mgiAccessionId}',
-							/* default usage mode: ontological or procedural */
-							'mode': 'ontological',
-							/* number of phenotype columns to use per section */
-							'ncol': 5,
-							/* heatmap title to use */
-							'title': '${gene.markerSymbol}',
-							'url': {
-								/* the base URL of the heatmap javascript source */
-								'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-								/* the base URL of the heatmap data source */
-								'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
-								/* function that generates target URL for data visualisation */
-								'viz': dcc.heatmapUrlGenerator
-							}
-						});
-					</script>
-				</c:if>
-
 			</jsp:attribute>
 
 
@@ -107,7 +63,7 @@
 					var gene_id = '${acc}';
 
 					$(document).ready(function() {
-
+						var heatmap_generated=0;
 						var expressionTab = 0;
 						var hash = location.hash;
 						if (hash.indexOf("tabs-") > -1){
@@ -146,12 +102,65 @@
 								$(this).text("Hide expression table");
 							}
 						});
-
-//						$('li.showAdultImage').click(function(){
-//							$("#exptabs").tabs({ active: 1 });
-//						});
-
-
+						
+						$('#heatmap_link').click(function(){
+							console.log('heatmap link clicked');
+							
+							/* //load the css
+							var cssId = 'myCss';  // you could encode the css path itself to generate id..
+							if (!document.getElementById(cssId))
+							{
+							    var head  = document.getElementsByTagName('head')[0];
+							    var link  = document.createElement('link');
+							    link.id   = cssId;
+							    link.rel  = 'stylesheet';
+							    link.type = 'text/css';
+							    link.href = '${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css';
+							    link.media = 'all';
+							    head.appendChild(link);
+							} */
+							
+							if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
+								$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
+								if(!heatmap_generated){
+																		
+									//load the js required to make the heatmap css as well on dev took 600ms or more.
+									var script = document.createElement('script');
+									script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
+									script.onload = function () {
+										
+										//do stuff with the script
+										new dcc.PhenoHeatMap({
+											/* identifier of <div> node that will host the heatmap */
+											'container': 'phenodcc-heatmap',
+											/* colony identifier (MGI identifier) */
+											'mgiid': '${gene.mgiAccessionId}',
+											/* default usage mode: ontological or procedural */
+											'mode': 'ontological',
+											/* number of phenotype columns to use per section */
+											'ncol': 5,
+											/* heatmap title to use */
+											'title': '${gene.markerSymbol}',
+											'url': {
+												/* the base URL of the heatmap javascript source */
+												'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
+												/* the base URL of the heatmap data source */
+												'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
+												/* function that generates target URL for data visualisation */
+												'viz': dcc.heatmapUrlGenerator
+											}
+										});
+										heatmap_generated=1;
+										
+									};
+									document.head.appendChild(script);
+								}//end of if heatmap generated
+							
+						}
+							
+							
+						});
+						 
 					});
 				</script>
 				<style>
@@ -345,6 +354,7 @@
 					<![endif]-->
 				</c:if>
 
+
 			</jsp:attribute>
 
 		<jsp:body>
@@ -381,6 +391,8 @@
 								<div class="inner">
 
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
+									
+									<a id="heatmap_link">Show Preliminary Data</a>
 								</div>
 
 							</div>
@@ -390,7 +402,7 @@
 							<!-- phenotype heatmap -->
 							<c:if test="${phenotypeStarted}">
 
-								<div class="section">
+								<div id="heatmap_toggle_div" class="section hidden">
 									<h2 class="title" id="heatmap">Phenotype heatmap <span
 											class="documentation"><a href='' id='heatmapSection'
 																	 class="fa fa-question-circle pull-right"></a></span>
@@ -691,10 +703,11 @@
 		<script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
 
+		<%-- these copies have the http:// changed to // --%>
 		<script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>
 		<script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>
 
-		<%--reinvoke this when atlas people are ready--%>
+		<%--reinvoke this when atlas people are ready supporting https--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>--%>
 
@@ -738,11 +751,6 @@
 					var maId2UberonMap = expData.maId2UberonMap;
 					var uberon2MaIdMap = expData.uberon2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
-
-					//console.log("no expression: ")
-					//console.log(expData.noExpression);
-					//console.log("all paths: ")
-					//console.log(expData.allPaths);
 
 					var anatomogramData = {
 

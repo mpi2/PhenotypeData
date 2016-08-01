@@ -36,7 +36,13 @@
 							
 								<div class="inner">
 									<form class="tablefiltering no-style" id="target" action="destination.html">
-									 
+									 	
+									 	<select id="phenotypes"  class="impcdropdown"  multiple="multiple" title="Filter on phenotype top level">
+		                                	<c:forEach var="pKey" items="${phenotypes.keySet()}">
+		                                        <option value="${pKey}">${phenotypes.get(pKey)}</option>
+		                                    </c:forEach>
+		                                </select>
+										
 										<select id="alleleFilter" class="impcdropdown"  multiple="multiple" title="Filter on allele symbol">
 		                                	<c:forEach var="allele" items="${allelePageDTO.getEscapedAlleleSymbols()}">
 		                                        <option value="${allele}">${allele}</option>
@@ -54,6 +60,8 @@
 		                                        <option value="${pCenter}">${pCenter}</option>
 		                                    </c:forEach>
 		                                </select> 
+		                                
+		                                
 	                                    <div class="clear"></div>
 	                                </form>
 								                                

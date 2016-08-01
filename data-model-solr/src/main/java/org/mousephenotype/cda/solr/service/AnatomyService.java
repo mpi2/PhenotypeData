@@ -29,15 +29,13 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.solr.service.dto.*;
-import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import net.sf.json.JSONObject;
 
 @Service
 public class AnatomyService extends BasicService implements WebStatus {
@@ -45,10 +43,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 	@Autowired
 	@Qualifier("anatomyCore")
 	private HttpSolrServer solr;
-
-	@Autowired
-	@Qualifier("phenotypePipelineDAOImpl")
-	private PhenotypePipelineDAO pipelineDao;
 
 	public AnatomyService() {
 	}
@@ -208,9 +202,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 		solrQuery.setFields(MpDTO.CHILD_MP_ID);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-
-		// System.out.println("Solr URL to getChildrenFor: " + solr.getBaseURL()
-		// + "/select?" + solrQuery);
 		ArrayList<String> children = new ArrayList<String>();
 
 		for (SolrDocument doc : res) {
@@ -299,11 +290,19 @@ public class AnatomyService extends BasicService implements WebStatus {
 	public String getChildrenJson(String nodeId, String termId)
 			throws SolrServerException{
 
+		// Node_id is unique in ontodb for each ontology.
+		// But we are mixing ontologies here so need to use a combination of node_id and anotomy_id prefix for uniqueness
+		String qStr = null;
+		if ( termId.startsWith("MA:") ){
+			qStr = "MA*";
+		}
+		else if ( termId.startsWith("EMAPA:") ){
+			qStr = "EMAPA*";
+		}
 		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId + " AND " + AnatomyDTO.ANATOMY_ID + ":\"" + termId + "\"")
+				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId + " AND " + AnatomyDTO.ANATOMY_ID + ":" + qStr)
 				.setRows(1);
 		solrQuery.addField(AnatomyDTO.CHILDREN_JSON);
-
 		QueryResponse rsp = solr.query(solrQuery);
 		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
 

@@ -73,7 +73,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	public static String getTabbedHeader(){
 		return "allele\t" + "phenotypingCenter\t" + "procedure\t" + "parameter\t" +
 			"zygosity\t" + "femaleMutantCount\t" + "maleMutantCount\t" +
-			"statisticalMethod\t" + "pValue\t" + "status\t" + "graph";
+			"statisticalMethod\t" + "pValue\t" + "status\t" + "data";
 	}
 	
 	

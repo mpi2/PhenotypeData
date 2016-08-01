@@ -1,4 +1,4 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+	<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 
@@ -18,10 +18,6 @@
 <!-- script src="${baseUrl}/js/charts/parallel/pie.js"></script-->
 <script src="${baseUrl}/js/charts/parallel/options.js"></script>
 
-<h3>Procedures displayed: <c:forEach var="procedure" items="${selectedProcedures}" varStatus="loop">
-		                    		<a href="/impress/protocol/${procedure.getStableKey()}">${procedure.getName()}</a><c:if test="${!loop.last}">,</c:if>
-		                    	</c:forEach>
-</h3>	
 <!-- div><a href="#" id="inverted" class="right toggle">Dark</a></div-->
 <!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
 <div id="row-fluid">
@@ -40,22 +36,32 @@
 
 
 <script type="text/javascript">
+	
+	var selectedProcedures =  ${selectedProcedures};
+	
 	$(function() {
 				
+		$('#parallel-title').html("Gene KO effect comparator ");
+		var selectedProceduresIterator = 1; 
+		Object.keys(selectedProcedures).forEach(function(key){
+			$('#parallel-title').append("<a class=\"bluelink\" href=\"" + selectedProcedures[key] + "\">" + key + "</a>");
+			$('#parallel-title').append( (selectedProceduresIterator++ < Object.keys(selectedProcedures).length) ? ", " : "");
+		});
+		
 		/** Add widgets **/
 		$('#widgets_pc').html("");
-		$('#widgets_pc').append('<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>');
+//		$('#widgets_pc').append('<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>');
 
 		$('#widgets_pc').append('<a href="#" id="export_selected" class="button right filter_control btn" title = "Export raw data in the table">Export</a>');
 		$('#widgets_pc').append('<a href="#" id="remove_filters" class="button right filter_control btn" title = "Remove filters">Clear filters</a>');
 		$('#widgets_pc').append('<br/>');
-		$('#widgets_pc').append('<div class="right"><input type="range" min="0" max="1" value="0.2" step="0.01"	name="power" list="powers" id="line_opacity"></input>Opacity: <span id="opacity_level">20%</span></div>');
+//		$('#widgets_pc').append('<div class="right"><input type="range" min="0" max="1" value="0.2" step="0.01"	name="power" list="powers" id="line_opacity"></input>Opacity: <span id="opacity_level">20%</span></div>');
 		
 		var dimensions = new Filter({
 			defaultValues : defaults
 		});
 		var highlighter = new Selector();
-
+		$('body').addClass("shadows");
 		dimensions.set({
 			data : foods
 		});
@@ -63,12 +69,9 @@
 			'defaultValues' : defaults
 		});
 
-		var columns = _(foods[0]).keys();
+		var columns = _(foods[0]).keys().filter(function(d,i){ return (d != "group");}); // don't show group column in table
 		var axes = _(columns).without('name', 'accession', 'group');
-
 		var foodgroups = [ "Mutant", "Mean"];
-		// "MRC Harwell", "TCP", "JAX", "WTSI", "BCM", "UC Davis", "ICS", "HMGU", "NING", "RBRC" ];
-
 		var colors = {
 		    "Mutant" : '#0978A1',
 			"Normal" :'#602619',
@@ -88,7 +91,7 @@
 //			$('#legend').append("<div class='item'><div class='color' style='background: " + colors[group] + "';></div><div class='key'>" + group + "</div></div>");
 //		});
 
-		var pc = parallel(dimensions, colors, defaults);
+		var pc = parallel(dimensions, colors, defaults, highlighter);
 //		var pie = piegroups(foods, foodgroups, colors, 'group');
 //		var totals = pietotals([ 'in', 'out' ], [ _(foods).size(), 0 ]);
 
@@ -100,9 +103,9 @@
 		});
 
 		// vertical full screen
-		var parallel_height = $(window).height() - 64 - 12 - 120 - 320;
-		if (parallel_height < 340)
-			parallel_height = 340; // min height
+		var parallel_height = $(window).height() - 64- 12  - 120 - 320;
+		if (parallel_height < 380)
+			parallel_height = 380; // min height
 		$('#parallel').css({
 			height : parallel_height + 'px',
 			width : '100%'
@@ -119,7 +122,6 @@
 			var filtered_size = _(filtered).size();
 ///			pie.update(filtered);
 //			totals.update([ filtered_size, data_size - filtered_size ]);
-
 			var opacity = _([ 2 / Math.pow(filtered_size, 0.37), 100 ]).min();
 			$('#line_opacity').val(opacity).change();
 		});

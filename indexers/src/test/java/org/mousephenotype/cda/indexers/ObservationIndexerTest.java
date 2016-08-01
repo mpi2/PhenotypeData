@@ -15,6 +15,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -29,7 +30,7 @@ import java.util.TimeZone;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigIndexers.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 @Transactional
 public class ObservationIndexerTest {
 
@@ -44,6 +45,7 @@ public class ObservationIndexerTest {
     @Before
     public void setUp() throws Exception {
 	    observationIndexer = new ObservationIndexer();
+	    observationIndexer.setConnection(ds.getConnection());
     }
 
     @Test
@@ -53,9 +55,18 @@ public class ObservationIndexerTest {
 
         observationIndexer.populateBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
-        Assert.assertTrue(bioDataMap.size() > 1000);
 
-        logger.info("Size of biological data map {}", bioDataMap.size());
+        Assert.assertTrue(bioDataMap.size() > 1000);
+	    logger.info("Size of biological data map {}", bioDataMap.size());
+
+	    for (ObservationIndexer.BiologicalDataBean biologicalDataBean : bioDataMap.values()) {
+
+	    	if ( ! biologicalDataBean.sampleGroup.equals("control")) {
+			    Assert.assertTrue(! StringUtils.isEmpty(biologicalDataBean.alleleAccession));
+			    Assert.assertTrue(! StringUtils.isEmpty(biologicalDataBean.geneticBackground));
+		    }
+
+	    }
 
     }
 
