@@ -7,7 +7,7 @@ import org.apache.solr.client.solrj.beans.Field;
 public class Allele2DTO {
 	public static final String MARKER_SYMBOL="marker_symbol";
 	@Field(MARKER_SYMBOL)
-	private String markerSymmobl;
+	private String markerSymbol;
 	
 	public static final String MGI_ACCESSION_ID="mgi_accession_id";
 	@Field(MGI_ACCESSION_ID)
@@ -91,6 +91,7 @@ public class Allele2DTO {
 	@Field(MOUSE_AVAILABLE)
 	private Boolean mouseAvailable;
 	
+	
 	public Boolean getMouseAvailable() {
 		return mouseAvailable;
 	}
@@ -109,11 +110,11 @@ public class Allele2DTO {
 	public void setTargetingVectorAvailable(Boolean targetingVectorAvailable) {
 		this.targetingVectorAvailable = targetingVectorAvailable;
 	}
-	public String getMarkerSymmobl() {
-		return markerSymmobl;
+	public String getMarkerSymbol() {
+		return markerSymbol;
 	}
-	public void setMarkerSymmobl(String markerSymmobl) {
-		this.markerSymmobl = markerSymmobl;
+	public void setMarkerSymbol(String markerSymbol) {
+		this.markerSymbol = markerSymbol;
 	}
 	public String getMgiAccessionId() {
 		return mgiAccessionId;

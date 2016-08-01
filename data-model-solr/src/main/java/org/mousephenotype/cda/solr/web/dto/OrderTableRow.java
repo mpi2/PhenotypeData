@@ -15,9 +15,16 @@ public class OrderTableRow {
 	private String alleleDescription;
 	private Boolean targetingVectorAvailable;
 	private Boolean esCellAvailable;
+	private String markerSymbol;
 	
+	public String getMarkerSymbol() {
+			return markerSymbol;
+		}
+		public void setMarkerSymbol(String markerSymbol) {
+			this.markerSymbol = markerSymbol;
+		}
 	
-private Boolean mouseAvailable;
+	private Boolean mouseAvailable;
 	
 	public Boolean getMouseAvailable() {
 		return mouseAvailable;

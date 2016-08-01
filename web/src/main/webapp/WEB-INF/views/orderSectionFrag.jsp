@@ -12,7 +12,7 @@
         		 <tr>
                         <th style="border-bottom:0px;"></th>
                         <th style="border-bottom:0px;"></th>
-                        <th colspan="3" style="border-bottom:0px; border-right:thin double #777; border-left:thin double #777;">Targeting Detail</th>
+                        <th colspan="3" style="border-bottom:0px;  text-align:center;">Targeting Detail</th>
                         <th colspan="3" style="border-bottom:0px; text-align:center;">Product Ordering</th>
                         
                       
@@ -21,9 +21,9 @@
                         <th>MGI Allele</th>
                         <th style="width:22%">Allele Type</th>
                         
-                        <th style="border-left:thin double #777;">Gene/Vector</th>
+                        <th >Type</th>
                         <th>Map</th>
-                        <th style="border-right:thin double #777;">Sequence
+                        <th>Seq
                         <th>Vector</th>
                         <th>ES Cell</th>
                         <th>Mouse</th>
@@ -39,8 +39,7 @@
                       <tr>
                         
                          <td rowspan="${rowSpan}">
-                         <c:out value="${rowSpan}"></c:out>
-                         	${row.alleleName}
+                         	${row.markerSymbol}<sup>${row.alleleName}</sup>
                          </td>
                          <%-- <td>
                          	${row.strainOfOrigin}
@@ -52,7 +51,7 @@
                           <c:set var="target" value="${row.geneTargetDetails[0]}"></c:set>
                           
                                
-                               <td style="text-align: center; border-left:thin double #777;">${target.label}</td>
+                               <td style="text-align: center;">${target.label}</td>
                                <td>
                                		
 	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
@@ -61,7 +60,7 @@
 	                                   
 	                                   </a>
 	                            </td>
-	                            <td style="border-right:thin double #777;" >
+	                            <td >
 	                                <c:if test="${not empty target.genbankLink}">
 		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
 	                               	</c:if>
@@ -97,14 +96,14 @@
                         <tr>
                      
                         
-		                            <td style="text-align: center; border-left:thin double #777;">${target.label}</td>
+		                            <td style="text-align: center;">${target.label}</td>
                                		<td >
                                		
 	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   </a>
 	                                </td>
-	                                <td style="border-right:thin double #777;">
+	                                <td>
 	                                	<c:if test="${not empty target.genbankLink}">
 		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
 		                                

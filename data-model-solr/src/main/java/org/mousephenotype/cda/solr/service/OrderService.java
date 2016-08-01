@@ -60,6 +60,7 @@ public class OrderService {
 			row.setTargetingVectorAvailable(allele.getTargetingVectorAvailable());
 			row.setEsCellAvailable(allele.getEsCellAvailable());
 			row.setMouseAvailable(allele.getMouseAvailable());
+			row.setMarkerSymbol(allele.getMarkerSymbol());
 			//Map mouseOrderCenter=new HashMap<>();
 			
 			
@@ -124,17 +125,7 @@ public class OrderService {
 		
 		
 		
-		OrderTableRow row=new OrderTableRow();
-		row.setAlleleName("Cpsf3tm1b(EUCOMM)Wtsi");
-		row.setStrainOfOrigin("C57BL/6N");
-		row.setAlleleDescription("Reporter-tagged deletion allele (post-Cre)");
-		LinkDetails detail=new LinkDetails();
-		detail.setLabel("Target Vector Map");
-		detail.setLink("https://www.i-dcc.org/imits/targ_rep/alleles/4973/allele-image-cre?simple=true.jpg.jpg");
-		List<LinkDetails> geneTargetDetails=new ArrayList<>();
-		geneTargetDetails.add(detail);
-		row.setGeneTargetDetails(geneTargetDetails);
-		orderTableRows.add(row);
+		
 		return orderTableRows;
 	}
 	
