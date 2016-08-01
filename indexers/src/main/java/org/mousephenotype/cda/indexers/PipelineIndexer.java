@@ -320,8 +320,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	private void addUnits() {
 
-		String query = "String queryString = \"SELECT * FROM phenotype_parameter pp LEFT OUTER JOIN komp2.phenotype_parameter_lnk_increment ppli on pp.id = ppli.parameter_id " +
-				"LEFT OUTER JOIN komp2.phenotype_parameter_increment ppi ON ppli.increment_id = ppi.id ORDER BY pp.stable_id; ";
+		String query = "SELECT * FROM phenotype_parameter pp LEFT OUTER JOIN phenotype_parameter_lnk_increment ppli on pp.id = ppli.parameter_id " +
+				"LEFT OUTER JOIN phenotype_parameter_increment ppi ON ppli.increment_id = ppi.id ORDER BY pp.stable_id; ";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
