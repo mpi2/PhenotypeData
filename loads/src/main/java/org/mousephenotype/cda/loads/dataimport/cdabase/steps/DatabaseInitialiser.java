@@ -26,61 +26,34 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
-import java.net.URL;
 import java.util.Date;
 
 /**
  * Created by mrelac on 13/04/2016.
  */
-public class DatabaseInitialiser implements Tasklet, InitializingBean, ApplicationContextAware {
+public class DatabaseInitialiser implements Tasklet, InitializingBean {
 
     private final CommonUtils commonUtils = new CommonUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
-    private final String      mysql       = commonUtils.getMysqlFullpath();
-
-    private String dbhostname;
-    private String dbport;
 
     @Autowired
     DataSource cdabase;
 
-    @Value("${cdabase.url}")
-    private String cdaUrl;
-
     @Value("${cdabase.dbname}")
     private String dbname;
-
-    @Value("${cdabase.username}")
-    private String dbusername;
-
-    @Value("${cdabase.password}")
-    private String dbpassword;
-
-    private ApplicationContext applicationContext;
 
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        URL url = new URL(cdaUrl.replace("jdbc:mysql:", "http:"));     // Replace the jdbc:mysql: protocol with http. URL barks at jdbc:mysql:.
-        dbhostname = url.getHost();
-        dbport = (url.getPort() == -1 ? "3306" : Integer.toString(url.getPort()));
-
-  	    Assert.notNull(mysql, "mysql executable must be set");
-        Assert.notNull(dbhostname, "dbhostname must be set");
-        Assert.notNull(dbport, "dbport must be set");
-        Assert.notNull(dbusername, "dbusername must be set");
-        Assert.notNull(dbpassword, "dbpassword must be set");
+        Assert.notNull(cdabase, "cdabase must be set");
         Assert.notNull(dbname, "dbname must be set");
     }
 
@@ -89,76 +62,12 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
 
         long startStep = new Date().getTime();
 
-        logger.info("Creating cda_base tables");
-        org.springframework.core.io.Resource r = new ClassPathResource("scripts/schema.sql");
-//        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
-        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "utf8mb4", r);
-//        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
+        logger.info("Database '{}': Create cda_base tables - start", dbname);
+        org.springframework.core.io.Resource r = new ClassPathResource("scripts/cdabase/schema.sql");
+        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
         p.execute(cdabase);
 
-//
-//
-//
-//
-//
-//
-////        String filename = applicationContext.getResource("scripts/schema.sql").getFile().getAbsolutePath();
-//        Resource r = applicationContext.getResource("file:scripts/schema.sql");
-//
-//        System.out.println("GOT RESOURCE");
-//        System.out.println("r.filename = " + r.getFilename());
-//        System.out.println("r.uriToString = " + r.getURI().toString());
-//        System.out.println("r.urlToString = " + r.getURL().toString());
-//
-//
-//
-//        File     f = r.getFile();
-//        System.out.println("absolutePath: " + f.getAbsolutePath());
-//        System.out.println("canonicalPath: " + f.getCanonicalPath());
-//        System.out.println("name: " + f.getName());
-//        System.out.println("path: " + f.getPath());
-//
-//        String filename = f.getCanonicalPath();
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//        String[] commands = new String[] { "/bin/sh", "-c", mysql + " --host=" + dbhostname + " --port=" + dbport + " --user=" + dbusername + " --password=" + dbpassword + " " + dbname + " < " + filename };
-//
-//        try {
-//            System.out.println("cmd = " + StringUtils.join(commands, " "));
-//            Process process = Runtime.getRuntime().exec(commands);
-//            BufferedReader stdInput = new BufferedReader(new
-//                    InputStreamReader(process.getInputStream()));
-//
-//            BufferedReader stdError = new BufferedReader(new
-//                 InputStreamReader(process.getErrorStream()));
-//
-//            int exitVal = process.waitFor();
-//            System.out.println("exitVal = " + exitVal);
-//            if (exitVal > 0) {
-//                String s = null;
-//                while ((s = stdInput.readLine()) != null) {
-//                    System.out.println(s);
-//                }
-//                while ((s = stdError.readLine()) != null) {
-//                    System.err.println(s);
-//                }
-//            }
-//        }
-//
-//        catch(IOException | InterruptedException e) {
-//            System.out.println("FAIL: " + e.getLocalizedMessage());
-//        }
-
-        logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.info("Database '{}': Create cda_base tables - end. Total elapsed time: {}", dbname, commonUtils.msToHms(new Date().getTime() - startStep));
 
         return RepeatStatus.FINISHED;
     }
@@ -166,12 +75,7 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean, Applicati
     @StepScope
     public Step getStep(StepBuilderFactory stepBuilderFactory) {
         return stepBuilderFactory.get("databaseInitialiserStep")
-                .tasklet(this)
-                .build();
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+                                 .tasklet(this)
+                                 .build();
     }
 }

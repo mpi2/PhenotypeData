@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.ontology;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 
 public class PhenotypeSummaryType {
@@ -24,10 +25,10 @@ public class PhenotypeSummaryType {
 	private String name;
 	private String sex;
 	private long  numberOfEntries;
-	private HashSet <String> dataSources;
+	private Set <String> dataSources;
 	boolean significant;
 	
-	public PhenotypeSummaryType (String mpId, String mpName, String sex, long numberOfEntries, HashSet <String> dataSources, Boolean significant){
+	public PhenotypeSummaryType (String mpId, String mpName, String sex, long numberOfEntries, Set <String> dataSources, Boolean significant){
 		this.id = mpId;
 		this.name = mpName;
 		this.sex = sex;
