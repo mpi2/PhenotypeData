@@ -226,7 +226,7 @@ ul.tabLabel li {
 }
 
 ul.tabLabel li a {
-	padding: 0 30px 2px 30px;
+	padding: 2px 30px 2px 30px;
 	color: white;
 	text-decoration: none;
 	font-weight: bold;

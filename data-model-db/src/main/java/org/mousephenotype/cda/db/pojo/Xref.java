@@ -79,4 +79,12 @@ public class Xref extends DatasourceEntityId {
 		this.xrefDatabaseId = xrefDatabaseId;
 	}
 
+	@Override
+	public String toString() {
+		return "Xref{" +
+				"id=" + id +
+				", xrefAccession='" + xrefAccession + '\'' +
+				", xrefDatabaseId=" + xrefDatabaseId +
+				'}';
+	}
 }

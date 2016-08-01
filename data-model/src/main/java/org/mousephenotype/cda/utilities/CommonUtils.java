@@ -16,8 +16,12 @@
 
 package org.mousephenotype.cda.utilities;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -33,6 +37,7 @@ import java.util.regex.Pattern;
 public class CommonUtils {
 
     private final static double EPSILON = 0.000000001;
+    public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
 
     /**
@@ -132,6 +137,32 @@ public class CommonUtils {
     	return codeRank;
     }
 
+    public String getMysqlFullpath() {
+        try {
+            Process p = Runtime.getRuntime().exec("which mysql");
+            p.waitFor();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line = reader.readLine();
+            reader.close();
+
+            return line;
+        }
+
+        catch(Exception e1) {}
+
+        return "";
+    }
+
+    /**
+     * Returns a String containing the start, stop, and elapsed time, wrapped in parentheses.
+     * @param start start time, in milliseconds
+     * @param stop stop time, in milliseconds
+     * @return a String containing the start, stop, and elapsed time, wrapped in parentheses.
+     */
+    public String getRunstats(long start, long stop) {
+        return "(" + formattedDate(start) + ", " + formattedDate(stop) + ", " + msToHms(stop - start) + ")";
+    }
+
     /**
      * Performs an approximate match between two doubles. Returns true if
      * the two values are within a difference of 0.000000001; false otherwise
@@ -175,6 +206,47 @@ public class CommonUtils {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
 
         return result;
+    }
+
+    /**
+     * Given two dates (in any order), returns a <code>String</code> in the
+     * format "xxx days, yyy hours, zzz minutes, nnn seconds" that equals
+     * the absolute value of the time difference between the two days.
+     * @param date1 the first operand
+     * @param date2 the second operand
+     * @return a <code>String</code> in the format "dd:hh:mm:ss" that equals the
+     * absolute value of the time difference between the two date.
+     */
+    public String formatDateDifference(Date date1, Date date2) {
+        long lower = Math.min(date1.getTime(), date2.getTime());
+        long upper = Math.max(date1.getTime(), date2.getTime());
+        long diff = upper - lower;
+
+        long days = diff / (24 * 60 * 60 * 1000);
+        long hours = diff / (60 * 60 * 1000) % 24;
+        long minutes = diff / (60 * 1000) % 60;
+        long seconds = diff / 1000 % 60;
+
+        return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
+    }
+
+    /**
+     * Returns a string containing the date represented by <code>date</code> in the format <i>yyyy/MM/dd HH:mm:ss</i>
+     * @param date The date to be formatted
+     * @return a string containing the formatted date
+     */
+    public String formattedDate(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        return dateFormat.format(date);
+    }
+
+    /**
+     * Returns a string containing the date represented by <code>milliseconds</code> in the format <i>yyyy/MM/dd HH:mm:ss</i>
+     * @param milliseconds The date to be formatted, in milliseconds
+     * @return a string containing the formatted date
+     */
+    public String formattedDate(long milliseconds) {
+        return formattedDate(new Date(milliseconds));
     }
 
     /**

@@ -48,6 +48,7 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	ObservationType observationType;
 	
 	List<String> procedureStableIds;
+	List<String> procedureNames;
 	List<String> categories = new ArrayList<>();
 	List<String> mpIds = new ArrayList<>();
 	
@@ -67,6 +68,20 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	private String emapName;
 	
 	
+	public List<String> getProcedureNames() {
+		return procedureNames;
+	}
+	public void setProcedureNames(List<String> procedureNames) {
+		this.procedureNames = procedureNames;
+	}
+	public void addProcedureNames(String procedureName) {
+		
+		if (this.procedureNames == null){
+			this.procedureNames = new ArrayList<>();
+		}
+		
+		this.procedureNames.add(procedureName);
+	}
 	public boolean isAnnotate() {
 		return annotate;
 	}

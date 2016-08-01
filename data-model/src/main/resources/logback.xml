@@ -9,6 +9,12 @@
     <logger name="org.hibernate"                                                level="${log.level:-WARN}" />
     <logger name="org.springframework"                                          level="WARN" />
 
+    <!-- ONTOLOGY PARSING - loads-> org.mousephenotype.cda.loads.cdaloader -->
+    <logger name="org.semanticweb.owlapi.rdf.rdfxml.parser"                     level="WARN" />
+    <logger name="org.semanticweb.owlapi.util.SAXParsers"                       level="WARN" />
+    <logger name="org.semanticweb.owlapi.io.AbstractOWLParser"                  level="WARN" />
+
+
 
     <!-- PHENOTYPE ARCHIVE -->
     <logger name="org.mousephenotype"                                           level="INFO"/>
@@ -17,7 +23,11 @@
    	<logger name="org.mousephenotype.cda.seleniumtests"                         level="INFO" />
     <logger name="org.mousephenotype.cda.utilities.HttpProxy"                   level="WARN" />
     <logger name="org.mousephenotype.cda.loads.sanitycheck"                     level="INFO" />
+    <logger name="org.mousephenotype.cda.loads.cdaloader"                       level="INFO" />
     <logger name="org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer" level="ERROR" />
+
+
+    <logger name="org.semanticweb.owlapi.util.SAXParsers"                       level="ERROR" />
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 

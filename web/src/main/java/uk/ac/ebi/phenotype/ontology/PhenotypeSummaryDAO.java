@@ -19,6 +19,8 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -86,9 +88,9 @@ public class PhenotypeSummaryDAO  {
 	}
 
 	
-	public HashSet<String> getDataSourcesForPhenotypesSet(SolrDocumentList resp) {
+	public Set<String> getDataSourcesForPhenotypesSet(SolrDocumentList resp) {
 		
-		HashSet <String> data = new HashSet <String> ();
+		Set <String> data = new HashSet <String> ();
 		if (resp.size() > 0) {
 			for (int i = 0; i < resp.size(); i++) {
 				SolrDocument doc = resp.get(i);
@@ -107,9 +109,7 @@ public class PhenotypeSummaryDAO  {
 			for (SolrDocument doc: res){
 				if (isSignificant(doc)){
 					n += doc.containsKey(StatisticalResultDTO.PHENOTYPE_SEX) ? doc.getFieldValues(StatisticalResultDTO.PHENOTYPE_SEX).size() : 2;
-				} else if (doc.containsKey(StatisticalResultDTO.P_VALUE)){
-					break;
-				}
+				} 
 			}
 		}
 		return n;
@@ -119,36 +119,30 @@ public class PhenotypeSummaryDAO  {
 	
 	private boolean isSignificant (SolrDocument res){
 		
-		boolean result = false;
-		if ( res.containsKey(StatisticalResultDTO.P_VALUE)){
-			if (new Double(res.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
-				result = true;
-			}
-			// For VIA data we only get p-values in for the significant calls. The p-valuse can be quite high but are significant nontheless.
-			if (res.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString().contains("IMPC_VIA")){
-				result = true;
-			}
+		boolean significant = false;
+		if ( res.containsKey(StatisticalResultDTO.SIGNIFICANT)){
+			significant = res.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true");
 		}
-		return result;
+		return significant;
 		
 	}
 
 
-	public HashMap<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception {
+	public Map<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception {
 		
-		HashMap< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();		
+		Map< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();		
 		
 		for (ZygosityType zyg : ZygosityType.values()){
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
-			HashMap<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
-			HashMap<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
+			Map<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
+			Map<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
 						
 			for (String id: summary.keySet()){
 				
 				SolrDocumentList resp = summary.get(id);
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
-				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
+				Set<String> ds = getDataSourcesForPhenotypesSet(resp);
 				String mpName = mps.get(id);
 				long n = getNumSignificantCalls(resp);
 				boolean significant = (n > 0) ? true : false;

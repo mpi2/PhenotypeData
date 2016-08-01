@@ -21,7 +21,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="href" required="false" %>
 <%@ attribute name="category" required="false" %>
 <%@ attribute name="parameterName" required="false" %>
-        <li style="height:275px; max-height:275px; min-height:275px; word-wrap: break-word;width:23%">
+        <li style="height:275px; max-height:275px; min-height:275px; word-wrap: break-word;width:12%">
          <!-- href specified as arg to tag as in the case of gene page to image picker links -->
          <!-- pdf annotation not image -->
          <!-- defaults to image -->
@@ -38,9 +38,9 @@ allele = allele.replaceAll("##", "</sup>");
          	</c:if>
          	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		 <a href="${href}">
-         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" class="thumbnailStyle"></a>
+         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
          	</c:if>
-         	<div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
+         	<div class="caption" style="height:150px; word-wrap: break-word;">
          </c:when>
 
          <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
@@ -56,8 +56,8 @@ allele = allele.replaceAll("##", "</sup>");
          <c:otherwise>
          <!-- used for lacz expression pages -->
          		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
-         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" class="thumbnailStyle"></a>
-         		<div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
+         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
+         		<div class="caption" style="height:150px; overflow:auto;">
          </c:otherwise>
       </c:choose>
                                                 <c:if test="${empty count}"> 

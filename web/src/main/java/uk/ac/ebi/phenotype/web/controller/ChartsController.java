@@ -15,24 +15,31 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
-import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
-import org.mousephenotype.cda.db.dao.OrganisationDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.impress.Utilities;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.Pipeline;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.web.ChartType;
@@ -45,32 +52,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import uk.ac.ebi.phenotype.chart.*;
+
+import uk.ac.ebi.phenotype.chart.AbrChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
+import uk.ac.ebi.phenotype.chart.ChartColors;
+import uk.ac.ebi.phenotype.chart.ChartData;
+import uk.ac.ebi.phenotype.chart.GraphUtils;
+import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
+import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
+import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
+import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.*;
 
 @Controller
 public class ChartsController {
 
     private final Logger log = LoggerFactory.getLogger(ChartsController.class);
-
-    @Autowired
-    private BiologicalModelDAO bmDAO;
-
-    @Autowired
-    private PhenotypePipelineDAO pipelineDAO;
-
-    @Autowired
-    private GenomicFeatureDAO genesDao;
-
-    @Autowired
-    private OrganisationDAO organisationDAO;
 
     @Autowired
     private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
@@ -94,10 +96,11 @@ public class ChartsController {
     private ExperimentService experimentService;
 
     @Autowired
-    private ImpressService is;
-
+    private GeneService geneService;
+    
     @Autowired
-    Utilities impressUtilities;
+    private ImpressService is;
+    
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -208,42 +211,21 @@ public class ChartsController {
 		// TODO need to check we don't have more than one accession and one
         // parameter throw and exception if we do
         // get the parameter object from the stable id
-        Parameter parameter = pipelineDAO.getParameterByStableId(parameterStableId);
+        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);
         if (parameter == null) {
             throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
         }
 
         String metadata = null;
-        String[] parameterUnits = parameter.checkParameterUnits();
-        String xUnits = "";
-        String yUnits = "";
-
-        if (parameterUnits.length > 0) {
-            xUnits = parameterUnits[0];
-        }
-        if (parameterUnits.length > 1) {
-            yUnits = parameterUnits[1];
-        }
-
-        ObservationType observationTypeForParam = impressUtilities.checkType(parameter);
-        log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " chartType=" + chartType + " dataType=" + observationTypeForParam);
-
+        String xUnits = parameter.getUnit();
+        ObservationType observationTypeForParam = parameter.getObservationType();
         List<String> genderList = getParamsAsList(gender);
 
 		// Use the first phenotyping center passed in (ignore the others?)
         // should only now be one center at this stage for one graph/experiment
         // TODO put length check and exception here
         // List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
-        Integer phenotypingCenterId = null;
-        if (phenotypingCenter != null) {
-            try {
-                phenotypingCenterId = organisationDAO.getOrganisationByName(phenotypingCenter).getId();
-            } catch (NullPointerException e) {
-                log.error("Cannot find center ID for organisation with name " + phenotypingCenter);
-                e.printStackTrace();
-            }
-        }
-
+       
         String metaDataGroupString = null;
         if (metadataGroup != null) {
             metaDataGroupString = metadataGroup;
@@ -252,11 +234,11 @@ public class ChartsController {
         List<String> zyList = getParamsAsList(zygosity);
 
         Integer pipelineId = null;
-        Pipeline pipeline = null;
+        ImpressBaseDTO pipeline = null;
 
         if (pipelineStableId != null &&  ! pipelineStableId.equals("")) {
             log.debug("pipe stable id=" + pipelineStableId);
-            pipeline = pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
+            pipeline = is.getPipeline(pipelineStableId);
             pipelineId = pipeline.getId();
             model.addAttribute("pipeline", pipeline);
             model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
@@ -265,15 +247,7 @@ public class ChartsController {
         model.addAttribute("phenotypingCenter", phenotypingCenter);
 
         ExperimentDTO experiment = null;
-        if (parameterStableId.startsWith("IMPC_VIA_")) {
-			// Its a viability outcome param which means its a line level query
-            // so we don't use the normal experiment query in experiment service
-            ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
-            ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
-            model.addAttribute("viabilityDTO", viabilityDTO);
-            BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(viabilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
-            setTitlesForGraph(model, expBiologicalModel);
-        }
+        
 
         // 29-Apr-2015 (mrelac) The team has determined that we don't display fertility graphs because Impress does not require all the supporting
         // data to be uploaded, and some centers don't upload it, so we don't know if the data is valid or not.
@@ -293,12 +267,21 @@ public class ChartsController {
 //            return "chart";
 //        }
 
-        experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
-
+        experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+        
+        if (parameterStableId.startsWith("IMPC_VIA_")) {
+			// Its a viability outcome param which means its a line level query
+            // so we don't use the normal experiment query in experiment service
+            ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+            ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
+            model.addAttribute("viabilityDTO", viabilityDTO);
+            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
+        }
+        
         if (experiment != null) {
             if (pipeline == null) {
                 // if we don't already have the pipeline from the url params get it via the experiment returned
-                pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
+                pipeline = is.getPipeline(experiment.getPipelineStableId());
             }
 
             if (experiment.getMetadataGroup() != null){
@@ -306,8 +289,7 @@ public class ChartsController {
             }
 
             String xAxisTitle = xUnits;
-            BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
-            setTitlesForGraph(model, expBiologicalModel);
+            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
 
             try {
 				// if (chartType == null){
@@ -329,7 +311,7 @@ public class ChartsController {
 
                         case UNIDIMENSIONAL_SCATTER_PLOT:
 
-                            scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber, expBiologicalModel);
+                            scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
                             model.addAttribute("scatterChartAndData", scatterChartAndData);
 
                             if (observationTypeForParam.equals(ObservationType.unidimensional)) {
@@ -343,28 +325,28 @@ public class ChartsController {
                         case UNIDIMENSIONAL_ABR_PLOT:
 
                             // get experiments for other parameters too
-                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber));
+                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber));
                             break;
 
 	                    case UNIDIMENSIONAL_BOX_PLOT:
 
-		                    unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle, expBiologicalModel);
+		                    unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle);
 		                    model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 
-		                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber, expBiologicalModel);
+		                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
 		                    model.addAttribute("scatterChartAndData", scatterChartAndData);
 
 		                    break;
 
 	                    case CATEGORICAL_STACKED_COLUMN:
 
-                            categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber, expBiologicalModel);
+                            categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
                             model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
                             break;
 
                         case TIME_SERIES_LINE:
 
-                            timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
+                            timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
                             model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
                             break;
 
@@ -393,23 +375,16 @@ public class ChartsController {
 
         return "chart";
     }
+    
 
-    private void setTitlesForGraph(Model model, BiologicalModel expBiologicalModel) {
+    private void setTitlesForGraph(Model model, String geneticBackground, String alleleSymbol) {
 
-        String allelicCompositionString = "unknown";
-        String symbol = "unknown";
-        String geneticBackgroundString = "unknown";
-
-        if (expBiologicalModel != null) {
-            allelicCompositionString = expBiologicalModel.getAllelicComposition();
-            symbol = expBiologicalModel.getAlleles().get(0).getSymbol();
-            geneticBackgroundString = expBiologicalModel.getGeneticBackground();
-            model.addAttribute("allelicCompositionString", allelicCompositionString);
-            model.addAttribute("symbol", symbol);
-            model.addAttribute("geneticBackgroundString", geneticBackgroundString);
-        }
+        model.addAttribute("symbol", (alleleSymbol != null) ? alleleSymbol : "unknown");
+        model.addAttribute("geneticBackgroundString",  (geneticBackground != null) ? geneticBackground : "unknown");
+    
     }
 
+    
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
     throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
@@ -442,7 +417,7 @@ public class ChartsController {
 
         for (String geneId : geneIds) {
 
-            GenomicFeature gene = genesDao.getGenomicFeatureByAccession(geneId);
+            GeneDTO gene = geneService.getGeneById(geneId);
 
             if (gene == null) {
                 throw new GenomicFeatureNotFoundException("Gene " + geneId + " can't be found.", geneId);
@@ -456,7 +431,7 @@ public class ChartsController {
 
             for (String parameterId : paramIds) {
 
-                Parameter parameter = pipelineDAO.getParameterByStableId(parameterId);
+                ParameterDTO parameter = is.getParameterByStableId(parameterId);
                 pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
 
 				// instead of an experiment list here we need just the outline

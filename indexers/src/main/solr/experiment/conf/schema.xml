@@ -46,6 +46,7 @@
         <field name="strain_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="strain_name" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="genetic_background" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="allelic_composition" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="colony_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="litter_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="date_of_birth" type="tdate" indexed="true" stored="true" multiValued="false"/>

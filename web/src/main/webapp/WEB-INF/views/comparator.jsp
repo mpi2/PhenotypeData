@@ -55,7 +55,7 @@
 <div class="block">
     <div class="content">
         	<div class="node"> 
-	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_thumbnail"/>
+	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
 	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
 	        <c:set var="thumbnailSize" value="96"/>
@@ -156,7 +156,7 @@
 										<img  id="${img.omero_id}" src="../${pdfThumbnailUrl}" data-id="${img.omero_id}" style="width:${thumbnailSize}px" class="thumb <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 									</c:when>
 									<c:otherwise>
-	            						<img  id="${img.omero_id}" class="thumb" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/96/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+	            						<img  id="${img.omero_id}" class="thumb" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            			</div> <!-- end of male female class -->
@@ -245,7 +245,7 @@
 										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="thumb2 <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 									</c:when>
 									<c:otherwise>
-	            						<img class="thumb2" id="${img.omero_id}" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/96/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	            						<img class="thumb2" id="${img.omero_id}" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 	 
 	            					</c:otherwise>
 	            				</c:choose>

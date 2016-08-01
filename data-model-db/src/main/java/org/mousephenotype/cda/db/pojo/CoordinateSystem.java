@@ -49,10 +49,6 @@ public class CoordinateSystem {
 	@JoinColumn(name = "db_id")
 	private Datasource datasource;
 
-	protected CoordinateSystem() {
-		super();
-	}
-
 	/**
 	 * @return the id
 	 */

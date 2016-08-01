@@ -47,7 +47,7 @@
         
        <!-- <th class="headerSort">Source</th> -->
         <th>P Value</th>
-        <th class="headerSort">Graph</th>
+        <th class="headerSort">Data</th>
     </tr>
     </thead>
     <tbody>
@@ -56,23 +56,23 @@
         <tr>
         	<td>
         		<div class="row_abnormalities">
-        		<c:set var="marginLeftCount" value="0"/>
-        		<c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">
-        		<c:choose>
-        		<c:when test="${topLevelMpGroup eq 'NA' }">
-        		<%-- <div title="${topLevelMpGroup}" >${topLevelMpGroup}</div> don't display a top level icon if there is no top level group for the top level mp term--%>
-				
-        		</c:when>
-        		<c:otherwise>
-        		<c:set var="marginLeft" value="${marginLeftCount * 40 }"/>
-        		<div class="sprite_orange sprite_row_${topLevelMpGroup.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelMpGroup}" style="margin: 0px 0px 0px ${marginLeft}px"></div>
-				<c:set var="marginLeftCount" value="${marginLeftCount+1 }"/>
-        		</c:otherwise>
-        		</c:choose>
+        			<c:set var="marginLeftCount" value="0"/>
+        			<c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">
+        				<c:choose>
+        					<c:when test="${topLevelMpGroup eq 'NA' }">
+        					<%-- <div title="${topLevelMpGroup}" >${topLevelMpGroup}</div> don't display a top level icon if there is no top level group for the top level mp term--%>
+        					</c:when>
+        				<c:otherwise>
+        					<c:set var="marginLeft" value="${marginLeftCount * 40 }"/>
+        					<div class="sprite_orange sprite_row_${topLevelMpGroup.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelMpGroup}" style="margin: 0px 0px 0px ${marginLeft}px"></div>
+							<c:set var="marginLeftCount" value="${marginLeftCount+1 }"/>
+        				</c:otherwise>
+        				</c:choose>
 					
         			</c:forEach>
         		</div>
         	</td>
+        	
             <td>
                 <c:if test="${fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
                     ${phenotype.phenotypeTerm.name}
