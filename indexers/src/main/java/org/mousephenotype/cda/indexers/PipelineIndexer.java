@@ -324,13 +324,17 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				"LEFT OUTER JOIN phenotype_parameter_increment ppi ON ppli.increment_id = ppi.id ORDER BY pp.stable_id; ";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+
 			ResultSet resultSet = p.executeQuery();
-			ParameterDTO param = paramIdToParameter.get(resultSet.getString("stable_id"));
-			if (resultSet.getString("increment_unit") != null){
-				param.setUnitX(resultSet.getString("increment_unit"));
-				param.setUnitY(resultSet.getString("unit"));
-			} else {
-				param.setUnitX(resultSet.getString("unit"));
+
+			while (resultSet.next()) {
+				ParameterDTO param = paramIdToParameter.get(resultSet.getString("stable_id"));
+				if (resultSet.getString("increment_unit") != null) {
+					param.setUnitX(resultSet.getString("increment_unit"));
+					param.setUnitY(resultSet.getString("unit"));
+				} else {
+					param.setUnitX(resultSet.getString("unit"));
+				}
 			}
 
 		} catch (SQLException e) {
