@@ -76,7 +76,12 @@
                           
                           <td style="text-align: center;" rowspan="${rowSpan}">
                           <c:if test="${row.targetingVectorAvailable}">
-                          	<a class="btn" href=""><i class="fa fa-shopping-cart"></i></a>
+                          	<a class="btn" href="${baseUrl}/orderVector?acc=${acc}&allele=${row.alleleName}"><i class="fa fa-shopping-cart"></i></a>
+                          	<a class="fancybox" target="_blank" style="text-align:right" href="${baseUrl}/orderVector?acc=${acc}&allele=${row.alleleName}" fullRes="${target.link}" original="${target.link}">
+	                                   
+	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
+	                                   
+	                                   </a>
                           </c:if>
                           </td>
                           <td style="text-align: center;" rowspan="${rowSpan}">

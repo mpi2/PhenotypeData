@@ -142,22 +142,48 @@ public class OrderService {
 		QueryResponse response = allele2Core.query(query);
 		System.out.println("number found of allele2 docs="+response.getResults().getNumFound());
 		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
-		System.out.println("number of alleles is "+allele2DTOs.size());
 		
         return allele2DTOs;
 
         
 	}
 	
+	public Allele2DTO getAlleForGeneAndAllele(String acc, String allele) throws SolrServerException{
+		String q="*:*";//default if no gene specified
+		if(acc!=null){
+			q = "mgi_accession_id:\"" + acc+ "\"";//&start=0&rows=100&hl=true&wt=json";
+		}
+		SolrQuery query=new SolrQuery();
+		query.setQuery(q);
+		query.addFilterQuery("type:Allele");
+		query.addFilterQuery("allele_name:\""+allele+"\"");
+		query.setRows(1);
+		System.out.println("query for alleles="+query);
+		QueryResponse response = allele2Core.query(query);
+		System.out.println("number found of allele2 docs="+response.getResults().getNumFound());
+		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
+		System.out.println("number of alleles should be 1 but is "+allele2DTOs.size());
+		return allele2DTOs.get(0);
+	}
+	
 	protected Map<String,List<ProductDTO>> getProductsForAllele(String alleleName) throws SolrServerException{
-		return this.getProducts(null, alleleName);
+		return this.getProducts(null, alleleName, null);
 	}
 	
 	protected Map<String,List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException{
-		return this.getProducts(geneAcc, null);
+		return this.getProducts(geneAcc, null, null);
 	}
 	
-	protected Map<String,List<ProductDTO>> getProducts(String geneAcc, String alleleName) throws SolrServerException{
+	public List<ProductDTO> getProduct(String geneAcc, String alleleName, String productType) throws SolrServerException{
+		List<ProductDTO> productList =null;
+		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType);
+		for(String key: productsMap.keySet()){
+			productList = productsMap.get(key);
+		}
+		return productList;
+	}
+	
+	protected Map<String,List<ProductDTO>> getProducts(String geneAcc, String alleleName, String productType) throws SolrServerException{
 		Map<String,List<ProductDTO>> alleleNameToProductsMap=new HashMap<>();
 		String q ="*:*";
 		if(geneAcc!=null){
@@ -166,9 +192,13 @@ public class OrderService {
 		if(alleleName!=null){
 			q = "allele_name:\"" + alleleName+ "\"";
 		}
+	
 		SolrQuery query=new SolrQuery();
 		query.setQuery(q);
 		query.setRows(Integer.MAX_VALUE);
+		if(productType!=null){
+			query.addFilterQuery("type:\""+productType);
+		}
 		System.out.println("query for products="+query);
 		QueryResponse response = productCore.query(query);
 		System.out.println("number found of products docs="+response.getResults().getNumFound());
