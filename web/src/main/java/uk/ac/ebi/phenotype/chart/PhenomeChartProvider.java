@@ -15,15 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +23,10 @@ import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 public class PhenomeChartProvider {
 
@@ -44,7 +39,6 @@ public class PhenomeChartProvider {
 		String chartString = "	$(function () { \n"
 		+ "  pvaluesOverviewChart = new Highcharts.Chart({ \n"
 		+ "     chart: {\n"
-//		+ "renderTo: 'chart" + alleleAccession + "',\n"
 		+ "renderTo: 'chartDiv',\n"
 		+ "         type: 'scatter',\n"
 		+ "         zoomType: 'xy',\n"
@@ -56,38 +50,22 @@ public class PhenomeChartProvider {
 		+ "     subtitle: {\n"
 		+ "        text: 'Parameter by parameter' \n"
 		+ "    },\n"
-		+ "     yAxis: {\n"
-		+ "     categories: " + categories.toString() + ",\n"
-		+ "        title: {\n"
-		+ "           enabled: true,\n"
-		+ "           text: 'Parameters' \n"
-		+ "        }, \n"
-		+ "       labels: { \n"
-	//	+ "           rotation: -90, \n"
-	//	+ "           align: 'right', \n"
-		+ "           style: { \n"
-		+ "              fontSize: '11px', \n"
-		+ "              fontFamily: 'Verdana, sans-serif' \n"
-		+ "         } \n"
-		+ "     }, \n"
-		+ "      showLastLabel: true \n"
-		+ "  }, \n"
 		+ "    xAxis: { floor: 0, minRange: 6, ceiling: 22, \n"
-		// +"         min:"+ -Math.log(minimalPValue) + ","
 		+ "         title: { \n"
 		+ "             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)" + "' \n"
 		+ "           }, \n"
 		+ "plotLines : [{\n"
-		+ "value : " + -Math.log10(minimalPValue) + ",\n"
-		+ "color : 'green', \n"
-		+ "dashStyle : 'shortdash',\n"
-		+ "width : 2,\n"
-		+ "label : { text : 'Significance threshold " + minimalPValue + "' }\n"
-		+ "}] \n"
+		+ "		value : " + -Math.log10(minimalPValue) + ",\n"
+		+ "		color : 'green', \n"
+		+ "		dashStyle : 'shortdash',\n"
+		+ "		width : 2,\n"
+		+ "		label : { text : 'Significance threshold " + minimalPValue + "' }\n"
+		+ "		}] \n"
 		+ "       }, \n"
 		+ "      credits: { \n"
 		+ "         enabled: false \n"
 		+ "      }, \n"
+		+ "     legend: { layout: 'vertical', align: 'left',	verticalAlign: 'middle', borderWidth: 0	},"
 		+ "     tooltip: {\n"
 		+ "        headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',\n"
 		+ "        pointFormat: '" + pointFormat + "',\n"
@@ -141,12 +119,6 @@ public class PhenomeChartProvider {
 		+ "           } \n" // events
 		+ "       } \n"
 		+ "   }, \n"
-//		+ "   navigator : {"
-//		+ "    adaptToUpdatedData: false,"
-//        + "    series : {"
-//        + "       data : "  + series.toString() + "\n"
-//        + "    }"
-//        + " },"
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ ChartUtils.getSelectAllButtonJs("pvaluesOverviewChart", "checkAll", "uncheckAll")
@@ -191,10 +163,6 @@ public class PhenomeChartProvider {
 		+ "    },\n"
 		+ "     xAxis: {\n"
 		+ "     categories: " + categories.toString() + ",\n"
-		+ "        title: {\n"
-		+ "           enabled: true,\n"
-		+ "           text: 'Top Level Mammalian Phenotype Ontology Terms' \n"
-		+ "        }, \n"
 		+ "       labels: { \n"
 		+ "           rotation: -90, \n"
 		+ "           align: 'right', \n"
@@ -272,66 +240,11 @@ public class PhenomeChartProvider {
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ "	}); \n";
+
+
 		return chartString;
 	}
 
-
-	public String createPhenomeChartByGene(String phenotypingCenter, double minimalPValue, String pointFormat, JSONArray series, JSONArray categories)
-	throws JSONException {
-
-		String chartString = "	$(function () {"+
-"		$('#container').highcharts({"+
-"       title: {"+
-"            text:  'Significant MP calls'"+
-"      },"+
-"       subtitle: {"+
- "           text: 'by Top Level MP Categories & Genes',"+
- "           x: -20"+
- "       },"+
- "       xAxis: {"+
- "           categories:  " + categories.toString() + ","+
- "           title: {"+
- "               enabled: true,"+
- "               text: 'Top Level Mammalian Phenotype Ontology Terms'"+
- "           },"+
- "           labels: {"+
- "               rotation: -90,"+
- "               align: 'right',"+
- "               style: {"+
- "                   fontSize: '10px',"+
- "                   fontFamily: 'Verdana, sans-serif'"+
- "               }"+
- "           },"+
- "           showLastLabel: true"+
- "       },"+
- "       yAxis: {"+
- "            min: 0,"+
- "           max: 21.0,"+
- "           title: {"+
- "               text: '-Log<sub>10</sub>(p-value)'"+
- "           },"+
- "       },"+
- "      credits: {"+
- "           enabled: false"+
- "       },"+
- "       tooltip: {"+
- "           headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',"+
- "           pointFormat: '<tr><td style=\"color:{series.color};padding:0\">Top Level MP: {series.name}</td></tr><tr><td style=\"padding:0\">MP Term: {point.mp_term}</td></tr><tr><td style=\"padding:0\">Gene: {point.geneSymbol}</td></tr><tr><td style=\"padding:0\">Zygosity: {point.zygosity}</td></tr><tr><td style=\"padding:0\">P-value: {point.pValue}</td></tr><tr><td style=\"padding:0\">Effect size: {point.effectSize}</td></tr>',"+
- "           footerFormat: '</table>',"+
- "           shared: 'true',"+
- "           useHTML: 'true',"+
- "       },"+
- "       legend: {"+
- "           layout: 'vertical',"+
- "           align: 'right',"+
- "           verticalAlign: 'middle',"+
- "           borderWidth: 0"+
- "       },"+
- "       series: " + series.toString() +
- "   });"+
- "});";
-		return chartString;
-	}
 
 	public String generatePhenomeChartByPhenotype(
 	List<PhenotypeCallSummaryDTO> calls,
@@ -574,7 +487,6 @@ public class PhenomeChartProvider {
 
 	/**
 	 *
-	 * @param geneAccession
 	 * @param statisticalResults
 	 * @param minimalPvalue
 	 * @param parametersByProcedure
@@ -582,7 +494,7 @@ public class PhenomeChartProvider {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String generatePvaluesOverviewChart(	String geneAccession, Map<String, List<ExperimentsDataTableRow>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure)
+	public String generatePvaluesOverviewChart(	Map<String, List<ExperimentsDataTableRow>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure)
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;

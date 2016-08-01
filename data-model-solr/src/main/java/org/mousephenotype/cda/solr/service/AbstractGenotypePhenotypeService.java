@@ -603,10 +603,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * @return HashMap topLevelTerms <mp_id, mp_name>
      * @throws SolrServerException
      */
-    public HashMap<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg)
+    public Map<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg)
         throws SolrServerException {
 
-        HashMap<String, String> tl = new HashMap<String, String>();
+        Map<String, String> tl = new HashMap<String, String>();
 
         SolrQuery query = new SolrQuery();
         if (gene.equalsIgnoreCase("*")) {
