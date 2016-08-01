@@ -72,7 +72,7 @@ public class AbrChartAndTableProvider {
 
 		Set<ZygosityType> zygosities = null;
     	String procedureUrl = null;
-    	String unit = impressService.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnitY();
+    	String unit = impressService.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnitX();
 
     	for (String parameterStableId : Constants.ABR_PARAMETERS){
 
