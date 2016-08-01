@@ -15,14 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -39,6 +31,10 @@ import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 @Service
 public class AbrChartAndTableProvider {
@@ -76,7 +72,7 @@ public class AbrChartAndTableProvider {
 
 		Set<ZygosityType> zygosities = null;
     	String procedureUrl = null;
-    	String unit = impressService.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnit();
+    	String unit = impressService.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnitX();
 
     	for (String parameterStableId : Constants.ABR_PARAMETERS){
 

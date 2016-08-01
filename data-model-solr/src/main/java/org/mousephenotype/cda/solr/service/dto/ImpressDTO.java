@@ -43,7 +43,8 @@ public class ImpressDTO {
 
 	public static final String REQUIRED = "required";
 	public static final String DESCRIPTION = "description";
-	public static final String UNIT = "unit";
+	public static final String UNITX = "unit_x";
+	public static final String UNITY = "unit_y";
 	public static final String INCREMENT = "increment";
 	public static final String METADATA = "metadata";
 	public static final String HAS_OPTIONS = "has_options";
@@ -106,8 +107,11 @@ public class ImpressDTO {
 	@Field(CATEGORIES)
 	private List<String> catgories;
 
-	@Field(UNIT)
-	private String unit;
+	@Field(UNITX)
+	private String unitX;
+
+	@Field(UNITY)
+	private String unitY;
 
 	@Field(INCREMENT)
 	private boolean increment;
@@ -894,16 +898,21 @@ public class ImpressDTO {
 		this.maTerm = maName;
 	}
 
-
-	public String getUnit() {
-		return unit;
+	public String getUnitX() {
+		return unitX;
 	}
 
-
-	public void setUnit(String unit) {
-		this.unit = unit;
+	public void setUnitX(String unitX) {
+		this.unitX = unitX;
 	}
 
+	public String getUnitY() {
+		return unitY;
+	}
+
+	public void setUnitY(String unitY) {
+		this.unitY = unitY;
+	}
 
 	public boolean isIncrement() {
 		return increment;
@@ -1007,7 +1016,9 @@ public class ImpressDTO {
 		if (decreasedMpTerm != null ? !decreasedMpTerm.equals(that.decreasedMpTerm) : that.decreasedMpTerm != null)
 			return false;
 		if (catgories != null ? !catgories.equals(that.catgories) : that.catgories != null) return false;
-		if (unit != null ? !unit.equals(that.unit) : that.unit != null) return false;
+		if (unitY != null ? !unitY.equals(that.unitY) : that.unitY != null) return false;
+		if (unitX != null ? !unitX.equals(that.unitX) : that.unitX != null) return false;
+
 		if (description != null ? !description.equals(that.description) : that.description != null) return false;
 		if (observationType != null ? !observationType.equals(that.observationType) : that.observationType != null)
 			return false;
@@ -1068,7 +1079,8 @@ public class ImpressDTO {
 		result = 31 * result + (abnormalMpTerm != null ? abnormalMpTerm.hashCode() : 0);
 		result = 31 * result + (decreasedMpTerm != null ? decreasedMpTerm.hashCode() : 0);
 		result = 31 * result + (catgories != null ? catgories.hashCode() : 0);
-		result = 31 * result + (unit != null ? unit.hashCode() : 0);
+		result = 31 * result + (unitY != null ? unitY.hashCode() : 0);
+		result = 31 * result + (unitX != null ? unitX.hashCode() : 0);
 		result = 31 * result + (increment ? 1 : 0);
 		result = 31 * result + (metadata ? 1 : 0);
 		result = 31 * result + (hasOptions ? 1 : 0);
@@ -1119,7 +1131,8 @@ public class ImpressDTO {
 	public String toString() {
 		return "ImpressDTO{" +
 				"catgories=" + catgories +
-				", unit='" + unit + '\'' +
+				", unitX='" + unitX + '\'' +
+				", unitY='" + unitY + '\'' +
 				", increment=" + increment +
 				", metadata=" + metadata +
 				", hasOptions=" + hasOptions +
