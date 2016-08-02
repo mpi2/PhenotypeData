@@ -66,6 +66,8 @@ public class PhenomeStatsController {
 		HttpServletRequest request,
 		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
+
+
 		PhenotypeFacetResult results = genotypePhenotypeService.getPhenotypeFacetResultByPhenotypingCenterAndPipeline(phenotypingCenter, pipelineStableId);
 
 		ColorCodingPalette colorCoding = new ColorCodingPalette();

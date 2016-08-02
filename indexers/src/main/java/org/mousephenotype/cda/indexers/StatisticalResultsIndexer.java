@@ -173,7 +173,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				getUnidimensionalResults(),
 				getCategoricalResults(),
 				getEmbryoViabilityResults(),
-				getEmbryoResults()
+				getEmbryoResults(),
+				getGrossPathologyResults()
 			);
 
 			for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
@@ -210,6 +211,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	public CategoricalResults getCategoricalResults() {return new CategoricalResults(); }
 	public EmbryoViabilityResults getEmbryoViabilityResults() {return new EmbryoViabilityResults(); }
 	public EmbryoResults getEmbryoResults() {return new EmbryoResults(); }
+	public GrossPathologyResults getGrossPathologyResults() {return new GrossPathologyResults(); }
 
 
 	/**
@@ -1544,5 +1546,60 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			logger.info(" Added {} viability parameter documents", docs.size());
 			return docs;
 		}
+
+
 	}
+
+	class GrossPathologyResults implements Callable<List<StatisticalResultDTO>> {
+
+		String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', ls.sex, '_histopath') as doc_id, " +
+			"'adult-gross-path' AS data_type, db.id AS db_id, " +
+			"ls.zygosity as experimental_zygosity, ls.id, bs.sample_group, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, " +
+			"parameter.id as parameter_id, ls.colony_id, ls.sex as sex, " +
+			"parameter.stable_id as dependent_variable, " +
+			"'Success' as status, bm.id AS biological_model_id, " +
+			"null as p_value, null AS effect_size, " +
+			"oe.term as mp_acc , null as male_mp_acc, null as female_mp_acc, exp.metadata_group, " +
+			"db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
+			"proj.name as project_name, proj.id as project_id, " +
+			"org.name as phenotyping_center, org.id as phenotyping_center_id " +
+			"FROM observation o " +
+			"INNER JOIN ontology_entity oe on oe.ontology_observation_id=o.id " +
+			"INNER JOIN biological_model_sample bms ON bms.biological_sample_id = o.biological_sample_id " +
+			"INNER JOIN biological_model bm ON bms.biological_model_id = bm.id " +
+			"INNER JOIN biological_sample bs ON bs.id = bms.biological_sample_id " +
+			"INNER JOIN live_sample ls ON bms.biological_sample_id = ls.id " +
+			"INNER JOIN experiment_observation eo ON eo.observation_id = o.id " +
+			"INNER JOIN experiment exp ON exp.id = eo.experiment_id " +
+			"INNER JOIN external_db db ON db.id=o.db_id " +
+			"INNER JOIN project proj ON proj.id=exp.project_id " +
+			"INNER JOIN organisation org ON org.id=exp.organisation_id " +
+			"INNER JOIN phenotype_parameter parameter ON parameter.id = o.parameter_id " +
+			"WHERE o.parameter_stable_id like '%PAT%' and term_value != 'normal' and term like 'MP%'  AND bs.sample_group!='control'  " ;
+
+		@Override
+		public List<StatisticalResultDTO> call() {
+
+			List<StatisticalResultDTO> docs = new ArrayList<>();
+
+			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+				p.setFetchSize(Integer.MIN_VALUE);
+				ResultSet r = p.executeQuery();
+				while (r.next()) {
+
+					StatisticalResultDTO doc = parseLineResult(r);
+					docs.add(doc);
+					shouldHaveAdded.add(doc.getDocId());
+				}
+
+			} catch (Exception e) {
+				logger.warn("Error occurred getting gross pathology results", e);
+			}
+
+			logger.info(" Added {} gross pathology parameter documents", docs.size());
+			return docs;
+		}
+
+	}
+
 }
