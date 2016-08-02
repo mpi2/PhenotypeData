@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.dataimport.dcc.configs;
+package org.mousephenotype.cda.loads.common;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -36,7 +36,7 @@ import javax.sql.DataSource;
 /**
  * Created by mrelac on 12/04/2016.
  */
-public class DataImportConfigApp {
+public class CommonConfigApp {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Bean(name = "dcc1")

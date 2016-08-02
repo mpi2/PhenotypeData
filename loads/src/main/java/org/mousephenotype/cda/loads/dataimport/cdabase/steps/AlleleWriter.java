@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
+import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -33,7 +33,7 @@ public class AlleleWriter implements ItemWriter {
 
     @Autowired
     @Qualifier("cdabaseLoaderUtils")
-    private CdabaseLoaderUtils cdabaseLoaderUtils;
+    private CdabaseSqlUtils cdabaseSqlUtils;
 
     private int written = 0;
 
@@ -49,7 +49,7 @@ public class AlleleWriter implements ItemWriter {
     @Override
     public void write(List items) throws Exception {
 
-        written += cdabaseLoaderUtils.insertAlleles(items);
+        written += cdabaseSqlUtils.insertAlleles(items);
     }
 
     public int getWritten() {
