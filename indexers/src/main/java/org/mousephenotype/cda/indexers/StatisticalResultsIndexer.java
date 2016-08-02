@@ -1552,7 +1552,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	class GrossPathologyResults implements Callable<List<StatisticalResultDTO>> {
 
-		String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', ls.sex, '_histopath') as doc_id, " +
+		String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', exp.id, '_', ls.sex, '_histopath') as doc_id, " +
 			"'adult-gross-path' AS data_type, db.id AS db_id, " +
 			"ls.zygosity as experimental_zygosity, ls.id, bs.sample_group, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, " +
 			"parameter.id as parameter_id, ls.colony_id, ls.sex as sex, " +
