@@ -22,7 +22,7 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
+import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -44,11 +44,11 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
     private       int                 addedStrainNotSynonymCount  = 0;
     private       int                 addedEucommSynonymsCount    = 0;
     private       Map<String, Allele> allelesMap;                                           // Key = accession id. Value = Allele instance.
-    public final  Set<String> errorMessages         = new HashSet<>();
-    private       int         lineNumber            = 0;
-    private final Logger      logger                = LoggerFactory.getLogger(this.getClass());
-    private       int         strainIsAlleleCount   = 0;
-    private       int         strainNotSynonymCount = 0;
+    public final  Set<String>         errorMessages               = new HashSet<>();
+    private       int                 lineNumber                  = 0;
+    private final Logger              logger                      = LoggerFactory.getLogger(this.getClass());
+    private       int                 strainIsAlleleCount         = 0;
+    private       int                 strainNotSynonymCount       = 0;
     private       Map<String, Strain> strainsMap;                                           // Key = accession id. Value = Strain instance.
     private       Map<String, String> strainNameToAccessionIdMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);    // key = strain name (strainStock). Value = strain accession id with the same strain name
 
@@ -60,7 +60,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
 
     @Autowired
     @Qualifier("cdabaseLoaderUtils")
-    private CdabaseLoaderUtils cdabaseLoaderUtils;
+    private CdabaseSqlUtils cdabaseSqlUtils;
 
 
     public StrainProcessorImsr(Map<String, Allele> allelesMap, Map<String, Strain> strainsMap) {
@@ -136,7 +136,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
 
                 Strain strainAsSynonym = strainsMap.get(strainAsSynonymAccessionId);
 
-                if (cdabaseLoaderUtils.getSynonym(strainAsSynonymAccessionId, strain.getName()) == null) {
+                if (cdabaseSqlUtils.getSynonym(strainAsSynonymAccessionId, strain.getName()) == null) {
                     addedStrainNotSynonymCount++;
                     Synonym newSynonym = new Synonym();
                     newSynonym.setSymbol(strain.getName());
@@ -144,7 +144,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
                     newSynonym.setDbId(strainAsSynonym.getId().getDatabaseId());
                     strainAsSynonym.getSynonyms().add(newSynonym);
                     strainsMap.put(strainAsSynonym.getId().getAccession(), strainAsSynonym);
-                    cdabaseLoaderUtils.insertStrainSynonym(strainAsSynonym, newSynonym);
+                    cdabaseSqlUtils.insertStrainSynonym(newSynonym);
 
                     return null;
                 }
@@ -161,7 +161,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
                 strain.getId().setDatabaseId(DbIdType.MGI.intValue());
 
                 // Call the remaining methods to finish setting the strain instance.
-                OntologyTerm biotype = cdabaseLoaderUtils.getMappedBiotype(DbIdType.MGI.intValue(), strain.getBiotype().getName());
+                OntologyTerm biotype = cdabaseSqlUtils.getMappedBiotype(DbIdType.MGI.intValue(), strain.getBiotype().getName());
                 if (biotype == null) {
                     logger.warn("Line {} : NO biotype FOR strain {}.", lineNumber, strain.toString());
                     return null;

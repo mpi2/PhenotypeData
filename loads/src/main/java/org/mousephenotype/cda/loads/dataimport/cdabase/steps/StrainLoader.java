@@ -146,7 +146,7 @@ public class StrainLoader implements InitializingBean, Step {
 
         Step loadStrainMgiStep = stepBuilderFactory.get("strainLoaderMgiStep")
                 .listener(new StrainLoaderMgiStepListener())
-                .chunk(1000)
+                .chunk(100000)
                 .reader(mgiReader)
                 .processor(strainProcessorMgi)
                 .writer(writer)
@@ -154,7 +154,7 @@ public class StrainLoader implements InitializingBean, Step {
 
         Step loadStrainImsrStep = stepBuilderFactory.get("strainLoaderImsrStep")
                 .listener(new StrainLoaderImsrStepListener())
-                .chunk(1000)
+                .chunk(100000)
                 .reader(imsrReader)
                 .processor(strainProcessorImsr)
                 .writer(writer)

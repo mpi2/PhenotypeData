@@ -292,14 +292,14 @@ public class MarkerLoader implements InitializingBean, Step {
         // Don't add the writer here. The MarkerLoaderXrefsStepListener writes all of the data in the map when all reading and processing is done.
         Step loadGenesStep = stepBuilderFactory.get("markerLoaderGenesStep")
                 .listener(new MarkerLoaderGenesStepListener())
-                .chunk(1000)
+                .chunk(200000)
                 .reader(genesReader)
                 .processor(markerProcessorGenes)
                 .build();
 
         Step loadXrefGeneStep = stepBuilderFactory.get("markerLoaderXrefGenesStep")
                 .listener(new MarkerLoaderXrefGeneStepListener())
-                .chunk(1000)
+                .chunk(200000)
                 .reader(xrefGenesReader)
                 .processor(markerProcessorXrefGenes)
                 // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.
@@ -307,7 +307,7 @@ public class MarkerLoader implements InitializingBean, Step {
 
         Step loadXrefEnsemblStep = stepBuilderFactory.get("markerLoaderXrefEnsemblStep")
                 .listener(new MarkerLoaderXrefEnsemblStepListener())
-                .chunk(1000)
+                .chunk(200000)
                 .reader(xrefEnsemblReader)
                 .processor(markerProcessorXrefEnsembl)
                 // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.
@@ -315,7 +315,7 @@ public class MarkerLoader implements InitializingBean, Step {
 
         Step loadXrefEntrezGeneStep = stepBuilderFactory.get("markerLoaderXrefEntrezGeneStep")
                 .listener(new MarkerLoaderXrefEntrezGeneStepListener())
-                .chunk(1000)
+                .chunk(200000)
                 .reader(xrefEntrezGenesReader)
                 .processor(markerProcessorXrefEntrezGene)
                 // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.
@@ -323,7 +323,7 @@ public class MarkerLoader implements InitializingBean, Step {
 
         Step loadXrefVegaStep = stepBuilderFactory.get("markerLoaderXrefVegaStep")
                 .listener(new MarkerLoaderXrefVegaStepListener())
-                .chunk(1000)
+                .chunk(200000)
                 .reader(xrefVegaReader)
                 .processor(markerProcessorXrefVega)
                 // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.

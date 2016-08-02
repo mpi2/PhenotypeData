@@ -271,8 +271,18 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 }
 
                 doc.setStatisticalMethod(r.getString("statistical_method"));
-                doc.setP_value(r.getDouble("p_value"));
-                doc.setEffect_size(r.getDouble("effect_size"));
+
+	            // Only set the p_value and effect size if they are not null in the phenotype call summary table
+	            Double d = r.getDouble("p_value");
+	            if ( ! r.wasNull()) {
+		            doc.setP_value(r.getDouble("p_value"));
+	            }
+
+	            d = r.getDouble("effect_size");
+	            if ( ! r.wasNull()) {
+		            doc.setEffect_size(r.getDouble("effect_size"));
+	            }
+
                 doc.setMarkerAccessionId(r.getString("marker_accession_id"));
                 doc.setMarkerSymbol(r.getString("marker_symbol"));
 
@@ -322,8 +332,15 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 if ( r.getString("ontology_term_id").startsWith("MP:") ) {
                     // some hard-coded stuff
                     doc.setOntologyDbId(5);
-                    doc.setAssertionType("automatic");
-                    doc.setAssertionTypeId("ECO:0000203");
+
+	                if (doc.getP_value()!= null) {
+		                doc.setAssertionType("automatic");
+		                doc.setAssertionTypeId("ECO:0000203");
+	                } else {
+		                doc.setAssertionType("manual");
+		                doc.setAssertionTypeId("ECO:0000218");
+
+	                }
 
                     String mpId = r.getString("ontology_term_id");
                     doc.setMpTermId(mpId);

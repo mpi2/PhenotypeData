@@ -18,7 +18,6 @@ package org.mousephenotype.cda.loads.common;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.mousephenotype.cda.loads.dataimport.dcc.configs.DataImportConfigApp;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +37,10 @@ import java.util.*;
 /**
  * Created by mrelac on 19/07/16.
  *
- * This class is intended to be a command-line callable java main program that validates a pair of dcc data loaded databases.
+ * This class is intended to be a command-line callable java main program that validates a pair of databases with
+ * tables as defined in one of the queries below..
  */
-@Import(DataImportConfigApp.class)
+@Import(CommonConfigApp.class)
 public class ValidateImport implements CommandLineRunner {
 
     public static void main(String[] args) throws Exception {

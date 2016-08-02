@@ -15,16 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +29,10 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
@@ -123,11 +117,11 @@ public class TimeSeriesChartAndTableProvider {
 		String title = "Mean " + parameter.getName();
 		if (lines.size() > 1) {
 			// if lines are greater than one i.e. more than just control create charts and tables
-			String xAxisLabel = (parameter.getName().contains("Body Weight Curve ")) ? "Age - rounded to nearest week" : parameter.getUnit();
+			String xAxisLabel = (parameter.getName().contains("Body Weight Curve ")) ? "Age - rounded to nearest week" : parameter.getUnitX();
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 			chartNTableForParameter = creatDiscretePointTimeSeriesChart(
 					experimentNumber, title, lines, xAxisLabel,
-					parameter.getUnit(), decimalPlaces,
+					parameter.getUnitY(), decimalPlaces,
 					experiment.getOrganisation(), parameter);
 			chartNTableForParameter.setExperiment(experiment);
 		}
@@ -149,8 +143,6 @@ public class TimeSeriesChartAndTableProvider {
 	 * @param yUnitsLabel
 	 * @param organisation
 	 * @param parameter
-	 * @param model
-	 * @param timeSeriesCharts
 	 *
 	 * @return
 	 */

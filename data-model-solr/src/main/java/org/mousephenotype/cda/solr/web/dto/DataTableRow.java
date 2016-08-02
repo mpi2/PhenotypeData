@@ -15,23 +15,18 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.net.URLEncoder;
+import java.util.*;
 
 /**
  *
@@ -127,6 +122,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		this.setZygosity(pcs.getZygosity());
 		this.setProcedure(pcs.getProcedure());
 		this.setParameter(pcs.getParameter());
+
 		this.setPhenotypingCenter(pcs.getPhenotypingCenter());
 		this.setColonyId(pcs.getColonyId());
 		this.setTopLevelPhenotypeTerms(pcs.getTopLevelPhenotypeTerms());

@@ -158,7 +158,8 @@
         <field name="observation_type" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="mp_terms" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
         <field name="description" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-        <field name="unit" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+        <field name="unit_x" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+        <field name="unit_y" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="metadata" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="increment" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="categories" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
