@@ -22,7 +22,7 @@ import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.dataimport.cdabase.steps.*;
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
+import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,8 +199,8 @@ public class CdabaseConfigBeans {
     }
 
     @Bean(name = "cdabaseLoaderUtils")
-    public CdabaseLoaderUtils cdabaseLoaderUtils() {
-        return new CdabaseLoaderUtils();
+    public CdabaseSqlUtils cdabaseLoaderUtils() {
+        return new CdabaseSqlUtils();
     }
 
 
