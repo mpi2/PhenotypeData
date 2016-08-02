@@ -207,7 +207,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
 
         Step loadPhenotypedColonyStep = stepBuilderFactory.get("loadPhenotypedColonyStep")
                 .listener(new PhenotypedColonyLoaderStepListener())
-                .chunk(1000)
+                .chunk(100000)
                 .reader(phenotypedColonyReader)
                 .processor(phenotypedColonyProcessor)
                 .writer(writer)

@@ -101,7 +101,7 @@ public class OntologyLoader implements Step, InitializingBean {
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
         stepBuilderFactory.get("ontologyLoaderStep")
-                .chunk(1000)
+                .chunk(100000)
                 .reader(ontologyReader)
                 .writer(ontologyWriter)
                 .build()

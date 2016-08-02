@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,26 +57,23 @@ public class BiologicalModelWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        for (Object bioModel1 : items) {
-            BiologicalModelAggregator bioModel = (BiologicalModelAggregator) bioModel1;
-            Map<String, Integer>      counts   = cdabaseLoaderUtils.insertBioModel(bioModel);
-            written.put("bioModels", written.get("bioModels") + counts.get("bioModels"));
-            written.put("bioModelAlleles", written.get("bioModelAlleles") + counts.get("bioModelAlleles"));
-            written.put("bioModelGenomicFeatures", written.get("bioModelGenomicFeatures") + counts.get("bioModelGenomicFeatures"));
-            written.put("bioModelPhenotypes", written.get("bioModelPhenotypes") + counts.get("bioModelPhenotypes"));
-        }
+        Map<String, Integer>      counts   = cdabaseLoaderUtils.insertBioModel(items);
+        written.put("bioModels", written.get("bioModels") + counts.get("bioModels"));
+        written.put("bioModelAlleles", written.get("bioModelAlleles") + counts.get("bioModelAlleles"));
+        written.put("bioModelGenomicFeatures", written.get("bioModelGenomicFeatures") + counts.get("bioModelGenomicFeatures"));
+        written.put("bioModelPhenotypes", written.get("bioModelPhenotypes") + counts.get("bioModelPhenotypes"));
     }
 
-    /**
-     * @return a {@code Map} of counts written to the bioModel tables, indexed by name:
-     * <ul>
-     *     <li>bioModels</li>
-     *     <li>bioModelAlleles</li>
-     *     <li>bioModelGenomicFeatures</li>
-     *     <li>bioModelPhenotypes</li>
-     * </ul>
-     */
-    public Map<String, Integer> getWritten() {
-        return written;
+    public int getWrittenBioModels() {
+        return written.get("bioModels");
+    }
+    public int getWrittenBioModelAlleles() {
+        return written.get("bioModelAlleles");
+    }
+    public int getWrittenBioModelGenomicFeatures() {
+        return written.get("bioModelGenomicFeatures");
+    }
+    public int getWrittenBioModelPhenotypes() {
+        return written.get("bioModelPhenotypes");
     }
 }
