@@ -48,14 +48,24 @@ public class ProductDTO {
 	@Field(OTHER_LINKS)
 	private List<String> otherLinks;//image link to the vector map
 	
-	public static final String ORDER_LINKS="other_links";
+	public static final String ORDER_LINKS="order_links";
 	@Field(ORDER_LINKS)
 	private List<String> orderLinks;//image link to the vector map
 	
-	public static final String ORDER_NAMES="other_names";
+	public static final String ORDER_NAMES="order_names";
 	@Field(ORDER_NAMES)
 	private List<String> orderNames;
 	
+	public static final String QC_DATA="qc_data";
+	@Field(QC_DATA)
+	private List<String> qcData;
+	
+	public List<String> getQcData() {
+		return qcData;
+	}
+	public void setQcData(List<String> qcData) {
+		this.qcData = qcData;
+	}
 	public void setOrderNames(List<String> orderNames) {
 		this.orderNames = orderNames;
 	}
@@ -143,16 +153,21 @@ public class ProductDTO {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
+	public List<String> getOrderNames() {
+		return this.orderNames;
+		
+	}
 	@Override
 	public String toString() {
 		return "ProductDTO [productId=" + productId + ", alleleId=" + alleleId + ", markerSymbol=" + markerSymbol
 				+ ", mgiAccessionId=" + mgiAccessionId + ", alleleType=" + alleleType + ", alleleName=" + alleleName
 				+ ", alleleHasIssues=" + alleleHasIssues + ", type=" + type + ", name=" + name + ", productionCentre="
-				+ productionCentre + ", productionCompleted=" + productionCompleted + ", status=" + status + "]";
+				+ productionCentre + ", productionCompleted=" + productionCompleted + ", status=" + status
+				+ ", otherLinks=" + otherLinks + ", orderLinks=" + orderLinks + ", orderNames=" + orderNames + "]";
 	}
-	public List<String> getOrderNames() {
-		return this.orderNames;
-		
-	}
+	
+	
+	
 			
 }

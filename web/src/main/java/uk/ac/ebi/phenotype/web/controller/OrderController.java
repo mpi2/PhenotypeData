@@ -1,10 +1,12 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.OrderType;
 import org.mousephenotype.cda.solr.service.OrderService;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
@@ -44,34 +46,21 @@ public class OrderController {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	@RequestMapping("/orderVector")
-	public String orderVector(@RequestParam (required = true) String acc, @RequestParam (required = true) String allele,
+	@RequestMapping("/order")
+	public String order(@RequestParam (required = true) String acc, @RequestParam (required = true) String allele,  @RequestParam (required = true) String type,
 			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
 		System.out.println("orderVector being called with acc="+acc+" allele="+allele);
+		//type "targeting_vector", "es_cell", "mouse"
+		OrderType orderType=OrderType.valueOf(type);
 		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele);
 		model.addAttribute("allele", allele2DTO);
 		System.out.println("size of allele2DTOs="+allele2DTO);
-		List<ProductDTO> products = orderService.getProduct(acc, allele, "vector");
-		model.addAttribute("products", products);
-		return "orderVector";
-	}
-	
-	@RequestMapping("/orderEsCell")
-	public String orderEsCell(@RequestParam (required = false) String acc, 
-			@RequestParam (required=false, defaultValue="25") int rows,
-			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
-		System.out.println("orderEsCell being called!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		
-		return "orderEsCell";
+		Map<String, List<ProductDTO>> productsByOrderName = orderService.getProductToOrderNameMap(acc, allele, orderType);
+		model.addAttribute("productsByName", productsByOrderName);
+		model.addAttribute("type", orderType.getName());
+		return "order";
 	}
 	
-	
-	@RequestMapping("/orderMouse")
-	public String orderMouse(@RequestParam (required = false) String acc, 
-			@RequestParam (required=false, defaultValue="25") int rows,
-			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
-		System.out.println("orderMouse being called!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		return "orderMouse";
-	}
 
 }
