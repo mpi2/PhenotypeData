@@ -49,9 +49,10 @@ public class OrderController {
 			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
 		System.out.println("orderVector being called with acc="+acc+" allele="+allele);
 		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele);
+		model.addAttribute("allele", allele2DTO);
 		System.out.println("size of allele2DTOs="+allele2DTO);
 		List<ProductDTO> products = orderService.getProduct(acc, allele, "vector");
-		model.addAttribute("allele", allele2DTO);
+		model.addAttribute("products", products);
 		return "orderVector";
 	}
 	

@@ -177,6 +177,9 @@ public class OrderService {
 	public List<ProductDTO> getProduct(String geneAcc, String alleleName, String productType) throws SolrServerException{
 		List<ProductDTO> productList =null;
 		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType);
+		if(productsMap.keySet().size()>1){
+			System.err.println("more than one key for products - should only be one");
+		}
 		for(String key: productsMap.keySet()){
 			productList = productsMap.get(key);
 		}
@@ -189,15 +192,16 @@ public class OrderService {
 		if(geneAcc!=null){
 			q = "mgi_accession_id:\"" + geneAcc+ "\"";
 		}
-		if(alleleName!=null){
-			q = "allele_name:\"" + alleleName+ "\"";
-		}
+		
 	
 		SolrQuery query=new SolrQuery();
 		query.setQuery(q);
+		if(alleleName!=null){
+			query.addFilterQuery("allele_name:\"" + alleleName+ "\"");
+		}
 		query.setRows(Integer.MAX_VALUE);
 		if(productType!=null){
-			query.addFilterQuery("type:\""+productType);
+			query.addFilterQuery("type:"+productType);
 		}
 		System.out.println("query for products="+query);
 		QueryResponse response = productCore.query(query);

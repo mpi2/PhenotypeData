@@ -42,6 +42,9 @@
 								<div class="inner">
  									<img alt="image not found!" src="${allele.alleleSimpleImage}" width="930px">	
  									<p>This product is available from the following repositories:<p> 
+ 									<c:forEach var="prod" items="${products}">
+ 									${prod}
+ 									</c:forEach>
  								</div>
  							</div>
  						</div>
