@@ -173,7 +173,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				getUnidimensionalResults(),
 				getCategoricalResults(),
 				getEmbryoViabilityResults(),
-				getEmbryoResults()
+				getEmbryoResults(),
+				getGrossPathologyResults()
 			);
 
 			for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
