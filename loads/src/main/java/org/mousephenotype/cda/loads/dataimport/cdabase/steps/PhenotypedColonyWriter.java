@@ -49,11 +49,7 @@ public class PhenotypedColonyWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        for (Object phenotypedColony1 : items) {
-            PhenotypedColony phenotypedColony = (PhenotypedColony) phenotypedColony1;
-
-            count += cdabaseLoaderUtils.insertPhenotypedColony(phenotypedColony);
-        }
+        count += cdabaseLoaderUtils.insertPhenotypedColonies((List<PhenotypedColony>)items);
     }
 
     public int getCount() {
