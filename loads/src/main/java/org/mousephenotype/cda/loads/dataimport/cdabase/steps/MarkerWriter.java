@@ -16,9 +16,7 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,19 +58,10 @@ public class MarkerWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        for (Object genomicFeature1 : items) {
-            GenomicFeature gene = (GenomicFeature) genomicFeature1;
-
-            try {
-                Map<String, Integer> counts = cdabaseLoaderUtils.insertGene(gene);
-                written.put("genes", written.get("genes") + counts.get("genes"));
-                written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
-                written.put("xrefs", written.get("xrefs") + counts.get("xrefs"));
-
-            } catch (Exception e) {
-                throw new DataImportException(e.getLocalizedMessage() + "\n\t gene: " + gene);
-            }
-        }
+        Map<String, Integer> counts = cdabaseLoaderUtils.insertGenes(items);
+        written.put("genes", written.get("genes") + counts.get("genes"));
+        written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
+        written.put("xrefs", written.get("xrefs") + counts.get("xrefs"));
     }
 
     public int getWrittenGenes() {

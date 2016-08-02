@@ -199,13 +199,15 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             allele.setName(newPhenotypedColony.getAllele().getSymbol());
             OntologyTerm biotype = new OntologyTerm("CV:00000013", DbIdType.MGI.intValue());
             allele.setBiotype(biotype);
-            int count = cdabaseLoaderUtils.insertAllele(allele);
+            List<Allele> alleleList = new ArrayList<>();
+            alleleList.add(allele);
+            int count = cdabaseLoaderUtils.insertAlleles(alleleList);
             if (count > 0) {
                 addedAllelesCount += count;
                 alleles.put(allele.getId().getAccession(), allele);
-                List<String> alleleList = new ArrayList<>();
-                alleleList.add(allele.getId().getAccession());
-                alleleSymbolToAccessionIdMap.put(allele.getSymbol(), alleleList);
+                List<String> alleleAccessionIdList = new ArrayList<>();
+                alleleAccessionIdList.add(allele.getId().getAccession());
+                alleleSymbolToAccessionIdMap.put(allele.getSymbol(), alleleAccessionIdList);
             }
         }
         newPhenotypedColony.setAllele(allele);

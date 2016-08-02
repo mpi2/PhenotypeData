@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,9 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mrelac on 26/04/16.
@@ -37,6 +38,13 @@ public class StrainWriter implements ItemWriter {
     @Autowired
     @Qualifier("cdabaseLoaderUtils")
     private CdabaseLoaderUtils cdabaseLoaderUtils;
+    private Map<String, Integer> written = new HashMap<>();
+
+        public StrainWriter() {
+
+            written.put("strains", 0);
+            written.put("synonyms", 0);
+        }
 
 
     /**
@@ -49,18 +57,16 @@ public class StrainWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
+        Map<String, Integer> counts = cdabaseLoaderUtils.insertStrains(items);
+        written.put("strains", written.get("strains") + counts.get("strains"));
+        written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
+    }
 
-        for (Object strain1 : items) {
-            if (strain1 instanceof List) {
-                List<Strain> strains = (List<Strain>) strain1;
+    public int getWrittenStrains() {
+        return written.get("strains");
+    }
 
-                for (Strain strain : strains) {
-                    cdabaseLoaderUtils.insertStrain(strain);
-                }
-            } else {
-                Strain strain = (Strain) strain1;
-                cdabaseLoaderUtils.insertStrain(strain);
-            }
-        }
+    public int getWrittenSynonyms() {
+        return written.get("synonyms");
     }
 }

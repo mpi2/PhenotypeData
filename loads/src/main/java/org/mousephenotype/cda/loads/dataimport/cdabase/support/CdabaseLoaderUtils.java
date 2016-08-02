@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,7 +59,7 @@ public class CdabaseLoaderUtils {
     public static final String BIOTYPE_TM1E_STRING = "Targeted (Reporter)";
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate npJdbcTemplate;
 
 
     /**
@@ -70,7 +70,7 @@ public class CdabaseLoaderUtils {
         Map<String, Allele> alleles = new ConcurrentHashMap<>();
 
         logger.info("Loading alleles.");
-        List<Allele> allelesList = jdbcTemplate.query("SELECT * FROM allele", new AlleleRowMapper());
+        List<Allele> allelesList = npJdbcTemplate.query("SELECT * FROM allele", new AlleleRowMapper());
 
         for (Allele allele : allelesList) {
             alleles.put(allele.getId().getAccession(), allele);
@@ -103,33 +103,37 @@ public class CdabaseLoaderUtils {
 
 
     /**
-     * Try to insert the allele. Return the count of inserted alleles.
+     * Try to insert the alleles. Return the count of inserted alleles.
      *
-     * @param allele the {@link Allele} to be inserted
+     * @param alleles A {@link List} of {@link Allele} to be inserted
      *
      * @return the count of inserted alleles.
      */
-    public int insertAllele(Allele allele) throws DataImportException {
+    public int insertAlleles(List<Allele> alleles) throws DataImportException {
         int count = 0;
+        final String query = "INSERT INTO allele (acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol, name) " +
+                             "VALUES (:acc, :db_id, :gf_acc, :gf_db_id, :biotype_acc, :biotype_db_id, :symbol, :name)";
 
-        // Insert Allele if it does not exist.
-        try {
+        // Insert alleles. Ignore any duplicates.
+        for (Allele allele : alleles) {
+            try {
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("acc", allele.getId().getAccession());
+                parameterMap.put("db_id", allele.getId().getDatabaseId());
+                parameterMap.put("gf_acc", (allele.getGene() == null ? null : allele.getGene().getId().getAccession()));
+                parameterMap.put("gf_db_id", (allele.getGene() == null ? null : allele.getGene().getId().getDatabaseId()));
+                parameterMap.put("biotype_acc", allele.getBiotype().getId().getAccession());
+                parameterMap.put("biotype_db_id", allele.getBiotype().getId().getDatabaseId());
+                parameterMap.put("symbol", allele.getSymbol());
+                parameterMap.put("name", allele.getName());
 
-            count = jdbcTemplate.update("INSERT INTO allele (acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol, name) " +
-                                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                                        allele.getId().getAccession(),
-                                        allele.getId().getDatabaseId(),
-                                        (allele.getGene() == null ? null : allele.getGene().getId().getAccession()),
-                                        (allele.getGene() == null ? null : allele.getGene().getId().getDatabaseId()),
-                                        allele.getBiotype().getId().getAccession(),
-                                        allele.getBiotype().getId().getDatabaseId(),
-                                        allele.getSymbol(),
-                                        allele.getName());
+                count += npJdbcTemplate.update(query, parameterMap);
 
-        } catch (DuplicateKeyException e) {
+            } catch (DuplicateKeyException e) {
 
-        } catch (Exception e) {
-            logger.error("Error inserting allele {}: {}. Record skipped...", allele, e.getLocalizedMessage());
+            } catch (Exception e) {
+                logger.error("Error inserting allele {}: {}. Record skipped...", alleles, e.getLocalizedMessage());
+            }
         }
 
         return count;
@@ -145,7 +149,7 @@ public class CdabaseLoaderUtils {
         if (considerIds == null) {
             considerIds = new ConcurrentHashMap<>();
 
-            List<ConsiderId> considerIdList = jdbcTemplate.query("SELECT * FROM consider_id", new ConsiderIdRowMapper());
+            List<ConsiderId> considerIdList = npJdbcTemplate.query("SELECT * FROM consider_id", new ConsiderIdRowMapper());
 
             for (ConsiderId considerId : considerIdList) {
                 if ( ! considerIds.containsKey(considerId.getOntologyTermAccessionId())) {
@@ -192,7 +196,7 @@ public class CdabaseLoaderUtils {
         Map<String, GenomicFeature> genes = new ConcurrentHashMap<>();
 
         logger.info("Loading genes");
-        List<GenomicFeature> geneList = jdbcTemplate.query("SELECT * FROM genomic_feature", new GenomicFeatureRowMapper());
+        List<GenomicFeature> geneList = npJdbcTemplate.query("SELECT * FROM genomic_feature", new GenomicFeatureRowMapper());
 
         for (GenomicFeature gene : geneList) {
             genes.put(gene.getId().getAccession(), gene);
@@ -205,164 +209,239 @@ public class CdabaseLoaderUtils {
     /**
      * If {@link BiologicalModelAggregator} doesn't exist, insert it into the database.
      *
-     * @param bioModel the {@link BiologicalModelAggregator} instance to be inserted
+     * @param bioModels the {@link BiologicalModelAggregator} instance to be inserted
      *
      * @return the number of {@code bioModel}s inserted
      */
-    public Map<String, Integer> insertBioModel(BiologicalModelAggregator bioModel) throws DataImportException {
+    public Map<String, Integer> insertBioModel(List<BiologicalModelAggregator> bioModels) throws DataImportException {
+        int count = 0;
 
-        int count;
-        Map<String, Integer> counts = new HashMap<String, Integer>();
-        counts.put("bioModels", 0);
-        counts.put("bioModelAlleles", 0);
-        counts.put("bioModelGenomicFeatures", 0);
-        counts.put("bioModelPhenotypes", 0);
+        Map<String, Integer> countsMap = new HashMap<>();
+        countsMap.put("bioModels", 0);
+        countsMap.put("bioModelAlleles", 0);
+        countsMap.put("bioModelGenomicFeatures", 0);
+        countsMap.put("bioModelPhenotypes", 0);
 
-        try {
-            count = jdbcTemplate.update("INSERT INTO biological_model (db_id, allelic_composition, genetic_background) " +
-                                                "VALUES (?, ?, ?)", DbIdType.MGI.intValue(), bioModel.getAllelicComposition(), bioModel.getGeneticBackground());
+        final String bioModelInsert = "INSERT INTO biological_model (db_id, allelic_composition, genetic_background) " +
+                                      "VALUES (:db_id, :allelic_composition, :genetic_background)";
 
-            int bioModelId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()",Integer.class);
-            bioModel.setBiologicalModelId(bioModelId);
+        final String bioModelAlleleInsert = "INSERT INTO biological_model_allele (biological_model_id, allele_acc, allele_db_id) " +
+                                            "VALUES (:biological_model_id, :allele_acc, :allele_db_id)";
 
-            counts.put("bioModels", counts.get("bioModels") + count);
+        final String bioModelGFInsert = "INSERT INTO biological_model_genomic_feature (biological_model_id, gf_acc, gf_db_id) " +
+                                        "VALUES (:biological_model_id, :gf_acc, :gf_db_id)";
 
-        } catch (DuplicateKeyException e) {
-            logger.warn("Duplicate biological_model entry: {}. biological model not added.", bioModel);
-            return counts;
-        } catch (Exception e) {
-            logger.warn("Skipping bioModel {}: {}", bioModel, e.getLocalizedMessage());
-        }
 
-        for (String alleleAccessionId : bioModel.getAlleleAccessionIds()) {
+        final String bioModelPhenotypeInsert = "INSERT INTO biological_model_phenotype (biological_model_id, phenotype_acc, phenotype_db_id) " +
+                                               "VALUES (:biological_model_id, :phenotype_acc, :phenotype_db_id)";
+
+        for (BiologicalModelAggregator bioModel : bioModels) {
+
+            // biological_model
             try {
-                count = jdbcTemplate.update("INSERT INTO biological_model_allele (biological_model_id, allele_acc, allele_db_id) " +
-                                             "VALUES (?, ?, ?)", bioModel.getBiologicalModelId(), alleleAccessionId, DbIdType.MGI.intValue());
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("db_id", DbIdType.MGI.intValue());
+                parameterMap.put("allelic_composition", bioModel.getAllelicComposition());
+                parameterMap.put("genetic_background", bioModel.getGeneticBackground());
 
-                counts.put("bioModelAlleles", counts.get("bioModelAlleles") + count);
+                count = npJdbcTemplate.update(bioModelInsert, parameterMap);
+                countsMap.put("bioModels", countsMap.get("bioModels") + count);
+
+                int bioModelId = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Integer.class);
+                bioModel.setBiologicalModelId(bioModelId);
 
             } catch (DuplicateKeyException e) {
 
-                logger.warn("Duplicate biological_model_allele entry: {}. biological model not added.", bioModel);
-                return counts;
+                logger.warn("Duplicate biological_model entry: {}. biological model not added.", bioModels);
+                return countsMap;
 
             } catch (Exception e) {
-                logger.warn("Skipping bioModel {}: {}", bioModel, e.getLocalizedMessage());
+
+                logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
+            }
+
+            // biological_model_allele
+            for (String alleleAccessionId : bioModel.getAlleleAccessionIds()) {
+                try {
+                    Map<String, Object> parameterMap = new HashMap<>();
+                    parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
+                    parameterMap.put("allele_acc", alleleAccessionId);
+                    parameterMap.put("allele_db_id", DbIdType.MGI.intValue());
+
+                    count = npJdbcTemplate.update(bioModelAlleleInsert, parameterMap);
+                    countsMap.put("bioModelAlleles", countsMap.get("bioModelAlleles") + count);
+
+                } catch (DuplicateKeyException e) {
+
+                    logger.warn("Duplicate biological_model_allele entry: {}. biological model not added.", bioModels);
+                    return countsMap;
+
+                } catch (Exception e) {
+                    logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
+                }
+            }
+
+            // biological_model_genomic_feature
+            for (String markerAccessionId : bioModel.getMarkerAccessionIds()) {
+                try {
+                    Map<String, Object> parameterMap = new HashMap<>();
+                    parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
+                    parameterMap.put("gf_acc", markerAccessionId);
+                    parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
+
+                    count = npJdbcTemplate.update(bioModelGFInsert, parameterMap);
+                    countsMap.put("bioModelGenomicFeatures", countsMap.get("bioModelGenomicFeatures") + count);
+
+                } catch (DuplicateKeyException e) {
+
+                    logger.warn("Duplicate biological_model_genomic_feature entry: {}. biological model not added.", bioModels);
+                    return countsMap;
+
+                } catch (Exception e) {
+
+                    logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
+                }
+            }
+
+            // biological_model_phenotype
+            for (String phenotypeAccessionId : bioModel.getMpAccessionIds()) {
+                try {
+                    Map<String, Object> parameterMap = new HashMap<>();
+                    parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
+                    parameterMap.put("phenotype_acc", phenotypeAccessionId);
+                    parameterMap.put("phenotype_db_id", DbIdType.MGI.intValue());
+
+                    count = npJdbcTemplate.update(bioModelPhenotypeInsert, parameterMap);
+                    countsMap.put("bioModelPhenotypes", countsMap.get("bioModelPhenotypes") + count);
+
+                } catch (DuplicateKeyException e) {
+
+                    logger.warn("Duplicate biological_model_phenotype entry: {}. biological model not added.", bioModels);
+                    return countsMap;
+
+                } catch (Exception e) {
+
+                    logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
+                }
             }
         }
 
-        for (String markerAccessionId : bioModel.getMarkerAccessionIds()) {
-            try {
-
-                count = jdbcTemplate.update("INSERT INTO biological_model_genomic_feature (biological_model_id, gf_acc, gf_db_id) " +
-                                            "VALUES (?, ?, ?)", bioModel.getBiologicalModelId(), markerAccessionId, DbIdType.MGI.intValue());
-
-                counts.put("bioModelGenomicFeatures", counts.get("bioModelGenomicFeatures") + count);
-
-            } catch (DuplicateKeyException e) {
-
-                logger.warn("Duplicate biological_model_genomic_feature entry: {}. biological model not added.", bioModel);
-                return counts;
-            } catch (Exception e) {
-                logger.warn("Skipping bioModel {}: {}", bioModel, e.getLocalizedMessage());
-            }
-        }
-
-        for (String phenotypeAccessionId : bioModel.getMpAccessionIds()) {
-            try {
-
-                count = jdbcTemplate.update("INSERT INTO biological_model_phenotype (biological_model_id, phenotype_acc, phenotype_db_id) " +
-                                            "VALUES (?, ?, ?)", bioModel.getBiologicalModelId(), phenotypeAccessionId, DbIdType.MGI.intValue());
-
-                counts.put("bioModelPhenotypes", counts.get("bioModelPhenotypes") + count);
-
-            } catch (DuplicateKeyException e) {
-
-                logger.warn("Duplicate biological_model_phenotype entry: {}. biological model not added.", bioModel);
-                return counts;
-            } catch (Exception e) {
-                logger.warn("Skipping bioModel {}: {}", bioModel, e.getLocalizedMessage());
-            }
-        }
-
-        return counts;
+        return countsMap;
     }
 
+
+
     /**
-     * Try to insert the gene. If the insert fails, return. If it succeeds, try to insert the synonyms and xrefs.
+     * Try to insert the gene. If it succeeds, insert any synonyms and xrefs.
      *
      * @param gene the {@link GenomicFeature} to be inserted
      *
      * @return a map, keyed by type (genes, synonyms, xrefs) of the number of {@code gene} components inserted
      */
     public Map<String, Integer> insertGene(GenomicFeature gene) throws DataImportException {
+        List<GenomicFeature> geneList = new ArrayList<>();
+        geneList.add(gene);
 
-        int count;
-        Map<String, Integer> counts = new HashMap<String, Integer>();
-        counts.put("genes", 0);
-        counts.put("synonyms", 0);
-        counts.put("xrefs", 0);
+        return insertGenes(geneList);
+    }
 
-        // Try to insert gene. Ignore DuplicateKeyExceptions.
-        try {
-            count = jdbcTemplate.update("INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    gene.getId().getAccession(),
-                    gene.getId().getDatabaseId(),
-                    gene.getSymbol(),
-                    gene.getName(),
-                    gene.getBiotype().getId().getAccession(),
-                    gene.getBiotype().getId().getDatabaseId(),
-                    gene.getSubtype() == null ? null : gene.getSubtype().getId().getAccession(),
-                    gene.getSubtype() == null ? null : gene.getSubtype().getId().getDatabaseId(),
-                    gene.getSequenceRegion() == null ? null : gene.getSequenceRegion().getId(),
-                    gene.getStart(),
-                    gene.getEnd(),
-                    gene.getStrand(),
-                    gene.getcMposition(),
-                    gene.getStatus());
-            
-            counts.put("genes", counts.get("genes") + count);
-            
-        } catch (DuplicateKeyException e) {
-            logger.warn("Duplicate genomic_feature entry. Accession id: " + gene.getId().getAccession() + ". GenomicFeature: " + gene.getName() + ". GenomicFeature not added.");
-            return counts;
-        }
+    /**
+     * Try to insert the genes. If an insert fails, skip it and its synonyms and xrefs; if it succeeds, insert any synonyms and xrefs.
+     *
+     * @param genes the {@link List} of {@link GenomicFeature} instances to be inserted
+     *
+     * @return a map, keyed by type (genes, synonyms, xrefs) of the number of {@code gene} components inserted
+     */
+    public Map<String, Integer> insertGenes(List<GenomicFeature> genes) throws DataImportException {
+        int count = 0;
 
-        // Try to insert synonyms. Ignore DuplicateKeyExceptions.
-        for (Synonym synonym : gene.getSynonyms()) {
+        Map<String, Integer> countsMap = new HashMap<>();
+        countsMap.put("genes", 0);
+        countsMap.put("synonyms", 0);
+        countsMap.put("xrefs", 0);
+
+        final String gfInsert = "INSERT INTO genomic_feature (acc, db_id, symbol, name, biotype_acc, biotype_db_id, subtype_acc, subtype_db_id, seq_region_id, seq_region_start, seq_region_end, seq_region_strand, cm_position, status) " +
+                                "VALUES (:acc, :db_id, :symbol, :name, :biotype_acc, :biotype_db_id, :subtype_acc, :subtype_db_id, :seq_region_id, :seq_region_start, :seq_region_end, :seq_region_strand, :cm_position, :status)";
+
+        final String synoymInsert = "INSERT INTO synonym (acc, db_id, symbol) " +
+                                    "VALUES (:acc, :db_id, :symbol)";
+
+        final String xrefInsert = "INSERT INTO xref (acc, db_id, xref_acc, xref_db_id) " +
+                                  "VALUES(:acc, :db_id, :xref_acc, :xref_db_id)";
+
+
+        // Insert genes. Ignore any duplicates.
+        for (GenomicFeature gene : genes) {
             try {
-                count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                            synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
-                
-                counts.put("synonyms", counts.get("synonyms") + count);
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("acc", gene.getId().getAccession());
+                parameterMap.put("db_id", gene.getId().getDatabaseId());
+                parameterMap.put("symbol", gene.getSymbol());
+                parameterMap.put("name", gene.getName());
+                parameterMap.put("biotype_acc", gene.getBiotype().getId().getAccession());
+                parameterMap.put("biotype_db_id", gene.getBiotype().getId().getDatabaseId());
+                parameterMap.put("subtype_acc", gene.getSubtype() == null ? null : gene.getSubtype().getId().getAccession());
+                parameterMap.put("subtype_db_id", gene.getSubtype() == null ? null : gene.getSubtype().getId().getDatabaseId());
+                parameterMap.put("seq_region_id", gene.getSequenceRegion() == null ? null : gene.getSequenceRegion().getId());
+                parameterMap.put("seq_region_start", gene.getStart());
+                parameterMap.put("seq_region_end", gene.getEnd());
+                parameterMap.put("seq_region_strand", gene.getStrand());
+                parameterMap.put("cm_position", gene.getcMposition());
+                parameterMap.put("status", gene.getStatus());
 
-                if (count > 0) {
-                    updateSynonymMap(synonym.getAccessionId(), synonym);
+                count = npJdbcTemplate.update(gfInsert, parameterMap);
+                countsMap.put("genes", countsMap.get("genes") + count);
+
+            } catch (DuplicateKeyException dke) {
+                logger.warn("Duplicate genomic_feature entry. Accession id: " + gene.getId().getAccession() + ". GenomicFeature: " + gene.getName() + ". GenomicFeature not added.");
+                continue;
+            }
+
+
+            // Insert synonyms. Ignore any duplicates.
+            if (gene.getSynonyms() != null) {
+                for (Synonym synonym : gene.getSynonyms()) {
+                    try {
+                        Map<String, Object> parameterMap = new HashMap<>();
+                        parameterMap.put("acc", synonym.getAccessionId());
+                        parameterMap.put("db_id", synonym.getDbId());
+                        parameterMap.put("symbol", synonym.getSymbol());
+
+                        count = npJdbcTemplate.update(synoymInsert, parameterMap);
+                        countsMap.put("synonyms", countsMap.get("synonyms") + count);
+
+                        if (count > 0) {
+                            updateSynonymMap(synonym.getAccessionId(), synonym);
+                        }
+
+                    } catch (DuplicateKeyException dke) {
+
+                    }
                 }
-                
-            } catch (DuplicateKeyException dke) {
-                
+            }
+
+
+            // Insert xrefs. Ignore any duplicates.
+            for (Xref xref : gene.getXrefs()) {
+                try {
+                    Map<String, Object> parameterMap = new HashMap<>();
+                    parameterMap.put("acc", gene.getId().getAccession());
+                    parameterMap.put("db_id", gene.getId().getDatabaseId());
+                    parameterMap.put("xref_acc", xref.getXrefAccession());
+                    parameterMap.put("xref_db_id", xref.getXrefDatabaseId());
+
+                    count = npJdbcTemplate.update(xrefInsert, parameterMap);
+                    countsMap.put("xrefs", countsMap.get("xrefs") + count);
+
+                } catch (DuplicateKeyException dke) {
+
+                } catch (Exception e) {
+                    throw new DataImportException(e + "\n\txref: " + xref.toString());
+                }
             }
         }
 
-        // Try to insert xrefs. Ignore DuplicateKeyExceptions.
-        for (Xref xref : gene.getXrefs()) {
-            try {
-                
-                count = jdbcTemplate.update("INSERT INTO xref (acc, db_id, xref_acc, xref_db_id) VALUES(?, ?, ?, ?)",
-                        gene.getId().getAccession(), gene.getId().getDatabaseId(), xref.getXrefAccession(), xref.getXrefDatabaseId());
-                
-                counts.put("xrefs", counts.get("xrefs") + count);
-                
-            } catch (DuplicateKeyException dke) {
-                
-            } catch (Exception e) {
-                throw new DataImportException(e + "\n\txref: " + xref.toString());
-            }
-        }
-
-        return counts;
+        return countsMap;
     }
 
 
@@ -370,7 +449,7 @@ public class CdabaseLoaderUtils {
         if (ontologyTerms == null) {
             ontologyTerms = new ConcurrentHashMap();
 
-            List<OntologyTerm> termList = jdbcTemplate.query("SELECT * FROM ontology_term", new OntologyTermRowMapper());
+            List<OntologyTerm> termList = npJdbcTemplate.query("SELECT * FROM ontology_term", new OntologyTermRowMapper());
 
             for (OntologyTerm term : termList) {
                 ontologyTerms.put(term.getId().getAccession(), term);
@@ -479,7 +558,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, Organisation> getOrganisations() {
         Map<String, Organisation> organisations = new ConcurrentHashMap<>();
 
-        List<Organisation> organisationList = jdbcTemplate.query("SELECT * FROM organisation", new OrganisationRowMapper());
+        List<Organisation> organisationList = npJdbcTemplate.query("SELECT * FROM organisation", new OrganisationRowMapper());
 
         for (Organisation organisation : organisationList) {
             organisations.put(organisation.getName(), organisation);
@@ -491,7 +570,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, Project> getProjects() {
         Map<String, Project> projects = new ConcurrentHashMap<>();
 
-        List<Project> projectList = jdbcTemplate.query("SELECT * FROM project", new ProjectRowMapper());
+        List<Project> projectList = npJdbcTemplate.query("SELECT * FROM project", new ProjectRowMapper());
 
         for (Project project : projectList) {
             projects.put(project.getName(), project);
@@ -501,62 +580,88 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
     /**
-     * Try to insert the ontology term. If the insert fails, return. If it succeeds, try to insert the synonyms and consider ids.
+     * Try to insert the ontology terms. If any insert fails, continue to the next term; otherwise, try to insert the synonyms and consider ids.
      *
-     * @param term the {@link OntologyTerm} to be inserted
+     * @param terms the {@link List} of {@link OntologyTerm} instances to be inserted
      *
      * @return a map, keyed by type (terms, synonyms, considerIds) of the number of {@code OntologyTerm} components inserted
      */
-    public Map<String, Integer> insertOntologyTerm(OntologyTerm term) {
-
+    public Map<String, Integer> insertOntologyTerm(List<OntologyTerm> terms) {
         int count;
-        Map<String, Integer> counts = new HashMap<String, Integer>();
-        counts.put("terms", 0);
-        counts.put("synonyms", 0);
-        counts.put("considerIds", 0);
 
-        try {
+        Map<String, Integer> countsMap = new HashMap<String, Integer>();
+        countsMap.put("terms", 0);
+        countsMap.put("synonyms", 0);
+        countsMap.put("considerIds", 0);
 
-            count = jdbcTemplate.update("INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) VALUES (?, ?, ?, ?, ?, ?)",
-                    term.getId().getAccession(), term.getId().getDatabaseId(), term.getName(), term.getDescription(), term.getIsObsolete(), term.getReplacementAcc());
-            
-            counts.put("terms", counts.get("terms") + count);
-            
-        } catch (DuplicateKeyException dke) {
-            return counts;
-        }
+        final String ontologyTermInsert = "INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) " +
+                                          "VALUES (:acc, :db_id, :name, :description, :is_obsolete, :replacement_acc)";
 
-        // Try to insert synonyms. Ignore DuplicateKeyExceptions.
-        for (Synonym synonym : term.getSynonyms()) {
+        final String synonymInsert = "INSERT INTO synonym (acc, db_id, symbol) " +
+                                     "VALUES (:acc, :db_id, :symbol)";
+
+        final String considerIdInsert = "INSERT INTO consider_id (ontology_term_acc, acc) " +
+                                        "VALUES (:ontology_term_acc, :acc)";
+
+        for (OntologyTerm term : terms) {
             try {
-                count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                            synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
-                
-                counts.put("synonyms", counts.get("synonyms") + count);
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("acc", term.getId().getAccession());
+                parameterMap.put("db_id", term.getId().getDatabaseId());
+                parameterMap.put("name", term.getName());
+                parameterMap.put("description", term.getDescription());
+                parameterMap.put("is_obsolete", term.getIsObsolete());
+                parameterMap.put("replacement_acc", term.getReplacementAcc());
 
-                if (count > 0) {
-                    updateSynonymMap(synonym.getAccessionId(), synonym);
+                count = npJdbcTemplate.update(ontologyTermInsert, parameterMap);
+                countsMap.put("terms", countsMap.get("terms") + count);
+
+            } catch (DuplicateKeyException dke) {
+
+                continue;
+
+            } catch (Exception e) {
+
+                logger.error("ontologyTermInsert failed {}. term: {}.\n{}", term, e.getLocalizedMessage());
+            }
+
+            for (Synonym synonym : term.getSynonyms()) {
+                try {
+                    Map<String, Object> parameterMap = new HashMap<>();
+                    parameterMap.put("acc", synonym.getAccessionId());
+                    parameterMap.put("db_id", synonym.getDbId());
+                    parameterMap.put("symbol", synonym.getSymbol());
+
+                    count = npJdbcTemplate.update(synonymInsert, parameterMap);
+                    countsMap.put("synonyms", countsMap.get("synonyms") + count);
+
+                    if (count > 0) {
+                        updateSynonymMap(synonym.getAccessionId(), synonym);
+                    }
+
+                } catch (DuplicateKeyException dke) {
+
                 }
-                
-            } catch (DuplicateKeyException dke) {
-                
+            }
+
+            // Try to insert considerIds. Ignore DuplicateKeyExceptions.
+
+            for (ConsiderId considerId : term.getConsiderIds()) {
+                try {
+                    Map<String, Object> parameterMap = new HashMap<>();
+                    parameterMap.put("ontology_term_acc", term.getId().getAccession());
+                    parameterMap.put("acc", considerId.getConsiderAccessionId());
+
+                    count = npJdbcTemplate.update(considerIdInsert, parameterMap);
+                    countsMap.put("considerIds", countsMap.get("considerIds") + count);
+
+                } catch (DuplicateKeyException dke) {
+
+                }
             }
         }
 
-        // Try to insert considerIds. Ignore DuplicateKeyExceptions.
-        for (ConsiderId considerId : term.getConsiderIds()) {
-            try {
-                count = jdbcTemplate.update("INSERT INTO consider_id (ontology_term_acc, acc) VALUES (?, ?)",
-                                term.getId().getAccession(), considerId.getConsiderAccessionId());
-                
-                counts.put("considerIds", counts.get("considerIds") + count);
-                
-            } catch (DuplicateKeyException dke) {
-                
-            }
-        }
-
-        return counts;
+        return countsMap;
     }
 
 
@@ -564,48 +669,65 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     /**
      * Try to insert the phenotyped colony. Return the count of inserted phenotype colonies.
      *
-     * @param phenotypedColony the {@link PhenotypedColony} to be inserted
+     * @param phenotypedColonies the {@link List} of {@link PhenotypedColony} to be inserted
      *
      * @return the count of inserted phenotype colonies.
      */
-    public int insertPhenotypedColony(PhenotypedColony phenotypedColony) throws DataImportException {
+    public int insertPhenotypedColonies(List<PhenotypedColony> phenotypedColonies) throws DataImportException {
         int count = 0;
 
-        // Insert PhenotypedColony if it does not exist.
-        try {
+        String query = "INSERT INTO phenotyped_colony (" +
+                       " colony_name," +
+                       " es_cell_name," +
+                       " gf_acc," +
+                       " gf_db_id," +
+                       " allele_acc," +
+                       " allele_db_id," +
+                       " strain_acc," +
+                       " strain_db_id," +
+                       " production_centre_organisation_id," +
+                       " production_consortium_project_id," +
+                       " phenotyping_centre_organisation_id," +
+                       " phenotyping_consortium_project_id," +
+                       " cohort_production_centre_organisation_id)" +
+                       " VALUES (" +
+                       " :colony_name," +
+                       " :es_cell_name," +
+                       " :gf_acc," +
+                       " :gf_db_id," +
+                       " :allele_acc," +
+                       " :allele_db_id," +
+                       " :strain_acc," +
+                       " :strain_db_id," +
+                       " :production_centre_organisation_id," +
+                       " :production_consortium_project_id," +
+                       " :phenotyping_centre_organisation_id," +
+                       " :phenotyping_consortium_project_id," +
+                       " :cohort_production_centre_organisation_id)";
 
-            count = jdbcTemplate.update("INSERT INTO phenotyped_colony (" +
-                                        " colony_name," +
-                                        " es_cell_name," +
-                                        " gf_acc," +
-                                        " gf_db_id," +
-                                        " allele_acc," +
-                                        " allele_db_id," +
-                                        " strain_acc," +
-                                        " strain_db_id," +
-                                        " production_centre_organisation_id," +
-                                        " production_consortium_project_id," +
-                                        " phenotyping_centre_organisation_id," +
-                                        " phenotyping_consortium_project_id," +
-                                        " cohort_production_centre_organisation_id)" +
-                                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                        phenotypedColony.getColonyName(),
-                                        (phenotypedColony.getEs_cell_name() == null ? null : phenotypedColony.getEs_cell_name()),
-                                        phenotypedColony.getGene().getId().getAccession(),
-                                        DbIdType.MGI.intValue(),
-                                        phenotypedColony.getAllele().getId().getAccession(),
-                                        DbIdType.MGI.intValue(),
-                                        phenotypedColony.getStrain().getId().getAccession(),
-                                        DbIdType.MGI.intValue(),
-                                        phenotypedColony.getProductionCentre().getId(),
-                                        phenotypedColony.getProductionConsortium().getId(),
-                                        phenotypedColony.getPhenotypingCentre().getId(),
-                                        phenotypedColony.getPhenotypingConsortium().getId(),
-                                        phenotypedColony.getCohortProductionCentre().getId()
-                                       );
+        // Insert PhenotypedColonies if they do not exist. Ignore any duplicates.
+        for (PhenotypedColony phenotypedColony : phenotypedColonies) {
+            try {
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("colony_name", phenotypedColony.getColonyName());
+                parameterMap.put("es_cell_name", phenotypedColony.getEs_cell_name() == null ? null : phenotypedColony.getEs_cell_name());
+                parameterMap.put("gf_acc", phenotypedColony.getGene().getId().getAccession());
+                parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
+                parameterMap.put("allele_acc", phenotypedColony.getAllele().getId().getAccession());
+                parameterMap.put("allele_db_id", DbIdType.MGI.intValue());
+                parameterMap.put("strain_acc", phenotypedColony.getStrain().getId().getAccession());
+                parameterMap.put("strain_db_id", DbIdType.MGI.intValue());
+                parameterMap.put("production_centre_organisation_id", phenotypedColony.getProductionCentre().getId());
+                parameterMap.put("production_consortium_project_id", phenotypedColony.getProductionConsortium().getId());
+                parameterMap.put("phenotyping_centre_organisation_id", phenotypedColony.getPhenotypingCentre().getId());
+                parameterMap.put("phenotyping_consortium_project_id", phenotypedColony.getPhenotypingConsortium().getId());
+                parameterMap.put("cohort_production_centre_organisation_id", phenotypedColony.getCohortProductionCentre().getId());
 
-        } catch (DuplicateKeyException e) {
+                count = npJdbcTemplate.update(query, parameterMap);
 
+            } catch (DuplicateKeyException e) {
+
+            }
         }
 
         return count;
@@ -654,7 +776,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             "FROM seq_region s\n" +
                             "JOIN coord_system c ON c.id = s.coord_system_id;";
 
-            List<SequenceRegion> sequenceRegionList = jdbcTemplate.query(query, new SequenceRegionRowMapper());
+            List<SequenceRegion> sequenceRegionList = npJdbcTemplate.query(query, new SequenceRegionRowMapper());
 
             for (SequenceRegion sequenceRegion : sequenceRegionList) {
                 sequenceRegions.put(sequenceRegion.getName(), sequenceRegion);
@@ -686,7 +808,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             logger.info("Loading strains.");
 
-            List<Strain> strainList = jdbcTemplate.query("SELECT * FROM strain", new StrainRowMapper());
+            List<Strain> strainList = npJdbcTemplate.query("SELECT * FROM strain", new StrainRowMapper());
 
             for (Strain strain : strainList) {
                 strains.put(strain.getId().getAccession(), strain);
@@ -699,72 +821,99 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
     /**
-     * Try to insert the strain. If the insert fails, return. If it succeeds, try to insert the synonyms.
+     * Try to insert the strain and, if successful, any synonyms.
      *
      * @param strain the {@link Strain} to be inserted
      *
      * @return a map, keyed by type (strains, synonyms) of the number of {@code strain} components inserted
      */
     public Map<String, Integer> insertStrain(Strain strain) throws DataImportException {
+        List<Strain> strainList = new ArrayList<>();
+        strainList.add(strain);
+        return insertStrains(strainList);
+    }
 
+    /**
+     * Try to insert the strains and, if successful, any synonyms.
+     *
+     * @param strains the {@link List} of {@link Strain} instances to be inserted
+     *
+     * @return a map, keyed by type (strains, synonyms) of the number of {@code strain} components inserted
+     */
+    public Map<String, Integer> insertStrains(List<Strain> strains) throws DataImportException {
         int count;
-        Map<String, Integer> counts = new HashMap<String, Integer>();
-        counts.put("strains", 0);
-        counts.put("synonyms", 0);
 
-        // Try to insert strain. Ignore DuplicateKeyExceptions.
-        try {
-            count = jdbcTemplate.update("INSERT INTO strain (acc, db_id, biotype_acc, biotype_db_id, name) VALUES (?, ?, ?, ?, ?)",
-                                        strain.getId().getAccession(),
-                                        strain.getId().getDatabaseId(),
-                                        (strain.getBiotype() == null ? null : strain.getBiotype().getId().getAccession()),
-                                        (strain.getBiotype() == null ? null : strain.getBiotype().getId().getDatabaseId()),
-                                        strain.getName());
+        Map<String, Integer> countsMap = new HashMap<String, Integer>();
+        countsMap.put("strains", 0);
+        countsMap.put("synonyms", 0);
 
-            counts.put("strains", counts.get("strains") + count);
+        final String strainInsert = "INSERT INTO strain (acc, db_id, biotype_acc, biotype_db_id, name) " +
+                                   "VALUES (:acc, :db_id, :biotype_acc, :biotype_db_id, :name)";
 
-        } catch (DuplicateKeyException e) {
-            return counts;
-        }
+        // Insert strains. Ignore any duplicates.
+        for (Strain strain : strains) {
+            try {
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("acc", strain.getId().getAccession());
+                parameterMap.put("db_id", strain.getId().getDatabaseId());
+                parameterMap.put("biotype_acc", (strain.getBiotype() == null ? null : strain.getBiotype().getId().getAccession()));
+                parameterMap.put("biotype_db_id", (strain.getBiotype() == null ? null : strain.getBiotype().getId().getDatabaseId()));
+                parameterMap.put("name", strain.getName());
 
-        // Try to insert synonyms. Ignore DuplicateKeyExceptions.
-        if (strain.getSynonyms() != null) {
-            for (Synonym synonym : strain.getSynonyms()) {
-                try {
-                    count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                                synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
+                count = npJdbcTemplate.update(strainInsert, parameterMap);
+                countsMap.put("strains", countsMap.get("strains") + count);
 
-                    counts.put("synonyms", counts.get("synonyms") + count);
+            } catch (DuplicateKeyException e) {
+                continue;
+            }
 
-                    if (count > 0) {
-                        updateSynonymMap(synonym.getAccessionId(), synonym);
+            // Insert synonyms. Ignore any duplicates.
+            if (strain.getSynonyms() != null) {
+                for (Synonym synonym : strain.getSynonyms()) {
+                    try {
+                        Map<String, Object> parameterMap = new HashMap<>();
+                        parameterMap.put("acc", synonym.getAccessionId());
+                        parameterMap.put("db_id", synonym.getDbId());
+                        parameterMap.put("symbol", synonym.getSymbol());
+
+                        count = insertStrainSynonym(synonym);
+                        countsMap.put("synonyms", countsMap.get("synonyms") + count);
+
+                        if (count > 0) {
+                            updateSynonymMap(synonym.getAccessionId(), synonym);
+                        }
+
+                    } catch (DuplicateKeyException dke) {
+
                     }
-
-                } catch (DuplicateKeyException dke) {
-
                 }
             }
         }
 
-        return counts;
+        return countsMap;
     }
 
     /**
-     * Inserts the given synonym using {@code strain}'s id
+     * Inserts the given synonym
      *
-     * @param strain the strain instance whose synonym is to be inserted
      * @param synonym the synonym to be inserted
      *
      * @return an int indicating the number of synonyms added
      *
-     * @throws DataImportException if synonym already exists
      */
-    public int insertStrainSynonym(Strain strain, Synonym synonym) throws DataImportException {
+    public int insertStrainSynonym(Synonym synonym)  {
         int count = 0;
 
+        final String query = "INSERT INTO synonym (acc, db_id, symbol) " +
+                             "VALUES (:acc, :db_id, :symbol)";
+
         try {
-            count = jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
-                                        synonym.getAccessionId(), synonym.getDbId(), synonym.getSymbol());
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("acc", synonym.getAccessionId());
+            parameterMap.put("db_id", synonym.getDbId());
+            parameterMap.put("symbol", synonym.getSymbol());
+
+            count = npJdbcTemplate.update(query, parameterMap);
 
             if (count > 0) {
                 updateSynonymMap(synonym.getAccessionId(), synonym);
@@ -815,7 +964,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         if (synonyms == null) {
             synonyms = new ConcurrentHashMap<>();
             String lastAcc = "";
-            List<Synonym> synonymList = jdbcTemplate.query("SELECT * FROM synonym ORDER BY acc", new SynonymRowMapper());
+            List<Synonym> synonymList = npJdbcTemplate.query("SELECT * FROM synonym ORDER BY acc", new SynonymRowMapper());
             List<Synonym> accSynonyms = new ArrayList<>();
             for (Synonym synonym : synonymList) {
                 if ( ! lastAcc.equals(synonym.getAccessionId())) {
@@ -889,7 +1038,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, List<Xref>> getXrefs() {
         Map<String, List<Xref>> xrefs = new ConcurrentHashMap<>();
 
-        List<Xref> xrefList = jdbcTemplate.query("SELECT * FROM xref", new XrefRowMapper());
+        List<Xref> xrefList = npJdbcTemplate.query("SELECT * FROM xref", new XrefRowMapper());
 
         for (Xref xref : xrefList) {
             if ( ! xrefs.containsKey(xref.getAccession())) {

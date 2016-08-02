@@ -53,6 +53,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
     public Map<FilenameKeys, String>   alleleKeys       = new HashMap<>();
     private final Logger               logger           = LoggerFactory.getLogger(this.getClass());
+    private int                        totalAlleles     = 0;
 
     private FlatFileItemReader<Allele> eucommReader     = new FlatFileItemReader<>();
     private FlatFileItemReader<Allele> genophenoReader  = new FlatFileItemReader<>();
@@ -273,7 +274,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         Step loadPhenotypicsStep = stepBuilderFactory.get("alleleLoaderPhenotypicStep")
                 .listener(new AlleleLoaderPhenotypicStepListener())
-                .chunk(1000)
+                .chunk(100000)
                 .reader(phenotypicReader)
                 .processor(alleleProcessorPhenotypic)
                 .writer(writer)
@@ -281,7 +282,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         Step loadQtlsStep = stepBuilderFactory.get("alleleLoaderQtlStep")
                 .listener(new AlleleLoaderQtlStepListener())
-                .chunk(1000)
+                .chunk(50000)
                 .reader(qtlReader)
                 .processor(alleleProcessorQtl)
                 .writer(writer)
@@ -289,7 +290,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         Step loadEucommStep = stepBuilderFactory.get("alleleLoaderEucommStep")
                 .listener(new AlleleLoaderEucommStepListener())
-                .chunk(1000)
+                .chunk(50000)
                 .reader(eucommReader)
                 .processor(alleleProcessorEucomm)
                 .writer(writer)
@@ -297,7 +298,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         Step loadKompStep = stepBuilderFactory.get("alleleLoaderKompStep")
                 .listener(new AlleleLoaderKompStepListener())
-                .chunk(1000)
+                .chunk(50000)
                 .reader(kompReader)
                 .processor(alleleProcessorKomp)
                 .writer(writer)
@@ -305,7 +306,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         Step loadNorcommStep = stepBuilderFactory.get("alleleLoaderNorcommStep")
                 .listener(new AlleleLoaderNorcommStepListener())
-                .chunk(1000)
+                .chunk(5000)
                 .reader(norcommReader)
                 .processor(alleleProcessorNorcomm)
                 .writer(writer)
@@ -313,7 +314,7 @@ public class AlleleLoader implements InitializingBean, Step {
 
         Step loadGenophenoStep = stepBuilderFactory.get("alleleLoaderGenophenoStep")
                 .listener(new AlleleLoaderGenophenoStepListener())
-                .chunk(1000)
+                .chunk(50000)
                 .reader(genophenoReader)
                 .processor(alleleProcessorGenopheno)
                 .writer(writer)
@@ -363,11 +364,18 @@ public class AlleleLoader implements InitializingBean, Step {
     }
 
     public class AlleleLoaderPhenotypicStepListener extends LogStatusStepListener {
+        @Override
+        public void beforeStep(StepExecution stepExecution) {
+            super.beforeStep(stepExecution);
+            writer.resetWritten();
+        }
 
         @Override
         protected Set<String> logStatus() {
+            int alleleCount = writer.getWritten();
+            totalAlleles += alleleCount;
             logger.info("PHENOTYPIC: Added {} new alleles to database from file {} in {}. Alleles without genes: {}.",
-                    ((AlleleProcessorPhenotypic) alleleProcessorPhenotypic).getAddedAllelesCount(),
+                    alleleCount,
                     alleleKeys.get(FilenameKeys.PHENOTYPIC),
                     commonUtils.formatDateDifference(start, stop),
                     ((AlleleProcessorPhenotypic) alleleProcessorPhenotypic).getAllelesWithoutGenesCount());
@@ -377,11 +385,18 @@ public class AlleleLoader implements InitializingBean, Step {
     }
 
     public class AlleleLoaderQtlStepListener extends LogStatusStepListener {
+        @Override
+        public void beforeStep(StepExecution stepExecution) {
+            super.beforeStep(stepExecution);
+            writer.resetWritten();
+        }
 
         @Override
         protected Set<String> logStatus() {
+            int alleleCount = writer.getWritten();
+            totalAlleles += alleleCount;
             logger.info("QTL: Added {} new alleles to database from file {} in {}. Alleles without genes: {}.",
-                    ((AlleleProcessorQtl) alleleProcessorQtl).getAddedAllelesCount(),
+                    alleleCount,
                     alleleKeys.get(FilenameKeys.QTL),
                     commonUtils.formatDateDifference(start, stop),
                     ((AlleleProcessorQtl) alleleProcessorQtl).getAllelesWithoutGenesCount());
@@ -391,11 +406,18 @@ public class AlleleLoader implements InitializingBean, Step {
     }
 
     public class AlleleLoaderEucommStepListener extends LogStatusStepListener {
+        @Override
+        public void beforeStep(StepExecution stepExecution) {
+            super.beforeStep(stepExecution);
+            writer.resetWritten();
+        }
 
         @Override
         protected Set<String> logStatus() {
+            int alleleCount = writer.getWritten();
+            totalAlleles += alleleCount;
             logger.info("EUCOMM: Added {} new alleles to database from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
-                    ((AlleleProcessorEucomm) alleleProcessorEucomm).getAddedAllelesCount(),
+                    alleleCount,
                     alleleKeys.get(FilenameKeys.EUCOMM),
                     commonUtils.formatDateDifference(start, stop),
                     ((AlleleProcessorEucomm) alleleProcessorEucomm).getAllelesWithoutGenesCount(),
@@ -406,11 +428,18 @@ public class AlleleLoader implements InitializingBean, Step {
     }
 
     public class AlleleLoaderKompStepListener extends LogStatusStepListener {
+        @Override
+        public void beforeStep(StepExecution stepExecution) {
+            super.beforeStep(stepExecution);
+            writer.resetWritten();
+        }
 
         @Override
         protected Set<String> logStatus() {
+            int alleleCount = writer.getWritten();
+            totalAlleles += alleleCount;
             logger.info("KOMP: Added {} new alleles to database from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
-                    ((AlleleProcessorKomp) alleleProcessorKomp).getAddedAllelesCount(),
+                    alleleCount,
                     alleleKeys.get(FilenameKeys.KOMP),
                     commonUtils.formatDateDifference(start, stop),
                     ((AlleleProcessorKomp) alleleProcessorKomp).getAllelesWithoutGenesCount(),
@@ -421,11 +450,18 @@ public class AlleleLoader implements InitializingBean, Step {
     }
 
     public class AlleleLoaderNorcommStepListener extends LogStatusStepListener {
+        @Override
+        public void beforeStep(StepExecution stepExecution) {
+            super.beforeStep(stepExecution);
+            writer.resetWritten();
+        }
 
         @Override
         protected Set<String> logStatus() {
+            int alleleCount = writer.getWritten();
+            totalAlleles += alleleCount;
             logger.info("NORCOMM: Added {} new alleles to database from file {} in {}. Alleles without genes: {}. Withdrawn count: {}.",
-                    ((AlleleProcessorNorcomm) alleleProcessorNorcomm).getAddedAllelesCount(),
+                    alleleCount,
                     alleleKeys.get(FilenameKeys.NORCOMM),
                     commonUtils.formatDateDifference(start, stop),
                     ((AlleleProcessorNorcomm) alleleProcessorNorcomm).getAllelesWithoutGenesCount(),
@@ -436,16 +472,22 @@ public class AlleleLoader implements InitializingBean, Step {
     }
 
     public class AlleleLoaderGenophenoStepListener extends LogStatusStepListener {
+        @Override
+        public void beforeStep(StepExecution stepExecution) {
+            super.beforeStep(stepExecution);
+            writer.resetWritten();
+        }
 
         @Override
         protected Set<String> logStatus() {
-
+            int alleleCount = writer.getWritten();
+            totalAlleles += alleleCount;
             logger.info("GENOPHENO: Added {} new alleles to database from file {} in {}. Alleles without genes: {}.",
-                    ((AlleleProcessorGenopheno) alleleProcessorGenopheno).getAddedAllelesCount(),
+                    alleleCount,
                     alleleKeys.get(FilenameKeys.GENOPHENO),
                     commonUtils.formatDateDifference(start, stop),
                     ((AlleleProcessorGenopheno) alleleProcessorGenopheno).getAllelesWithoutGenesCount());
-            logger.info("  Wrote {} alleles to database.", writer.getWritten());
+            logger.info("  Wrote {} alleles to database.", totalAlleles);
             logger.info("");
 
             return ((AlleleProcessorGenopheno) alleleProcessorGenopheno).getErrMessages();

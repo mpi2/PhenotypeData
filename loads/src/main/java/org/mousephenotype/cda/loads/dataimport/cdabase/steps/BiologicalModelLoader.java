@@ -156,7 +156,7 @@ public class BiologicalModelLoader implements InitializingBean, Step {
 
         Step loadBioModelStep = stepBuilderFactory.get("loadBioModelStep")
                 .listener(new BiologicalModelLoaderStepListener())
-                .chunk(1000)
+                .chunk(200000)
                 .reader(bioModelReader)
                 .processor(bioModelProcessor)
                 // Don't add a writer here, as this processing simply populates the bioModels map.
@@ -195,9 +195,8 @@ public class BiologicalModelLoader implements InitializingBean, Step {
             }
 
             stop = new Date();
-            Map<String, Integer> counts = writer.getWritten();
             logger.info("  Wrote {} bioModels, {} bioModelAlleles, {} bioModelGenomicFeatures, and {} bioModelPhenotypes to database in {}",
-                    counts.get("bioModels"), counts.get("bioModelAlleles"), counts.get("bioModelGenomicFeatures"), counts.get("bioModelPhenotypes"),
+                    writer.getWrittenBioModels(), writer.getWrittenBioModelAlleles(), writer.getWrittenBioModelGenomicFeatures(), writer.getWrittenBioModelPhenotypes(),
                     commonUtils.formatDateDifference(start, stop));
             logger.info("");
 
