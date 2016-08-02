@@ -87,6 +87,15 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 		assert (results.size() > 100);
 	}
 
+
+	@Test
+	public void getGrossPathologyResults() throws Exception {
+
+		List<StatisticalResultDTO> results = statisticalResultIndexer.getGrossPathologyResults().call();
+		assert (results.size() > 100);
+	}
+
+
 	@Test
 	public void getSignificanceField() throws Exception {
 

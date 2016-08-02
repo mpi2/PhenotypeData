@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
+import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -69,7 +69,7 @@ public class MarkerProcessorXrefGenes implements ItemProcessor<List<Xref>, List<
 
     @Autowired
     @Qualifier("cdabaseLoaderUtils")
-    private CdabaseLoaderUtils cdabaseLoaderUtils;
+    private CdabaseSqlUtils cdabaseSqlUtils;
 
 
     public MarkerProcessorXrefGenes(Map<String, GenomicFeature> genomicFeatures) {

@@ -16,14 +16,15 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
+import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mrelac on 26/04/16.
@@ -32,9 +33,17 @@ import java.util.List;
 // For more info on ScopedProxyMode, see https://shekhargulati.com/2010/10/30/spring-scoped-proxy-beans-an-alternative-to-method-injection/
 public class OntologyWriter implements ItemWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Map<String, Integer> written = new HashMap<>();
 
     @Autowired
-    private CdabaseLoaderUtils cdabaseLoaderUtils;
+    private CdabaseSqlUtils cdabaseSqlUtils;
+
+    public OntologyWriter() {
+
+        written.put("terms", 0);
+        written.put("synonyms", 0);
+        written.put("considerIds", 0);
+    }
 
 
     /**
@@ -47,11 +56,21 @@ public class OntologyWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
+        Map<String, Integer> counts = cdabaseSqlUtils.insertOntologyTerm(items);
+        written.put("terms", written.get("terms") + counts.get("terms"));
+        written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
+        written.put("considerIds", written.get("considerIds") + counts.get("considerIds"));
+    }
 
-        for (Object term1 : items) {
-            OntologyTerm term = (OntologyTerm) term1;
+    public int getWrittenTerms() {
+        return written.get("terms");
+    }
 
-            cdabaseLoaderUtils.insertOntologyTerm(term);
-        }
+    public int getWrittenSynonyms() {
+        return written.get("synonyms");
+    }
+
+    public int getWrittenConsiderIds() {
+        return written.get("considerIds");
     }
 }

@@ -20,7 +20,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
+import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseSqlUtils;
 import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
     @Autowired
     @Qualifier("cdabaseLoaderUtils")
-    private CdabaseLoaderUtils cdabaseLoaderUtils;
+    private CdabaseSqlUtils cdabaseSqlUtils;
 
     private final String[] expectedHeadings = new String[] {
               "Marker Symbol"
@@ -110,18 +110,18 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
                 }
             }
 
-            organisations = cdabaseLoaderUtils.getOrganisations();
-            projects = cdabaseLoaderUtils.getProjects();
+            organisations = cdabaseSqlUtils.getOrganisations();
+            projects = cdabaseSqlUtils.getProjects();
 
             return null;
         }
 
         // Populate the necessary collections.
         if ((genes == null) || (genes.isEmpty())) {
-            genes = cdabaseLoaderUtils.getGenes();
+            genes = cdabaseSqlUtils.getGenes();
         }
         if ((alleles == null) || (alleles.isEmpty())) {
-            alleles = cdabaseLoaderUtils.getAlleles();
+            alleles = cdabaseSqlUtils.getAlleles();
         }
         if (alleleSymbolToAccessionIdMap == null) {
             alleleSymbolToAccessionIdMap = new HashMap<>();
@@ -135,7 +135,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             }
         }
         if ((strains == null) || (strains.isEmpty())) {
-            strains = cdabaseLoaderUtils.getStrains();
+            strains = cdabaseSqlUtils.getStrains();
         }
         if (strainNameToAccessionIdMap == null) {
             strainNameToAccessionIdMap = new HashMap<>();
@@ -157,10 +157,10 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             gene.setId(id);
             gene.setSymbol(markerSymbol);
             gene.setName(markerSymbol);
-            OntologyTerm biotype = cdabaseLoaderUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), "unknown");       // name = "unknown" (description = "A gene with no subtype")
+            OntologyTerm biotype = cdabaseSqlUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), "unknown");       // name = "unknown" (description = "A gene with no subtype")
             gene.setBiotype(biotype);
-            gene.setStatus(CdabaseLoaderUtils.STATUS_ACTIVE);
-            Map<String, Integer> counts = cdabaseLoaderUtils.insertGene(gene);
+            gene.setStatus(CdabaseSqlUtils.STATUS_ACTIVE);
+            Map<String, Integer> counts = cdabaseSqlUtils.insertGene(gene);
             if (counts.get("genes") > 0) {
                 addedGenesCount += counts.get("genes");
                 genes.put(gene.getId().getAccession(), gene);
@@ -199,13 +199,15 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             allele.setName(newPhenotypedColony.getAllele().getSymbol());
             OntologyTerm biotype = new OntologyTerm("CV:00000013", DbIdType.MGI.intValue());
             allele.setBiotype(biotype);
-            int count = cdabaseLoaderUtils.insertAllele(allele);
+            List<Allele> alleleList = new ArrayList<>();
+            alleleList.add(allele);
+            int count = cdabaseSqlUtils.insertAlleles(alleleList);
             if (count > 0) {
                 addedAllelesCount += count;
                 alleles.put(allele.getId().getAccession(), allele);
-                List<String> alleleList = new ArrayList<>();
-                alleleList.add(allele.getId().getAccession());
-                alleleSymbolToAccessionIdMap.put(allele.getSymbol(), alleleList);
+                List<String> alleleAccessionIdList = new ArrayList<>();
+                alleleAccessionIdList.add(allele.getId().getAccession());
+                alleleSymbolToAccessionIdMap.put(allele.getSymbol(), alleleAccessionIdList);
             }
         }
         newPhenotypedColony.setAllele(allele);
@@ -228,7 +230,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             strain = new Strain();
             strain.setId(id);
             strain.setName(strainName);
-            Map<String, Integer> counts = cdabaseLoaderUtils.insertStrain(strain);
+            Map<String, Integer> counts = cdabaseSqlUtils.insertStrain(strain);
             if (counts.get("strains") > 0) {
                 addedStrainsCount += counts.get("strains");
                 strains.put(strain.getId().getAccession(), strain);
