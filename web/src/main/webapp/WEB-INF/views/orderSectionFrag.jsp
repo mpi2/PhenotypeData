@@ -76,8 +76,8 @@
                           
                           <td style="text-align: center;" rowspan="${rowSpan}">
                           <c:if test="${row.targetingVectorAvailable}">
-                          	<a class="btn" href="${baseUrl}/orderVector?acc=${acc}&allele=${row.alleleName}"><i class="fa fa-shopping-cart"></i></a>
-                          	<a class="fancybox" target="_blank" style="text-align:right" href="${baseUrl}/orderVector?acc=${acc}&allele=${row.alleleName}" fullRes="${target.link}" original="${target.link}">
+                          	<a class="btn" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector"><i class="fa fa-shopping-cart"></i></a>
+                          	<a class="fancybox" target="_blank" style="text-align:right" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}" fullRes="${target.link}" original="${target.link}">
 	                                   
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   
@@ -86,12 +86,12 @@
                           </td>
                           <td style="text-align: center;" rowspan="${rowSpan}">
                            <c:if test="${not empty row.esCellAvailable}">
-                          	<a class="btn btn-lg" href="${orderEsCell.link}"><i class="fa fa-shopping-cart"></i></a>
+                          	<a class="btn btn-lg" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=es_cell"><i class="fa fa-shopping-cart"></i></a>
                           </c:if>
                           </td>
                           <td style="text-align: center;" rowspan="${rowSpan}">
                            <c:if test="${row.mouseAvailable}">
-                          	<a class="btn" href="${orderMouse.link}"><i class="fa fa-shopping-cart"></i></a>
+                          	<a class="btn" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=mouse"><i class="fa fa-shopping-cart"></i></a>
                           </c:if>
                           </td>
                             
