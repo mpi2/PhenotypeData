@@ -69,6 +69,9 @@
  											<c:if test="${fn:length(prod.qcData)>0}">
  											 	<a class="btn" href="${baseUrl}/alleles/qc_data/es_cell/${prod.name}"><i class="fa fa-info"></i>QC Data</a> </td>
  											</c:if>
+ 											<c:if test="${fn:length(prod.qcData)==0}">
+ 											No QC Data Available
+ 											</c:if>
  											 </tr>
  											</c:forEach> 
  																				
