@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,13 +49,14 @@ public class AlleleWriter implements ItemWriter {
     @Override
     public void write(List items) throws Exception {
 
-        for (Object allele1 : items) {
-            Allele allele = (Allele) allele1;
-            written += cdabaseLoaderUtils.insertAllele(allele);
-        }
+        written += cdabaseLoaderUtils.insertAlleles(items);
     }
 
     public int getWritten() {
         return written;
+    }
+
+    public void resetWritten() {
+        written = 0;
     }
 }

@@ -44,11 +44,11 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
     private       int                 addedStrainNotSynonymCount  = 0;
     private       int                 addedEucommSynonymsCount    = 0;
     private       Map<String, Allele> allelesMap;                                           // Key = accession id. Value = Allele instance.
-    public final  Set<String> errorMessages         = new HashSet<>();
-    private       int         lineNumber            = 0;
-    private final Logger      logger                = LoggerFactory.getLogger(this.getClass());
-    private       int         strainIsAlleleCount   = 0;
-    private       int         strainNotSynonymCount = 0;
+    public final  Set<String>         errorMessages               = new HashSet<>();
+    private       int                 lineNumber                  = 0;
+    private final Logger              logger                      = LoggerFactory.getLogger(this.getClass());
+    private       int                 strainIsAlleleCount         = 0;
+    private       int                 strainNotSynonymCount       = 0;
     private       Map<String, Strain> strainsMap;                                           // Key = accession id. Value = Strain instance.
     private       Map<String, String> strainNameToAccessionIdMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);    // key = strain name (strainStock). Value = strain accession id with the same strain name
 
@@ -144,7 +144,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
                     newSynonym.setDbId(strainAsSynonym.getId().getDatabaseId());
                     strainAsSynonym.getSynonyms().add(newSynonym);
                     strainsMap.put(strainAsSynonym.getId().getAccession(), strainAsSynonym);
-                    cdabaseLoaderUtils.insertStrainSynonym(strainAsSynonym, newSynonym);
+                    cdabaseLoaderUtils.insertStrainSynonym(newSynonym);
 
                     return null;
                 }
