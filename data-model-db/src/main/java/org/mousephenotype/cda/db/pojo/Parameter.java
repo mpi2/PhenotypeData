@@ -15,38 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.pojo;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-/**
- *
- * A concrete representation of phenotype parameter within a pipeline.
- *
- * A parameter has a name and stable id. A collection of meta information is
- * attached to the procedure.
- *
- * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @since February 2012
- * @see PipelineEntry
- */
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.mousephenotype.cda.enumerations.CategoriesExclude;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * A concrete representation of phenotype parameter within a pipeline.
+ * <p>
+ * A parameter has a name and stable id. A collection of meta information is
+ * attached to the procedure.
+ *
+ * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
+ * @see PipelineEntry
+ * @since February 2012
+ */
 
 
 @Entity
@@ -522,6 +511,30 @@ public class Parameter extends PipelineEntry {
 		}
 
 		return units;
+	}
+
+	public String getXUnit(){
+
+		String xUnit = "";
+		if (isIncrementFlag()) {
+			for (ParameterIncrement increment: increments) {
+				// one is not enough
+				if (increment.getValue().length() > 0 || increments.size() == 1) {
+					xUnit = increment.getUnit();
+					break;
+				}
+			}
+		} else {
+			xUnit = unit;
+		}
+		return xUnit;
+
+	}
+
+	public String getYUnit(){
+
+		return (isIncrementFlag()) ? unit : null;
+
 	}
 
 	/**

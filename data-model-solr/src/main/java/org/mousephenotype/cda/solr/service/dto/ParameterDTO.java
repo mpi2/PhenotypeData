@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import org.mousephenotype.cda.enumerations.ObservationType;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.mousephenotype.cda.enumerations.ObservationType;
 
 /**
  * @since 2015/07/28
@@ -39,7 +39,8 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	String parameterType;
 	String maId;
 	String maName;
-	String unit;
+	String unitY;
+	String unitX;
 
 	List<String> abnormalMpId;
 	List<String> increasedMpId;
@@ -53,6 +54,25 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	List<String> mpIds = new ArrayList<>();
 	
 	private String emapId;
+	private String emapName;
+
+
+	public String getUnitY() {
+		return unitY;
+	}
+
+	public void setUnitY(String unitY) {
+		this.unitY = unitY;
+	}
+
+	public String getUnitX() {
+		return unitX;
+	}
+
+	public void setUnitX(String unitX) {
+		this.unitX = unitX;
+	}
+
 	public String getEmapId() {
 		return emapId;
 	}
@@ -65,9 +85,6 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	public void setEmapName(String emapName) {
 		this.emapName = emapName;
 	}
-	private String emapName;
-	
-	
 	public List<String> getProcedureNames() {
 		return procedureNames;
 	}
@@ -148,12 +165,7 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	public void setMaName(String maName) {
 		this.maName = maName;
 	}
-	public String getUnit() {
-		return unit;
-	}
-	public void setUnit(String unit) {
-		this.unit = unit;
-	}
+
 	public ObservationType getObservationType() {
 		return observationType;
 	}
@@ -233,18 +245,34 @@ public class ParameterDTO  extends ImpressBaseDTO{
 		}
 		this.decreasedMpId.add(mpId);
 	}
+
 	@Override
 	public String toString() {
-		return "ParameterDTO [id=" + getId() + ", stableKey=" + getStableKey() + ", stableId=" + getStableId() + ", name=" + getName()  
-				+ "increment=" + increment + ", metadata=" + metadata + ", options=" + options + ", derived="
-				+ derived + ", required=" + required + ", media=" + media + ", dataType=" + dataType
-				+ ", parameterType=" + parameterType + ", maId=" + maId + ", maName=" + maName + ", unit=" + unit
-				+ ", observationType=" + observationType + ", procedureStableIds=" + procedureStableIds
-				+ ", categories=" + categories + ", mpIds=" + mpIds + "]";
+		return "ParameterDTO{" +
+				"increment=" + increment +
+				", metadata=" + metadata +
+				", options=" + options +
+				", derived=" + derived +
+				", required=" + required +
+				", media=" + media +
+				", annotate=" + annotate +
+				", dataType='" + dataType + '\'' +
+				", parameterType='" + parameterType + '\'' +
+				", maId='" + maId + '\'' +
+				", maName='" + maName + '\'' +
+				", unitY='" + unitY + '\'' +
+				", unitX='" + unitX + '\'' +
+				", abnormalMpId=" + abnormalMpId +
+				", increasedMpId=" + increasedMpId +
+				", decreasedMpId=" + decreasedMpId +
+				", observationType=" + observationType +
+				", procedureStableIds=" + procedureStableIds +
+				", procedureNames=" + procedureNames +
+				", categories=" + categories +
+				", mpIds=" + mpIds +
+				", emapId='" + emapId + '\'' +
+				", emapName='" + emapName + '\'' +
+				'}';
 	}
-	
-	
-	
-	
-	
+
 }

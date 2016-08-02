@@ -43,7 +43,8 @@ public class ImpressDTO {
 
 	public static final String REQUIRED = "required";
 	public static final String DESCRIPTION = "description";
-	public static final String UNIT = "unit";
+	public static final String UNITX = "unit_x";
+	public static final String UNITY = "unit_y";
 	public static final String INCREMENT = "increment";
 	public static final String METADATA = "metadata";
 	public static final String HAS_OPTIONS = "has_options";
@@ -54,7 +55,7 @@ public class ImpressDTO {
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 
 
-	public static final String MP_ID = MpDTO.MP_ID; // All possible MP terms 
+	public static final String MP_ID = MpDTO.MP_ID; // All possible MP terms
 	public static final String MP_TERM = MpDTO.MP_TERM;
 	public static final String MP_TERM_SYNONYM = MpDTO.MP_TERM_SYNONYM;
 	public static final String TOP_LEVEL_MP_ID = MpDTO.TOP_LEVEL_MP_ID;
@@ -102,12 +103,15 @@ public class ImpressDTO {
 
 	@Field(DECREASED_MP_TERM)
 	List<String> decreasedMpTerm;
-	
+
 	@Field(CATEGORIES)
 	private List<String> catgories;
 
-	@Field(UNIT)
-	private String unit;
+	@Field(UNITX)
+	private String unitX;
+
+	@Field(UNITY)
+	private String unitY;
 
 	@Field(INCREMENT)
 	private boolean increment;
@@ -276,7 +280,7 @@ public class ImpressDTO {
 		return emapTerm;
 	}
 
-	
+
 	public List<String> getIncreasedMpTerm() {
 		return increasedMpTerm;
 	}
@@ -315,12 +319,12 @@ public class ImpressDTO {
 	public void setDecreasedMpTerm(List<String> decreasedMpTerm) {
 		this.decreasedMpTerm = decreasedMpTerm;
 	}
-	
+
 	public void addDecreasedMpTerm(String mpTerm){
 		if (this.decreasedMpTerm == null){
 			this.decreasedMpTerm = new ArrayList<>();
 		}
-		decreasedMpId.add(mpTerm);
+		decreasedMpTerm.add(mpTerm);
 	}
 
 
@@ -417,7 +421,7 @@ public class ImpressDTO {
 		this.catgories = catgories;
 	}
 
-	
+
 	public String getObservationType() {
 		return observationType;
 	}
@@ -894,16 +898,21 @@ public class ImpressDTO {
 		this.maTerm = maName;
 	}
 
-
-	public String getUnit() {
-		return unit;
+	public String getUnitX() {
+		return unitX;
 	}
 
-
-	public void setUnit(String unit) {
-		this.unit = unit;
+	public void setUnitX(String unitX) {
+		this.unitX = unitX;
 	}
 
+	public String getUnitY() {
+		return unitY;
+	}
+
+	public void setUnitY(String unitY) {
+		this.unitY = unitY;
+	}
 
 	public boolean isIncrement() {
 		return increment;
@@ -1007,7 +1016,9 @@ public class ImpressDTO {
 		if (decreasedMpTerm != null ? !decreasedMpTerm.equals(that.decreasedMpTerm) : that.decreasedMpTerm != null)
 			return false;
 		if (catgories != null ? !catgories.equals(that.catgories) : that.catgories != null) return false;
-		if (unit != null ? !unit.equals(that.unit) : that.unit != null) return false;
+		if (unitY != null ? !unitY.equals(that.unitY) : that.unitY != null) return false;
+		if (unitX != null ? !unitX.equals(that.unitX) : that.unitX != null) return false;
+
 		if (description != null ? !description.equals(that.description) : that.description != null) return false;
 		if (observationType != null ? !observationType.equals(that.observationType) : that.observationType != null)
 			return false;
@@ -1068,7 +1079,8 @@ public class ImpressDTO {
 		result = 31 * result + (abnormalMpTerm != null ? abnormalMpTerm.hashCode() : 0);
 		result = 31 * result + (decreasedMpTerm != null ? decreasedMpTerm.hashCode() : 0);
 		result = 31 * result + (catgories != null ? catgories.hashCode() : 0);
-		result = 31 * result + (unit != null ? unit.hashCode() : 0);
+		result = 31 * result + (unitY != null ? unitY.hashCode() : 0);
+		result = 31 * result + (unitX != null ? unitX.hashCode() : 0);
 		result = 31 * result + (increment ? 1 : 0);
 		result = 31 * result + (metadata ? 1 : 0);
 		result = 31 * result + (hasOptions ? 1 : 0);
@@ -1119,7 +1131,8 @@ public class ImpressDTO {
 	public String toString() {
 		return "ImpressDTO{" +
 				"catgories=" + catgories +
-				", unit='" + unit + '\'' +
+				", unitX='" + unitX + '\'' +
+				", unitY='" + unitY + '\'' +
 				", increment=" + increment +
 				", metadata=" + metadata +
 				", hasOptions=" + hasOptions +
