@@ -42,9 +42,9 @@ import java.util.List;
 /**
  * Created by mrelac on 02/03/2016.
  */
-public class DataImportUtils {
+public class DccSqlUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(DataImportUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(DccSqlUtils.class);
 
     public static String dumpSpecimen(Connection connection, long centerPk, long specimenPk) {
         String retVal = "";

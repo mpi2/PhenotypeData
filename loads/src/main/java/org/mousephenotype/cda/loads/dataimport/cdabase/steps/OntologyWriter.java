@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseLoaderUtils;
+import org.mousephenotype.cda.loads.dataimport.cdabase.support.CdabaseSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -36,7 +36,7 @@ public class OntologyWriter implements ItemWriter {
     private Map<String, Integer> written = new HashMap<>();
 
     @Autowired
-    private CdabaseLoaderUtils cdabaseLoaderUtils;
+    private CdabaseSqlUtils cdabaseSqlUtils;
 
     public OntologyWriter() {
 
@@ -56,7 +56,7 @@ public class OntologyWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        Map<String, Integer> counts = cdabaseLoaderUtils.insertOntologyTerm(items);
+        Map<String, Integer> counts = cdabaseSqlUtils.insertOntologyTerm(items);
         written.put("terms", written.get("terms") + counts.get("terms"));
         written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
         written.put("considerIds", written.get("considerIds") + counts.get("considerIds"));

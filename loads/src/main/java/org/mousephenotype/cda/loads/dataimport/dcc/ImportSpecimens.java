@@ -18,7 +18,7 @@ package org.mousephenotype.cda.loads.dataimport.dcc;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.mousephenotype.cda.loads.dataimport.dcc.support.DataImportUtils;
+import org.mousephenotype.cda.loads.dataimport.dcc.support.DccSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
@@ -138,22 +138,22 @@ public class ImportSpecimens {
                 ResultSet rs;
 
                 // center
-                centerPk = DataImportUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                centerPk = DccSqlUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 if (centerPk < 1) {
-                    centerPk = DataImportUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                    centerPk = DccSqlUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 }
 
                 // statuscode
                 if (specimen.getStatusCode() != null) {
-                    StatusCode existingStatuscode = DataImportUtils.selectOrInsertStatuscode(connection,
-                                                                                             specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
+                    StatusCode existingStatuscode = DccSqlUtils.selectOrInsertStatuscode(connection,
+                                                                                         specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
                     statuscodePk = existingStatuscode.getHjid();
                 } else {
                     statuscodePk = null;
                 }
 
                 // specimen
-                Specimen existingSpecimen = DataImportUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
+                Specimen existingSpecimen = DccSqlUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
                 if (existingSpecimen != null) {
                     specimenPk = existingSpecimen.getHjid();
                     // Validate that this specimen's info matches the existing one in the database.
@@ -300,7 +300,7 @@ public class ImportSpecimens {
                     ps.execute();
                 } catch (SQLException e) {
                     // Duplicate specimen
-                    System.out.println("DUPLICATE SPECIMEN: " + DataImportUtils.dumpSpecimen(connection, centerPk, specimenPk));
+                    System.out.println("DUPLICATE SPECIMEN: " + DccSqlUtils.dumpSpecimen(connection, centerPk, specimenPk));
                     connection.rollback();
                     continue;
                 }
