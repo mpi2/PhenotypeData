@@ -53,8 +53,7 @@
                                
                                <td style="text-align: center;">${target.label}</td>
                                <td>
-                               		
-	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
+                               			<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
 	                                   
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   
@@ -77,7 +76,7 @@
                           <td style="text-align: center;" rowspan="${rowSpan}">
                           <c:if test="${row.targetingVectorAvailable}">
                           	<a class="btn" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector"><i class="fa fa-shopping-cart"></i></a>
-                          	<a class="fancybox" target="_blank" style="text-align:right" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}" fullRes="${target.link}" original="${target.link}">
+                          	<a class="iFrameFancy" style="text-align:right" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector" >
 	                                   
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   
@@ -127,5 +126,38 @@
 
 </table>
 </c:if>
+<script type="text/javascript">
+<!--
+
+//-->
+$(document).ready(function () {
+
+	var base_url="${baseUrl}";
+	$('.iFrameFancy').click(function()
+		{
+		console.log('calling iframe fancy');
+ 			$.fancybox.open([ 
+                  {
+                     href : $(this).attr('data-url'), 
+                     title : 'fancy iframe'
+                  } 
+                  ], 
+                   { 
+                     'maxWidth'          : 1000, 
+                     'maxHeight'         : 1900, 
+                     'fitToView'         : false, 
+                     'width'             : '100%',  
+                     'height'            : '85%',  
+                     'autoSize'          : false,  
+                     'transitionIn'      : 'none', 
+                     'transitionOut'     : 'none', 
+                     'type'              : 'iframe', 
+                     scrolling           : 'auto' 
+                  }); 
+		}
+ 	);
+});
     
-    
+ </script>
+<!-- <iframe id="fancybox-frame1470216593610" name="fancybox-frame1470216593610" class="fancybox-iframe" frameborder="0" vspace="0" hspace="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen="" scrolling="auto" src="/data/charts?accession=MGI:95698&amp;parameter_stable_id=IMPC_CSD_034_001&amp;allele_accession=MGI:5637207&amp;zygosity=heterozygote&amp;phenotyping_center=MRC Harwell&amp;bare=true"></iframe>
+ -->	                               	
