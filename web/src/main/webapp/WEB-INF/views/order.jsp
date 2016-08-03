@@ -57,7 +57,7 @@
  											<!-- just to print out the order link in case there are multiple order names and links that aren't this one -->
 		 											<c:forEach var="orderName" items="${ entry.value[0].orderNames}" varStatus="repoIndex">
 		 											<c:if test="${orderName eq entry.key}">
-		 											<a class="btn" href="${ entry.value[0].orderLinks[repoIndex.index] }"><i class="fa fa-shopping-cart"></i></a>
+		 											<a class="btn" href="${ entry.value[0].orderLinks[repoIndex.index] }" target="_blank"><i class="fa fa-shopping-cart"></i></a>
 		 											</c:if>
 		 											</c:forEach>
 		 									</td>	
