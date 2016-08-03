@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by mrelac on 27/05/16.
  */
-public class CdabaseLoaderUtils {
+public class CdabaseSqlUtils {
 
     private Map<String, List<ConsiderId>> considerIds;      // keyed by ontology term accession id
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
