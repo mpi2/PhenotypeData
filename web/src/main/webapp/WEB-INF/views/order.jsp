@@ -30,7 +30,7 @@
 				<div class="block">
 					<div class="content">
 						<div class="node node-gene">
-							<h1 class="title" id="top">${type}: ${allele.markerSymbol} ${allele.alleleName}
+							<h1 class="title" id="top">${type.name}: ${allele.markerSymbol} ${allele.alleleName}
 								<span class="documentation">
 									<a href='' id='summarySection' class="fa fa-question-circle pull-right"></a>
 								</span>
@@ -65,10 +65,13 @@
  											<!-- loop through the products so we get their name and qc links -->
  											<c:forEach var="prod" items="${entry.value}">
  											<!--qc data links like this http://localhost:8080/phenotype-archive/alleles/qc_data/es_cell/EPD0386_3_A05/ -->
- 											<tr><td>	${prod.name} </td><td>
+ 											<tr><td>	${prod.name} </td>
+ 											<td>
  											<c:if test="${fn:length(prod.qcData)>0}">
- 											 	<a class="btn" href="${baseUrl}/alleles/qc_data/es_cell/${prod.name}"><i class="fa fa-info"></i>QC Data</a> </td>
- 											</c:if>
+ 											 	<a class="btn" href="${baseUrl}/qcData?type=${type}&productName=${prod.name}&bare=true"><i class="fa fa-info"></i>QC Data</a>
+ 											 	</c:if>
+ 											 </td>
+ 											
  											<c:if test="${fn:length(prod.qcData)==0}">
  											No QC Data Available
  											</c:if>

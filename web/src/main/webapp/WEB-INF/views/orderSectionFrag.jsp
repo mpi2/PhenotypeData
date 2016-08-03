@@ -75,22 +75,22 @@
                           
                           <td style="text-align: center;" rowspan="${rowSpan}">
                           <c:if test="${row.targetingVectorAvailable}">
-                          	<a class="btn" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector"><i class="fa fa-shopping-cart"></i></a>
-                          	<a class="iFrameFancy" style="text-align:right" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector" >
+                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector&bare=true"><i class="fa fa-shopping-cart"></i></a>
+                          	<%-- <a class="iFrameFancy" style="text-align:right" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector" >
 	                                   
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   
-	                                   </a>
+	                                   </a> --%>
                           </c:if>
                           </td>
                           <td style="text-align: center;" rowspan="${rowSpan}">
                            <c:if test="${not empty row.esCellAvailable}">
-                          	<a class="btn btn-lg" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=es_cell"><i class="fa fa-shopping-cart"></i></a>
+                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=es_cell&bare=true"><i class="fa fa-shopping-cart"></i></a>
                           </c:if>
                           </td>
                           <td style="text-align: center;" rowspan="${rowSpan}">
                            <c:if test="${row.mouseAvailable}">
-                          	<a class="btn" href="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=mouse"><i class="fa fa-shopping-cart"></i></a>
+                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=mouse&bare=true"><i class="fa fa-shopping-cart"></i></a>
                           </c:if>
                           </td>
                             
@@ -139,7 +139,7 @@ $(document).ready(function () {
  			$.fancybox.open([ 
                   {
                      href : $(this).attr('data-url'), 
-                     title : 'fancy iframe'
+                     title : 'Order Products'
                   } 
                   ], 
                    { 
