@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,9 +59,18 @@ public class OrderController {
 		
 		Map<String, List<ProductDTO>> productsByOrderName = orderService.getProductToOrderNameMap(acc, allele, orderType);
 		model.addAttribute("productsByName", productsByOrderName);
-		model.addAttribute("type", orderType.getName());
+		model.addAttribute("type", orderType);
 		return "order";
 	}
 	
+	@RequestMapping("/qcData")
+	public String qcData(@RequestParam (required= true) String type, @RequestParam (required=true)String productName, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
+		System.out.println("qcData being called with type="+type+" productName="+productName);
+		//get the qc_data list
+		OrderType orderType=OrderType.valueOf(type);
+		HashMap<String, HashMap<String, List<String>>> qcData = orderService.getProductQc(orderType, productName);
+		model.addAttribute("qcData", qcData);
+		return "qcData";
+	}
 
 }

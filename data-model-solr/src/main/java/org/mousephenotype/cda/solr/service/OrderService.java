@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import net.sf.json.JSONArray;
+
 @Service
 public class OrderService {
 
@@ -223,5 +225,74 @@ public class OrderService {
 		return alleleNameToProductsMap;
 
 	}
+
+	/**
+	 * 
+	 * @param type es_cell or mouse etc
+	 * @param productName e.g. EPD0386_3_A05
+	 * @return 
+	 * @throws SolrServerException 
+	 */
+	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName) throws SolrServerException {
+		ProductDTO prod=null;
+		List<String>qcData=null;
+		SolrQuery query = new SolrQuery();
+		String q="name:"+productName;
+		query.setQuery(q);
+		if (type != null) {
+			query.addFilterQuery("type:\"" + type + "\"");
+		}
+		query.setRows(Integer.MAX_VALUE);
+		if (type != null) {
+			query.addFilterQuery("type:" + type);
+		}
+		System.out.println("query for products=" + query);
+		QueryResponse response = productCore.query(query);
+		System.out.println("number found of products docs=" + response.getResults().getNumFound());
+		List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
+		System.out.println("number of productDTOs is " + productDTOs.size());
+		if(productDTOs.size()>1){
+			System.err.println("too many products returned for qc method");
+		}else{
+			prod=productDTOs.get(0);
+			qcData=prod.getQcData();
+		}
+		for(String qc:qcData){
+			System.out.println("qc="+qc);
+		}
+		
+		HashMap<String, HashMap<String, List<String>>> qcMap = extractQcData(qcData);
+		return qcMap;
+		
+	}
+	
+	/**
+	 * method copied from Peters code
+	 * @param docs
+	 * @param i
+	 * @return
+	 */
+	 private HashMap<String, HashMap<String, List<String>>> extractQcData(List<String> qcStrings) {
+	        HashMap<String, HashMap<String, List<String>>> deep = new HashMap<>();
+
+	        
+	        for (int j = 0; j < qcStrings.size(); j++) {
+	            String[] qc = qcStrings.get(j).split(":");
+
+	            String qc_group = qc != null && qc.length > 0 ? qc[0] : "";
+	            String qc_type = qc != null && qc.length > 1 ? qc[1] : "";
+	            String qc_result = qc != null && qc.length > 2 ? qc[2] : "";
+
+	            if (!deep.containsKey(qc_group)) {
+	                deep.put(qc_group, new HashMap<String, List<String>>());
+	                deep.get(qc_group).put("fieldNames", new ArrayList<>());
+	                deep.get(qc_group).put("values", new ArrayList<>());
+	            }
+	            deep.get(qc_group).get("fieldNames").add(qc_type.replace("_", " "));
+	            deep.get(qc_group).get("values").add(qc_result);
+	        }
+	        return deep;
+	    }
+
 
 }
