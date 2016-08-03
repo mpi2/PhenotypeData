@@ -306,27 +306,30 @@ public class IndexerMap {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public static Map<Integer, List<OntologyBean>> getOntologyParameterSubTerms(Connection connection) throws SQLException {
-		 Map<Integer, List<OntologyBean>> map = new HashMap<>();
-	        String query = "SELECT ontology_observation_id, acc, name, description, term_value FROM ontology_entity, ontology_term where ontology_entity.term=ontology_term.acc GROUP BY ontology_observation_id";
-	        try (PreparedStatement p = connection.prepareStatement(query)) {
+    public static Map<Integer, List<OntologyBean>> getOntologyParameterSubTerms(Connection connection) throws SQLException {
 
-	            ResultSet resultSet = p.executeQuery();
-	            while (resultSet.next()) {
-	            	List<OntologyBean>list;
-	                Integer ontObsId=resultSet.getInt("ontology_observation_id");
-	                OntologyBean b=new OntologyBean();
-	                b.setId(resultSet.getString("acc"));
-	                b.setName(resultSet.getString("name"));
-	                b.setDescription(resultSet.getString("description"));
-//	                b.setTermTextValue(resultSet.getString("term_value"));
-	                if(!map.containsKey(ontObsId)){
-	                	list = new ArrayList<>(0);
-	                	map.put(ontObsId, list);
-	                }
-	                map.get(resultSet.getInt("ontology_observation_id")).add(b);
-	            }
-	        }
-		return map;
-	}
+        Map<Integer, List<OntologyBean>> map = new HashMap<>();
+
+        String query = "SELECT ontology_observation_id, acc, name, description, term_value FROM ontology_entity, ontology_term WHERE ontology_entity.term = ontology_term.acc";
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+
+                Integer ontObsId = resultSet.getInt("ontology_observation_id");
+
+                OntologyBean b = new OntologyBean();
+                b.setId(resultSet.getString("acc"));
+                b.setName(resultSet.getString("name"));
+                b.setDescription(resultSet.getString("description"));
+
+                if ( ! map.containsKey(ontObsId)) {
+                    map.put(ontObsId, new ArrayList<>());
+                }
+
+                map.get(ontObsId).add(b);
+            }
+        }
+        return map;
+    }
 }
