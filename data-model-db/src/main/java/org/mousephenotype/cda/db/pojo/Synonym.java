@@ -24,17 +24,23 @@ package org.mousephenotype.cda.db.pojo;
  */
 
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 
 @Embeddable
 public class Synonym {
 
-	int id;
-
 	private String symbol;
 
+	// These transient fields were added to provide a place to save the parent's accessionId and dbId for data loading.
+	@Transient
+	private String accessionId;
+
+	@Transient
+	private int dbId;
+
 	public Synonym() {
-		super();
+
 	}
 
 	/**
@@ -51,12 +57,28 @@ public class Synonym {
 		this.symbol = symbol;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "Synonym [id=" + id + ", symbol=" + symbol + "]";
+	public String getAccessionId() {
+		return accessionId;
 	}
 
+	public void setAccessionId(String accessionId) {
+		this.accessionId = accessionId;
+	}
+
+	public int getDbId() {
+		return dbId;
+	}
+
+	public void setDbId(int dbId) {
+		this.dbId = dbId;
+	}
+
+	@Override
+	public String toString() {
+		return "Synonym{" +
+				"symbol='" + symbol + '\'' +
+				", accessionId='" + accessionId + '\'' +
+				", dbId=" + dbId +
+				'}';
+	}
 }

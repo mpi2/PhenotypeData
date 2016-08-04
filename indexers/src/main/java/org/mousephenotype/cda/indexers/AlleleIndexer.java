@@ -69,10 +69,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private String imitsSolrHost;
 
     @NotNull
-    @Value("${phenodigm.solrserver}")
-    private String phenodigmSolrServer;
-
-    @NotNull
     @Value("${human2mouseFilename}")
     private String human2mouseFilename;
 
@@ -138,7 +134,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     }
 
     private SolrServer sangerAlleleCore;
-    private SolrServer phenodigmCore;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -156,7 +151,11 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     @Qualifier("pfamDataSource")
     DataSource pfamDataSource;
 
-    @Autowired
+	@Autowired
+	@Qualifier("phenodigmCore")
+	private SolrServer phenodigmCore;
+
+	@Autowired
     @Qualifier("alleleIndexing")
     private SolrServer alleleIndexing;
 
@@ -279,7 +278,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private void initializeSolrCores() {
 
         final String SANGER_ALLELE_URL = imitsSolrHost +"/allele2";
-        final String PHENODIGM_URL = phenodigmSolrServer;
 
         // Use system proxy if set for external solr servers
         if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
@@ -294,12 +292,10 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
             this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
 
         } else {
 
             this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
 
         }
     }
