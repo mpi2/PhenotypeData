@@ -32,9 +32,9 @@
         </thead>
         <tbody>
                 <c:forEach var="row" items="${orderRows}" varStatus="status">
-                <c:set var="rowSpan" value="1"></c:set>
-                <c:if test="${fn:length(row.geneTargetDetails)>0 }">
-                	<c:set var="rowSpan" value="${fn:length(row.geneTargetDetails)}"></c:set>
+                <c:set var="rowSpan" value="2"></c:set>
+                <c:if test="${row.geneMapLink || row.vectorMapLink }">
+                	<c:set var="rowSpan" value="2"></c:set>
                 </c:if>
                       <tr>
                         
@@ -48,20 +48,20 @@
                          	${row.alleleDescription}
                          </td>
                           
-                          <c:set var="target" value="${row.geneTargetDetails[0]}"></c:set>
+                          
                           
                                
-                               <td style="text-align: center;">${target.label}</td>
+                               <td style="text-align: center;">Vector</td>
                                <td>
-                               			<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
+                               			<a class="fancybox" target="_blank" style="text-align:right" href="${row.vectorMapLink}" fullRes="${row.vectorMapLink}" original="${row.vectorMapLink}">
 	                                   
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   
 	                                   </a>
 	                            </td>
 	                            <td >
-	                                <c:if test="${not empty target.genbankLink}">
-		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
+	                                <c:if test="${not empty row.vectorGenbankLink}">
+		                               		<a href="${row.vectorGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
 	                               	</c:if>
 	                            </td>
 	                              
@@ -95,21 +95,22 @@
                           </td>
                             
                         </tr>
-                        <c:if test="${rowSpan==2 }">
-                         <c:set var="target" value="${row.geneTargetDetails[1]}"></c:set>
+                        <%-- <c:if test="${rowSpan==2 }"> --%>
+                         
                         <tr>
                      
                         
-		                            <td style="text-align: center;">${target.label}</td>
+		                            <td style="text-align: center;">Gene</td>
                                		<td >
-                               		
-	                               		<a class="fancybox" target="_blank" style="text-align:right" href="${target.link}" fullRes="${target.link}" original="${target.link}">
-	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
-	                                   </a>
+                               			<c:if test="${not empty row.geneMapLink}">
+	                               			<a class="fancybox" target="_blank" style="text-align:right" href="${row.geneMapLink}" fullRes="${row.geneMapLink}" original="${row.geneMapLink}">
+	                                   			<i class="fa fa-th-list fa-lg" title="Image"></i>
+	                                   		</a>
+	                                   </c:if>
 	                                </td>
 	                                <td>
-	                                	<c:if test="${not empty target.genbankLink}">
-		                               		<a href="${target.genbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
+	                                	<c:if test="${not empty row.geneGenbankLink}">
+		                               		<a href="${row.geneGenbankLink}" target="_blank"><i class="fa fa-file-text fa-lg" title="Genbank File"></i></a>
 		                                
 	                               		</c:if>
 	                               	</td>
@@ -118,7 +119,7 @@
                         
                         </tr>    
                         
-                        </c:if>
+                       <%--  </c:if> --%>
 
 
                 </c:forEach>
