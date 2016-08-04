@@ -55,38 +55,6 @@ public class OrderTableRow {
 		this.alleleDescription = alleleDescription;
 	}
 
-	private List<LinkDetails> geneTargetDetails;
-	private List<LinkDetails> orderTargetVectorDetails;
-	
-
-	public List<LinkDetails> getOrderTargetVectorDetails() {
-		return orderTargetVectorDetails;
-	}
-
-	public void setOrderTargetVectorDetails(List<LinkDetails> orderTargetVectorDetails) {
-		this.orderTargetVectorDetails = orderTargetVectorDetails;
-	}
-
-	private List<LinkDetails> orderEsCellDetails;
-	
-	public List<LinkDetails> getOrderEsCellDetails() {
-		return orderEsCellDetails;
-	}
-
-	public void setOrderEsCelltDetails(List<LinkDetails> orderEsCellDetails) {
-		this.orderEsCellDetails = orderEsCellDetails;
-	}
-
-	private List<LinkDetails> orderMouseDetails;
-	
-	public List<LinkDetails> getOrderMouseDetails() {
-		return orderMouseDetails;
-	}
-
-	public void setOrderMouseDetails(List<LinkDetails> orderMouseDetails) {
-		this.orderMouseDetails = orderMouseDetails;
-	}
-
 	
 	//when no product add some info
 	private String noProductInfo;
@@ -143,15 +111,6 @@ public class OrderTableRow {
 		this.strainOfOrigin = strainOfOrigin;
 	}
 
-	
-
-	public List<LinkDetails> getGeneTargetDetails() {
-		return geneTargetDetails;
-	}
-
-	public void setGeneTargetDetails(List<LinkDetails> geneTargetDetails) {
-		this.geneTargetDetails = geneTargetDetails;
-	}
 
 	public String getNoProductInfo() {
 		return noProductInfo;
