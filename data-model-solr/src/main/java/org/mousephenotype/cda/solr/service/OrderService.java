@@ -59,36 +59,42 @@ public class OrderService {
 			row.setEsCellAvailable(allele.getEsCellAvailable());
 			row.setMouseAvailable(allele.getMouseAvailable());
 			row.setMarkerSymbol(allele.getMarkerSymbol());
+			row.setType(allele.getType());
+			row.setVectorMapLink(allele.getVectorAlleleImage());
+			row.setVectorGenbankLink(allele.getVectorGenbankLink());
+			row.setGeneMapLink(allele.getAlleleSimpleImage());
+			row.setGeneGenbankLink(allele.getGenbankFile());
+			
 			// Map mouseOrderCenter=new HashMap<>();
 
 			// row.setNoProductInfo(allele.get);
-			List<ProductDTO> productsForAllele = alleleNameToProductsMap.get(alleleName);
-			LinkDetails vectorTargetMap = null;
-			for (ProductDTO prod : productsForAllele) {
-				// ProductDTO prod=productsForAllele.get(0);
-				if (prod.getType().equals("targeting_vector")) {
-					vectorTargetMap = new LinkDetails();// create a new target
-														// map link for vector
-					List<String> colonSeperatedMap = prod.getOtherLinks();
-					if (colonSeperatedMap != null) {
-						for (String link : colonSeperatedMap) {
-
-							if (link.startsWith("allele_image")) {
-								String productAlleleImage = link.replace("allele_image:", "");
-								vectorTargetMap.setLabel("Vector");
-								vectorTargetMap.setLink(productAlleleImage);
-							}
-
-							if (link.startsWith("genbank_file")) {
-								System.out.println("genbank_file=" + link);
-								String genbankLink = link.replace("genbank_file:", "");
-								System.out.println("genbank_file link=" + genbankLink);
-								vectorTargetMap.setGenbankLink(genbankLink);
-							}
-						}
-					}
-
-				}
+//			List<ProductDTO> productsForAllele = alleleNameToProductsMap.get(alleleName);
+//			LinkDetails vectorTargetMap = null;
+//			for (ProductDTO prod : productsForAllele) {
+//				// ProductDTO prod=productsForAllele.get(0);
+//				if (prod.getType().equals("targeting_vector")) {
+//					vectorTargetMap = new LinkDetails();// create a new target
+//														// map link for vector
+//					List<String> colonSeperatedMap = prod.getOtherLinks();
+//					if (colonSeperatedMap != null) {
+//						for (String link : colonSeperatedMap) {
+//
+//							if (link.startsWith("allele_image")) {
+//								String productAlleleImage = link.replace("allele_image:", "");
+//								vectorTargetMap.setLabel("Vector");
+//								vectorTargetMap.setLink(productAlleleImage);
+//							}
+//
+//							if (link.startsWith("genbank_file")) {
+//								System.out.println("genbank_file=" + link);
+//								String genbankLink = link.replace("genbank_file:", "");
+//								System.out.println("genbank_file link=" + genbankLink);
+//								vectorTargetMap.setGenbankLink(genbankLink);
+//							}
+//						}
+//					}
+//
+//				}
 				// if(prod.getType().equals("mouse") &&
 				// prod.getOrderLinks().size()>0){
 				// LinkDetails mouseOrder=new LinkDetails();
@@ -96,27 +102,27 @@ public class OrderService {
 				// orderMouseDetails.add(mouseOrder);
 				//
 				// }
-			}
+			//}
 			// for(ProductDTO prod: productsForAllele){
 			// System.out.println("prod= "+prod);
 			// }
 
-			if (vectorTargetMap != null) {
-				targetLinks.add(vectorTargetMap);
-			}
-			LinkDetails geneTargetMap = new LinkDetails();
-			geneTargetMap.setLabel("Gene");
-			geneTargetMap.setLink(allele.getAlleleSimpleImage());
-			geneTargetMap.setGenbankLink(allele.getGenbankFile());
-			targetLinks.add(geneTargetMap);
-
-			row.setGeneTargetDetails(targetLinks);
-
-			row.setOrderEsCelltDetails(orderEsCellDetails);
-
-			row.setOrderTargetVectorDetails(orderTargetVectorDetails);
-
-			row.setOrderMouseDetails(orderMouseDetails);
+//			if (vectorTargetMap != null) {
+//				targetLinks.add(vectorTargetMap);
+//			}
+//			LinkDetails geneTargetMap = new LinkDetails();
+//			geneTargetMap.setLabel("Gene");
+//			geneTargetMap.setLink(allele.getAlleleSimpleImage());
+//			geneTargetMap.setGenbankLink(allele.getGenbankFile());
+//			targetLinks.add(geneTargetMap);
+//
+//			row.setGeneTargetDetails(targetLinks);
+//
+//			row.setOrderEsCelltDetails(orderEsCellDetails);
+//
+//			row.setOrderTargetVectorDetails(orderTargetVectorDetails);
+//
+//			row.setOrderMouseDetails(orderMouseDetails);
 			orderTableRows.add(row);
 
 		}

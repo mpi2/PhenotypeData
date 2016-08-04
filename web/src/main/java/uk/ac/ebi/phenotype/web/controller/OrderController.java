@@ -32,6 +32,10 @@ public class OrderController {
 			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
 		System.out.println("orderSection being called blah!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, rows);
+		for(OrderTableRow row: orderRows){
+			System.out.println("row="+ row);
+		}
+		
 		model.addAttribute("acc",acc);
 		model.addAttribute("orderRows", orderRows);
 		return "orderSectionFrag";

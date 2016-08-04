@@ -92,6 +92,27 @@ public class Allele2DTO {
 	private Boolean mouseAvailable;
 	
 	
+	public static final String VECTOR_ALLELE_IMAGE="vector_allele_image";
+	@Field(VECTOR_ALLELE_IMAGE)
+	private String vectorAlleleImage;
+	
+	
+	public static final String VECTOR_GENBANK_LINK="vector_genbank_file";
+	@Field(VECTOR_GENBANK_LINK)
+	private String vectorGenbankLink;
+	
+	public String getVectorGenbankLink() {
+		return vectorGenbankLink;
+	}
+	public void setVectorGenbankLink(String vectorGenbankLink) {
+		this.vectorGenbankLink = vectorGenbankLink;
+	}
+	public String getVectorAlleleImage() {
+		return vectorAlleleImage;
+	}
+	public void setVectorAlleleImage(String vectorAlleleImage) {
+		this.vectorAlleleImage = vectorAlleleImage;
+	}
 	public Boolean getMouseAvailable() {
 		return mouseAvailable;
 	}

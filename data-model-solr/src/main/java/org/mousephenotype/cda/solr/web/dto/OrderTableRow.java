@@ -90,7 +90,43 @@ public class OrderTableRow {
 	
 	//when no product add some info
 	private String noProductInfo;
+	private String type;
+	private String geneMapLink;
+	public String getGeneMapLink() {
+		return geneMapLink;
+	}
+	public void setGeneMapLink(String geneMapLink) {
+		this.geneMapLink = geneMapLink;
+	}
+	public String getVectorMapLink() {
+		return vectorMapLink;
+	}
+	public void setVectorMapLink(String vectorMapLink) {
+		this.vectorMapLink = vectorMapLink;
+	}
+	public String getGeneGenbankLink() {
+		return geneGenbankLink;
+	}
+	public void setGeneGenbankLink(String geneGenbankLink) {
+		this.geneGenbankLink = geneGenbankLink;
+	}
+	public String getVectorGenbankLink() {
+		return vectorGenbankLink;
+	}
+	public void setVectorGenbankLink(String vectorGenbankLink) {
+		this.vectorGenbankLink = vectorGenbankLink;
+	}
 
+	private String vectorMapLink;
+	private String geneGenbankLink;
+	private String vectorGenbankLink;
+
+
+	
+	
+	public String getType() {
+		return type;
+	}
 	public String getAlleleName() {
 		return alleleName;
 	}
@@ -124,5 +160,15 @@ public class OrderTableRow {
 	public void setNoProductInfo(String noProductInfo) {
 		this.noProductInfo = noProductInfo;
 	}
+	public void setType(String type) {
+		this.type=type;
+		
+	}
+	@Override
+	public String toString() {
+		return "OrderTableRow [geneMapLink=" + geneMapLink + ", vectorMapLink=" + vectorMapLink + ", geneGenbankLink="
+				+ geneGenbankLink + ", vectorGenbankLink=" + vectorGenbankLink + "]";
+	}
+	
 
 }
