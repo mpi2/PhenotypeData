@@ -47,23 +47,21 @@ public class SolrServerConfig {
 	private String imitsSolrBaseUrl;
 
 	@Bean(name = "allele2Core")
-	HttpSolrServer getAllele2Core() {
-		return new HttpSolrServer(imitsSolrBaseUrl + "/allele2");
-	}
+	HttpSolrServer getAllele2Core() { return new HttpSolrServer(solrBaseUrl + "/allele2"); }
 
 	@Bean(name = "eucommCreProductsCore")
 	HttpSolrServer getEucomCreToolsProduct() {
-		return new HttpSolrServer(imitsSolrBaseUrl + "/eucommtoolscre_product");
+		return new HttpSolrServer(solrBaseUrl + "/eucommtoolscre_product");
 	}
 
 	@Bean(name = "eucommToolsProductCore")
 	HttpSolrServer getEucommToolsProductCore() {
-		return new HttpSolrServer(imitsSolrBaseUrl + "/product");
+		return new HttpSolrServer(solrBaseUrl + "/product");
 	}
 
 	@Bean(name = "eucommToolsCreAllele2Core")
 	HttpSolrServer getEucommToolsCreAllele2() {
-		return new HttpSolrServer(imitsSolrBaseUrl + "/eucommtoolscre_allele2");
+		return new HttpSolrServer(solrBaseUrl + "/eucommtoolscre_allele2");
 	}
 
 
@@ -116,7 +114,7 @@ public class SolrServerConfig {
 	//Gene
 	@Bean(name = "geneCore")
 	HttpSolrServer getGeneCore() {
-		return new HttpSolrServer(solrBaseUrl + "/gene");
+		return new HttpSolrServer("http://localhost:8090/solr" + "/gene");
 	}
 
 	//GenotypePhenotype

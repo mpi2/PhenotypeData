@@ -97,8 +97,12 @@
 							$("#section-expression").focus();
 						}
 						
-						$("#exptabs").tabs({ active: expressionTab});
-						$("#diseasetabs").tabs({ active: 0 });
+						$("#exptabs").tabs({ active: expressionTab}).find( 'li a' ).bind( 'click', function(e) {
+							return false;
+						});
+						$("#diseasetabs").tabs({ active: 0 }).find( 'li a' ).bind( 'click', function(e) {
+							e.preventDefault();
+						});
 
 						//$("#diseasetabs").find("td[class!='shown']").css('color','#666');
 
@@ -840,6 +844,7 @@
 						$(this).hide();
 					}
 				});
+
 
 			});
 

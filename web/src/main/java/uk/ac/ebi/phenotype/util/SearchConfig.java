@@ -54,13 +54,13 @@ public class SearchConfig {
 
         Map<String, String> coreDefault = new HashMap<>();
 
-        coreDefault.put("gene", "*:*");
+        coreDefault.put("gene", "");
         coreDefault.put("mp", "*:*");
         coreDefault.put("disease", "*:*");
         coreDefault.put("anatomy", "*:*");
         coreDefault.put("impc_images", "*:*");
         //coreDefault.put("images", "*:*");
-        coreDefault.put("allele2", "*:*");
+        coreDefault.put("allele2", "type:Allele");
 
         return coreDefault.get(coreName);
     }
@@ -92,13 +92,27 @@ public class SearchConfig {
         return "&fl=" + StringUtils.join(fls, ",");
     }
 
-    public String getQf(){ return qf; }
-    public String getQfSolrStr(){
-        return "&qf=" + qf;
+    public String getQf(String coreName){
+        Map<String, String> coreDefault = new HashMap<>();
+        String defaultQf = "auto_suggest";
+
+        coreDefault.put("gene", "geneQf");
+        coreDefault.put("mp", defaultQf);
+        coreDefault.put("disease", defaultQf);
+        coreDefault.put("anatomy", defaultQf);
+        coreDefault.put("impc_images", defaultQf);
+        //coreDefault.put("images", "*:*");
+        coreDefault.put("allele2", defaultQf);
+
+        return coreDefault.get(coreName);
     }
-    public void setQf(String qf){
-        qf = qf;
+    public String getQfSolrStr(String coreName){
+        return "&qf=" + getQf(coreName);
     }
+//    public void setQf(String coreName, String qf){
+//        getQf(coreName)
+//        this.qf = qf;
+//    }
 
     public String getDefType(){
         return defType;
@@ -107,7 +121,7 @@ public class SearchConfig {
         return "&defType=" + defType;
     }
     public void setDefType(String defType){
-        defType = defType;
+        this.defType = defType;
     }
 
     public List<String> getGridHeaders(String coreName) {
@@ -239,7 +253,7 @@ public class SearchConfig {
         List<String> anatomyFacets =  Arrays.asList("selected_top_level_anatomy_term", "stage");
         //List<String> imagesFacets =  Arrays.asList("procedure_name", "top_level_mp_term", "selected_top_level_anatomy_term", "marker_type");
         List<String> impc_imagesFacets =  Arrays.asList("procedure_name", "selected_top_level_anatomy_term", "stage");
-        List<String> allele2Facets =  Arrays.asList("mutation_type_str", "es_cell_available", "mouse_available", "targeting_vector_available", "allele_category_str");
+        List<String> allele2Facets =  Arrays.asList("mutation_type_str", "es_cell_available", "mouse_available", "targeting_vector_available", "allele_category_str", "allele_features_str");
 
         facetMap.put("gene", geneFacets);
         facetMap.put("mp", mpFacets);
@@ -317,7 +331,7 @@ public class SearchConfig {
 
     private void setGridColumns(){
         List<String> geneCols = Arrays.asList("Gene", "Production", "Phenotype", "Register");
-        List<String> mpCols = Arrays.asList("Phenotype", "Definition", "Phenotyping<br>Call(s)", "Ontology<br/>Tree", "Register");
+        List<String> mpCols = Arrays.asList("Phenotype", "Definition", "Ontology<br/>Tree", "Register");
 
        // List<String> diseaseCols = Arrays.asList("Disease", "Source", "Curated Genes", "Candidate Genes<br>by phenotype");
         List<String> diseaseCols = Arrays.asList("Disease", "Source");
@@ -325,7 +339,7 @@ public class SearchConfig {
 
         List<String> impc_imagesCols = Arrays.asList("Name", "Images");
         List<String> imagesCols = Arrays.asList("Name", "Image(s)");
-        List<String> allele2Cols = Arrays.asList("Allele name", "Gene Symbol", "Mutation Type", "Order");
+        List<String> allele2Cols = Arrays.asList("Allele name", "Mutation Type", "Order");
 
         gridHeaderMap.put("gene", geneCols);
         gridHeaderMap.put("mp", mpCols);

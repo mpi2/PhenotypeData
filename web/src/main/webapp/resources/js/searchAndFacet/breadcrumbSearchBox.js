@@ -126,10 +126,10 @@ $(document).ready(function () {
 	$( "input#s" ).autocomplete({
 		source: function( request, response ) {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
-
+			var facetStr = "&facet=on&facet.field=docType&facet.mincount=1&facet.limit=-1";
 			$.ajax({
 				//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
-				url: solrUrl + "/autosuggest/select?fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq,
+				url: solrUrl + "/autosuggest/select?rows=5&fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + facetStr,
 				dataType: "jsonp",
 				'jsonp': 'json.wrf',
 				data: {
@@ -184,9 +184,7 @@ $(document).ready(function () {
 								aKVtmp[facet].push("<span class='" + facet + " sugList'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
 
 								if (i == 0){
-									// take the first found in
-									// autosuggest and open that
-									// facet
+									// take the first found in autosuggest and open that facet
 									matchedFacet = facet;
 								}
 							}

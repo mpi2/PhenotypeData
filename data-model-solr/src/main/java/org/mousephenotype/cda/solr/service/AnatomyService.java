@@ -226,15 +226,25 @@ public class AnatomyService extends BasicService implements WebStatus {
 	public AnatomogramDataBean getUberonIdAndTopLevelMaTerm(AnatomogramDataBean bean) throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + bean.getMaId() + "\"");
-		solrQuery.setFields(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
+		solrQuery.setFields(AnatomyDTO.UBERON_ID, AnatomyDTO.ALL_AE_MAPPED_UBERON_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 
 		ArrayList<String> uberonIds = new ArrayList<String>();
+		ArrayList<String> directlyMappedUberonIds = new ArrayList<String>();
+
 		if (res.getNumFound() > 1) {
 			System.err.println("Warning - more than 1 anatomy term found where we only expect one doc!");
 		}
 		for (SolrDocument doc : res) {
+
+			if (doc.containsKey(AnatomyDTO.UBERON_ID)) {
+				for (Object child : doc.getFieldValues(AnatomyDTO.UBERON_ID)) {
+					directlyMappedUberonIds.add((String) child);
+				}
+				bean.setDirectlyMappedUberonIds( directlyMappedUberonIds);
+			}
+
 			if (doc.containsKey(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID)) {
 				for (Object child : doc.getFieldValues(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID)) {
 					uberonIds.add((String) child);
