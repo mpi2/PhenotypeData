@@ -45,7 +45,18 @@
  							</div>
  							
  							<div class="section">
- 								<div class="inner half">
+ 							
+ 								<div class="inner">
+ 								<p>
+									Mouse strains produced by the IMPC are made available to researchers by depositing them with the KOMP mouse repositiory at the University of California-Davis and/or the European Mutant Mouse Archive maintained by INFRAFRONTIER, Gmbh. IMPC centers may also provide breeders on a colloborative basis based on availability.
+								</p>
+								<p>
+									We provide links and contact information based on tracking data supplied by the IMPC centers, but are not responsible for the ordering process.
+								</p>
+								<p>
+									Clicking the link will send you to a third party site to find more about ordering a particular strain.
+								</p>
+								<div>
  								<c:if test="${fn:length(productsByName)>0}">	
  									<p>This product is available from the following repositories:<p> 
  									<table class="reduce nonwrap">        
@@ -85,6 +96,7 @@
  							<c:if test="${fn:length(productsByName)==0}">
  								There are no products of type ${type} for this allele this link shouldn't have been available if no products.
  							</c:if>
+ 							</div>
  								</div>
  							</div>
  							
