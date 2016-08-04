@@ -66,7 +66,7 @@
 							<c:if test="${phenotypeStarted}">
 
 								<div id="heatmap_toggle_div" class="section hidden">
-									<h2 class="title" id="heatmap">Phenotype heatmap <span
+									<h2 class="title" id="heatmap">Phenotype heatmap Preliminary Data<span
 											class="documentation"><a href='' id='heatmapSection'
 																	 class="fa fa-question-circle pull-right"></a></span>
 									</h2>
