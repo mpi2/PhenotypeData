@@ -48,15 +48,8 @@ public class OrderService {
 	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows) throws SolrServerException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
 		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows);
-		Map<String, List<ProductDTO>> alleleNameToProductsMap = null;
-		if (acc != null) {
-			alleleNameToProductsMap = this.getProductsForGene(acc);
-		}
 
 		for (Allele2DTO allele : allele2DTOs) {
-			if (acc == null) {
-				alleleNameToProductsMap = this.getProductsForAllele(allele.getAlleleName());
-			}
 			OrderTableRow row = new OrderTableRow();	
 			String alleleName = allele.getAlleleName();
 			row.setAlleleName(alleleName);
@@ -185,17 +178,21 @@ public class OrderService {
 	 * 
 	 * @param type es_cell or mouse etc
 	 * @param productName e.g. EPD0386_3_A05
+	 * @param alleleName 
 	 * @return 
 	 * @throws SolrServerException 
 	 */
-	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName) throws SolrServerException {
+	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName) throws SolrServerException {
 		ProductDTO prod=null;
 		List<String>qcData=null;
 		SolrQuery query = new SolrQuery();
 		String q="name:"+productName;
 		query.setQuery(q);
 		if (type != null) {
-			query.addFilterQuery("type:\"" + type + "\"");
+			query.addFilterQuery("type:" + type);
+		}
+		if (alleleName != null) {
+			query.addFilterQuery(ProductDTO.ALLELE_NAME+":\"" + alleleName+"\"");
 		}
 		query.setRows(Integer.MAX_VALUE);
 		System.out.println("query for products=" + query);

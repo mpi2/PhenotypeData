@@ -79,13 +79,14 @@
  											<tr><td>	${prod.name} </td>
  											<td>
  											<c:if test="${fn:length(prod.qcData)>0}">
- 											 	<a class="btn" href="${baseUrl}/qcData?type=${type}&productName=${prod.name}&bare=true"><i class="fa fa-info"></i>QC Data</a>
+ 											 	<a class="btn" href="${baseUrl}/qcData?type=${type}&productName=${prod.name}&alleleName=${prod.alleleName}&bare=true"><i class="fa fa-info"></i>QC Data</a>
  											 	</c:if>
- 											 </td>
+ 											
  											
  											<c:if test="${fn:length(prod.qcData)==0}">
  											No QC Data Available
  											</c:if>
+ 											 </td>
  											 </tr>
  											</c:forEach> 
  																				

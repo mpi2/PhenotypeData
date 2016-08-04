@@ -71,11 +71,11 @@ public class OrderController {
 	}
 	
 	@RequestMapping("/qcData")
-	public String qcData(@RequestParam (required= true) String type, @RequestParam (required=true)String productName, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
+	public String qcData(@RequestParam (required= true) String type, @RequestParam (required=true)String productName,  @RequestParam (required=true)String alleleName, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException{
 		System.out.println("qcData being called with type="+type+" productName="+productName);
 		//get the qc_data list
 		OrderType orderType=OrderType.valueOf(type);
-		HashMap<String, HashMap<String, List<String>>> qcData = orderService.getProductQc(orderType, productName);
+		HashMap<String, HashMap<String, List<String>>> qcData = orderService.getProductQc(orderType, productName, alleleName);
 		model.addAttribute("qcData", qcData);
 		return "qcData";
 	}
