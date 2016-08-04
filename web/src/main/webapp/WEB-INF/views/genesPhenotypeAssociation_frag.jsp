@@ -56,6 +56,38 @@
         <c:if test="${hasVignette}">
             <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a>
         </c:if>
+        <c:if test="${phenotypeStarted}">
+            <a id="heatmap_link" class="btn">Toggle Preliminary Data/QC'd Data</a>
+        </c:if>
+        
+        
+        
+        <!-- phenotype heatmap -->
+							<c:if test="${phenotypeStarted}">
+
+								<div id="heatmap_toggle_div" class="section hidden">
+									<h2 class="title" id="heatmap">Phenotype heatmap Preliminary Data<span
+											class="documentation"><a href='' id='heatmapSection'
+																	 class="fa fa-question-circle pull-right"></a></span>
+									</h2>
+
+									<!-- <div class="inner">
+										<div class="alert alert-info">
+
+											<p>These are the results of a preliminary statistical analysis. Data are still
+												in the process of being quality controlled and results may change.</p>
+										</div>
+									</div> -->
+									<div class="dcc-heatmap-root">
+										<div class="phenodcc-heatmap"
+											 id="phenodcc-heatmap"></div>
+									</div>
+								</div>
+								<!-- end of Pre-QC phenotype heatmap -->
+							</c:if>
+							
+				
+       
 
         <%----%>
         <%--<c:forEach var="zyg"--%>
@@ -141,6 +173,11 @@
 
   <c:when test="${summaryNumber == 0}">
 
+			
+							
+							
+							
+							
     <c:if test="${empty dataMapList && empty phenotypes}">
       <c:if test="${attemptRegistered}">
         <div class="alert alert-info">
@@ -204,7 +241,7 @@
 <c:if
         test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
   <!-- Associations table -->
-  <div class="inner-division">
+  <div id="phenotypeTableDiv" class="inner-division">
   <h5>Significant Phenotypes</h5>
 
 
