@@ -127,6 +127,13 @@
 
 </table>
 </c:if>
+
+
+<c:choose>
+    <c:when test="${alleleProductsCre2.get('cre_exists').equals('true')}">
+        <div><a href="http://www.creline.org/eucommtools#${alleleProductsCre2.get('mgi_acc')}" target="_blank">Cre Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>       
+    </c:when>
+</c:choose>
 <script type="text/javascript">
 <!--
 

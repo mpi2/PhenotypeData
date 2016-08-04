@@ -38,6 +38,9 @@ public class OrderController {
 		
 		model.addAttribute("acc",acc);
 		model.addAttribute("orderRows", orderRows);
+
+		//for cre products link at bottom of table
+		model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
 		return "orderSectionFrag";
 	}
 	

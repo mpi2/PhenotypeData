@@ -1,5 +1,8 @@
 package org.mousephenotype.cda.solr.service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,11 +17,15 @@ import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.solr.web.dto.LinkDetails;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
+import org.mousephenotype.cda.utilities.HttpProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 @Service
 public class OrderService {
@@ -34,6 +41,10 @@ public class OrderService {
 	@Autowired
 	@Qualifier("eucommToolsProductCore")
 	private HttpSolrServer productCore;
+	
+	 private static final String ALLELE_NAME_FIELD = "allele_name_str";
+	 @Value("${imits.solr.host}")
+	 private String IMITS_SOLR_CORE_URL;
 
 	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows) throws SolrServerException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
@@ -249,9 +260,6 @@ public class OrderService {
 			query.addFilterQuery("type:\"" + type + "\"");
 		}
 		query.setRows(Integer.MAX_VALUE);
-		if (type != null) {
-			query.addFilterQuery("type:" + type);
-		}
 		System.out.println("query for products=" + query);
 		QueryResponse response = productCore.query(query);
 		System.out.println("number found of products docs=" + response.getResults().getNumFound());
@@ -299,6 +307,45 @@ public class OrderService {
 	        }
 	        return deep;
 	    }
-
+	 
+	 
+	 public HashMap<String, String> getCreData(String acc) throws SolrServerException{
+		 //method to get the link at the bottom of the table if we have old cre mice available from the other core eucommProduct
+		 HashMap<String, String> creStatus = new HashMap<>();// a bit lazy but have just used the same structure and logic her that peter used
+	        creStatus.put("cre_exists", "false");
+	        creStatus.put("product_type", "None");
+	        creStatus.put("mgi_acc", "");
+	        
+	        
+		 SolrQuery query = new SolrQuery();
+			String q="mgi_accession_id:\""+acc+"\"";
+			query.setQuery(q);
+			
+			query.addFilterQuery("(type:mouse OR type:es_cell)");
+			
+			query.setRows(Integer.MAX_VALUE);
+			
+			System.out.println("query for cre  products=" + query);
+			QueryResponse response = eucommProduct.query(query);
+			System.out.println("number found of products docs=" + response.getResults().getNumFound());
+			List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
+			for(ProductDTO prod:productDTOs){
+				System.out.println("prod="+prod);
+				 String creType = prod.getType();
+	               if (creType.equals("mouse")) {
+	                   creStatus.put("cre_exists", "true");
+	                   creStatus.put("product_type", "Mice");
+	                   creStatus.put("mgi_acc", prod.getMgiAccessionId());
+	               }
+	               if (creType.equals("es_cell")) {
+	                   if (!creStatus.get("product_type").equals("Mice") ){//only do this if no mice found already as mice more important I guess.
+	                       creStatus.put("cre_exists", "true");
+	                       creStatus.put("product_type", "ES Cell");
+	                       creStatus.put("mgi_acc", prod.getMgiAccessionId());
+	                   }
+	               }
+			}
+			return creStatus;
+	 }
 
 }
