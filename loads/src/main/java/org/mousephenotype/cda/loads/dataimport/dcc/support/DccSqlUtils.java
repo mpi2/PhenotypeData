@@ -16,37 +16,49 @@
 
 package org.mousephenotype.cda.loads.dataimport.dcc.support;
 
+import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Zygosity;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Dimension;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ParameterAssociation;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ProcedureMetadata;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Zygosity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.util.Assert;
 
-import java.io.File;
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.sql.Date;
+import java.util.*;
 
 /**
  * Created by mrelac on 02/03/2016.
  */
 public class DccSqlUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(DccSqlUtils.class);
+    private       CommonUtils commonUtils = new CommonUtils();
+    private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
+    private NamedParameterJdbcTemplate npJdbcTemplate;
 
-    public static String dumpSpecimen(Connection connection, long centerPk, long specimenPk) {
+
+    @Inject
+    public DccSqlUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
+        Assert.notNull(npJdbcTemplate, "Named parameter npJdbcTemplate cannot be null");
+        this.npJdbcTemplate = npJdbcTemplate;
+    }
+
+
+    public String dumpSpecimen(long centerPk, long specimenPk) {
         String retVal = "";
 
         String query =
@@ -79,66 +91,43 @@ public class DccSqlUtils {
                         + "LEFT OUTER JOIN mouse m ON m.specimen_pk = cs.specimen_pk\n"
                         + "LEFT OUTER JOIN embryo e ON e.specimen_pk = cs.specimen_pk\n"
                         + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_pk\n"
-                        + "WHERE c.pk = ? AND s.pk = ?;";
-        try {
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setLong(1, centerPk);
-            ps.setLong(2, specimenPk);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                retVal += "{"
-                        + "cs.pk=" + rs.getLong("cs_pk")
-                        + ",c.pk=" + rs.getLong("c_pk")
-                        + ",s.pk=" + rs.getLong("s_pk")
-                        + ",s.statuscode_pk=" + (rs.getLong("s_statuscode_pk") == 0 ? "<null>" : rs.getLong("s_statuscode_pk"))
-                        + ",centerId=" + rs.getString("c.centerId")
-                        + ",pipeline=" + rs.getString("c.pipeline")
-                        + ",project=" + rs.getString("c.project")
-                        + ",colonyId=" + rs.getString("s.colonyId")
-                        + ",gender=" + rs.getString("s.gender")
-                        + ",isBaseline=" + rs.getInt("s.isBaseline")
-                        + ",litterId=" + rs.getString("s.litterId")
-                        + ",phenotypingCenter=" + rs.getString("s.phenotypingCenter")
-                        + ",productionCenter=" + (rs.getString("s.productionCenter") == null ? "<null>" : rs.getString("s.productionCenter"))
-                        + ",specimenId=" + rs.getString("s.specimenId")
-                        + ",strainId=" + rs.getString("s.strainId")
-                        + ",zygosity=" + rs.getString("s.zygosity");
-                if (rs.getLong("s_statuscode_pk") != 0) {
-                    retVal += ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
-                            + ",sc.value=" + rs.getString("sc.value");
-                }
-                retVal += (rs.getDate("m.DOB") == null ? " (EMBRYO)" : " (MOUSE)");
-            }
+                        + "WHERE c.pk = :centerPk AND s.pk = :specimenPk;";
 
-        } catch (SQLException e) {
-            System.out.println(e.getLocalizedMessage());
-            e.printStackTrace();
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("centerPk", centerPk);
+        parameterMap.put("specimenPk", specimenPk);
+        SqlRowSet rs = npJdbcTemplate.queryForRowSet(query, parameterMap);
+
+        if (rs.next()) {
+            retVal += "{"
+                    + "cs.pk=" + rs.getLong("cs_pk")
+                    + ",c.pk=" + rs.getLong("c_pk")
+                    + ",s.pk=" + rs.getLong("s_pk")
+                    + ",s.statuscode_pk=" + (rs.getLong("s_statuscode_pk") == 0 ? "<null>" : rs.getLong("s_statuscode_pk"))
+                    + ",centerId=" + rs.getString("c.centerId")
+                    + ",pipeline=" + rs.getString("c.pipeline")
+                    + ",project=" + rs.getString("c.project")
+                    + ",colonyId=" + rs.getString("s.colonyId")
+                    + ",gender=" + rs.getString("s.gender")
+                    + ",isBaseline=" + rs.getInt("s.isBaseline")
+                    + ",litterId=" + rs.getString("s.litterId")
+                    + ",phenotypingCenter=" + rs.getString("s.phenotypingCenter")
+                    + ",productionCenter=" + (rs.getString("s.productionCenter") == null ? "<null>" : rs.getString("s.productionCenter"))
+                    + ",specimenId=" + rs.getString("s.specimenId")
+                    + ",strainId=" + rs.getString("s.strainId")
+                    + ",zygosity=" + rs.getString("s.zygosity");
+            if (rs.getLong("s_statuscode_pk") != 0) {
+                retVal += ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
+                        + ",sc.value=" + rs.getString("sc.value");
+            }
+            retVal += (rs.getDate("m.DOB") == null ? " (EMBRYO)" : " (MOUSE)");
         }
 
         return retVal;
     }
 
-    public static ApplicationContext loadApplicationContext(String context) {
-        ApplicationContext appContext;
-
-        // Try context as a file resource.
-        File file = new File(context);
-        if (file.exists()) {
-            // Try context as a file resource
-            appContext = new FileSystemXmlApplicationContext("file:" + context);
-        } else {
-            // Try context as a class path resource
-            appContext = new ClassPathXmlApplicationContext(context);
-        }
-
-        if (appContext == null) {
-            logger.error("Unable to load context '" + context + "' from file or classpath. Exiting...");
-        }
-
-        return appContext;
-    }
-
-    public static void truncateExperimentTables(Connection connection) throws SQLException {
+    @Deprecated
+    public void truncateExperimentTables(Connection connection) throws SQLException {
         String query;
         PreparedStatement ps;
 
@@ -192,7 +181,8 @@ public class DccSqlUtils {
         ps.execute();
     }
 
-    public static void truncateSpecimenTables(Connection connection) throws SQLException {
+    @Deprecated
+    public void truncateSpecimenTables(Connection connection) throws SQLException {
         String query;
         PreparedStatement ps;
 
@@ -226,40 +216,72 @@ public class DccSqlUtils {
     }
 
     /**
-     * Looks for the <code>center</code> table primary key for the given centerId, pipeline, and project. Retuns the
-     * key if found; 0 otherwise.
+     * Returns the primary key for the given centerId, pipeline, and project, if found; 0 otherwise
      *
-     * @param connection A valid database connection
      * @param centerId   The center id
      * @param pipeline   The pipeline
      * @param project    The Project
+     *
      * @return The center primary key if found; 0 otherwise.
      */
-    public static long getCenterPk(Connection connection, String centerId, String pipeline, String project) {
+    public long getCenterPk(String centerId, String pipeline, String project) {
         long centerPk = 0L;
+        String query = "SELECT pk FROM center WHERE centerId = :centerId AND pipeline = :pipeline AND project = :project";
 
-        String query = "";
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        parameterMap.put("centerId", centerId);
+        parameterMap.put("pipeline", pipeline);
+        parameterMap.put("project", project);
+
         try {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM center WHERE centerId = ? AND pipeline = ? AND project = ?;");
-            ps.setString(1, centerId);
-            ps.setString(2, pipeline);
-            ps.setString(3, project);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                centerPk = rs.getLong("pk");
-            }
-        } catch (SQLException e) {
+            centerPk = npJdbcTemplate.queryForObject(query, new HashMap<>(), Long.class);
+        } catch (Exception e) {
 
         }
 
         return centerPk;
     }
 
+    public long getCenter_specimenPk(long centerPk, long specimenPk) {
+        long center_specimenPk = 0L;
+        String query = "SELECT pk FROM center_specimen WHERE center_pk = :centerPk AND specimen_pk = :specimenPk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("centerPk", centerPk);
+        parameterMap.put("specimenPk", specimenPk);
+
+        try {
+            center_specimenPk = npJdbcTemplate.queryForObject(query, new HashMap<>(), Long.class);
+        } catch (Exception e) {
+
+        }
+
+        return center_specimenPk;
+    }
+
     /**
-     * Returns the <code>ParameterAssociation</code> matching <code>parameterId</code> and <code>sequenceId</code>,
-     * if found; null otherwise.
+     * Returns a {@link List} of {@link Dimension} instances associated with parameter association primary key. If
+     * there are no associations, an empty list is returned.
      *
-     * @param connection  A valid database connection
+     * @param parameterAssociationPk the parameter association primary key
+     * @return
+     */
+    public List<Dimension> getDimensions(long parameterAssociationPk) {
+        List<Dimension> dimensions = new ArrayList<>();
+
+        String query = "SELECT * FROM dimension WHERE parameterAssociation_pk = :parameterAssociation_pk";
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("parameterAssociation_pk", parameterAssociationPk);
+        dimensions = npJdbcTemplate.query(query, parameterMap, new DimensionRowMapper());
+
+        return dimensions;
+    }
+
+    /**
+     * Returns the <code>ParameterAssociation</code> matching <code>parameterId</code> and <code>sequenceId</code>, and
+     * the {@link Dimension} collection, if found; null otherwise.
+     *
      * @param parameterId The parameterId value to search for
      * @param sequenceId An optional sequence Id to search for. May be null.
      * @return The <code>ParameterAssociation</code> matching <code>parameterId</code> and, if not null,
@@ -268,65 +290,46 @@ public class DccSqlUtils {
      * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
      * <i>NOTE: The <code>Dimension</code> collection, if any, is returned as well.</i>
      */
-    public static ParameterAssociation getParameterAssociation(Connection connection, String parameterId, Integer sequenceId) {
+    public ParameterAssociation getParameterAssociation(String parameterId, Integer sequenceId) {
         ParameterAssociation parameterAssociation = null;
 
         if (parameterId == null)
             return parameterAssociation;
-        String query;
 
-        if (sequenceId == null) {
-            query = "SELECT * FROM parameterAssociation WHERE parameterId = ?";
+        String query;
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        parameterMap.put("parameterId", parameterId);
+        if (sequenceId != null) {
+            query = "SELECT * FROM parameterAssociation WHERE parameterId = :parameterId";
         } else {
-            query = "SELECT * FROM parameterAssociation WHERE parameterId = ? AND sequenceId = ?";
+            query = "SELECT * FROM parameterAssociation WHERE parameterId = :parameterId AND sequenceId = :sequenceId";
+            parameterMap.put("sequenceId", sequenceId);
         }
 
-        PreparedStatement ps;
-        ResultSet rs;
+        List<ParameterAssociation> parameterAssociations =
+                npJdbcTemplate.query(query, parameterMap, new ParameterAssociationRowMapper());
 
-        try {
-            ps = connection.prepareStatement(query);
-            ps.setString(1, parameterId);
-            if (sequenceId != null) {
-                ps.setInt(2, sequenceId);
+        if ( ! parameterAssociations.isEmpty()) {
+            parameterAssociation = parameterAssociations.get(0);
+            if (parameterAssociation.getDim() != null) {
+                parameterAssociation.setDim(getDimensions(parameterAssociation.getHjid()));
             }
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                parameterAssociation = new ParameterAssociation();
-                parameterAssociation.setHjid(rs.getLong("pk"));
-                parameterAssociation.setParameterID(parameterId);
-                parameterAssociation.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
+        }
 
-                query = "SELECT * FROM dimension WHERE parameterAssociation_pk = ?";
-                ps = connection.prepareStatement(query);
-                ps.setLong(1, parameterAssociation.getHjid());
-                rs = ps.executeQuery();
-                List<Dimension> dimensionList = new ArrayList<>();
-                parameterAssociation.setDim(dimensionList);
-                while (rs.next()) {
-                    Dimension dimension = new Dimension();
-                    dimension.setHjid(rs.getLong("pk"));
-                    dimension.setId(rs.getString("id"));
-                    dimension.setOrigin(rs.getString("origin"));
-                    dimension.setUnit(rs.getString("unit"));
-                    BigDecimal value = rs.getBigDecimal("value");
-                    dimension.setValue( (rs.wasNull() ? null : value));
-                    dimensionList.add(dimension);
-                }
-            }
-
-        } catch (SQLException e) {
-
+        for (ParameterAssociation pa : parameterAssociations) {
+            pa.setDim(getDimensions(pa.getHjid()));
         }
 
         return parameterAssociation;
     }
 
+
+
     /**
-     * Returns the <code>ProcedureMetadata</code> matching <code>parameterId</code> and <code>sequenceId</code>,
-     * if found; null otherwise.
+     * Returns the {@code ProcedureMetadata} matching {@code parameterId} and {@code sequenceId} if found; null
+     * otherwise.
      *
-     * @param connection  A valid database connection
      * @param parameterId The parameterId value to search for
      * @param sequenceId An optional sequence Id to search for. May be null.
      * @return The <code>ProcedureMetadata</code> matching <code>parameterId</code> and, if not null, <code>sequenceId</code>,
@@ -334,103 +337,60 @@ public class DccSqlUtils {
      * <p/>
      * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
      */
-    public static ProcedureMetadata getProcedureMetadata(Connection connection, String parameterId, Integer sequenceId) {
+    public ProcedureMetadata getProcedureMetadata(String parameterId, Integer sequenceId) {
         ProcedureMetadata procedureMetadata = null;
 
         if (parameterId == null)
             return procedureMetadata;
 
         String query;
-
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("parameterId", parameterId);
         if (sequenceId == null) {
-            query = "SELECT * FROM procedureMetadata WHERE parameterId = ?";
+            query = "SELECT * FROM procedureMetadata WHERE parameterId = :parameterId";
         } else {
-            query = "SELECT * FROM procedureMetadata WHERE parameterId = ? AND sequenceId = ?";
+            query = "SELECT * FROM procedureMetadata WHERE parameterId = :parameterId AND sequenceId = :sequenceId";
+            parameterMap.put("sequenceId", sequenceId);
         }
 
-        PreparedStatement ps;
-        ResultSet rs;
+        List<ProcedureMetadata> procedureMetadataList =
+                npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
 
-        try {
-            ps = connection.prepareStatement(query);
-            ps.setString(1, parameterId);
-            if (sequenceId != null) {
-                ps.setInt(2, sequenceId);
-            }
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                procedureMetadata = new ProcedureMetadata();
-                procedureMetadata.setHjid(rs.getLong("pk"));
-                procedureMetadata.setParameterID(parameterId);
-                procedureMetadata.setParameterStatus(rs.getString("parameterStatus"));
-                procedureMetadata.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
-                procedureMetadata.setValue(rs.getString("value"));
-            }
-
-        } catch (SQLException e) {
-
+        if ( ! procedureMetadataList.isEmpty()) {
+            procedureMetadata = procedureMetadataList.get(0);
         }
 
         return procedureMetadata;
     }
 
     /**
-     * Looks for the <code>specimen</code> for the given specimenId, centerId, pipeline, and project.
-     * Retuns the <code>Specimen</code> instance if found; null otherwise.
+     * Looks for the {@code specimen} for the given specimenId and centerId.
+     * Retuns the {@link Specimen} instance if found; null otherwise.
      *
-     * @param connection A valid database connection
      * @param specimenId The specimen id
      * @param centerId   The center id
      * @return The <code>Specimen</code> instance if found; null otherwise.
      * <p/>
      * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
      */
-    public static Specimen getSpecimen(Connection connection, String specimenId, String centerId) {
-        SpecimenCda specimen = null;
+    public Specimen getSpecimen(String specimenId, String centerId) {
+        Specimen specimen = null;
+        final String query =
+                "SELECT s.*, sc.value AS status\n" +
+                "FROM specimen s\n" +
+                "JOIN            center_specimen cs ON cs.specimen_pk =  s .pk\n" +
+                "JOIN            center          c  ON c .pk          =  cs.center_pk\n" +
+                "LEFT OUTER JOIN statuscode      sc ON sc.pk          =  s .statuscode_pk\n" +
+                "WHERE s.specimenId = :specimenId AND c.centerId = :centerId";
 
-        String query = "";
-        PreparedStatement ps;
-        ResultSet rs;
-        try {
-            query =
-                    "SELECT *\n"
-                    + "FROM specimen s\n"
-                    + "JOIN center_specimen cs ON cs.specimen_pk =  s.pk\n"
-                    + "JOIN center           c ON  c.pk          = cs.center_pk\n"
-                    + "WHERE s.specimenId = ? AND c.centerId = ?";
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("specimenId", specimenId);
+        parameterMap.put("centerId", centerId);
 
-            ps = connection.prepareStatement(query);
-            ps.setString(1, specimenId);
-            ps.setString(2, centerId);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                specimen = new SpecimenCda();
-                specimen.setHjid(rs.getLong("s.pk"));
-                String colonyId = rs.getString("colonyId");
-                if (colonyId != null) {
-                    specimen.setColonyID(colonyId);
-                }
-                specimen.setGender(Gender.fromValue(rs.getString("gender")));
-                specimen.setIsBaseline((rs.getInt("isBaseline") == 1 ? true : false));
-                specimen.setLitterId(rs.getString("litterId"));
-                specimen.setPhenotypingCentre(CentreILARcode.fromValue(rs.getString("phenotypingCenter")));
-                specimen.setPipeline(rs.getString("pipeline"));
-                String productionCenter = rs.getString("productionCenter");
-                if (productionCenter != null) {
-                    specimen.setProductionCentre(CentreILARcode.fromValue(productionCenter));
-                }
-                specimen.setProject(rs.getString("project"));
-                specimen.setSpecimenID(rs.getString("specimenId"));
-                String strainId = rs.getString("strainId");
-                if (strainId != null) {
-                    specimen.setStrainID(strainId);
-                }
-                specimen.setZygosity(Zygosity.fromValue(rs.getString("zygosity")));
-                specimen.setStatusCode(selectOrInsertStatuscode(connection, specimen.getStatusCode()));
-            }
-
-        } catch (SQLException e) {
-
+        List<Specimen> specimens = npJdbcTemplate.query(query, parameterMap, new SpecimenRowMapper());
+        if ( ! specimens.isEmpty()) {
+            specimen = specimens.get(0);
+            specimen.setStatusCode(selectOrInsertStatuscode(specimen.getStatusCode()));
         }
 
         return specimen;
@@ -439,82 +399,276 @@ public class DccSqlUtils {
     /**
      * Returns the <code>StatusCode</code> matching <code>value</code>, if found; null otherwise.
      *
-     * @param connection  A valid database connection
      * @param value The StatusCode value to search for
-     * @return The <code>StatusCode</code> matching <code>value</code>, if found; null otherwise.
+     * @return The {@link StatusCode} matching {@code value}, if found; null otherwise.
      * <p/>
      * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
      */
-    public static StatusCode getStatuscode(Connection connection, String value) {
+    public StatusCode getStatuscode(String value) {
         StatusCode statuscode = null;
 
         if (value == null)
             return statuscode;
 
-        String query =
-                "SELECT * FROM statuscode WHERE value = ?;\n";
-        PreparedStatement ps;
-        ResultSet rs;
+        final String query = "SELECT * FROM statuscode WHERE value = :value";
 
-        try {
-            ps = connection.prepareStatement(query);
-            ps.setString(1, value);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                long pk = rs.getLong("pk");
-                if (pk > 0) {
-                    statuscode = new StatusCode();
-                    statuscode.setHjid(pk);
-                    statuscode.setValue(rs.getString("value"));
-                    Date dateOfStatuscode = rs.getDate("dateOfStatuscode");
-                    if (dateOfStatuscode != null) {
-                        GregorianCalendar gc = new GregorianCalendar();
-                        gc.setTime(dateOfStatuscode);
-                        statuscode.setDate(gc);
-                        statuscode.setValue(rs.getString("sc.value"));
-                    }
-                }
-            }
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("value", value);
 
-        } catch (SQLException e) {
-
+        List<StatusCode> statuscodes = npJdbcTemplate.query(query, parameterMap, new StatusCodeRowMapper());
+        if ( ! statuscodes.isEmpty()) {
+            statuscode = statuscodes.get(0);
         }
 
         return statuscode;
     }
 
     /**
-     * Inserts the given values into the center table. If the centerId, pipline, and project already exist, an error
-     * is logged and a value of 0 is returned.
+     * Inserts the given {@code }centerId}, {@code }pipeline}, and {@code }project} into the center table. Duplicates
+     * are ignored. The center primary key is returned.
      *
-     * @param connection A valid database connection
      * @param centerId   The center id
      * @param pipeline   The pipeline
      * @param project    The Project
      *
      * @return the primary key matching the newly inserted values
      */
-    public static long insertIntoCenter(Connection connection, String centerId, String pipeline, String project) {
-        long centerPk = 0L;
-        PreparedStatement ps;
-        String query;
-        ResultSet rs;
+    public long insertCenter(String centerId, String pipeline, String project) {
+        long pk;
+        String insert = "INSERT INTO center (centerId, pipeline, project) VALUES (:centerId, :pipeline, :project)";
 
         try {
-            query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
-            ps = connection.prepareStatement(query);
-            ps.setString(1, centerId);
-            ps.setString(2, pipeline);
-            ps.setString(3, project);
-            ps.execute();
-            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-            rs.next();
-            centerPk = rs.getLong(1);
-        } catch (SQLException e) {
-            logger.error("Unable to insert into center(" + centerId + ", " + pipeline + ", " + project + ": " + e.getLocalizedMessage());
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("centerId", centerId);
+            parameterMap.put("pipeline", pipeline);
+            parameterMap.put("project", project);
+
+            npJdbcTemplate.update(insert, parameterMap);
+            pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+
+        } catch (DuplicateKeyException e) {
+            pk = getCenterPk(centerId, pipeline, project);
         }
 
-        return centerPk;
+        return pk;
+    }
+
+    /**
+     * Inserts the given {@code centerPk} and {@code specimenPk}, into the center_specimen table. Duplicates are ignored.
+     * The center_specimen primary key is returned.
+     *
+     * @param centerPk   The center primary key
+     * @param specimenPk The specimen primary key
+     * @return the the center_specimen primary key
+     */
+    public long insertCenter_specimen(long centerPk, long specimenPk) {
+        long pk;
+        String insert = "INSERT INTO center_specimen (center_pk, specimen_pk) VALUES (:center_pk, :specimen_pk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("center_pk", centerPk);
+            parameterMap.put("specimen_pk", specimenPk);
+
+            npJdbcTemplate.update(insert, parameterMap);
+            pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+
+        } catch (DuplicateKeyException e) {
+            pk = getCenter_specimenPk(centerPk, specimenPk);
+        }
+
+        return pk;
+    }
+
+    /**
+     * Inserts the given embryo into the embryo table. Duplicates are ignored.
+     *
+     * @param embryo the embryo to be inserted
+     *
+     * @return the embryo, with primary key loaded
+     */
+    public Embryo insertEmbryo(Embryo embryo, long specimen_pk) {
+        String insert = "INSERT INTO embryo (stage, stageUnit, specimen_pk) VALUES (:stage, :stageUnit, :specimen_pk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("stage", embryo.getStage());
+            parameterMap.put("stageUnit", embryo.getStageUnit().value());
+            parameterMap.put("specimen_pk", specimen_pk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                embryo.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return embryo;
+    }
+
+    /**
+     * Inserts the given genotype into the genotype table. Duplicates are ignored.
+     *
+     * @param genotype the genotype to be inserted
+     *
+     * @return the genotype, with primary key loaded
+     */
+    public Genotype insertGenotype(Genotype genotype, long specimen_pk) {
+        long pk = 0L;
+        String insert = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_pk) "
+                     + " VALUES (:geneSymbol, :mgiAlleleId, :mgiGeneId, :fatherZygosity, :motherZygosity, :specimen_pk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("geneSymbol", genotype.getGeneSymbol());
+            parameterMap.put("mgiAlleleId", genotype.getMGIAlleleId());
+            parameterMap.put("mgiGeneId", genotype.getMGIGeneId());
+            parameterMap.put("fatherZygosity", (genotype.getFatherZygosity() == null ? null : genotype.getFatherZygosity()));
+            parameterMap.put("motherZygosity", (genotype.getMotherZygosity() == null ? null : genotype.getMotherZygosity()));
+            parameterMap.put("specimen_pk", specimen_pk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                genotype.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return genotype;
+    }
+
+    /**
+     * Inserts the given mouse into the mouse table. Duplicates are ignored.
+     *
+     * @param mouse the mouse to be inserted
+     *
+     * @return the mouse, with primary key loaded
+     */
+    public Mouse insertMouse(Mouse mouse, long specimen_pk) {
+        String insert = "INSERT INTO mouse (DOB, specimen_pk) VALUES (:DOB, :specimen_pk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("DOB", new java.sql.Date(mouse.getDOB().getTime().getTime()));
+            parameterMap.put("specimen_pk", specimen_pk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                mouse.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return mouse;
+    }
+    
+    /**
+     * Inserts the given parentalStrain into the parentalStrain table. Duplicates are ignored.
+     *
+     * @param parentalStrain the parentalStrain to be inserted
+     *
+     * @return the parentalStrain, with primary key loaded
+     */
+    public ParentalStrain insertParentalStrain(ParentalStrain parentalStrain, long specimen_pk) {
+        String insert = "INSERT INTO parentalStrain (percentage, mgiStrainId, gender, level, specimen_pk) "
+                      + "VALUES (:percentage, :mgiStrainId, :gender, :level, :specimen_pk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("percentage", parentalStrain.getPercentage());
+            parameterMap.put("mgiStrainId", parentalStrain.getMGIStrainID());
+            parameterMap.put("gender", parentalStrain.getGender().value());
+            parameterMap.put("level", parentalStrain.getLevel());
+            parameterMap.put("specimen_pk", specimen_pk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                parentalStrain.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return parentalStrain;
+    }
+
+    /**
+     * Inserts the given relatedSpecimen into the relatedSpecimen table. Duplicates are ignored.
+     *
+     * @param relatedSpecimen the relatedSpecimen to be inserted
+     *
+     * @return the relatedSpecimen, with primary key loaded
+     */
+    public RelatedSpecimen insertRelatedSpecimen(RelatedSpecimen relatedSpecimen, long specimen_pk) {
+        String insert = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_pk) "
+                      + "VALUES (:relationship, :specimenIdMine, :specimen_theirs_pk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("relationship", relatedSpecimen.getRelationship().value());
+            parameterMap.put("specimenIdMine", relatedSpecimen.getSpecimenID());
+            parameterMap.put("specimen_pk", specimen_pk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                relatedSpecimen.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return relatedSpecimen;
+    }
+
+    public Specimen insertSpecimen(Specimen specimen) throws DataImportException {
+        final String insert = "INSERT INTO specimen (" +
+                    "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project, specimenId, strainId, zygosity, statuscode_pk) VALUES " +
+                    "(:colonyId, :gender, :isBaseline, :litterId, :phenotypingCenter, :pipeline, :productionCenter, :project, :specimenId, :strainId, :zygosity, :statuscode_pk);";
+
+        Map<String, Object> parameterMap = new HashMap();
+
+        try {
+            parameterMap.put("colonyId", specimen.getColonyID());
+            parameterMap.put("gender", specimen.getGender().value());
+            parameterMap.put("isBaseline", specimen.isIsBaseline() ? 1 : 0);
+            parameterMap.put("litterId", specimen.getLitterId());
+            parameterMap.put("phenotypingCenter", specimen.getPhenotypingCentre().value());
+            parameterMap.put("pipeline", specimen.getPipeline());
+            parameterMap.put("productionCenter", specimen.getProductionCentre().value());
+            parameterMap.put("project", specimen.getProject());
+            parameterMap.put("specimenId", specimen.getSpecimenID());
+            parameterMap.put("strainId", specimen.getStrainID());
+            parameterMap.put("zygosity", specimen.getZygosity().value());
+            parameterMap.put("statuscode_pk", (specimen.getStatusCode() == null ? null : specimen.getStatusCode().getHjid()));
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long specimenPk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                specimen.setHjid(specimenPk);
+            }
+        } catch (Exception e) {
+            throw new DataImportException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
+        }
+        
+        return specimen;
     }
 
     /**
@@ -526,47 +680,42 @@ public class DccSqlUtils {
      * <i>NOTE: Any <code>Dimension</code></i> instances in the parameterAssociation are added to the dimension table
      *          and returned in the returned <code>ParameterAssociation</code> instance.
      *
-     * @param connection  A valid database connection
      * @param parameterAssociation a valid <code>ParameterAssociation</code> instance
      *
      * @return The <code>ParameterAssociation</code> instance matching <code>parameterId</code> (and <code>sequenceId</code>,
      * if specified), inserted first if necessary.
      */
-    public static ParameterAssociation selectOrInsertParameterAssociation(Connection connection, ParameterAssociation parameterAssociation) {
+    public ParameterAssociation selectOrInsertParameterAssociation(ParameterAssociation parameterAssociation) {
         String parameterId = parameterAssociation.getParameterID();
         Integer sequenceId = (parameterAssociation.getSequenceID() == null ? null : parameterAssociation.getSequenceID().intValue());
+        final String insertPa = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (:parameterId, :sequenceId)";
+        final String insertDimension = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_pk) "
+                                     + "VALUES(:id, :origin, :unit, :value, :parameterAssociation_pk)";
 
-        ParameterAssociation retVal = getParameterAssociation(connection, parameterId, sequenceId);
+        ParameterAssociation retVal = getParameterAssociation(parameterId, sequenceId);
 
         if (retVal == null) {
-            String query = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (?, ?)\n";
             try {
-                PreparedStatement ps = connection.prepareStatement(query);
-                ps.setString(1, parameterId);
-                if (sequenceId == null)
-                    ps.setNull(2, Types.INTEGER);
-                else
-                    ps.setInt(2, sequenceId);
-                ps.execute();
-                long parameterAssociationPk = getParameterAssociation(connection, parameterId, sequenceId).getHjid();
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("parameterId", parameterId);
+                parameterMap.put("sequenceId", sequenceId);
 
-                if ((parameterAssociation.getDim() != null) && ( ! parameterAssociation.getDim().isEmpty())) {
-                    for (Dimension dimension : parameterAssociation.getDim()) {
-                        query = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_pk)"
-                              + "VALUES (?, ?, ?, ?, ?)";
-                        ps = connection.prepareStatement(query);
-                        ps.setString(1, dimension.getId());
-                        ps.setString(2, dimension.getOrigin());
-                        ps.setString(3, dimension.getUnit());
-                        ps.setBigDecimal(4, dimension.getValue());
-                        ps.setLong(5, parameterAssociationPk);
-                        ps.execute();
+                npJdbcTemplate.update(insertPa, parameterMap);
+                retVal = getParameterAssociation(parameterId, sequenceId);
+                if (retVal.getDim() != null) {
+                    parameterMap.clear();
+                    for (Dimension dimension : retVal.getDim()) {
+                        parameterMap.put("id", dimension.getId());
+                        parameterMap.put("origin", dimension.getOrigin());
+                        parameterMap.put("unit", dimension.getUnit());
+                        parameterMap.put("value", dimension.getValue());
+                        parameterMap.put("parameterAssociation_pk", retVal.getHjid());
+
+                        npJdbcTemplate.update(insertDimension, parameterMap);
                     }
                 }
 
-                retVal = getParameterAssociation(connection, parameterId, sequenceId);
-
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException("INSERT of retVal(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
             }
@@ -582,29 +731,26 @@ public class DccSqlUtils {
      *
      * <i>NOTE: if <code>parameterId</code> is null, a null <code>ProcedureMetadata</code> is returned.</i>
      *
-     * @param connection  A valid database connection
      * @param parameterId the parameterId to search for
      * @param sequenceId the sequence id to search for (may be null)
      *
      * @return The <code>ProcedureMetadata</code> instance matching <code>parameterId</code> (and <code>sequenceId</code>,
      * if specified), inserted first if necessary.
      */
-    public static ProcedureMetadata selectOrInsertProcedureMetadata(Connection connection, String parameterId, Integer sequenceId) {
-        ProcedureMetadata procedureMetadata = getProcedureMetadata(connection, parameterId, sequenceId);
+    public ProcedureMetadata selectOrInsertProcedureMetadata(String parameterId, Integer sequenceId) {
+        ProcedureMetadata procedureMetadata = getProcedureMetadata(parameterId, sequenceId);
 
         if (procedureMetadata == null) {
-            String query = "INSERT INTO procedureMetadata (parameterId, sequenceId) VALUES (?, ?)\n";
+            String insert = "INSERT INTO procedureMetadata (parameterId, sequenceId) VALUES (:parameterId, :sequenceId)";
             try {
-                PreparedStatement ps = connection.prepareStatement(query);
-                ps.setString(1, parameterId);
-                if (sequenceId == null)
-                    ps.setNull(2, Types.INTEGER);
-                else
-                    ps.setInt(2, sequenceId);
-                ps.execute();
-                procedureMetadata = getProcedureMetadata(connection, parameterId, sequenceId);
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("parameterId", parameterId);
+                parameterMap.put("sequenceId", sequenceId);
 
-            } catch (SQLException e) {
+                npJdbcTemplate.update(insert, parameterMap);
+                procedureMetadata = getProcedureMetadata(parameterId, sequenceId);
+
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException("INSERT of parameterAssociation(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
             }
@@ -614,36 +760,29 @@ public class DccSqlUtils {
     }
 
     /**
-     * Given a statuscode value, attempts to fetch the matching object. If there is none, the value and (nullable)
-     * dateOfStatuscode are first inserted. The <code>StatusCode</code> instance is then returned.
+     * Given a non-null statuscode value, attempts to insert the statuscode, ignoring any duplicates. Returns the
+     * statuscode fetched from the database. A null {@code value} returns a null {@link StatusCode}.
      *
-     * <i>NOTE: if <code>value</code> is null, a null <code>StatusCode</code> is returned.</i>
-     *
-     * @param connection  A valid database connection
-     * @param value The status code value (required)
+     * @param value The status code value
      * @param dateOfStatuscode statuscode date (may be null)  (Not used in SELECT)
      *
-     * @return The <code>StatusCode</code> instance matching <code>value</code>, inserted first if necessary.
+     * @return The {@link StatusCode} instance matching {@code value}
      */
-    public static StatusCode selectOrInsertStatuscode(Connection connection, String value, Calendar dateOfStatuscode) {
-        StatusCode statuscode = getStatuscode(connection, value);
-
+    public StatusCode selectOrInsertStatuscode(String value, Calendar dateOfStatuscode) {
         if (value == null)
-            return statuscode;
+            return null;
+
+        StatusCode statuscode = getStatuscode(value);
 
         if (statuscode == null) {
-            String query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES (?, ?)\n";
-            try {
-                PreparedStatement ps = connection.prepareStatement(query);
-                ps.setDate(1, dateOfStatuscode == null ? null : new java.sql.Date(dateOfStatuscode.getTimeInMillis()));
-                ps.setString(2, value);
-                ps.execute();
-                statuscode = getStatuscode(connection, value);
+            String insert = "INSERT INTO statuscode (value, dateOfStatuscode) VALUES (:value, :dateOfStatuscode)\n";
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Invalid date '" + dateOfStatuscode.getTime().toString());
-            }
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("value", value);
+            parameterMap.put("dateOfStatuscode", dateOfStatuscode);
+
+            npJdbcTemplate.update(insert, parameterMap);
+            statuscode = getStatuscode(value);
         }
 
         return statuscode;
@@ -653,15 +792,130 @@ public class DccSqlUtils {
      * Given a statuscode instance, attempts to fetch the matching object. If there is none, the value and (nullable)
      * dateOfStatuscode are first inserted. The <code>StatusCode</code> instance is then returned.
      *
-     * @param connection  A valid database connection
      * @param statuscode The <code>StatusCode</code> instance
      *
      * @return The <code>StatusCode</code> instance matching <code>value</code>, inserted first if necessary.
      */
-    public static StatusCode selectOrInsertStatuscode(Connection connection, StatusCode statuscode) {
+    public StatusCode selectOrInsertStatuscode(StatusCode statuscode) {
         if (statuscode == null)
             return null;
 
-        return selectOrInsertStatuscode(connection, statuscode.getValue(), statuscode.getDate());
+        return selectOrInsertStatuscode(statuscode.getValue(), statuscode.getDate());
+    }
+
+    public int updateRelatedSpecimenMinePk() {
+        final String update = "UPDATE relatedSpecimen SET specimen_mine_pk = (SELECT pk FROM specimen WHERE relatedSpecimen.specimenIdMine = specimen.specimenId)";
+        int count = npJdbcTemplate.update(update, new HashMap<String, Object>());
+
+        return count;
+    }
+
+
+    // ROWMAPPERS
+
+
+    public class DimensionRowMapper implements RowMapper<Dimension> {
+
+        @Override
+        public Dimension mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Dimension dimension = new Dimension();
+
+            dimension.setHjid(rs.getLong("pk"));
+            dimension.setId(rs.getString("id"));
+            dimension.setOrigin(rs.getString("origin"));
+            dimension.setUnit(rs.getString("unit"));
+            BigDecimal value = rs.getBigDecimal("value");
+            dimension.setValue( (rs.wasNull() ? null : value));
+
+            return dimension;
+        }
+    }
+
+    public class ParameterAssociationRowMapper implements RowMapper<ParameterAssociation> {
+
+        @Override
+        public ParameterAssociation mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ParameterAssociation parameterAssociation = new ParameterAssociation();
+
+            parameterAssociation.setHjid(rs.getLong("pk"));
+            parameterAssociation.setParameterID(rs.getString("parameterId"));
+            parameterAssociation.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
+
+            return parameterAssociation;
+        }
+    }
+
+    public class ProcedureMetadataRowMapper implements RowMapper<ProcedureMetadata> {
+
+        @Override
+        public ProcedureMetadata mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ProcedureMetadata procedureMetadata = new ProcedureMetadata();
+
+            procedureMetadata.setHjid(rs.getLong("pk"));
+            procedureMetadata.setParameterID(rs.getString("parameterId"));
+            procedureMetadata.setParameterStatus(rs.getString("parameterStatus"));
+            procedureMetadata.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
+            procedureMetadata.setValue(rs.getString("value"));
+
+            return procedureMetadata;
+        }
+    }
+
+    public class SpecimenRowMapper implements RowMapper<Specimen> {
+
+        @Override
+        public Specimen mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Specimen specimen = new SpecimenCda();
+
+            specimen.setHjid(rs.getLong("s.pk"));
+            String colonyId = rs.getString("colonyId");
+            if ( ! rs.wasNull()) {
+                specimen.setColonyID(colonyId);
+            }
+            specimen.setGender(Gender.fromValue(rs.getString("gender")));
+            specimen.setIsBaseline((rs.getInt("isBaseline") == 1 ? true : false));
+            specimen.setLitterId(rs.getString("litterId"));
+            specimen.setPhenotypingCentre(CentreILARcode.fromValue(rs.getString("phenotypingCenter")));
+            specimen.setPipeline(rs.getString("pipeline"));
+            String productionCenter = rs.getString("productionCenter");
+            if ( ! rs.wasNull()) {
+                specimen.setProductionCentre(CentreILARcode.fromValue(productionCenter));
+            }
+            specimen.setProject(rs.getString("project"));
+            specimen.setSpecimenID(rs.getString("specimenId"));
+            String strainId = rs.getString("strainId");
+            if ( ! rs.wasNull()) {
+                specimen.setStrainID(strainId);
+            }
+            specimen.setZygosity(Zygosity.fromValue(rs.getString("zygosity")));
+            StatusCode statusCode = new StatusCode();
+            statusCode.setValue(rs.getString("status"));
+            specimen.setStatusCode(statusCode);
+
+            return specimen;
+        }
+    }
+
+    public class StatusCodeRowMapper implements RowMapper<StatusCode> {
+
+        @Override
+        public StatusCode mapRow(ResultSet rs, int rowNum) throws SQLException {
+            StatusCode statuscode = new StatusCode();
+
+            long pk = rs.getLong("pk");
+            if (pk > 0) {
+                statuscode.setHjid(pk);
+            }
+
+            statuscode.setValue(rs.getString("value"));
+            Date dateOfStatuscode = rs.getDate("dateOfStatuscode");
+            if ( ! rs.wasNull()) {
+                GregorianCalendar gc = new GregorianCalendar();
+                gc.setTime(dateOfStatuscode);
+                statuscode.setDate(gc);
+            }
+
+            return statuscode;
+        }
     }
 }
