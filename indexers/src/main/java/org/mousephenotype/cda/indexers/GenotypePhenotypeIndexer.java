@@ -97,7 +97,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     @Autowired
     EmapaOntologyDAO emapaOntologyService;
-    
+
 	@Autowired
 	OntologyTermDAO ontologyTermDAO;
 
@@ -244,8 +244,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
             ResultSet r = p.executeQuery();
             while (r.next()) {
-            	
-            	System.out.println("next " + r.getInt("id"));
 
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
@@ -353,16 +351,15 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     		}
                     	}
                     }
-                    
-                    // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might. 
+
+                    // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
                     Set<String> anatomyIdsForAncestors = new HashSet<>();
                     for (String mpAncestorId: mpOntologyService.getAncestorsDetail(mpId).getIds()){
-                    	System.out.println();
                     	if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null){
                     		anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
                     	}
                     }
-                    
+
                     for (String id: anatomyIdsForAncestors){
                     	OntologyDAO currentOntologyService = null;
                     	if (id.startsWith("EMAPA")){
@@ -381,7 +378,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 	                   		doc.addTopLevelAnatomyTermName(anatomyTopLevels.getNames());
                     	}
                     }
-                    
+
                     doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
                     doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
 

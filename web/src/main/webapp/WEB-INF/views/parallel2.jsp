@@ -34,10 +34,13 @@
     		
 			<div class="content">
 				<div class="section"> 
-					<h2 class="title" id="data-summary">Parallel coordinates tool<span class="documentation" ><a href='' id='parallelPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
+					<h2 class="title"><span id="parallel-title">Gene KO effect comparator </span><span class="documentation" ><a href='' id='parallelPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
 					<div class="inner">
-						<div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
-						
+						<p>
+						Visualize multiple strain across several procedure/parameters. The measurement values displayed are the genotype 
+						effect which accounts for different variation sources like batch effects. Only continuous variable can be vizualised. 
+						More information about the statistical methods used is available in the <a href="/documentation/statistics-help">statistics documentation</a>.
+						</p> <br/>
 						<form class="tablefiltering no-style" id="target" action="destination.html">
 							<select id="proceduresFilter" class="impcdropdown"  multiple="multiple" title="Select procedures to display">
 		                    	<c:forEach var="procedure" items="${procedures}">
@@ -54,8 +57,9 @@
 							</div>
 		                	<div class="clear"></div>
 	                    </form>
-									
+							
 						<div id="chart-and-table">
+							<div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
 						</div>
 					</div>
 				</div>
