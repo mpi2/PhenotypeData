@@ -975,6 +975,7 @@ public class GenesController {
 
 		return "genesAllele2_frag";
 	}
+	
 
     @Autowired
 	private PhenoDigmWebDao phenoDigmDao;
