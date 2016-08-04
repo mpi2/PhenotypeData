@@ -42,7 +42,6 @@ public class OrderService {
 	@Qualifier("eucommToolsProductCore")
 	private HttpSolrServer productCore;
 	
-	 private static final String ALLELE_NAME_FIELD = "allele_name_str";
 	 @Value("${imits.solr.host}")
 	 private String IMITS_SOLR_CORE_URL;
 
@@ -86,6 +85,7 @@ public class OrderService {
 		SolrQuery query = new SolrQuery();
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
+		query.addFilterQuery("("+Allele2DTO.ES_CELL_AVAILABLE+":true OR "+Allele2DTO.TARGETING_VECTOR_AVAILABLE+":true OR "+Allele2DTO.MOUSE_AVAILABLE+":true)" );
 		query.setRows(rows);
 		System.out.println("query for alleles=" + query);
 		QueryResponse response = allele2Core.query(query);
@@ -164,6 +164,7 @@ public class OrderService {
 		if (productType != null) {
 			query.addFilterQuery("type:" + productType);
 		}
+		query.addFilterQuery("production_completed:true");
 		System.out.println("query for products=" + query);
 		QueryResponse response = productCore.query(query);
 		System.out.println("number found of products docs=" + response.getResults().getNumFound());
