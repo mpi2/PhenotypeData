@@ -35,7 +35,15 @@ public class AnatomogramDataBean {
 	public void setUberonIds(List<String> uberonIds) {
 		this.uberonIds = uberonIds;
 	}
-	
+
+	public List<String> getDirectlyMappedUberonIds() {
+		return uberonIds;
+	}
+	public void setDirectlyMappedUberonIds(List<String> uberonIds) {
+		this.uberonIds = uberonIds;
+	}
+
+
 	public String getMaId() {
 		return maId;
 	}

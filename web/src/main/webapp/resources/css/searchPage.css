@@ -4,6 +4,9 @@ ul.ui-autocomplete {
 	border: 1px solid #0978A1;
 	padding: 10px 15px;
 	z-index: 999;
+	-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+	-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
 
 }
 ul.ui-autocomplete li a {
@@ -163,8 +166,14 @@ span.annotType {
 table#diseaseGrid th:nth-child(1) {
 	width: 200px !important;
 }
-table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
-	width: 35% !important;
+div#diseaseTab table#dTable th:nth-child(1) {
+	width: 45% !important;
+}
+div#allele2Tab table#dTable th:nth-child(3) {
+	width: 33% !important;
+}
+div#allele2Tab table#dTable td:nth-child(3) a {
+	margin-left: 5px;
 }
 /* end of dataTable on search page */
 
@@ -508,4 +517,14 @@ div#anaSep {
 	height: 1px;
 	border-bottom: 1px solid #777;
 	display: none;
+}
+i.fa a {
+	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
+}
+div.fullDef {
+	display: none;
+}
+div.moreLess {
+	cursor: pointer;
+	color: #0978A1;
 }

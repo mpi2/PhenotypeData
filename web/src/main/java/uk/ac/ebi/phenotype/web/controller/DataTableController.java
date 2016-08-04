@@ -636,13 +636,24 @@ public class DataTableController {
 			// array element is an alternate of facetField and facetCount
 			JSONObject doc = docs.getJSONObject(i);
 
-			String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
+			//String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
+			String alleleName = "<span class='allelename'>"+ doc.getString("allele_name")+ "</span>";
 			String markerSymbol = doc.getString("marker_symbol");
 			String mutationType = doc.getString("mutation_type");
-			String order = "<i class=\"fa fa-shopping-cart\"><a href=''>Targeting vector</a><br><a href=''>Es Cell</a><br><a href=''>Mouse</a></i>";
 
-			rowData.add(alleleName);
-			rowData.add(markerSymbol);
+			List<String> orders = new ArrayList<>();
+			if ( doc.containsKey("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
+				orders.add("<i class='fa fa-shopping-cart'><a href=''>Targeting vector</a></i>");
+			}
+			if ( doc.containsKey("es_cell_available") && doc.getBoolean("es_cell_available")){
+				orders.add("<i class='fa fa-shopping-cart'><a href=''>ES cell</a></i>");
+			}
+			if ( doc.containsKey("mouse_available") && doc.getBoolean("mouse_available")){
+				orders.add("<i class='fa fa-shopping-cart'><a href=''>Mouse</a></i>");
+			}
+			String order = StringUtils.join(orders, "<br>");
+
+			rowData.add(markerSymbol + "<sup>" + alleleName + "</sup>");
 			rowData.add(mutationType);
 			rowData.add(order);
 
@@ -943,22 +954,32 @@ public class DataTableController {
             // some MP do not have definition
             String mpDef = "No definition data available";
             try {
-                //mpDef = doc.getString("mp_definition");
-                mpDef = Tools.highlightMatchedStrIfFound(qryStr, doc.getString("mp_definition"), "span", "subMatch");
+				int defaultLen = 100;
+				mpDef = doc.getString("mp_definition");
+
+				if (mpDef.length() > defaultLen) {
+					String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(qryStr, mpDef.substring(0, defaultLen), "span", "subMatch") + "</div>";
+					mpDef = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(qryStr, mpDef, "span", "subMatch") + "</div>";
+					rowData.add(partMpDef + mpDef + "<div class='moreLess'>Show more ...</div>");
+				}
+				else {
+					rowData.add(mpDef);
+				}
+
             } catch (Exception e) {
                 //e.printStackTrace();
             }
-            rowData.add(mpDef);
+
 
             // number of postqc phenotyping calls of this MP
-            int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
-
-			if (numCalls > 0){
-				rowData.add("<a href='" + baseUrl + "/phenotypes/" + mpId + "#hasGeneVariants'>" + numCalls + "</a>");
-			}
-			else {
-				rowData.add(Integer.toString(numCalls));
-			}
+//            int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
+//
+//			if (numCalls > 0){
+//				rowData.add("<a href='" + baseUrl + "/phenotypes/" + mpId + "#hasGeneVariants'>" + numCalls + "</a>");
+//			}
+//			else {
+//				rowData.add(Integer.toString(numCalls));
+//			}
 
 			// link out to ontology browser page
 			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
@@ -1751,12 +1772,46 @@ public class DataTableController {
                     }
                 } else if (field.equals("marker_synonym")) {
                     JSONArray data = doc.getJSONArray(field);
+					int counter = 0;
+					String synMatch = null;
+					String syn = null;
+
                     for (Object d : data) {
-                        info.add(Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch"));
+						counter++;
+						if ( d.toString().toLowerCase().contains(qryStr.toLowerCase())) {
+							if ( synMatch == null ) {
+								synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
+								//info.add(Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch"));
+							}
+						}
+						else {
+							if  (counter == 1) {
+								syn = d.toString();
+							}
+						}
                     }
+
+					if ( synMatch != null ){
+						info.add(synMatch);
+					}
+					else if ( counter == 1 ){
+						info.add(syn);
+					}
+					else if ( counter > 1 ){
+						info.add(syn + "<a href='" + geneUrl + "'> (see more ...)</a>");
+					}
                 }
 
-                field = field == "human_gene_symbol" ? "human ortholog" : field.replace("marker_", " ");
+				// field string shown to the users
+                if ( field.equals("human_gene_symbol") ){
+					field = "human ortholog";
+				}
+				else if ( field.equals("marker_name" ) ){
+					field = "name";
+				}
+				else if ( field.equals("marker_synonym") ){
+					field = "synonym";
+				}
                 String ulClass = field == "human ortholog" ? "ortholog" : "synonym";
 
                 //geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));

@@ -302,7 +302,7 @@
 
 				var srchMsg;
 				if ( window.location.search != '' ){
-					srchMsg = "Resutls found by your search keyword are grouped in the following categories:";
+					srchMsg = "Results found by your search keyword are grouped in the following categories:";
 				}
 				else {
 					srchMsg = "Results found are grouped in the following categories:";
@@ -698,6 +698,23 @@
 							text : $(this).attr('oldtitle')
 						}
 					});
+				});
+
+				// show more/less for mp definition
+				$('div.moreLess').click(function(){
+					if ( $(this).hasClass('expand') ){
+						$(this).removeClass('expand');
+						$(this).siblings('div.fullDef').hide();
+						$(this).siblings('div.partDef').show();
+						$(this).text("Show more ...");
+
+					}
+					else {
+						$(this).addClass('expand');
+						$(this).siblings('div.fullDef').show();
+						$(this).siblings('div.partDef').hide();
+						$(this).text("Show less ...");
+					}
 				});
 			}
 
