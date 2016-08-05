@@ -74,10 +74,11 @@
         	</td>
         	
             <td>
-                <c:if test="${fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
+             
+                <c:if test="${ empty phenotype.phenotypeTerm.id }">
                     ${phenotype.phenotypeTerm.name}
                 </c:if>
-                <c:if test="${not fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
+                <c:if test="${not empty phenotype.phenotypeTerm.id}">
                     <a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</a>
                 </c:if>
 
