@@ -2,6 +2,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.validation.constraints.NotNull;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -88,15 +91,32 @@ public class ImageServiceTest {
 		QueryResponse response =null;
 		try {
 			response = imageService.getImagesForGeneByParameter(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
-			
+			long resultsSize=response.getResults().size();
+			System.out.println("resultsSize="+resultsSize);
+			assertTrue(resultsSize>12);
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		long resultsSize=response.getResults().size();
-		System.out.println("resultsSize="+resultsSize);
-		assertTrue(resultsSize>12);
+		
+		
+	}
+	
+	@Test
+	public void testGetPhenotypeAssociatedImages(){
+		String acc="MGI:1891341";//should be 8 parameters for this gene at least.
+		int rows=1;
+		List<Group> response=null;
+		try {
+			response = imageService.getPhenotypeAssociatedImages(acc, rows);
+			System.out.println(response.size());
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertTrue(response !=null);	
 		
 	}
 
+	
 }
