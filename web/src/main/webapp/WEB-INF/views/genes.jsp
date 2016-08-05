@@ -564,21 +564,24 @@
 								</div>
 							</div><!-- end of IMPC / legacy Expressions -->
 
+						
+							
+							
 							<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
 							<div class="section">
-								<h2 class="title" id="section-images">Phenotype Associated Images
+								<h2 class="title" id="section-images">Phenotype Associated Images new
 									<span class="documentation"><a href="" id="phenoAssocImgSection" class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
 								<div class="inner" style="display: block;">
-									<c:if test="${empty impcImageFacets and empty solrFacets}">
+									<c:if test="${empty impcImageGroups and empty solrFacets}">
 										<div class="alert alert_info">Phenotype associated images not available</div>
 									</c:if>
 
-									<c:if test="${not empty impcImageFacets or not empty solrFacets}">
-										<c:if test="${not empty impcImageFacets}">
+									<c:if test="${not empty impcImageGroups or not empty solrFacets}">
+										<c:if test="${not empty impcImageGroups}">
 											<h5 class="sectHint">IMPC Phenotype Associated Images</h5>
-											<jsp:include page="genesImpcPhenoAssocImg_frag.jsp"></jsp:include>
+											<jsp:include page="genesImpcImagesAssocFrag.jsp"></jsp:include>
 										</c:if>
 
 										<c:if test="${not empty impcImageFacets and not empty solrFacets}">
