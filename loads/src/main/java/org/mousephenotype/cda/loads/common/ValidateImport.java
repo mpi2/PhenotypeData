@@ -81,22 +81,18 @@ public class ValidateImport implements CommandLineRunner {
             ", s.specimenId\n" +
             "FROM center_specimen cs\n" +
             "JOIN center c ON c.pk = cs.center_pk\n" +
-            "JOIN specimen s ON s.pk = cs.specimen_pk",
+            "JOIN specimen s ON s.pk = cs.specimen_pk"
 
-            "SELECT * FROM specimen",
-
-            "SELECT * FROM genotype",
-
-            "SELECT\n" +
-            "  e.experimentId\n" +
-            ", c.centerId\n" +
-            ", c.pipeline\n" +
-            ", c.project\n" +
-            ", p.procedureId\n" +
-            "FROM experiment e\n" +
-            "JOIN center_procedure cp ON cp.pk = e.center_procedure_pk\n" +
-            "JOIN center c ON c.pk = cp.center_pk\n" +
-            "JOIN procedure_ p ON p.pk = cp.procedure_pk"
+//            "SELECT\n" +
+//            "  e.experimentId\n" +
+//            ", c.centerId\n" +
+//            ", c.pipeline\n" +
+//            ", c.project\n" +
+//            ", p.procedureId\n" +
+//            "FROM experiment e\n" +
+//            "JOIN center_procedure cp ON cp.pk = e.center_procedure_pk\n" +
+//            "JOIN center c ON c.pk = cp.center_pk\n" +
+//            "JOIN procedure_ p ON p.pk = cp.procedure_pk"
         };
 
     @Autowired
