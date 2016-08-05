@@ -34,6 +34,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -46,18 +47,19 @@ import java.util.List;
 @Import(DccConfigApp.class)
 public class ImportSpecimens implements CommandLineRunner {
 
-    // Required by the Harwell DCC export utilities
-    public static final  String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
-
-    @Autowired
-    private DccSqlUtils dccSqlUtils;
-
     private String filename;
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    // Required by the Harwell DCC export utilities
+    public static final  String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
 
+    @NotNull
     @Autowired
     private DataSource dccDataSource;
+
+    @NotNull
+    @Autowired
+    private DccSqlUtils dccSqlUtils;
 
 
     public static void main(String[] args) throws Exception {
@@ -69,7 +71,7 @@ public class ImportSpecimens implements CommandLineRunner {
 
         OptionParser parser = new OptionParser();
 
-        // parameter to indicate table creation
+        // parameter to indicate specimen table creation
         parser.accepts("create");
 
         // parameter to indicate the database name
