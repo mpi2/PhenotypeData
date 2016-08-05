@@ -22,9 +22,7 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILAR
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Zygosity;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Dimension;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ParameterAssociation;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ProcedureMetadata;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,6 +213,10 @@ public class DccSqlUtils {
         ps.execute();
     }
 
+
+    // GETS
+
+
     /**
      * Returns the primary key for the given centerId, pipeline, and project, if found; 0 otherwise
      *
@@ -279,6 +281,34 @@ public class DccSqlUtils {
     }
 
     /**
+     * Returns the line primary key matching {@code colonyId} and {@code center_procedurePk}, if found; 0 otherwise.
+     *
+     * @param colonyId The {@link StatusCode} value to search for
+     * @param center_procedurePk The center_procedure primary key value to search for
+     * @return The line primary key matching {@code colonyId} and {@code center_procedurePk}, if found; 0 otherwise.
+     */
+    public long getLinePk(String colonyId, long center_procedurePk) {
+        long pk = 0L;
+
+        if (colonyId == null)
+            return 0L;
+
+        final String query = "SELECT pk FROM line WHERE colonyId = :colonyId AND center_procedure_pk = :center_procedurePk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("colonyId", colonyId);
+        parameterMap.put("center_procedurePk", center_procedurePk);
+
+        try {
+            pk = npJdbcTemplate.queryForObject(query, new HashMap<>(), Long.class);
+        } catch (Exception e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
      * Returns the <code>ParameterAssociation</code> matching <code>parameterId</code> and <code>sequenceId</code>, and
      * the {@link Dimension} collection, if found; null otherwise.
      *
@@ -324,7 +354,30 @@ public class DccSqlUtils {
         return parameterAssociation;
     }
 
+    /**
+     * Looks for the procedure for the given procedureId.
+     * Retuns the {@link Procedure} instance if found; null otherwise.
+     *
+     * @param procedureId The procedure id
+     * @return The {@link Procedure} instance if found; null otherwise.
+     * <p/>
+     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
+     */
+    public Procedure getProcedure(String procedureId) {
+        Procedure procedure = null;
+        final String query =
+                "SELECT * FROM procedure_ WHERE procedureId = :procedureId";
 
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedureId", procedureId);
+
+        List<Procedure> procedures = npJdbcTemplate.query(query, parameterMap, new ProcedureRowMapper());
+        if ( ! procedures.isEmpty()) {
+            procedure = procedures.get(0);
+        }
+
+        return procedure;
+    }
 
     /**
      * Returns the {@code ProcedureMetadata} matching {@code parameterId} and {@code sequenceId} if found; null
@@ -397,9 +450,9 @@ public class DccSqlUtils {
     }
 
     /**
-     * Returns the <code>StatusCode</code> matching <code>value</code>, if found; null otherwise.
+     * Returns the status code matching {@code value}, if found; null otherwise.
      *
-     * @param value The StatusCode value to search for
+     * @param value The {@link StatusCode} value to search for
      * @return The {@link StatusCode} matching {@code value}, if found; null otherwise.
      * <p/>
      * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
@@ -422,6 +475,10 @@ public class DccSqlUtils {
 
         return statuscode;
     }
+
+
+    // INSERTS
+
 
     /**
      * Inserts the given {@code }centerId}, {@code }pipeline}, and {@code }project} into the center table. Duplicates
@@ -546,6 +603,89 @@ public class DccSqlUtils {
     }
 
     /**
+     * Inserts the given {@link Housing} into the {@code housing} table. Duplicates are ignored.
+     *
+     * @param housingList;   The list of {@link Housing} instances to be inserted
+     * @param center_procedurePk   The center_procedure primary key
+     */
+    public void insertHousing(List<Housing> housingList, long center_procedurePk) {
+
+        String insert = "INSERT INTO housing (fromLims, lastUpdated, center_procedure_pk) VALUES (:fromLims, :lastUpdated, :center_procedurePk)";
+
+        for (Housing housing : housingList) {
+            try {
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("fromLims", (housing.isFromLIMS() ? 1 : 0));
+                parameterMap.put("lastUpdated", (housing.getLastUpdated() == null ? null : new Date(housing.getLastUpdated().getTime().getTime())));
+                parameterMap.put("center_procedurePk", center_procedurePk);
+
+                npJdbcTemplate.update(insert, parameterMap);
+
+            } catch (DuplicateKeyException e) {
+
+            }
+        }
+    }
+
+    /**
+     * Inserts the given {@link Line} into the {@code line} table. Duplicates are ignored.
+     *
+     * @param line;   The {@link Line} instance to be inserted
+     * @param center_procedurePk   The center_procedure primary key
+     *
+     * @return returns the line primary key
+     */
+    public long insertLine(Line line, long center_procedurePk) {
+        long pk = 0L;
+        String insert = "INSERT INTO line (colonyId, center_procedure_pk) VALUES (:colonyId, :center_procedurePk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("colonyId", line.getColonyID());
+            parameterMap.put("center_procedurePk", center_procedurePk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
+     * Inserts a row into the line_statuscode table.
+     *
+     * @param linePk;   The line primary key
+     * @param statuscodePk   The statuscode primary key
+     *
+     * @return returns the line_statuscode primary key
+     */
+    public long insertLine_statuscode(long linePk, long statuscodePk) {
+        long pk = 0L;
+        String insert = "INSERT INTO line_statuscode (line_pk, statuscode_pk) VALUES (:linePk, :statuscodePk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("linePk", linePk);
+            parameterMap.put("statuscodePk", statuscodePk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
      * Inserts the given mouse into the mouse table. Duplicates are ignored.
      *
      * @param mouse the mouse to be inserted
@@ -605,6 +745,62 @@ public class DccSqlUtils {
         }
 
         return parentalStrain;
+    }
+
+    /**
+     * Inserts the given procedureId into the procedure_ table. Duplicates are ignored.
+     *
+     * @param procedureId the procedure id to be inserted
+     *
+     * @return the procedure, with primary key loaded
+     */
+    public Procedure insertProcedure(String procedureId) {
+        Procedure procedure;
+        String insert = "INSERT INTO procedure_ (procedureId) VALUES (:procedureId)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("procedureId", procedureId);
+
+            npJdbcTemplate.update(insert, parameterMap);
+            procedure = getProcedure(procedureId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("INSERT of procedure(" + procedureId + " FAILED: " + e.getLocalizedMessage());
+        }
+
+        return procedure;
+    }
+
+    /**
+     * Inserts the given {@code procedurePk} and {@code procedureMetadataPk} into the procedure_procedureMetadata
+     * table. Duplicates are ignored.
+     *
+     * @param procedurePk the procedure primary key to be inserted
+     * @param procedureMetadataPk the procedureMetadata primary key to be inserted
+     *
+     * @return the procedure_procedureMetadata primary key
+     */
+    public long insertProcedure_procedureMetadata(long procedurePk, long procedureMetadataPk) {
+        long pk = 0L;
+        String insert = "INSERT INTO procedure_procedureMetadata(procedure_pk, procedureMetadata_pk) VALUES (:procedurePk, :procedureMetadataPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("procedurePk", procedurePk);
+            parameterMap.put("procedureMetadataPk", procedureMetadataPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
     }
 
     /**
@@ -669,6 +865,46 @@ public class DccSqlUtils {
         }
         
         return specimen;
+    }
+
+
+    // SELECT OR INSERTS
+
+
+    /**
+     * Returns the center_procedure primary key matching the given centerPk and procedurePk. The data is first inserted
+     * into the center_procedure table if it does not yet exist.
+     *
+     * @param centerPk The center primary key
+     * @param procedurePk The procedure primary key
+     *
+     * @return the center_procedure primary key matching the given centerPk and procedurePk. The data is first inserted
+          * into the center_procedure table if it does not yet exist.
+     * <p/>
+     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
+     */
+    public long selectOrInsertCenter_procedure(long centerPk, long procedurePk) {
+        Map<String, Object> parameterMap = new HashMap<>();
+        Long pk;
+        final String query = "SELECT pk FROM center_procedure WHERE center_pk = :centerPk and procedure_pk = :procedurePk";
+
+        parameterMap.put("centerPk", centerPk);
+        parameterMap.put("procedurePk", procedurePk);
+        pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+        if ((pk == null) || (pk == 0)) {
+            String insert = "INSERT INTO center_procedure (center_pk, procedure_pk) VALUES (:centerPk, :procedurePk)";
+            try {
+                int count = npJdbcTemplate.update(insert, parameterMap);
+                if (count > 0) {
+                    pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+                }
+
+            } catch (DuplicateKeyException e) {
+
+            }
+        }
+
+        return pk;
     }
 
     /**
@@ -803,6 +1039,10 @@ public class DccSqlUtils {
         return selectOrInsertStatuscode(statuscode.getValue(), statuscode.getDate());
     }
 
+
+    // UPDATES
+
+
     public int updateRelatedSpecimenMinePk() {
         final String update = "UPDATE relatedSpecimen SET specimen_mine_pk = (SELECT pk FROM specimen WHERE relatedSpecimen.specimenIdMine = specimen.specimenId)";
         int count = npJdbcTemplate.update(update, new HashMap<String, Object>());
@@ -858,6 +1098,19 @@ public class DccSqlUtils {
             procedureMetadata.setValue(rs.getString("value"));
 
             return procedureMetadata;
+        }
+    }
+
+    public class ProcedureRowMapper implements RowMapper<Procedure> {
+
+        @Override
+        public Procedure mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Procedure procedure = new Procedure();
+
+            procedure.setHjid(rs.getLong("pk"));
+            procedure.setProcedureID(rs.getString("procedureId"));
+
+            return procedure;
         }
     }
 
