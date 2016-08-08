@@ -82,7 +82,7 @@ public class SolrIndex {
 
 	@Autowired
 	@Qualifier("allele2Core")
-	HttpSolrServer allele2Core;
+	HttpSolrClient allele2Core;
 
 	private List<String> phenoStatuses = new ArrayList<String>();
 
