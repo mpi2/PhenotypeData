@@ -72,7 +72,7 @@ public class OrderServiceTest {
 	@Test
 	public void getAlleleDocsTest() throws IOException, SolrServerException {
 		String geneAcc="MGI:1859328";
-			assertTrue(orderService.getAllele2DTOs(geneAcc, Integer.MAX_VALUE).size()>2);
+			assertTrue(orderService.getAllele2DTOs(geneAcc, Integer.MAX_VALUE).size()>=2);
 	}
 	
 	@Test
