@@ -26,6 +26,9 @@ ul.ui-autocomplete {
     padding: 10px 15px;
     width: auto;
     z-index: 9999;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
 }
 ul.ui-autocomplete li {
     border-bottom: 1px dashed #D1D1D1;

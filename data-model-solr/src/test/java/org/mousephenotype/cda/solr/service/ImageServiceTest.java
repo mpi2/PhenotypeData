@@ -2,6 +2,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +20,8 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,22 +76,35 @@ public class ImageServiceTest {
             }
         }
 
-    }
+	}
+	
+	@Test
+	public void testgetImagesForGeneByParameter() throws IOException, SolrServerException{
+		//expression test first
+		String acc="MGI:1336993";
+		String parameterStableId="IMPC_ELZ_064_001";
+		String anatomyId="EMAPA:16105";
+		String parameterAsscociationValue="ambiguous";
+		QueryResponse response =null;
+			response = imageService.getImagesForGeneByParameter(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
+			long resultsSize=response.getResults().size();
+			System.out.println("resultsSize="+resultsSize);
+			assertTrue(resultsSize>12);
 
-    @Test
-    public void testgetImagesForGeneByParameter() throws IOException, SolrServerException {
-        //expression test first
-        String acc = "MGI:1336993";
-        String parameterStableId = "IMPC_ELZ_064_001";
-        String anatomyId = "EMAPA:16105";
-        String parameterAsscociationValue = "ambiguous";
-        QueryResponse response = null;
-        response = imageService.getImagesForGeneByParameter(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
 
-        long resultsSize = response.getResults().size();
-        System.out.println("resultsSize=" + resultsSize);
-        assertTrue(resultsSize > 12);
+	}
 
-    }
+	@Test
+	public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException{
+		String acc="MGI:1891341";//should be 8 parameters for this gene at least.
+		int rows=1;
+		List<Group> response=null;
+			response = imageService.getPhenotypeAssociatedImages(acc, rows);
+			System.out.println(response.size());
+
+		assertTrue(response !=null);
+
+	}
+
 
 }
