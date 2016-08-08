@@ -22,11 +22,13 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -843,6 +845,7 @@ public class ImageService implements WebStatus{
 													// of the
 													// gene page
 					if (!count.getName().equals(excludedProcedureName)) {
+						System.out.println("balh");
 						QueryResponse responseExperimental = this
 								.getImagesForGeneByParameter(acc,count.getName(),
 										"experimental", 1,null, null,
@@ -882,6 +885,27 @@ public class ImageService implements WebStatus{
 			}
 		}
 
+	}
+	
+	
+	
+	public List<Group> getPhenotypeAssociatedImages(String acc, int count) throws SolrServerException{
+		List<Group> groups = new ArrayList<>();
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("gene_accession_id:\"" + acc + "\"");
+		solrQuery.add("group", "true")
+        .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
+        .add("group.limit", Integer.toString(count));
+		QueryResponse response = solr.query(solrQuery);
+		List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
+        for (GroupCommand groupCommand : groupResponse) {
+            List<Group> localGroups = groupCommand.getValues();
+            groups.addAll(localGroups);
+            
+        }
+        
+		return groups;
+		
 	}
 
 	public QueryResponse getParameterFacetsForGeneByProcedure(String acc,

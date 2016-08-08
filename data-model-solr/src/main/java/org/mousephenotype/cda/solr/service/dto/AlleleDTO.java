@@ -53,6 +53,7 @@ public class AlleleDTO {
 	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
 	public static final String ALLELE_NAME = "allele_name";
 	public static final String ALLELE_ACCESSION_ID = "allele_accession_id";
+	public static final String ALLELE_MGI_ACCESSION_ID = "allele_mgi_accession_id";
 	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
 	public static final String ES_CELL_STATUS = "es_cell_status";
 	public static final String LEGACY_PHENOTYPE_STATUS = "legacy_phenotype_status";
@@ -61,6 +62,9 @@ public class AlleleDTO {
 	public static final String PHENOTYPE_STATUS = "phenotype_status";
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
+
+	public static final String IKMC_PROJECT = "ikmc_project";
+	public static final String GENE_ALLELE = "gene_allele";
 
 	public static final String CHR_NAME = "chr_name";
 	public static final String CHR_START = "chr_start";
@@ -213,8 +217,12 @@ public class AlleleDTO {
 
 	@Field(ALLELE_NAME)
 	private List<String> alleleName = new ArrayList<>();
+
 	@Field(ALLELE_ACCESSION_ID)
 	private List<String> alleleAccessionIds = new ArrayList<>();
+	@Field(ALLELE_MGI_ACCESSION_ID)
+	private String alleleMgiAccessionId;
+
 	@Field(IMITS_ES_CELL_STATUS)
 	private String imitsEsCellStatus;
 	@Field(ES_CELL_STATUS)
@@ -230,6 +238,10 @@ public class AlleleDTO {
 	@Field(PHENOTYPING_CENTRE)
 	private List<String> phenotypingCentre = new ArrayList<>();
 
+	@Field(IKMC_PROJECT)
+	private List<String> ikmcProject;
+	@Field(GENE_ALLELE)
+	private String geneAllele;
 
 	@Field(GO_TERM_ID)
 	private List<String> goTermIds = new ArrayList<>();
@@ -682,6 +694,36 @@ public class AlleleDTO {
 		this.alleleAccessionIds = alleleAccessionIds;
 	}
 
+
+	public String getAlleleMgiAccessionId() {
+		return alleleMgiAccessionId;
+	}
+
+	public void setAlleleMgiAccessionId(String alleleMgiAccessionId) {
+		this.alleleMgiAccessionId = alleleMgiAccessionId;
+	}
+
+	/**
+	 * @return the IKMC project of List of String
+	 */
+	public List<String> getIkmcProject() {
+		return ikmcProject;
+	}
+
+	public void setIkmcProject(List<String> ikmcProject) {
+		this.ikmcProject = ikmcProject;
+	}
+
+	/**
+	 * @return the gene,allele string concatenated, like eg, Rabl6tm1b(KOMP)Wtsi
+	 */
+	public String getGeneAllele() {
+		return geneAllele;
+	}
+
+	public void setGeneAllele(String geneAllele) {
+		this.geneAllele = geneAllele;
+	}
 
 	/**
 	 * @return the imitsEsCellStatus
@@ -1438,6 +1480,7 @@ public class AlleleDTO {
 				", chrStrand='" + chrStrand + '\'' +
 				", alleleName=" + alleleName +
 				", alleleAccessionIds=" + alleleAccessionIds +
+				", alleleMgiAccessionId='" + alleleMgiAccessionId + '\'' +
 				", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
 				", esCellStatus=" + esCellStatus +
 				", imitsMouseStatus='" + imitsMouseStatus + '\'' +
@@ -1445,6 +1488,8 @@ public class AlleleDTO {
 				", phenotypeStatus=" + phenotypeStatus +
 				", productionCentre=" + productionCentre +
 				", phenotypingCentre=" + phenotypingCentre +
+				", ikmcProject=" + ikmcProject +
+				", geneAllele='" + geneAllele + '\'' +
 				", goTermIds=" + goTermIds +
 				", goTermNames=" + goTermNames +
 				", goTermDefs=" + goTermDefs +

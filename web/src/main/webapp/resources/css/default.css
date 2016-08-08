@@ -202,13 +202,12 @@ input.auto              { width: auto; }
 /* Buttons */
 .af-button-large,
 input[type="submit"],
-.btn                    { display: inline-block; white-space:nowrap; word-wrap: normal; border: none; color: #fff; text-decoration: none; background: #0978A1; color: #fff; padding: .3em .6em; cursor: pointer; -webkit-transition: all 0.3s ease-in-out; -moz-transition: all 0.3s ease-in-out; -o-transition: all 0.3s ease-in-out; transition: all 0.3s ease-in-out; }
+.btn                    { display: inline-block; white-space:nowrap; word-wrap: normal; border: none; color: #fff; text-decoration: none; background: #0978A1; color: #fff; padding: .3em .6em; cursor: pointer; -webkit-transition: all 0.3s ease-in-out; -moz-transition: all 0.1s ease-in-out; -o-transition: all 0.1s ease-in-out; transition: all 0.3s ease-in-out; }
 .af-button-large:hover,
 input[type="submit"]:hover,
-.btn:hover              { text-decoration: none; color: #fff; background-color: #0978a1; }
+.btn:hover              { text-decoration: none; color: #fff; background-color: #EF7B0B; }
 .btn i                  { margin-right: 0.3em; }
-td .btn                 { background-color: #eee; color: #777; }
-td .btn:hover           { background-color: #0978a1; color: #fff; }
+td .btn:hover           { background-color: #EF7B0B; color: #fff; }
 .btn.editlink           { opacity: 0.3; }
 .btn.editlink:hover     { opacity: 1; }
 p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1px dotted; }
@@ -277,6 +276,7 @@ div.searchcontent {
     width: 100%;
     margin-top: -45px;
     z-index:0;
+
 }
 /*#bigsearchbox           { background: #0978a1; padding: 0.5em; } /* for the search page */
 #bigsearchbox           {
@@ -827,3 +827,40 @@ div#expDataView {
 	border-top: #ddd 1px solid;
 	padding: 1.0em;
  }
+
+/* autocomplete drop down ul */
+ul.ui-autocomplete {
+    background-color: white;
+    border: 1px solid #0978A1;
+    padding: 10px 15px;
+    z-index: 999;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+
+}
+ul.ui-autocomplete li a {
+    display: block;
+    text-decoration: none;
+    padding-left: 5px;
+}
+ul.ui-autocomplete li {
+    font-size: 14px !important;
+}
+ul.ui-autocomplete li a:hover {
+    background-color: #D4D4D4 !important;
+    border-radius: 4px;
+}
+span#rmFilters {
+    color: #0978A1;
+    padding-right: 5px;
+}
+
+span.ui-helper-hidden-accessible {
+    font-size: 14px;
+}
+span.gene, span.mp, span.anatomy, span.disease, span.hp {
+    color: black;
+}
+b.sugTerm {
+    color: #0978A1;
