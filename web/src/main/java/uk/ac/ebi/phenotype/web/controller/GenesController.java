@@ -41,6 +41,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
@@ -56,7 +57,6 @@ import org.mousephenotype.cda.solr.service.AnatomogramDataBean;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.MpToColonyBean;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
@@ -69,7 +69,6 @@ import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallUniquePropertyBean;
-import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
@@ -90,6 +89,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.model.Gene;
+import uk.ac.ebi.phenodigm.model.GeneIdentifier;
+import uk.ac.ebi.phenodigm.web.AssociationSummary;
+import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
@@ -99,11 +103,6 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.Gene;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.web.AssociationSummary;
-import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 
 @Controller
 public class GenesController {
@@ -118,7 +117,7 @@ public class GenesController {
 	private ImagesSolrDao imagesSolrDao;
 
 	@Autowired
-	private PhenotypeCallSummarySolr phenoDAO;
+	private PhenotypeCallSummarySolr phenotypeCallSummaryService;
 
 	@Autowired
 	private GwasDAO gwasDao;
@@ -218,7 +217,7 @@ public class GenesController {
 			Model model, HttpServletRequest request, HttpServletResponse response,RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
-        PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
+        PhenotypeFacetResult phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
         List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
         List<GenePageTableRow> phenotypes = new ArrayList<GenePageTableRow>();
         String url =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
@@ -273,9 +272,9 @@ public class GenesController {
 		 * Phenotype Summary
 		 */
 
-		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
-		HashMap<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
-		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
+		Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
+		Map<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
+		Map<String, String> mpGroupsNotSignificant = new HashMap<> ();
 
 		String prodStatusIcons = "Production status not available.";
 		// Get list of tripels of pipeline, allele acc, phenotyping center
@@ -299,6 +298,9 @@ public class GenesController {
 				}
 			}
 
+			System.out.println("SIGNIFICANT " + mpGroupsSignificant);
+			System.out.println("NOT SIGNIFICANT " + mpGroupsNotSignificant);
+			
 			// add number of top level terms
 			int total = 0;
 			for (ZygosityType zyg : phenotypeSummaryObjects.keySet()) {
@@ -403,9 +405,9 @@ public class GenesController {
 	 * @param phenotypeSummaryObjects
 	 * @return
 	 */
-	public HashMap<String, String> getGroups (boolean significant, HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
+	public Map<String, String> getGroups (boolean significant, Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
 
-		HashMap<String, String> mpGroups = new HashMap<>();
+		Map<String, String> mpGroups = new HashMap<>();
 
 		for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 			for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)){
@@ -456,9 +458,9 @@ public class GenesController {
 		System.out.println("Gene is null? " + (gene == null) + " for " + acc);
 		UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
 
-		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
-		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
+		Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+		Map<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
+		Map<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
 		for (String str : mpGroupsSignificant.keySet()){
 			if (mpGroupsNotSignificant.keySet().contains(str)){
 				mpGroupsNotSignificant.remove(str);
@@ -568,8 +570,8 @@ public class GenesController {
 
 		try {
 
-			phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
-			preQcResult = phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
+			phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
+			preQcResult = phenotypeCallSummaryService.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
 
 			phenotypeList = phenoResult.getPhenotypeCallSummaries();
 			phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
@@ -614,9 +616,7 @@ public class GenesController {
 				if (pr.getpValue() > pcs.getpValue()){
 					pr.setpValue(pcs.getpValue());
 				}
-				
 				//now we severely collapsing rows by so we need to store these as an list
-				 //projectId;
 				List<PhenotypeCallUniquePropertyBean> phenotypeCallUniquePropertyBeans=pr.getPhenotypeCallUniquePropertyBeans();
 				//keep the set of properties as a set so we can generate unique graph urls if necessary
 				PhenotypeCallUniquePropertyBean propBean=new PhenotypeCallUniquePropertyBean();
@@ -624,28 +624,22 @@ public class GenesController {
 					propBean.setProject(Integer.parseInt(pcs.getProject().getId()));
 				}
 				if(pcs.getPhenotypingCenter()!=null){
-				propBean.setPhenotypingCenter(pcs.getPhenotypingCenter());
+					propBean.setPhenotypingCenter(pcs.getPhenotypingCenter());
 				}
-		        //procedure.hashCode() 
 				if(pcs.getProcedure()!=null){
-				propBean.setProcedure(pcs.getProcedure());
+					propBean.setProcedure(pcs.getProcedure());
 				}
-		        // parameter
 				if(pcs.getParameter()!=null){
-				propBean.setParameter(pcs.getParameter());
+					propBean.setParameter(pcs.getParameter());
 				}
-		        //dataSourceName
 				if(pcs.getPipeline()!=null){
-				propBean.setPipeline(pcs.getPipeline());
+					propBean.setPipeline(pcs.getPipeline());
 				}
-		       // pipeline
-				//allele_accession_id
+		       
 				if(pcs.getAllele()!=null){
-				propBean.setAllele(pcs.getAllele());
+					propBean.setAllele(pcs.getAllele());
 				}
-				//System.out.println("gene="+pcs.getGene().getSymbol());
 				if(pcs.getgId()!=null){
-					//System.out.println("gid="+pcs.getgId());
 					propBean.setgId(pcs.getgId());
 				}
 				phenotypeCallUniquePropertyBeans.add(propBean);
@@ -678,33 +672,26 @@ public class GenesController {
 		//now we have all the rows as they should be lets see if they need image links and if so generate them and add them to the row
 		
 		for( DataTableRow row: phenotypes.values()){
-			row.buildEvidenceLink(request.getAttribute("baseUrl").toString());
 			
-			//if(imageService.hasImagesWithMP(row.getGene().getAccessionId(),row.getProcedure().getName(), row.getColonyId(), row.getPhenotypeTerm().getId())){
+			row.buildEvidenceLink(request.getAttribute("baseUrl").toString());			
 			String rowMpId=row.getPhenotypeTerm().getId();
+			
 			if(mpToColony.containsKey(rowMpId)){
-				//System.out.println("mpId found!!!!!!!!!!!!!!!!!!!! "+rowMpId);
 				 Set<String> colonyIds = mpToColony.get(rowMpId);
 				 if(colonyIds.contains(row.getColonyId())){
-					 //System.out.println("colony_id="+row.getColonyId());
-				EvidenceLink imageLink=new EvidenceLink();
-				imageLink.setDisplay(true);
-				imageLink.setIconType(EvidenceLink.IconType.IMAGE);
-				//test page http://localhost:8080/phenotype-archive/genes/MGI:1913955
-				//${baseUrl}/impcImages/images?q=gene_accession_id:${acc}&fq=(mp_id:"${phenotype.phenotypeTerm.id}" AND colony_id:${phenotype.colonyId})
-				 String url=request.getAttribute("baseUrl").toString()+"/imageComparator?acc="+row.getGene().getAccessionId()+"&mp_id="+row.getPhenotypeTerm().getId()+"&colony_id="+row.getColonyId();
-				imageLink.setUrl(url);
-				row.setImagesEvidenceLink(imageLink);
+					 EvidenceLink imageLink=new EvidenceLink();
+					 imageLink.setDisplay(true);
+					 imageLink.setIconType(EvidenceLink.IconType.IMAGE);
+					 String url=request.getAttribute("baseUrl").toString()+"/imageComparator?acc="+row.getGene().getAccessionId()+"&mp_id="+row.getPhenotypeTerm().getId()+"&colony_id="+row.getColonyId();
+					 imageLink.setUrl(url);
+					 row.setImagesEvidenceLink(imageLink);
 				}
 			}
-
+			
 		}
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
-//		for(GenePageTableRow row:l){
-//			System.out.println("row="+row);
-//		}
 		model.addAttribute("phenotypes", l);
 
 	}
@@ -818,9 +805,15 @@ public class GenesController {
 	 */
 	private void getImpcImages(String acc, Model model)
 	throws SolrServerException {
-
-		imageService.getImpcImagesForGenePage(acc, model, 0, 5, false);
-		//imageService.getControlAndExperimentalImpcImages(acc, model, null, null, 0, 1, "Adult Lac Z");
+		List<Group> groups = imageService.getPhenotypeAssociatedImages(acc, 1);
+		Map<String, String> paramToNumber=new HashMap<>();
+		for(Group group:groups){
+			if(!paramToNumber.containsKey(group.getGroupValue())){
+				paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
+			}
+		}
+		model.addAttribute("paramToNumber", paramToNumber);
+		model.addAttribute("impcImageGroups",imageService.getPhenotypeAssociatedImages(acc, 1));
 
 	}
 
@@ -989,6 +982,7 @@ public class GenesController {
 
 		return "genesAllele2_frag";
 	}
+	
 
     @Autowired
 	private PhenoDigmWebDao phenoDigmDao;

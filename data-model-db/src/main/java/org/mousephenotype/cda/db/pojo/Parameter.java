@@ -15,38 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.pojo;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-/**
- *
- * A concrete representation of phenotype parameter within a pipeline.
- *
- * A parameter has a name and stable id. A collection of meta information is
- * attached to the procedure.
- *
- * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @since February 2012
- * @see PipelineEntry
- */
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.mousephenotype.cda.enumerations.CategoriesExclude;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * A concrete representation of phenotype parameter within a pipeline.
+ * <p>
+ * A parameter has a name and stable id. A collection of meta information is
+ * attached to the procedure.
+ *
+ * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
+ * @see PipelineEntry
+ * @since February 2012
+ */
 
 
 @Entity
@@ -524,6 +513,30 @@ public class Parameter extends PipelineEntry {
 		return units;
 	}
 
+	public String getXUnit(){
+
+		String xUnit = "";
+		if (isIncrementFlag()) {
+			for (ParameterIncrement increment: increments) {
+				// one is not enough
+				if (increment.getValue().length() > 0 || increments.size() == 1) {
+					xUnit = increment.getUnit();
+					break;
+				}
+			}
+		} else {
+			xUnit = unit;
+		}
+		return xUnit;
+
+	}
+
+	public String getYUnit(){
+
+		return (isIncrementFlag()) ? unit : null;
+
+	}
+
 	/**
 	 * Check what unit is stored for this parameter for this dimension (1,2, etc.)
 	 * @param dimension the parameter dimension (starting from 1)
@@ -683,23 +696,23 @@ public class Parameter extends PipelineEntry {
 	public List<String> getCategoriesUserInterfaceFreindly(){
 		List<ParameterOption> options = this.getOptions();
 		List<String> categories = new ArrayList<String>();
-                boolean useDescription=false;
-                if(options.size()>0){
-                    String name=options.get(0).getName();
-                    if(StringUtils.isNumeric(name)){
-                        useDescription=true;
-                    }
-                }
+        boolean useDescription = false;
+        if(options.size()>0){
+	        String name=options.get(0).getName();
+	        if(StringUtils.isNumeric(name)){
+	        	useDescription = true;
+	        }
+        }
 		for (ParameterOption option : options) {
-                    String label=option.getName();
-                    //this is a hack as impress holds some numeric categories which shouldn't be????
-                    if(useDescription==true && option.getDescription()!=null && !option.getDescription().equals("")){
-                       label=option.getDescription();
-                    }
-			categories.add(label);
+			String label=option.getName();
+            //this is a hack as impress holds some numeric categories which shouldn't be????
+            if(useDescription == true && option.getDescription() != null && !option.getDescription().equals("")){
+            	label = option.getDescription();
+            }
+            categories.add(label);
 		}
 		//exclude - "no data", "not defined" etc
-		List<String> okCategoriesList= CategoriesExclude.getInterfaceFreindlyCategories(categories);
+		List<String> okCategoriesList = CategoriesExclude.getInterfaceFreindlyCategories(categories);
 		return okCategoriesList;
 	}
 	

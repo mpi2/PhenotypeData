@@ -15,30 +15,24 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
@@ -62,7 +56,7 @@ public class TimeSeriesChartAndTableProvider {
 
 
 
-	public ChartData doTimeSeriesData(ExperimentDTO experiment,	Parameter parameter, String experimentNumber, BiologicalModel expBiologicalModel)
+	public ChartData doTimeSeriesData(ExperimentDTO experiment,	ParameterDTO parameter, String experimentNumber)
 	throws IOException,	URISyntaxException {
 
 		ChartData chartNTableForParameter = null;
@@ -123,11 +117,11 @@ public class TimeSeriesChartAndTableProvider {
 		String title = "Mean " + parameter.getName();
 		if (lines.size() > 1) {
 			// if lines are greater than one i.e. more than just control create charts and tables
-			String xAxisLabel = (parameter.getName().contains("Body Weight Curve ")) ? "Age - rounded to nearest week" : parameter.checkParameterUnit(1);
+			String xAxisLabel = (parameter.getName().contains("Body Weight Curve ")) ? "Age - rounded to nearest week" : parameter.getUnitX();
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 			chartNTableForParameter = creatDiscretePointTimeSeriesChart(
 					experimentNumber, title, lines, xAxisLabel,
-					parameter.checkParameterUnit(2), decimalPlaces,
+					parameter.getUnitY(), decimalPlaces,
 					experiment.getOrganisation(), parameter);
 			chartNTableForParameter.setExperiment(experiment);
 		}
@@ -148,39 +142,26 @@ public class TimeSeriesChartAndTableProvider {
 	 * @param xUnitsLabel
 	 * @param yUnitsLabel
 	 * @param organisation
-	 *            TODO
 	 * @param parameter
-	 * @param model
-	 * @param timeSeriesCharts
 	 *
 	 * @return
 	 */
 	private ChartData creatDiscretePointTimeSeriesChart(String expNumber,
 			String title, Map<String, List<DiscreteTimePoint>> lines,
-			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, Parameter parameter) {
+			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, ParameterDTO parameter) {
 
 		JSONArray series = new JSONArray();
 		String seriesString = "";
 		Set<Float> categoriesSet = new HashSet<Float>();
-		Float maxForChart = new Float(0);
-		Float minForChart = new Float(1000000000);
-
-
 		String mColor = ChartColors.getMutantColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 		String wtColor = ChartColors.getWTColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 
 		try {
-			int i = 0;
 			for (String key : lines.keySet()) {// key is control hom or het
 				String color = mColor;
 				JSONObject object = new JSONObject();
 				JSONArray data = new JSONArray();
 				object.put("name", key);
-				SexType sexType = SexType.male;
-
-				if(key.contains("Female")) {
-					sexType = SexType.female;
-				}
 
 				if (key.contains("WT")){
 					color = wtColor;
@@ -225,7 +206,6 @@ public class TimeSeriesChartAndTableProvider {
 				object.put(placeholderString, placeholderString);
 				series.put(object);
 				series.put(errorBarsObject);
-				i++;
 			}
 
 		} catch (JSONException e) {
@@ -259,7 +239,6 @@ public class TimeSeriesChartAndTableProvider {
 		String errorBarsToolTip = "tooltip: { pointFormat: 'SD: {point.low"
 				+ decimalFormatString + "}-{point.high" + decimalFormatString
 				+ "}<br/>' }";
-		int index = series.toString().indexOf("\"errorbar");
 		String escapedErrorString = "\"errorbar\"";
 		seriesString = seriesString.replace(escapedErrorString,
 				escapedErrorString + "," + errorBarsToolTip);
@@ -303,9 +282,7 @@ public class TimeSeriesChartAndTableProvider {
 		JSONArray series = new JSONArray();
 		String seriesString = "";
 		Set<Float> categoriesSet = new HashSet<Float>();
-		Float maxForChart = new Float(0);
-		Float minForChart = new Float(1000000000);
-
+		
 		try {
 			int i = 0;
 			for (String key : lines.keySet()) {// key is line name or "Control"
@@ -392,7 +369,6 @@ public class TimeSeriesChartAndTableProvider {
 		String errorBarsToolTip = "tooltip: { pointFormat: 'SD: {point.low"
 				+ decimalFormatString + "}-{point.high" + decimalFormatString
 				+ "}<br/>' }";
-		int index = series.toString().indexOf("\"errorbar");
 		String escapedErrorString = "\"errorbar\"";
 		seriesString = seriesString.replace(escapedErrorString,
 				escapedErrorString + "," + errorBarsToolTip);

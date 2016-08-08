@@ -15,13 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -42,6 +36,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -63,6 +58,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	private final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexer.class);
 
+	private Double SIGNIFICANCE_THRESHOLD = AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD;
+
 	private Connection connection;
 
 	static final String RESOURCE_3I = "3i";
@@ -82,13 +79,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	@Autowired
 	MpOntologyDAO mpOntologyService;
-	
+
 	@Autowired
 	MaOntologyDAO maOntologyService;
 
 	@Autowired
 	EmapaOntologyDAO emapaOntologyService;
-	
+
 	private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
 	private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
 	private Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
@@ -176,7 +173,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				getUnidimensionalResults(),
 				getCategoricalResults(),
 				getEmbryoViabilityResults(),
-				getEmbryoResults()
+				getEmbryoResults(),
+				getGrossPathologyResults()
 			);
 
 			for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
@@ -213,6 +211,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	public CategoricalResults getCategoricalResults() {return new CategoricalResults(); }
 	public EmbryoViabilityResults getEmbryoViabilityResults() {return new EmbryoViabilityResults(); }
 	public EmbryoResults getEmbryoResults() {return new EmbryoResults(); }
+	public GrossPathologyResults getGrossPathologyResults() {return new GrossPathologyResults(); }
 
 
 	/**
@@ -370,6 +369,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		doc.setStatisticalMethod("Supplied as data");
 		doc.setColonyId(r.getString("colony_id"));
 		doc.setStatus("Success");
+		doc.setSignificant(true);
 
 
 		// Always set a metadata group here to allow for simpler searching for
@@ -529,14 +529,14 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 		}
                 	}
                 }
-                // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might. 
+                // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
                 Set<String> anatomyIdsForAncestors = new HashSet<>();
                 for (String mpAncestorId: mpOntologyService.getAncestorsDetail(mpId).getIds()){
                 	if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null){
                 		anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
                 	}
                 }
-                
+
                 for (String id: anatomyIdsForAncestors){
                 	OntologyDAO currentOntologyService = null;
                 	if (id.startsWith("EMAPA")){
@@ -937,6 +937,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			doc.setSex(r.getString("sex"));
 			doc.setpValue(r.getDouble("categorical_p_value"));
 			doc.setEffectSize(r.getDouble("categorical_effect_size"));
+			setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
 
 			Set<String> categories = new HashSet<>();
 			if (StringUtils.isNotEmpty(r.getString("category_a"))) {
@@ -1046,6 +1047,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 			doc.setpValue(pv);
 
+			setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
+
 			doc.setGroup1Genotype(r.getString("gp1_genotype"));
 			doc.setGroup1ResidualsNormalityTest(nullCheckResult(r, "gp1_residuals_normality_test"));
 			doc.setGroup2Genotype(r.getString("gp2_genotype"));
@@ -1151,6 +1154,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		private StatisticalResultDTO parseReferenceRangeResult(ResultSet r) throws SQLException {
 
+			List<Double> mins = new ArrayList<>();
+
 			StatisticalResultDTO doc = parseResultCommonFields(r);
 			if (sexesMap.containsKey("rrplus-" + doc.getDbId())) {
 				doc.setPhenotypeSex(sexesMap.get("rrplus-" + doc.getDbId()));
@@ -1181,6 +1186,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 				doc.setNullTestPValue(Math.min(doc.getGenotypePvalueLowNormalVsHigh(), doc.getGenotypePvalueLowVsNormalHigh()));
 				doc.setpValue(doc.getNullTestPValue());
+				if (pvalue!=null) { mins.add(pvalue); }
 
 				String genotypeEffectSize = r.getString("genotype_parameter_estimate");
 				if (! r.wasNull()) {
@@ -1205,10 +1211,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				// Low vs normal&high female pvalue
 				Double pvalue = Double.parseDouble(fields[0]);
 				doc.setFemalePvalueLowVsNormalHigh(pvalue);
+				if (pvalue!=null) { mins.add(pvalue); }
 
 				// High vs low&normal female pvalue
 				pvalue = Double.parseDouble(fields[1]);
 				doc.setFemalePvalueLowNormalVsHigh(pvalue);
+				if (pvalue!=null) { mins.add(pvalue); }
 
 				String genotypeEffectSize = r.getString("gender_female_ko_estimate");
 				if (! r.wasNull()) {
@@ -1233,10 +1241,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				// Low vs normal&high male pvalue
 				Double pvalue = Double.parseDouble(fields[0]);
 				doc.setMalePvalueLowVsNormalHigh(pvalue);
+				if (pvalue!=null) { mins.add(pvalue); }
 
 				// High vs low&normal male pvalue
 				pvalue = Double.parseDouble(fields[1]);
 				doc.setMalePvalueLowNormalVsHigh(pvalue);
+				if (pvalue!=null) { mins.add(pvalue); }
 
 				String genotypeEffectSize = r.getString("gender_male_ko_estimate");
 				if (! r.wasNull()) {
@@ -1251,8 +1261,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 					doc.setMaleEffectSizeLowNormalVsHigh(es);
 				}
 
+
 			}
 
+			Double minimumPvalue = Collections.min(mins);
+			doc.setpValue(minimumPvalue);
+			setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
 
 			doc.setClassificationTag(r.getString("classification_tag"));
 			doc.setAdditionalInformation(r.getString("additional_information"));
@@ -1260,6 +1274,52 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		}
 
+	}
+
+	/**
+	 * If the result is significant (indicated by having a more significant p_value than pValueThreshold)
+	 * then if there has not been a previous result (sex specific or genotype effect) which is significant
+	 * then mark this as significant, otherwise, not.
+	 *
+	 * @param pValueThreshold The p value to indicate significance threshould
+	 * @param doc the solr document to update
+	 */
+	private void setSignificantFlag(Double pValueThreshold, StatisticalResultDTO doc) {
+
+		// do not override significant == true
+		if (doc.getSignificant()!=null && doc.getSignificant()) {
+			return;
+		}
+
+		if (doc.getNullTestPValue() != null) {
+			// PhenStat result
+
+			if (doc.getNullTestPValue() <= pValueThreshold) {
+					doc.setSignificant(true);
+			} else if (doc.getStatus().equals("Success") && doc.getSignificant() == null) {
+				doc.setSignificant(false);
+			}
+
+		} else if (doc.getNullTestPValue() == null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
+			// Wilcoxon test.  Choose the most significant pvalue from the sexes, already tcalculated and stored
+			// in the Pvalue field of the doc
+
+			if (doc.getpValue() <= pValueThreshold) {
+				doc.setSignificant(true);
+			} else {
+				doc.setSignificant(false);
+			}
+
+		} else if (doc.getNullTestPValue() == null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Fisher's")) {
+			// Fisher's exact test.  Choose the most significant pvalue from the sexes, already tcalculated and stored
+			// in the Pvalue field of the doc
+
+			if (doc.getpValue() <= pValueThreshold) {
+				doc.setSignificant(true);
+			} else {
+				doc.setSignificant(false);
+			}
+		}
 	}
 
 	class FertilityResults implements Callable<List<StatisticalResultDTO>> {
@@ -1486,5 +1546,60 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			logger.info(" Added {} viability parameter documents", docs.size());
 			return docs;
 		}
+
+
 	}
+
+	class GrossPathologyResults implements Callable<List<StatisticalResultDTO>> {
+
+		String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', o.id, '_', term, '_', ls.sex, '_grosspath') as doc_id, " +
+			"'adult-gross-path' AS data_type, db.id AS db_id, " +
+			"ls.zygosity as experimental_zygosity, ls.id, bs.sample_group, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, " +
+			"parameter.id as parameter_id, ls.colony_id, ls.sex as sex, " +
+			"parameter.stable_id as dependent_variable, " +
+			"'Success' as status, bm.id AS biological_model_id, " +
+			"null as p_value, null AS effect_size, " +
+			"oe.term as mp_acc , null as male_mp_acc, null as female_mp_acc, exp.metadata_group, " +
+			"db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
+			"proj.name as project_name, proj.id as project_id, " +
+			"org.name as phenotyping_center, org.id as phenotyping_center_id " +
+			"FROM observation o " +
+			"INNER JOIN ontology_entity oe on oe.ontology_observation_id=o.id " +
+			"INNER JOIN biological_model_sample bms ON bms.biological_sample_id = o.biological_sample_id " +
+			"INNER JOIN biological_model bm ON bms.biological_model_id = bm.id " +
+			"INNER JOIN biological_sample bs ON bs.id = bms.biological_sample_id " +
+			"INNER JOIN live_sample ls ON bms.biological_sample_id = ls.id " +
+			"INNER JOIN experiment_observation eo ON eo.observation_id = o.id " +
+			"INNER JOIN experiment exp ON exp.id = eo.experiment_id " +
+			"INNER JOIN external_db db ON db.id=o.db_id " +
+			"INNER JOIN project proj ON proj.id=exp.project_id " +
+			"INNER JOIN organisation org ON org.id=exp.organisation_id " +
+			"INNER JOIN phenotype_parameter parameter ON parameter.id = o.parameter_id " +
+			"WHERE o.parameter_stable_id like '%PAT%' and term_value != 'normal' and term like 'MP%'  AND bs.sample_group!='control'  " ;
+
+		@Override
+		public List<StatisticalResultDTO> call() {
+
+			List<StatisticalResultDTO> docs = new ArrayList<>();
+
+			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+				p.setFetchSize(Integer.MIN_VALUE);
+				ResultSet r = p.executeQuery();
+				while (r.next()) {
+
+					StatisticalResultDTO doc = parseLineResult(r);
+					docs.add(doc);
+					shouldHaveAdded.add(doc.getDocId());
+				}
+
+			} catch (Exception e) {
+				logger.warn("Error occurred getting gross pathology results", e);
+			}
+
+			logger.info(" Added {} gross pathology parameter documents", docs.size());
+			return docs;
+		}
+
+	}
+
 }
