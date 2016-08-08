@@ -179,9 +179,9 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
-            this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
+            this.sangerAlleleCore = new HttpSolrClient(SANGER_ALLELE_URL, client);
         } else {
-            this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
+            this.sangerAlleleCore = new HttpSolrClient(SANGER_ALLELE_URL);
         }
     }
 

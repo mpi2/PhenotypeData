@@ -139,7 +139,7 @@ public class AnatomyController {
 
 	}
 
-	private List<AnatomogramDataBean> getAnatomogramBeanByAnatomyTerm(AnatomyDTO anatomyTerm) throws SolrServerException {
+	private List<AnatomogramDataBean> getAnatomogramBeanByAnatomyTerm(AnatomyDTO anatomyTerm) throws SolrServerException, IOException {
 
 		List<AnatomogramDataBean> AnatomogramDataBeans = new ArrayList<>();
 		AnatomogramDataBean bean = new AnatomogramDataBean();
