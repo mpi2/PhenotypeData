@@ -18,6 +18,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,7 +86,7 @@ public class StatisticalResultTest {
 	}
 
 	@Test
-	public void testGetDistinctPipelineAlleleCenterListByGeneAccession() throws SolrServerException {
+	public void testGetDistinctPipelineAlleleCenterListByGeneAccession() throws SolrServerException, IOException {
 
 		statisticalResultRepository.findByParameterStableId(null);
 

@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
@@ -49,7 +49,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 	@Autowired
 	@Qualifier("phenodigmIndexing")
-	private SolrServer phenodigmIndexing;
+	private SolrClient phenodigmIndexing;
 
 	@Autowired
 	@Qualifier("phenodigmDataSource")
@@ -64,7 +64,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 	public PhenodigmIndexer() {}
 
-	PhenodigmIndexer(SolrServer phenodigmIndexing, DataSource phenodigmDataSource) {
+	PhenodigmIndexer(SolrClient phenodigmIndexing, DataSource phenodigmDataSource) {
 		this.phenodigmIndexing = phenodigmIndexing;
 		this.phenodigmDataSource = phenodigmDataSource;
 	}

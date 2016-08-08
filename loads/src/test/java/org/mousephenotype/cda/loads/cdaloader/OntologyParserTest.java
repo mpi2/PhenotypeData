@@ -18,10 +18,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigLoaders.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class OntologyParserTest {
 
     private OntologyParser ontologyParser;
@@ -78,8 +79,7 @@ public class OntologyParserTest {
     @Test
     public void testEFO() // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
     throws Exception{
-        // ontologyParser = new OntologyParser(owlpath + "/efo.owl", "EFO");
-        ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/efo.owl", "EFO");
+         ontologyParser = new OntologyParser(owlpath + "/efo.owl", "EFO");
         List<OntologyTerm> terms = ontologyParser.getTerms();
         if (terms.isEmpty())
             throw new Exception("testDeprecated: term list is empty!");
@@ -96,14 +96,17 @@ public class OntologyParserTest {
 
         List<Exception> exception = new ArrayList();
         ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP");
- //       ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP");
         List<OntologyTerm> terms = ontologyParser.getTerms();
         if (terms.isEmpty())
             throw new Exception("testDeprecated: term list is empty!");
 
         boolean found0006374 = false;
-        boolean found0002954 = false;
+        boolean found0002977 = false;
         for (OntologyTerm term : terms){
+
+            /*
+             * Test for term MP:0006374 with replacement IDs
+             */
         	if (term.getId().getAccession().equals("MP:0006374")){
                 found0006374 = true;
         		if(!term.getIsObsolete()){
@@ -114,30 +117,38 @@ public class OntologyParserTest {
         			String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not have the correct replacement term)";
         			exception.add(new Exception(message));
         		}
-        		break;
         	}
-        	if (term.getId().getAccession().equals("MP:0002954")){
-                found0002954 = true;
+
+            /*
+             * Test for term MP:0002977 with consider IDs
+             */
+        	if (term.getId().getAccession().equals("MP:0002977")){
+                found0002977 = true;
         		if (term.getConsiderIds().size() == 0){
         			String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not have any consider terms )";
         			exception.add(new Exception(message));
         		} else {
-        			if (!term.getConsiderIds().contains("MP:0010951") || !term.getConsiderIds().contains("MP:0010954") || !term.getConsiderIds().contains("MP:0010959") ){
+        		    List<String> considerIds = term.getConsiderIds().stream().map(x -> x.getConsiderAccessionId()).collect(Collectors.toList());
+        			if (!considerIds.contains("MP:0010241") || !considerIds.contains("MP:0010464") ){
         				String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not contain the consider terms expected )";
             			exception.add(new Exception(message));
         			}
         		}
-        		
         	}
+
+        	// Short circuit if both terms have been seen
+            if (found0002977 && found0006374) {
+                break;
+            }
         }
 
-        if (found0006374) {
+        if ( ! found0006374) {
             String message = "[FAIL] Expected to find class MP:0006374 but it was not found.";
             exception.add(new Exception(message));
         }
 
-        if (found0002954) {
-            String message = "[FAIL] Expected to find class MP:0002954 but it was not found.";
+        if ( ! found0002977) {
+            String message = "[FAIL] Expected to find class MP:0002977 but it was not found.";
             exception.add(new Exception(message));
         }
         

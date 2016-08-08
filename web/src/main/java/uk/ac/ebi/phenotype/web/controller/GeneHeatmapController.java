@@ -16,10 +16,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
@@ -31,9 +27,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl;
 import uk.ac.ebi.phenotype.web.dao.SecondaryProjectService;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 
 
@@ -59,13 +57,13 @@ public class GeneHeatmapController {
          * @param request
          * @param attributes
          * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
          */
 	@RequestMapping("/geneHeatMap")
 	public String getHeatmapJS(@RequestParam(required = true, value = "project") String project,
                 Model model,
                 HttpServletRequest request,
-                RedirectAttributes attributes) throws SolrServerException{
+                RedirectAttributes attributes) throws SolrServerException {
 
 		System.out.println("calling heatmap controller method for " + project);
 
@@ -80,7 +78,7 @@ public class GeneHeatmapController {
 	}
 	@RequestMapping("/threeIMap")
 	public String getThreeIMap(Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws SolrServerException{
+	throws SolrServerException {
 
 		System.out.println("calling heatmap controller method for 3i");
 		String project="threeI";

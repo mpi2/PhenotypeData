@@ -15,14 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -39,6 +31,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.*;
 
 @Controller
 public class ImageComparatorController {
@@ -64,7 +60,7 @@ public class ImageComparatorController {
 				@RequestParam(value="colony_id", required=false) String colonyId,
 				@RequestParam(value="mp_id", required=false) String mpId,
 				Model model, HttpServletRequest request)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 		System.out.println("calling image imageComparator");
 		
 		// good example url with control and experimental images
@@ -173,7 +169,7 @@ public class ImageComparatorController {
 	}
 
 	private SolrDocumentList filterControlsBySexAndOthers(SolrDocument imgDoc, int numberOfControlsPerSex,
-			SexType sex) throws SolrServerException {
+			SexType sex) throws SolrServerException, IOException {
 		if(sex==null){
 			return imageService.getControls(numberOfControlsPerSex, null, imgDoc, null);
 		}
@@ -225,7 +221,7 @@ public class ImageComparatorController {
 	}
 
 	private void addGeneToPage(String acc, Model model)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
 		model.addAttribute("gene",gene);
 	}

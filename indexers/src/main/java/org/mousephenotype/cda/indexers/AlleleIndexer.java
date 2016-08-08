@@ -23,9 +23,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
@@ -133,7 +133,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
     }
 
-    private SolrServer sangerAlleleCore;
+    private SolrClient sangerAlleleCore;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -153,11 +153,11 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
 	@Autowired
 	@Qualifier("phenodigmCore")
-	private SolrServer phenodigmCore;
+	private SolrClient phenodigmCore;
 
 	@Autowired
     @Qualifier("alleleIndexing")
-    private SolrServer alleleIndexing;
+    private SolrClient alleleIndexing;
 
 
     public AlleleIndexer() {
@@ -291,11 +291,11 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
             logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
-            this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
+            this.sangerAlleleCore = new HttpSolrClient(SANGER_ALLELE_URL, client);
 
         } else {
 
-            this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL);
+            this.sangerAlleleCore = new HttpSolrClient(SANGER_ALLELE_URL);
 
         }
     }
@@ -812,7 +812,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     }
 
-    private void populateStatusLookup() throws SolrServerException {
+    private void populateStatusLookup() throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery("*:*");
         query.setRows(Integer.MAX_VALUE);
@@ -856,7 +856,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     }
 
-    private void populateDiseaseLookup() throws SolrServerException {
+    private void populateDiseaseLookup() throws SolrServerException, IOException {
 
         int docsRetrieved = 0;
         int numDocs = getDiseaseDocCount();
@@ -904,7 +904,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         }
     }
 
-    private int getDiseaseDocCount() throws SolrServerException {
+    private int getDiseaseDocCount() throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery("*:*");
         query.setRows(0);

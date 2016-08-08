@@ -2,21 +2,23 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 public class EucommToolsProductService implements WebStatus{
 	
 	@Autowired @Qualifier("eucommToolsProductCore")
-	private HttpSolrServer solr;
+	private HttpSolrClient solr;
 
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 

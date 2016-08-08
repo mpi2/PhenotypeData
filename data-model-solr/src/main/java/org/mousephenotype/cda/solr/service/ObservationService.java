@@ -43,7 +43,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
@@ -85,13 +85,13 @@ public class ObservationService extends BasicService implements WebStatus {
     private final Logger logger = LoggerFactory.getLogger(ObservationService.class);
 
     @Autowired @Qualifier("experimentCore")
-    private HttpSolrServer solr;
+    private HttpSolrClient solr;
 
     /**
      * set this constructor up for unit testing
      * @param solr
      */
-    public ObservationService(HttpSolrServer solr) {
+    public ObservationService(HttpSolrClient solr) {
 		this.solr=solr;
 	}
 
@@ -102,7 +102,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
 	public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
-    throws SolrServerException{
+    throws SolrServerException, IOException, IOException{
 
     	SolrQuery q = new SolrQuery();
     	if (resourceName != null) {
@@ -175,11 +175,11 @@ public class ObservationService extends BasicService implements WebStatus {
 				parameters.add(parameter);
 			}
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
-		}
+        }
 
-		return parameters;
+        return parameters;
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class ObservationService extends BasicService implements WebStatus {
     			}
     		}
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
 
@@ -272,7 +272,7 @@ public class ObservationService extends BasicService implements WebStatus {
             dto.setGeneSymbol(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
             dto.setGeneAccession(geneAccessionId);
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
 
@@ -282,7 +282,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
 	public List<String> getGenesWithMoreProcedures(int n, List<String> resourceName)
-    throws SolrServerException, InterruptedException, ExecutionException {
+    throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
 
         List<String> genes = new ArrayList<>();
         SolrQuery q = new SolrQuery();
@@ -314,7 +314,7 @@ public class ObservationService extends BasicService implements WebStatus {
         return genes;
     }
 
-    public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException {
+    public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException, IOException, IOException {
         SolrQuery query = new SolrQuery();
         query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
         query.setRows(Integer.MAX_VALUE);
@@ -324,7 +324,7 @@ public class ObservationService extends BasicService implements WebStatus {
         return solr.query(query).getBeans(ObservationDTO.class);
     }
 
-    public List<ObservationDTO> getObservationsByParameterStableIdAndGene(String parameterStableId, String mgiAccession) throws SolrServerException {
+    public List<ObservationDTO> getObservationsByParameterStableIdAndGene(String parameterStableId, String mgiAccession) throws SolrServerException, IOException, IOException {
         SolrQuery query = new SolrQuery();
         query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
         query.setRows(Integer.MAX_VALUE);
@@ -341,9 +341,9 @@ public class ObservationService extends BasicService implements WebStatus {
      * @since 2015/07/27
      * @param parameterStableId
      * @return the observation type for that parameter or null if no data
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
-    public ObservationType getObservationTypeForParameterStableId(String parameterStableId) throws SolrServerException {
+    public ObservationType getObservationTypeForParameterStableId(String parameterStableId) throws SolrServerException, IOException, IOException {
 
         SolrQuery query = new SolrQuery();
         query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
@@ -360,7 +360,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public long getNumberOfDocuments(List<String> resourceName, boolean experimentalOnly)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery query = new SolrQuery();
         query.setRows(0);
@@ -378,7 +378,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public Set<String> getViabilityForGene(String acc)
-    throws SolrServerException{
+    throws SolrServerException, IOException, IOException{
 
     	SolrQuery query = new SolrQuery();
         query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
@@ -402,7 +402,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public QueryResponse getViabilityData(List<String> resources, List<String> category)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery query = new SolrQuery();
         if (resources != null) {
@@ -425,7 +425,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
     @Deprecated
-	public HashMap<String, Set<String>> getViabilityCategories(List<String> resources) throws SolrServerException {
+	public HashMap<String, Set<String>> getViabilityCategories(List<String> resources) throws SolrServerException, IOException, IOException {
 
 		SolrQuery query = new SolrQuery();
 		HashMap<String, Set<String>> res = new HashMap<>();
@@ -450,7 +450,7 @@ public class ObservationService extends BasicService implements WebStatus {
 				res.put(category, new HashSet<>(facets.get(category).subList(0, facets.get(category).size())));
 			}
 
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 
@@ -464,9 +464,9 @@ public class ObservationService extends BasicService implements WebStatus {
      * @param parameterStableIds  A list of parameter_stable_id values (e.g. IMPC_VIA_001_001)
      * @param pivot A comma-separated string of solr fields to pivot the facet by (e.g. category,gene_symbol)
      * @return a map of categories, faceted by the given pivot, indexed by category, comprising # Genes and Gene Symbols
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
-    public List<Map<String, String>> getCategories(List<String> resources, List<String> parameterStableIds, String pivot) throws SolrServerException {
+    public List<Map<String, String>> getCategories(List<String> resources, List<String> parameterStableIds, String pivot) throws SolrServerException, IOException, IOException {
 
    		SolrQuery query = new SolrQuery();
 
@@ -495,9 +495,9 @@ public class ObservationService extends BasicService implements WebStatus {
      * @param categories A list of categories that is "or'd" together to produce the result (e.g. Viable, Lethal, Male, Fertile)
      * @return a <code>QueryResponse</code> of data found using the given resources, parameter stable ids, and category,
      *         comprising geneSymbol, geneAccessionId, colonyId, and category.
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
-    public QueryResponse getData(List<String> resources, List<String> parameterStableIds, List<String> categories) throws SolrServerException {
+    public QueryResponse getData(List<String> resources, List<String> parameterStableIds, List<String> categories) throws SolrServerException, IOException, IOException {
         SolrQuery query = new SolrQuery();
         if ((resources != null) && ( ! resources.isEmpty())) {
             query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
@@ -523,7 +523,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
     public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity)
-    throws SolrServerException, InterruptedException {
+    throws SolrServerException, IOException, IOException, InterruptedException {
 
         Map<String, Set<String>> res = new HashMap<>();
         SolrQuery q = new SolrQuery();
@@ -557,14 +557,14 @@ public class ObservationService extends BasicService implements WebStatus {
                 }
                 res.put(center, colonies);
             }
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
         return res;
     }
 
     public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups, List<String> alleleAccessions)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
 		// Example of key
         // String experimentKey = observation.getPhenotypingCenter()
@@ -685,16 +685,16 @@ public class ObservationService extends BasicService implements WebStatus {
      * @param strain
      * @param sex
      * @return
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public SolrQuery getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain, String sex)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         return new SolrQuery().setQuery("((" + ObservationDTO.GENE_ACCESSION_ID + ":" + geneAcc.replace(":", "\\:") + " AND " + ObservationDTO.ZYGOSITY + ":" + zygosity + ") OR " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control) ").addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId).addFilterQuery(ObservationDTO.PHENOTYPING_CENTER_ID + ":" + organisationId).addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:")).addFilterQuery(ObservationDTO.SEX + ":" + sex).setStart(0).setRows(10000);
     }
 
     public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain, SexType sex)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         return getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAcc, zygosity, organisationId, strain, sex.name()).toString();
 
@@ -702,7 +702,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery query = getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, gene, zygosity, organisationId, strain, sex.name());
 
@@ -716,10 +716,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * analysis
      *
      * @return list of maps of results
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctOrganisaionPipelineParameter()
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
         ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID);
@@ -735,10 +735,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * analysis
      *
      * @return list of maps of results
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctStatisticalCandidates(List<String> phenotypingCenter, List<String> pipelineStableId, List<String> procedureStub, List<String> parameterStableId, List<String> alleleAccessionId)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         String pivotFields = ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PROCEDURE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.OBSERVATION_TYPE;
 
@@ -795,10 +795,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * analysis for a specific procedure
      *
      * @return list of maps of results
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadataByProcedure(String procedureStableId)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery query = new SolrQuery().setQuery(ObservationDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId).addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":unidimensional").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
                 // at
@@ -819,10 +819,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * analysis for all specified procedures
      *
      * @return list of maps of results
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadataByProcedure(List<String> procedureStableIds)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         // Build the SOLR query string
         String field = ObservationDTO.PROCEDURE_STABLE_ID;
@@ -846,10 +846,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * analysis for all specified parameter
      *
      * @return list of maps of results
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadataByParameter(List<String> parameterStableIds)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         // Build the SOLR query string
         String field = ObservationDTO.PARAMETER_STABLE_ID;
@@ -874,10 +874,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * analysis for a specific parameter
      *
      * @return list of maps of results
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadataByParameter(String parameterStableId)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery query = new SolrQuery().setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":unidimensional").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField( // needs
                 // at
@@ -898,10 +898,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * analysis
      *
      * @return list of maps of results
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata()
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<Map<String, String>> candidates = new ArrayList<>();
 
@@ -964,10 +964,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * Return a list of a all data candidates for statistical analysis
      *
      * @return list of maps of results
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata()
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<String> pivotFields = Arrays.asList(ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.PIPELINE_ID, ObservationDTO.PROCEDURE_GROUP, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID);
 
@@ -991,7 +991,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public List<Map<String, String>> getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadataByParameter(String parameterStableId)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<String> pivotFields = Arrays.asList(ObservationDTO.PHENOTYPING_CENTER_ID, ObservationDTO.PIPELINE_ID, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID);
 
@@ -1012,7 +1012,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
     public List<ObservationDTO> getExperimentObservationsBy(Integer parameterId, Integer pipelineId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
     	  List<ObservationDTO> resultsDTO;
         SolrQuery query = new SolrQuery()
@@ -1058,7 +1058,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public List<ObservationDTO> getViabilityData(String parameterStableId, Integer pipelineId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<ObservationDTO> resultsDTO;
         SolrQuery query = new SolrQuery()
@@ -1110,10 +1110,10 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @param genomicFeatureAcc a gene accession
      * @return list of triplets
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctPipelineAlleleCenterListByGeneAccession(String genomicFeatureAcc)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<Map<String, String>> results = new LinkedList<>();
         List<String> facetFields = Arrays.asList(ObservationDTO.PIPELINE_STABLE_ID, ObservationDTO.PIPELINE_NAME, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.ALLELE_SYMBOL);
@@ -1161,10 +1161,10 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @param alleleAccession an allele accession
      * @return list of triplets
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<Map<String, String>> getDistinctParameterListByPipelineAlleleCenter(String pipelineStableId, String alleleAccession, String phenotypingCenter, List<String> procedureFilters, List<String> resource)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -1227,10 +1227,10 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @param alleleAccession an allele accession
      * @return list of integer db keys of the parameter rows
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<String> getDistinctProcedureListByPipelineAlleleCenter(String pipelineStableId, String alleleAccession, String phenotypingCenter)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<String> results = new LinkedList<String>();
 
@@ -1258,7 +1258,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
     // gets categorical data for graphs on phenotype page
     public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(String parameter, List<String> genes, List<String> strains, String[] center, String[] sex)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         Map<String, List<DiscreteTimePoint>> finalRes = new HashMap<String, List<DiscreteTimePoint>>(); // <allele_accession,
         // timeSeriesData>
@@ -1339,7 +1339,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
     // gets categorical data for graphs on phenotype page
     public List<DiscreteTimePoint> getTimeSeriesControlData(String parameter, List<String> strains, String[] center, String[] sex)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
         SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter);
@@ -1454,10 +1454,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * @param strains
      * @param biologicalSample
      * @return list of centers and sexes for the given parameters
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public Set<String> getCenters(Parameter p, List<String> genes, List<String> strains, String biologicalSample)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         Set<String> centers = new HashSet<String>();
         SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
@@ -1485,7 +1485,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public double getMeanPValue(Parameter p, List<String> strains, String biologicalSample, String[] center, SexType sex)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         logger.info("GETTING THE MEAN");
         SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
@@ -1525,7 +1525,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
     // gets categorical data for graphs on phenotype page
     public CategoricalSet getCategories(Parameter parameter, List<String> genes, String biologicalSampleGroup, List<String> strains, String[] center, String[] sex)
-    throws SolrServerException, SQLException {
+    throws SolrServerException, IOException, IOException, SQLException {
 
         CategoricalSet resSet = new CategoricalSet();
         resSet.setName(biologicalSampleGroup);
@@ -1571,7 +1571,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public Set<String> getTestedGenes(String sex, List<String> parameters)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         HashSet<String> genes = new HashSet<String>();
         int i = 0;
@@ -1614,10 +1614,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * search for metadata_group:""
      * @return list of control observationDTOs that conform to the search
      * criteria
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, String phenotypingCenter, Date experimentDate, String sex, String metadataGroup)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<ObservationDTO> results;
 
@@ -1678,10 +1678,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * search for metadata_group:""
      * @return list of control observationDTOs that conform to the search
      * criteria
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, String phenotypingCenter, Date experimentDate, String sex, String metadataGroup)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         List<ObservationDTO> results;
 
@@ -1729,7 +1729,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public List<ObservationDTO> getAllImageRecordObservations()
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery query = ImageService.allImageRecordSolrQuery();
         return solr.query(query).getBeans(ObservationDTO.class);
@@ -1737,7 +1737,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
-    public HttpSolrServer getSolrServer() {
+    public HttpSolrClient getSolrServer() {
         return solr;
     }
 
@@ -1749,9 +1749,9 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @return a collection of biological sample ids for all mice matching the PROCEDURE_STABLE_ID
      *
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
-    public Collection<String> getMetabolismReportBiologicalSampleIds(String procedureStableId)  throws SolrServerException {
+    public Collection<String> getMetabolismReportBiologicalSampleIds(String procedureStableId)  throws SolrServerException, IOException, IOException {
         SolrQuery query = new SolrQuery();
 
         query.setQuery(String.format("%s:%s", ObservationDTO.PROCEDURE_STABLE_ID, procedureStableId));
@@ -1774,9 +1774,9 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @return a list of <code>ObservationDTO</code> calorimetry results for the specified mouse.
      *
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
-    public List<ObservationDTO> getMetabolismReportBiologicalSampleId(String procedureStableId, Integer biologicalSampleId) throws SolrServerException {
+    public List<ObservationDTO> getMetabolismReportBiologicalSampleId(String procedureStableId, Integer biologicalSampleId) throws SolrServerException, IOException, IOException {
         SolrQuery query = new SolrQuery();
 
         query.setFields(
@@ -1830,7 +1830,7 @@ public class ObservationService extends BasicService implements WebStatus {
         logger.info("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
         try {
             return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
 
@@ -1860,7 +1860,7 @@ public class ObservationService extends BasicService implements WebStatus {
         logger.info("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
         try {
             return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
 
@@ -1869,7 +1869,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public DataBatchesBySex getExperimentalBatches(String phenotypingCenter, String pipelineStableId, String parameterStableId, String strainAccessionId, String zygosity, String metadataGroup, String alleleAccessionId)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
         SolrQuery q = new SolrQuery()
                 .setQuery("*:*")
@@ -1895,10 +1895,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * @param count the number of parameter stable ids to return
      *
      * @return a list of <code>count</code> parameter stable ids matching <code>observationType</code>.
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<String> getParameterStableIdsByObservationType(ObservationType observationType, int count)
-    throws SolrServerException {
+    throws SolrServerException, IOException, IOException {
 
     	List<String> retVal = new ArrayList<String>();
 
@@ -1991,10 +1991,10 @@ public class ObservationService extends BasicService implements WebStatus {
      * @param phenotypingCenter
      * @param resource
      * @return List of pipelines with data for the given parameters.
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException, IOException
      */
     public List<ImpressBaseDTO> getPipelines(String alleleAccession, String phenotypingCenter, List<String> resource)
-    throws SolrServerException{
+    throws SolrServerException, IOException, IOException{
 
     	List<ImpressBaseDTO> pipelines = new ArrayList<>();
 
@@ -2035,7 +2035,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
     @Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);
@@ -2143,7 +2143,7 @@ public class ObservationService extends BasicService implements WebStatus {
 	 * @since 2016/01/28
 	 * @param facets
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException, IOException
 	 */
 	public Map<String, Long> getViabilityCategories(Map<String, Set<String>>facets) {
 
@@ -2187,7 +2187,7 @@ public class ObservationService extends BasicService implements WebStatus {
 	}
 
 
-	public List<ObservationDTO> getObservationsByProcedureNameAndGene(String procedureName, String geneAccession, String ...fields) throws SolrServerException {
+	public List<ObservationDTO> getObservationsByProcedureNameAndGene(String procedureName, String geneAccession, String ...fields) throws SolrServerException, IOException, IOException {
 		SolrQuery q = new SolrQuery()
                 .setQuery("*:*")
                 .setRows(10000)

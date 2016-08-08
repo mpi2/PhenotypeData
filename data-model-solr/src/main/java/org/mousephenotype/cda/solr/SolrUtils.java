@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -28,11 +28,12 @@ import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
+
+import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 
 /**
  *
@@ -68,53 +69,53 @@ public class SolrUtils {
 
     // UTILITY METHODS
     /**
-     * Extract the <code>HttpSolrServer</code> from the <code>SolrServer</code>,
-     * if there is one. Most SolrServer implementations contain an <code>
-     * HttpSolrServer</code> instance. If the supplied solrServer does, that
+     * Extract the <code>HttpSolrClient</code> from the <code>SolrClient</code>,
+     * if there is one. Most SolrClient implementations contain an <code>
+     * HttpSolrClient</code> instance. If the supplied solrClient does, that
      * instance is returned; otherwise, null is returned. The method is
      * synchronized to insure thread safety.
      *
-     * @param solrServer the <code>SolrServer</code> instance
-     * @return the embedded <code>HttpSolrServer</code>, if there is one; null
+     * @param solrClient the <code>SolrClient</code> instance
+     * @return the embedded <code>HttpSolrClient</code>, if there is one; null
      * otherwise
      */
-    public static synchronized HttpSolrServer getHttpSolrServer(SolrServer solrServer) {
-        if (solrServer instanceof HttpSolrServer) {
-            return (HttpSolrServer) solrServer;
+    public static synchronized HttpSolrClient getHttpSolrServer(SolrClient solrClient) {
+        if (solrClient instanceof HttpSolrClient) {
+            return (HttpSolrClient) solrClient;
         }
 
-        HttpSolrServer httpSolrServer = null;
+        HttpSolrClient httpSolrClient = null;
         try {
-            Field[] fieldList = solrServer.getClass().getDeclaredFields();
+            Field[] fieldList = solrClient.getClass().getDeclaredFields();
             for (Field field : fieldList) {
                 field.setAccessible(true);
-                Object o = field.get(solrServer);
-                if (o instanceof HttpSolrServer) {
-                    httpSolrServer = (HttpSolrServer) o;
-                    return httpSolrServer;
+                Object o = field.get(solrClient);
+                if (o instanceof HttpSolrClient) {
+                    httpSolrClient = (HttpSolrClient) o;
+                    return httpSolrClient;
                 }
             }
         } catch (Exception e) {
-            logger.error("Exception while trying to extract HttpSolrServer from SolrServer: " + e.getLocalizedMessage());
+            logger.error("Exception while trying to extract HttpSolrClient from SolrClient: " + e.getLocalizedMessage());
         }
 
-        return httpSolrServer;
+        return httpSolrClient;
     }
 
     /**
-     * Extract the SOLR base URL from the <code>SolrServer</code> instance
+     * Extract the SOLR base URL from the <code>SolrClient</code> instance
      *
-     * @param solrServer the <code>SolrServer</code> instance
+     * @param solrClient the <code>SolrClient</code> instance
      * @return the SOLR server base URL, if it can be found; or an empty string
      * if it cannot.
      */
-    public static String getBaseURL(SolrServer solrServer) {
-        HttpSolrServer httpSolrServer
-                = (solrServer instanceof HttpSolrServer
-                ? (HttpSolrServer) solrServer
-                        : getHttpSolrServer(solrServer));
-        if (httpSolrServer != null) {
-            return httpSolrServer.getBaseURL();
+    public static String getBaseURL(SolrClient solrClient) {
+        HttpSolrClient httpSolrClient
+                = (solrClient instanceof HttpSolrClient
+                ? (HttpSolrClient) solrClient
+                        : getHttpSolrServer(solrClient));
+        if (httpSolrClient != null) {
+            return httpSolrClient.getBaseURL();
         }
 
         return "";
@@ -127,9 +128,9 @@ public class SolrUtils {
      * @param imagesCore a valid solr connection
      * @return a map, indexed by child ma id, of all parent terms with
      * associations
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public static Map<String, List<SangerImageDTO>> populateSangerImagesMap(SolrServer imagesCore) throws SolrServerException {
+    public static Map<String, List<SangerImageDTO>> populateSangerImagesMap(SolrClient imagesCore) throws SolrServerException, IOException {
         Map<String, List<SangerImageDTO>> map = new HashMap();
 
         int pos = 0;
@@ -177,9 +178,9 @@ public class SolrUtils {
      * @param imagesCore a valid solr connection
      * @return a map, indexed by child ma id, of all parent terms with
      * associations
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrServer imagesCore) throws SolrServerException {
+    public static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrClient imagesCore) throws SolrServerException, IOException {
         Map<String, List<SangerImageDTO>> map = new HashMap();
 
         int pos = 0;
@@ -225,9 +226,9 @@ public class SolrUtils {
      * @param alleleCore a valid solr connection
      * @return a list of all alleles
      *
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public static List<AlleleDTO> getAllAlleles(SolrServer alleleCore) throws SolrServerException {
+    public static List<AlleleDTO> getAllAlleles(SolrClient alleleCore) throws SolrServerException, IOException {
         List<AlleleDTO> alleleList = new ArrayList<>();
 
         int pos = 0;
@@ -252,9 +253,9 @@ public class SolrUtils {
      * @param alleleCore a valid solr connection
      * @return a map, indexed by MGI Accession id, of all alleles
      *
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public static Map<String, List<AlleleDTO>> populateAllelesMap(SolrServer alleleCore) throws SolrServerException {
+    public static Map<String, List<AlleleDTO>> populateAllelesMap(SolrClient alleleCore) throws SolrServerException, IOException {
 
         Map<String, List<AlleleDTO>> alleles = new HashMap<>();
 
@@ -288,10 +289,10 @@ public class SolrUtils {
      * @param phenodigm_core a valid solr connection
      * @return a map, indexed by mp id, of all hp terms
      *
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public static Map<String, List<Map<String, String>>> populateMpToHpTermsMap(SolrServer phenodigm_core)
-            throws SolrServerException {
+    public static Map<String, List<Map<String, String>>> populateMpToHpTermsMap(SolrClient phenodigm_core)
+            throws SolrServerException, IOException {
 
 		// url="q=mp_id:&quot;${nodeIds.term_id}&quot;&amp;rows=999&amp;fq=type:mp_hp&amp;fl=hp_id,hp_term"
         // processor="XPathEntityProcessor" >
@@ -347,9 +348,9 @@ public class SolrUtils {
      *
      * @param mpSolrServer
      * @return the map
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public static Map<String, List<MpDTO>> populateMgiAccessionToMp(SolrServer mpSolrServer) throws SolrServerException {
+    public static Map<String, List<MpDTO>> populateMgiAccessionToMp(SolrClient mpSolrServer) throws SolrServerException, IOException {
 
         Map<String, List<MpDTO>> mps = new HashMap<>();
         int pos = 0;
@@ -388,9 +389,9 @@ public class SolrUtils {
      *
      * @param mpSolrServer
      * @return the map
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public static Map<String, MpDTO> populateMpTermIdToMp(SolrServer mpSolrServer) throws SolrServerException {
+    public static Map<String, MpDTO> populateMpTermIdToMp(SolrClient mpSolrServer) throws SolrServerException, IOException {
 
         Map<String, MpDTO> mps = new HashMap<>();
         int pos = 0;

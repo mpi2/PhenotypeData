@@ -118,6 +118,7 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
 
 	@Test
+	@Ignore
 	public void getSignificanceField() throws Exception {
 
 
@@ -183,6 +184,7 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
 	}
 
+	@Test
 	@Ignore
 	public void resultsUniqueIds() throws Exception {
 

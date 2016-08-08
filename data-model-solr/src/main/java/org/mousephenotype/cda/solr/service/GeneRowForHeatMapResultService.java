@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,7 +26,7 @@ import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.common.SolrDocument;
@@ -69,7 +70,7 @@ public class GeneRowForHeatMapResultService {
     Map<String, ArrayList<String>> maleParamToGene = null;
     Map<String, ArrayList<String>> femaleParamToGene = null;
 
-	private HttpSolrServer solr;
+	private HttpSolrClient solr;
 
 	@Autowired
 	StatisticalResultService stasticalResultsService;
@@ -80,7 +81,7 @@ public class GeneRowForHeatMapResultService {
 
 
 	public GeneRowForHeatMapResultService(String solrUrl) {
-		solr = new HttpSolrServer(solrUrl);
+		solr = new HttpSolrClient(solrUrl);
 	}
 
 
@@ -127,7 +128,7 @@ public class GeneRowForHeatMapResultService {
             	paramPValueMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
             }
             row.setXAxisToCellMap(paramPValueMap);
-        } catch (SolrServerException ex) {
+        } catch (SolrServerException | IOException ex) {
             LOG.error(ex.getMessage());
         }
         return row;
@@ -184,7 +185,7 @@ public class GeneRowForHeatMapResultService {
 			        row.setXAxisToCellMap(xAxisToCellMap);
 			        geneRowMap.put(geneAcc, row);
 		            }
-		        } catch (SolrServerException ex) {
+		        } catch (SolrServerException | IOException ex) {
 		            LOG.error(ex.getMessage());
 		        }
         }

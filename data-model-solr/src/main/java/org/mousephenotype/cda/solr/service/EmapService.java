@@ -15,31 +15,22 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class EmapService extends BasicService{
@@ -47,7 +38,7 @@ public class EmapService extends BasicService{
 
 	@Autowired
 	@Qualifier("emapCore")
-    private HttpSolrServer solr;
+    private HttpSolrClient solr;
 
 	public EmapService() {
 	}
@@ -56,9 +47,9 @@ public class EmapService extends BasicService{
 	 * Return an EMAP term
 	 *
 	 * @return single EMAP term from the emap core.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public EmapDTO getEmapTerm(String id) throws SolrServerException {
+	public EmapDTO getEmapTerm(String id) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(EmapDTO.EMAP_ID + ":\"" + id + "\"")
@@ -78,9 +69,9 @@ public class EmapService extends BasicService{
      * Return all EMAP terms from the emap core.
      *
      * @return all EMAPs from the emap core.
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public List<EmapDTO> getAllEmapTerms() throws SolrServerException {
+    public List<EmapDTO> getAllEmapTerms() throws SolrServerException, IOException {
 
     	System.out.println("SOLR: " + solr.getBaseURL());
         SolrQuery solrQuery = new SolrQuery();
@@ -94,7 +85,7 @@ public class EmapService extends BasicService{
         return emaps;
     }
 
-    public Set<BasicBean> getAllTopLevelEmapsAsBasicBeans() throws SolrServerException{
+    public Set<BasicBean> getAllTopLevelEmapsAsBasicBeans() throws SolrServerException, IOException{
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.addFacetField("top_level_emap_term_id");
@@ -116,7 +107,7 @@ public class EmapService extends BasicService{
 		return allTopLevelEmaps;
 	}
 
-    public ArrayList<String> getChildrenFor(String emapId) throws SolrServerException{
+    public ArrayList<String> getChildrenFor(String emapId) throws SolrServerException, IOException{
 
     	SolrQuery solrQuery = new SolrQuery();
     	solrQuery.setQuery(EmapDTO.EMAP_ID + ":\"" + emapId + "\"");

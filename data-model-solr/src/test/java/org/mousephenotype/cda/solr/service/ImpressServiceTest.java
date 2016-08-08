@@ -1,6 +1,6 @@
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -45,8 +45,8 @@ public class ImpressServiceTest {
 		private String solrBaseUrl;
 
 		@Bean(name = "pipelineCore")
-		HttpSolrServer getPipelineCore() {
-			return new HttpSolrServer(solrBaseUrl + "/pipeline");
+		HttpSolrClient getPipelineCore() {
+			return new HttpSolrClient(solrBaseUrl + "/pipeline");
 		}
 
 		@Bean

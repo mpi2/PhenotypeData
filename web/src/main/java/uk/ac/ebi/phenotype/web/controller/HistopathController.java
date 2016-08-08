@@ -1,10 +1,5 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.HistopathService;
@@ -19,6 +14,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 @Controller
 public class HistopathController {
 
@@ -32,7 +32,7 @@ public class HistopathController {
 	
 	
 	@RequestMapping("/histopath/{acc}")
-	public String histopath(@PathVariable String acc, Model model) throws SolrServerException{
+	public String histopath(@PathVariable String acc, Model model) throws SolrServerException, IOException {
 		//exmple Lpin2 MGI:1891341
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
@@ -59,7 +59,7 @@ public class HistopathController {
 	}
 	
 	@RequestMapping("/histopathsum/{acc}")
-	public String histopathSummary(@PathVariable String acc, Model model) throws SolrServerException{
+	public String histopathSummary(@PathVariable String acc, Model model) throws SolrServerException, IOException{
 		//exmple Lpin2 MGI:1891341
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);

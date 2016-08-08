@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
@@ -75,7 +75,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	@Autowired
 	@Qualifier("statisticalResultsIndexing")
-	SolrServer statisticalResultsIndexing;
+	SolrClient statisticalResultsIndexing;
 
 	@Autowired
 	MpOntologyDAO mpOntologyService;
@@ -221,7 +221,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	 * @param count the number of documents that should have been added
 	 * @throws SolrServerException
 	 */
-	private void checkSolrCount(Integer count) throws SolrServerException {
+	private void checkSolrCount(Integer count) throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("*:*").setRows(0);

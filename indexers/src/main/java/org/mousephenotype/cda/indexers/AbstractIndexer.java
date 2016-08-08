@@ -16,7 +16,7 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -58,13 +58,13 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
     public abstract RunStatus validateBuild() throws IndexerException;
 
-    public long getDocumentCount(SolrServer solrServer) throws IndexerException {
+    public long getDocumentCount(SolrClient solrClient) throws IndexerException {
         Long numFound = 0L;
         SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
         try {
-            numFound = solrServer.query(query).getResults().getNumFound();
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
+            numFound = solrClient.query(query).getResults().getNumFound();
+        } catch (SolrServerException | IOException e) {
+            throw new IndexerException(e);
         }
         logger.debug("number found = " + numFound);
         return numFound;
@@ -89,12 +89,12 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     /**
      * Common core validator
      *
-     * @param solrServer the solr server to be validated
+     * @param solrClient the solr server to be validated
      * @return <code>RunStatus</code> indicating success, failure, or warning.
      * @throws IndexerException
      */
-    protected RunStatus validateBuild(SolrServer solrServer) throws IndexerException {
-        Long actualSolrDocumentCount = getDocumentCount(solrServer);
+    protected RunStatus validateBuild(SolrClient solrClient) throws IndexerException {
+        Long actualSolrDocumentCount = getDocumentCount(solrClient);
         RunStatus runStatus = new RunStatus();
 
         if (actualSolrDocumentCount <= MINIMUM_DOCUMENT_COUNT) {

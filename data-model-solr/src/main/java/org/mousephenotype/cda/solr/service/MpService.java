@@ -19,13 +19,12 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -35,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -43,14 +43,14 @@ public class MpService extends BasicService implements WebStatus{
 
 	@Autowired
 	@Qualifier("mpCore")
-    private HttpSolrServer solr;
+    private HttpSolrClient solr;
 
 	public MpService() {
 	}
 
 
 	public List<MpDTO> getAllMpWithMaMapping()
-	throws SolrServerException{
+	throws SolrServerException, IOException {
 
 		SolrQuery q = new SolrQuery();
 		q.setRows(Integer.MAX_VALUE);
@@ -66,9 +66,9 @@ public class MpService extends BasicService implements WebStatus{
 	 * Return the phenotype
 	 *
 	 * @return all genes from the gene core.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public MpDTO getPhenotype(String id) throws SolrServerException {
+	public MpDTO getPhenotype(String id) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
@@ -89,10 +89,10 @@ public class MpService extends BasicService implements WebStatus{
 	 *
 	 * @param ids MP ids to query for (only query on MP_ID field.
 	 * @return List<MpDTO> corresponding to the passed ids.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public List<MpDTO> getPhenotypes(List<String> ids)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\"");
@@ -108,9 +108,9 @@ public class MpService extends BasicService implements WebStatus{
 	 * @since 2016/03/22
 	 * @param id
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public List<OntologyBean> getParents(String id) throws SolrServerException {
+	public List<OntologyBean> getParents(String id) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
@@ -152,10 +152,10 @@ public class MpService extends BasicService implements WebStatus{
 	 * @since 2016/04/05
 	 * @param mpTermId
 	 * @return JSON in jstree format for ontology browser
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public String getSearchTermJson(String mpTermId)
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 
 		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_ID + ":\"" + mpTermId + "\"")
@@ -174,10 +174,10 @@ public class MpService extends BasicService implements WebStatus{
 	 * @since 2016/04/05
 	 * @param mpTermId
 	 * @return JSON in jstree format for ontology browser
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public String getChildrenJson(String nodeId, String termId)
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 
 		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
@@ -195,9 +195,9 @@ public class MpService extends BasicService implements WebStatus{
 	 * @since 2016/03/22
 	 * @param id
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public List<OntologyBean> getChildren(String id) throws SolrServerException {
+	public List<OntologyBean> getChildren(String id) throws SolrServerException, IOException {
 
 			SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
@@ -232,9 +232,9 @@ public class MpService extends BasicService implements WebStatus{
      * Return all phenotypes from the mp core.
      *
      * @return all genes from the gene core.
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public Set<String> getAllPhenotypes() throws SolrServerException {
+    public Set<String> getAllPhenotypes() throws SolrServerException, IOException {
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(MpDTO.MP_ID + ":*");
@@ -252,7 +252,7 @@ public class MpService extends BasicService implements WebStatus{
         return allPhenotypes;
     }
 
-    public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException{
+    public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException, IOException{
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.addFacetField("top_level_mp_term_id");
@@ -274,7 +274,7 @@ public class MpService extends BasicService implements WebStatus{
 		return allTopLevelPhenotypes;
 	}
 
-    public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException{
+    public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException, IOException{
 
     	SolrQuery solrQuery = new SolrQuery();
     	solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
@@ -314,7 +314,7 @@ public class MpService extends BasicService implements WebStatus{
 
 	@Override
 	public long getWebStatus()
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("*:*").setRows(0);

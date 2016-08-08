@@ -29,7 +29,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
@@ -78,11 +78,11 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
     @Autowired
     @Qualifier("sangerImagesCore")
-    SolrServer imagesCore;
+    SolrClient imagesCore;
 
     @Autowired
     @Qualifier("anatomyIndexing")
-    SolrServer anatomyIndexing;
+    SolrClient anatomyIndexing;
 
     @Autowired
     MaOntologyDAO maOntologyService;

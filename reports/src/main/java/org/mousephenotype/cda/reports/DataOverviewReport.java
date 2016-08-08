@@ -109,7 +109,7 @@ public class DataOverviewReport extends AbstractReport {
             row.add(Long.toString(imageService.getNumberOfDocuments(resources, false)));
             overview.add(row.toArray(forArrayType));
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
@@ -123,7 +123,7 @@ public class DataOverviewReport extends AbstractReport {
                 linesPerCenter.add(row);
             }
 
-        } catch (SolrServerException | InterruptedException e) {
+        } catch (SolrServerException | InterruptedException | IOException e) {
             e.printStackTrace();
         }
         result.add(linesPerCenter);
@@ -175,7 +175,7 @@ public class DataOverviewReport extends AbstractReport {
                 mpTable.add(row);
             }
 
-        } catch (SolrServerException | InterruptedException | ExecutionException e) {
+        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
             e.printStackTrace();
         }
 
