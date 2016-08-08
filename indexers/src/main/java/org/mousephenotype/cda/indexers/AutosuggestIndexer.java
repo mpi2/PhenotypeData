@@ -876,7 +876,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         QueryResponse response = sangerAlleleCore.query(query);
         List<AlleleDTO> alleles = response.getBeans(AlleleDTO.class);
 
-        String docType = "product";
+        String docType = "allele2";
 
         for (AlleleDTO allele : alleles) {
 

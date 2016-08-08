@@ -718,7 +718,6 @@
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>--%>
 
 
-
 		<script type="text/javascript">
 			var diseaseTables = [{
 				id: '#orthologous_diseases_table',

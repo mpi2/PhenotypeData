@@ -35,6 +35,11 @@ span.gene, span.mp, span.anatomy, span.disease, span.hp {
 b.sugTerm {
 	color: #0978A1;
 }
+span.category {
+	color: #EF7B0B !important;
+	font-weight: bold;
+}
+
 /* New Facet Block without IDs */
 div.ffilter {
 	display: none; /*default, appears only when filter is added */
@@ -163,9 +168,7 @@ span.imgAnnots {
 span.annotType {
 	font-weight: bold;
 }
-table#diseaseGrid th:nth-child(1) {
-	width: 200px !important;
-}
+
 div#diseaseTab table#dTable th:nth-child(1) {
 	width: 45% !important;
 }
