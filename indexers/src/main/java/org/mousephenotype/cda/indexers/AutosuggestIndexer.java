@@ -53,14 +53,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 	private final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
 
 
-//	@NotNull
-//    @Value("${phenodigm.solrserver}")
-//    private String phenodigmSolrServer;
-
-    @Autowired
-    @Qualifier("phenodigmIndexing")
-    private SolrServer phenodigmCore;
-
     @Autowired
     @Qualifier("autosuggestIndexing")
     private SolrClient autosuggestCore;
@@ -92,7 +84,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 	@Autowired
    	private GwasDAO gwasDao;
 
-    private SolrServer sangerAlleleCore;
+    private SolrClient sangerAlleleCore;
 
     public static final long MIN_EXPECTED_ROWS = 218000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
