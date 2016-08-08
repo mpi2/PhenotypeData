@@ -18,7 +18,7 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -49,7 +49,7 @@ public class AutosuggestIndexerOld {
 		System.out.println(solrUrl);
 		
 		
-		HttpSolrServer destServer = new HttpSolrServer(solrUrl + "/autosuggest");
+		HttpSolrClient destServer = new HttpSolrClient(solrUrl + "/autosuggest");
 
 		destServer.deleteByQuery("*:*");
 
@@ -72,12 +72,12 @@ public class AutosuggestIndexerOld {
 		for (Map.Entry<String, String[]> entry : coreFields.entrySet()) {
 			String core = entry.getKey().toString();
 			
-			//HttpSolrServer srcServer = new HttpSolrServer(solrUrl + "/" + core);
-			HttpSolrServer srcServer = new HttpSolrServer(srcSolrUrl + "/" + core);
+			//HttpSolrClient srcServer = new HttpSolrClient(solrUrl + "/" + core);
+			HttpSolrClient srcServer = new HttpSolrClient(srcSolrUrl + "/" + core);
 			
 			if ( core.equals("hp") ){
 				// phenodigm hp_mp mapping
-				srcServer = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
+				srcServer = new HttpSolrClient("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
 			}
 
 			SolrQuery query = new SolrQuery();

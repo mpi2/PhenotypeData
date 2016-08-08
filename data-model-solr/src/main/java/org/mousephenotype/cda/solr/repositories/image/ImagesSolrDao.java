@@ -15,11 +15,12 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.repositories.image;
 
-import java.util.List;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Interface for images data access from solr (probably not need an interface to
@@ -35,15 +36,15 @@ public interface ImagesSolrDao {
 	public abstract List<String> getIdsForKeywordsSearch(
 			String query,
 			int start, 
-			int length) throws SolrServerException;
+			int length) throws SolrServerException, IOException;
 
 	public abstract QueryResponse getExperimentalFacetForGeneAccession(
 			String geneId)
-			throws SolrServerException;
+			throws SolrServerException, IOException;
 
 	public QueryResponse getExpressionFacetForGeneAccession(
 			String geneId)
-			throws SolrServerException;
+			throws SolrServerException, IOException;
 
 	public QueryResponse getDocsForGeneWithFacetField(
 			String query,
@@ -52,7 +53,7 @@ public interface ImagesSolrDao {
 			String filterQuery, 
 			int start,
 			int length) 
-			throws SolrServerException;
+			throws SolrServerException, IOException;
 
 	public QueryResponse getFilteredDocsForQuery(
 			String query,
@@ -61,14 +62,14 @@ public interface ImagesSolrDao {
 			String defType, 
 			int start,
 			int length) 
-			throws SolrServerException;
+			throws SolrServerException, IOException;
 
 	public QueryResponse getDocsForMpTerm(
 			String mpId, 
 			int start, 
 			int length)
-			throws SolrServerException;
+			throws SolrServerException, IOException;
 
 	public SolrDocumentList getImagesForLacZ()
-			throws SolrServerException;
+			throws SolrServerException, IOException;
 }

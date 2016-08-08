@@ -165,7 +165,7 @@ public class HitsPerLineReport extends AbstractReport {
             result.add(zygosityTable);
             csvWriter.writeAllMulti(result);
 
-        } catch (SolrServerException | InterruptedException | ExecutionException e) {
+        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
             e.printStackTrace();
         }
 

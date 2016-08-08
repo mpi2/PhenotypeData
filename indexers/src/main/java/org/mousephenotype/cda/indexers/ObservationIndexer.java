@@ -40,7 +40,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.xmlbeans.impl.xb.ltgfmt.TestCase;
 import org.apache.xmlbeans.impl.xb.xsdschema.ListDocument;
@@ -88,7 +88,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	@Autowired
 	@Qualifier("observationIndexing")
-	SolrServer observationIndexing;
+	SolrClient observationIndexing;
 
 	@Autowired
 	MaOntologyDAO maOntologyService;

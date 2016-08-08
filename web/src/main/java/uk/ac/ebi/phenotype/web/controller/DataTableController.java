@@ -132,7 +132,7 @@ public class DataTableController {
      * deals with batchQuery
      * Return jQuery dataTable from server-side for lazy-loading.
      * </p>
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      *
      */
 
@@ -1053,7 +1053,7 @@ public class DataTableController {
 			if(expressionService.expressionDataAvailable(anatomyId)){
 				expressionDataAvailable=true;
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -60,7 +60,7 @@ public class ParallelCoordinatesController {
 	
 	@RequestMapping(value="/parallel", method=RequestMethod.GET)
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 
 		TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
 		procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success", false));
@@ -78,7 +78,7 @@ public class ParallelCoordinatesController {
 	
 	@RequestMapping(value="/parallelFrag", method=RequestMethod.GET)
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, 	@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
-	throws SolrServerException, MalformedURLException, IOException, URISyntaxException{
+	throws SolrServerException, IOException, MalformedURLException, IOException, URISyntaxException{
 
 		long totalTime = System.currentTimeMillis();
 		if (procedureIds == null){

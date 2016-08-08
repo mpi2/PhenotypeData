@@ -22,9 +22,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
@@ -57,27 +57,27 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
     @Autowired
     @Qualifier("autosuggestIndexing")
-    private SolrServer autosuggestCore;
+    private SolrClient autosuggestCore;
 
     @Autowired
     @Qualifier("geneCore")
-    private SolrServer geneCore;
+    private SolrClient geneCore;
 
     @Autowired
     @Qualifier("mpCore")
-    private SolrServer mpCore;
+    private SolrClient mpCore;
 
     @Autowired
     @Qualifier("diseaseCore")
-    private SolrServer diseaseCore;
+    private SolrClient diseaseCore;
 
     @Autowired
     @Qualifier("anatomyCore")
-    private SolrServer anatomyCore;
+    private SolrClient anatomyCore;
 
 	@Autowired
 	@Qualifier("phenodigmCore")
-	private SolrServer phenodigmCore;
+	private SolrClient phenodigmCore;
 
 	@Autowired
    	private GwasDAO gwasDao;

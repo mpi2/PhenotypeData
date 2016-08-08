@@ -96,12 +96,12 @@ public class AnatomyController {
 	 *         error
 	 * @throws URISyntaxException
 	 * @throws IOException
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 *
 	 */
 	@RequestMapping(value = "/anatomy/{anatomy}", method = RequestMethod.GET)
 	public String loadMaPage(@PathVariable String anatomy, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws SolrServerException, IOException, URISyntaxException {
+	throws SolrServerException, IOException, IOException, URISyntaxException {
 
 		AnatomyDTO anatomyTerm = anatomyService.getTerm(anatomy);
 
@@ -168,13 +168,13 @@ public class AnatomyController {
      * @param type
      * @param model
      * @return
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      * @throws IOException
      * @throws URISyntaxException
      */
     @RequestMapping(value="/anatomyTree/json/{anatomyId}", method=RequestMethod.GET)
     public @ResponseBody String getParentChildren( @PathVariable String anatomyId, @RequestParam(value = "type", required = true) String type, Model model)
-    throws SolrServerException, IOException, URISyntaxException {
+    throws SolrServerException, IOException, IOException, URISyntaxException {
 
     	if (type.equals("parents")){
 
@@ -215,7 +215,7 @@ public class AnatomyController {
 								Model model,
 								HttpServletRequest request,
 								RedirectAttributes attributes)
-	throws SolrServerException, IOException, URISyntaxException {
+	throws SolrServerException, IOException, IOException, URISyntaxException {
 //this method doesn't get used anywhere???
     	System.out.println("calling anotomy frag");
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
@@ -249,7 +249,7 @@ public class AnatomyController {
 			phenoFacets.put(ImageDTO.PARAMETER_ASSOCIATION_VALUE, tempFromImages.get(ImageDTO.PARAMETER_ASSOCIATION_VALUE));
 			phenoFacets.put(ImageDTO.PHENOTYPING_CENTER, tempFromImages.get(ImageDTO.PHENOTYPING_CENTER));
 			phenoFacets.put(ImageDTO.PROCEDURE_NAME, tempFromImages.get(ImageDTO.PROCEDURE_NAME));
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("phenoFacets="+phenoFacets);

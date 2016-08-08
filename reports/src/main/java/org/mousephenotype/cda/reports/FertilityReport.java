@@ -161,7 +161,7 @@ public class FertilityReport extends AbstractReport {
                 csvWriter.writeRow(row);
             }
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 

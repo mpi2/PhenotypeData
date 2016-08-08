@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.indexers.utils;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -140,11 +140,11 @@ public class IndexerMap {
      *
      * @throws IndexerException
      */
-    public static Map<String, List<AlleleDTO>> getGeneToAlleles(SolrServer alleleCore) throws IndexerException {
+    public static Map<String, List<AlleleDTO>> getGeneToAlleles(SolrClient alleleCore) throws IndexerException {
         if (allelesMap == null) {
             try {
                 allelesMap = SolrUtils.populateAllelesMap(alleleCore);
-            } catch (SolrServerException e) {
+            } catch (SolrServerException | IOException e) {
                 throw new IndexerException("Unable to query allele core in SolrUtils.populateAllelesMap()", e);
             }
         }
@@ -160,11 +160,11 @@ public class IndexerMap {
      *
      * @throws IndexerException
      */
-    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
+    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrClient phenodigm_core) throws IndexerException {
         if (mpToHpTermsMap == null) {
             try {
                 mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-            }catch (SolrServerException e) {
+            }catch (SolrServerException | IOException e) {
                 throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
             }
         }
@@ -180,11 +180,11 @@ public class IndexerMap {
      *
      * @throws IndexerException
      */
-    public static List<AlleleDTO> getAlleles(SolrServer alleleCore) throws IndexerException {
+    public static List<AlleleDTO> getAlleles(SolrClient alleleCore) throws IndexerException {
         if (alleles== null) {
             try {
                 alleles = SolrUtils.getAllAlleles(alleleCore);
-            } catch (SolrServerException e) {
+            } catch (SolrServerException | IOException e) {
                 throw new IndexerException("Unable to query allele core in SolrUtils.getAllAlleles()", e);
             }
         }
@@ -201,11 +201,11 @@ public class IndexerMap {
      * indexed by ma term id.
      * @throws IndexerException
      */
-    public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrServer imagesCore) throws IndexerException {
+    public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrClient imagesCore) throws IndexerException {
         if (sangerImagesMap == null) {
             try {
                 sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
-            } catch (SolrServerException e) {
+            } catch (SolrServerException | IOException e) {
                 throw new IndexerException("Unable to query images_core in SolrUtils.populateSangerImagesMap()", e);
             }
         }
@@ -290,11 +290,11 @@ public class IndexerMap {
     }
 
 
-	public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
+	public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrClient imagesCore) throws IndexerException {
 		Map<String, List<SangerImageDTO>> map = null;
 		try {
 			map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			throw new IndexerException("Unable to query images core", e);
 		}
 		return map;

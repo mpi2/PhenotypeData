@@ -10,6 +10,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -28,30 +29,27 @@ public class ExpressionServiceTest {
 
 
 	@Test
-	public void getLacDataForAnatomogram() {
+	public void getLacDataForAnatomogram() throws IOException, SolrServerException {
 
 		expressionService.initialiseAbnormalOntologyMaps();
 		String geneAccession = "MGI:1922730";
-		try {
-			List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(geneAccession);
-			List<AnatomogramDataBean> beans = expressionService.getAnatomogramDataBeans(parameterCounts);
-			for (AnatomogramDataBean bean : beans) {
-				System.out.println("AnatomogramDataBean" + bean);
-			}
 
-
-			Map<String, Long> anatomogramDataBeans = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(beans);
-			for (String topMa : anatomogramDataBeans.keySet()) {
-				System.out.println("topMa=" + topMa + " total count " + anatomogramDataBeans.get(topMa));
-			}
-
-		} catch (SolrServerException e) {
-			e.printStackTrace();
+		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(geneAccession);
+		List<AnatomogramDataBean> beans = expressionService.getAnatomogramDataBeans(parameterCounts);
+		for (AnatomogramDataBean bean : beans) {
+			System.out.println("AnatomogramDataBean" + bean);
 		}
+
+
+		Map<String, Long> anatomogramDataBeans = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(beans);
+		for (String topMa : anatomogramDataBeans.keySet()) {
+			System.out.println("topMa=" + topMa + " total count " + anatomogramDataBeans.get(topMa));
+		}
+
 	}
 
 	@Test
-	public void getDataForAnatomyPage() throws SolrServerException {
+	public void getDataForAnatomyPage() throws SolrServerException, IOException {
 		expressionService.getFacets("MA:0000004");
 	}
 

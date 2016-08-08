@@ -138,7 +138,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
             }
             csvWriter.writeAll(result);
 
-        } catch (SolrServerException | InterruptedException | ExecutionException e) {
+        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 

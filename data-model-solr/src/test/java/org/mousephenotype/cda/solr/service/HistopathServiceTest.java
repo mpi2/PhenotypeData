@@ -1,10 +1,11 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -12,41 +13,35 @@ import java.util.List;
 public class HistopathServiceTest {
 
 
+    //TODO: Fix this test case
 
-	//TODO: Fix this test case
-
-//	@Test
-	public void getTableDataTest(){
-		//gene_accession_id:"MGI:2449119"
-		//HistoPath_1481
-		//looks like we don't pick up the associated pato term in the indexer e.g.
-		//<ontologyParameter parameterID="IMPC_HIS_119_001" sequenceID="1">
+    //	@Test
+    public void getTableDataTest() throws IOException, SolrServerException {
+        //gene_accession_id:"MGI:2449119"
+        //HistoPath_1481
+        //looks like we don't pick up the associated pato term in the indexer e.g.
+        //<ontologyParameter parameterID="IMPC_HIS_119_001" sequenceID="1">
         //<term>PATO:0001566:diffuse</term>
-		//</ontologyParameter>
+        //</ontologyParameter>
 
-		HttpSolrServer solr=new HttpSolrServer("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/");
-		ObservationService observationService= new ObservationService(solr);
-		HistopathService histopathService=new HistopathService(observationService);
+        HttpSolrClient solr = new HttpSolrClient("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/");
+        ObservationService observationService = new ObservationService(solr);
+        HistopathService histopathService = new HistopathService(observationService);
 
 
-		String geneAccession="MGI:2449119";
-		try {
-			List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
+        String geneAccession = "MGI:2449119";
+        List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
 
-			for(ObservationDTO obs: allObservations){
-				System.out.println(obs);
-			}
+        for (ObservationDTO obs : allObservations) {
+            System.out.println(obs);
+        }
 
-			List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(allObservations);
-			 for(HistopathPageTableRow row: filteredObservations){
-				 //System.out.println("row="+row);
-			 }
+        List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(allObservations);
+        for (HistopathPageTableRow row : filteredObservations) {
+            //System.out.println("row="+row);
+        }
 
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    }
 
 
 }

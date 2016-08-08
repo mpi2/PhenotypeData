@@ -1,20 +1,15 @@
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
-import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class GrossPathService {
@@ -40,7 +35,7 @@ public class GrossPathService {
 
 	}
 
-	public List<GrossPathPageTableRow> getTableData(List<ObservationDTO> allObservations) throws SolrServerException {
+	public List<GrossPathPageTableRow> getTableData(List<ObservationDTO> allObservations) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
 		downloadToImgMap = new HashMap<String, SolrDocument>();
 		System.out.println("observations for GrossPath size with normal and abnormal=" + allObservations.size());
@@ -210,7 +205,7 @@ public class GrossPathService {
 		return anatomyString;
 	}
 
-	public List<ObservationDTO> getObservationsForGrossPathForGene(String acc) throws SolrServerException {
+	public List<ObservationDTO> getObservationsForGrossPathForGene(String acc) throws SolrServerException, IOException {
 		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Gross Pathology and Tissue Collection",
 				acc, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.OBSERVATION_TYPE,
 				ObservationDTO.CATEGORY, ObservationDTO.VALUE, ObservationDTO.DOWNLOAD_FILE_PATH,

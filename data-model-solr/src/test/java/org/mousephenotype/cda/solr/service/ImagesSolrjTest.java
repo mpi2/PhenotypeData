@@ -14,6 +14,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,13 +37,13 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 	ImagesSolrJ imgJ;
 
 	@Test
-	public void testGetIdsForKeywordsSearch() throws SolrServerException {
+	public void testGetIdsForKeywordsSearch() throws SolrServerException, IOException {
 		List<String> result = imagesSolrDao.getIdsForKeywordsSearch("accession:MGI\\:1933365", 0, 10);
 		assertTrue(result.size() > 0);
 	}
 
 	@Test
-	public void testGetExperimentalFacetForGeneAccession() throws SolrServerException {
+	public void testGetExperimentalFacetForGeneAccession() throws SolrServerException, IOException {
 		String geneId = "MGI:1933365";
 		QueryResponse solrR = imagesSolrDao.getExperimentalFacetForGeneAccession(geneId);
 		assertTrue(solrR.getFacetFields().size() > 0);
@@ -50,7 +51,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 	}
 
 	@Test
-	public void testGetDocsForGeneWithFacetField() throws SolrServerException {
+	public void testGetDocsForGeneWithFacetField() throws SolrServerException, IOException {
 
 		String geneId = "MGI:4433191";
 		geneId = "MGI:97549";
@@ -72,7 +73,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 
 
 	@Test
-	public void testGetExpressionFacetForGeneAccession() throws SolrServerException {
+	public void testGetExpressionFacetForGeneAccession() throws SolrServerException, IOException {
 		QueryResponse solrR = null;
 		solrR = imagesSolrDao.getExpressionFacetForGeneAccession("MGI:104874");
 		assertTrue(solrR.getFacetFields().size() > 0);
@@ -80,7 +81,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 
 
 	@Test
-	public void testgetFilteredDocsForQuery() throws SolrServerException{
+	public void testgetFilteredDocsForQuery() throws SolrServerException, IOException {
 		String filter="expName:Wholemount Expression";
 		List<String> filters=new ArrayList<String>();
 		filters.add(filter);

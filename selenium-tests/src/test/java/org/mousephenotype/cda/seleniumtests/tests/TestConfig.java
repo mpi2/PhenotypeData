@@ -58,8 +58,10 @@ import java.net.URL;
 // NOTE: Don't use @TestPropertySource. Why? See: http://stackoverflow.com/questions/28418071/how-to-override-config-value-from-propertysource-used-in-a-configurationproper
 
 @Configuration
-@ComponentScan({"org.mousephenotype.cda"})
-@PropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@ComponentScan(value = "org.mousephenotype.cda",
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
+)
+@PropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @EnableAutoConfiguration
 public class TestConfig {
 

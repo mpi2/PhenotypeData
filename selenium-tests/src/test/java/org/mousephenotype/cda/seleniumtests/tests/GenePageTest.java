@@ -39,6 +39,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ import static com.thoughtworks.selenium.SeleneseTestNgHelper.assertEquals;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class GenePageTest {
 
@@ -306,7 +307,7 @@ public class GenePageTest {
      */
     @Test
 //@Ignore
-    public void testPageForGeneIds() throws SolrServerException {
+    public void testPageForGeneIds() throws SolrServerException, IOException {
         String testName = "testPageForGeneIds";
         List<String> geneIds = new ArrayList<>(geneService.getAllGenes());
 
@@ -326,7 +327,7 @@ public class GenePageTest {
      */
     @Test
 //@Ignore
-    public void testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI() throws SolrServerException {
+    public void testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI() throws SolrServerException, IOException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
 
@@ -353,7 +354,7 @@ public class GenePageTest {
      */
     @Test
 //@Ignore
-    public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
+    public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException, IOException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
 
@@ -380,7 +381,7 @@ public class GenePageTest {
      */
     @Test
 //@Ignore
-    public void testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException {
+    public void testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException, IOException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
 
@@ -407,7 +408,7 @@ public class GenePageTest {
      */
     @Test
 //@Ignore
-    public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
+    public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException, IOException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
 

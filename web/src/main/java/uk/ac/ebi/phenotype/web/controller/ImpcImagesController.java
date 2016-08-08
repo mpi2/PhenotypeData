@@ -59,7 +59,7 @@ public class ImpcImagesController {
 
 	@RequestMapping("/impcImages/laczimages/{acc}/{topLevelMa}")
 	public String laczImages(@PathVariable String acc, @PathVariable String topLevelMa, Model model)
-			throws SolrServerException, IOException, URISyntaxException {
+			throws SolrServerException, IOException, IOException, URISyntaxException {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
@@ -72,7 +72,7 @@ public class ImpcImagesController {
 
 	@RequestMapping("/impcImages/laczimages/{acc}")
 	public String laczImages(@PathVariable String acc, Model model)
-			throws SolrServerException, IOException, URISyntaxException {
+			throws SolrServerException, IOException, IOException, URISyntaxException {
 		addGeneToPage(acc, model);
 		boolean overview=false;
 		expressionService.getLacImageDataForGene(acc, null, overview, false, model);
@@ -81,7 +81,7 @@ public class ImpcImagesController {
 	
 	@RequestMapping("/impcImages/embryolaczimages/{acc}/{topLevelEmap}")
 	public String embryoLaczImages(@PathVariable String acc, @PathVariable String topLevelEmap, Model model)
-			throws SolrServerException, IOException, URISyntaxException {
+			throws SolrServerException, IOException, IOException, URISyntaxException {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
@@ -96,7 +96,7 @@ public class ImpcImagesController {
 
 	@RequestMapping("/impcImages/embryolaczimages/{acc}")
 	public String embryoLaczImages(@PathVariable String acc, Model model)
-			throws SolrServerException, IOException, URISyntaxException {
+			throws SolrServerException, IOException, IOException, URISyntaxException {
 		System.out.println("calling embryolaczImages web page");
 		addGeneToPage(acc, model);
 		boolean overview=false;
@@ -107,7 +107,7 @@ public class ImpcImagesController {
 	}
 
 	private void addGeneToPage(String acc, Model model)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
 		System.out.println("gene in picker="+gene);
 		model.addAttribute("gene",gene);
@@ -125,7 +125,7 @@ public class ImpcImagesController {
 
 	@RequestMapping("/impcImages/images*")
 	public String allImages(HttpServletRequest request, Model model)
-			throws SolrServerException, IOException, URISyntaxException {
+			throws SolrServerException, IOException, IOException, URISyntaxException {
 
 		// http://localhost:8080/phenotype-archive/impcImages?q=observation_type:image_record&rows=100
 		System.out.println("calling impcImages web page");

@@ -1,6 +1,6 @@
 package org.mousephenotype.cda.indexers.configuration;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,8 +9,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -50,74 +50,74 @@ public class IndexerConfig {
 
     // Indexers for writing
     @Bean
-    SolrServer observationIndexing() {
+    SolrClient observationIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/experiment", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrServer genotypePhenotypeIndexing() {
+    SolrClient genotypePhenotypeIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/genotype-phenotype", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrServer statisticalResultsIndexing() {
+    SolrClient statisticalResultsIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/statistical-result", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrServer preqcIndexing() {
+    SolrClient preqcIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/preqc", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrServer alleleIndexing() {
+    SolrClient alleleIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/allele", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrServer sangerImagesIndexing() {
+    SolrClient sangerImagesIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/images", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrServer impcImagesIndexing() {
+    SolrClient impcImagesIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/impc_images", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrServer mpIndexing() {
+    SolrClient mpIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/mp", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrServer anatomyIndexing() {
+    SolrClient anatomyIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/anatomy", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrServer pipelineIndexing() {
+    SolrClient pipelineIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/pipeline", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrServer geneIndexing() {
+    SolrClient geneIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/gene", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrServer diseaseIndexing() {
+    SolrClient diseaseIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/disease", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrServer autosuggestIndexing() {
+    SolrClient autosuggestIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/autosuggest", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrServer mgiPhenotypeIndexing() {
+    SolrClient mgiPhenotypeIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/mgi-phenotype", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrServer gwasIndexing() {
+    SolrClient gwasIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/gwas", QUEUE_SIZE, THREAD_COUNT);
     }
 
 	@Bean
-	SolrServer phenodigmIndexing() {
+	SolrClient phenodigmIndexing() {
 		return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
 	}
 

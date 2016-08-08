@@ -84,7 +84,7 @@ public class OverviewChartsController {
 		@RequestParam(required = false, value = "all_centers") String allCenters,
 		Model model,
 		HttpServletRequest request,
-		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		RedirectAttributes attributes) throws SolrServerException, IOException, IOException, URISyntaxException, SQLException{
 
 			String[] centerArray = (center != null) ? center.split(",") : null;
 			String[] sexArray = (sex != null) ? sex.split(",") : null;
@@ -97,7 +97,7 @@ public class OverviewChartsController {
 	}
 
 	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex)
-	throws SolrServerException, IOException, URISyntaxException, SQLException{
+	throws SolrServerException, IOException, IOException, URISyntaxException, SQLException{
 
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();

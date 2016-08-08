@@ -129,7 +129,7 @@ public class PhenotypeHitsReport extends AbstractReport {
                     table.add(row);
                 }
             }
-        } catch (SolrServerException | InterruptedException | ExecutionException e) {
+        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
@@ -167,7 +167,7 @@ public class PhenotypeHitsReport extends AbstractReport {
             result.add(new ArrayList<>(table));
             csvWriter.writeAllMulti(result);
 
-        } catch (SolrServerException | ExecutionException | InterruptedException  e) {
+        } catch (SolrServerException | ExecutionException | InterruptedException | IOException  e) {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 

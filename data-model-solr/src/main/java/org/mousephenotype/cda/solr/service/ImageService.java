@@ -18,7 +18,7 @@ package org.mousephenotype.cda.solr.service;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
@@ -42,9 +42,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
-
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.*;
 
 
@@ -53,7 +52,7 @@ public class ImageService implements WebStatus{
 
 	@Autowired
 	@Qualifier("impcImagesCore")
-	private HttpSolrServer solr;
+	private HttpSolrClient solr;
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
 
@@ -66,7 +65,7 @@ public class ImageService implements WebStatus{
     private String drupalBaseUrl;
 
     public List<ImageSummary> getImageSummary(String markerAccessionId)
-    throws SolrServerException{
+    throws SolrServerException, IOException {
 
     	SolrQuery q = new SolrQuery();
     	q.setQuery("*:*");
@@ -110,12 +109,12 @@ public class ImageService implements WebStatus{
      * @param paramAssoc
      * @param baseUrl
      * @return
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
 	public List<AnatomyPageTableRow> getImagesForAnatomy(String anatomyId,
 			List<String> anatomyTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc, String baseUrl)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 
@@ -188,7 +187,7 @@ public class ImageService implements WebStatus{
 	}
 
 	public Map<String, Set<String>> getFacets(String anatomyId)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		Map<String, Set<String>> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
@@ -227,7 +226,7 @@ public class ImageService implements WebStatus{
 	}
 
 	public List<DataTableRow> getImagesForGene(String geneAccession, String baseUrl)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
@@ -271,7 +270,7 @@ public class ImageService implements WebStatus{
 	}
 
 	public long getNumberOfDocuments(List<String> resourceName,
-			boolean experimentalOnly) throws SolrServerException {
+			boolean experimentalOnly) throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 		query.setRows(0);
@@ -300,10 +299,10 @@ public class ImageService implements WebStatus{
 	 *            the url from the page name onwards e.g
 	 *            q=observation_type:image_record
 	 * @return query response
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public QueryResponse getResponseForSolrQuery(String query)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		String[] paramsKeyValues = query.split("&");
@@ -324,7 +323,7 @@ public class ImageService implements WebStatus{
 	}
 
 	public static SolrQuery allImageRecordSolrQuery()
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 
 		return new SolrQuery().setQuery("observation_type:image_record")
 				.addFilterQuery(
@@ -334,7 +333,7 @@ public class ImageService implements WebStatus{
 
 	public QueryResponse getProcedureFacetsForGeneByProcedure(
 			String mgiAccession, String experimentOrControl)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 
 		// Map<String, ResponseWrapper<ImageDTO>> map=new HashMap<String,
 		// ResponseWrapper<ImageDTO>>();
@@ -362,7 +361,7 @@ public class ImageService implements WebStatus{
 			String procedure_name, String parameterStableId,
 			String experimentOrControl, int numberOfImagesToRetrieve,
 			SexType sex, String metadataGroup, String strain)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
@@ -393,7 +392,7 @@ public class ImageService implements WebStatus{
 	public QueryResponse getImagesForGeneByParameter(String mgiAccession, String parameterStableId,
 			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex,
 			String metadataGroup, String strain, String anatomyId,
-			String parameterAssociationValue, String mpId, String colonyId) throws SolrServerException {
+			String parameterAssociationValue, String mpId, String colonyId) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		//gene accession will take precedence if both acc and symbol supplied
@@ -445,10 +444,10 @@ public class ImageService implements WebStatus{
 	/**
 	 *
 	 * @return list of image DTOs with laczData. Selected fields only.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public List<ImageDTO> getImagesForLacZ()
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ*");
@@ -576,7 +575,7 @@ public class ImageService implements WebStatus{
                 res.add(row.toArray(aux));
             }
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
         return res;
@@ -593,12 +592,12 @@ public class ImageService implements WebStatus{
 	 * @param numberOfImagesToRetrieve
 	 * @param sex
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public QueryResponse getControlImagesForProcedure(String metadataGroup,
 			String center, String strain, String procedure_name,
 			String parameter, Date date, int numberOfImagesToRetrieve,
-			SexType sex) throws SolrServerException {
+			SexType sex) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 
@@ -638,9 +637,9 @@ public class ImageService implements WebStatus{
 	 * @param numberOfImagesToRetrieve
 	 * @param anatomy if this is specified then filter by parameter_association_name and don't filter on date
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public QueryResponse getControlImagesForExpressionData(int numberOfImagesToRetrieve, String anatomy) throws SolrServerException {
+	public QueryResponse getControlImagesForExpressionData(int numberOfImagesToRetrieve, String anatomy) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 
@@ -674,11 +673,11 @@ public class ImageService implements WebStatus{
 	 *            TODO
 	 * @param getForAllParameters
 	 *            TODO
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public void getImpcImagesForGenePage(String acc, Model model,
 			int numberOfControls, int numberOfExperimental,
-			boolean getForAllParameters) throws SolrServerException {
+			boolean getForAllParameters) throws SolrServerException, IOException {
 		String excludeProcedureName = null;// "Adult LacZ";// exclude adult lacz from
 													// the images section as
 													// this will now be in the
@@ -751,10 +750,10 @@ public class ImageService implements WebStatus{
 	 *            TODO
 	 * @return solr document list, now updated to include all appropriate
 	 *         control images
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public SolrDocumentList getControls(int numberOfControls, SexType sex,
-			SolrDocument imgDoc, String anatomy) throws SolrServerException {
+			SolrDocument imgDoc, String anatomy) throws SolrServerException, IOException {
 		SolrDocumentList list = new SolrDocumentList();
 		final String metadataGroup = (String) imgDoc
 				.get(ObservationDTO.METADATA_GROUP);
@@ -799,14 +798,14 @@ public class ImageService implements WebStatus{
 	 * @param filteredCounts
 	 * @param facetToDocs
 	 * @param anatomyId TODO
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public void getControlAndExperimentalImpcImages(String acc, Model model,
 			String procedureName, String parameterStableId,
 			int numberOfControls, int numberOfExperimental,
 			String excludedProcedureName, List<Count> filteredCounts,
 			Map<String, SolrDocumentList> facetToDocs, String anatomyId)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 
 		model.addAttribute("acc", acc);// forward the gene id along to the new
 										// page for links
@@ -887,7 +886,7 @@ public class ImageService implements WebStatus{
 
 	public QueryResponse getParameterFacetsForGeneByProcedure(String acc,
 			String procedureName, String controlOrExperimental)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/query?q=gene_accession_id:%22MGI:2384986%22&fq=biological_sample_group:experimental&fq=procedure_name:X-ray&facet=true&facet.field=parameter_stable_id
@@ -907,7 +906,7 @@ public class ImageService implements WebStatus{
 	}
 
 	public QueryResponse getImagesAnnotationsDetailsByOmeroId(
-			List<String> omeroIds) throws SolrServerException {
+			List<String> omeroIds) throws SolrServerException, IOException {
 
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/query?q=omero_id:(5815
@@ -924,7 +923,7 @@ public class ImageService implements WebStatus{
 
 	}
 
-	public Boolean hasImages(String geneAccessionId, String procedureName, String colonyId) throws SolrServerException {
+	public Boolean hasImages(String geneAccessionId, String procedureName, String colonyId) throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 
@@ -945,7 +944,7 @@ public class ImageService implements WebStatus{
 
 	}
 
-	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpId) throws SolrServerException {
+	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpId) throws SolrServerException, IOException {
 		//System.out.println("looking for mp term="+mpTerm +"  colony Id="+colonyId);
 		SolrQuery query = new SolrQuery();
 
@@ -967,7 +966,7 @@ public class ImageService implements WebStatus{
 		return true;
 	}
 
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 
@@ -984,7 +983,7 @@ public class ImageService implements WebStatus{
 	}
 
 
-	public SolrDocument getImageByDownloadFilePath(String downloadFilePath) throws SolrServerException {
+	public SolrDocument getImageByDownloadFilePath(String downloadFilePath) throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery(ImageDTO.DOWNLOAD_FILE_PATH+":\""+downloadFilePath+"\"").setRows(1);
@@ -1007,10 +1006,10 @@ public class ImageService implements WebStatus{
 	 *
 	 * @param acc
 	 * @return a map containing the mp and colony_id combinations so that if we have these then we show an image link on the phenotype table on the gene page. Each row in table could have a different colony_id as well as mp id
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 
-	public Map<String, Set<String>> getImagePropertiesThatHaveMp(String acc) throws SolrServerException {
+	public Map<String, Set<String>> getImagePropertiesThatHaveMp(String acc) throws SolrServerException, IOException {
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
 		Map<String, Set<String>> mpToColony = new HashMap<>();
 		SolrQuery query = new SolrQuery();

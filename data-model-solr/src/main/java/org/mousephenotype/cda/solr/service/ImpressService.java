@@ -18,7 +18,7 @@ package org.mousephenotype.cda.solr.service;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 
@@ -52,13 +53,13 @@ public class ImpressService extends BasicService implements WebStatus {
 
 	@Autowired
 	@Qualifier("pipelineCore")
-	private HttpSolrServer solr;
+	private HttpSolrClient solr;
 
 
 
 	public ImpressService(String solr) {
 		super();
-		this.solr = new HttpSolrServer(solr);
+		this.solr = new HttpSolrClient(solr);
 	}
 
 
@@ -75,7 +76,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @return
 	 */
 
-	public List<ProcedureDTO> getProceduresByPipeline(String pipelineStableId){
+	public List<ProcedureDTO> getProceduresByPipeline(String pipelineStableId) {
 
 		List<ProcedureDTO> procedures = new ArrayList<>();
 
@@ -103,7 +104,7 @@ public class ImpressService extends BasicService implements WebStatus {
 				procedures.add(procedure);
 			}
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -112,7 +113,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 
 
-	public Set<ImpressDTO> getProceduresByMpTerm(String mpTermId){
+	public Set<ImpressDTO> getProceduresByMpTerm(String mpTermId) throws IOException {
 
 		try {
 			SolrQuery query = new SolrQuery()
@@ -135,7 +136,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 			return new HashSet<>(res.values());
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -170,7 +171,7 @@ public class ImpressService extends BasicService implements WebStatus {
     			}
     		}
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
 
@@ -223,7 +224,7 @@ public class ImpressService extends BasicService implements WebStatus {
 				}
 			}
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -236,10 +237,10 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @author tudose
 	 * @param pipelineStableId
 	 * @return Pipeline in an object of type ImpressBean
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public ImpressBaseDTO getPipeline(String pipelineStableId)
-	throws SolrServerException{
+			throws SolrServerException, IOException, IOException {
 
 		SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
@@ -277,7 +278,7 @@ public class ImpressService extends BasicService implements WebStatus {
 			procedure.setStableKey(imd.getProcedureStableKey());
 			return procedure;
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -304,7 +305,7 @@ public class ImpressService extends BasicService implements WebStatus {
 			procedure.setName(imd.getProcedureName().toString());
 			return procedure;
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -323,7 +324,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 			return response.getBeans(ImpressDTO.class).get(0).getParameterId();
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -342,7 +343,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableKey();
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -356,10 +357,10 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @param procedureStableIds
 	 * @param observationType
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public List<ParameterDTO> getParametersByProcedure(List<String> procedureStableIds, String observationType)
-	throws SolrServerException{
+	throws SolrServerException, IOException, IOException{
 
 		
 		List<ParameterDTO> parameters = new ArrayList<>();
@@ -405,7 +406,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 			return response.get(0).getPipelineStableKey();
 
-		} catch (SolrServerException | IndexOutOfBoundsException e) {
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -470,7 +471,7 @@ public class ImpressService extends BasicService implements WebStatus {
 					idToAbnormalMaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getMaTermId(),pipe.getMaName()));
 				}
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 		return idToAbnormalMaId;
@@ -493,7 +494,7 @@ public class ImpressService extends BasicService implements WebStatus {
 					idToAbnormalEmapaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getAnatomyId(),pipe.getAnatomyTerm()));
 				}
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 		return idToAbnormalEmapaId;
@@ -505,10 +506,10 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @since 2015/08/20
 	 * @param stableId
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public ParameterDTO getParameterByStableId(String stableId)
-	throws SolrServerException{
+	throws SolrServerException, IOException, IOException {
 
 		ParameterDTO param = new ParameterDTO();
 		SolrQuery query = new SolrQuery()
@@ -531,7 +532,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
-	public Map<String, Set<String>> getMpsForProcedures() throws SolrServerException {
+	public Map<String, Set<String>> getMpsForProcedures() throws SolrServerException, IOException, IOException {
 
 		Map<String, Set<String>> mpsByProcedure = new HashMap<>();
 
@@ -562,7 +563,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

@@ -22,9 +22,9 @@ import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.utilities.HttpProxy;
@@ -58,27 +58,27 @@ public class SolrIndex {
 
 	@Autowired
 	@Qualifier("autosuggestCore")
-	HttpSolrServer autosuggestCore;
+	HttpSolrClient autosuggestCore;
 
 	@Autowired
 	@Qualifier("mpCore")
-	HttpSolrServer mpCore;
+	HttpSolrClient mpCore;
 
 	@Autowired
 	@Qualifier("geneCore")
-	HttpSolrServer geneCore;
+	HttpSolrClient geneCore;
 
 	@Autowired
 	@Qualifier("diseaseCore")
-	HttpSolrServer diseaseCore;
+	HttpSolrClient diseaseCore;
 
 	@Autowired
 	@Qualifier("anatomyCore")
-	HttpSolrServer anatomyCore;
+	HttpSolrClient anatomyCore;
 
 	@Autowired
 	@Qualifier("impcImagesCore")
-	HttpSolrServer impcImagesCore;
+	HttpSolrClient impcImagesCore;
 
 
 	private List<String> phenoStatuses = new ArrayList<String>();
@@ -86,7 +86,7 @@ public class SolrIndex {
 	private Object Json;
 
 
-	public SolrServer getSolrServer(String corename){
+	public SolrClient getSolrServer(String corename){
 
 		switch (corename){
 			case "autosuggest" : return autosuggestCore;
@@ -187,9 +187,9 @@ public class SolrIndex {
 	}
 
 
-	public QueryResponse getBatchQueryJson(String idlist, String fllist, String dataTypeName) throws SolrServerException {
+	public QueryResponse getBatchQueryJson(String idlist, String fllist, String dataTypeName) throws SolrServerException, IOException {
 
-		SolrServer server = null;
+		SolrClient server = null;
 
 		Map<String, String> coreIdQMap = coreIdQMap();
 		String qField = coreIdQMap.get(dataTypeName);
@@ -713,7 +713,7 @@ public class SolrIndex {
 	}
 
 
-	public JSONObject getImageInfo(int imageId) throws SolrServerException,
+	public JSONObject getImageInfo(int imageId) throws SolrServerException, IOException,
 			IOException, URISyntaxException {
 
 		String url = SolrUtils.getBaseURL(getSolrServer("images"))
@@ -734,7 +734,7 @@ public class SolrIndex {
 	}
 
 	public Map<String, JSONObject> getExampleImages(int controlImageId,
-			int expImageId) throws SolrServerException, IOException,
+			int expImageId) throws SolrServerException, IOException, IOException,
 			URISyntaxException {
 		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
 		JSONObject controlDocument = this.getImageInfo(controlImageId);

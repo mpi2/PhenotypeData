@@ -21,9 +21,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
@@ -67,19 +67,19 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	@Autowired
 	@Qualifier("phenodigmCore")
-	private SolrServer phenodigmCore;
+	private SolrClient phenodigmCore;
 
     @Autowired
     @Qualifier("alleleCore")
-    private SolrServer alleleCore;
+    private SolrClient alleleCore;
 
     @Autowired
     @Qualifier("preqcCore")
-    private SolrServer preqcCore;
+    private SolrClient preqcCore;
 
     @Autowired
     @Qualifier("genotypePhenotypeCore")
-    private SolrServer genotypePhenotypeCore;
+    private SolrClient genotypePhenotypeCore;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -94,7 +94,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
      */
     @Autowired
     @Qualifier("mpIndexing")
-    private SolrServer mpIndexing;
+    private SolrClient mpIndexing;
 
     @Autowired
     MpOntologyDAO mpOntologyService;
@@ -242,16 +242,16 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
     private int sumPhenotypingCalls(String mpId)
-    throws SolrServerException {
+    throws SolrServerException, IOException {
 
-    	List<SolrServer> ss = new ArrayList<>();
+    	List<SolrClient> ss = new ArrayList<>();
     	ss.add(preqcCore);
     	ss.add(genotypePhenotypeCore);
 
     	int calls = 0;
     	for ( int i=0; i<ss.size(); i++ ){
 
-    		SolrServer solrSvr = ss.get(i);
+    		SolrClient solrSvr = ss.get(i);
 
 	    	SolrQuery query = new SolrQuery();
 
@@ -358,7 +358,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 beans.get(doc.getMpId()).add(doc);
                 count ++;
             }
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 

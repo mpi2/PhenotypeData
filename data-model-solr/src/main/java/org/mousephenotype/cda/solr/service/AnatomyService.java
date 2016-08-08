@@ -15,15 +15,9 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -37,27 +31,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.*;
+
 @Service
 public class AnatomyService extends BasicService implements WebStatus {
 
 	@Autowired
 	@Qualifier("anatomyCore")
-	private HttpSolrServer solr;
+	private HttpSolrClient solr;
 
 	public AnatomyService() {
 	}
 
 	public AnatomyService(String anatomyServiceUrl) {
-		this.solr = new HttpSolrServer(anatomyServiceUrl);
+		this.solr = new HttpSolrClient(anatomyServiceUrl);
 	}
 
 	/**
 	 * Return an MA term
 	 *
 	 * @return single anatomy term from the anatomy core.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException, IOException
 	 */
-	public AnatomyDTO getTerm(String id) throws SolrServerException {
+	public AnatomyDTO getTerm(String id) throws SolrServerException, IOException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery().setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"").setRows(1);
 
@@ -75,9 +72,9 @@ public class AnatomyService extends BasicService implements WebStatus {
 	 * Return all anatomy terms from the anatomy core.
 	 *
 	 * @return all anas from the anatomy core.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException, IOException
 	 */
-	public List<AnatomyDTO> getAllMaTerms() throws SolrServerException {
+	public List<AnatomyDTO> getAllMaTerms() throws SolrServerException, IOException, IOException {
 
 		//System.out.println("SOLR: " + solr.getBaseURL());
 		SolrQuery solrQuery = new SolrQuery();
@@ -96,10 +93,10 @@ public class AnatomyService extends BasicService implements WebStatus {
 	 * @since 2016/05/03
 	 * @param id
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException, IOException
 	 */
 	public List<OntologyBean> getParents(String id) 
-	throws SolrServerException {
+	throws SolrServerException, IOException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"")
@@ -140,10 +137,10 @@ public class AnatomyService extends BasicService implements WebStatus {
 	 * @since 2016/05/03
 	 * @param id
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException, IOException
 	 */
 	public List<OntologyBean> getChildren(String id) 
-	throws SolrServerException {
+	throws SolrServerException, IOException, IOException {
 
 			SolrQuery solrQuery = new SolrQuery()
 				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"")
@@ -173,7 +170,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 	}
 	
 	
-	public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException {
+	public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException, IOException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.addFacetField("top_level_mp_term_id");
@@ -195,7 +192,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		return allTopLevelPhenotypes;
 	}
 
-	public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException {
+	public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException, IOException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
@@ -214,7 +211,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		return children;
 	}
 
-	public AnatomogramDataBean getUberonIdAndTopLevelMaTerm(AnatomogramDataBean bean) throws SolrServerException {
+	public AnatomogramDataBean getUberonIdAndTopLevelMaTerm(AnatomogramDataBean bean) throws SolrServerException, IOException, IOException {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + bean.getMaId() + "\"");
 		solrQuery.setFields(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
@@ -254,7 +251,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 	}
 
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);
@@ -273,7 +270,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 
 
 	public String getSearchTermJson(String anatomyTermId)
-			throws SolrServerException{
+			throws SolrServerException, IOException, IOException{
 
 		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + anatomyTermId + "\"")
@@ -288,7 +285,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 	}
 
 	public String getChildrenJson(String nodeId, String termId)
-			throws SolrServerException{
+			throws SolrServerException, IOException, IOException{
 
 		// Node_id is unique in ontodb for each ontology.
 		// But we are mixing ontologies here so need to use a combination of node_id and anotomy_id prefix for uniqueness

@@ -107,7 +107,7 @@ public class ImagesController {
 			@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId, 
 			HttpServletRequest request, 
 			Model model)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		handleImagesRequest(request, start, length, qIn, mpId, geneId, filterField, qf, defType, maId, model);
 
@@ -119,7 +119,7 @@ public class ImagesController {
 
 	@RequestMapping("/imagesb*")
 	public String allImagesb(@RequestParam(required = false, defaultValue = "0", value = "start") int start, @RequestParam(required = false, defaultValue = "25", value = "length") int length, @RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn, @RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId, @RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId, @RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField, @RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField, @RequestParam(required = false, defaultValue = "", value = "qf") String qf, @RequestParam(required = false, defaultValue = "", value = "defType") String defType, @RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId, HttpServletRequest request, Model model)
-	throws SolrServerException, IOException, URISyntaxException {
+	throws SolrServerException, IOException, IOException, URISyntaxException {
 
 		// only need to send the solr query part of the url to solr
 		sendQueryStringToSolr(request, model);
@@ -322,7 +322,7 @@ public class ImagesController {
 
 
 	private void handleImagesRequest(HttpServletRequest request, int start, int length, String q, String mpId, String geneId, String[] filterField, String qf, String defType, String maId, Model model)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		System.out.println("query string=" + request.getQueryString());
 		String queryTerms = ""; // used for a human readable String of the query

@@ -18,7 +18,7 @@ package uk.ac.ebi.phenodigm.dao;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,7 @@ import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseGeneAssociationDetail;
 import uk.ac.ebi.phenodigm.web.GeneAssociationSummary;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,7 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
     private static final int ROWS = 10000;
 
     @Autowired @Qualifier("phenodigmCore")
-    private HttpSolrServer phenodigmCore;
+    private HttpSolrClient phenodigmCore;
 
     @Override
     public Disease getDisease(DiseaseIdentifier diseaseId) {
@@ -87,8 +88,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
             disease.setClasses(phenodigm.getDiseaseClasses());
 
             logger.debug("Made {}", disease);
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+        } catch (SolrServerException | IOException e) {
+            logger.error(e.getMessage());
         }
 
         return disease;
@@ -121,8 +122,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
                 phenotypeList.add(phenotype);
             }
 
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+        } catch (SolrServerException | IOException e) {
+            logger.error(e.getMessage());
         }
 
         return phenotypeList;
@@ -164,8 +165,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
             gene = new Gene(modelGeneId, humanGeneId);
 
             logger.debug("Made {}", gene);
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+        } catch (SolrServerException | IOException e) {
+            logger.error(e.getMessage());
         }
 
         return gene;
@@ -234,8 +235,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
                 geneAssociationSummaryList.add(geneAssociationSummary);
             }
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+        } catch (SolrServerException | IOException e) {
+            logger.error(e.getMessage());
         }
         return geneAssociationSummaryList;
     }
@@ -286,8 +287,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
 
                 diseaseAssociationSummaryList.add(diseaseAssociationSummary);
             }
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+        } catch (SolrServerException | IOException e) {
+            logger.error(e.getMessage());
         }
         return diseaseAssociationSummaryList;
     }
@@ -333,8 +334,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
                 logger.debug("Made {}", diseaseModelAssociation);
                 diseaseAssociationSummaryList.add(diseaseModelAssociation);
             }
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+        } catch (SolrServerException | IOException e)  {
+            logger.error(e.getMessage());
         }
 
         //build the DiseaseGeneAssociationDetail from the component parts
@@ -406,8 +407,8 @@ public class PhenoDigmWebDaoSolrImpl implements PhenoDigmWebDao {
                 logger.debug("Made {}", model);
                 modelMap.put(model.getMgiModelId(), model);
             }
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+        } catch (SolrServerException | IOException e) {
+            logger.error(e.getMessage());
         }
 
         return modelMap;
