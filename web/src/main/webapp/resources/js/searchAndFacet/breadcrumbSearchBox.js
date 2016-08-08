@@ -131,7 +131,7 @@ $(document).ready(function () {
 		$("input#s").val('');
 	});
 
-	solrUrl = "http://localhost:8090/solr";
+	
 	$( "input#s" ).autocomplete({
 		source: function( request, response ) {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
