@@ -39,6 +39,9 @@ span.category {
 	color: #EF7B0B !important;
 	font-weight: bold;
 }
+span.sugList {
+	color: black;
+}
 
 /* New Facet Block without IDs */
 div.ffilter {
