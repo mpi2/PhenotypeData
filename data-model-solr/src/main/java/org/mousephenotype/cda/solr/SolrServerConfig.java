@@ -98,11 +98,8 @@ public class SolrServerConfig {
 
 	//Autosuggest
 	@Bean(name = "autosuggestCore")
-//	HttpSolrServer getAutosuggestCore() {
-//		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
-//	}
 	HttpSolrServer getAutosuggestCore() {
-		return new HttpSolrServer("http://localhost:8090/solr" + "/autosuggest");
+		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
 	}
 
 	//Disease
@@ -114,7 +111,7 @@ public class SolrServerConfig {
 	//Gene
 	@Bean(name = "geneCore")
 	HttpSolrServer getGeneCore() {
-		return new HttpSolrServer("http://localhost:8090/solr" + "/gene");
+		return new HttpSolrServer(solrBaseUrl + "/gene");
 	}
 
 	//GenotypePhenotype
