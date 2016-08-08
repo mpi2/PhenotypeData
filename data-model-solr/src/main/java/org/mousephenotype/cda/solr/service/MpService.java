@@ -43,14 +43,14 @@ public class MpService extends BasicService implements WebStatus{
 
 	@Autowired
 	@Qualifier("mpCore")
-    private HttpSolrServer solr;
+	private HttpSolrServer solr;
 
 	public MpService() {
 	}
 
 
 	public List<MpDTO> getAllMpWithMaMapping()
-	throws SolrServerException{
+			throws SolrServerException{
 
 		SolrQuery q = new SolrQuery();
 		q.setRows(Integer.MAX_VALUE);
@@ -71,8 +71,8 @@ public class MpService extends BasicService implements WebStatus{
 	public MpDTO getPhenotype(String id) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
-			.setRows(1);
+				.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
+				.setRows(1);
 
 		System.out.println(solrQuery.toString());
 		QueryResponse rsp = solr.query(solrQuery);
@@ -92,10 +92,10 @@ public class MpService extends BasicService implements WebStatus{
 	 * @throws SolrServerException
 	 */
 	public List<MpDTO> getPhenotypes(List<String> ids)
-	throws SolrServerException {
+			throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\"");
+				.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\"");
 
 		QueryResponse rsp = solr.query(solrQuery);
 		return rsp.getBeans(MpDTO.class);
@@ -113,8 +113,8 @@ public class MpService extends BasicService implements WebStatus{
 	public List<OntologyBean> getParents(String id) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
-			.setRows(1);
+				.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
+				.setRows(1);
 
 		QueryResponse rsp = solr.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
@@ -128,7 +128,7 @@ public class MpService extends BasicService implements WebStatus{
 			if (mps.get(0).getTopLevelMpId() != null && mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
 				for (int i = 0; i < mps.get(0).getTopLevelMpId().size(); i++){
 					parents.add(new OntologyBean(mps.get(0).getTopLevelMpId().get(i),
-						shortenLabel(mps.get(0).getTopLevelMpTerm().get(i))));
+							shortenLabel(mps.get(0).getTopLevelMpTerm().get(i))));
 				}
 			}
 			return parents;
@@ -155,7 +155,7 @@ public class MpService extends BasicService implements WebStatus{
 	 * @throws SolrServerException
 	 */
 	public String getSearchTermJson(String mpTermId)
-	throws SolrServerException{
+			throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_ID + ":\"" + mpTermId + "\"")
@@ -177,7 +177,7 @@ public class MpService extends BasicService implements WebStatus{
 	 * @throws SolrServerException
 	 */
 	public String getChildrenJson(String nodeId, String termId)
-	throws SolrServerException{
+			throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
@@ -199,60 +199,60 @@ public class MpService extends BasicService implements WebStatus{
 	 */
 	public List<OntologyBean> getChildren(String id) throws SolrServerException {
 
-			SolrQuery solrQuery = new SolrQuery()
+		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
 				.setRows(1);
 
-			QueryResponse rsp = solr.query(solrQuery);
-			List<MpDTO> mps = rsp.getBeans(MpDTO.class);
-			List<OntologyBean> children = new ArrayList<>();
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+		List<OntologyBean> children = new ArrayList<>();
 
-			if (mps.size() > 1){
-				throw new Error("More documents in MP core for the same MP id: " + id);
-			}
+		if (mps.size() > 1){
+			throw new Error("More documents in MP core for the same MP id: " + id);
+		}
 
-			if (mps.get(0).getChildMpTerm() == null || mps.get(0).getChildMpTerm().size() == 0){
-				return children;
-			}
-
-			if (mps.get(0).getChildMpTerm().size() != mps.get(0).getChildMpId().size()){
-				throw new Error("Length of children id list and children term list does not match for MP id: " + id);
-			}
-
-			for (int i = 0; i < mps.get(0).getChildMpId().size(); i++){
-				children.add(new OntologyBean(mps.get(0).getChildMpId().get(i),
-						shortenLabel(mps.get(0).getChildMpTerm().get(i))));
-			}
-
+		if (mps.get(0).getChildMpTerm() == null || mps.get(0).getChildMpTerm().size() == 0){
 			return children;
+		}
+
+		if (mps.get(0).getChildMpTerm().size() != mps.get(0).getChildMpId().size()){
+			throw new Error("Length of children id list and children term list does not match for MP id: " + id);
+		}
+
+		for (int i = 0; i < mps.get(0).getChildMpId().size(); i++){
+			children.add(new OntologyBean(mps.get(0).getChildMpId().get(i),
+					shortenLabel(mps.get(0).getChildMpTerm().get(i))));
+		}
+
+		return children;
 	}
 
 
-    /**
-     * Return all phenotypes from the mp core.
-     *
-     * @return all genes from the gene core.
-     * @throws SolrServerException
-     */
-    public Set<String> getAllPhenotypes() throws SolrServerException {
+	/**
+	 * Return all phenotypes from the mp core.
+	 *
+	 * @return all genes from the gene core.
+	 * @throws SolrServerException
+	 */
+	public Set<String> getAllPhenotypes() throws SolrServerException {
 
-        SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(MpDTO.MP_ID + ":*");
-        solrQuery.setFields(MpDTO.MP_ID);
-        solrQuery.setRows(1000000);
-        QueryResponse rsp;
-        rsp = solr.query(solrQuery);
-        List<MpDTO> mps = rsp.getBeans(MpDTO.class);
-        Set<String> allPhenotypes = new HashSet<String>();
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(MpDTO.MP_ID + ":*");
+		solrQuery.setFields(MpDTO.MP_ID);
+		solrQuery.setRows(1000000);
+		QueryResponse rsp;
+		rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+		Set<String> allPhenotypes = new HashSet<String>();
 
-        for (MpDTO mp : mps) {
-            allPhenotypes.add(mp.getMpId());
-        }
+		for (MpDTO mp : mps) {
+			allPhenotypes.add(mp.getMpId());
+		}
 
-        return allPhenotypes;
-    }
+		return allPhenotypes;
+	}
 
-    public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException{
+	public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.addFacetField("top_level_mp_term_id");
@@ -274,47 +274,47 @@ public class MpService extends BasicService implements WebStatus{
 		return allTopLevelPhenotypes;
 	}
 
-    public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException{
+	public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException{
 
-    	SolrQuery solrQuery = new SolrQuery();
-    	solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
-    	solrQuery.setFields(MpDTO.CHILD_MP_ID);
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
+		solrQuery.setFields(MpDTO.CHILD_MP_ID);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		ArrayList<String> children = new ArrayList<String>();
 
-        for (SolrDocument doc : res) {
-        	if (doc.containsKey(MpDTO.CHILD_MP_ID)){
-        		for (Object child: doc.getFieldValues(MpDTO.CHILD_MP_ID)){
-        			children.add((String)child);
-        		}
-        	}
-        }
-        return children;
-    }
+		for (SolrDocument doc : res) {
+			if (doc.containsKey(MpDTO.CHILD_MP_ID)){
+				for (Object child: doc.getFieldValues(MpDTO.CHILD_MP_ID)){
+					children.add((String)child);
+				}
+			}
+		}
+		return children;
+	}
 
-    // get computationally mapped HP terms of MP from Solr json doc of an MP
-    public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc){
-    	// this mapping is computational
-    	List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
-    	List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));
+	// get computationally mapped HP terms of MP from Solr json doc of an MP
+	public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc){
+		// this mapping is computational
+		List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
+		List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));
 		Map<String, SimpleOntoTerm> computationalHPTerms = new HashMap<>();
 
-    	for ( int i=0; i< hpIds.size(); i++  ){
-    		SimpleOntoTerm term = new SimpleOntoTerm();
-    		term.setTermId(hpIds.get(i));
-    		term.setTermName(hpTerms.get(i));
+		for ( int i=0; i< hpIds.size(); i++  ){
+			SimpleOntoTerm term = new SimpleOntoTerm();
+			term.setTermId(hpIds.get(i));
+			term.setTermName(hpTerms.get(i));
 
 			computationalHPTerms.put(hpIds.get(i), term);
 		}
 
 		return new HashSet<SimpleOntoTerm>(computationalHPTerms.values());
 
-    }
+	}
 
 	@Override
 	public long getWebStatus()
-	throws SolrServerException {
+			throws SolrServerException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("*:*").setRows(0);
