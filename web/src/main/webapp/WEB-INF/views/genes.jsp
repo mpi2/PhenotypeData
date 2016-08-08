@@ -122,7 +122,9 @@
 
 							if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
 								$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
+								$('#phenotypeTableDiv').toggleClass('hidden');
 								if(!heatmap_generated){
+<<<<<<< HEAD
 
 
 
@@ -130,6 +132,10 @@
 
 									//load the js required to make the heatmap css as well on dev took 600ms or more.
 
+=======
+																		
+									//load the js required to make the heatmap css as well on dev took 600ms or more.
+>>>>>>> master
 									var script = document.createElement('script');
 									script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
 									script.onload = function () {
@@ -158,25 +164,22 @@
 										heatmap_generated=1;
 
 									};
+<<<<<<< HEAD
 
 								document.head.appendChild(script);
 
 
 
+=======
+									document.head.appendChild(script);
+>>>>>>> master
 								}//end of if heatmap generated
 
 						}
 
 
 						});
-						
-						
-
-//						$('li.showAdultImage').click(function(){
-//							$("#exptabs").tabs({ active: 1 });
-//						});
-
-
+						 
 					});
 				</script>
 				<style>
@@ -405,39 +408,16 @@
 								</h2>
 
 								<div class="inner">
-
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
 									
-									<a id="heatmap_link">Show Preliminary Data</a>
+									
 								</div>
 
 							</div>
 							<!-- end of Phenotype Associations -->
 
 
-							<!-- phenotype heatmap -->
-							<c:if test="${phenotypeStarted}">
-
-								<div id="heatmap_toggle_div" class="section hidden">
-									<h2 class="title" id="heatmap">Phenotype heatmap <span
-											class="documentation"><a href='' id='heatmapSection'
-																	 class="fa fa-question-circle pull-right"></a></span>
-									</h2>
-
-									<div class="inner">
-										<div class="alert alert-info">
-
-											<p>These are the results of a preliminary statistical analysis. Data are still
-												in the process of being quality controlled and results may change.</p>
-										</div>
-									</div>
-									<div class="dcc-heatmap-root">
-										<div class="phenodcc-heatmap"
-											 id="phenodcc-heatmap"></div>
-									</div>
-								</div>
-								<!-- end of Pre-QC phenotype heatmap -->
-							</c:if>
+							
 
 							<c:if test="${not empty imageErrors}">
 								<div class="row-fluid dataset">
@@ -602,21 +582,24 @@
 								</div>
 							</div><!-- end of IMPC / legacy Expressions -->
 
+						
+							
+							
 							<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
 							<div class="section">
-								<h2 class="title" id="section-images">Phenotype Associated Images
+								<h2 class="title" id="section-images">Phenotype Associated Images new
 									<span class="documentation"><a href="" id="phenoAssocImgSection" class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
 								<div class="inner" style="display: block;">
-									<c:if test="${empty impcImageFacets and empty solrFacets}">
+									<c:if test="${empty impcImageGroups and empty solrFacets}">
 										<div class="alert alert_info">Phenotype associated images not available</div>
 									</c:if>
 
-									<c:if test="${not empty impcImageFacets or not empty solrFacets}">
-										<c:if test="${not empty impcImageFacets}">
+									<c:if test="${not empty impcImageGroups or not empty solrFacets}">
+										<c:if test="${not empty impcImageGroups}">
 											<h5 class="sectHint">IMPC Phenotype Associated Images</h5>
-											<jsp:include page="genesImpcPhenoAssocImg_frag.jsp"></jsp:include>
+											<jsp:include page="genesImpcImagesAssocFrag.jsp"></jsp:include>
 										</c:if>
 
 										<c:if test="${not empty impcImageFacets and not empty solrFacets}">
@@ -698,7 +681,17 @@
 								<div id="allele2"></div>
 							</div>
 						</div><!-- End of Order Mouse and ES Cells -->
+						
+						
+						<div class="section" id="order2">
+							<h2 class="title documentation" id="order-panel">Order Mouse and ES Cells<span
+									class="documentation"><a href='' id='orderSection' class="fa fa-question-circle pull-right"></a></span>
+							</h2>
 
+							<div class="inner">
+								<div id="order_product"></div>
+							</div>
+						</div>
 
 					</div>	<!--end of node wrapper: immediate container of all sections  -->
 				</div> <!-- end of content -->
@@ -756,11 +749,6 @@
 					var maId2UberonMap = expData.maId2UberonMap;
 					var uberon2MaIdMap = expData.uberon2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
-
-					//console.log("no expression: ")
-					//console.log(expData.noExpression);
-					//console.log("all paths: ")
-					//console.log(expData.allPaths);
 
 					var anatomogramData = {
 

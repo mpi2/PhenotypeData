@@ -15,14 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -41,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 
 /**
@@ -78,7 +72,6 @@ public class ImpressService extends BasicService implements WebStatus {
 	/**
 	 * @since 2015/07/17
 	 * @author tudose
-	 * @param procedureStableIdRegex
 	 * @return
 	 */
 
@@ -376,7 +369,7 @@ public class ImpressService extends BasicService implements WebStatus {
 			query.setFilterQueries(ImpressDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedureStableIds, "* OR " + ImpressDTO.PROCEDURE_STABLE_ID + ":") + "*");
 		}
 		query.setFields(ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.PARAMETER_STABLE_KEY,
-				ImpressDTO.UNIT, ImpressDTO.REQUIRED, ImpressDTO.PROCEDURE_NAME);
+				ImpressDTO.UNITX,ImpressDTO.UNITY, ImpressDTO.REQUIRED, ImpressDTO.PROCEDURE_NAME);
 		if (observationType != null){
 			query.addFilterQuery(ImpressDTO.OBSERVATION_TYPE + ":" + observationType);
 		}
@@ -390,7 +383,8 @@ public class ImpressService extends BasicService implements WebStatus {
 			param.setStableKey(doc.getParameterStableKey());
 			param.setName(doc.getParameterName());
 			param.setId(doc.getParameterId());
-			param.setUnit(doc.getUnit());
+			param.setUnitX(doc.getUnitX());
+			param.setUnitY(doc.getUnitY());
 			param.setRequired(doc.isRequired());
 			param.addProcedureNames(doc.getProcedureName());
 			parameters.add(param);
@@ -519,15 +513,19 @@ public class ImpressService extends BasicService implements WebStatus {
 		ParameterDTO param = new ParameterDTO();
 		SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
-				.setFields(ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_STABLE_KEY, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.OBSERVATION_TYPE)
+				.setFields(ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_STABLE_KEY, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.OBSERVATION_TYPE, ImpressDTO.CATEGORIES,
+						ImpressDTO.UNITX, ImpressDTO.UNITY)
 				.setRows(1);
 		QueryResponse response = solr.query(query);
 		ImpressDTO dto = response.getBeans(ImpressDTO.class).get(0);
 		param.setId(dto.getParameterId());
 		param.setStableId(dto.getParameterStableId());
 		param.setStableKey(dto.getParameterStableKey());
+		param.setUnitX(dto.getUnitX());
+		param.setUnitY(dto.getUnitY());
 		param.setName(dto.getParameterName());
 		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
+		param.setCategories(dto.getCategories());
 
 		return param;
 	}

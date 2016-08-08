@@ -210,7 +210,6 @@ $(document).ready(function () {
 					for ( var k in aKVtmpSorted ){
 
 						for ( var v in aKVtmpSorted[k] ) {
-
 							dataTypeVal.push(aKVtmpSorted[k][v]);
 						}
 					}

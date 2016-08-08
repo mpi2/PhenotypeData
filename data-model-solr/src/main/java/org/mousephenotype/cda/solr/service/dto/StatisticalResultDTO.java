@@ -173,7 +173,7 @@ public class StatisticalResultDTO {
     public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
     public final static String PROJECT_ID = "project_id";
     public final static String PHENOTYPE_SEX = "phenotype_sex";
-    
+
     // Mapped anatomy terms from MP.
     public static final String ANATOMY_TERM_NAME = "anatomy_term_name";
     public static final String ANATOMY_TERM_ID = "anatomy_term_id";
@@ -181,7 +181,9 @@ public class StatisticalResultDTO {
     public static final String INTERMEDIATE_ANATOMY_TERM_NAME = "intermediate_anatomy_term_name";
     public static final String TOP_LEVEL_ANATOMY_TERM_ID = "top_level_anatomy_term_id";
     public static final String TOP_LEVEL_ANATOMY_TERM_NAME = "top_level_anatomy_term_name";
-    
+
+	public static final String SIGNIFICANT = "significant";
+
 
 	@Id
     @Field(DOCUMENT_ID)
@@ -195,13 +197,13 @@ public class StatisticalResultDTO {
 
     @Field(ANATOMY_TERM_NAME)
     List<String> anatomyTermName;
-    
+
     @Field(INTERMEDIATE_ANATOMY_TERM_ID)
     List<String> intermediateAnatomyTermId;
 
     @Field(INTERMEDIATE_ANATOMY_TERM_NAME)
     List<String> intermediateAnatomyTermName;
-    
+
     @Field(TOP_LEVEL_ANATOMY_TERM_ID)
     List<String> topLevelAnatomyTermId;
 
@@ -571,7 +573,9 @@ public class StatisticalResultDTO {
     @Field(PROJECT_ID)
     private Integer projectId;
 
-    
+	@Field
+	private Boolean significant;
+
 
     public String getDocId() {
 
@@ -1940,6 +1944,14 @@ public class StatisticalResultDTO {
 		this.phenotypeSex = phenotypeSex;
 	}
 
+	public Boolean getSignificant() {
+		return significant;
+	}
+
+	public void setSignificant(Boolean significant) {
+		this.significant = significant;
+	}
+
 	public void addPhenotypeSex(String phenotypeSex) {
 
 		if (this.phenotypeSex == null){
@@ -1952,7 +1964,7 @@ public class StatisticalResultDTO {
 	public List<String> getAnatomyTermId() {
 		return anatomyTermId;
 	}
-	
+
 	public void addAnatomyTermId(String anatomyTermId){
 		if (this.anatomyTermId == null){
 			this.anatomyTermId = new ArrayList<>();
@@ -1978,7 +1990,7 @@ public class StatisticalResultDTO {
 		}
 		this.anatomyTermName.add(anatomyTermName);
 	}
-	
+
 
 	public List<String> getIntermediateAnatomyTermId() {
 		return intermediateAnatomyTermId;
@@ -1994,7 +2006,7 @@ public class StatisticalResultDTO {
 		}
 		this.intermediateAnatomyTermId.add(intermediateAnatomyTermId);
 	}
-	
+
 	public void addIntermediateAnatomyTermId(Collection<String> intermediateAnatomyTermIds){
 		if (this.intermediateAnatomyTermId == null){
 			this.intermediateAnatomyTermId = new ArrayList<>();
@@ -2005,7 +2017,7 @@ public class StatisticalResultDTO {
 			}
 		}
 	}
-	
+
 	public List<String> getIntermediateAnatomyTermName() {
 		return intermediateAnatomyTermName;
 	}
@@ -2020,7 +2032,7 @@ public class StatisticalResultDTO {
 		}
 		this.intermediateAnatomyTermName.add(intermediateAnatomyTermName);
 	}
-	
+
 	public void addIntermediateAnatomyTermName(Collection<String> intermediateAnatomyTermName){
 		if (this.intermediateAnatomyTermName == null){
 			this.intermediateAnatomyTermName = new ArrayList<>();
@@ -2031,7 +2043,7 @@ public class StatisticalResultDTO {
 			}
 		}
 	}
-	
+
 	public List<String> getTopLevelAnatomyTermId() {
 		return topLevelAnatomyTermId;
 	}
@@ -2039,14 +2051,14 @@ public class StatisticalResultDTO {
 	public void setTopLevelAnatomyTermId(List<String> topLevelAnatomyTermId) {
 		this.topLevelAnatomyTermId = topLevelAnatomyTermId;
 	}
-	
+
 	public void addTopLevelAnatomyTermId(String topLevelAnatomyTermId){
 		if (this.topLevelAnatomyTermId == null){
 			this.topLevelAnatomyTermId = new ArrayList<>();
 		}
 		this.topLevelAnatomyTermId.add(topLevelAnatomyTermId);
 	}
-	
+
 	public void addTopLevelAnatomyTermId(Collection<String> topLevelAnatomyTermId){
 		if (this.topLevelAnatomyTermId == null){
 			this.topLevelAnatomyTermId = new ArrayList<>();
@@ -2072,7 +2084,7 @@ public class StatisticalResultDTO {
 		}
 		this.topLevelAnatomyTermName.add(topLevelAnatomyTermName);
 	}
-	
+
 	public void addTopLevelAnatomyTermName(Collection<String> topLevelAnatomyTermName){
 		if (this.topLevelAnatomyTermName == null){
 			this.topLevelAnatomyTermName = new ArrayList<>();
@@ -2083,457 +2095,414 @@ public class StatisticalResultDTO {
 			}
 		}
 	}
-	
-	
+
 	@Override
-    public boolean equals(Object o) {
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof StatisticalResultDTO)) {
-            return false;
-        }
+		StatisticalResultDTO that = (StatisticalResultDTO) o;
 
-        StatisticalResultDTO that = (StatisticalResultDTO) o;
+		if (getDocId() != null ? !getDocId().equals(that.getDocId()) : that.getDocId() != null) return false;
+		if (getDbId() != null ? !getDbId().equals(that.getDbId()) : that.getDbId() != null) return false;
+		if (getAnatomyTermId() != null ? !getAnatomyTermId().equals(that.getAnatomyTermId()) : that.getAnatomyTermId() != null)
+			return false;
+		if (getAnatomyTermName() != null ? !getAnatomyTermName().equals(that.getAnatomyTermName()) : that.getAnatomyTermName() != null)
+			return false;
+		if (getIntermediateAnatomyTermId() != null ? !getIntermediateAnatomyTermId().equals(that.getIntermediateAnatomyTermId()) : that.getIntermediateAnatomyTermId() != null)
+			return false;
+		if (getIntermediateAnatomyTermName() != null ? !getIntermediateAnatomyTermName().equals(that.getIntermediateAnatomyTermName()) : that.getIntermediateAnatomyTermName() != null)
+			return false;
+		if (getTopLevelAnatomyTermId() != null ? !getTopLevelAnatomyTermId().equals(that.getTopLevelAnatomyTermId()) : that.getTopLevelAnatomyTermId() != null)
+			return false;
+		if (getTopLevelAnatomyTermName() != null ? !getTopLevelAnatomyTermName().equals(that.getTopLevelAnatomyTermName()) : that.getTopLevelAnatomyTermName() != null)
+			return false;
+		if (getPhenotypeSex() != null ? !getPhenotypeSex().equals(that.getPhenotypeSex()) : that.getPhenotypeSex() != null)
+			return false;
+		if (getDataType() != null ? !getDataType().equals(that.getDataType()) : that.getDataType() != null)
+			return false;
+		if (getMpTermIdOptions() != null ? !getMpTermIdOptions().equals(that.getMpTermIdOptions()) : that.getMpTermIdOptions() != null)
+			return false;
+		if (getMpTermNameOptions() != null ? !getMpTermNameOptions().equals(that.getMpTermNameOptions()) : that.getMpTermNameOptions() != null)
+			return false;
+		if (getMpTermId() != null ? !getMpTermId().equals(that.getMpTermId()) : that.getMpTermId() != null)
+			return false;
+		if (getMpTermName() != null ? !getMpTermName().equals(that.getMpTermName()) : that.getMpTermName() != null)
+			return false;
+		if (getTopLevelMpTermId() != null ? !getTopLevelMpTermId().equals(that.getTopLevelMpTermId()) : that.getTopLevelMpTermId() != null)
+			return false;
+		if (getTopLevelMpTermName() != null ? !getTopLevelMpTermName().equals(that.getTopLevelMpTermName()) : that.getTopLevelMpTermName() != null)
+			return false;
+		if (getIntermediateMpTermId() != null ? !getIntermediateMpTermId().equals(that.getIntermediateMpTermId()) : that.getIntermediateMpTermId() != null)
+			return false;
+		if (getIntermediateMpTermName() != null ? !getIntermediateMpTermName().equals(that.getIntermediateMpTermName()) : that.getIntermediateMpTermName() != null)
+			return false;
+		if (getMaleMpTermId() != null ? !getMaleMpTermId().equals(that.getMaleMpTermId()) : that.getMaleMpTermId() != null)
+			return false;
+		if (getMaleMpTermName() != null ? !getMaleMpTermName().equals(that.getMaleMpTermName()) : that.getMaleMpTermName() != null)
+			return false;
+		if (getMaleTopLevelMpTermId() != null ? !getMaleTopLevelMpTermId().equals(that.getMaleTopLevelMpTermId()) : that.getMaleTopLevelMpTermId() != null)
+			return false;
+		if (getMaleTopLevelMpTermName() != null ? !getMaleTopLevelMpTermName().equals(that.getMaleTopLevelMpTermName()) : that.getMaleTopLevelMpTermName() != null)
+			return false;
+		if (getMaleIntermediateMpTermId() != null ? !getMaleIntermediateMpTermId().equals(that.getMaleIntermediateMpTermId()) : that.getMaleIntermediateMpTermId() != null)
+			return false;
+		if (getMaleIntermediateMpTermName() != null ? !getMaleIntermediateMpTermName().equals(that.getMaleIntermediateMpTermName()) : that.getMaleIntermediateMpTermName() != null)
+			return false;
+		if (getFemaleMpTermId() != null ? !getFemaleMpTermId().equals(that.getFemaleMpTermId()) : that.getFemaleMpTermId() != null)
+			return false;
+		if (getFemaleMpTermName() != null ? !getFemaleMpTermName().equals(that.getFemaleMpTermName()) : that.getFemaleMpTermName() != null)
+			return false;
+		if (getFemaleTopLevelMpTermId() != null ? !getFemaleTopLevelMpTermId().equals(that.getFemaleTopLevelMpTermId()) : that.getFemaleTopLevelMpTermId() != null)
+			return false;
+		if (getFemaleTopLevelMpTermName() != null ? !getFemaleTopLevelMpTermName().equals(that.getFemaleTopLevelMpTermName()) : that.getFemaleTopLevelMpTermName() != null)
+			return false;
+		if (getFemaleIntermediateMpTermId() != null ? !getFemaleIntermediateMpTermId().equals(that.getFemaleIntermediateMpTermId()) : that.getFemaleIntermediateMpTermId() != null)
+			return false;
+		if (getFemaleIntermediateMpTermName() != null ? !getFemaleIntermediateMpTermName().equals(that.getFemaleIntermediateMpTermName()) : that.getFemaleIntermediateMpTermName() != null)
+			return false;
+		if (getResourceName() != null ? !getResourceName().equals(that.getResourceName()) : that.getResourceName() != null)
+			return false;
+		if (getResourceFullname() != null ? !getResourceFullname().equals(that.getResourceFullname()) : that.getResourceFullname() != null)
+			return false;
+		if (getResourceId() != null ? !getResourceId().equals(that.getResourceId()) : that.getResourceId() != null)
+			return false;
+		if (getProjectName() != null ? !getProjectName().equals(that.getProjectName()) : that.getProjectName() != null)
+			return false;
+		if (getPhenotypingCenter() != null ? !getPhenotypingCenter().equals(that.getPhenotypingCenter()) : that.getPhenotypingCenter() != null)
+			return false;
+		if (getPipelineStableId() != null ? !getPipelineStableId().equals(that.getPipelineStableId()) : that.getPipelineStableId() != null)
+			return false;
+		if (getPipelineStableKey() != null ? !getPipelineStableKey().equals(that.getPipelineStableKey()) : that.getPipelineStableKey() != null)
+			return false;
+		if (getPipelineName() != null ? !getPipelineName().equals(that.getPipelineName()) : that.getPipelineName() != null)
+			return false;
+		if (getPipelineId() != null ? !getPipelineId().equals(that.getPipelineId()) : that.getPipelineId() != null)
+			return false;
+		if (getProcedureStableId() != null ? !getProcedureStableId().equals(that.getProcedureStableId()) : that.getProcedureStableId() != null)
+			return false;
+		if (getProcedureStableKey() != null ? !getProcedureStableKey().equals(that.getProcedureStableKey()) : that.getProcedureStableKey() != null)
+			return false;
+		if (getProcedureName() != null ? !getProcedureName().equals(that.getProcedureName()) : that.getProcedureName() != null)
+			return false;
+		if (getProcedureId() != null ? !getProcedureId().equals(that.getProcedureId()) : that.getProcedureId() != null)
+			return false;
+		if (getParameterStableId() != null ? !getParameterStableId().equals(that.getParameterStableId()) : that.getParameterStableId() != null)
+			return false;
+		if (getParameterStableKey() != null ? !getParameterStableKey().equals(that.getParameterStableKey()) : that.getParameterStableKey() != null)
+			return false;
+		if (getParameterName() != null ? !getParameterName().equals(that.getParameterName()) : that.getParameterName() != null)
+			return false;
+		if (getParameterId() != null ? !getParameterId().equals(that.getParameterId()) : that.getParameterId() != null)
+			return false;
+		if (getColonyId() != null ? !getColonyId().equals(that.getColonyId()) : that.getColonyId() != null)
+			return false;
+		if (getMarkerSymbol() != null ? !getMarkerSymbol().equals(that.getMarkerSymbol()) : that.getMarkerSymbol() != null)
+			return false;
+		if (getMarkerAccessionId() != null ? !getMarkerAccessionId().equals(that.getMarkerAccessionId()) : that.getMarkerAccessionId() != null)
+			return false;
+		if (getAlleleSymbol() != null ? !getAlleleSymbol().equals(that.getAlleleSymbol()) : that.getAlleleSymbol() != null)
+			return false;
+		if (getAlleleName() != null ? !getAlleleName().equals(that.getAlleleName()) : that.getAlleleName() != null)
+			return false;
+		if (getAlleleAccessionId() != null ? !getAlleleAccessionId().equals(that.getAlleleAccessionId()) : that.getAlleleAccessionId() != null)
+			return false;
+		if (getStrainName() != null ? !getStrainName().equals(that.getStrainName()) : that.getStrainName() != null)
+			return false;
+		if (getStrainAccessionId() != null ? !getStrainAccessionId().equals(that.getStrainAccessionId()) : that.getStrainAccessionId() != null)
+			return false;
+		if (getGeneticBackground() != null ? !getGeneticBackground().equals(that.getGeneticBackground()) : that.getGeneticBackground() != null)
+			return false;
+		if (getSex() != null ? !getSex().equals(that.getSex()) : that.getSex() != null) return false;
+		if (getZygosity() != null ? !getZygosity().equals(that.getZygosity()) : that.getZygosity() != null)
+			return false;
+		if (getControlSelectionMethod() != null ? !getControlSelectionMethod().equals(that.getControlSelectionMethod()) : that.getControlSelectionMethod() != null)
+			return false;
+		if (getDependentVariable() != null ? !getDependentVariable().equals(that.getDependentVariable()) : that.getDependentVariable() != null)
+			return false;
+		if (getMetadataGroup() != null ? !getMetadataGroup().equals(that.getMetadataGroup()) : that.getMetadataGroup() != null)
+			return false;
+		if (getControlBiologicalModelId() != null ? !getControlBiologicalModelId().equals(that.getControlBiologicalModelId()) : that.getControlBiologicalModelId() != null)
+			return false;
+		if (getMutantBiologicalModelId() != null ? !getMutantBiologicalModelId().equals(that.getMutantBiologicalModelId()) : that.getMutantBiologicalModelId() != null)
+			return false;
+		if (getMaleControlCount() != null ? !getMaleControlCount().equals(that.getMaleControlCount()) : that.getMaleControlCount() != null)
+			return false;
+		if (getMaleMutantCount() != null ? !getMaleMutantCount().equals(that.getMaleMutantCount()) : that.getMaleMutantCount() != null)
+			return false;
+		if (getFemaleControlCount() != null ? !getFemaleControlCount().equals(that.getFemaleControlCount()) : that.getFemaleControlCount() != null)
+			return false;
+		if (getFemaleMutantCount() != null ? !getFemaleMutantCount().equals(that.getFemaleMutantCount()) : that.getFemaleMutantCount() != null)
+			return false;
+		if (getFemaleMutantMean() != null ? !getFemaleMutantMean().equals(that.getFemaleMutantMean()) : that.getFemaleMutantMean() != null)
+			return false;
+		if (getFemaleControlMean() != null ? !getFemaleControlMean().equals(that.getFemaleControlMean()) : that.getFemaleControlMean() != null)
+			return false;
+		if (getMaleMutantMean() != null ? !getMaleMutantMean().equals(that.getMaleMutantMean()) : that.getMaleMutantMean() != null)
+			return false;
+		if (getMaleControlMean() != null ? !getMaleControlMean().equals(that.getMaleControlMean()) : that.getMaleControlMean() != null)
+			return false;
+		if (getWorkflow() != null ? !getWorkflow().equals(that.getWorkflow()) : that.getWorkflow() != null)
+			return false;
+		if (getStatisticalMethod() != null ? !getStatisticalMethod().equals(that.getStatisticalMethod()) : that.getStatisticalMethod() != null)
+			return false;
+		if (getStatus() != null ? !getStatus().equals(that.getStatus()) : that.getStatus() != null) return false;
+		if (getAdditionalInformation() != null ? !getAdditionalInformation().equals(that.getAdditionalInformation()) : that.getAdditionalInformation() != null)
+			return false;
+		if (getRawOutput() != null ? !getRawOutput().equals(that.getRawOutput()) : that.getRawOutput() != null)
+			return false;
+		if (getpValue() != null ? !getpValue().equals(that.getpValue()) : that.getpValue() != null) return false;
+		if (getEffectSize() != null ? !getEffectSize().equals(that.getEffectSize()) : that.getEffectSize() != null)
+			return false;
+		if (getGenotypePvalueLowVsNormalHigh() != null ? !getGenotypePvalueLowVsNormalHigh().equals(that.getGenotypePvalueLowVsNormalHigh()) : that.getGenotypePvalueLowVsNormalHigh() != null)
+			return false;
+		if (getGenotypePvalueLowNormalVsHigh() != null ? !getGenotypePvalueLowNormalVsHigh().equals(that.getGenotypePvalueLowNormalVsHigh()) : that.getGenotypePvalueLowNormalVsHigh() != null)
+			return false;
+		if (getGenotypeEffectSizeLowVsNormalHigh() != null ? !getGenotypeEffectSizeLowVsNormalHigh().equals(that.getGenotypeEffectSizeLowVsNormalHigh()) : that.getGenotypeEffectSizeLowVsNormalHigh() != null)
+			return false;
+		if (getGenotypeEffectSizeLowNormalVsHigh() != null ? !getGenotypeEffectSizeLowNormalVsHigh().equals(that.getGenotypeEffectSizeLowNormalVsHigh()) : that.getGenotypeEffectSizeLowNormalVsHigh() != null)
+			return false;
+		if (getFemalePvalueLowVsNormalHigh() != null ? !getFemalePvalueLowVsNormalHigh().equals(that.getFemalePvalueLowVsNormalHigh()) : that.getFemalePvalueLowVsNormalHigh() != null)
+			return false;
+		if (getFemalePvalueLowNormalVsHigh() != null ? !getFemalePvalueLowNormalVsHigh().equals(that.getFemalePvalueLowNormalVsHigh()) : that.getFemalePvalueLowNormalVsHigh() != null)
+			return false;
+		if (getFemaleEffectSizeLowVsNormalHigh() != null ? !getFemaleEffectSizeLowVsNormalHigh().equals(that.getFemaleEffectSizeLowVsNormalHigh()) : that.getFemaleEffectSizeLowVsNormalHigh() != null)
+			return false;
+		if (getFemaleEffectSizeLowNormalVsHigh() != null ? !getFemaleEffectSizeLowNormalVsHigh().equals(that.getFemaleEffectSizeLowNormalVsHigh()) : that.getFemaleEffectSizeLowNormalVsHigh() != null)
+			return false;
+		if (getMalePvalueLowVsNormalHigh() != null ? !getMalePvalueLowVsNormalHigh().equals(that.getMalePvalueLowVsNormalHigh()) : that.getMalePvalueLowVsNormalHigh() != null)
+			return false;
+		if (getMalePvalueLowNormalVsHigh() != null ? !getMalePvalueLowNormalVsHigh().equals(that.getMalePvalueLowNormalVsHigh()) : that.getMalePvalueLowNormalVsHigh() != null)
+			return false;
+		if (getMaleEffectSizeLowVsNormalHigh() != null ? !getMaleEffectSizeLowVsNormalHigh().equals(that.getMaleEffectSizeLowVsNormalHigh()) : that.getMaleEffectSizeLowVsNormalHigh() != null)
+			return false;
+		if (getMaleEffectSizeLowNormalVsHigh() != null ? !getMaleEffectSizeLowNormalVsHigh().equals(that.getMaleEffectSizeLowNormalVsHigh()) : that.getMaleEffectSizeLowNormalVsHigh() != null)
+			return false;
+		if (getCategories() != null ? !getCategories().equals(that.getCategories()) : that.getCategories() != null)
+			return false;
+		if (getCategoricalPValue() != null ? !getCategoricalPValue().equals(that.getCategoricalPValue()) : that.getCategoricalPValue() != null)
+			return false;
+		if (getCategoricalEffectSize() != null ? !getCategoricalEffectSize().equals(that.getCategoricalEffectSize()) : that.getCategoricalEffectSize() != null)
+			return false;
+		if (getBatchSignificant() != null ? !getBatchSignificant().equals(that.getBatchSignificant()) : that.getBatchSignificant() != null)
+			return false;
+		if (getVarianceSignificant() != null ? !getVarianceSignificant().equals(that.getVarianceSignificant()) : that.getVarianceSignificant() != null)
+			return false;
+		if (getNullTestPValue() != null ? !getNullTestPValue().equals(that.getNullTestPValue()) : that.getNullTestPValue() != null)
+			return false;
+		if (getGenotypeEffectPValue() != null ? !getGenotypeEffectPValue().equals(that.getGenotypeEffectPValue()) : that.getGenotypeEffectPValue() != null)
+			return false;
+		if (getGenotypeEffectStderrEstimate() != null ? !getGenotypeEffectStderrEstimate().equals(that.getGenotypeEffectStderrEstimate()) : that.getGenotypeEffectStderrEstimate() != null)
+			return false;
+		if (getGenotypeEffectParameterEstimate() != null ? !getGenotypeEffectParameterEstimate().equals(that.getGenotypeEffectParameterEstimate()) : that.getGenotypeEffectParameterEstimate() != null)
+			return false;
+		if (getFemalePercentageChange() != null ? !getFemalePercentageChange().equals(that.getFemalePercentageChange()) : that.getFemalePercentageChange() != null)
+			return false;
+		if (getMalePercentageChange() != null ? !getMalePercentageChange().equals(that.getMalePercentageChange()) : that.getMalePercentageChange() != null)
+			return false;
+		if (getSexEffectPValue() != null ? !getSexEffectPValue().equals(that.getSexEffectPValue()) : that.getSexEffectPValue() != null)
+			return false;
+		if (getSexEffectStderrEstimate() != null ? !getSexEffectStderrEstimate().equals(that.getSexEffectStderrEstimate()) : that.getSexEffectStderrEstimate() != null)
+			return false;
+		if (getSexEffectParameterEstimate() != null ? !getSexEffectParameterEstimate().equals(that.getSexEffectParameterEstimate()) : that.getSexEffectParameterEstimate() != null)
+			return false;
+		if (getWeightEffectPValue() != null ? !getWeightEffectPValue().equals(that.getWeightEffectPValue()) : that.getWeightEffectPValue() != null)
+			return false;
+		if (getWeightEffectStderrEstimate() != null ? !getWeightEffectStderrEstimate().equals(that.getWeightEffectStderrEstimate()) : that.getWeightEffectStderrEstimate() != null)
+			return false;
+		if (getWeightEffectParameterEstimate() != null ? !getWeightEffectParameterEstimate().equals(that.getWeightEffectParameterEstimate()) : that.getWeightEffectParameterEstimate() != null)
+			return false;
+		if (getGroup1Genotype() != null ? !getGroup1Genotype().equals(that.getGroup1Genotype()) : that.getGroup1Genotype() != null)
+			return false;
+		if (getGroup1ResidualsNormalityTest() != null ? !getGroup1ResidualsNormalityTest().equals(that.getGroup1ResidualsNormalityTest()) : that.getGroup1ResidualsNormalityTest() != null)
+			return false;
+		if (getGroup2Genotype() != null ? !getGroup2Genotype().equals(that.getGroup2Genotype()) : that.getGroup2Genotype() != null)
+			return false;
+		if (getGroup2ResidualsNormalityTest() != null ? !getGroup2ResidualsNormalityTest().equals(that.getGroup2ResidualsNormalityTest()) : that.getGroup2ResidualsNormalityTest() != null)
+			return false;
+		if (getBlupsTest() != null ? !getBlupsTest().equals(that.getBlupsTest()) : that.getBlupsTest() != null)
+			return false;
+		if (getRotatedResidualsTest() != null ? !getRotatedResidualsTest().equals(that.getRotatedResidualsTest()) : that.getRotatedResidualsTest() != null)
+			return false;
+		if (getInterceptEstimate() != null ? !getInterceptEstimate().equals(that.getInterceptEstimate()) : that.getInterceptEstimate() != null)
+			return false;
+		if (getInterceptEstimateStderrEstimate() != null ? !getInterceptEstimateStderrEstimate().equals(that.getInterceptEstimateStderrEstimate()) : that.getInterceptEstimateStderrEstimate() != null)
+			return false;
+		if (getInteractionSignificant() != null ? !getInteractionSignificant().equals(that.getInteractionSignificant()) : that.getInteractionSignificant() != null)
+			return false;
+		if (getInteractionEffectPValue() != null ? !getInteractionEffectPValue().equals(that.getInteractionEffectPValue()) : that.getInteractionEffectPValue() != null)
+			return false;
+		if (getFemaleKoEffectPValue() != null ? !getFemaleKoEffectPValue().equals(that.getFemaleKoEffectPValue()) : that.getFemaleKoEffectPValue() != null)
+			return false;
+		if (getFemaleKoEffectStderrEstimate() != null ? !getFemaleKoEffectStderrEstimate().equals(that.getFemaleKoEffectStderrEstimate()) : that.getFemaleKoEffectStderrEstimate() != null)
+			return false;
+		if (getFemaleKoParameterEstimate() != null ? !getFemaleKoParameterEstimate().equals(that.getFemaleKoParameterEstimate()) : that.getFemaleKoParameterEstimate() != null)
+			return false;
+		if (getMaleKoEffectPValue() != null ? !getMaleKoEffectPValue().equals(that.getMaleKoEffectPValue()) : that.getMaleKoEffectPValue() != null)
+			return false;
+		if (getMaleKoEffectStderrEstimate() != null ? !getMaleKoEffectStderrEstimate().equals(that.getMaleKoEffectStderrEstimate()) : that.getMaleKoEffectStderrEstimate() != null)
+			return false;
+		if (getMaleKoParameterEstimate() != null ? !getMaleKoParameterEstimate().equals(that.getMaleKoParameterEstimate()) : that.getMaleKoParameterEstimate() != null)
+			return false;
+		if (getClassificationTag() != null ? !getClassificationTag().equals(that.getClassificationTag()) : that.getClassificationTag() != null)
+			return false;
+		if (getExternalDbId() != null ? !getExternalDbId().equals(that.getExternalDbId()) : that.getExternalDbId() != null)
+			return false;
+		if (getOrganisationId() != null ? !getOrganisationId().equals(that.getOrganisationId()) : that.getOrganisationId() != null)
+			return false;
+		if (getPhenotypingCenterId() != null ? !getPhenotypingCenterId().equals(that.getPhenotypingCenterId()) : that.getPhenotypingCenterId() != null)
+			return false;
+		if (getProjectId() != null ? !getProjectId().equals(that.getProjectId()) : that.getProjectId() != null)
+			return false;
+		return getSignificant() != null ? getSignificant().equals(that.getSignificant()) : that.getSignificant() == null;
 
-        if (docId != null ? !docId.equals(that.docId) : that.docId != null) {
-            return false;
-        }
-        if (dbId != null ? !dbId.equals(that.dbId) : that.dbId != null) {
-            return false;
-        }
-        if (dataType != null ? !dataType.equals(that.dataType) : that.dataType != null) {
-            return false;
-        }
-        if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) {
-            return false;
-        }
-        if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) {
-            return false;
-        }
-        if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null) {
-            return false;
-        }
-        if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null) {
-            return false;
-        }
-        if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null) {
-            return false;
-        }
-        if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null) {
-            return false;
-        }
-        if (maleMpTermId != null ? !maleMpTermId.equals(that.maleMpTermId) : that.maleMpTermId != null) {
-            return false;
-        }
-        if (maleMpTermName != null ? !maleMpTermName.equals(that.maleMpTermName) : that.maleMpTermName != null) {
-            return false;
-        }
-        if (maleTopLevelMpTermId != null ? !maleTopLevelMpTermId.equals(that.maleTopLevelMpTermId) : that.maleTopLevelMpTermId != null) {
-            return false;
-        }
-        if (maleTopLevelMpTermName != null ? !maleTopLevelMpTermName.equals(that.maleTopLevelMpTermName) : that.maleTopLevelMpTermName != null) {
-            return false;
-        }
-        if (maleIntermediateMpTermId != null ? !maleIntermediateMpTermId.equals(that.maleIntermediateMpTermId) : that.maleIntermediateMpTermId != null) {
-            return false;
-        }
-        if (maleIntermediateMpTermName != null ? !maleIntermediateMpTermName.equals(that.maleIntermediateMpTermName) : that.maleIntermediateMpTermName != null) {
-            return false;
-        }
-        if (femaleMpTermId != null ? !femaleMpTermId.equals(that.femaleMpTermId) : that.femaleMpTermId != null) {
-            return false;
-        }
-        if (femaleMpTermName != null ? !femaleMpTermName.equals(that.femaleMpTermName) : that.femaleMpTermName != null) {
-            return false;
-        }
-        if (femaleTopLevelMpTermId != null ? !femaleTopLevelMpTermId.equals(that.femaleTopLevelMpTermId) : that.femaleTopLevelMpTermId != null) {
-            return false;
-        }
-        if (femaleTopLevelMpTermName != null ? !femaleTopLevelMpTermName.equals(that.femaleTopLevelMpTermName) : that.femaleTopLevelMpTermName != null) {
-            return false;
-        }
-        if (femaleIntermediateMpTermId != null ? !femaleIntermediateMpTermId.equals(that.femaleIntermediateMpTermId) : that.femaleIntermediateMpTermId != null) {
-            return false;
-        }
-        if (femaleIntermediateMpTermName != null ? !femaleIntermediateMpTermName.equals(that.femaleIntermediateMpTermName) : that.femaleIntermediateMpTermName != null) {
-            return false;
-        }
-        if (resourceName != null ? !resourceName.equals(that.resourceName) : that.resourceName != null) {
-            return false;
-        }
-        if (resourceFullname != null ? !resourceFullname.equals(that.resourceFullname) : that.resourceFullname != null) {
-            return false;
-        }
-        if (resourceId != null ? !resourceId.equals(that.resourceId) : that.resourceId != null) {
-            return false;
-        }
-        if (projectName != null ? !projectName.equals(that.projectName) : that.projectName != null) {
-            return false;
-        }
-        if (phenotypingCenter != null ? !phenotypingCenter.equals(that.phenotypingCenter) : that.phenotypingCenter != null) {
-            return false;
-        }
-        if (pipelineStableId != null ? !pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null) {
-            return false;
-        }
-        if (pipelineStableKey != null ? !pipelineStableKey.equals(that.pipelineStableKey) : that.pipelineStableKey != null) {
-            return false;
-        }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
-            return false;
-        }
-        if (pipelineId != null ? !pipelineId.equals(that.pipelineId) : that.pipelineId != null) {
-            return false;
-        }
-        if (procedureStableId != null ? !procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null) {
-            return false;
-        }
-        if (procedureStableKey != null ? !procedureStableKey.equals(that.procedureStableKey) : that.procedureStableKey != null) {
-            return false;
-        }
-        if (procedureName != null ? !procedureName.equals(that.procedureName) : that.procedureName != null) {
-            return false;
-        }
-        if (procedureId != null ? !procedureId.equals(that.procedureId) : that.procedureId != null) {
-            return false;
-        }
-        if (parameterStableId != null ? !parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null) {
-            return false;
-        }
-        if (parameterStableKey != null ? !parameterStableKey.equals(that.parameterStableKey) : that.parameterStableKey != null) {
-            return false;
-        }
-        if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null) {
-            return false;
-        }
-        if (parameterId != null ? !parameterId.equals(that.parameterId) : that.parameterId != null) {
-            return false;
-        }
-        if (colonyId != null ? !colonyId.equals(that.colonyId) : that.colonyId != null) {
-            return false;
-        }
-        if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) {
-            return false;
-        }
-        if (markerAccessionId != null ? !markerAccessionId.equals(that.markerAccessionId) : that.markerAccessionId != null) {
-            return false;
-        }
-        if (alleleSymbol != null ? !alleleSymbol.equals(that.alleleSymbol) : that.alleleSymbol != null) {
-            return false;
-        }
-        if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) {
-            return false;
-        }
-        if (alleleAccessionId != null ? !alleleAccessionId.equals(that.alleleAccessionId) : that.alleleAccessionId != null) {
-            return false;
-        }
-        if (strainName != null ? !strainName.equals(that.strainName) : that.strainName != null) {
-            return false;
-        }
-        if (strainAccessionId != null ? !strainAccessionId.equals(that.strainAccessionId) : that.strainAccessionId != null) {
-            return false;
-        }
-        if (geneticBackground != null ? !geneticBackground.equals(that.geneticBackground) : that.geneticBackground != null) {
-            return false;
-        }
-        if (sex != null ? !sex.equals(that.sex) : that.sex != null) {
-            return false;
-        }
-        if (zygosity != null ? !zygosity.equals(that.zygosity) : that.zygosity != null) {
-            return false;
-        }
-        if (controlSelectionMethod != null ? !controlSelectionMethod.equals(that.controlSelectionMethod) : that.controlSelectionMethod != null) {
-            return false;
-        }
-        if (dependentVariable != null ? !dependentVariable.equals(that.dependentVariable) : that.dependentVariable != null) {
-            return false;
-        }
-        if (metadataGroup != null ? !metadataGroup.equals(that.metadataGroup) : that.metadataGroup != null) {
-            return false;
-        }
-        if (controlBiologicalModelId != null ? !controlBiologicalModelId.equals(that.controlBiologicalModelId) : that.controlBiologicalModelId != null) {
-            return false;
-        }
-        if (mutantBiologicalModelId != null ? !mutantBiologicalModelId.equals(that.mutantBiologicalModelId) : that.mutantBiologicalModelId != null) {
-            return false;
-        }
-        if (maleControlCount != null ? !maleControlCount.equals(that.maleControlCount) : that.maleControlCount != null) {
-            return false;
-        }
-        if (maleMutantCount != null ? !maleMutantCount.equals(that.maleMutantCount) : that.maleMutantCount != null) {
-            return false;
-        }
-        if (femaleControlCount != null ? !femaleControlCount.equals(that.femaleControlCount) : that.femaleControlCount != null) {
-            return false;
-        }
-        if (femaleMutantCount != null ? !femaleMutantCount.equals(that.femaleMutantCount) : that.femaleMutantCount != null) {
-            return false;
-        }
-        if (femaleMutantMean != null ? !femaleMutantMean.equals(that.femaleMutantMean) : that.femaleMutantMean != null) {
-            return false;
-        }
-        if (femaleControlMean != null ? !femaleControlMean.equals(that.femaleControlMean) : that.femaleControlMean != null) {
-            return false;
-        }
-        if (maleMutantMean != null ? !maleMutantMean.equals(that.maleMutantMean) : that.maleMutantMean != null) {
-            return false;
-        }
-        if (maleControlMean != null ? !maleControlMean.equals(that.maleControlMean) : that.maleControlMean != null) {
-            return false;
-        }
-        if (statisticalMethod != null ? !statisticalMethod.equals(that.statisticalMethod) : that.statisticalMethod != null) {
-            return false;
-        }
-        if (status != null ? !status.equals(that.status) : that.status != null) {
-            return false;
-        }
-        if (additionalInformation != null ? !additionalInformation.equals(that.additionalInformation) : that.additionalInformation != null) {
-            return false;
-        }
-        if (rawOutput != null ? !rawOutput.equals(that.rawOutput) : that.rawOutput != null) {
-            return false;
-        }
-        if (pValue != null ? !pValue.equals(that.pValue) : that.pValue != null) {
-            return false;
-        }
-        if (effectSize != null ? !effectSize.equals(that.effectSize) : that.effectSize != null) {
-            return false;
-        }
-        if (categories != null ? !categories.equals(that.categories) : that.categories != null) {
-            return false;
-        }
-        if (categoricalPValue != null ? !categoricalPValue.equals(that.categoricalPValue) : that.categoricalPValue != null) {
-            return false;
-        }
-        if (categoricalEffectSize != null ? !categoricalEffectSize.equals(that.categoricalEffectSize) : that.categoricalEffectSize != null) {
-            return false;
-        }
-        if (batchSignificant != null ? !batchSignificant.equals(that.batchSignificant) : that.batchSignificant != null) {
-            return false;
-        }
-        if (varianceSignificant != null ? !varianceSignificant.equals(that.varianceSignificant) : that.varianceSignificant != null) {
-            return false;
-        }
-        if (nullTestPValue != null ? !nullTestPValue.equals(that.nullTestPValue) : that.nullTestPValue != null) {
-            return false;
-        }
-        if (genotypeEffectPValue != null ? !genotypeEffectPValue.equals(that.genotypeEffectPValue) : that.genotypeEffectPValue != null) {
-            return false;
-        }
-        if (genotypeEffectStderrEstimate != null ? !genotypeEffectStderrEstimate.equals(that.genotypeEffectStderrEstimate) : that.genotypeEffectStderrEstimate != null) {
-            return false;
-        }
-        if (genotypeEffectParameterEstimate != null ? !genotypeEffectParameterEstimate.equals(that.genotypeEffectParameterEstimate) : that.genotypeEffectParameterEstimate != null) {
-            return false;
-        }
-        if (femalePercentageChange != null ? !femalePercentageChange.equals(that.femalePercentageChange) : that.femalePercentageChange != null) {
-            return false;
-        }
-        if (malePercentageChange != null ? !malePercentageChange.equals(that.malePercentageChange) : that.malePercentageChange != null) {
-            return false;
-        }
-        if (sexEffectPValue != null ? !sexEffectPValue.equals(that.sexEffectPValue) : that.sexEffectPValue != null) {
-            return false;
-        }
-        if (sexEffectStderrEstimate != null ? !sexEffectStderrEstimate.equals(that.sexEffectStderrEstimate) : that.sexEffectStderrEstimate != null) {
-            return false;
-        }
-        if (sexEffectParameterEstimate != null ? !sexEffectParameterEstimate.equals(that.sexEffectParameterEstimate) : that.sexEffectParameterEstimate != null) {
-            return false;
-        }
-        if (weightEffectPValue != null ? !weightEffectPValue.equals(that.weightEffectPValue) : that.weightEffectPValue != null) {
-            return false;
-        }
-        if (weightEffectStderrEstimate != null ? !weightEffectStderrEstimate.equals(that.weightEffectStderrEstimate) : that.weightEffectStderrEstimate != null) {
-            return false;
-        }
-        if (weightEffectParameterEstimate != null ? !weightEffectParameterEstimate.equals(that.weightEffectParameterEstimate) : that.weightEffectParameterEstimate != null) {
-            return false;
-        }
-        if (group1Genotype != null ? !group1Genotype.equals(that.group1Genotype) : that.group1Genotype != null) {
-            return false;
-        }
-        if (group1ResidualsNormalityTest != null ? !group1ResidualsNormalityTest.equals(that.group1ResidualsNormalityTest) : that.group1ResidualsNormalityTest != null) {
-            return false;
-        }
-        if (group2Genotype != null ? !group2Genotype.equals(that.group2Genotype) : that.group2Genotype != null) {
-            return false;
-        }
-        if (group2ResidualsNormalityTest != null ? !group2ResidualsNormalityTest.equals(that.group2ResidualsNormalityTest) : that.group2ResidualsNormalityTest != null) {
-            return false;
-        }
-        if (blupsTest != null ? !blupsTest.equals(that.blupsTest) : that.blupsTest != null) {
-            return false;
-        }
-        if (rotatedResidualsTest != null ? !rotatedResidualsTest.equals(that.rotatedResidualsTest) : that.rotatedResidualsTest != null) {
-            return false;
-        }
-        if (interceptEstimate != null ? !interceptEstimate.equals(that.interceptEstimate) : that.interceptEstimate != null) {
-            return false;
-        }
-        if (interceptEstimateStderrEstimate != null ? !interceptEstimateStderrEstimate.equals(that.interceptEstimateStderrEstimate) : that.interceptEstimateStderrEstimate != null) {
-            return false;
-        }
-        if (interactionSignificant != null ? !interactionSignificant.equals(that.interactionSignificant) : that.interactionSignificant != null) {
-            return false;
-        }
-        if (interactionEffectPValue != null ? !interactionEffectPValue.equals(that.interactionEffectPValue) : that.interactionEffectPValue != null) {
-            return false;
-        }
-        if (femaleKoEffectPValue != null ? !femaleKoEffectPValue.equals(that.femaleKoEffectPValue) : that.femaleKoEffectPValue != null) {
-            return false;
-        }
-        if (femaleKoEffectStderrEstimate != null ? !femaleKoEffectStderrEstimate.equals(that.femaleKoEffectStderrEstimate) : that.femaleKoEffectStderrEstimate != null) {
-            return false;
-        }
-        if (femaleKoParameterEstimate != null ? !femaleKoParameterEstimate.equals(that.femaleKoParameterEstimate) : that.femaleKoParameterEstimate != null) {
-            return false;
-        }
-        if (maleKoEffectPValue != null ? !maleKoEffectPValue.equals(that.maleKoEffectPValue) : that.maleKoEffectPValue != null) {
-            return false;
-        }
-        if (maleKoEffectStderrEstimate != null ? !maleKoEffectStderrEstimate.equals(that.maleKoEffectStderrEstimate) : that.maleKoEffectStderrEstimate != null) {
-            return false;
-        }
-        if (maleKoParameterEstimate != null ? !maleKoParameterEstimate.equals(that.maleKoParameterEstimate) : that.maleKoParameterEstimate != null) {
-            return false;
-        }
-        if (classificationTag != null ? !classificationTag.equals(that.classificationTag) : that.classificationTag != null) {
-            return false;
-        }
-        if (externalDbId != null ? !externalDbId.equals(that.externalDbId) : that.externalDbId != null) {
-            return false;
-        }
-        if (organisationId != null ? !organisationId.equals(that.organisationId) : that.organisationId != null) {
-            return false;
-        }
-        if (phenotypingCenterId != null ? !phenotypingCenterId.equals(that.phenotypingCenterId) : that.phenotypingCenterId != null) {
-            return false;
-        }
-        return !(projectId != null ? !projectId.equals(that.projectId) : that.projectId != null);
+	}
 
-    }
-
-
-    @Override
-    public int hashCode() {
-
-        int result = docId != null ? docId.hashCode() : 0;
-        result = 31 * result + (dbId != null ? dbId.hashCode() : 0);
-        result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
-        result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
-        result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermName != null ? topLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermId != null ? intermediateMpTermId.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermName != null ? intermediateMpTermName.hashCode() : 0);
-        result = 31 * result + (maleMpTermId != null ? maleMpTermId.hashCode() : 0);
-        result = 31 * result + (maleMpTermName != null ? maleMpTermName.hashCode() : 0);
-        result = 31 * result + (maleTopLevelMpTermId != null ? maleTopLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (maleTopLevelMpTermName != null ? maleTopLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (maleIntermediateMpTermId != null ? maleIntermediateMpTermId.hashCode() : 0);
-        result = 31 * result + (maleIntermediateMpTermName != null ? maleIntermediateMpTermName.hashCode() : 0);
-        result = 31 * result + (femaleMpTermId != null ? femaleMpTermId.hashCode() : 0);
-        result = 31 * result + (femaleMpTermName != null ? femaleMpTermName.hashCode() : 0);
-        result = 31 * result + (femaleTopLevelMpTermId != null ? femaleTopLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (femaleTopLevelMpTermName != null ? femaleTopLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (femaleIntermediateMpTermId != null ? femaleIntermediateMpTermId.hashCode() : 0);
-        result = 31 * result + (femaleIntermediateMpTermName != null ? femaleIntermediateMpTermName.hashCode() : 0);
-        result = 31 * result + (resourceName != null ? resourceName.hashCode() : 0);
-        result = 31 * result + (resourceFullname != null ? resourceFullname.hashCode() : 0);
-        result = 31 * result + (resourceId != null ? resourceId.hashCode() : 0);
-        result = 31 * result + (projectName != null ? projectName.hashCode() : 0);
-        result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
-        result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
-        result = 31 * result + (pipelineStableKey != null ? pipelineStableKey.hashCode() : 0);
-        result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
-        result = 31 * result + (pipelineId != null ? pipelineId.hashCode() : 0);
-        result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
-        result = 31 * result + (procedureStableKey != null ? procedureStableKey.hashCode() : 0);
-        result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
-        result = 31 * result + (procedureId != null ? procedureId.hashCode() : 0);
-        result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
-        result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
-        result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
-        result = 31 * result + (parameterId != null ? parameterId.hashCode() : 0);
-        result = 31 * result + (colonyId != null ? colonyId.hashCode() : 0);
-        result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
-        result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
-        result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
-        result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
-        result = 31 * result + (alleleAccessionId != null ? alleleAccessionId.hashCode() : 0);
-        result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
-        result = 31 * result + (strainAccessionId != null ? strainAccessionId.hashCode() : 0);
-        result = 31 * result + (geneticBackground != null ? geneticBackground.hashCode() : 0);
-        result = 31 * result + (sex != null ? sex.hashCode() : 0);
-        result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
-        result = 31 * result + (controlSelectionMethod != null ? controlSelectionMethod.hashCode() : 0);
-        result = 31 * result + (dependentVariable != null ? dependentVariable.hashCode() : 0);
-        result = 31 * result + (metadataGroup != null ? metadataGroup.hashCode() : 0);
-        result = 31 * result + (controlBiologicalModelId != null ? controlBiologicalModelId.hashCode() : 0);
-        result = 31 * result + (mutantBiologicalModelId != null ? mutantBiologicalModelId.hashCode() : 0);
-        result = 31 * result + (maleControlCount != null ? maleControlCount.hashCode() : 0);
-        result = 31 * result + (maleMutantCount != null ? maleMutantCount.hashCode() : 0);
-        result = 31 * result + (femaleControlCount != null ? femaleControlCount.hashCode() : 0);
-        result = 31 * result + (femaleMutantCount != null ? femaleMutantCount.hashCode() : 0);
-        result = 31 * result + (femaleMutantMean != null ? femaleMutantMean.hashCode() : 0);
-        result = 31 * result + (femaleControlMean != null ? femaleControlMean.hashCode() : 0);
-        result = 31 * result + (maleMutantMean != null ? maleMutantMean.hashCode() : 0);
-        result = 31 * result + (maleControlMean != null ? maleControlMean.hashCode() : 0);
-        result = 31 * result + (statisticalMethod != null ? statisticalMethod.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (additionalInformation != null ? additionalInformation.hashCode() : 0);
-        result = 31 * result + (rawOutput != null ? rawOutput.hashCode() : 0);
-        result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
-        result = 31 * result + (effectSize != null ? effectSize.hashCode() : 0);
-        result = 31 * result + (categories != null ? categories.hashCode() : 0);
-        result = 31 * result + (categoricalPValue != null ? categoricalPValue.hashCode() : 0);
-        result = 31 * result + (categoricalEffectSize != null ? categoricalEffectSize.hashCode() : 0);
-        result = 31 * result + (batchSignificant != null ? batchSignificant.hashCode() : 0);
-        result = 31 * result + (varianceSignificant != null ? varianceSignificant.hashCode() : 0);
-        result = 31 * result + (nullTestPValue != null ? nullTestPValue.hashCode() : 0);
-        result = 31 * result + (genotypeEffectPValue != null ? genotypeEffectPValue.hashCode() : 0);
-        result = 31 * result + (genotypeEffectStderrEstimate != null ? genotypeEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (genotypeEffectParameterEstimate != null ? genotypeEffectParameterEstimate.hashCode() : 0);
-        result = 31 * result + (femalePercentageChange != null ? femalePercentageChange.hashCode() : 0);
-        result = 31 * result + (malePercentageChange != null ? malePercentageChange.hashCode() : 0);
-        result = 31 * result + (sexEffectPValue != null ? sexEffectPValue.hashCode() : 0);
-        result = 31 * result + (sexEffectStderrEstimate != null ? sexEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (sexEffectParameterEstimate != null ? sexEffectParameterEstimate.hashCode() : 0);
-        result = 31 * result + (weightEffectPValue != null ? weightEffectPValue.hashCode() : 0);
-        result = 31 * result + (weightEffectStderrEstimate != null ? weightEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (weightEffectParameterEstimate != null ? weightEffectParameterEstimate.hashCode() : 0);
-        result = 31 * result + (group1Genotype != null ? group1Genotype.hashCode() : 0);
-        result = 31 * result + (group1ResidualsNormalityTest != null ? group1ResidualsNormalityTest.hashCode() : 0);
-        result = 31 * result + (group2Genotype != null ? group2Genotype.hashCode() : 0);
-        result = 31 * result + (group2ResidualsNormalityTest != null ? group2ResidualsNormalityTest.hashCode() : 0);
-        result = 31 * result + (blupsTest != null ? blupsTest.hashCode() : 0);
-        result = 31 * result + (rotatedResidualsTest != null ? rotatedResidualsTest.hashCode() : 0);
-        result = 31 * result + (interceptEstimate != null ? interceptEstimate.hashCode() : 0);
-        result = 31 * result + (interceptEstimateStderrEstimate != null ? interceptEstimateStderrEstimate.hashCode() : 0);
-        result = 31 * result + (interactionSignificant != null ? interactionSignificant.hashCode() : 0);
-        result = 31 * result + (interactionEffectPValue != null ? interactionEffectPValue.hashCode() : 0);
-        result = 31 * result + (femaleKoEffectPValue != null ? femaleKoEffectPValue.hashCode() : 0);
-        result = 31 * result + (femaleKoEffectStderrEstimate != null ? femaleKoEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (femaleKoParameterEstimate != null ? femaleKoParameterEstimate.hashCode() : 0);
-        result = 31 * result + (maleKoEffectPValue != null ? maleKoEffectPValue.hashCode() : 0);
-        result = 31 * result + (maleKoEffectStderrEstimate != null ? maleKoEffectStderrEstimate.hashCode() : 0);
-        result = 31 * result + (maleKoParameterEstimate != null ? maleKoParameterEstimate.hashCode() : 0);
-        result = 31 * result + (classificationTag != null ? classificationTag.hashCode() : 0);
-        result = 31 * result + (externalDbId != null ? externalDbId.hashCode() : 0);
-        result = 31 * result + (organisationId != null ? organisationId.hashCode() : 0);
-        result = 31 * result + (phenotypingCenterId != null ? phenotypingCenterId.hashCode() : 0);
-        result = 31 * result + (projectId != null ? projectId.hashCode() : 0);
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = getDocId() != null ? getDocId().hashCode() : 0;
+		result = 31 * result + (getDbId() != null ? getDbId().hashCode() : 0);
+		result = 31 * result + (getAnatomyTermId() != null ? getAnatomyTermId().hashCode() : 0);
+		result = 31 * result + (getAnatomyTermName() != null ? getAnatomyTermName().hashCode() : 0);
+		result = 31 * result + (getIntermediateAnatomyTermId() != null ? getIntermediateAnatomyTermId().hashCode() : 0);
+		result = 31 * result + (getIntermediateAnatomyTermName() != null ? getIntermediateAnatomyTermName().hashCode() : 0);
+		result = 31 * result + (getTopLevelAnatomyTermId() != null ? getTopLevelAnatomyTermId().hashCode() : 0);
+		result = 31 * result + (getTopLevelAnatomyTermName() != null ? getTopLevelAnatomyTermName().hashCode() : 0);
+		result = 31 * result + (getPhenotypeSex() != null ? getPhenotypeSex().hashCode() : 0);
+		result = 31 * result + (getDataType() != null ? getDataType().hashCode() : 0);
+		result = 31 * result + (getMpTermIdOptions() != null ? getMpTermIdOptions().hashCode() : 0);
+		result = 31 * result + (getMpTermNameOptions() != null ? getMpTermNameOptions().hashCode() : 0);
+		result = 31 * result + (getMpTermId() != null ? getMpTermId().hashCode() : 0);
+		result = 31 * result + (getMpTermName() != null ? getMpTermName().hashCode() : 0);
+		result = 31 * result + (getTopLevelMpTermId() != null ? getTopLevelMpTermId().hashCode() : 0);
+		result = 31 * result + (getTopLevelMpTermName() != null ? getTopLevelMpTermName().hashCode() : 0);
+		result = 31 * result + (getIntermediateMpTermId() != null ? getIntermediateMpTermId().hashCode() : 0);
+		result = 31 * result + (getIntermediateMpTermName() != null ? getIntermediateMpTermName().hashCode() : 0);
+		result = 31 * result + (getMaleMpTermId() != null ? getMaleMpTermId().hashCode() : 0);
+		result = 31 * result + (getMaleMpTermName() != null ? getMaleMpTermName().hashCode() : 0);
+		result = 31 * result + (getMaleTopLevelMpTermId() != null ? getMaleTopLevelMpTermId().hashCode() : 0);
+		result = 31 * result + (getMaleTopLevelMpTermName() != null ? getMaleTopLevelMpTermName().hashCode() : 0);
+		result = 31 * result + (getMaleIntermediateMpTermId() != null ? getMaleIntermediateMpTermId().hashCode() : 0);
+		result = 31 * result + (getMaleIntermediateMpTermName() != null ? getMaleIntermediateMpTermName().hashCode() : 0);
+		result = 31 * result + (getFemaleMpTermId() != null ? getFemaleMpTermId().hashCode() : 0);
+		result = 31 * result + (getFemaleMpTermName() != null ? getFemaleMpTermName().hashCode() : 0);
+		result = 31 * result + (getFemaleTopLevelMpTermId() != null ? getFemaleTopLevelMpTermId().hashCode() : 0);
+		result = 31 * result + (getFemaleTopLevelMpTermName() != null ? getFemaleTopLevelMpTermName().hashCode() : 0);
+		result = 31 * result + (getFemaleIntermediateMpTermId() != null ? getFemaleIntermediateMpTermId().hashCode() : 0);
+		result = 31 * result + (getFemaleIntermediateMpTermName() != null ? getFemaleIntermediateMpTermName().hashCode() : 0);
+		result = 31 * result + (getResourceName() != null ? getResourceName().hashCode() : 0);
+		result = 31 * result + (getResourceFullname() != null ? getResourceFullname().hashCode() : 0);
+		result = 31 * result + (getResourceId() != null ? getResourceId().hashCode() : 0);
+		result = 31 * result + (getProjectName() != null ? getProjectName().hashCode() : 0);
+		result = 31 * result + (getPhenotypingCenter() != null ? getPhenotypingCenter().hashCode() : 0);
+		result = 31 * result + (getPipelineStableId() != null ? getPipelineStableId().hashCode() : 0);
+		result = 31 * result + (getPipelineStableKey() != null ? getPipelineStableKey().hashCode() : 0);
+		result = 31 * result + (getPipelineName() != null ? getPipelineName().hashCode() : 0);
+		result = 31 * result + (getPipelineId() != null ? getPipelineId().hashCode() : 0);
+		result = 31 * result + (getProcedureStableId() != null ? getProcedureStableId().hashCode() : 0);
+		result = 31 * result + (getProcedureStableKey() != null ? getProcedureStableKey().hashCode() : 0);
+		result = 31 * result + (getProcedureName() != null ? getProcedureName().hashCode() : 0);
+		result = 31 * result + (getProcedureId() != null ? getProcedureId().hashCode() : 0);
+		result = 31 * result + (getParameterStableId() != null ? getParameterStableId().hashCode() : 0);
+		result = 31 * result + (getParameterStableKey() != null ? getParameterStableKey().hashCode() : 0);
+		result = 31 * result + (getParameterName() != null ? getParameterName().hashCode() : 0);
+		result = 31 * result + (getParameterId() != null ? getParameterId().hashCode() : 0);
+		result = 31 * result + (getColonyId() != null ? getColonyId().hashCode() : 0);
+		result = 31 * result + (getMarkerSymbol() != null ? getMarkerSymbol().hashCode() : 0);
+		result = 31 * result + (getMarkerAccessionId() != null ? getMarkerAccessionId().hashCode() : 0);
+		result = 31 * result + (getAlleleSymbol() != null ? getAlleleSymbol().hashCode() : 0);
+		result = 31 * result + (getAlleleName() != null ? getAlleleName().hashCode() : 0);
+		result = 31 * result + (getAlleleAccessionId() != null ? getAlleleAccessionId().hashCode() : 0);
+		result = 31 * result + (getStrainName() != null ? getStrainName().hashCode() : 0);
+		result = 31 * result + (getStrainAccessionId() != null ? getStrainAccessionId().hashCode() : 0);
+		result = 31 * result + (getGeneticBackground() != null ? getGeneticBackground().hashCode() : 0);
+		result = 31 * result + (getSex() != null ? getSex().hashCode() : 0);
+		result = 31 * result + (getZygosity() != null ? getZygosity().hashCode() : 0);
+		result = 31 * result + (getControlSelectionMethod() != null ? getControlSelectionMethod().hashCode() : 0);
+		result = 31 * result + (getDependentVariable() != null ? getDependentVariable().hashCode() : 0);
+		result = 31 * result + (getMetadataGroup() != null ? getMetadataGroup().hashCode() : 0);
+		result = 31 * result + (getControlBiologicalModelId() != null ? getControlBiologicalModelId().hashCode() : 0);
+		result = 31 * result + (getMutantBiologicalModelId() != null ? getMutantBiologicalModelId().hashCode() : 0);
+		result = 31 * result + (getMaleControlCount() != null ? getMaleControlCount().hashCode() : 0);
+		result = 31 * result + (getMaleMutantCount() != null ? getMaleMutantCount().hashCode() : 0);
+		result = 31 * result + (getFemaleControlCount() != null ? getFemaleControlCount().hashCode() : 0);
+		result = 31 * result + (getFemaleMutantCount() != null ? getFemaleMutantCount().hashCode() : 0);
+		result = 31 * result + (getFemaleMutantMean() != null ? getFemaleMutantMean().hashCode() : 0);
+		result = 31 * result + (getFemaleControlMean() != null ? getFemaleControlMean().hashCode() : 0);
+		result = 31 * result + (getMaleMutantMean() != null ? getMaleMutantMean().hashCode() : 0);
+		result = 31 * result + (getMaleControlMean() != null ? getMaleControlMean().hashCode() : 0);
+		result = 31 * result + (getWorkflow() != null ? getWorkflow().hashCode() : 0);
+		result = 31 * result + (getStatisticalMethod() != null ? getStatisticalMethod().hashCode() : 0);
+		result = 31 * result + (getStatus() != null ? getStatus().hashCode() : 0);
+		result = 31 * result + (getAdditionalInformation() != null ? getAdditionalInformation().hashCode() : 0);
+		result = 31 * result + (getRawOutput() != null ? getRawOutput().hashCode() : 0);
+		result = 31 * result + (getpValue() != null ? getpValue().hashCode() : 0);
+		result = 31 * result + (getEffectSize() != null ? getEffectSize().hashCode() : 0);
+		result = 31 * result + (getGenotypePvalueLowVsNormalHigh() != null ? getGenotypePvalueLowVsNormalHigh().hashCode() : 0);
+		result = 31 * result + (getGenotypePvalueLowNormalVsHigh() != null ? getGenotypePvalueLowNormalVsHigh().hashCode() : 0);
+		result = 31 * result + (getGenotypeEffectSizeLowVsNormalHigh() != null ? getGenotypeEffectSizeLowVsNormalHigh().hashCode() : 0);
+		result = 31 * result + (getGenotypeEffectSizeLowNormalVsHigh() != null ? getGenotypeEffectSizeLowNormalVsHigh().hashCode() : 0);
+		result = 31 * result + (getFemalePvalueLowVsNormalHigh() != null ? getFemalePvalueLowVsNormalHigh().hashCode() : 0);
+		result = 31 * result + (getFemalePvalueLowNormalVsHigh() != null ? getFemalePvalueLowNormalVsHigh().hashCode() : 0);
+		result = 31 * result + (getFemaleEffectSizeLowVsNormalHigh() != null ? getFemaleEffectSizeLowVsNormalHigh().hashCode() : 0);
+		result = 31 * result + (getFemaleEffectSizeLowNormalVsHigh() != null ? getFemaleEffectSizeLowNormalVsHigh().hashCode() : 0);
+		result = 31 * result + (getMalePvalueLowVsNormalHigh() != null ? getMalePvalueLowVsNormalHigh().hashCode() : 0);
+		result = 31 * result + (getMalePvalueLowNormalVsHigh() != null ? getMalePvalueLowNormalVsHigh().hashCode() : 0);
+		result = 31 * result + (getMaleEffectSizeLowVsNormalHigh() != null ? getMaleEffectSizeLowVsNormalHigh().hashCode() : 0);
+		result = 31 * result + (getMaleEffectSizeLowNormalVsHigh() != null ? getMaleEffectSizeLowNormalVsHigh().hashCode() : 0);
+		result = 31 * result + (getCategories() != null ? getCategories().hashCode() : 0);
+		result = 31 * result + (getCategoricalPValue() != null ? getCategoricalPValue().hashCode() : 0);
+		result = 31 * result + (getCategoricalEffectSize() != null ? getCategoricalEffectSize().hashCode() : 0);
+		result = 31 * result + (getBatchSignificant() != null ? getBatchSignificant().hashCode() : 0);
+		result = 31 * result + (getVarianceSignificant() != null ? getVarianceSignificant().hashCode() : 0);
+		result = 31 * result + (getNullTestPValue() != null ? getNullTestPValue().hashCode() : 0);
+		result = 31 * result + (getGenotypeEffectPValue() != null ? getGenotypeEffectPValue().hashCode() : 0);
+		result = 31 * result + (getGenotypeEffectStderrEstimate() != null ? getGenotypeEffectStderrEstimate().hashCode() : 0);
+		result = 31 * result + (getGenotypeEffectParameterEstimate() != null ? getGenotypeEffectParameterEstimate().hashCode() : 0);
+		result = 31 * result + (getFemalePercentageChange() != null ? getFemalePercentageChange().hashCode() : 0);
+		result = 31 * result + (getMalePercentageChange() != null ? getMalePercentageChange().hashCode() : 0);
+		result = 31 * result + (getSexEffectPValue() != null ? getSexEffectPValue().hashCode() : 0);
+		result = 31 * result + (getSexEffectStderrEstimate() != null ? getSexEffectStderrEstimate().hashCode() : 0);
+		result = 31 * result + (getSexEffectParameterEstimate() != null ? getSexEffectParameterEstimate().hashCode() : 0);
+		result = 31 * result + (getWeightEffectPValue() != null ? getWeightEffectPValue().hashCode() : 0);
+		result = 31 * result + (getWeightEffectStderrEstimate() != null ? getWeightEffectStderrEstimate().hashCode() : 0);
+		result = 31 * result + (getWeightEffectParameterEstimate() != null ? getWeightEffectParameterEstimate().hashCode() : 0);
+		result = 31 * result + (getGroup1Genotype() != null ? getGroup1Genotype().hashCode() : 0);
+		result = 31 * result + (getGroup1ResidualsNormalityTest() != null ? getGroup1ResidualsNormalityTest().hashCode() : 0);
+		result = 31 * result + (getGroup2Genotype() != null ? getGroup2Genotype().hashCode() : 0);
+		result = 31 * result + (getGroup2ResidualsNormalityTest() != null ? getGroup2ResidualsNormalityTest().hashCode() : 0);
+		result = 31 * result + (getBlupsTest() != null ? getBlupsTest().hashCode() : 0);
+		result = 31 * result + (getRotatedResidualsTest() != null ? getRotatedResidualsTest().hashCode() : 0);
+		result = 31 * result + (getInterceptEstimate() != null ? getInterceptEstimate().hashCode() : 0);
+		result = 31 * result + (getInterceptEstimateStderrEstimate() != null ? getInterceptEstimateStderrEstimate().hashCode() : 0);
+		result = 31 * result + (getInteractionSignificant() != null ? getInteractionSignificant().hashCode() : 0);
+		result = 31 * result + (getInteractionEffectPValue() != null ? getInteractionEffectPValue().hashCode() : 0);
+		result = 31 * result + (getFemaleKoEffectPValue() != null ? getFemaleKoEffectPValue().hashCode() : 0);
+		result = 31 * result + (getFemaleKoEffectStderrEstimate() != null ? getFemaleKoEffectStderrEstimate().hashCode() : 0);
+		result = 31 * result + (getFemaleKoParameterEstimate() != null ? getFemaleKoParameterEstimate().hashCode() : 0);
+		result = 31 * result + (getMaleKoEffectPValue() != null ? getMaleKoEffectPValue().hashCode() : 0);
+		result = 31 * result + (getMaleKoEffectStderrEstimate() != null ? getMaleKoEffectStderrEstimate().hashCode() : 0);
+		result = 31 * result + (getMaleKoParameterEstimate() != null ? getMaleKoParameterEstimate().hashCode() : 0);
+		result = 31 * result + (getClassificationTag() != null ? getClassificationTag().hashCode() : 0);
+		result = 31 * result + (getExternalDbId() != null ? getExternalDbId().hashCode() : 0);
+		result = 31 * result + (getOrganisationId() != null ? getOrganisationId().hashCode() : 0);
+		result = 31 * result + (getPhenotypingCenterId() != null ? getPhenotypingCenterId().hashCode() : 0);
+		result = 31 * result + (getProjectId() != null ? getProjectId().hashCode() : 0);
+		result = 31 * result + (getSignificant() != null ? getSignificant().hashCode() : 0);
+		return result;
+	}
 
 	@Override
 	public String toString() {
 		return "StatisticalResultDTO{" +
 			"docId='" + docId + '\'' +
 			", dbId=" + dbId +
+			", anatomyTermId=" + anatomyTermId +
+			", anatomyTermName=" + anatomyTermName +
+			", intermediateAnatomyTermId=" + intermediateAnatomyTermId +
+			", intermediateAnatomyTermName=" + intermediateAnatomyTermName +
+			", topLevelAnatomyTermId=" + topLevelAnatomyTermId +
+			", topLevelAnatomyTermName=" + topLevelAnatomyTermName +
 			", phenotypeSex=" + phenotypeSex +
 			", dataType='" + dataType + '\'' +
 			", mpTermIdOptions=" + mpTermIdOptions +
@@ -2654,6 +2623,7 @@ public class StatisticalResultDTO {
 			", organisationId=" + organisationId +
 			", phenotypingCenterId=" + phenotypingCenterId +
 			", projectId=" + projectId +
+			", significant=" + significant +
 			'}';
 	}
 }

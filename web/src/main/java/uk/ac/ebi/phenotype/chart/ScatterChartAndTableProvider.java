@@ -15,35 +15,26 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 @Service
 public class ScatterChartAndTableProvider {
@@ -51,22 +42,12 @@ public class ScatterChartAndTableProvider {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
-	PhenotypePipelineDAO ppDAO;
-
-	@Autowired
 	UnidimensionalChartAndTableProvider unidimensionalChartAndTableProvider;
 
 	@Autowired
 	ImpressService impressService;
 
-	public String createScatter(ExperimentDTO experiment, Float min, Float max, String experimentNumber, Parameter parameter, JSONArray series) {
-
-		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
-		String procedureDescription = "";
-		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
-		}
-
+	public String createScatter(ExperimentDTO experiment, Float min, Float max, String experimentNumber, ParameterDTO parameter, JSONArray series) {
 
 		String chartString="	$(function () { "
 			+ "  chart71maleWTSI = new Highcharts.Chart({ "
@@ -96,7 +77,7 @@ public class ScatterChartAndTableProvider {
 			+ (max != null ? "       max: " + max + ", " : "")
 			+ (min != null ? "       min: " + min + ", " : "")
 			+ "       title: { "
-			+ "         text: '" + parameter.getUnit() + "' "
+			+ "         text: '" + parameter.getUnitY() + "' "
 			+ "       } "
 			+ "     }, "
 			+ "     credits: { "
@@ -124,7 +105,7 @@ public class ScatterChartAndTableProvider {
 			+ "   }, "
 			+ "     tooltip: { "
 			+ "          formatter: function () { "
-			+ "              return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y + ' " + parameter.getUnit() + " '; "
+			+ "              return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y + ' " + parameter.getUnitX() + " '; "
 			+ "          } "
 			+ "      }, "
 			+ "     series: " +
@@ -136,7 +117,7 @@ public class ScatterChartAndTableProvider {
 	}
 
 
-	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax,Parameter parameter, String experimentNumber, BiologicalModel expBiologicalModel)
+	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax, ParameterDTO parameter, String experimentNumber)
 	throws IOException,	URISyntaxException {
 
 		JSONArray series=new JSONArray();
@@ -233,7 +214,7 @@ public class ScatterChartAndTableProvider {
 
 		List<UnidimensionalStatsObject> unidimensionalStatsObjects=null;
 		if(experiment.getObservationType().equals(ObservationType.unidimensional)) {
-			unidimensionalStatsObjects = unidimensionalChartAndTableProvider.createUnidimensionalStatsObjects(experiment, parameter, expBiologicalModel);
+			unidimensionalStatsObjects = unidimensionalChartAndTableProvider.createUnidimensionalStatsObjects(experiment, parameter);
 			scatterChartAndData.setUnidimensionalStatsObjects(unidimensionalStatsObjects);
 		}
 		return scatterChartAndData;

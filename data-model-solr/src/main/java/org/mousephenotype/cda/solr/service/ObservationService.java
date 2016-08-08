@@ -15,9 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -43,14 +61,12 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
-import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,13 +74,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 
 @Service
@@ -74,8 +86,6 @@ public class ObservationService extends BasicService implements WebStatus {
 
     @Autowired @Qualifier("experimentCore")
     private HttpSolrServer solr;
-
-    private CommonUtils commonUtils = new CommonUtils();
 
     /**
      * set this constructor up for unit testing
@@ -437,7 +447,7 @@ public class ObservationService extends BasicService implements WebStatus {
 		try {
 			Map<String, List<String>> facets = getFacetPivotResults(solr.query(query), pivot);
 			for (String category : facets.keySet()){
-				res.put(category, new HashSet(facets.get(category).subList(0, facets.get(category).size())));
+				res.put(category, new HashSet<>(facets.get(category).subList(0, facets.get(category).size())));
 			}
 
 		} catch (SolrServerException e) {
@@ -459,7 +469,6 @@ public class ObservationService extends BasicService implements WebStatus {
     public List<Map<String, String>> getCategories(List<String> resources, List<String> parameterStableIds, String pivot) throws SolrServerException {
 
    		SolrQuery query = new SolrQuery();
-   		TreeMap<String, Set<String>> result = new TreeMap<>();
 
    		if ((resources != null) && ( ! resources.isEmpty())) {
    			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"	+ StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
@@ -1002,7 +1011,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
     }
 
-    public List<ObservationDTO> getExperimentObservationsBy(Integer parameterId, Integer pipelineId, String gene, List<String> zygosities, Integer organisationId, String strain, SexType sex, String metaDataGroup, String alleleAccession)
+    public List<ObservationDTO> getExperimentObservationsBy(Integer parameterId, Integer pipelineId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
     throws SolrServerException {
 
     	  List<ObservationDTO> resultsDTO;
@@ -1028,8 +1037,8 @@ public class ObservationService extends BasicService implements WebStatus {
         if (strain != null) {
             query.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:"));
         }
-        if (organisationId != null) {
-            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER_ID + ":" + organisationId);
+        if (phenotypingCenter != null) {
+            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
         }
         if (sex != null) {
             query.addFilterQuery(ObservationDTO.SEX + ":" + sex);
@@ -1048,7 +1057,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
-    public List<ObservationDTO> getViabilityData(String parameterStableId, Integer pipelineId, String gene, List<String> zygosities, Integer organisationId, String strain, SexType sex, String metaDataGroup, String alleleAccession)
+    public List<ObservationDTO> getViabilityData(String parameterStableId, Integer pipelineId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
     throws SolrServerException {
 
         List<ObservationDTO> resultsDTO;
@@ -1075,8 +1084,8 @@ public class ObservationService extends BasicService implements WebStatus {
         if (strain != null) {
             query.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:"));
         }
-        if (organisationId != null) {
-            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER_ID + ":" + organisationId);
+        if (phenotypingCenter != null) {
+            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
         }
         if (sex != null) {
             query.addFilterQuery(ObservationDTO.SEX + ":" + sex);
@@ -1607,7 +1616,7 @@ public class ObservationService extends BasicService implements WebStatus {
      * criteria
      * @throws SolrServerException
      */
-    public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex, String metadataGroup)
+    public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, String phenotypingCenter, Date experimentDate, String sex, String metadataGroup)
     throws SolrServerException {
 
         List<ObservationDTO> results;
@@ -1615,8 +1624,8 @@ public class ObservationService extends BasicService implements WebStatus {
         QueryResponse response = new QueryResponse();
 
         SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId).addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:")).setStart(0).setRows(5000);
-        if (organisationId != null) {
-            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER_ID + ":" + organisationId);
+        if (phenotypingCenter != null) {
+            query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
         }
 
         if (metadataGroup == null) {
@@ -1671,7 +1680,7 @@ public class ObservationService extends BasicService implements WebStatus {
      * criteria
      * @throws SolrServerException
      */
-    public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex, String metadataGroup)
+    public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, String phenotypingCenter, Date experimentDate, String sex, String metadataGroup)
     throws SolrServerException {
 
         List<ObservationDTO> results;
@@ -1697,7 +1706,12 @@ public class ObservationService extends BasicService implements WebStatus {
 
         QueryResponse response = new QueryResponse();
 
-        SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ObservationDTO.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]").addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId).addFilterQuery(ObservationDTO.PHENOTYPING_CENTER_ID + ":" + organisationId).addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:")).addFilterQuery(ObservationDTO.SEX + ":" + sex).setStart(0).setRows(5000);
+        SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control")
+        		.addFilterQuery(ObservationDTO.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]")
+        		.addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId)
+        		.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
+        		.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:"))
+        		.addFilterQuery(ObservationDTO.SEX + ":" + sex).setStart(0).setRows(5000);
 
         if (metadataGroup == null) {
             // don't add a metadata group filter

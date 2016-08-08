@@ -1,10 +1,12 @@
 package org.mousephenotype.cda.indexers;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
@@ -18,14 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigIndexers.class} )
@@ -48,15 +49,54 @@ public class ObservationIndexerTest {
     }
 
     @Test
+    public void testGetOntologyParameterSubTerms() throws SQLException {
+
+        Map<Integer, List<OntologyBean>> map = IndexerMap.getOntologyParameterSubTerms(ds.getConnection());
+
+        boolean found = false;
+        for (Integer mapId : map.keySet()) {
+            List<OntologyBean> list = map.get(mapId);
+            if (list.size() > 1) {
+
+                System.out.println("Found an observation with more than one ontology term association");
+                System.out.println("For map ID " + mapId + ": " + StringUtils.join( list.stream().map(OntologyBean::getName).collect(Collectors.toList() ), ", "));
+
+                list.stream().forEach(x -> {
+                    System.out.println(x);
+                });
+
+                for (OntologyBean x : list) {
+                    System.out.println(x);
+                }
+
+                found = true;
+                break;
+            }
+        }
+
+        assert (found == true);
+
+    }
+
+    @Test
 //@Ignore
     public void testPopulateBiologicalDataMap() throws Exception {
         observationIndexer.initialise();
 
         observationIndexer.populateBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
-        Assert.assertTrue(bioDataMap.size() > 1000);
 
-        logger.info("Size of biological data map {}", bioDataMap.size());
+        Assert.assertTrue(bioDataMap.size() > 1000);
+	    logger.info("Size of biological data map {}", bioDataMap.size());
+
+	    for (ObservationIndexer.BiologicalDataBean biologicalDataBean : bioDataMap.values()) {
+
+	    	if ( ! biologicalDataBean.sampleGroup.equals("control")) {
+			    Assert.assertTrue(! StringUtils.isEmpty(biologicalDataBean.alleleAccession));
+			    Assert.assertTrue(! StringUtils.isEmpty(biologicalDataBean.geneticBackground));
+		    }
+
+	    }
 
     }
 
