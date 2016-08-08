@@ -41,6 +41,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
@@ -804,9 +805,15 @@ public class GenesController {
 	 */
 	private void getImpcImages(String acc, Model model)
 	throws SolrServerException {
-
-		imageService.getImpcImagesForGenePage(acc, model, 0, 5, false);
-		//imageService.getControlAndExperimentalImpcImages(acc, model, null, null, 0, 1, "Adult Lac Z");
+		List<Group> groups = imageService.getPhenotypeAssociatedImages(acc, 1);
+		Map<String, String> paramToNumber=new HashMap<>();
+		for(Group group:groups){
+			if(!paramToNumber.containsKey(group.getGroupValue())){
+				paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
+			}
+		}
+		model.addAttribute("paramToNumber", paramToNumber);
+		model.addAttribute("impcImageGroups",imageService.getPhenotypeAssociatedImages(acc, 1));
 
 	}
 
