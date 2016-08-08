@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.enumerations.OrderType;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
@@ -32,20 +32,20 @@ public class OrderService {
 
 	@Autowired
 	@Qualifier("allele2Core")
-	private HttpSolrServer allele2Core;
+	private HttpSolrClient allele2Core;
 
 	@Autowired
 	@Qualifier("eucommCreProductsCore")
-	private HttpSolrServer eucommProduct;
+	private HttpSolrClient eucommProduct;
 
 	@Autowired
 	@Qualifier("eucommToolsProductCore")
-	private HttpSolrServer productCore;
+	private HttpSolrClient productCore;
 	
 	 @Value("${imits.solr.host}")
 	 private String IMITS_SOLR_CORE_URL;
 
-	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows) throws SolrServerException {
+	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows) throws SolrServerException, IOException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
 		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows);
 
@@ -70,7 +70,7 @@ public class OrderService {
 		return orderTableRows;
 	}
 
-	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows) throws SolrServerException {
+	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows) throws SolrServerException, IOException {
 		String q = "*:*";// default if no gene specified
 		if (geneAcc != null) {
 			q = "mgi_accession_id:\"" + geneAcc + "\"";// &start=0&rows=100&hl=true&wt=json";
@@ -89,7 +89,7 @@ public class OrderService {
 
 	}
 
-	public Allele2DTO getAlleForGeneAndAllele(String acc, String allele) throws SolrServerException {
+	public Allele2DTO getAlleForGeneAndAllele(String acc, String allele) throws SolrServerException, IOException {
 		String q = "*:*";// default if no gene specified
 		if (acc != null) {
 			q = "mgi_accession_id:\"" + acc + "\"";// &start=0&rows=100&hl=true&wt=json";
@@ -107,16 +107,15 @@ public class OrderService {
 		return allele2DTOs.get(0);
 	}
 
-	protected Map<String, List<ProductDTO>> getProductsForAllele(String alleleName) throws SolrServerException {
+	protected Map<String, List<ProductDTO>> getProductsForAllele(String alleleName) throws SolrServerException, IOException {
 		return this.getProducts(null, alleleName, null);
 	}
 
-	protected Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException {
+	protected Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
 		return this.getProducts(geneAcc, null, null);
 	}
 
-	public Map<String, List<ProductDTO>> getProductToOrderNameMap(String geneAcc, String alleleName, OrderType productType)
-			throws SolrServerException {
+	public Map<String, List<ProductDTO>> getProductToOrderNameMap(String geneAcc, String alleleName, OrderType productType)  throws SolrServerException, IOException {
 		List<ProductDTO> productList = null;
 		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType);
 		if (productsMap.keySet().size() > 1) {
@@ -141,7 +140,7 @@ public class OrderService {
 	}
 
 	protected Map<String, List<ProductDTO>> getProducts(String geneAcc, String alleleName, OrderType productType)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 		Map<String, List<ProductDTO>> alleleNameToProductsMap = new HashMap<>();
 		String q = "*:*";
 		if (geneAcc != null) {
@@ -182,7 +181,7 @@ public class OrderService {
 	 * @return 
 	 * @throws SolrServerException 
 	 */
-	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName) throws SolrServerException {
+	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName) throws SolrServerException, IOException {
 		ProductDTO prod=null;
 		List<String>qcData=null;
 		SolrQuery query = new SolrQuery();
@@ -244,7 +243,7 @@ public class OrderService {
 	    }
 	 
 	 
-	 public HashMap<String, String> getCreData(String acc) throws SolrServerException{
+	 public HashMap<String, String> getCreData(String acc) throws SolrServerException, IOException {
 		 //method to get the link at the bottom of the table if we have old cre mice available from the other core eucommProduct
 		 HashMap<String, String> creStatus = new HashMap<>();// a bit lazy but have just used the same structure and logic her that peter used
 	        creStatus.put("cre_exists", "false");

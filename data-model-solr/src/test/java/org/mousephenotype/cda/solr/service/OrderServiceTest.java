@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import javax.validation.constraints.NotNull;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.io.IOException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader=AnnotationConfigContextLoader.class)
@@ -41,23 +43,23 @@ public class OrderServiceTest {
 		private String imitsSolrBaseUrl;
 
 		@Bean(name = "allele2Core")
-		HttpSolrServer getAllele2Core() {
-			return new HttpSolrServer(imitsSolrBaseUrl + "/allele2");
+		HttpSolrClient getAllele2Core() {
+			return new HttpSolrClient(imitsSolrBaseUrl + "/allele2");
 		}
 		
 		@Bean(name = "eucommCreProductsCore")
-		HttpSolrServer getEucomCreToolsProduct() {
-			return new HttpSolrServer(imitsSolrBaseUrl + "/eucommtoolscre_product");
+		HttpSolrClient getEucomCreToolsProduct() {
+			return new HttpSolrClient(imitsSolrBaseUrl + "/eucommtoolscre_product");
 		}
 
 		@Bean(name = "eucommToolsProductCore")
-		HttpSolrServer getEucommToolsProductCore() {
-			return new HttpSolrServer(imitsSolrBaseUrl + "/product");
+		HttpSolrClient getEucommToolsProductCore() {
+			return new HttpSolrClient(imitsSolrBaseUrl + "/product");
 		}
 
 		@Bean(name = "eucommToolsCreAllele2Core")
-		HttpSolrServer getEucommToolsCreAllele2() {
-			return new HttpSolrServer(imitsSolrBaseUrl + "/eucommtoolscre_allele2");
+		HttpSolrClient getEucommToolsCreAllele2() {
+			return new HttpSolrClient(imitsSolrBaseUrl + "/eucommtoolscre_allele2");
 		}
 		
 		@Bean
@@ -68,25 +70,15 @@ public class OrderServiceTest {
 	}
 	
 	@Test
-	public void getAlleleDocsTest(){
+	public void getAlleleDocsTest() throws IOException, SolrServerException {
 		String geneAcc="MGI:1859328";
-		try {
 			assertTrue(orderService.getAllele2DTOs(geneAcc, Integer.MAX_VALUE).size()>2);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	@Test
-	public void getProductDocsTest(){
+	public void getProductDocsTest() throws IOException, SolrServerException {
 		String geneAcc="MGI:1859328";
-		try {
 			assertTrue(orderService.getProductsForGene(geneAcc).size()>2);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	

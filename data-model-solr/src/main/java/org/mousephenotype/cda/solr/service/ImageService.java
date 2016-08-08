@@ -889,7 +889,7 @@ public class ImageService implements WebStatus{
 	
 	
 	
-	public List<Group> getPhenotypeAssociatedImages(String acc, int count) throws SolrServerException{
+	public List<Group> getPhenotypeAssociatedImages(String acc, int count) throws SolrServerException, IOException {
 		List<Group> groups = new ArrayList<>();
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("gene_accession_id:\"" + acc + "\"");
