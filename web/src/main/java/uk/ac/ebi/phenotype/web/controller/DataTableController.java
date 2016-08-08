@@ -1739,6 +1739,7 @@ public class DataTableController {
         }
 
         return StringUtils.join(imgPath, "");
+
     }
 
     private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request) {
@@ -1762,12 +1763,10 @@ public class DataTableController {
                 List<String> info = new ArrayList<String>();
 
                 if (field.equals("marker_name")) {
-                    //info.add(doc.getString(field));
                     info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getString(field), "span", "subMatch"));
                 } else if (field.equals("human_gene_symbol")) {
                     JSONArray data = doc.getJSONArray(field);
                     for (Object h : data) {
-                        //info.add(h.toString());
                         info.add(Tools.highlightMatchedStrIfFound(qryStr, h.toString(), "span", "subMatch"));
                     }
                 } else if (field.equals("marker_synonym")) {
@@ -1778,10 +1777,10 @@ public class DataTableController {
 
                     for (Object d : data) {
 						counter++;
-						if ( d.toString().toLowerCase().contains(qryStr.toLowerCase())) {
+						String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
+						if ( d.toString().toLowerCase().contains(targetStr) ) {
 							if ( synMatch == null ) {
-								synMatch = Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch");
-								//info.add(Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch"));
+								synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
 							}
 						}
 						else {
