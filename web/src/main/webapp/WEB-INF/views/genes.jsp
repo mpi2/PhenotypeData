@@ -122,6 +122,7 @@
 							
 							if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
 								$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
+								$('#phenotypeTableDiv').toggleClass('hidden');
 								if(!heatmap_generated){
 																		
 									//load the js required to make the heatmap css as well on dev took 600ms or more.
@@ -389,39 +390,16 @@
 								</h2>
 
 								<div class="inner">
-
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
 									
-									<a id="heatmap_link">Show Preliminary Data</a>
+									
 								</div>
 
 							</div>
 							<!-- end of Phenotype Associations -->
 
 
-							<!-- phenotype heatmap -->
-							<c:if test="${phenotypeStarted}">
-
-								<div id="heatmap_toggle_div" class="section hidden">
-									<h2 class="title" id="heatmap">Phenotype heatmap <span
-											class="documentation"><a href='' id='heatmapSection'
-																	 class="fa fa-question-circle pull-right"></a></span>
-									</h2>
-
-									<div class="inner">
-										<div class="alert alert-info">
-
-											<p>These are the results of a preliminary statistical analysis. Data are still
-												in the process of being quality controlled and results may change.</p>
-										</div>
-									</div>
-									<div class="dcc-heatmap-root">
-										<div class="phenodcc-heatmap"
-											 id="phenodcc-heatmap"></div>
-									</div>
-								</div>
-								<!-- end of Pre-QC phenotype heatmap -->
-							</c:if>
+							
 
 							<c:if test="${not empty imageErrors}">
 								<div class="row-fluid dataset">
@@ -586,21 +564,24 @@
 								</div>
 							</div><!-- end of IMPC / legacy Expressions -->
 
+						
+							
+							
 							<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
 							<div class="section">
-								<h2 class="title" id="section-images">Phenotype Associated Images
+								<h2 class="title" id="section-images">Phenotype Associated Images new
 									<span class="documentation"><a href="" id="phenoAssocImgSection" class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
 								<div class="inner" style="display: block;">
-									<c:if test="${empty impcImageFacets and empty solrFacets}">
+									<c:if test="${empty impcImageGroups and empty solrFacets}">
 										<div class="alert alert_info">Phenotype associated images not available</div>
 									</c:if>
 
-									<c:if test="${not empty impcImageFacets or not empty solrFacets}">
-										<c:if test="${not empty impcImageFacets}">
+									<c:if test="${not empty impcImageGroups or not empty solrFacets}">
+										<c:if test="${not empty impcImageGroups}">
 											<h5 class="sectHint">IMPC Phenotype Associated Images</h5>
-											<jsp:include page="genesImpcPhenoAssocImg_frag.jsp"></jsp:include>
+											<jsp:include page="genesImpcImagesAssocFrag.jsp"></jsp:include>
 										</c:if>
 
 										<c:if test="${not empty impcImageFacets and not empty solrFacets}">
