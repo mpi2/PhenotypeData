@@ -100,6 +100,7 @@ public class SolrServerConfig {
 	@Bean(name = "autosuggestCore")
 	HttpSolrServer getAutosuggestCore() {
 		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
+		//return new HttpSolrServer("http://localhost:8090/solr" + "/autosuggest");
 	}
 
 	//Disease
@@ -112,6 +113,7 @@ public class SolrServerConfig {
 	@Bean(name = "geneCore")
 	HttpSolrServer getGeneCore() {
 		return new HttpSolrServer(solrBaseUrl + "/gene");
+		//return new HttpSolrServer("http://localhost:8090/solr" + "/gene");
 	}
 
 	//GenotypePhenotype
