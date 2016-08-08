@@ -124,18 +124,7 @@
 								$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
 								$('#phenotypeTableDiv').toggleClass('hidden');
 								if(!heatmap_generated){
-<<<<<<< HEAD
 
-
-
-
-
-									//load the js required to make the heatmap css as well on dev took 600ms or more.
-
-=======
-																		
-									//load the js required to make the heatmap css as well on dev took 600ms or more.
->>>>>>> master
 									var script = document.createElement('script');
 									script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
 									script.onload = function () {
@@ -164,15 +153,12 @@
 										heatmap_generated=1;
 
 									};
-<<<<<<< HEAD
+
 
 								document.head.appendChild(script);
 
+		
 
-
-=======
-									document.head.appendChild(script);
->>>>>>> master
 								}//end of if heatmap generated
 
 						}
