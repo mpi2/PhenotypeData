@@ -28,6 +28,7 @@ public class AutosuggestBean {
 	public static final String DOCTYPE = "docType";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	public static final String MGI_ALLELE_ACCESSION_ID = "allele_accession_id";
+	public static final String ALLELE_MGI_ACCESSION_ID = "allele_mgi_accession_id";
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String MARKER_NAME = "marker_name";
 	public static final String MARKER_SYNONYM = "marker_synonym";
@@ -81,6 +82,11 @@ public class AutosuggestBean {
 	public static final String DISEASE_ID = "disease_id";
 	public static final String DISEASE_TERM = "disease_term";
 	public static final String DISEASE_ALTS = "disease_alts";
+
+	public static final String IKMC_PROJECT = "ikmc_project";
+	public static final String ALLELE_NAME = "allele_name";
+	public static final String GENE_ALLELE = "gene_allele";
+
 	public static final String AUTO_SUGGEST = "auto_suggest";
 
 	public static final String GWAS_MGI_GENE_ID = "gwas_mgi_gene_id";
@@ -106,7 +112,10 @@ public class AutosuggestBean {
 
 	@Field(MGI_ALLELE_ACCESSION_ID)
 	private List<String> mgiAlleleAccessionIds;
-	
+
+	@Field(ALLELE_MGI_ACCESSION_ID)
+	private String alleleMgiAccessionId;
+
 	@Field(MARKER_SYMBOL)
 	private String markerSymbol;
 
@@ -252,6 +261,13 @@ public class AutosuggestBean {
 	@Field(DISEASE_ALTS)
 	private String diseaseAlts;
 
+	@Field(IKMC_PROJECT)
+	private String ikmcProject;
+	@Field(ALLELE_NAME)
+	private String alleleName;
+	@Field(GENE_ALLELE)
+	private String geneAllele;
+
 	@Field(AUTO_SUGGEST)
 	private List<String> autosuggest;
 
@@ -314,6 +330,14 @@ public class AutosuggestBean {
 
 	public void setMgiAlleleAccessionIds(List<String> mgiAlleleAccessionIds) {
 		this.mgiAlleleAccessionIds = mgiAlleleAccessionIds;
+	}
+
+	public String getAlleleMgiAccessionId() {
+		return alleleMgiAccessionId;
+	}
+
+	public void setAlleleMgiAccessionId(String alleleMgiAccessionId) {
+		this.alleleMgiAccessionId = alleleMgiAccessionId;
 	}
 
 	public String getMarkerSymbol() {
@@ -700,6 +724,30 @@ public class AutosuggestBean {
 		this.diseaseAlts = diseaseAlts;
 	}
 
+	public String getIkmcProject() {
+		return ikmcProject;
+	}
+
+	public void setIkmcProject(String ikmcProject) {
+		this.ikmcProject = ikmcProject;
+	}
+
+	public String getAlleleName() {
+		return alleleName;
+	}
+
+	public void setAlleleName(String alleleName) {
+		this.alleleName = alleleName;
+	}
+
+	public String getGeneAllele() {
+		return geneAllele;
+	}
+
+	public void setGeneAllele(String geneAllele) {
+		this.geneAllele = geneAllele;
+	}
+
 	public List<String> getAutosuggest() {
 		return autosuggest;
 	}
@@ -804,7 +852,6 @@ public class AutosuggestBean {
 		this.gwasSnpId = gwasSnpId;
 	}
 
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -816,6 +863,8 @@ public class AutosuggestBean {
 		if (mgiAccessionId != null ? !mgiAccessionId.equals(that.mgiAccessionId) : that.mgiAccessionId != null)
 			return false;
 		if (mgiAlleleAccessionIds != null ? !mgiAlleleAccessionIds.equals(that.mgiAlleleAccessionIds) : that.mgiAlleleAccessionIds != null)
+			return false;
+		if (alleleMgiAccessionId != null ? !alleleMgiAccessionId.equals(that.alleleMgiAccessionId) : that.alleleMgiAccessionId != null)
 			return false;
 		if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
 		if (markerName != null ? !markerName.equals(that.markerName) : that.markerName != null) return false;
@@ -892,6 +941,9 @@ public class AutosuggestBean {
 		if (diseaseId != null ? !diseaseId.equals(that.diseaseId) : that.diseaseId != null) return false;
 		if (diseaseTerm != null ? !diseaseTerm.equals(that.diseaseTerm) : that.diseaseTerm != null) return false;
 		if (diseaseAlts != null ? !diseaseAlts.equals(that.diseaseAlts) : that.diseaseAlts != null) return false;
+		if (ikmcProject != null ? !ikmcProject.equals(that.ikmcProject) : that.ikmcProject != null) return false;
+		if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) return false;
+		if (geneAllele != null ? !geneAllele.equals(that.geneAllele) : that.geneAllele != null) return false;
 		if (autosuggest != null ? !autosuggest.equals(that.autosuggest) : that.autosuggest != null) return false;
 		if (gwasMgiGeneId != null ? !gwasMgiGeneId.equals(that.gwasMgiGeneId) : that.gwasMgiGeneId != null)
 			return false;
@@ -914,7 +966,7 @@ public class AutosuggestBean {
 			return false;
 		if (gwasDownstreamGene != null ? !gwasDownstreamGene.equals(that.gwasDownstreamGene) : that.gwasDownstreamGene != null)
 			return false;
-		return !(gwasSnpId != null ? !gwasSnpId.equals(that.gwasSnpId) : that.gwasSnpId != null);
+		return gwasSnpId != null ? gwasSnpId.equals(that.gwasSnpId) : that.gwasSnpId == null;
 
 	}
 
@@ -923,6 +975,7 @@ public class AutosuggestBean {
 		int result = docType != null ? docType.hashCode() : 0;
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
 		result = 31 * result + (mgiAlleleAccessionIds != null ? mgiAlleleAccessionIds.hashCode() : 0);
+		result = 31 * result + (alleleMgiAccessionId != null ? alleleMgiAccessionId.hashCode() : 0);
 		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
 		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
 		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
@@ -971,6 +1024,9 @@ public class AutosuggestBean {
 		result = 31 * result + (diseaseId != null ? diseaseId.hashCode() : 0);
 		result = 31 * result + (diseaseTerm != null ? diseaseTerm.hashCode() : 0);
 		result = 31 * result + (diseaseAlts != null ? diseaseAlts.hashCode() : 0);
+		result = 31 * result + (ikmcProject != null ? ikmcProject.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (geneAllele != null ? geneAllele.hashCode() : 0);
 		result = 31 * result + (autosuggest != null ? autosuggest.hashCode() : 0);
 		result = 31 * result + (gwasMgiGeneId != null ? gwasMgiGeneId.hashCode() : 0);
 		result = 31 * result + (gwasMgiGeneSymbol != null ? gwasMgiGeneSymbol.hashCode() : 0);
@@ -987,13 +1043,13 @@ public class AutosuggestBean {
 		return result;
 	}
 
-
 	@Override
 	public String toString() {
 		return "AutosuggestBean{" +
 				"docType='" + docType + '\'' +
 				", mgiAccessionId='" + mgiAccessionId + '\'' +
 				", mgiAlleleAccessionIds=" + mgiAlleleAccessionIds +
+				", alleleMgiAccessionId='" + alleleMgiAccessionId + '\'' +
 				", markerSymbol='" + markerSymbol + '\'' +
 				", markerName='" + markerName + '\'' +
 				", markerSynonym='" + markerSynonym + '\'' +
@@ -1042,6 +1098,9 @@ public class AutosuggestBean {
 				", diseaseId='" + diseaseId + '\'' +
 				", diseaseTerm='" + diseaseTerm + '\'' +
 				", diseaseAlts='" + diseaseAlts + '\'' +
+				", ikmcProject='" + ikmcProject + '\'' +
+				", alleleName='" + alleleName + '\'' +
+				", geneAllele='" + geneAllele + '\'' +
 				", autosuggest=" + autosuggest +
 				", gwasMgiGeneId='" + gwasMgiGeneId + '\'' +
 				", gwasMgiGeneSymbol='" + gwasMgiGeneSymbol + '\'' +

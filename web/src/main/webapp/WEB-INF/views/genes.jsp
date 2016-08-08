@@ -24,7 +24,7 @@
 			            <li><a href="#top">Gene</a></li>
 			            <li><a href="#section-associations">Phenotype Associations</a></li>
 			            <!--  always a section for this even if says no phenotypes found - do not putting in check here -->
-			            
+
 
 						<li><a href="#section-expression">Expression</a></li>
 
@@ -119,17 +119,27 @@
 							    link.media = 'all';
 							    head.appendChild(link);
 							} */
-							
+
 							if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
 								$('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
 								$('#phenotypeTableDiv').toggleClass('hidden');
 								if(!heatmap_generated){
+<<<<<<< HEAD
+
+
+
+
+
+									//load the js required to make the heatmap css as well on dev took 600ms or more.
+
+=======
 																		
 									//load the js required to make the heatmap css as well on dev took 600ms or more.
+>>>>>>> master
 									var script = document.createElement('script');
 									script.src = "${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js";
 									script.onload = function () {
-										
+
 										//do stuff with the script
 										new dcc.PhenoHeatMap({
 											/* identifier of <div> node that will host the heatmap */
@@ -152,14 +162,22 @@
 											}
 										});
 										heatmap_generated=1;
-										
+
 									};
+<<<<<<< HEAD
+
+								document.head.appendChild(script);
+
+
+
+=======
 									document.head.appendChild(script);
+>>>>>>> master
 								}//end of if heatmap generated
-							
+
 						}
-							
-							
+
+
 						});
 						 
 					});
@@ -691,7 +709,6 @@
 		<%--reinvoke this when atlas people are ready supporting https--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>--%>
-
 
 
 		<script type="text/javascript">

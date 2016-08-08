@@ -189,7 +189,7 @@ public class QueryBrokerController {
 			//System.out.println(core + " -- " + param);
 
 			String url =  SolrUtils.getBaseURL(solrIndex.getSolrServer(core)) + "/select?" + param;
-			//System.out.println("QueryBroker: "+url);
+			//System.out.println("QueryBrokerController: "+url);
 			String key = core+param;
 			Object o = cache.get(key);
 
@@ -221,7 +221,6 @@ public class QueryBrokerController {
 				//System.out.println("------ Using cache");
 			}
 		}
-
 		return jsonResponse;
 	}
 
