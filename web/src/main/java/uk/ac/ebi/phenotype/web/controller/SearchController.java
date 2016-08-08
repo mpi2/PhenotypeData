@@ -218,17 +218,31 @@ public class SearchController {
 			String thisCore = cores.get(i);
 			String thisFqStr = null;
 
-			if ( thisCore.equals("gene") ){
+			if (thisCore.equals("gene")) {
 				String geneQf = "geneQf";
 				qfDefTypeWt = "&qf=" + geneQf + "&defType=edismax&wt=json";
-
-				thisFqStr = fqStr == null ? "" : fqStr;
 			}
 			else {
 				qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
-
-				thisFqStr = fqStr == null ? searchConfig.getFqStr(thisCore) : fqStr;
 			}
+
+			if ( thisCore.equals(dataType) ) {
+				if ( thisCore.equals("gene") ){
+					thisFqStr = fqStr == null ? "" : fqStr;
+				}
+				else {
+					thisFqStr = fqStr == null ? searchConfig.getFqStr(thisCore) : fqStr;
+				}
+			}
+			else {
+				if ( thisCore.equals("gene") ){
+					thisFqStr = "";
+				}
+				else {
+					thisFqStr = searchConfig.getFqStr(thisCore);
+				}
+			}
+
 			qryBrokerJson.put(thisCore, qStr + "&fq="+thisFqStr + qfDefTypeWt);
 		}
 
