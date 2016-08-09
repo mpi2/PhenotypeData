@@ -98,7 +98,7 @@ public class SearchConfig {
 
         coreDefault.put("gene", "geneQf");
         coreDefault.put("mp", defaultQf);
-        coreDefault.put("disease", defaultQf);
+        coreDefault.put("disease", "diseaseQf");
         coreDefault.put("anatomy", defaultQf);
         coreDefault.put("impc_images", defaultQf);
         //coreDefault.put("images", "*:*");
