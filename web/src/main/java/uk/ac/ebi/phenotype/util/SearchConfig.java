@@ -99,7 +99,7 @@ public class SearchConfig {
         coreDefault.put("gene", "geneQf");
         coreDefault.put("mp", defaultQf);
         coreDefault.put("disease", "diseaseQf");
-        coreDefault.put("anatomy", defaultQf);
+        coreDefault.put("anatomy", "anatomyQf");
         coreDefault.put("impc_images", defaultQf);
         //coreDefault.put("images", "*:*");
         coreDefault.put("allele2", defaultQf);
@@ -209,6 +209,7 @@ public class SearchConfig {
 //                "largeThumbnailFilePath");
 
         List<String> allele2Fields = Arrays.asList("marker_symbol",
+                "mgi_accession_id",
                 "allele_name",
                 "mutation_type",
                 "es_cell_available",

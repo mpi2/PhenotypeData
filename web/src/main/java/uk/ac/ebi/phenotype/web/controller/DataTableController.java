@@ -637,19 +637,27 @@ public class DataTableController {
 			JSONObject doc = docs.getJSONObject(i);
 
 			//String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
-			String alleleName = "<span class='allelename'>"+ doc.getString("allele_name")+ "</span>";
+			//String alleleName = "<span class='allelename'>"+ doc.getString("allele_name")+ "</span>";
+            String alleleName = doc.getString("allele_name");
+            String markerAcc = doc.getString("mgi_accession_id");
 			String markerSymbol = doc.getString("marker_symbol");
 			String mutationType = doc.getString("mutation_type");
 
+          //  <a class="iFrameFancy btn" data-url="/phenotype-archive/order?acc=MGI:2443967&amp;allele=tm1a(EUCOMM)Hmgu&amp;type=targeting_vector&amp;bare=true"><i class="fa fa-shopping-cart"></i></a>
 			List<String> orders = new ArrayList<>();
+            String dataUrl = "/data/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
+
 			if ( doc.containsKey("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
-				orders.add("<i class='fa fa-shopping-cart'><a href=''>Targeting vector</a></i>");
+			    dataUrl += "&type=targeting_vector";
+				orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "'><i class='fa fa-shopping-cart'>Targeting vector</i></a>");
 			}
 			if ( doc.containsKey("es_cell_available") && doc.getBoolean("es_cell_available")){
-				orders.add("<i class='fa fa-shopping-cart'><a href=''>ES cell</a></i>");
+                dataUrl += "&type=es_cell";
+                orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "'><i class='fa fa-shopping-cart'>ES cell</i></a>");
 			}
 			if ( doc.containsKey("mouse_available") && doc.getBoolean("mouse_available")){
-				orders.add("<i class='fa fa-shopping-cart'><a href=''>Mouse</a></i>");
+                dataUrl += "&type=mouse";
+                orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "'><i class='fa fa-shopping-cart'>Mouse</i></a>");
 			}
 			String order = StringUtils.join(orders, "<br>");
 

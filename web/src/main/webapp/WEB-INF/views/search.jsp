@@ -587,6 +587,8 @@
 						}
 					}
 
+                    _doFancybox();
+
 					$(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");
 
 					$('li.noData').click(function(){
@@ -595,6 +597,7 @@
 
 				});
 				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
+
 
 
 				// submit query when facet filter is ticked
@@ -943,6 +946,34 @@
 			}
 
 		});
+
+        function _doFancybox(){
+            $('.iFrameFancy').click(function()
+                    {
+                        console.log('calling iframe fancy from search page');
+                        $.fancybox.open([
+                                    {
+                                        href : $(this).attr('data-url'),
+                                        title : 'Order Products'
+                                    }
+                                ],
+                                {
+                                    'maxWidth'          : 1000,
+                                    'maxHeight'         : 1900,
+                                    'fitToView'         : false,
+                                    'width'             : '100%',
+                                    'height'            : '85%',
+                                    'autoSize'          : false,
+                                    'transitionIn'      : 'none',
+                                    'transitionOut'     : 'none',
+                                    'type'              : 'iframe',
+                                    scrolling           : 'auto'
+                                });
+                    }
+            );
+        }
+
+
 
 		</script>
 
