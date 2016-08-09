@@ -16,13 +16,8 @@
 
 package org.mousephenotype.cda.loads.legacy.dccimport.imits;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -40,12 +35,12 @@ import java.util.List;
 public class AllelesToStrainsImporter {
 
 	AllelesToStrainsImporter() {
-		SolrServer server = getSolrServer();
+		SolrClient server = getSolrServer();
 	}
 
-	public static SolrServer getSolrServer() {
+	public static SolrClient getSolrServer() {
 		String url = "http://ves-ebi-d0.ebi.ac.uk:8090/mi/solr/allele";
-		SolrServer server = new HttpSolrServer( url );
+		SolrClient server = new HttpSolrClient( url );
 		return server;
 	}
 
@@ -69,32 +64,4 @@ public class AllelesToStrainsImporter {
 
 	}
 
-	public void queryAlleles() throws SolrServerException {
-
-
-		SolrServer server = getSolrServer();
-
-		SolrQuery query = new SolrQuery();
-	    query.setQuery( "*:*" );
-	    QueryResponse response = server.query( query );
-
-	    SolrDocumentList results = response.getResults();
-	    long nbResults = results.getNumFound();
-	    System.out.println(results.getNumFound() + "documents found");
-	    for (int i=0; i<10; i++) {
-	    	SolrDocument doc = results.get(i);
-	    	Integer alleleId = (Integer) doc.getFieldValue("allele_id");
-	    	if (alleleId != null) {
-	    		String alleleName = (String) doc.getFieldValue("allele_name");
-	    		System.out.println(alleleId + " " + alleleName);
-	    		if (alleleName != null && alleleName.contains("EUCOMM") || alleleName.contains("KOMP")) {
-	    			// connect to REST interface.
-	    		}
-	    	}
-	    }
-
-
-
-
-	}
 }

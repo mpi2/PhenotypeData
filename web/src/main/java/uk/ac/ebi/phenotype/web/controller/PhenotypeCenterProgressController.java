@@ -71,7 +71,7 @@ public class PhenotypeCenterProgressController {
 	 	try {
 			List<String[]> centerProceduresPerStrain = phenCenterProgress.getCentersProgressByStrainCsv();
 			ControllerUtils.writeAsCSV(centerProceduresPerStrain, csvFileName, response);
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -84,14 +84,14 @@ public class PhenotypeCenterProgressController {
 		Map<String, Map<String, List<ProcedureDTO>>> preQcCenterDataMap=null;
 		try {
 			centerDataMap = phenCenterProgress.getCentersProgressInformation();
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 
 
 		try {
 			preQcCenterDataMap = preqQcPhenCenterProgress.getCentersProgressInformation();
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 

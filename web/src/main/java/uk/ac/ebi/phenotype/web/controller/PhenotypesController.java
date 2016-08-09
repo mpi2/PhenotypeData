@@ -128,7 +128,7 @@ public class PhenotypesController {
      * @throws OntologyTermNotFoundException
      * @throws URISyntaxException
      * @throws IOException
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      * @throws SQLException
      *
      */
@@ -231,7 +231,7 @@ public class PhenotypesController {
      * @param request
      * @throws IOException
      * @throws URISyntaxException
-     * @throws SolrServerException 
+     * @throws SolrServerException, IOException
      */
     private List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl) 
     throws IOException, URISyntaxException, SolrServerException {
@@ -322,7 +322,7 @@ public class PhenotypesController {
      * @since 2016/05/05
      * @throws IOException
      * @throws URISyntaxException
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
     @RequestMapping("/phenotypes/export/{acc}") // Keep params in synch with geneVariantsWithPhenotypeTable()
     public void export(
@@ -380,13 +380,13 @@ public class PhenotypesController {
      * @param type
      * @param model
      * @return
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      * @throws IOException
      * @throws URISyntaxException
      */
     @RequestMapping(value="/mpTree/json/{mpId}", method=RequestMethod.GET)	
     public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model) 
-    throws SolrServerException, IOException, URISyntaxException {
+    throws SolrServerException, IOException , URISyntaxException {
     	
     	if (type.equals("parents")){
     	
@@ -427,10 +427,10 @@ public class PhenotypesController {
      * 
      * @param phenotype_id
      * @return <sex, percentage>, to be used on overview pie chart
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
     public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) 
-    throws SolrServerException { 
+    throws SolrServerException, IOException {
     
     	PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
 
@@ -486,10 +486,10 @@ public class PhenotypesController {
      * @param mpId
      * @return List of parameters that led to an association to the given
      * phenotype term or any of it's children
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
     public List<ParameterDTO> getParameters(String mpId) 
-    throws SolrServerException {
+    throws SolrServerException, IOException {
     
     	List<String> parameters = srService.getParametersForPhenotype(mpId);
     	List<ParameterDTO> res =  new ArrayList<>();

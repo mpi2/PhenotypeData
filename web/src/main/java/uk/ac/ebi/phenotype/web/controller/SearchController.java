@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
@@ -101,6 +101,9 @@ public class SearchController {
 			Model model) throws IOException, URISyntaxException {
 
 //		System.out.println("path: /search/" + dataType);
+		if ( query.equals("*") ){
+			query = "*:*";
+		}
 
 		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
 	}
@@ -138,7 +141,7 @@ public class SearchController {
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
 		//System.out.println("solrParamStr: "+ solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
-		//System.out.println("CONTENT: " + content);
+//		System.out.println("CONTENT: " + content);
 
 		return content;
 	}
@@ -157,20 +160,28 @@ public class SearchController {
 		//System.out.println("SearchController solrParamStr: " + solrParamStr);
 		String mode = dataType + "Grid";
 		JSONObject json = solrIndex.getQueryJson(query, dataType, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-		//System.out.println("SearchController JSON: " + json.toString());
+//		System.out.println("SearchController JSON: " + json.toString());
 		return json;
 	}
 
 	public String composeSolrParamStr(String query, String fqStr, String dataType){
-		if (query.matches("MGI:\\d+")) {
-			searchConfig.setQf("mgi_accession_id");
-		} else if (query.matches("MP:\\d+")) {
-			searchConfig.setQf("mp_id");
-		} else if (query.matches("MA:\\d+") || query.matches("EMAPA:\\d+")) {
-			searchConfig.setQf(AnatomyDTO.ANATOMY_ID);
-		}
 
-		String qfStr = searchConfig.getQfSolrStr();
+
+//		if (query.matches("MGI:\\d+")) {
+//			searchConfig.setQf("mgi_accession_id");
+//		} else if (query.matches("MP:\\d+")) {
+//			searchConfig.setQf("mp_id");
+//		} else if (query.matches("MA:\\d+") || query.matches("EMAPA:\\d+")) {
+//			searchConfig.setQf(AnatomyDTO.ANATOMY_ID);
+//		}
+//		else if ( dataType.equals("gene") ){
+//			String geneQf = "geneQf";
+//			searchConfig.setQf(geneQf);
+//			System.out.println("CHK QF: "+searchConfig.getQf());
+//			System.out.println("CHK QFSolr: "+searchConfig.getQfSolrStr());
+//		}
+
+		String qfStr = searchConfig.getQfSolrStr(dataType);
 		String defTypeStr = searchConfig.getDefTypeSolrStr();
 		String facetStr = searchConfig.getFacetFieldsSolrStr(dataType);
 		String flStr = searchConfig.getFieldListSolrStr(dataType);
@@ -180,57 +191,70 @@ public class SearchController {
 		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
 		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr;
 
+
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
-
+		else {
+			solrParamStr += "&fq=" + searchConfig.getFqStr(dataType);
+		}
+		System.out.println(dataType + ": SOLR params: "+ solrParamStr);
 		return solrParamStr;
 	}
 
 	public JSONObject fetchAllFacetCounts(String dataType, String query, String fqStr, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 
 		JSONObject qryBrokerJson = new JSONObject();
+
+		if ( query.equals("*") ){
+			query = "*:*";
+		}
 		String qStr = "q=" + query;
 
-		String fqStrOri = fqStr;
-		String defaultFq = searchConfig.getFqStr(dataType, fqStr);
-		fqStr = fqStr == null ? defaultFq : defaultFq + " AND " + fqStr;
+		String qfDefTypeWt = null;
 
-		Map<String, String> coreFq = new HashMap<>();
-
-		List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images"});
+		List<String> cores = Arrays.asList(new String[]{"gene", "mp", "disease", "anatomy", "impc_images", "allele2"});
 		for( int i=0; i<cores.size(); i++ ){
 			String thisCore = cores.get(i);
-			if ( dataType.equals(thisCore) ){
-				coreFq.put(dataType, "&fq="+fqStr);
+			String thisFqStr = null;
+
+			if (thisCore.equals("gene")) {
+				String geneQf = "geneQf";
+				qfDefTypeWt = "&qf=" + geneQf + "&defType=edismax&wt=json";
 			}
 			else {
-				coreFq.put(thisCore, "&fq=" + searchConfig.getFqStr(thisCore, fqStrOri));
+				qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
 			}
+
+			if ( thisCore.equals(dataType) ) {
+				if ( thisCore.equals("gene") ){
+					thisFqStr = fqStr == null ? "" : fqStr;
+				}
+				else {
+					thisFqStr = fqStr == null ? searchConfig.getFqStr(thisCore) : fqStr;
+				}
+			}
+			else {
+				if ( thisCore.equals("gene") ){
+					thisFqStr = "";
+				}
+				else {
+					thisFqStr = searchConfig.getFqStr(thisCore);
+				}
+			}
+
+			qryBrokerJson.put(thisCore, qStr + "&fq="+thisFqStr + qfDefTypeWt);
 		}
 
-		String qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
-
-		qryBrokerJson.put("gene", qStr + coreFq.get("gene") + qfDefTypeWt);
-		qryBrokerJson.put("mp", qStr + coreFq.get("mp") + qfDefTypeWt);
-		qryBrokerJson.put("disease", qStr + coreFq.get("disease") + qfDefTypeWt);
-		qryBrokerJson.put("anatomy", qStr + coreFq.get("anatomy") + qfDefTypeWt);
-		//qryBrokerJson.put("images", 	qStr + coreFq.get("images") + qfDefTypeWt);
-		qryBrokerJson.put("impc_images", qStr + coreFq.get("impc_images") + qfDefTypeWt);
-
-//		System.out.println("gene: " + qStr + coreFq.get("gene") + qfDefTypeWt);
-//		System.out.println("mp: " + qStr + coreFq.get("mp") + qfDefTypeWt);
-//		System.out.println("disease: " + qStr + coreFq.get("disease") + qfDefTypeWt);
-//		System.out.println("anatomy: " + qStr + coreFq.get("anatomy") + qfDefTypeWt);
-//		System.out.println("impc_images: " + qStr + coreFq.get("impc_images") + qfDefTypeWt);
-//		System.out.println("images: " + qStr + coreFq.get("images") + qfDefTypeWt);
+		// test
+		for ( String core : cores ){
+			System.out.println("SearchController facetcount - " + core + " : " + qryBrokerJson.get(core));
+		}
 
 		String subfacet = null;
 		return queryBrokerController.createJsonResponse(subfacet, qryBrokerJson, request);
 
 	}
-
-
 
 	@RequestMapping(value="/batchquery2", method=RequestMethod.GET)
 	public @ResponseBody String fetchDataFields(

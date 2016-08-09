@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
@@ -49,7 +49,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 	@Autowired
 	@Qualifier("phenodigmIndexing")
-	private SolrServer phenodigmIndexing;
+	private SolrClient phenodigmIndexing;
 
 	@Autowired
 	@Qualifier("phenodigmDataSource")
@@ -64,7 +64,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 	public PhenodigmIndexer() {}
 
-	PhenodigmIndexer(SolrServer phenodigmIndexing, DataSource phenodigmDataSource) {
+	PhenodigmIndexer(SolrClient phenodigmIndexing, DataSource phenodigmDataSource) {
 		this.phenodigmIndexing = phenodigmIndexing;
 		this.phenodigmDataSource = phenodigmDataSource;
 	}
@@ -222,23 +222,23 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 		Integer count = 0;
 		String query = "SELECT 'disease'     AS type, " +
-			"  d.disease_id                  AS disease_id, " +
-			"  disease_term, " +
-			"  disease_alts, " +
-			"  disease_locus, " +
-			"  disease_classes               AS disease_classes, " +
-			"  human_curated, " +
-			"  mod_curated                   AS mod_curated, " +
-			"  mod_predicted                 AS mod_predicted, " +
-			"  htpc_predicted, " +
-			"  mod_predicted_in_locus, " +
-			"  htpc_predicted_in_locus, " +
-			"  mod_predicted_known_gene      AS mod_predicted_known_gene, " +
-			"  novel_mod_predicted_in_locus  AS novel_mod_predicted_in_locus, " +
-			"  htpc_predicted_known_gene     AS htpc_predicted_known_gene, " +
-			"  novel_htpc_predicted_in_locus AS novel_htpc_predicted_in_locus " +
-			"FROM disease d " +
-			"  JOIN mouse_disease_summary mds ON mds.disease_id = d.disease_id; ";
+				"  d.disease_id                  AS disease_id, " +
+				"  disease_term, " +
+				"  disease_alts, " +
+				"  disease_locus, " +
+				"  disease_classes               AS disease_classes, " +
+				"  human_curated, " +
+				"  mod_curated                   AS mod_curated, " +
+				"  mod_predicted                 AS mod_predicted, " +
+				"  htpc_predicted, " +
+				"  mod_predicted_in_locus, " +
+				"  htpc_predicted_in_locus, " +
+				"  mod_predicted_known_gene      AS mod_predicted_known_gene, " +
+				"  novel_mod_predicted_in_locus  AS novel_mod_predicted_in_locus, " +
+				"  htpc_predicted_known_gene     AS htpc_predicted_known_gene, " +
+				"  novel_htpc_predicted_in_locus AS novel_htpc_predicted_in_locus " +
+				"FROM disease d " +
+				"  JOIN mouse_disease_summary mds ON mds.disease_id = d.disease_id; ";
 
 
 		try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
@@ -293,23 +293,23 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 		Integer count = 0;
 		String query = "SELECT" +
-			"  'gene'                  AS type, " +
-			"  mgo.model_gene_id       AS model_gene_id, " +
-			"  model_gene_symbol       AS model_gene_symbol, " +
-			"  hgnc_id AS hgnc_gene_id, " +
-			"  hgnc_gene_symbol, " +
-			"  hgnc_gene_locus         AS hgnc_gene_locus, " +
-			"  human_curated, " +
-			"  mod_curated             AS mod_curated, " +
-			"  mod_predicted           AS mod_predicted, " +
-			"  htpc_predicted          AS htpc_predicted, " +
-			"  mod_predicted_in_locus  AS mod_predicted_in_locus, " +
-			"  htpc_predicted_in_locus AS htpc_predicted_in_locus, " +
-			"  mod_model, " +
-			"  htpc_model, " +
-			"  htpc_phenotype " +
-			"FROM mouse_gene_summary mgs " +
-			"  JOIN mouse_gene_ortholog mgo ON mgo.model_gene_id = mgs.model_gene_id ";
+				"  'gene'                  AS type, " +
+				"  mgo.model_gene_id       AS model_gene_id, " +
+				"  model_gene_symbol       AS model_gene_symbol, " +
+				"  hgnc_id AS hgnc_gene_id, " +
+				"  hgnc_gene_symbol, " +
+				"  hgnc_gene_locus         AS hgnc_gene_locus, " +
+				"  human_curated, " +
+				"  mod_curated             AS mod_curated, " +
+				"  mod_predicted           AS mod_predicted, " +
+				"  htpc_predicted          AS htpc_predicted, " +
+				"  mod_predicted_in_locus  AS mod_predicted_in_locus, " +
+				"  htpc_predicted_in_locus AS htpc_predicted_in_locus, " +
+				"  mod_model, " +
+				"  htpc_model, " +
+				"  htpc_phenotype " +
+				"FROM mouse_gene_summary mgs " +
+				"  JOIN mouse_gene_ortholog mgo ON mgo.model_gene_id = mgs.model_gene_id ";
 
 
 		try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
@@ -348,18 +348,18 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 		Integer count = 0;
 		String query = "SELECT " +
-			"  'mouse_model'         AS type, " +
-			"  mm.model_id           AS model_id, " +
-			"  mgo.model_gene_id     AS model_gene_id, " +
-			"  mgo.model_gene_symbol AS model_gene_symbol, " +
-			"  mm.source, " +
-			"  mm.allelic_composition, " +
-			"  mm.genetic_background, " +
-			"  mm.allele_ids, " +
-			"  mm.hom_het " +
-			"FROM mouse_model mm " +
-			"  JOIN mouse_model_gene_ortholog mmgo ON mmgo.model_id = mm.model_id " +
-			"  JOIN mouse_gene_ortholog mgo ON mgo.model_gene_id = mmgo.model_gene_id ";
+				"  'mouse_model'         AS type, " +
+				"  mm.model_id           AS model_id, " +
+				"  mgo.model_gene_id     AS model_gene_id, " +
+				"  mgo.model_gene_symbol AS model_gene_symbol, " +
+				"  mm.source, " +
+				"  mm.allelic_composition, " +
+				"  mm.genetic_background, " +
+				"  mm.allele_ids, " +
+				"  mm.hom_het " +
+				"FROM mouse_model mm " +
+				"  JOIN mouse_model_gene_ortholog mmgo ON mmgo.model_id = mm.model_id " +
+				"  JOIN mouse_gene_ortholog mgo ON mgo.model_gene_id = mmgo.model_gene_id ";
 
 
 		try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
@@ -419,7 +419,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 				// Disease Phenotype associations
 				if(humanSynonymMap.containsKey(hpId))
-				doc.setHpSynonym(new ArrayList<>(humanSynonymMap.get(hpId)));
+					doc.setHpSynonym(new ArrayList<>(humanSynonymMap.get(hpId)));
 
 				phenodigmIndexing.addBean(doc);
 				count++;
@@ -463,35 +463,35 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 		Integer count = 0;
 		String query = "SELECT" +
-			"  'disease_gene_summary'               AS type, " +
-			"  d.disease_id, " +
-			"  disease_term, " +
-			"  disease_alts, " +
-			"  disease_locus, " +
-			"  disease_classes                      AS disease_classes, " +
-			"  mgo.model_gene_id                    AS model_gene_id, " +
-			"  mgo.model_gene_symbol                AS model_gene_symbol, " +
-			"  hgnc_id AS hgnc_gene_id, " +
-			"  hgnc_gene_symbol, " +
-			"  human_curated, " +
-			"  mod_curated                          AS mod_curated, " +
-			"  in_locus, " +
-			"  max_mod_disease_to_model_perc_score  AS max_mod_disease_to_model_perc_score, " +
-			"  max_mod_model_to_disease_perc_score  AS max_mod_model_to_disease_perc_score, " +
-			"  max_htpc_disease_to_model_perc_score AS max_htpc_disease_to_model_perc_score, " +
-			"  max_htpc_model_to_disease_perc_score AS max_htpc_model_to_disease_perc_score, " +
-			"  mod_raw_score                        AS raw_mod_score, " +
-			"  htpc_raw_score                       AS raw_htpc_score, " +
-			"  mod_predicted                        AS mod_predicted, " +
-			"  mod_predicted_known_gene             AS mod_predicted_known_gene, " +
-			"  novel_mod_predicted_in_locus         AS novel_mod_predicted_in_locus, " +
-			"  htpc_predicted                       AS htpc_predicted, " +
-			"  htpc_predicted_known_gene            AS htpc_predicted_known_gene, " +
-			"  novel_htpc_predicted_in_locus        AS novel_htpc_predicted_in_locus " +
-			"FROM " +
-			"  mouse_disease_gene_summary_high_quality mdgshq " +
-			"  LEFT JOIN disease d ON d.disease_id = mdgshq.disease_id" +
-			"  JOIN mouse_gene_ortholog mgo ON mgo.model_gene_id = mdgshq.model_gene_id " ;
+				"  'disease_gene_summary'               AS type, " +
+				"  d.disease_id, " +
+				"  disease_term, " +
+				"  disease_alts, " +
+				"  disease_locus, " +
+				"  disease_classes                      AS disease_classes, " +
+				"  mgo.model_gene_id                    AS model_gene_id, " +
+				"  mgo.model_gene_symbol                AS model_gene_symbol, " +
+				"  hgnc_id AS hgnc_gene_id, " +
+				"  hgnc_gene_symbol, " +
+				"  human_curated, " +
+				"  mod_curated                          AS mod_curated, " +
+				"  in_locus, " +
+				"  max_mod_disease_to_model_perc_score  AS max_mod_disease_to_model_perc_score, " +
+				"  max_mod_model_to_disease_perc_score  AS max_mod_model_to_disease_perc_score, " +
+				"  max_htpc_disease_to_model_perc_score AS max_htpc_disease_to_model_perc_score, " +
+				"  max_htpc_model_to_disease_perc_score AS max_htpc_model_to_disease_perc_score, " +
+				"  mod_raw_score                        AS raw_mod_score, " +
+				"  htpc_raw_score                       AS raw_htpc_score, " +
+				"  mod_predicted                        AS mod_predicted, " +
+				"  mod_predicted_known_gene             AS mod_predicted_known_gene, " +
+				"  novel_mod_predicted_in_locus         AS novel_mod_predicted_in_locus, " +
+				"  htpc_predicted                       AS htpc_predicted, " +
+				"  htpc_predicted_known_gene            AS htpc_predicted_known_gene, " +
+				"  novel_htpc_predicted_in_locus        AS novel_htpc_predicted_in_locus " +
+				"FROM " +
+				"  mouse_disease_gene_summary_high_quality mdgshq " +
+				"  LEFT JOIN disease d ON d.disease_id = mdgshq.disease_id" +
+				"  JOIN mouse_gene_ortholog mgo ON mgo.model_gene_id = mdgshq.model_gene_id " ;
 
 
 		try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
@@ -572,25 +572,26 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
 		Integer count = 0;
 		String query = "SELECT " +
-			"  'disease_model_association'      AS type, " +
-			"  mdgshq.disease_id, " +
-			"  mmgo.model_gene_id               AS model_gene_id, " +
-			"  mmgo.model_id, " +
-			"  mdma.lit_model, " +
-			"  mdma.disease_to_model_perc_score AS disease_to_model_perc_score, " +
-			"  mdma.model_to_disease_perc_score AS model_to_disease_perc_score, " +
-			"  mdma.raw_score, " +
-			"  mdma.hp_matched_terms, " +
-			"  mdma.mp_matched_terms " +
-			"FROM mouse_disease_gene_summary_high_quality mdgshq " +
-			"  JOIN mouse_model_gene_ortholog mmgo ON mdgshq.model_gene_id = mmgo.model_gene_id " +
-			"  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id AND mmgo.model_id = mdma.model_id ";
+				"  'disease_model_association'      AS type, " +
+				"  mdgshq.disease_id, " +
+				"  mmgo.model_gene_id               AS model_gene_id, " +
+				"  mmgo.model_id, " +
+				"  mdma.lit_model, " +
+				"  mdma.disease_to_model_perc_score AS disease_to_model_perc_score, " +
+				"  mdma.model_to_disease_perc_score AS model_to_disease_perc_score, " +
+				"  mdma.raw_score, " +
+				"  mdma.hp_matched_terms, " +
+				"  mdma.mp_matched_terms " +
+				"FROM mouse_disease_gene_summary_high_quality mdgshq " +
+				"  JOIN mouse_model_gene_ortholog mmgo ON mdgshq.model_gene_id = mmgo.model_gene_id " +
+				"  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id AND mmgo.model_id = mdma.model_id ";
 
 		try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
 			p.setFetchSize(Integer.MIN_VALUE);
 
 			ResultSet r = p.executeQuery();
+
 			while (r.next()) {
 
 				String diseaseId = r.getString("disease_id");

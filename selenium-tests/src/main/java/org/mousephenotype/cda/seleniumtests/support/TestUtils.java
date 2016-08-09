@@ -18,7 +18,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -943,7 +943,7 @@ public class TestUtils {
 
         try {
             PreQcService preqcService = new PreQcService();
-            SolrServer server = preqcService.getSolrServer();
+            SolrClient server = preqcService.getSolrServer();
 
             /*logger.debug*/
             System.out.println("TestUtils.getPreqcIds(): querying preqc core for " + (count == null ? "all" : count) + " gene ids.");

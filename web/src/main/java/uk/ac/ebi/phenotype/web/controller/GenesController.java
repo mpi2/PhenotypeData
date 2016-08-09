@@ -15,32 +15,13 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
@@ -52,22 +33,10 @@ import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.AnatomogramDataBean;
-import org.mousephenotype.cda.solr.service.ExpressionService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.web.dto.DataTableRow;
-import org.mousephenotype.cda.solr.web.dto.EvidenceLink;
-import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
-import org.mousephenotype.cda.solr.web.dto.ImageSummary;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallUniquePropertyBean;
+import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
@@ -85,9 +54,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenodigm.model.Gene;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
@@ -102,6 +68,18 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class GenesController {
@@ -321,8 +299,6 @@ public class GenesController {
 			model.addAttribute("orderPossible", status.get("orderPossible"));
 
 
-		} catch (SolrServerException e2) {
-			e2.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -353,8 +329,8 @@ public class GenesController {
 			getImpcExpressionImages(acc, model);
 			getImpcEmbryoExpression(acc, model);
 
-		} catch (SolrServerException e1) {
-			e1.printStackTrace();
+		} catch (SolrServerException | IOException e) {
+			e.printStackTrace();
 			log.info("images solr not available");
 			model.addAttribute("imageErrors", "Something is wrong Images are not being returned when normally they would");
 		}
@@ -425,7 +401,7 @@ public class GenesController {
 
 	/**
 	 * @throws IOException
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	@RequestMapping("/genesPhenoFrag/{acc}")
 	public String genesPhenoFrag(@PathVariable String acc, 
@@ -703,10 +679,10 @@ public class GenesController {
 	 *            the gene to get the images for
 	 * @param model
 	 *            the model to add the images to
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	private void getExpressionImages(String acc, Model model)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		QueryResponse solrExpressionR = imagesSolrDao.getExpressionFacetForGeneAccession(acc);
 		if (solrExpressionR == null) {
@@ -745,10 +721,10 @@ public class GenesController {
 	 *            the gene to get the images for
 	 * @param model
 	 *            the model to add the images to
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	private void getExperimentalImages(String acc, Model model)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		QueryResponse solrR = imagesSolrDao.getExperimentalFacetForGeneAccession(acc);
 		if (solrR == null) {
@@ -800,13 +776,19 @@ public class GenesController {
 	 *            the gene to get the images for
 	 * @param model
 	 *            the model to add the images to
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	private void getImpcImages(String acc, Model model)
-	throws SolrServerException {
-
-		imageService.getImpcImagesForGenePage(acc, model, 0, 5, false);
-		//imageService.getControlAndExperimentalImpcImages(acc, model, null, null, 0, 1, "Adult Lac Z");
+	throws SolrServerException, IOException {
+		List<Group> groups = imageService.getPhenotypeAssociatedImages(acc, 1);
+		Map<String, String> paramToNumber=new HashMap<>();
+		for(Group group:groups){
+			if(!paramToNumber.containsKey(group.getGroupValue())){
+				paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
+			}
+		}
+		model.addAttribute("paramToNumber", paramToNumber);
+		model.addAttribute("impcImageGroups",imageService.getPhenotypeAssociatedImages(acc, 1));
 
 	}
 
@@ -818,11 +800,11 @@ public class GenesController {
 	 *            the gene to get the images for
 	 * @param model
 	 *            the model to add the images to
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 * @throws SQLException
 	 */
 	private void getImpcExpressionImages(String acc, Model model)
-	throws SolrServerException, SQLException {
+	throws SolrServerException, IOException, SQLException {
 		boolean overview=true;
 		boolean embryoOnly=false;
 		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
@@ -848,11 +830,11 @@ public class GenesController {
 	 *            the gene to get the images for
 	 * @param model
 	 *            the model to add the images to
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 * @throws SQLException
 	 */
 	private void getImpcEmbryoExpression(String acc, Model model)
-	throws SolrServerException, SQLException {
+	throws SolrServerException, IOException, SQLException {
 		//good test gene:Nxn with selected top level emap terms
 		boolean overview=true;
 		boolean embryoOnly=true;
@@ -975,6 +957,7 @@ public class GenesController {
 
 		return "genesAllele2_frag";
 	}
+
 
     @Autowired
 	private PhenoDigmWebDao phenoDigmDao;

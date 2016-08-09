@@ -31,6 +31,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,7 +62,7 @@ public class GenotypePhenotypeServiceTest {
 
     @Test
     public void testAllGPGenesInGeneCore()
-    throws SolrServerException {
+    throws SolrServerException, IOException {
     	System.out.println("Test if all genes in genotype-phenotype core are indexed in the gene core.");
 
         Set<String> gpGenes = gpService.getAllGenesWithPhenotypeAssociations();
@@ -83,7 +84,7 @@ public class GenotypePhenotypeServiceTest {
 
     @Test
     public void testAllExperimentGenesInGeneCore()
-    throws SolrServerException {
+    throws SolrServerException, IOException {
 
     	System.out.println("Test if all genes in experiment core are indexed in the gene core.");
 
@@ -103,7 +104,7 @@ public class GenotypePhenotypeServiceTest {
     }
 
     @Test
-    public void testAllGPPhenotypeInMP() throws SolrServerException {
+    public void testAllGPPhenotypeInMP() throws SolrServerException, IOException {
     	System.out.println("Test if all phenotypes in genotype-phenotype core are indexed in the mp core.");
 
         Set<String> gpPhen = gpService.getAllPhenotypesWithGeneAssociations();

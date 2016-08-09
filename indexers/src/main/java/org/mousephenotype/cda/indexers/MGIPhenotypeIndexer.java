@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -56,7 +56,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
 	@Autowired
     @Qualifier("mgiPhenotypeIndexing")
-    SolrServer mgiPhenotypeIndexing;
+    SolrClient mgiPhenotypeIndexing;
 
     @Autowired
     MpOntologyDAO mpOntologyService;

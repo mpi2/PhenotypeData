@@ -1,6 +1,6 @@
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ public class PhenodigmIndexerTest {
 
 	@Autowired
 	@Qualifier("phenodigmIndexing")
-	private SolrServer phenodigmIndexing;
+	private SolrClient phenodigmIndexing;
 
 	@Autowired
 	@Qualifier("phenodigmDataSource")

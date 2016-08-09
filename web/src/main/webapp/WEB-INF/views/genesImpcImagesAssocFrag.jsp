@@ -20,12 +20,13 @@
 
 <div class="accordion-body" style="display: block">
      <div id="grid">
-<c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
+<c:forEach var="group" items="${impcImageGroups}" varStatus="status">
 
+ 
   			<c:forEach var="doc"
-             items="${impcFacetToDocs[entry.name]}">
-    
+             items="${group.result}">
     	<ul>
+    	
     	<c:set var="label" value="${doc.procedure_name}: ${doc.parameter_name}"/>
        	<c:if test="${doc.parameter_name eq 'Images'}">
            		<c:set var="label" value="${doc.procedure_name}"/>
@@ -41,7 +42,7 @@
                       impcMediaBaseUrl="${impcMediaBaseUrl}"
                       pdfThumbnailUrl="${pdfThumbnailUrl}"
                       href="${href}"
-                      count="${entry.count}"
+                      count="${paramToNumber[doc.parameter_stable_id]}"
                       parameterName="${label}"></t:impcimgdisplay2>
             </a>
            

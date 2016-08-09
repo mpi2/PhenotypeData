@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -10,18 +11,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
-import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -42,19 +40,12 @@ public class TestConfigIndexers {
 	@Value("http:${solrUrl}")
 	String solrBaseUrl;
 
+	// Required for spring-data-solr repositories
 	@Bean
-	public SolrServer solrServer() throws Exception {
-		System.out.println("SOLR SERVER: " + solrBaseUrl);
-		HttpSolrServerFactoryBean f = new HttpSolrServerFactoryBean();
-		f.setUrl(solrBaseUrl);
-		f.afterPropertiesSet();
-		return f.getSolrServer();
-	}
+	public SolrClient solrClient() { return new HttpSolrClient(solrBaseUrl); }
 
 	@Bean
-	public SolrTemplate solrTemplate(SolrServer solrServer) throws Exception {
-		return new SolrTemplate(solrServer());
-	}
+	public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }
 
 	@Bean
 	@Primary
@@ -89,9 +80,9 @@ public class TestConfigIndexers {
 		Properties hibernateProperties = new Properties();
 
 		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-		hibernateProperties.setProperty("hibernate.show_sql", "true");
-		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-		hibernateProperties.setProperty("hibernate.format_sql", "true");
+		hibernateProperties.setProperty("hibernate.show_sql", "false");
+		hibernateProperties.setProperty("hibernate.use_sql_comments", "false");
+		hibernateProperties.setProperty("hibernate.format_sql", "false");
 		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
 		hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
 

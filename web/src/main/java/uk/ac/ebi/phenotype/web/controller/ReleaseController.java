@@ -137,7 +137,7 @@ public class ReleaseController {
 
 	@RequestMapping(value="/release", method=RequestMethod.GET)
 	public String getReleaseInformation(
-		Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		Model model) throws SolrServerException, IOException , URISyntaxException, SQLException{
 
 		// 10% of the time refresh the cached metadata info
 		Map<String, String> metaInfo = getMetaInfo();

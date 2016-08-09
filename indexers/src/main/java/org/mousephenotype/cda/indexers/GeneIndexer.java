@@ -16,7 +16,7 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -68,19 +68,19 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Autowired
     @Qualifier("alleleCore")
-    SolrServer alleleCore;
+    SolrClient alleleCore;
 
     @Autowired
     @Qualifier("geneIndexing")
-    SolrServer geneIndexing;
+    SolrClient geneIndexing;
 
     @Autowired
     @Qualifier("mpCore")
-    SolrServer mpCore;
+    SolrClient mpCore;
 
     @Autowired
     @Qualifier("sangerImagesCore")
-    SolrServer imagesCore;
+    SolrClient imagesCore;
 
     @Autowired
 	DatasourceDAO datasourceDAO;
@@ -625,7 +625,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try {
             map = SolrUtils.populateMgiAccessionToMp(mpCore);
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMgiAccessionToMp()", e);
         }
 

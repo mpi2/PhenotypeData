@@ -21,9 +21,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
@@ -54,15 +54,15 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
 
 	@Autowired
 	@Qualifier("phenodigmCore")
-	private SolrServer phenodigmCore;
+	private SolrClient phenodigmCore;
 
 	@Autowired
     @Qualifier("geneCore")
-    private SolrServer geneCore;
+    private SolrClient geneCore;
 
     @Autowired
     @Qualifier("diseaseIndexing")
-    private SolrServer diseaseIndexing;
+    private SolrClient diseaseIndexing;
 
     public static final int MAX_DISEASES = 10000;
 
@@ -193,7 +193,7 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
      *
      * @throws SolrServerException when solr does something unexpected
      */
-    private void populateGenesLookup() throws SolrServerException {
+    private void populateGenesLookup() throws SolrServerException, IOException {
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");

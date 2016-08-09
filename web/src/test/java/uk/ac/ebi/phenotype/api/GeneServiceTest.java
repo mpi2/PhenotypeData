@@ -23,7 +23,7 @@
 package uk.ac.ebi.phenotype.api;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.GeneService;
@@ -41,6 +41,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 
 import static org.junit.Assert.assertTrue;
 
@@ -68,8 +69,8 @@ public class GeneServiceTest {
 		private String solrBaseUrl;
 
 		@Bean(name = "geneCore")
-		HttpSolrServer getSolrCore() {
-			return new HttpSolrServer(solrBaseUrl + "/gene");
+		HttpSolrClient getSolrCore() {
+			return new HttpSolrClient(solrBaseUrl + "/gene");
 		}
 
 		@Bean
@@ -83,7 +84,7 @@ public class GeneServiceTest {
 	GeneService geneService;
 
 	@Test
-	public void testGetGeneById() throws SolrServerException {
+	public void testGetGeneById() throws SolrServerException, IOException {
 		String mgiId = "MGI:1929293";
 		GeneDTO gene = geneService.getGeneById(mgiId);
 		assertTrue(gene!=null);

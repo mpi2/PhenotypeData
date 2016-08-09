@@ -16,7 +16,7 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
@@ -71,15 +71,15 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	@Autowired
 	@Qualifier("experimentCore")
-	SolrServer observationCore;
+	SolrClient observationCore;
 
 	@Autowired
 	@Qualifier("impcImagesIndexing")
-	SolrServer impcImagesIndexing;
+	SolrClient impcImagesIndexing;
 
 	@Autowired
 	@Qualifier("alleleCore")
-	SolrServer alleleCore;
+	SolrClient alleleCore;
 
 	@Autowired
 	@Qualifier("komp2DataSource")

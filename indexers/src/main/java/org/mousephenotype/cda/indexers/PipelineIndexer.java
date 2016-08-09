@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -53,11 +53,11 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	@Autowired
 	@Qualifier("mpCore")
-	SolrServer mpCore;
+	SolrClient mpCore;
 
 	@Autowired
 	@Qualifier("pipelineIndexing")
-	SolrServer pipelineIndexing;
+	SolrClient pipelineIndexing;
 
 	@Autowired
 	EmapaOntologyDAO emapaService;
@@ -625,7 +625,7 @@ protected void addAbnormalEmapOntology(){
 		Map<String, MpDTO> map = null;
 		try {
 			map = SolrUtils.populateMpTermIdToMp(mpCore);
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpTermIdToMp()", e);
 		}
 		return map;

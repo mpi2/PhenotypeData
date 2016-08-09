@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -52,15 +52,15 @@ public class EmapIndexer2 extends AbstractIndexer implements CommandLineRunner {
 
 	@Autowired
     @Qualifier("alleleIndexing")
-    private SolrServer alleleCore;
+    private SolrClient alleleCore;
 
     @Autowired
     @Qualifier("preqcIndexing")
-    private SolrServer preqcCore;
+    private SolrClient preqcCore;
 
     @Autowired
     @Qualifier("genotypePhenotypeIndexing")
-    private SolrServer genotypePhenotypeCore;
+    private SolrClient genotypePhenotypeCore;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -78,7 +78,7 @@ public class EmapIndexer2 extends AbstractIndexer implements CommandLineRunner {
      */
     @Autowired
     @Qualifier("emapIndexing")
-    private SolrServer emapCore;
+    private SolrClient emapCore;
 
 
     private static Connection komp2DbConnection;

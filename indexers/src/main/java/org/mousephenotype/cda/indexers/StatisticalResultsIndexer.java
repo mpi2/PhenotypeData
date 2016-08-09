@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
@@ -75,7 +75,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	@Autowired
 	@Qualifier("statisticalResultsIndexing")
-	SolrServer statisticalResultsIndexing;
+	SolrClient statisticalResultsIndexing;
 
 	@Autowired
 	MpOntologyDAO mpOntologyService;
@@ -221,7 +221,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	 * @param count the number of documents that should have been added
 	 * @throws SolrServerException
 	 */
-	private void checkSolrCount(Integer count) throws SolrServerException {
+	private void checkSolrCount(Integer count) throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("*:*").setRows(0);
@@ -1552,7 +1552,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	class GrossPathologyResults implements Callable<List<StatisticalResultDTO>> {
 
-		String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', exp.id, '_', ls.sex, '_histopath') as doc_id, " +
+		String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', o.id, '_', term, '_', ls.sex, '_grosspath') as doc_id, " +
 			"'adult-gross-path' AS data_type, db.id AS db_id, " +
 			"ls.zygosity as experimental_zygosity, ls.id, bs.sample_group, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, " +
 			"parameter.id as parameter_id, ls.colony_id, ls.sex as sex, " +

@@ -15,22 +15,12 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.PostConstruct;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -45,8 +35,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Pulled in 2015/07/09 by @author tudose
@@ -58,11 +50,11 @@ public class ExpressionService extends BasicService {
 
 	@Autowired
 	@Qualifier("experimentCore")
-	private HttpSolrServer experimentSolr;
+	private HttpSolrClient experimentSolr;
 
 	@Autowired
 	@Qualifier("impcImagesCore")
-	private HttpSolrServer imagesSolr;
+	private HttpSolrClient imagesSolr;
 
 	@Autowired
 	ExperimentService experimentService;
@@ -85,8 +77,8 @@ public class ExpressionService extends BasicService {
 	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl, String impressServiceUrl,
 			String anatomyServiceUrl) {
 
-		experimentSolr = new HttpSolrServer(experimentSolrUrl);
-		imagesSolr = new HttpSolrServer(imagesSolrUrl);
+		experimentSolr = new HttpSolrClient(experimentSolrUrl);
+		imagesSolr = new HttpSolrClient(imagesSolrUrl);
 		impressService = new ImpressService(impressServiceUrl);
 		anatomyService = new AnatomyService(anatomyServiceUrl);
 	}
@@ -100,7 +92,7 @@ public class ExpressionService extends BasicService {
 
 	public QueryResponse getExpressionImagesForGeneByAnatomy(String mgiAccession, String anatomy,
 			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex, String metadataGroup, String strain)
-					throws SolrServerException {
+					throws SolrServerException, IOException  {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
@@ -130,10 +122,10 @@ public class ExpressionService extends BasicService {
 	 *            if mgi accesion null assume a request for control data
 	 * @param fields
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public QueryResponse getExpressionTableDataImages(String mgiAccession, boolean embryo, String... fields)
-			throws SolrServerException {
+			throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:106209%22&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		SolrQuery solrQuery = new SolrQuery();
@@ -163,10 +155,10 @@ public class ExpressionService extends BasicService {
 	 *            if mgi accesion null assume a request for control data
 	 * @param fields
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	private QueryResponse getCategoricalAdultLacZData(String mgiAccession, boolean embryo, String... fields)
-			throws SolrServerException {
+			throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id:%22MGI:1351668%22&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(procedure_name:%22Adult%20LacZ%22)&rows=10000
 		SolrQuery solrQuery = new SolrQuery();
@@ -197,7 +189,7 @@ public class ExpressionService extends BasicService {
 		return response;
 	}
 
-	private QueryResponse getAdultLaczImageFacetsForGene(String mgiAccession, String... fields) throws SolrServerException {
+	private QueryResponse getAdultLaczImageFacetsForGene(String mgiAccession, String... fields) throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -221,7 +213,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	public List<Count> getLaczCategoricalParametersForGene(String mgiAccession, String... fields)
-			throws SolrServerException {
+			throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -261,7 +253,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	private QueryResponse getEmbryoLaczImageFacetsForGene(String mgiAccession, String... fields)
-			throws SolrServerException {
+			throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -311,11 +303,11 @@ public class ExpressionService extends BasicService {
 	 *            display in the tabbed pane on the gene page.
 	 * @param model
 	 *            Spring MVC model
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 * @throws SQLException
 	 */
 	public void getLacImageDataForGene(String acc, String topMaNameFilter, boolean imagesOverview, boolean embryoOnly,
-			Model model) throws SolrServerException {
+			Model model) throws SolrServerException, IOException  {
 		QueryResponse laczResponse = null;
 		String noTopTermId = "";
 		String topLevelField = "";// type ma or emap imageDTO field for top
@@ -441,10 +433,10 @@ public class ExpressionService extends BasicService {
 	 * 
 	 * @param anatomogramDataBeans
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public Map<String, Long> getLacSelectedTopLevelMaCountsForAnatomogram(
-			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException {
+			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException, IOException  {
 		Map<String, Long> topLevelMaToCountMap = new HashMap<>();
 		for (AnatomogramDataBean bean : anatomogramDataBeans) {
 			for (String topMaId : bean.getTopLevelMaNames()) {
@@ -465,10 +457,10 @@ public class ExpressionService extends BasicService {
 	 * 
 	 * @param anatomogramDataBeans
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public Set<String> getLacSelectedTopLevelMaIdsForAnatomogram(
-			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException {
+			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException, IOException  {
 		Set<String> topLevelMaToCountMap = new HashSet<>();
 		for (AnatomogramDataBean bean : anatomogramDataBeans) {
 			for (String topMaId : bean.getTopLevelMaIds()) {
@@ -479,7 +471,7 @@ public class ExpressionService extends BasicService {
 		return topLevelMaToCountMap;
 	}
 
-	public List<AnatomogramDataBean> getAnatomogramDataBeans(List<Count> parameterCounts) throws SolrServerException {
+	public List<AnatomogramDataBean> getAnatomogramDataBeans(List<Count> parameterCounts) throws SolrServerException, IOException  {
 		List<AnatomogramDataBean> anatomogramDataBeans = new ArrayList<>();
 
 		//if the solr core wasn't up before the webapp starts then these maps maybe empty - of so we need to populate them before continuing
@@ -517,20 +509,26 @@ public class ExpressionService extends BasicService {
 		JSONArray noExpList = new JSONArray();
 		JSONArray allPaths = new JSONArray();
 
-		Map<String, Set<String>>maId2Uberon = new HashMap<>();
-		Map<String, Set<String>>uberon2MaId = new HashMap<>();
-		Map<String, Set<String>>topLevelName2maId = new HashMap<>();
-		Map<String, List<String>>maId2topLevelName = new HashMap<>();
+		Map<String, Set<String>> maId2Uberon = new HashMap<>();
+		Map<String, Set<String>> uberon2MaId = new HashMap<>();
+		Map<String, Set<String>> maId2DirectlyMappedUberon = new HashMap<>();
+		Map<String, Set<String>> directlyMappedUberon2MaId = new HashMap<>();
+
+		Map<String, String> maName2maId = new HashMap<>();
+		Map<String, String> maId2maName = new HashMap<>();
+		Map<String, Set<String>> topLevelName2maId = new HashMap<>();
+		Map<String, List<String>> maId2topLevelName = new HashMap<>();
+
 
 		for (AnatomogramDataBean dataBean : anatomogramDataBeans) {
 			if (dataBean.getMaId() != null && dataBean.getUberonIds() != null) {
 
 				List<String> uberonIds = dataBean.getUberonIds();
 
-				addAnatomogramSpecialIds(dataBean, expList, allPaths, uberonIds, maId2Uberon, uberon2MaId, maId2topLevelName, topLevelName2maId);
+				addAnatomogramSpecialIds(dataBean, expList, allPaths, uberonIds, maId2Uberon, uberon2MaId, maId2DirectlyMappedUberon, directlyMappedUberon2MaId, maId2maName, maName2maId, maId2topLevelName, topLevelName2maId);
 				if (dataBean.getEfoIds() != null) {
 					List<String> efoIds = dataBean.getEfoIds();
-					addAnatomogramSpecialIds(dataBean, expList, allPaths, efoIds, maId2Uberon, uberon2MaId, maId2topLevelName, topLevelName2maId);
+					addAnatomogramSpecialIds(dataBean, expList, allPaths, efoIds, maId2Uberon, uberon2MaId,  maId2DirectlyMappedUberon, directlyMappedUberon2MaId, maId2maName, maName2maId, maId2topLevelName, topLevelName2maId);
 				}
 			}
 		}
@@ -539,6 +537,8 @@ public class ExpressionService extends BasicService {
 		anatomogram.put("noExpression", noExpList);
 		anatomogram.put("allPaths", allPaths);
 
+		anatomogram.put("maName2maIdMap", maName2maId);
+		anatomogram.put("maId2MaNameMap", maId2maName);
 		anatomogram.put("topLevelName2maIdMap", topLevelName2maId);
 		anatomogram.put("maId2UberonMap", maId2Uberon);
 
@@ -553,10 +553,24 @@ public class ExpressionService extends BasicService {
 	private void addAnatomogramSpecialIds(AnatomogramDataBean dataBean, JSONArray expList, JSONArray allPaths, List<String> uberonOrEfoIds,
 				  Map<String, Set<String>> maId2Uberon,
 				  Map<String, Set<String>> uberon2MaId,
+				  Map<String, Set<String>> maId2DirectlyMappedUberon,
+				  Map<String, Set<String>> directlyMappedUberon2MaId,
+				  Map<String, String> maId2maName,
+				  Map<String, String> maName2maId,
 				  Map<String, List<String>> maId2topLevelName,
 				  Map<String, Set<String>> topLevelName2maId ) {
 
 		String maTermId = dataBean.getMaId();
+
+		maId2DirectlyMappedUberon.put(maTermId, new HashSet(dataBean.getDirectlyMappedUberonIds()));
+
+		for ( String uberonId : dataBean.getDirectlyMappedUberonIds() ){
+
+		}
+
+
+		maId2maName.put(maTermId, dataBean.getMaTerm());
+		maName2maId.put(dataBean.getMaTerm(), maTermId);
 		List<String> maTopLevelNames = dataBean.getTopLevelMaNames();
 
 		maId2topLevelName.put(maTermId, maTopLevelNames);
@@ -576,10 +590,13 @@ public class ExpressionService extends BasicService {
 			}
 			uberon2MaId.get(id).add(maTermId);
 
+			System.out.println("uberon " + id + " --- " + maTermId);
 			if (!maId2Uberon.containsKey(maTermId)) {
 				maId2Uberon.put(maTermId, new HashSet<>());
 			}
 			maId2Uberon.get(maTermId).add(id);
+
+			System.out.println("MA " + maTermId + " --- " + id);
 
 			JSONObject exp = new JSONObject();
 			exp.put("factorName", maTermId); // used as a note to say what this id is, blank if unknown
@@ -600,9 +617,9 @@ public class ExpressionService extends BasicService {
 	 *            mgi_accession for gene
 	 * @param model
 	 *            Spring MVC model
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public Model getExpressionDataForGene(String acc, Model model, boolean embryo) throws SolrServerException {
+	public Model getExpressionDataForGene(String acc, Model model, boolean embryo) throws SolrServerException, IOException  {
 
 		QueryResponse laczDataResponse = getCategoricalAdultLacZData(acc, embryo, ImageDTO.ZYGOSITY,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_STABLE_ID,
@@ -670,7 +687,7 @@ public class ExpressionService extends BasicService {
 	
 	public List<AnatomyPageTableRow> getLacZDataForAnatomy(String anatomyId,List<String> anatomyTerms, List<String> phenotypingCenter,
 		List<String> procedure, List<String> paramAssoc, String baseUrl)
-					throws SolrServerException {
+					throws SolrServerException, IOException  {
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&fq=(anatomy_id:%22MA:0000031%22%20OR%20intermediate_anatomy_id:%22MA:0000031%22%20OR%20selected_top_level_anatomy_id:%22MA0000031%22)
 		SolrQuery query = new SolrQuery();
@@ -746,9 +763,9 @@ public class ExpressionService extends BasicService {
 	 * @since 2016/07/08
 	 * @param anatomyId
 	 * @return List of gene ids with positive expression in given anatomy term. 
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public List<String> getGenesWithExpression(String anatomyId) throws SolrServerException{
+	public List<String> getGenesWithExpression(String anatomyId) throws SolrServerException, IOException {
 		
 		List<String> geneIds = new ArrayList<>();
 		SolrQuery q = new SolrQuery();
@@ -1125,7 +1142,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	public Map<String, Set<String>> getFacets(String anatomyId)
-			throws SolrServerException {
+			throws SolrServerException, IOException  {
 				Map<String, Set<String>> res = new HashMap<>();
 				SolrQuery query = getBasicExpressionQuery(anatomyId); // only have expressed and
 													// not expressed ingnore
@@ -1172,9 +1189,9 @@ public class ExpressionService extends BasicService {
 	 * Method that checks the impc images and categorical obeservations for expression data which is either expressed or not expressed.
 	 * @param anatomyId
 	 * @return
-	 * @throws SolrServerException 
+	 * @throws SolrServerException, IOException
 	 */
-	public boolean expressionDataAvailable(String anatomyId) throws SolrServerException{
+	public boolean expressionDataAvailable(String anatomyId) throws SolrServerException, IOException {
 		boolean expressionData=false;
 		SolrQuery query = getBasicExpressionQuery(anatomyId);
 		query.setRows(0);
@@ -1190,7 +1207,7 @@ public class ExpressionService extends BasicService {
 		return expressionData;
 	}
 
-	private boolean impcImagesHasExpression(String anatomyId) throws SolrServerException {
+	private boolean impcImagesHasExpression(String anatomyId) throws SolrServerException, IOException  {
 		SolrQuery solrQuery=new SolrQuery();
 		solrQuery.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
 		solrQuery.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "

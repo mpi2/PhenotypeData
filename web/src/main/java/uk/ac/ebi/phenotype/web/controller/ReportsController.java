@@ -177,7 +177,7 @@ public class ReportsController {
 	}
 
 	private List<CallDTO> getCalls(String content) 
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 		
 		String[] list = content.split("\\r\\n|\\n|\\r");
 		List<CallDTO> res = new ArrayList<>();
@@ -205,7 +205,7 @@ public class ReportsController {
 		List<String> mpParentIds; 
 		
 		public CallDTO(String line) 
-		throws SolrServerException{
+		throws SolrServerException, IOException{
 			
 			String[] split = line.split(",");
 			mpTermId= split[0];

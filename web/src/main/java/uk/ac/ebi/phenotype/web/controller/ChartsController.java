@@ -114,7 +114,7 @@ public class ChartsController {
      * @throws ParameterNotFoundException
      * @throws IOException
      * @throws URISyntaxException
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
     @RequestMapping("/charts")
     public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
@@ -160,7 +160,7 @@ public class ChartsController {
      * @throws ParameterNotFoundException
      * @throws IOException
      * @throws URISyntaxException
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
     @RequestMapping("/chart")
     public String chart(@RequestParam(required = true, value = "experimentNumber") String experimentNumber,
@@ -368,7 +368,7 @@ public class ChartsController {
     
     private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
-    throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+    throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException {
 
         GraphUtils graphUtils = new GraphUtils(experimentService);
         List<String> geneIds = getParamsAsList(accessionsParams);

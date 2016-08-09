@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,7 +47,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 	@Autowired
 	@Qualifier("geneCore")
-	private HttpSolrServer solr;
+	private HttpSolrClient solr;
 
     @NotNull
     @Value("${baseUrl}")
@@ -70,12 +71,12 @@ public class GeneService extends BasicService implements WebStatus{
 	 *            latest production centre (i.e. most advanced along the pipeline)
 	 * @return all genes in the gene core matching phenotypeStatus and
 	 *         productionCentre.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public Set<String> getGenesByLatestPhenotypeStatusAndProductionCentre(
 			String latestPhenotypeStatus,
                         String latestProductionCentre)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		String queryString = "(" + GeneDTO.LATEST_PHENOTYPE_STATUS + ":\""
@@ -108,12 +109,12 @@ public class GeneService extends BasicService implements WebStatus{
 	 *            latest phenotype centre (i.e. most advanced along the pipeline)
 	 * @return all genes in the gene core matching phenotypeStatus and
 	 *         productionCentre.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public Set<String> getGenesByLatestPhenotypeStatusAndPhenotypeCentre(
 			String latestPhenotypeStatus,
                         String latestPhenotypeCentre)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		String queryString = "(" + GeneDTO.LATEST_PHENOTYPE_STATUS + ":\""
@@ -140,9 +141,9 @@ public class GeneService extends BasicService implements WebStatus{
 	 * Return all gene MGI IDs from the gene core.
 	 * 
 	 * @return all genes from the gene core.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public Set<String> getAllGenes() throws SolrServerException {
+	public Set<String> getAllGenes() throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(GeneDTO.MGI_ACCESSION_ID + ":*");
@@ -163,9 +164,9 @@ public class GeneService extends BasicService implements WebStatus{
 	 * Return all genes from the gene core.
 	 *
 	 * @return all genes from the gene core.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public List<GeneDTO> getAllGeneDTOs() throws SolrServerException {
+	public List<GeneDTO> getAllGeneDTOs() throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("*:*");
@@ -180,10 +181,10 @@ public class GeneService extends BasicService implements WebStatus{
 	 * 
 	 * @return all genes from the gene core whose MGI_ACCESSION_ID does not
 	 *         start with 'MGI'.
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public Set<String> getAllNonConformingGenes() 
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("-" + GeneDTO.MGI_ACCESSION_ID + ":MGI*");
@@ -202,7 +203,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 
 	public List<GeneDTO> getGenesWithEmbryoViewer () 
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 		
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(GeneDTO.EMBRYO_DATA_AVAILABLE + ":true");
@@ -217,7 +218,7 @@ public class GeneService extends BasicService implements WebStatus{
 	
 	// returns ready formatted icons
 	public Map<String, String> getProductionStatus(String geneId, String hostUrl)
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 
 		String geneUrl = hostUrl + "/genes/" + geneId;
 		SolrQuery query = new SolrQuery().setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneId + "\"");
@@ -598,7 +599,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 	
 
-	public Boolean checkAttemptRegistered(String geneAcc) throws SolrServerException {
+	public Boolean checkAttemptRegistered(String geneAcc) throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneAcc + "\"");
@@ -625,7 +626,7 @@ public class GeneService extends BasicService implements WebStatus{
 	
 	
 	public Boolean checkPhenotypeStarted(String geneAcc) 
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneAcc + "\"");
@@ -746,10 +747,10 @@ public class GeneService extends BasicService implements WebStatus{
 	 * @param geneIds
      * @param url the host name
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, String url)
-			throws SolrServerException {
+			throws SolrServerException, IOException {
 			
 		Map<String, String> geneToStatusMap = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
@@ -782,10 +783,10 @@ public class GeneService extends BasicService implements WebStatus{
 	 * Get the mouse top level mp associations for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
 	 * @param geneIds
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public Map<String, List<String>> getTopLevelMpForGeneSet(Set<String> geneIds)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 		
 		Map<String, List<String>> geneToStatusMap = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
@@ -841,7 +842,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 
 
-	public GeneDTO getGeneById(String mgiId, String ...fields) throws SolrServerException {
+	public GeneDTO getGeneById(String mgiId, String ...fields) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + mgiId + "\"").setRows(1);
@@ -857,7 +858,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 	
 	
-	public List<GeneDTO> getGeneByEnsemblId(List<String> ensembleGeneList) throws SolrServerException {
+	public List<GeneDTO> getGeneByEnsemblId(List<String> ensembleGeneList) throws SolrServerException, IOException {
 		List<GeneDTO> genes = new ArrayList<>();
 		String ensemble_gene_ids_str = StringUtils.join(ensembleGeneList, ",");  // ["bla1","bla2"]
 		
@@ -879,7 +880,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 	
 	// supports multiple symbols or synonyms
-	public List<GeneDTO> getGeneByGeneSymbolsOrGeneSynonyms(List<String> symbols) throws SolrServerException {
+	public List<GeneDTO> getGeneByGeneSymbolsOrGeneSynonyms(List<String> symbols) throws SolrServerException, IOException {
 		List<GeneDTO> genes = new ArrayList<>();
 		
 		String symbolsStr = StringUtils.join(symbols, ",");  // ["bla1","bla2"]
@@ -897,7 +898,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 		
 	
-	public GeneDTO getGeneByGeneSymbol(String symbol) throws SolrServerException {
+	public GeneDTO getGeneByGeneSymbol(String symbol) throws SolrServerException, IOException {
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":\"" + symbol + "\"")
 			.setRows(1)
@@ -945,7 +946,7 @@ public class GeneService extends BasicService implements WebStatus{
 			for (Count c : solrResponse.getFacetField(GeneDTO.LATEST_PROJECT_STATUS).getValues()){
 				res.put(c.getName(), c.getCount());
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 		
@@ -956,10 +957,10 @@ public class GeneService extends BasicService implements WebStatus{
 	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
 	 * @param geneIds
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public Map<String, GeneDTO> getHumanOrthologsForGeneSet(Set<String> geneIds)
-		throws SolrServerException {
+		throws SolrServerException, IOException {
 
 		Map<String, GeneDTO> geneToHumanOrthologMap = new HashMap<>();
 
@@ -982,7 +983,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 	
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

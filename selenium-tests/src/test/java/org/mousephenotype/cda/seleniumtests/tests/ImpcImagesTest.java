@@ -50,7 +50,7 @@ import java.util.List;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class ImpcImagesTest {
 

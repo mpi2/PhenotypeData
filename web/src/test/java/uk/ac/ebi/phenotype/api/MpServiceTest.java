@@ -23,7 +23,7 @@
 package uk.ac.ebi.phenotype.api;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -41,6 +41,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -67,8 +68,8 @@ public class MpServiceTest {
 		private String solrBaseUrl;
 
 		@Bean(name = "mpCore")
-		HttpSolrServer getSolrCore() {
-			return new HttpSolrServer(solrBaseUrl + "/mp");
+		HttpSolrClient getSolrCore() {
+			return new HttpSolrClient(solrBaseUrl + "/mp");
 		}
 
 		@Bean
@@ -88,7 +89,7 @@ public class MpServiceTest {
 			for(BasicBean bean: basicMpBeans){
 				System.out.println("MP name in test="+bean.getName()+" mp id in test="+bean.getId());
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -101,7 +102,7 @@ public class MpServiceTest {
 		try {
 			children = mpService.getChildrenFor("MP:0002461");
 			assertTrue(children.size() > 0);
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 			fail();
 		}

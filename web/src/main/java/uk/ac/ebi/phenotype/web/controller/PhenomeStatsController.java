@@ -64,7 +64,7 @@ public class PhenomeStatsController {
 		@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
 		Model model,
 		HttpServletRequest request,
-		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, SQLException{
 
 
 

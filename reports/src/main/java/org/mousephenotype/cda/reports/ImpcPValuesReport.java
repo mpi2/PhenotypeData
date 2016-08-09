@@ -67,7 +67,7 @@ public class ImpcPValuesReport extends AbstractReport {
 
         try {
             resultDtoList = statisticalResultService.getImpcPvalues();
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception in statisticalResultService.getImpcValues(): " + e.getLocalizedMessage());
         }
 

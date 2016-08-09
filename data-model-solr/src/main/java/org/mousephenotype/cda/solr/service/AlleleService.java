@@ -18,10 +18,9 @@ package org.mousephenotype.cda.solr.service;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
-
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -38,7 +38,7 @@ public class AlleleService implements WebStatus{
 	private static final Logger logger = LoggerFactory.getLogger(AlleleService.class);
 
 	@Autowired @Qualifier("alleleCore")
-	private HttpSolrServer solr;
+	private HttpSolrClient solr;
 
 	public AlleleService() {}
 
@@ -69,7 +69,7 @@ public class AlleleService implements WebStatus{
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				res.put(c.getName(), c.getCount());
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 
@@ -101,7 +101,7 @@ public class AlleleService implements WebStatus{
 					res.put(c.getName(), c.getCount());
 				}
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 		return res;
@@ -132,7 +132,7 @@ public class AlleleService implements WebStatus{
 					res.put(c.getName(), c.getCount());
 				}
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 		return res;
@@ -154,7 +154,7 @@ public class AlleleService implements WebStatus{
 			for (Count c : solrResponse.getFacetField(field).getValues()) {
 				res.add(c.getName());
 			}
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
 		return res;
@@ -201,7 +201,7 @@ public class AlleleService implements WebStatus{
 	}
 
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

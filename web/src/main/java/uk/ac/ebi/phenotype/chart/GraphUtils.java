@@ -15,13 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
@@ -30,6 +23,14 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.web.ChartType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class GraphUtils {
 
@@ -46,7 +47,7 @@ public class GraphUtils {
 	public Set<String> getGraphUrls(String acc,
 	ParameterDTO parameter, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
 	List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		// each url should be unique and so we use a set
 		Set<String> urls = new LinkedHashSet<String>();

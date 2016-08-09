@@ -156,7 +156,7 @@ public class ImpcGafReport extends AbstractReport {
                 csvWriter.writeRow(row);
             }
 
-        } catch (SolrServerException | SQLException e) {
+        } catch (SolrServerException | SQLException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 

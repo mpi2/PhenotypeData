@@ -1,7 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -48,8 +49,8 @@ public class ObservationServiceTest {
 		private String solrBaseUrl;
 
 		@Bean(name = "experimentCore")
-		HttpSolrServer getExperimentCore() {
-			return new HttpSolrServer(solrBaseUrl + "/experiment");
+		HttpSolrClient getExperimentCore() {
+			return new HttpSolrClient(solrBaseUrl + "/experiment");
 		}
 
 		@Bean
@@ -73,7 +74,7 @@ public class ObservationServiceTest {
 
 			assert(result.size()>5);
 
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -88,14 +89,14 @@ public class ObservationServiceTest {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
 			assertTrue(result.size()>0);
 
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@Test
-	public void testGetDistinctPipelineAlleleCenterListByGeneAccession() throws SolrServerException {
+	public void testGetDistinctPipelineAlleleCenterListByGeneAccession() throws SolrServerException, IOException {
 
 		// Arsk
 		String acc = "MGI:1924291";
