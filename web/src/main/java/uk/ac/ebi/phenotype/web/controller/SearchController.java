@@ -166,21 +166,6 @@ public class SearchController {
 
 	public String composeSolrParamStr(String query, String fqStr, String dataType){
 
-
-//		if (query.matches("MGI:\\d+")) {
-//			searchConfig.setQf("mgi_accession_id");
-//		} else if (query.matches("MP:\\d+")) {
-//			searchConfig.setQf("mp_id");
-//		} else if (query.matches("MA:\\d+") || query.matches("EMAPA:\\d+")) {
-//			searchConfig.setQf(AnatomyDTO.ANATOMY_ID);
-//		}
-//		else if ( dataType.equals("gene") ){
-//			String geneQf = "geneQf";
-//			searchConfig.setQf(geneQf);
-//			System.out.println("CHK QF: "+searchConfig.getQf());
-//			System.out.println("CHK QFSolr: "+searchConfig.getQfSolrStr());
-//		}
-
 		String qfStr = searchConfig.getQfSolrStr(dataType);
 		String defTypeStr = searchConfig.getDefTypeSolrStr();
 		String facetStr = searchConfig.getFacetFieldsSolrStr(dataType);
@@ -219,8 +204,13 @@ public class SearchController {
 			String thisFqStr = null;
 
 			if (thisCore.equals("gene")) {
-				String geneQf = "geneQf";
-				qfDefTypeWt = "&qf=" + geneQf + "&defType=edismax&wt=json";
+				qfDefTypeWt = "&qf=geneQf&defType=edismax&wt=json";
+			}
+			else if ( thisCore.equals("disease")) {
+                qfDefTypeWt = "&qf=diseaseQf&defType=edismax&wt=json";
+            }
+			else if ( thisCore.equals("anatomy")) {
+				qfDefTypeWt = "&qf=anatomyQf&defType=edismax&wt=json";
 			}
 			else {
 				qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
