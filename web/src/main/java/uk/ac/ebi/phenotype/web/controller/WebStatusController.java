@@ -1,37 +1,19 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletResponse;
-
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
-import org.mousephenotype.cda.solr.service.Allele2Service;
-import org.mousephenotype.cda.solr.service.AlleleService;
-import org.mousephenotype.cda.solr.service.AutoSuggestService;
-import org.mousephenotype.cda.solr.service.DiseaseService;
-import org.mousephenotype.cda.solr.service.EucommCreProductService;
-import org.mousephenotype.cda.solr.service.EucommToolsCreAllele2Service;
-import org.mousephenotype.cda.solr.service.EucommToolsProductService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.AnatomyService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.OmeroStatusService;
-import org.mousephenotype.cda.solr.service.PhenodigmService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * Class to handle the nagios web status monitoring pages
@@ -103,7 +85,7 @@ public class WebStatusController {
 	EucommCreProductService eucommCreProductService;
 
 	@Autowired
-	EucommToolsProductService eucommToolsProductService;
+	ProductService productService;
 
 	@Autowired
 	EucommToolsCreAllele2Service eucommToolsCreAllele2Service;
@@ -137,7 +119,7 @@ public class WebStatusController {
 		imitsWebStatusObjects = new ArrayList<>();
 		imitsWebStatusObjects.add(allele2);
 		imitsWebStatusObjects.add(eucommCreProductService);
-		imitsWebStatusObjects.add(eucommToolsProductService);
+		imitsWebStatusObjects.add(productService);
 		imitsWebStatusObjects.add(eucommToolsCreAllele2Service);
 	}
 

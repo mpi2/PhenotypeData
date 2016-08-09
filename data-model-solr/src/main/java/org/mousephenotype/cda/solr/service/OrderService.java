@@ -39,7 +39,7 @@ public class OrderService {
 	private HttpSolrClient eucommProduct;
 
 	@Autowired
-	@Qualifier("eucommToolsProductCore")
+	@Qualifier("productCore")
 	private HttpSolrClient productCore;
 	
 	 @Value("${imits.solr.host}")
@@ -157,11 +157,10 @@ public class OrderService {
 			query.addFilterQuery("type:" + productType);
 		}
 		query.addFilterQuery("production_completed:true");
-		System.out.println("query for products=" + query);
+
 		QueryResponse response = productCore.query(query);
-		System.out.println("number found of products docs=" + response.getResults().getNumFound());
 		List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
-		System.out.println("number of productDTOs is " + productDTOs.size());
+
 		for (ProductDTO prod : productDTOs) {
 			if (!alleleNameToProductsMap.containsKey(prod.getAlleleName())) {
 				alleleNameToProductsMap.put(prod.getAlleleName(), new ArrayList<>());
