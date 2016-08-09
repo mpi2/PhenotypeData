@@ -35,10 +35,6 @@ span.gene, span.mp, span.anatomy, span.disease, span.hp {
 b.sugTerm {
 	color: #0978A1;
 }
-span.category {
-	color: #EF7B0B !important;
-	font-weight: bold;
-}
 span.sugList {
 	color: black;
 }
@@ -426,7 +422,7 @@ div.searchcontent {
 	float: left;
 	width: 95%;
 	background-color: #0978A1;
-	padding: 10px 10px 10px 10px;
+	padding: 10px 14px 10px 10px;
 	margin: 0 30px 0 0px;
 
 }
