@@ -209,6 +209,7 @@ public class SearchConfig {
 //                "largeThumbnailFilePath");
 
         List<String> allele2Fields = Arrays.asList("marker_symbol",
+                "mgi_accession_id",
                 "allele_name",
                 "mutation_type",
                 "es_cell_available",
