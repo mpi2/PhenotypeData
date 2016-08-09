@@ -66,6 +66,12 @@ public class ImportSpecimens implements CommandLineRunner {
         SpringApplication.run(ImportSpecimens.class, args);
     }
 
+    @Override
+    public void run(String... args) throws Exception {
+
+        initialize(args);
+        run();
+    }
 
     private void initialize(String[] args) {
 
@@ -100,7 +106,7 @@ public class ImportSpecimens implements CommandLineRunner {
     }
 
     private void run() throws DataImportException {
-        int totalSpecimens = 0;
+        int                  totalSpecimens = 0;
         List<CentreSpecimen> centerSpecimens;
 
         try {
@@ -224,12 +230,5 @@ public class ImportSpecimens implements CommandLineRunner {
         for (RelatedSpecimen relatedSpecimen : specimen.getRelatedSpecimen()) {
             dccSqlUtils.insertRelatedSpecimen(relatedSpecimen, specimenPk);
         }
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
-
-        initialize(args);
-        run();
     }
 }
