@@ -585,8 +585,8 @@ public class DccSqlUtils {
             parameterMap.put("geneSymbol", genotype.getGeneSymbol());
             parameterMap.put("mgiAlleleId", genotype.getMGIAlleleId());
             parameterMap.put("mgiGeneId", genotype.getMGIGeneId());
-            parameterMap.put("fatherZygosity", (genotype.getFatherZygosity() == null ? null : genotype.getFatherZygosity()));
-            parameterMap.put("motherZygosity", (genotype.getMotherZygosity() == null ? null : genotype.getMotherZygosity()));
+            parameterMap.put("fatherZygosity", (genotype.getFatherZygosity() == null ? null : genotype.getFatherZygosity().value()));
+            parameterMap.put("motherZygosity", (genotype.getMotherZygosity() == null ? null : genotype.getMotherZygosity().value()));
             parameterMap.put("specimen_pk", specimen_pk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
