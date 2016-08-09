@@ -28,6 +28,7 @@ import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadi
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
@@ -65,7 +66,9 @@ public class ImportExperiments implements CommandLineRunner {
 
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(ImportExperiments.class, args);
+        SpringApplication app = new SpringApplication(ImportExperiments.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.run(args);
     }
 
     @Override
