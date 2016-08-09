@@ -23,6 +23,7 @@ import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.db.dao.OntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -90,7 +91,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	DataSource ontodbDataSource;
 
 	@Autowired
-	MaOntologyDAO maService;
+    MaOntologyDAO maOntologyService;
 
 	@Autowired
 	EmapaOntologyDAO emapaService;
@@ -256,7 +257,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 						}
 					}
 
-					addOntology(runStatus, imageDTO, parameterStableIdToMaTermIdMap, maService);
+					addOntology(runStatus, imageDTO, parameterStableIdToMaTermIdMap, maOntologyService);
 					addOntology(runStatus, imageDTO, parameterStableIdToEmapaTermIdMap, emapaService);
 					addOntology(runStatus, imageDTO, parameterStableIdToMpTermIdMap, mpService);
 
@@ -329,14 +330,14 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 							}
 						}
 
-						List<OntologyTermBean> selectedTopLevels = ontologyDAO.getSelectedTopLevel(thisTermId, level);
-						for (OntologyTermBean selectedTopLevel : selectedTopLevels) {
-							if (!topLevelIds.contains(selectedTopLevel.getId())) {
-								selectedTopLevelIds.add(selectedTopLevel.getId());
-								selectedTopLevelTerm.add(selectedTopLevel.getName());
-								selectedTopLevelTermSynonym.addAll(selectedTopLevel.getSynonyms());
-							}
-						}
+						OntologyDetail maOntologyDetails = ontologyDAO.getSelectedTopLevelDetails(thisTermId);
+						
+							
+								selectedTopLevelIds.addAll(maOntologyDetails.getIds());
+								selectedTopLevelTerm.addAll(maOntologyDetails.getNames());
+								selectedTopLevelTermSynonym.addAll(maOntologyDetails.getSynonyms());
+							
+						
 
 						List<OntologyTermBean> intermediateLevels = ontologyDAO.getIntermediates(thisTermId);
 						for (OntologyTermBean intermediateLevel : intermediateLevels) {
