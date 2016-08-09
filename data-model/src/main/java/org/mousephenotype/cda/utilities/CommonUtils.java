@@ -16,8 +16,9 @@
 
 package org.mousephenotype.cda.utilities;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -161,6 +162,29 @@ public class CommonUtils {
      */
     public String getRunstats(long start, long stop) {
         return "(" + formattedDate(start) + ", " + formattedDate(stop) + ", " + msToHms(stop - start) + ")";
+    }
+
+    /**
+     * Returns a {@code String} with the specified map's contents (key/value pairs), prefaced by its name
+     * @param map the map to query
+     * @param mapName the name of the map (used to identify the map)
+     * @return a {@code String} with the specified map's contents (key/value pairs), prefaced by its name
+     */
+    public String mapToString(Map<String, Object> map, String mapName) {
+        final StringBuilder retVal = new StringBuilder();
+
+        map.entrySet().stream().forEach(entry -> {
+            if (retVal.toString().isEmpty())
+                retVal.append("MAP " + mapName + "= [");
+            else
+                retVal.append("], [");
+            retVal.append(StringUtils.join(entry.getKey() + ": " + (entry.getValue() == null ? "<null>" : entry.getValue().toString())));
+        });
+
+        if ( ! retVal.toString().isEmpty())
+            retVal.append("]");
+
+        return retVal.toString();
     }
 
     /**
