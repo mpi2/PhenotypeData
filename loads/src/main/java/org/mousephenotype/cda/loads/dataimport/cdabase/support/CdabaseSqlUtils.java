@@ -245,10 +245,12 @@ public class CdabaseSqlUtils {
                 parameterMap.put("genetic_background", bioModel.getGeneticBackground());
 
                 count = npJdbcTemplate.update(bioModelInsert, parameterMap);
-                countsMap.put("bioModels", countsMap.get("bioModels") + count);
+                if (count > 0) {
+                    countsMap.put("bioModels", countsMap.get("bioModels") + count);
 
-                int bioModelId = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Integer.class);
-                bioModel.setBiologicalModelId(bioModelId);
+                    int bioModelId = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Integer.class);
+                    bioModel.setBiologicalModelId(bioModelId);
+                }
 
             } catch (DuplicateKeyException e) {
 
