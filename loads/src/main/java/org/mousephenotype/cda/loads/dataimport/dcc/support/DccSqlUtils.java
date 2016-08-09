@@ -1397,7 +1397,7 @@ public class DccSqlUtils {
             parameterMap.put("litterId", specimen.getLitterId());
             parameterMap.put("phenotypingCenter", specimen.getPhenotypingCentre().value());
             parameterMap.put("pipeline", specimen.getPipeline());
-            parameterMap.put("productionCenter", specimen.getProductionCentre().value());
+            parameterMap.put("productionCenter", (specimen.getProductionCentre() == null ? null : specimen.getProductionCentre().value()));
             parameterMap.put("project", specimen.getProject());
             parameterMap.put("specimenId", specimen.getSpecimenID());
             parameterMap.put("strainId", specimen.getStrainID());
