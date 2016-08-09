@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.dataimport.dcc.support;
 
+import com.sun.xml.internal.fastinfoset.tools.FI_SAX_Or_XML_SAX_SAXEvent;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
@@ -538,7 +539,7 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given embryo into the embryo table. Duplicates are ignored.
+     * Inserts the given {@link Embryo} into the embryo table. Duplicates are ignored.
      *
      * @param embryo the embryo to be inserted
      *
@@ -568,7 +569,7 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given genotype into the genotype table. Duplicates are ignored.
+     * Inserts the given {@link Genotype} into the genotype table. Duplicates are ignored.
      *
      * @param genotype the genotype to be inserted
      *
@@ -657,7 +658,7 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts a row into the line_statuscode table.
+     * Inserts the given {@code linePk} and {@code statuscodePk} into the line_statuscode table. Duplicates are ignored.
      *
      * @param linePk;   The line primary key
      * @param statuscodePk   The statuscode primary key
@@ -686,20 +687,20 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given mouse into the mouse table. Duplicates are ignored.
+     * Inserts the given {@link Mouse} into the mouse table. Duplicates are ignored.
      *
      * @param mouse the mouse to be inserted
      *
      * @return the mouse, with primary key loaded
      */
-    public Mouse insertMouse(Mouse mouse, long specimen_pk) {
-        String insert = "INSERT INTO mouse (DOB, specimen_pk) VALUES (:DOB, :specimen_pk)";
+    public Mouse insertMouse(Mouse mouse, long specimenPk) {
+        String insert = "INSERT INTO mouse (DOB, specimen_pk) VALUES (:DOB, :specimenPk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
 
             parameterMap.put("DOB", new java.sql.Date(mouse.getDOB().getTime().getTime()));
-            parameterMap.put("specimen_pk", specimen_pk);
+            parameterMap.put("specimen_pk", specimenPk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
@@ -713,17 +714,365 @@ public class DccSqlUtils {
 
         return mouse;
     }
-    
+
     /**
-     * Inserts the given parentalStrain into the parentalStrain table. Duplicates are ignored.
+     * Inserts the given {@link MediaFile} into the mediaFile table. Duplicates are ignored.
+     *
+     * @param mediaFile the mediaFile to be inserted
+     * @param mediaSectionPk the mediaSection primary key
+     *
+     * @return the mediaFile, with primary key loaded
+     */
+    public MediaFile insertMediaFile(MediaFile mediaFile, long mediaSectionPk) {
+        String insert = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_pk) " +
+                        "VALUES (:localId, :fileType, :URI, :mediaSectionPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("localId", mediaFile.getLocalId());
+            parameterMap.put("fileType", mediaFile.getFileType());
+            parameterMap.put("URI", mediaFile.getURI());
+            parameterMap.put("mediaSectionPk", mediaSectionPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                mediaFile.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return mediaFile;
+    }
+
+    /**
+     * Inserts the given {@code mediaFilePk} and {@code parameterAssociationPk} into the mediaFile_parameterAssociation
+     * table. Duplicates are ignored.
+     *
+     * @param mediaFilePk the mediaFile primary key to be inserted
+     * @param parameterAssociationPk the parameterAssociation primary key to be inserted
+     *
+     * @return the mediaFile_parameterAssociation primary key
+     */
+    public long insertMediaFile_parameterAssociation(long mediaFilePk, long parameterAssociationPk) {
+        long pk = 0L;
+        String insert = "INSERT INTO mediaFile_parameterAssociation(mediaFile_pk, parameterAssociation_pk) " +
+                        "VALUES (:mediaFilePk, :parameterAssociationPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("mediaFilePk", mediaFilePk);
+            parameterMap.put("parameterAssociationPk", parameterAssociationPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
+     * Inserts the given {@code mediaFilePk} and {@code procedureMetadataPk} into the mediaFile_procedureMetadata
+     * table. Duplicates are ignored.
+     *
+     * @param mediaFilePk the mediaFile primary key to be inserted
+     * @param procedureMetadataPk the procedureMetadata primary key to be inserted
+     *
+     * @return the mediaFile_procedureMetadata primary key
+     */
+    public long insertMediaFile_procedureMetadata(long mediaFilePk, long procedureMetadataPk) {
+        long pk = 0L;
+        String insert = "INSERT INTO mediaFile_procedureMetadata(mediaFile_pk, procedureMetadata_pk) " +
+                        "VALUES (:mediaFilePk, :procedureMetadataPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("mediaFilePk", mediaFilePk);
+            parameterMap.put("procedureMetadataPk", procedureMetadataPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
+     * Inserts the given {@link MediaParameter} into the mediaParameter table. Duplicates are ignored.
+     *
+     * @param mediaParameter the mediaParameter to be inserted
+     *
+     * @return the mediaParameter, with primary key loaded
+     */
+    public MediaParameter insertMediaParameter(MediaParameter mediaParameter, long procedurePk) {
+        String insert = "INSERT INTO mediaParameter (parameterId, parameterStatus, filetype, URI, procedure_pk) " +
+                        "VALUES (:parameterId, :parameterStatus, :filetype, :URI, :procedurePk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("parameterId", mediaParameter.getParameterID());
+            parameterMap.put("parameterStatus", mediaParameter.getParameterStatus());
+            parameterMap.put("filetype", mediaParameter.getFileType());
+            parameterMap.put("URI", mediaParameter.getURI());
+            parameterMap.put("procedurePk", procedurePk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                mediaParameter.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return mediaParameter;
+    }
+
+    /**
+     * Inserts the given {@code mediaParameterPk} and {@code parameterAssociationPk} into the
+     * mediaParameter_parameterAssociation table. Duplicates are ignored.
+     *
+     * @param mediaParameterPk;   The media parameter primary key
+     * @param parameterAssociationPk   The parameterAssociation primary key
+     *
+     * @return returns the mediaParameter_parameterAssociation primary key
+     */
+    public long insertMediaParameter_parameterAssociation(long mediaParameterPk, long parameterAssociationPk) {
+        long pk = 0L;
+        String insert = "INSERT INTO mediaParameter_parameterAssociation(mediaParameter_pk, parameterAssociation_pk) " +
+                        "VALUES (:mediaParameterPk, :parameterAssociationPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("mediaParameterPk", mediaParameterPk);
+            parameterMap.put("parameterAssociationPk", parameterAssociationPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
+     * Inserts the given {@code mediaParameterPk} and {@code procedureMetadataPk} into the
+     * mediaParameter_procedureMetadata table. Duplicates are ignored.
+     *
+     * @param mediaParameterPk    The media parameter primary key
+     * @param procedureMetadataPk The procedureMetadata primary key
+     *
+     * @return returns the mediaParameter_procedureMetadata primary key
+     */
+    public long insertMediaParameter_procedureMetadata(long mediaParameterPk, long procedureMetadataPk) {
+        long pk = 0L;
+        String insert = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_pk, procedureMetadata_pk) " +
+                        "VALUES (:mediaParameterPk, :procedureMetadataPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("mediaParameterPk", mediaParameterPk);
+            parameterMap.put("procedureMetadataPk", procedureMetadataPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
+     * Inserts the given {@link MediaSample} into the mediaSample table. Duplicates are ignored.
+     *
+     * @param mediaSample the mediaSample to be inserted
+     * @param mediaSampleParameterPk the mediaSampleParameter primary key
+     *
+     * @return the mediaSample, with primary key loaded
+     */
+    public MediaSample insertMediaSample(MediaSample mediaSample, long mediaSampleParameterPk) {
+        String insert = "INSERT INTO mediaSample (localId, mediaSampleParameter_pk) " +
+                        "VALUES (:localId, :mediaSampleParameterPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("localId", mediaSample.getLocalId());
+            parameterMap.put("mediaSampleParameterPk", mediaSampleParameterPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                mediaSample.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return mediaSample;
+    }
+
+    /**
+     * Inserts the given {@link MediaSampleParameter} into the mediaSampleParameter table. Duplicates are ignored.
+     *
+     * @param mediaSampleParameter the mediaSampleParameter to be inserted
+     *
+     * @return the mediaSampleParameter, with primary key loaded
+     */
+    public MediaSampleParameter insertMediaSampleParameter(MediaSampleParameter mediaSampleParameter, long procedurePk) {
+        String insert = "INSERT INTO mediaSampleParameter (parameterId, parameterStatus, procedure_pk) " +
+                        "VALUES (:parameterId, :parameterStatus, :procedurePk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("parameterId", mediaSampleParameter.getParameterID());
+            parameterMap.put("parameterStatus", mediaSampleParameter.getParameterStatus());
+            parameterMap.put("procedurePk", procedurePk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                mediaSampleParameter.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return mediaSampleParameter;
+    }
+
+    /**
+     * Inserts the given {@link MediaSection} into the mediaSection table. Duplicates are ignored.
+     *
+     * @param mediaSection the mediaSection to be inserted
+     * @param mediaSamplePk the mediaSample primary key
+     *
+     * @return the mediaSection, with primary key loaded
+     */
+    public MediaSection insertMediaSection(MediaSection mediaSection, long mediaSamplePk) {
+        String insert = "INSERT INTO mediaSection (localId, mediaSample_pk) " +
+                        "VALUES (:localId, :mediaSamplePk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("localId", mediaSection.getLocalId());
+            parameterMap.put("mediaSamplePk", mediaSamplePk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                mediaSection.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return mediaSection;
+    }
+
+    /**
+     * Inserts the given {@link OntologyParameter} into the ontologyParameter table. Duplicates are ignored.
+     *
+     * @param ontologyParameter the ontology parameter to be inserted
+     * @param procedurePk the procedure primary key
+     *
+     * @return the ontologyParameter, with primary key loaded
+     */
+    public OntologyParameter insertOntologyParameter(OntologyParameter ontologyParameter, long procedurePk) {
+        String insert = "INSERT INTO ontologyParameter (parameterId, parameterStatus, sequenceId, procedure_pk) "
+                      + "VALUES (:parameterId, :parameterStatus, :sequenceId, :procedurePk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("parameterId", ontologyParameter.getParameterID());
+            parameterMap.put("parameterStatus", ontologyParameter.getParameterStatus());
+            parameterMap.put("sequenceId", ontologyParameter.getSequenceID());
+            parameterMap.put("procedure_pk", procedurePk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                ontologyParameter.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return ontologyParameter;
+    }
+
+    /**
+     * Inserts the given {@code ontologyParameterTerm} into the ontologyParameterTerm table. Duplicates are ignored.
+     *
+     * @param ontologyParameterTerm the ontology parameter term to be inserted
+     * @param ontologyParameterPk the ontology parameter primary key
+     *
+     * @return the ontologyParameterTerm primary key
+     */
+    public long insertOntologyParameterTerm(String ontologyParameterTerm, long ontologyParameterPk) {
+        String insert = "INSERT INTO ontologyParameterTerm(term, ontologyParameter_pk) "
+                      + "VALUES (:term, :ontologyParameterPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("term", ontologyParameterTerm);
+            parameterMap.put("ontologyParameterPk", ontologyParameterPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                return pk;
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return 0;
+    }
+
+    /**
+     * Inserts the given {link ParentalStrain} into the parentalStrain table. Duplicates are ignored.
      *
      * @param parentalStrain the parentalStrain to be inserted
+     * @param specimenPk the specimen primary key
      *
      * @return the parentalStrain, with primary key loaded
      */
-    public ParentalStrain insertParentalStrain(ParentalStrain parentalStrain, long specimen_pk) {
+    public ParentalStrain insertParentalStrain(ParentalStrain parentalStrain, long specimenPk) {
         String insert = "INSERT INTO parentalStrain (percentage, mgiStrainId, gender, level, specimen_pk) "
-                      + "VALUES (:percentage, :mgiStrainId, :gender, :level, :specimen_pk)";
+                      + "VALUES (:percentage, :mgiStrainId, :gender, :level, :specimenPk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
@@ -732,7 +1081,7 @@ public class DccSqlUtils {
             parameterMap.put("mgiStrainId", parentalStrain.getMGIStrainID());
             parameterMap.put("gender", parentalStrain.getGender().value());
             parameterMap.put("level", parentalStrain.getLevel());
-            parameterMap.put("specimen_pk", specimen_pk);
+            parameterMap.put("specimenPk", specimenPk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
@@ -748,7 +1097,7 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given procedureId into the procedure_ table. Duplicates are ignored.
+     * Inserts the given {@code procedureId} into the procedure_ table. Duplicates are ignored.
      *
      * @param procedureId the procedure id to be inserted
      *
@@ -804,12 +1153,18 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given relatedSpecimen into the relatedSpecimen table. Duplicates are ignored.
+     * Inserts the given {@link RelatedSpecimen} into the relatedSpecimen table. Duplicates are ignored.
      *
      * @param relatedSpecimen the relatedSpecimen to be inserted
      *
      * @return the relatedSpecimen, with primary key loaded
      */
+
+
+
+    FIXME FIXME FIXME FIXME
+
+
     public RelatedSpecimen insertRelatedSpecimen(RelatedSpecimen relatedSpecimen, long specimen_pk) {
         String insert = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_pk) "
                       + "VALUES (:relationship, :specimenIdMine, :specimen_theirs_pk)";
@@ -834,10 +1189,210 @@ public class DccSqlUtils {
         return relatedSpecimen;
     }
 
+    /**
+     * Inserts the given {@link SeriesMediaParameter} into the seriesMediaParameter table. Duplicates are ignored.
+     *
+     * @param seriesMediaParameter the seriesMediaParameter to be inserted
+     * @param procedurePk the procedure primary key
+     *
+     * @return the seriesMediaParameter, with primary key loaded
+     */
+    public SeriesMediaParameter insertSeriesMediaParameter(SeriesMediaParameter seriesMediaParameter, long procedurePk) {
+        String insert = "INSERT INTO seriesMediaParameter (parameterId, parameterStatus, procedure_pk) "
+                      + "VALUES (:parameterId, :parameterStatus, :procedurePk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("parameterId", seriesMediaParameter.getParameterID());
+            parameterMap.put("parameterStatus", seriesMediaParameter.getParameterStatus());
+            parameterMap.put("procedurePk", procedurePk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                seriesMediaParameter.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return seriesMediaParameter;
+    }
+    
+    /**
+     * Inserts the given {@link SeriesMediaParameterValue} into the seriesMediaParameterValue table. Duplicates are ignored.
+     *
+     * @param seriesMediaParameterValue the seriesMediaParameterValue to be inserted
+     * @param seriesMediaParameterPk the seriesMediaParameter primary key
+     *
+     * @return the seriesMediaParameterValue, with primary key loaded.
+     */
+    public SeriesMediaParameterValue insertSeriesMediaParameterValue(SeriesMediaParameterValue seriesMediaParameterValue, long seriesMediaParameterPk) {
+        String insert = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, seriesMediaParameter_pk) " +
+                        "VALUES (:fileType, :incrementValue, :URI, :seriesMediaParameterPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("fileType", seriesMediaParameterValue.getFileType());
+            parameterMap.put("incrementValue", seriesMediaParameterValue.getIncrementValue());
+            parameterMap.put("URI", seriesMediaParameterValue.getURI());
+            parameterMap.put("seriesMediaParameterPk", seriesMediaParameterPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                seriesMediaParameterValue.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return seriesMediaParameterValue;
+    }
+
+    /**
+     * Inserts the given {@code seriesMediaParameterValuePk} and {@code parameterAssociationPk} into the
+     * seriesMediaParameterValue_parameterAssociation table. Duplicates are ignored.
+     *
+     * @param seriesMediaParameterValuePk The seriesMediaParameterValue primary key
+     * @param parameterAssociationPk      The parameterAssociation primary key
+     *
+     * @return returns the seriesMediaParameterValue_parameterAssociation primary key
+     */
+    public long insertSeriesMediaParameterValue_parameterAssociation(long seriesMediaParameterValuePk, long parameterAssociationPk) {
+        long pk = 0L;
+        String insert = "INSERT INTO seriesMediaParameterValue_parameterAssociation(seriesMediaParameterValue_pk, parameterAssociation_pk) " +
+                        "VALUES (:seriesMediaParameterValuePk, :parameterAssociationPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("seriesMediaParameterValuePk", seriesMediaParameterValuePk);
+            parameterMap.put("parameterAssociationPk", parameterAssociationPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
+     * Inserts the given {@code seriesMediaParameterValuePk} and {@code procedureMetadataPk} into the
+     * seriesMediaParameterValue_procedureMetadata table. Duplicates are ignored.
+     *
+     * @param seriesMediaParameterValuePk The seriesMediaParameterValue primary key
+     * @param procedureMetadataPk         The procedureMetadata primary key
+     *
+     * @return returns the seriesMediaParameterValue_procedureMetadata primary key
+     */
+    public long insertSeriesMediaParameterValue_procedureMetadata(long seriesMediaParameterValuePk, long procedureMetadataPk) {
+        long pk = 0L;
+        String insert = "INSERT INTO seriesMediaParameterValue_procedureMetadata(seriesMediaParameterValue_pk, procedureMetadata_pk) " +
+                        "VALUES (:seriesMediaParameterValuePk, :procedureMetadataPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("seriesMediaParameterValuePk", seriesMediaParameterValuePk);
+            parameterMap.put("procedureMetadataPk", procedureMetadataPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return pk;
+    }
+
+    /**
+     * Inserts the given {@link SeriesParameter} into the seriesParameter table. Duplicates are ignored.
+     *
+     * @param seriesParameter the series parameter to be inserted
+     * @param procedurePk the procedure primary key
+     *
+     * @return the seriesParameter, with primary key loaded
+     */
+    public SeriesParameter insertSeriesParameter(SeriesParameter seriesParameter, long procedurePk) {
+        String insert = "INSERT INTO seriesParameter (parameterId, parameterStatus, sequenceId, procedure_pk) "
+                      + "VALUES (:parameterId, :parameterStatus, :sequenceId, :procedurePk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("parameterId", seriesParameter.getParameterID());
+            parameterMap.put("parameterStatus", seriesParameter.getParameterStatus());
+            parameterMap.put("sequenceId", seriesParameter.getSequenceID());
+            parameterMap.put("procedurePk", procedurePk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                seriesParameter.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return seriesParameter;
+    }
+
+    /**
+     * Inserts the given {@link SeriesParameterValue} into the seriesParameterValue table. Duplicates are ignored.
+     *
+     * @param seriesParameterValue the series parameter value to be inserted
+     * @param seriesParameterPk the series parameter primary key
+     *
+     * @return the seriesParameterValue, with primary key loaded.
+     */
+    public SeriesParameterValue insertSeriesParameterValue(SeriesParameterValue seriesParameterValue, long seriesParameterPk) {
+        String insert = "INSERT INTO seriesParameterValue(value, incrementValue, incrementStatus, seriesParameter_pk) "
+                      + "VALUES (:value, :incrementValue, :incrementStatus, :seriesParameterPk)";
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            parameterMap.put("value", seriesParameterValue.getValue());
+            parameterMap.put("incrementValue", seriesParameterValue.getIncrementValue());
+            parameterMap.put("incrementStatus", seriesParameterValue.getIncrementStatus());
+            parameterMap.put("seriesParameterPk", seriesParameterPk);
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                seriesParameterValue.setHjid(pk);
+            }
+
+        } catch (DuplicateKeyException e) {
+
+        }
+
+        return seriesParameterValue;
+    }
+
+    /**
+     * Inserts the given {@link Specimen} into the specimen table. Duplicates are ignored.
+     *
+     * @param specimen the specimen to be inserted
+     *
+     * @return the specimen, with primary key loaded
+     */
     public Specimen insertSpecimen(Specimen specimen) throws DataImportException {
         final String insert = "INSERT INTO specimen (" +
                     "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project, specimenId, strainId, zygosity, statuscode_pk) VALUES " +
-                    "(:colonyId, :gender, :isBaseline, :litterId, :phenotypingCenter, :pipeline, :productionCenter, :project, :specimenId, :strainId, :zygosity, :statuscode_pk);";
+                    "(:colonyId, :gender, :isBaseline, :litterId, :phenotypingCenter, :pipeline, :productionCenter, :project, :specimenId, :strainId, :zygosity, :statuscodePk);";
 
         Map<String, Object> parameterMap = new HashMap();
 
@@ -853,7 +1408,7 @@ public class DccSqlUtils {
             parameterMap.put("specimenId", specimen.getSpecimenID());
             parameterMap.put("strainId", specimen.getStrainID());
             parameterMap.put("zygosity", specimen.getZygosity().value());
-            parameterMap.put("statuscode_pk", (specimen.getStatusCode() == null ? null : specimen.getStatusCode().getHjid()));
+            parameterMap.put("statuscodePk", specimen.getStatusCode());
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
@@ -865,6 +1420,40 @@ public class DccSqlUtils {
         }
         
         return specimen;
+    }
+
+    /**
+     * Inserts the given {@link SimpleParameter} into the simpleParameter table. Duplicates are ignored.
+     *
+     * @param simpleParameter the simpleParameter to be inserted
+     * @param procedurePk the procedure primary key
+     *
+     * @return the simpleParameter, with primary key loaded
+     */
+    public SimpleParameter insertSimpleParameter(SimpleParameter simpleParameter, long procedurePk) throws DataImportException {
+        final String insert = "INSERT INTO simpleParameter (parameterId, parameterStatus, procedure_pk, sequenceId, unit, value) "
+                            + "VALUES (:parameterId, :parameterStatus, :procedurePk, :sequenceId, :unit, :value)";
+
+        Map<String, Object> parameterMap = new HashMap();
+
+        try {
+            parameterMap.put("parameterId", simpleParameter.getParameterID());
+            parameterMap.put("parameterStatus", simpleParameter.getParameterStatus());
+            parameterMap.put("procedurePk", procedurePk);
+            parameterMap.put("sequenceId", simpleParameter.getSequenceID());
+            parameterMap.put("unit", simpleParameter.getUnit());
+            parameterMap.put("value", simpleParameter.getValue());
+
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                long simpleParameterPk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                simpleParameter.setHjid(simpleParameterPk);
+            }
+        } catch (Exception e) {
+            throw new DataImportException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
+        }
+        
+        return simpleParameter;
     }
 
 
@@ -879,9 +1468,7 @@ public class DccSqlUtils {
      * @param procedurePk The procedure primary key
      *
      * @return the center_procedure primary key matching the given centerPk and procedurePk. The data is first inserted
-          * into the center_procedure table if it does not yet exist.
-     * <p/>
-     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
+     *         into the center_procedure table if it does not yet exist.
      */
     public long selectOrInsertCenter_procedure(long centerPk, long procedurePk) {
         Map<String, Object> parameterMap = new HashMap<>();
@@ -908,6 +1495,118 @@ public class DccSqlUtils {
     }
 
     /**
+     * Returns the {@link Experiment} instance identified by {@code} experiment and center_procedure primary key. The
+     * data is first inserted into the experiment table if it does not yet exist.
+     *
+     * @param experiment The experiment instance to be fetched/inserted
+     * @param center_procedurePk The center_procedure primary key
+     *
+     * @return the {@link Experiment} instance identified by {@code} experiment and center_procedure primary key. The
+          * data is first inserted into the experiment table if it does not yet exist.
+     * 
+     */
+    public Experiment selectOrInsertExperiment(Experiment experiment, long center_procedurePk) {
+        Experiment retVal = getExperiment(experiment, center_procedurePk);
+        if (retVal == null) {
+            String insert = "INSERT INTO experiment (center_procedure_pk, dateOfExperiment, experimentId, sequenceId) "
+                          + "VALUES (:center_procedurePk, :dateOfExperiment, :experimentId, :sequenceId)";
+            
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("center_procedurePk", center_procedurePk);
+            parameterMap.put("dateOfExperiment", experiment.getDateOfExperiment());
+            parameterMap.put("experimentId", experiment.getExperimentID());
+            parameterMap.put("sequenceId", experiment.getSequenceID());
+            
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count > 0) {
+                retVal = getExperiment(experiment, center_procedurePk);
+            }
+        }
+        
+        return retVal;
+    }
+
+    /**
+     * Returns the experiment_specimen primary key matching the given {@code experimentPk} and {@code specimenPk}. The
+     * data is first inserted into the experiment_specimen table if it does not yet exist.
+     *
+     * @param experimentPk The experiment primary key
+     * @param specimenPk The specimen primary key
+     *
+     * @return the experiment_specimen primary key matching the given experimentPk and specimenPk. The data is first
+     *         inserted into the experiment_specimen table if it does not yet exist.
+     */
+    public long selectOrInsertExperiment_specimen(long experimentPk, long specimenPk) {
+        Map<String, Object> parameterMap = new HashMap<>();
+        Long pk;
+        final String query = "SELECT pk FROM experiment_specimen WHERE experiment_pk = :experimentPk and specimen_pk = :specimenPk";
+
+        parameterMap.put("experimentPk", experimentPk);
+        parameterMap.put("specimenPk", specimenPk);
+        pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+        if ((pk == null) || (pk == 0)) {
+            String insert = "INSERT INTO experiment_specimen (experiment_pk, specimen_pk) VALUES (:experimentPk, :specimenPk)";
+            try {
+                int count = npJdbcTemplate.update(insert, parameterMap);
+                if (count > 0) {
+                    pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+                }
+
+            } catch (DuplicateKeyException e) {
+
+            }
+        }
+
+        return pk;
+    }
+
+    /**
+     * Returns the experiment_statuscode primary key matching the given {@code experimentPk} and {@code statuscodePk}.
+     * The data is first inserted into the experiment_statuscode table if it does not yet exist.
+     *
+     * @param experimentPk The experiment primary key
+     * @param statuscodePk The statuscode primary key
+     *
+     * @return the experiment_statuscode primary key matching the given experimentPk and statuscodePk. The data is first
+     *         inserted into the experiment_statuscode table if it does not yet exist.
+     */
+    public long selectOrInsertExperiment_statuscode(long experimentPk, long statuscodePk) {
+        Map<String, Object> parameterMap = new HashMap<>();
+        Long pk;
+        final String query = "SELECT pk FROM experiment_statuscode WHERE experiment_pk = :experimentPk and statuscode_pk = :statuscodePk";
+
+        parameterMap.put("experimentPk", experimentPk);
+        parameterMap.put("statuscodePk", statuscodePk);
+        pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+        if ((pk == null) || (pk == 0)) {
+            String insert = "INSERT INTO experiment_statuscode (experiment_pk, statuscode_pk) VALUES (:experimentPk, :statuscodePk)";
+            try {
+                int count = npJdbcTemplate.update(insert, parameterMap);
+                if (count > 0) {
+                    pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+                }
+
+            } catch (DuplicateKeyException e) {
+
+            }
+        }
+
+        return pk;
+    }
+    
+    public Experiment getExperiment(Experiment experiment, long center_procedurePk) {
+        
+        final String query = "SELECT * FROM experiment WHERE experimentId = :experimentId AND center_procedure_pk = :center_procedurePk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("experimentId", experiment.getExperimentID());
+        parameterMap.put("center_procedurePk", center_procedurePk);
+        List<Experiment> experiments = npJdbcTemplate.query(query, parameterMap, new ExperimentRowMapper());
+        
+        return (experiments.isEmpty() ? null : experiments.get(0));
+    }
+
+    /**
      * Given a parameterId value, attempts to fetch the matching <code>ParameterAssociation</code> instance. If there is
      * none, the parameterId and sequenceId are first inserted. The <code>ParameterAssociation</code> instance is then
      * returned.
@@ -926,7 +1625,7 @@ public class DccSqlUtils {
         Integer sequenceId = (parameterAssociation.getSequenceID() == null ? null : parameterAssociation.getSequenceID().intValue());
         final String insertPa = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (:parameterId, :sequenceId)";
         final String insertDimension = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_pk) "
-                                     + "VALUES(:id, :origin, :unit, :value, :parameterAssociation_pk)";
+                                     + "VALUES(:id, :origin, :unit, :value, :parameterAssociationPk)";
 
         ParameterAssociation retVal = getParameterAssociation(parameterId, sequenceId);
 
@@ -945,7 +1644,7 @@ public class DccSqlUtils {
                         parameterMap.put("origin", dimension.getOrigin());
                         parameterMap.put("unit", dimension.getUnit());
                         parameterMap.put("value", dimension.getValue());
-                        parameterMap.put("parameterAssociation_pk", retVal.getHjid());
+                        parameterMap.put("parameterAssociationPk", retVal.getHjid());
 
                         npJdbcTemplate.update(insertDimension, parameterMap);
                     }
@@ -1068,6 +1767,23 @@ public class DccSqlUtils {
             dimension.setValue( (rs.wasNull() ? null : value));
 
             return dimension;
+        }
+    }
+
+    public class ExperimentRowMapper implements RowMapper<Experiment> {
+
+        @Override
+        public Experiment mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Experiment experiment = new Experiment();
+
+            experiment.setHjid(rs.getLong("pk"));
+            GregorianCalendar gc = new GregorianCalendar();
+            gc.setTime(rs.getDate("dateOfExperiment"));
+            experiment.setDateOfExperiment(gc);
+            experiment.setExperimentID(rs.getString("experimentId"));
+            experiment.setSequenceID(rs.getString("sequenceId"));
+
+            return experiment;
         }
     }
 

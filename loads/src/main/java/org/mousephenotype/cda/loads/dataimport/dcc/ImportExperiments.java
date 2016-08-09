@@ -25,9 +25,9 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
 import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -45,7 +44,7 @@ import java.util.List;
  * experiment files currently found at /usr/local/komp2/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
-public class ImportExperiments {
+public class ImportExperiments implements CommandLineRunner {
 
     private String filename;
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -61,9 +60,16 @@ public class ImportExperiments {
     @Autowired
     private DccSqlUtils dccSqlUtils;
 
-    
+
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(ImportSpecimens.class, args);
+        SpringApplication.run(ImportExperiments.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+
+        initialize(args);
+        run();
     }
 
     private void initialize(String[] args) {
@@ -83,7 +89,7 @@ public class ImportExperiments {
         parser.accepts("profile").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);
-        
+
         filename = (String) options.valuesOf("filename").get(0);
 
         if (options.has("create")) {
@@ -99,8 +105,8 @@ public class ImportExperiments {
     }
 
     private void run() throws DataImportException {
-        int                    totalExperiments = 0;
-        List<CentreProcedure>  centerProcedures;
+        int                   totalExperiments = 0;
+        List<CentreProcedure> centerProcedures;
 
         try {
             centerProcedures = XMLUtils.unmarshal(ImportExperiments.CONTEXT_PATH, CentreProcedureSet.class, filename).getCentre();
@@ -124,7 +130,7 @@ public class ImportExperiments {
                 long centerPk = dccSqlUtils.getCenterPk(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
                 if (centerPk < 1) {
                     logger.warn("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
-                            + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
+                                        + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
                     centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
                 }
 
@@ -173,7 +179,7 @@ public class ImportExperiments {
 
             // housing
             if (centerProcedure.getHousing() != null) {
-                dccSqlUtils.insertHousing(centerProcedure.getHousing(),center_procedurePk);
+                dccSqlUtils.insertHousing(centerProcedure.getHousing(), center_procedurePk);
             }
 
             // line
@@ -195,575 +201,141 @@ public class ImportExperiments {
                 }
             }
 
+            // experiment
+            long experimentPk = dccSqlUtils.selectOrInsertExperiment(experiment, center_procedurePk).getHjid();
 
+            // experiment_specimen
+            dccSqlUtils.selectOrInsertExperiment_specimen(experimentPk, specimenPk);
 
-
-
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//        long centerPk, centerProcedurePk, experimentPk, procedurePk, specimenPk;
-//        PreparedStatement ps;
-//        ResultSet rs;
-//        String query;
-//        for (CentreProcedure centerProcedure : centerProcedures) {
-//            logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID());
-//
-//            if (truncate) {
-//                DccSqlUtils.truncateExperimentTables(connection);
-//            }
-//
-//            connection.setAutoCommit(false);    // BEGIN TRANSACTION
-
-
-
-
-//            // Get centerPk
-//            centerPk = DccSqlUtils.getCenterPk(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
-//            if (centerPk < 1) {
-//                System.out.println("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
-//                        + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
-//                centerPk = DccSqlUtils.insertCenter(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
-//            }
-
-//            for (Experiment experiment : centerProcedure.getExperiment()) {
-//                for (String specimenId : experiment.getSpecimenID()) {
-                    // get specimenPk
-//                    Specimen specimen = DccSqlUtils.getSpecimen(connection, specimenId, centerProcedure.getCentreID().value());
-//                    if (specimen == null) {
-//                        System.out.println("UNKNOWN SPECIMEN,CENTER: '" + specimenId + "," + centerProcedure.getCentreID().value() + "'. INSERTING...");
-//                        connection.rollback();
-//                        continue;
-//                    }
-//                    specimenPk = specimen.getHjid();
-
-//                    // procedure
-//                    ps = connection.prepareStatement("SELECT * FROM procedure_ WHERE procedureId = ?;");
-//                    ps.setString(1, experiment.getProcedure().getProcedureID());
-//                    rs = ps.executeQuery();
-//                    if (rs.next()) {
-//                        procedurePk = rs.getLong("pk");
-//                    } else {
-//                        query = "INSERT INTO procedure_ (procedureId) VALUES (?);";
-//                        ps = connection.prepareStatement(query);
-//                        ps.setString(1, experiment.getProcedure().getProcedureID());
-//                        ps.execute();
-//                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-//                        rs.next();
-//                        procedurePk = rs.getLong(1);
-//
-//                        // procedure_procedureMetadata
-//                        if ((experiment.getProcedure().getProcedureMetadata() != null) && ( ! experiment.getProcedure().getProcedureMetadata().isEmpty())) {
-//                            for (ProcedureMetadata procedureMetadata : experiment.getProcedure().getProcedureMetadata()) {
-//                                long procedureMetadataPk = DccSqlUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
-//                                query = "INSERT INTO procedure_procedureMetadata(procedure_pk, procedureMetadata_pk) VALUES (?, ?)";
-//                                ps = connection.prepareStatement(query);
-//                                ps.setLong(1, procedurePk);
-//                                ps.setLong(2, procedureMetadataPk);
-//                                ps.execute();
-//                            }
-//                        }
-//                    }
-//
-//                    // center_procedure
-//                    centerProcedurePk = dccSqlUtils.selectOrInsertCenter_procedure(centerPk, procedurePk);
-//                    ps = connection.prepareStatement("SELECT * FROM center_procedure WHERE center_pk = ? and procedure_pk = ?");
-//                    ps.setLong(1, centerPk);
-//                    ps.setLong(2, procedurePk);
-//                    rs = ps.executeQuery();
-//                    if (rs.next()) {
-//                        centerProcedurePk = rs.getLong("pk");
-//                    } else {
-//                        query = "INSERT INTO center_procedure (center_pk, procedure_pk) VALUES (?, ?);";
-//                        ps = connection.prepareStatement(query);
-//                        ps.setLong(1, centerPk);
-//                        ps.setLong(2, procedurePk);
-//                        ps.execute();
-//                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-//                        rs.next();
-//                        centerProcedurePk = rs.getLong(1);
-//                    }
-//
-//                    // housing
-//                    if ((centerProcedure.getHousing() != null) && ( ! centerProcedure.getHousing().isEmpty())) {
-//                        query = "INSERT INTO housing (fromLims, lastUpdated, center_procedure_pk) VALUES (?, ?, ?);";
-//                        ps = connection.prepareStatement(query);
-//                        for (Housing housing : centerProcedure.getHousing()) {
-//                            ps.setInt(1, (housing.isFromLIMS() ? 1 : 0));
-//                            ps.setDate(2, housing.getLastUpdated() == null ? null : new Date(housing.getLastUpdated().getTime().getTime()));
-//                            ps.setLong(3, centerProcedurePk);
-//                            ps.execute();
-//                        }
-//                    }
-//
-//                    // line
-//                    if ((centerProcedure.getLine() != null) && ( ! centerProcedure.getLine().isEmpty())) {
-//                        for (Line line : centerProcedure.getLine()) {
-//                            ps = connection.prepareStatement("SELECT * FROM line WHERE colonyId = ? AND center_procedure_pk = ?");
-//                            ps.setString(1, line.getColonyID());
-//                            ps.setLong(2, centerProcedurePk);
-//                            rs = ps.executeQuery();
-//                            long linePk;
-//                            if (rs.next()) {
-//                                linePk = rs.getLong("pk");
-//                            } else {
-//                                query = "INSERT INTO line (colonyId, center_procedure_pk) VALUES (?, ?)";
-//                                ps = connection.prepareStatement(query);
-//
-//                                ps.setString(1, line.getColonyID());
-//                                ps.setLong(2, centerProcedurePk);
-//
-//                                try {
-//                                    ps.execute();
-//                                } catch (SQLException e) {
-//                                    logger.error("INSERT INTO line failed. colonyId: " + line.getColonyID() + ". procedure: " + line.getProcedure().getProcedureID() + ". centerProcedure_pk: " + centerProcedurePk);
-//                                    System.out.println(e.getLocalizedMessage());
-//                                    throw e;
-//                                }
-//
-//                                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-//                                rs.next();
-//                                linePk = rs.getLong(1);
-//                            }
-//
-//                            if ((line.getStatusCode() != null) && ( ! line.getStatusCode().isEmpty())) {
-//                                // line_statuscode
-//                                query = "INSERT INTO line_statuscode (line_pk, statuscode_pk) VALUES (?, ?);";
-//                                ps = connection.prepareStatement(query);
-//                                for (StatusCode statuscode : line.getStatusCode()) {
-//                                    StatusCode existingStatuscode = DccSqlUtils.selectOrInsertStatuscode(connection, statuscode);
-//                                    long       statuscodePk       = existingStatuscode.getHjid();
-//                                    ps.setLong(1, linePk);
-//                                    ps.setLong(2, statuscodePk);
-//                                    ps.execute();
-//                                }
-//                            }
-//                        }
-//                    }
-
-                    // experiment
-                    ps = connection.prepareStatement("SELECT * FROM experiment WHERE experimentId = ? and center_procedure_pk = ?");
-                    ps.setString(1, experiment.getExperimentID());
-                    ps.setLong(2, centerProcedurePk);
-                    rs = ps.executeQuery();
-                    if (rs.next()) {
-                        experimentPk = rs.getLong("pk");
-                    } else {
-                        query = "INSERT INTO experiment (dateOfExperiment, experimentId, sequenceId, center_procedure_pk) VALUES (?, ?, ?, ?);";
-                        ps = connection.prepareStatement(query);
-                        ps.setDate(1, experiment.getDateOfExperiment() == null ? null : new Date(experiment.getDateOfExperiment().getTime().getTime()));
-                        ps.setString(2, experiment.getExperimentID());
-                        if (experiment.getSequenceID() == null)
-                            ps.setNull(3, Types.BIGINT);
-                        else
-                            ps.setString(3, experiment.getSequenceID());
-                        ps.setLong(4, centerProcedurePk);
-                        ps.execute();
-                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                        rs.next();
-                        experimentPk = rs.getLong(1);
-                    }
-
-                    // experiment_statuscode
-                    if ((experiment.getStatusCode() != null) && ( ! experiment.getStatusCode().isEmpty())) {
-                        for (StatusCode statuscode : experiment.getStatusCode()) {
-                            long statuscodePk = DccSqlUtils.selectOrInsertStatuscode(connection, statuscode).getHjid();
-                            ps = connection.prepareStatement("SELECT * FROM experiment_statuscode WHERE experiment_pk = ? and statuscode_pk = ?");
-                            ps.setLong(1, experimentPk);
-                            ps.setLong(2, statuscodePk);
-                            rs = ps.executeQuery();
-                            if ( ! rs.next()) {
-                                query = "INSERT INTO experiment_statuscode (experiment_pk, statuscode_pk) VALUES (?, ?)";
-                                ps = connection.prepareStatement(query);
-                                ps.setLong(1, experimentPk);
-                                ps.setLong(2, statuscodePk);
-                                ps.execute();
-                            }
-                        }
-                    }
-
-                    // experiment_specimen
-                    ps = connection.prepareStatement("SELECT * FROM experiment_specimen WHERE experiment_pk = ? and specimen_pk = ?");
-                    ps.setLong(1, experimentPk);
-                    ps.setLong(2, specimenPk);
-                    rs = ps.executeQuery();
-                    if ( ! rs.next()) {
-                        query = "INSERT INTO experiment_specimen (experiment_pk, specimen_pk) VALUES (?, ?)";
-                        ps = connection.prepareStatement(query);
-                        ps.setLong(1, experimentPk);
-                        ps.setLong(2, specimenPk);
-                        ps.execute();
-                    }
-
-                    // simpleParameter
-                    if ((experiment.getProcedure().getSimpleParameter() != null) && ( ! experiment.getProcedure().getSimpleParameter().isEmpty())) {
-                        for (SimpleParameter simpleParameter : experiment.getProcedure().getSimpleParameter()) {
-                            query = "INSERT INTO simpleParameter (parameterId, sequenceId, unit, value, parameterStatus, procedure_pk)"
-                                    + " VALUES (?, ?, ?, ?, ?, ?)";
-                            ps = connection.prepareStatement(query);
-                            ps.setString(1, simpleParameter.getParameterID());
-                            if (simpleParameter.getSequenceID() == null)
-                                ps.setNull(2, Types.BIGINT);
-                            else
-                                ps.setLong(2, simpleParameter.getSequenceID().longValue());
-                            ps.setString(3, simpleParameter.getUnit());
-                            ps.setString(4, simpleParameter.getValue());
-                            ps.setString(5, simpleParameter.getParameterStatus());
-                            ps.setLong(6, procedurePk);
-                            ps.execute();
-                        }
-                    }
-
-                    // ontologyParameter and ontologyParameterTerm
-                    if ((experiment.getProcedure().getOntologyParameter() != null) && ( ! experiment.getProcedure().getOntologyParameter().isEmpty())) {
-                        for (OntologyParameter ontologyParameter : experiment.getProcedure().getOntologyParameter()) {
-                            query = "INSERT INTO ontologyParameter (parameterId, parameterStatus, sequenceId, procedure_pk)"
-                                    + " VALUES (?, ?, ?, ?)";
-                            ps = connection.prepareStatement(query);
-                            ps.setString(1, ontologyParameter.getParameterID());
-                            ps.setString(2, ontologyParameter.getParameterStatus());
-                            if (ontologyParameter.getSequenceID() == null)
-                                ps.setNull(3, Types.BIGINT);
-                            else
-                                ps.setLong(3, ontologyParameter.getSequenceID().longValue());
-                            ps.setLong(4, procedurePk);
-                            ps.execute();
-                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                            rs.next();
-                            long ontologyParameterPk = rs.getLong(1);
-
-                            for (String term : ontologyParameter.getTerm()) {
-                                query = "INSERT INTO ontologyParameterTerm(term, ontologyParameter_pk) VALUES (?, ?)";
-                                ps = connection.prepareStatement(query);
-                                ps.setString(1, term);
-                                ps.setLong(2, ontologyParameterPk);
-                            }
-                        }
-                    }
-
-                    // seriesParameter
-                    if ((experiment.getProcedure().getSeriesParameter() != null) && ( ! experiment.getProcedure().getSeriesParameter().isEmpty())) {
-                        for (SeriesParameter seriesParameter : experiment.getProcedure().getSeriesParameter()) {
-                            query = "INSERT INTO seriesParameter (parameterId, parameterStatus, sequenceId, procedure_pk)"
-                                    + " VALUES (?, ?, ?, ?)";
-                            ps = connection.prepareStatement(query);
-                            ps.setString(1, seriesParameter.getParameterID());
-                            ps.setString(2, seriesParameter.getParameterStatus());
-                            if (seriesParameter.getSequenceID() == null)
-                                ps.setNull(3, Types.BIGINT);
-                            else
-                                ps.setLong(3, seriesParameter.getSequenceID().longValue());
-                            ps.setLong(4, procedurePk);
-                            ps.execute();
-                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                            rs.next();
-                            long seriesParameterPk = rs.getLong(1);
-
-                            // seriesParameterValue
-                            for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
-                                query = "INSERT INTO seriesParameterValue(value, incrementValue, incrementStatus, seriesParameter_pk) VALUES (?, ?, ?, ?)";
-                                ps = connection.prepareStatement(query);
-                                ps.setString(1, seriesParameterValue.getValue());
-                                ps.setString(2, seriesParameterValue.getIncrementValue());
-                                ps.setString(3, seriesParameterValue.getIncrementStatus());
-                                ps.setLong(4, seriesParameterPk);
-                            }
-                        }
-                    }
-
-                    // mediaParameter
-                    if ((experiment.getProcedure().getMediaParameter() != null) && ( ! experiment.getProcedure().getMediaParameter().isEmpty())) {
-                        for (MediaParameter mediaParameter : experiment.getProcedure().getMediaParameter()) {
-                            query = "INSERT INTO mediaParameter (parameterId, parameterStatus, filetype, URI, procedure_pk)"
-                                    + " VALUES (?, ?, ?, ?, ?)";
-                            ps = connection.prepareStatement(query);
-                            ps.setString(1, mediaParameter.getParameterID());
-                            ps.setString(2, mediaParameter.getParameterStatus());
-                            ps.setString(3, mediaParameter.getFileType());
-                            ps.setString(4, mediaParameter.getURI());
-                            ps.setLong(5, procedurePk);
-                            ps.execute();
-                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                            rs.next();
-                            long mediaParameterPk = rs.getLong(1);
-
-                            // mediaParameter_parameterAssociation
-                            if ((mediaParameter.getParameterAssociation() != null) && ( ! mediaParameter.getParameterAssociation().isEmpty())) {
-                                for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
-                                    long parameterAssociationPk = DccSqlUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
-                                    query = "INSERT INTO mediaParameter_parameterAssociation(mediaParameter_pk, parameterAssociation_pk) VALUES (?, ?)";
-                                    ps = connection.prepareStatement(query);
-                                    ps.setLong(1, mediaParameterPk);
-                                    ps.setLong(2, parameterAssociationPk);
-                                    ps.execute();
-                                }
-                            }
-
-                            // mediaParameter_procedureMetadata
-                            if ((mediaParameter.getProcedureMetadata() != null) && ( ! mediaParameter.getProcedureMetadata().isEmpty())) {
-                                for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
-                                    long procedureMetadataPk = DccSqlUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
-                                    query = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_pk, procedureMetadata_pk) VALUES (?, ?)";
-                                    ps = connection.prepareStatement(query);
-                                    ps.setLong(1, mediaParameterPk);
-                                    ps.setLong(2, procedureMetadataPk);
-                                    ps.execute();
-                                }
-                            }
-                        }
-                    }
-
-                    // mediaSampleParameter
-                    if ((experiment.getProcedure().getMediaSampleParameter() != null) && ( ! experiment.getProcedure().getMediaSampleParameter().isEmpty())) {
-                        for (MediaSampleParameter mediaSampleParameter : experiment.getProcedure().getMediaSampleParameter()) {
-                            query = "INSERT INTO mediaSampleParameter (parameterId, parameterStatus, procedure_pk)"
-                                    + " VALUES (?, ?, ?)";
-                            ps = connection.prepareStatement(query);
-                            ps.setString(1, mediaSampleParameter.getParameterID());
-                            ps.setString(2, mediaSampleParameter.getParameterStatus());
-                            ps.setLong(5, procedurePk);
-                            ps.execute();
-                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                            rs.next();
-                            long mediaSampleParameterPk = rs.getLong(1);
-
-                            // mediaSample
-                            for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
-                                query = "INSERT INTO mediaSample (localId, mediaSampleParameter_pk) VALUES (?, ?, ?)";
-                                ps = connection.prepareStatement(query);
-                                ps.setString(1, mediaSample.getLocalId());
-                                ps.setLong(2, mediaSampleParameterPk);
-                                ps.execute();
-                                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                                rs.next();
-                                long mediaSamplePk = rs.getLong(1);
-
-                                // mediaSection
-                                for (MediaSection mediaSection : mediaSample.getMediaSection()) {
-                                    query = "INSERT INTO mediaSection (localId, mediaSample_pk) VALUES (?, ?)";
-                                    ps = connection.prepareStatement(query);
-                                    ps.setString(1, mediaSection.getLocalId());
-                                    ps.setLong(2, mediaSamplePk);
-                                    ps.execute();
-                                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                                    rs.next();
-                                    long mediaSectionPk = rs.getLong(1);
-
-                                    // mediaFile
-                                    for (MediaFile mediaFile : mediaSection.getMediaFile()) {
-                                        query = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_pk) VALUES (?, ?, ?, ?)";
-                                        ps = connection.prepareStatement(query);
-                                        ps.setString(1, mediaFile.getLocalId());
-                                        ps.setString(2, mediaFile.getFileType());
-                                        ps.setString(3, mediaFile.getURI());
-                                        ps.setLong(4, mediaSectionPk);
-                                        ps.execute();
-                                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                                        rs.next();
-                                        long mediaFilePk = rs.getLong(1);
-
-                                        // mediaFile_parameterAssociation
-                                        if ((mediaFile.getParameterAssociation() != null) && ( ! mediaFile.getParameterAssociation().isEmpty())) {
-                                            for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
-                                                long parameterAssociationPk = DccSqlUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
-                                                query = "INSERT INTO mediaFile_parameterAssociation(mediaFile_pk, parameterAssociation_pk) VALUES (?, ?)";
-                                                ps = connection.prepareStatement(query);
-                                                ps.setLong(1, mediaFilePk);
-                                                ps.setLong(2, parameterAssociationPk);
-                                                ps.execute();
-                                            }
-                                        }
-
-                                        // mediaFile_procedureMetadata
-                                        if ((mediaFile.getProcedureMetadata() != null) && ( ! mediaFile.getProcedureMetadata().isEmpty())) {
-                                            for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                                                long procedureMetadataPk = DccSqlUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
-
-                                                query = "INSERT INTO mediaFile_procedureMetadata(mediaFile_pk, procedureMetadata_pk) VALUES (?, ?)";
-                                                ps = connection.prepareStatement(query);
-                                                ps.setLong(1, mediaFilePk);
-                                                ps.setLong(2, procedureMetadataPk);
-                                                ps.execute();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // seriesMediaParameter
-                    if ((experiment.getProcedure().getSeriesMediaParameter() != null) && ( ! experiment.getProcedure().getSeriesMediaParameter().isEmpty())) {
-                        for (SeriesMediaParameter seriesMediaParameter : experiment.getProcedure().getSeriesMediaParameter()) {
-                            query = "INSERT INTO seriesMediaParameter (parameterId, parameterStatus, procedure_pk)"
-                                    + " VALUES (?, ?, ?)";
-                            ps = connection.prepareStatement(query);
-                            ps.setString(1, seriesMediaParameter.getParameterID());
-                            ps.setString(2, seriesMediaParameter.getParameterStatus());
-                            ps.setLong(3, procedurePk);
-                            ps.execute();
-                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                            rs.next();
-                            long seriesMediaParameterPk = rs.getLong(1);
-
-                            // seriesMediaParameterValue
-                            for (SeriesMediaParameterValue seriesMediaParameterValue : seriesMediaParameter.getValue()) {
-                                query = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, seriesMediaParameter_pk) VALUES (?, ?, ?, ?)";
-                                ps = connection.prepareStatement(query);
-                                ps.setString(1, seriesMediaParameterValue.getFileType());
-                                ps.setString(2, seriesMediaParameterValue.getIncrementValue());
-                                ps.setString(3, seriesMediaParameterValue.getURI());
-                                ps.setLong(4, seriesMediaParameterPk);
-                                ps.execute();
-                                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                                rs.next();
-                                long seriesMediaParameterValuePk = rs.getLong(1);
-
-                                // seriesMediaParameterValue_parameterAssociation
-                                if ((seriesMediaParameterValue.getParameterAssociation() != null) && ( ! seriesMediaParameterValue.getParameterAssociation().isEmpty())) {
-                                    for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                                        long parameterAssociationPk = DccSqlUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
-                                        query = "INSERT INTO seriesMediaParameterValue_parameterAssociation(seriesMediaParameterValue_pk, parameterAssociation_pk) VALUES (?, ?)";
-                                        ps = connection.prepareStatement(query);
-                                        ps.setLong(1, seriesMediaParameterValuePk);
-                                        ps.setLong(2, parameterAssociationPk);
-                                        try {
-                                            ps.execute();
-                                        } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException e) {
-                                            if (e.getLocalizedMessage().toLowerCase().contains("duplicate")) {
-                                                logger.warn("Duplicate entry. Ignoring. Message: " + e.getLocalizedMessage());
-                                                System.out.println("seriesMediaParameter: " + seriesMediaParameter.getParameterID()
-                                                        + ", seriesMediaParameterValue " + seriesMediaParameterValue.getURI()
-                                                        + ", parameterAssociation: " + parameterAssociation.getParameterID());
-                                            } else {
-                                                throw e;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // seriesMediaParameterValue_procedureMetadata
-                                if ((seriesMediaParameterValue.getProcedureMetadata() != null) && ( ! seriesMediaParameterValue.getProcedureMetadata().isEmpty())) {
-                                    for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
-                                        long procedureMetadataPk = DccSqlUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
-
-                                        query = "INSERT INTO seriesMediaParameterValue_procedureMetadata(seriesMediaParameterValue_pk, procedureMetadata_pk) VALUES (?, ?)";
-                                        ps = connection.prepareStatement(query);
-                                        ps.setLong(1, seriesMediaParameterValuePk);
-                                        ps.setLong(2, procedureMetadataPk);
-                                        try {
-                                            ps.execute();
-                                        } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException e) {
-                                            if (e.getLocalizedMessage().toLowerCase().contains("duplicate")) {
-                                                logger.warn("Duplicate entry. Ignoring. Message: " + e.getLocalizedMessage());
-                                                System.out.println("seriesMediaParameter: " + seriesMediaParameter.getParameterID()
-                                                        + ", seriesMediaParameterValue " + seriesMediaParameterValue.getURI()
-                                                        + ", procedureMetadata: " + procedureMetadata.getParameterID() + ", value "
-                                                        + procedureMetadata.getValue());
-                                            } else {
-                                                throw e;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    connection.commit();
-//                }
-//            }
-//        }
-
-        connection.close();
-    }
-
-    private String dumpSpecimen(long centerPk, long specimenPk) {
-        String retVal = "";
-
-        String query =
-                "SELECT\n"
-                    + "  cs.pk AS cs_pk\n"
-                    + ", c.pk AS c_pk\n"
-                    + ", s.pk AS s_pk\n"
-                    + ", s.statuscode_pk AS s_statuscode_pk\n"
-                    + ", c.centerId\n"
-                    + ", c.pipeline\n"
-                    + ", c.project\n"
-                    + ", s.colonyId\n"
-                    + ", s.gender\n"
-                    + ", s.isBaseline\n"
-                    + ", s.litterId\n"
-                    + ", s.phenotypingCenter\n"
-                    + ", s.pipeline\n"
-                    + ", s.productionCenter\n"
-                    + ", s.specimenId\n"
-                    + ", s.strainId\n"
-                    + ", s.zygosity\n"
-                    + ", sc.dateOfStatuscode\n"
-                    + ", sc.value\n"
-                    + ", m.DOB\n"
-                    + ", e.stage\n"
-                    + ", e.stageUnit\n"
-                    + "FROM center c\n"
-                    + "JOIN center_specimen cs ON cs.center_pk = c.pk\n"
-                    + "JOIN specimen s ON cs.specimen_pk = s.pk\n"
-                    + "LEFT OUTER JOIN mouse m ON m.specimen_pk = cs.specimen_pk\n"
-                    + "LEFT OUTER JOIN embryo e ON e.specimen_pk = cs.specimen_pk\n"
-                    + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_pk\n"
-                    + "WHERE c.pk = ? AND s.pk = ?;";
-        try {
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setLong(1, centerPk);
-            ps.setLong(2, specimenPk);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                retVal += "{"
-                        + "cs.pk=" + rs.getLong("cs_pk")
-                        + ",c.pk=" + rs.getLong("c_pk")
-                        + ",s.pk=" + rs.getLong("s_pk")
-                        + ",s.statuscode_pk=" + (rs.getLong("s_statuscode_pk") == 0 ? "<null>" : rs.getLong("s_statuscode_pk"))
-                        + ",centerId=" + rs.getString("c.centerId")
-                        + ",pipeline=" + rs.getString("c.pipeline")
-                        + ",project=" + rs.getString("c.project")
-                        + ",colonyId=" + rs.getString("s.colonyId")
-                        + ",gender=" + rs.getString("s.gender")
-                        + ",isBaseline=" + rs.getInt("s.isBaseline")
-                        + ",litterId=" + rs.getString("s.litterId")
-                        + ",phenotypingCenter=" + rs.getString("s.phenotypingCenter")
-                        + ",productionCenter=" + (rs.getString("s.productionCenter") == null ? "<null>" : rs.getString("s.productionCenter"))
-                        + ",specimenId=" + rs.getString("s.specimenId")
-                        + ",strainId=" + rs.getString("s.strainId")
-                        + ",zygosity=" + rs.getString("s.zygosity");
-                if (rs.getLong("s_statuscode_pk") != 0) {
-                    retVal += ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
-                    + ",sc.value=" + rs.getString("sc.value");
+            // experiment_statuscode
+            if (experiment.getStatusCode() != null) {
+                for (StatusCode statuscode : experiment.getStatusCode()) {
+                    dccSqlUtils.selectOrInsertExperiment_statuscode(experimentPk, statuscode.getHjid());
                 }
-                retVal += (rs.getDate("m.DOB") == null ? " (EMBRYO)" : " (MOUSE)");
+            }
+            // simpleParameter
+            if (experiment.getProcedure().getSimpleParameter() != null) {
+                for (SimpleParameter simpleParameter : experiment.getProcedure().getSimpleParameter()) {
+                    dccSqlUtils.insertSimpleParameter(simpleParameter, procedurePk);
+                }
             }
 
-        } catch (SQLException e) {
-            System.out.println(e.getLocalizedMessage());
-            e.printStackTrace();
-        }
+            // ontologyParameter and ontologyParameterTerm
+            if (experiment.getProcedure().getOntologyParameter() != null) {
+                for (OntologyParameter ontologyParameter : experiment.getProcedure().getOntologyParameter()) {
+                    ontologyParameter = dccSqlUtils.insertOntologyParameter(ontologyParameter, procedurePk);
+                    for (String term : ontologyParameter.getTerm()) {
+                        dccSqlUtils.insertOntologyParameterTerm(term, ontologyParameter.getHjid());
+                    }
+                }
+            }
 
-        return retVal;
+            // seriesParameter
+            if (experiment.getProcedure().getSeriesParameter() != null) {
+                for (SeriesParameter seriesParameter : experiment.getProcedure().getSeriesParameter()) {
+                    seriesParameter = dccSqlUtils.insertSeriesParameter(seriesParameter, procedurePk);
+
+                    // seriesParameterValue
+                    for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
+                        dccSqlUtils.insertSeriesParameterValue(seriesParameterValue, seriesParameter.getHjid());
+                    }
+                }
+            }
+            // mediaParameter
+            if (experiment.getProcedure().getMediaParameter() != null) {
+                for (MediaParameter mediaParameter : experiment.getProcedure().getMediaParameter()) {
+                    mediaParameter = dccSqlUtils.insertMediaParameter(mediaParameter, procedurePk);
+
+                    // mediaParameter_parameterAssociation
+                    if (mediaParameter.getParameterAssociation() != null) {
+                        for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
+                            long parameterAssociationPk = dccSqlUtils.selectOrInsertParameterAssociation(parameterAssociation).getHjid();
+                            dccSqlUtils.insertMediaParameter_parameterAssociation(mediaParameter.getHjid(), parameterAssociationPk);
+                        }
+
+                        // mediaParameter_procedureMetadata
+                        if (mediaParameter.getProcedureMetadata() != null) {
+                            for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
+                                long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                dccSqlUtils.insertMediaParameter_procedureMetadata(mediaParameter.getHjid(), procedureMetadataPk);
+                            }
+                        }
+                    }
+                }
+
+                // mediaSampleParameter
+                if (experiment.getProcedure().getMediaSampleParameter() != null) {
+                    for (MediaSampleParameter mediaSampleParameter : experiment.getProcedure().getMediaSampleParameter()) {
+                        mediaSampleParameter = dccSqlUtils.insertMediaSampleParameter(mediaSampleParameter, procedurePk);
+                        long mediaSampleParameterPk = mediaSampleParameter.getHjid();
+
+                        // mediaSample
+                        for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
+                            mediaSample = dccSqlUtils.insertMediaSample(mediaSample, mediaSampleParameterPk);
+                            long mediaSamplePk = mediaSample.getHjid();
+
+                            // mediaSection
+                            for (MediaSection mediaSection : mediaSample.getMediaSection()) {
+                                mediaSection = dccSqlUtils.insertMediaSection(mediaSection, mediaSamplePk);
+                                long mediaSectionPk = mediaSection.getHjid();
+
+                                // mediaFile
+                                for (MediaFile mediaFile : mediaSection.getMediaFile()) {
+                                    mediaFile = dccSqlUtils.insertMediaFile(mediaFile, mediaSectionPk);
+                                    long mediaFilePk = mediaFile.getHjid();
+
+                                    // mediaFile_parameterAssociation
+                                    if (mediaFile.getParameterAssociation() != null) {
+                                        for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
+                                            long parameterAssociationPk = dccSqlUtils.selectOrInsertParameterAssociation(parameterAssociation).getHjid();
+                                            dccSqlUtils.insertMediaFile_parameterAssociation(mediaFilePk, parameterAssociationPk);
+                                        }
+                                    }
+
+                                    // mediaFile_procedureMetadata
+                                    if (mediaFile.getProcedureMetadata() != null) {
+                                        for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
+                                            long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                            dccSqlUtils.insertMediaFile_procedureMetadata(mediaFilePk, procedureMetadataPk);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // seriesMediaParameter
+                if (experiment.getProcedure().getSeriesMediaParameter() != null) {
+                    for (SeriesMediaParameter seriesMediaParameter : experiment.getProcedure().getSeriesMediaParameter()) {
+                        seriesMediaParameter = dccSqlUtils.insertSeriesMediaParameter(seriesMediaParameter, procedurePk);
+                        long seriesMediaParameterPk = seriesMediaParameter.getHjid();
+
+                        // seriesMediaParameterValue
+                        for (SeriesMediaParameterValue seriesMediaParameterValue : seriesMediaParameter.getValue()) {
+                            seriesMediaParameterValue = dccSqlUtils.insertSeriesMediaParameterValue(seriesMediaParameterValue, seriesMediaParameterPk);
+                            ;
+                            long seriesMediaParameterValuePk = seriesMediaParameterValue.getHjid();
+
+                            // seriesMediaParameterValue_parameterAssociation
+                            if ((seriesMediaParameterValue.getParameterAssociation() != null) && (!seriesMediaParameterValue.getParameterAssociation().isEmpty())) {
+                                for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                                    long parameterAssociationPk = dccSqlUtils.selectOrInsertParameterAssociation(parameterAssociation).getHjid();
+                                    dccSqlUtils.insertSeriesMediaParameterValue_parameterAssociation(seriesMediaParameterValuePk, parameterAssociationPk);
+                                }
+                            }
+
+                            // seriesMediaParameterValue_procedureMetadata
+                            if ((seriesMediaParameterValue.getProcedureMetadata() != null) && (!seriesMediaParameterValue.getProcedureMetadata().isEmpty())) {
+                                for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
+                                    long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                    dccSqlUtils.insertSeriesMediaParameterValue_procedureMetadata(seriesMediaParameterValuePk, procedureMetadataPk);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
