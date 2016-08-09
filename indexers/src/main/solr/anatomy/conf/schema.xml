@@ -232,7 +232,7 @@
         via copyField further on in this schema  -->
         <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
         <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-        <field name="anatomyQf" type="text_ngram" indexed="true" stored="true" multiValued="true"/>
+        <field name="anatomyQf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 
         <!-- For ontology browser  -->
 
@@ -266,6 +266,7 @@
     <copyField source="anatomy_id" dest="anatomyQf" />
     <copyField source="anatomy_term" dest="anatomyQf" />
     <copyField source="anatomy_term_synonym" dest="anatomyQf" />
+    <copyField source="alt_anatomy_id" dest="anatomyQf" />
 
     <copyField source="child_anatomy_id" dest="auto_suggest" />
     <copyField source="child_anatomy_term" dest="auto_suggest" />
