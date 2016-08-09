@@ -1,36 +1,21 @@
 package org.mousephenotype.cda.reports;
 
-import java.beans.Introspector;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.AnatomyService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
-import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.beans.Introspector;
+import java.io.IOException;
+import java.util.*;
 
 /**
  *
@@ -72,7 +57,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	}
 
 	public void run(String[] args)
-	throws ReportException, SolrServerException {
+			throws ReportException, SolrServerException, IOException {
 
 	        List<String> errors = parser.validate(parser.parse(args));
 	        if ( ! errors.isEmpty()) {
@@ -158,7 +143,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 
 
 	public CommonAncestor getCommonClosestAncestor(AnatomyDTO ma1, AnatomyDTO ma2, Integer level)
-	throws SolrServerException{
+	throws SolrServerException, IOException {
 
 		if (ma1.getAnatomyId().equalsIgnoreCase(ma2.getAnatomyId())){
 			return new CommonAncestor(level, ma1);
@@ -215,8 +200,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 		return newList;
 	}
 
-	public AnatomyDTO getMa(String maId)
-	throws SolrServerException{
+	public AnatomyDTO getMa(String maId) throws SolrServerException, IOException{
 		if (!anatomyMap.containsKey(maId)){
 			anatomyMap.put(maId, anatomyService.getTerm(maId));
 		}
@@ -253,13 +237,12 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 		}
 	}
 
-	private class CommonAncestor{
+	private class CommonAncestor {
 
 		int level;
 		List<AnatomyDTO> ancestors;
 
-		public CommonAncestor(int level, String ancestorId)
-		throws SolrServerException{
+		public CommonAncestor(int level, String ancestorId) throws SolrServerException, IOException {
 			this.level = level;
 			this.ancestors = new ArrayList<>();
 			this.ancestors.add(anatomyService.getTerm(ancestorId));
@@ -271,11 +254,10 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 			this.ancestors.add(ancestor);
 		}
 
-		public CommonAncestor(int level, List<String> ancestorIds)
-		throws SolrServerException {
+		public CommonAncestor(int level, List<String> ancestorIds) throws SolrServerException, IOException {
 			this.level = level;
 			this.ancestors = new ArrayList<>();
-			for (String a : ancestorIds){
+			for (String a : ancestorIds) {
 				this.ancestors.add(anatomyService.getTerm(a));
 			}
 		}

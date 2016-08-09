@@ -15,14 +15,9 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -36,12 +31,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 @Service("postqcService")
 public class PostQcService extends AbstractGenotypePhenotypeService implements WebStatus {
 
     @Autowired
     @Qualifier("genotypePhenotypeCore")
-    HttpSolrServer solr;
+    HttpSolrClient solr;
 
     public PostQcService() {
         super();
@@ -65,9 +65,9 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      * @return a list of <code>count GraphTestDTO</code> instances matching the
      * given parameter stable ids.
      *
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public List<GraphTestDTO> getGeneAccessionIdsByParameterStableId(List<String> parameterStableIds, int count) throws SolrServerException {
+    public List<GraphTestDTO> getGeneAccessionIdsByParameterStableId(List<String> parameterStableIds, int count) throws SolrServerException, IOException {
       
     	List<GraphTestDTO> retVal = new ArrayList<>();
 
@@ -123,10 +123,10 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      * @since 2016/07/05
      * @param anatomyId
      * @return Number of genes in g-p core for anatomy term given. 
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
     public Integer getGenesByAnatomy(String anatomyId) 
-    throws SolrServerException{
+    throws SolrServerException, IOException{
     	
     	 SolrQuery query = new SolrQuery();
          query.setQuery("(" + GenotypePhenotypeDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " + 
@@ -144,7 +144,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     }
     
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

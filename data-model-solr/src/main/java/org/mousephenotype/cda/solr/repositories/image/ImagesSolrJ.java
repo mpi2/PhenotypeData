@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.repositories.image;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +49,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 	@Autowired
 	@Qualifier("sangerImagesCore")
-	public SolrServer server;
+	public SolrClient server;
 
 //	public ImagesSolrJ(String solrBaseUrl) throws MalformedURLException {
 //
@@ -60,11 +61,11 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 //			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
 //			DefaultHttpClient client = new DefaultHttpClient();
 //			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-//			server = new HttpSolrServer(solrBaseUrl, client);
+//			server = new HttpSolrClient(solrBaseUrl, client);
 //
 //			log.debug("Proxy Settings: " + System.getProperty("http.proxyHost") + " on port: " + System.getProperty("http.proxyPort"));
 //		} else {
-//			server = new HttpSolrServer(solrBaseUrl);
+//			server = new HttpSolrClient(solrBaseUrl);
 //		}
 //	}
 
@@ -78,11 +79,11 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 	}
 
 
-	public List<String> getIdsForKeywordsSearch(String query, int start, int length) throws SolrServerException {
+	public List<String> getIdsForKeywordsSearch(String query, int start, int length) throws SolrServerException, IOException {
 		return this.getIds(query, start, length);
 	}
 
-	private List<String> getIds(String query, int start, int length) throws SolrServerException {
+	private List<String> getIds(String query, int start, int length) throws SolrServerException, IOException {
 
 		SolrDocumentList result = runQuery(query, start, length);
 
@@ -101,7 +102,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 	}
 
-	private SolrDocumentList runQuery(String query, int start, int length) throws SolrServerException {
+	private SolrDocumentList runQuery(String query, int start, int length) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 
@@ -118,7 +119,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 	}
 
 	private QueryResponse runFacetQuery(String query, String facetField, int start, int length, String filterQuery) 
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(query);
@@ -137,7 +138,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 	@Override
 	public QueryResponse getExperimentalFacetForGeneAccession(String geneId) 
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 	
 		String processedGeneId = processQuery(geneId);
 		QueryResponse solrResp = this.runFacetQuery(SangerImageDTO.MGI_ACCESSION_ID + ":" + processedGeneId, "expName", 0, 1, "");
@@ -148,7 +149,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 	@Override
 	public QueryResponse getExpressionFacetForGeneAccession(String geneId) 
-	throws SolrServerException {
+	throws SolrServerException, IOException {
 		
 		String processedGeneId = processQuery(geneId);
 		log.debug("eventually gene id will be here and we'll need an extra filter");
@@ -161,7 +162,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 	//TODO cleanup this method
 	public QueryResponse getDocsForGeneWithFacetField(String geneId, String facetName, String facetValue, String filterQuery, int start, int length) 
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 
 		SolrQuery solrQuery = new SolrQuery();
 
@@ -236,10 +237,10 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 	 * @since 2016/02/25
 	 * @author ilinca
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	public SolrDocumentList getImagesForLacZ()
-	throws SolrServerException{
+	throws SolrServerException, IOException{
 		
 		SolrQuery query = new SolrQuery();
 		query.setQuery("procedure_name:*LacZ*");
@@ -259,7 +260,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 	 * @param start offset from zero
 	 * @param length how many docs to return
 	 */
-	public QueryResponse getDocsForMpTerm(String mpId, int start, int length) throws SolrServerException {
+	public QueryResponse getDocsForMpTerm(String mpId, int start, int length) throws SolrServerException, IOException {
 
 		String id = processQuery(mpId);
 		String query = "mp_id:" + id;
@@ -281,11 +282,11 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 	/**
 	 * Returns documents from Solr Index filtered by the passed in query
 	 * filterField e.g. annotationTerm:large ear
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 *
 	 *
 	 */
-	public QueryResponse getFilteredDocsForQuery(String query, List<String> filterFields, String qf, String defType, int start, int length) throws SolrServerException {
+	public QueryResponse getFilteredDocsForQuery(String query, List<String> filterFields, String qf, String defType, int start, int length) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 
@@ -343,7 +344,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 	}
 	
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

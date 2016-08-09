@@ -16,7 +16,7 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -55,7 +55,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Autowired
     @Qualifier("preqcIndexing")
-    SolrServer preqcIndexing;
+    SolrClient preqcIndexing;
 
     @Autowired
     @Qualifier("ontodbDataSource")

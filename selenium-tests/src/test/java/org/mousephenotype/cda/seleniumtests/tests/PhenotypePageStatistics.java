@@ -49,6 +49,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +61,7 @@ import java.util.List;
  * Selenium test for phenotype page statistics.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypePageStatistics {
 
@@ -130,7 +131,7 @@ public class PhenotypePageStatistics {
      * @throws SolrServerException
      */
     @Test
-    public void testCollectTableAndImageStatistics() throws SolrServerException {
+    public void testCollectTableAndImageStatistics() throws SolrServerException, IOException {
         RunStatus masterStatus = new RunStatus();
         String testName = "testCollectTableAndImageStatistics";
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());

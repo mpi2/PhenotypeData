@@ -18,7 +18,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class PreQcService extends AbstractGenotypePhenotypeService implements We
 
     @Autowired
     @Qualifier("preqcCore")
-    HttpSolrServer solr;
+    HttpSolrClient solr;
 
     public PreQcService() {
         super();
@@ -61,9 +62,9 @@ public class PreQcService extends AbstractGenotypePhenotypeService implements We
      *
      * @return a list of <code>count GraphTestDTO</code> instances.
      *
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public List<GraphTestDTO> getGeneAccessionIds(int count) throws SolrServerException {
+    public List<GraphTestDTO> getGeneAccessionIds(int count) throws SolrServerException, IOException {
         List<GraphTestDTO> retVal = new ArrayList<GraphTestDTO>();
 
         if (count < 1)
@@ -104,7 +105,7 @@ public class PreQcService extends AbstractGenotypePhenotypeService implements We
     }
 
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

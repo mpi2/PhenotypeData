@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -62,15 +62,15 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
 	@Autowired
 	@Qualifier("phenodigmCore")
-	SolrServer phenodigmCore;
+	SolrClient phenodigmCore;
 
 	@Autowired
 	@Qualifier("alleleCore")
-	SolrServer alleleCore;
+	SolrClient alleleCore;
 
 	@Autowired
 	@Qualifier("sangerImagesIndexing")
-	SolrServer sangerImagesIndexing;
+	SolrClient sangerImagesIndexing;
 
 	private Map<Integer, DcfBean> dcfMap = new HashMap<>();
 	private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();

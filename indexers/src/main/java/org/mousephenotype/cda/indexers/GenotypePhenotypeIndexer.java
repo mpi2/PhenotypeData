@@ -31,7 +31,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
@@ -87,7 +87,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     @Autowired
     @Qualifier("genotypePhenotypeIndexing")
-    SolrServer genotypePhenotypeIndexing;
+    SolrClient genotypePhenotypeIndexing;
 
     @Autowired
     MpOntologyDAO mpOntologyService;

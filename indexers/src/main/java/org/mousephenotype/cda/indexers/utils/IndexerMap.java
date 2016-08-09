@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.indexers.utils;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -140,11 +140,11 @@ public class IndexerMap {
      *
      * @throws IndexerException
      */
-    public static Map<String, List<AlleleDTO>> getGeneToAlleles(SolrServer alleleCore) throws IndexerException {
+    public static Map<String, List<AlleleDTO>> getGeneToAlleles(SolrClient alleleCore) throws IndexerException {
         if (allelesMap == null) {
             try {
                 allelesMap = SolrUtils.populateAllelesMap(alleleCore);
-            } catch (SolrServerException e) {
+            } catch (SolrServerException | IOException e) {
                 throw new IndexerException("Unable to query allele core in SolrUtils.populateAllelesMap()", e);
             }
         }
@@ -160,11 +160,11 @@ public class IndexerMap {
      *
      * @throws IndexerException
      */
-    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
+    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrClient phenodigm_core) throws IndexerException {
         if (mpToHpTermsMap == null) {
             try {
                 mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-            }catch (SolrServerException e) {
+            }catch (SolrServerException | IOException e) {
                 throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
             }
         }
@@ -180,11 +180,11 @@ public class IndexerMap {
      *
      * @throws IndexerException
      */
-    public static List<AlleleDTO> getAlleles(SolrServer alleleCore) throws IndexerException {
+    public static List<AlleleDTO> getAlleles(SolrClient alleleCore) throws IndexerException {
         if (alleles== null) {
             try {
                 alleles = SolrUtils.getAllAlleles(alleleCore);
-            } catch (SolrServerException e) {
+            } catch (SolrServerException | IOException e) {
                 throw new IndexerException("Unable to query allele core in SolrUtils.getAllAlleles()", e);
             }
         }
@@ -201,11 +201,11 @@ public class IndexerMap {
      * indexed by ma term id.
      * @throws IndexerException
      */
-    public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrServer imagesCore) throws IndexerException {
+    public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrClient imagesCore) throws IndexerException {
         if (sangerImagesMap == null) {
             try {
                 sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
-            } catch (SolrServerException e) {
+            } catch (SolrServerException | IOException e) {
                 throw new IndexerException("Unable to query images_core in SolrUtils.populateSangerImagesMap()", e);
             }
         }
@@ -290,11 +290,11 @@ public class IndexerMap {
     }
 
 
-	public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
+	public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrClient imagesCore) throws IndexerException {
 		Map<String, List<SangerImageDTO>> map = null;
 		try {
 			map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
-		} catch (SolrServerException e) {
+		} catch (SolrServerException | IOException e) {
 			throw new IndexerException("Unable to query images core", e);
 		}
 		return map;
@@ -306,27 +306,30 @@ public class IndexerMap {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public static Map<Integer, List<OntologyBean>> getOntologyParameterSubTerms(Connection connection) throws SQLException {
-		 Map<Integer, List<OntologyBean>> map = new HashMap<>();
-	        String query = "SELECT ontology_observation_id, acc, name, description, term_value FROM ontology_entity, ontology_term where ontology_entity.term=ontology_term.acc GROUP BY ontology_observation_id";
-	        try (PreparedStatement p = connection.prepareStatement(query)) {
+    public static Map<Integer, List<OntologyBean>> getOntologyParameterSubTerms(Connection connection) throws SQLException {
 
-	            ResultSet resultSet = p.executeQuery();
-	            while (resultSet.next()) {
-	            	List<OntologyBean>list;
-	                Integer ontObsId=resultSet.getInt("ontology_observation_id");
-	                OntologyBean b=new OntologyBean();
-	                b.setId(resultSet.getString("acc"));
-	                b.setName(resultSet.getString("name"));
-	                b.setDescription(resultSet.getString("description"));
-//	                b.setTermTextValue(resultSet.getString("term_value"));
-	                if(!map.containsKey(ontObsId)){
-	                	list = new ArrayList<>(0);
-	                	map.put(ontObsId, list);
-	                }
-	                map.get(resultSet.getInt("ontology_observation_id")).add(b);
-	            }
-	        }
-		return map;
-	}
+        Map<Integer, List<OntologyBean>> map = new HashMap<>();
+
+        String query = "SELECT ontology_observation_id, acc, name, description, term_value FROM ontology_entity, ontology_term WHERE ontology_entity.term = ontology_term.acc";
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+
+                Integer ontObsId = resultSet.getInt("ontology_observation_id");
+
+                OntologyBean b = new OntologyBean();
+                b.setId(resultSet.getString("acc"));
+                b.setName(resultSet.getString("name"));
+                b.setDescription(resultSet.getString("description"));
+
+                if ( ! map.containsKey(ontObsId)) {
+                    map.put(ontObsId, new ArrayList<>());
+                }
+
+                map.get(ontObsId).add(b);
+            }
+        }
+        return map;
+    }
 }

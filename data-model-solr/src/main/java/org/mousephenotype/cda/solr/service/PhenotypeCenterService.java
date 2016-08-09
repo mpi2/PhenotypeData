@@ -18,7 +18,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
@@ -28,12 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
 public class PhenotypeCenterService {
 	private static final Logger LOG = LoggerFactory.getLogger(PhenotypeCenterService.class);
-	private HttpSolrServer solr;
+	private HttpSolrClient solr;
 	private final String datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -47,7 +48,7 @@ public class PhenotypeCenterService {
 
 
 	public PhenotypeCenterService(String baseSolrUrl, ImpressService impressService){
-		solr = new HttpSolrServer(baseSolrUrl);
+		solr = new HttpSolrClient(baseSolrUrl);
 		this.impressService = impressService;
 
 	}
@@ -56,9 +57,9 @@ public class PhenotypeCenterService {
 	 * Get a list of phenotyping Centers we have data for e.g. query like below
 	 * http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=*:*&indent=true&facet=true&facet.field=phenotyping_center&facet.mincount=1&wt=json&rows=0
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public List<String> getPhenotypeCenters() throws SolrServerException {
+	public List<String> getPhenotypeCenters() throws SolrServerException, IOException  {
 
 		List<String> centers=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
@@ -85,9 +86,9 @@ public class PhenotypeCenterService {
 	 * get the strains with data for a center
 	 * http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=phenotyping_center:%22UC%20Davis%22&wt=json&indent=true&facet=true&facet.field=strain_accession_id&facet.mincount=1&rows=0
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public List<String> getStrainsForCenter(String center)  throws SolrServerException {
+	public List<String> getStrainsForCenter(String center)  throws SolrServerException, IOException  {
 
 		List<String> strains=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
@@ -108,7 +109,7 @@ public class PhenotypeCenterService {
 		return strains;
 	}
 
-	public List<StrainBean> getMutantStrainsForCenter(String center)  throws SolrServerException {
+	public List<StrainBean> getMutantStrainsForCenter(String center)  throws SolrServerException, IOException  {
 
 		List<StrainBean> strains=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
@@ -147,9 +148,9 @@ public class PhenotypeCenterService {
 	 *@param center
 	 * @param strain
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public List<ProcedureDTO> getProceduresPerStrainForCenter(String center,String strain) throws SolrServerException {
+	public List<ProcedureDTO> getProceduresPerStrainForCenter(String center,String strain) throws SolrServerException, IOException  {
 
 		List<ProcedureDTO> procedures=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
@@ -179,9 +180,9 @@ public class PhenotypeCenterService {
 	/**
 	 * @author tudose
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public Map<String, List<String>> getProceduresPerCenter() throws SolrServerException{
+	public Map<String, List<String>> getProceduresPerCenter() throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery()
 		 .setQuery(ObservationDTO.DATASOURCE_NAME + ":IMPC")
@@ -207,7 +208,7 @@ public class PhenotypeCenterService {
 	}
 
 
-	public List<String> getDoneProcedureIdsPerStrainAndCenter(String center,String strain) throws SolrServerException {
+	public List<String> getDoneProcedureIdsPerStrainAndCenter(String center,String strain) throws SolrServerException, IOException  {
 
 		List<String> procedures=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
@@ -230,9 +231,9 @@ public class PhenotypeCenterService {
 	/**
 	 * Uses the methods in this service to get center progress information for each center i.e. procedures we have data for on a per strain basis
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
-	public Map<String, Map<String, List<ProcedureDTO>>> getCentersProgressInformation() throws SolrServerException {
+	public Map<String, Map<String, List<ProcedureDTO>>> getCentersProgressInformation() throws SolrServerException, IOException  {
 
 		//map of centers to a map of strain to procedures list
 		Map<String,Map<String, List<ProcedureDTO>>> centerData = new HashMap<>();
@@ -255,10 +256,10 @@ public class PhenotypeCenterService {
 	/**
 	 * @author tudose
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 * @throws SQLException
 	 */
-	public List<String[]> getCentersProgressByStrainCsv() throws SolrServerException, SQLException {
+	public List<String[]> getCentersProgressByStrainCsv() throws SolrServerException, IOException , SQLException {
 
 		List<String> centers = getPhenotypeCenters();
         List<String[]> results = new ArrayList<>();

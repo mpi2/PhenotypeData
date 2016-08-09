@@ -148,7 +148,7 @@ public class FileExportController {
 	 * @param zygositiesParameter
 	 * @param strainParameter
 	 * @return
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
@@ -164,7 +164,7 @@ public class FileExportController {
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
 			@RequestParam(value = "strain", required = false) String strainParameter)
-					throws SolrServerException, IOException, URISyntaxException {
+					throws SolrServerException, IOException , URISyntaxException {
 
 		ImpressBaseDTO pipeline = impressService.getPipeline(pipelineStableId);
 		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
@@ -428,7 +428,7 @@ public class FileExportController {
 	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
 			String allele[], String gender, List<String> phenotypingCenters, List<String> zygosity,
 			String[] strain, String[] pipelines)
-					throws SolrServerException, IOException, URISyntaxException, SQLException {
+					throws SolrServerException, IOException , URISyntaxException, SQLException {
 
 		List<String> rows = new ArrayList<>();
 		SexType sex = null;

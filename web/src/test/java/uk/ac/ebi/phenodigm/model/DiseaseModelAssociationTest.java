@@ -16,11 +16,12 @@
  */
 package uk.ac.ebi.phenodigm.model;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,7 +42,7 @@ public class DiseaseModelAssociationTest {
         MouseModel firstModel = new MouseModel();
         firstModel.setMgiGeneId("MGI:0001");
         firstModel.setMgiModelId(11111);
-        firstModel.setPhenotypeTerms(new ArrayList());
+        firstModel.setPhenotypeTerms(new ArrayList<>());
         first.setMouseModel(firstModel);
                 
         second = new DiseaseModelAssociation();
@@ -49,7 +50,7 @@ public class DiseaseModelAssociationTest {
         MouseModel secondModel = new MouseModel();
         secondModel.setMgiGeneId("MGI:0002");
         secondModel.setMgiModelId(22222);
-        secondModel.setPhenotypeTerms(new ArrayList());
+        secondModel.setPhenotypeTerms(new ArrayList<>());
         second.setMouseModel(secondModel);
         
         third = new DiseaseModelAssociation();
@@ -57,7 +58,7 @@ public class DiseaseModelAssociationTest {
         MouseModel thirdModel = new MouseModel();
         thirdModel.setMgiGeneId("MGI:0003");
         thirdModel.setMgiModelId(33333);
-        thirdModel.setPhenotypeTerms(new ArrayList());
+        thirdModel.setPhenotypeTerms(new ArrayList<>());
       third.setMouseModel(thirdModel);
     }
     
@@ -75,7 +76,7 @@ public class DiseaseModelAssociationTest {
         first.setDiseaseToModelScore(90.12);
         second.setDiseaseToModelScore(89.99);
         
-        List<DiseaseModelAssociation> associationsList = new ArrayList<DiseaseModelAssociation>();
+        List<DiseaseModelAssociation> associationsList = new ArrayList<>();
         associationsList.add(second);
         associationsList.add(first);
         
@@ -93,7 +94,7 @@ public class DiseaseModelAssociationTest {
         second.setDiseaseToModelScore(89.99);
         third.setDiseaseToModelScore(56.99);
 
-        List<DiseaseModelAssociation> associationsList = new ArrayList<DiseaseModelAssociation>();
+        List<DiseaseModelAssociation> associationsList = new ArrayList<>();
         associationsList.add(second);
         associationsList.add(first);
         associationsList.add(third);
@@ -114,7 +115,7 @@ public class DiseaseModelAssociationTest {
         second.setModelToDiseaseScore(89.99);
         third.setModelToDiseaseScore(89.99);
         
-        List<DiseaseModelAssociation> associationsList = new ArrayList<DiseaseModelAssociation>();
+        List<DiseaseModelAssociation> associationsList = new ArrayList<>();
         associationsList.add(second);
         associationsList.add(first);
         associationsList.add(third);
@@ -134,7 +135,7 @@ public class DiseaseModelAssociationTest {
         first.setDiseaseToModelScore(90.12);       
         second.setDiseaseToModelScore(90.12);
         
-        List<DiseaseModelAssociation> associationsList = new ArrayList<DiseaseModelAssociation>();
+        List<DiseaseModelAssociation> associationsList = new ArrayList<>();
         associationsList.add(second);
         associationsList.add(first);
         
@@ -149,7 +150,7 @@ public class DiseaseModelAssociationTest {
         first.setModelToDiseaseScore(90.12);
         second.setModelToDiseaseScore(90.12);
                 
-        List<DiseaseModelAssociation> associationsList = new ArrayList<DiseaseModelAssociation>();
+        List<DiseaseModelAssociation> associationsList = new ArrayList<>();
         associationsList.add(second);
         associationsList.add(first);
         

@@ -22,7 +22,15 @@
 
 package uk.ac.ebi.phenotype.healthcheck;
 
-import static org.junit.Assert.fail;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.dao.ObservationDAO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.phenotype.web.TestConfig;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -30,21 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.ObservationDAO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
-
-import uk.ac.ebi.phenotype.web.TestConfig;
+import static org.junit.Assert.fail;
 
 /**
  * Mouseinformatics fetches an xml file nightly that contains all of the
@@ -68,9 +62,8 @@ import uk.ac.ebi.phenotype.web.TestConfig;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
-@TransactionConfiguration
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+@ContextConfiguration(classes = TestConfig.class)
 @Transactional
 public class ObservationHealthcheck {
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";

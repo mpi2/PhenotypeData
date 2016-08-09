@@ -1,7 +1,7 @@
 package org.mousephenotype.cda.solr;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
 
 import javax.validation.constraints.NotNull;
 
@@ -46,137 +46,142 @@ public class SolrServerConfig {
 	@Value("${imits.solr.host}")
 	private String imitsSolrBaseUrl;
 
+
+	// Required for spring-data-solr repositories
+	@Bean
+	public SolrClient solrClient() { return new HttpSolrClient(solrBaseUrl); }
+
+	@Bean
+	public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }
+	// Required for spring-data-solr repositories
+
+
+
 	@Bean(name = "allele2Core")
-	HttpSolrServer getAllele2Core() {
-		return new HttpSolrServer(imitsSolrBaseUrl + "/allele2");
+	HttpSolrClient getAllele2Core() {
+		return new HttpSolrClient(solrBaseUrl + "/allele2");
 	}
 
 	@Bean(name = "eucommCreProductsCore")
-	HttpSolrServer getEucomCreToolsProduct() {
-		return new HttpSolrServer(imitsSolrBaseUrl + "/eucommtoolscre_product");
+	HttpSolrClient getEucomCreToolsProduct() {
+		return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_product");
 	}
 
 	@Bean(name = "eucommToolsProductCore")
-	HttpSolrServer getEucommToolsProductCore() {
-		return new HttpSolrServer(imitsSolrBaseUrl + "/product");
+	HttpSolrClient getEucommToolsProductCore() {
+		return new HttpSolrClient(solrBaseUrl + "/product");
 	}
 
 	@Bean(name = "eucommToolsCreAllele2Core")
-	HttpSolrServer getEucommToolsCreAllele2() {
-		return new HttpSolrServer(imitsSolrBaseUrl + "/eucommtoolscre_allele2");
+	HttpSolrClient getEucommToolsCreAllele2() {
+		return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_allele2");
 	}
 
-
-	// Required for SolrCrudRepositories to work
-	@Bean
-	public SolrServer solrServer() throws Exception {
-		HttpSolrServerFactoryBean f = new HttpSolrServerFactoryBean();
-		f.setUrl(solrBaseUrl);
-		f.afterPropertiesSet();
-		return f.getSolrServer();
-	}
-
-	@Bean
-	public SolrTemplate solrTemplate(SolrServer solrServer) throws Exception {
-		return new SolrTemplate(solrServer());
-	}
 
 
 	// Read only solr servers
 
 	//Phenodigm server for our Web Status currently only
 	@Bean(name = "phenodigmCore")
-	public HttpSolrServer getPhenodigmCore() {
-		return new HttpSolrServer(solrBaseUrl + "/phenodigm");
+	public HttpSolrClient getPhenodigmCore() {
+		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
 	}
+
+	//Configuration
+	@Bean(name = "configurationCore")
+	public HttpSolrClient getConfigurationCore() {
+		return new HttpSolrClient(solrBaseUrl + "/configuration");
+	}
+
+
 
 	//Allele
 	@Bean(name = "alleleCore")
-	public HttpSolrServer getAlleleCore() {
-		return new HttpSolrServer(solrBaseUrl + "/allele");
+	public HttpSolrClient getAlleleCore() {
+		return new HttpSolrClient(solrBaseUrl + "/allele");
 	}
 
 
 	//Autosuggest
 	@Bean(name = "autosuggestCore")
-	HttpSolrServer getAutosuggestCore() {
-		return new HttpSolrServer(solrBaseUrl + "/autosuggest");
+	HttpSolrClient getAutosuggestCore() {
+		return new HttpSolrClient(solrBaseUrl + "/autosuggest");
 	}
 
 	//Disease
 	@Bean(name = "diseaseCore")
-	HttpSolrServer getDiseaseCore() {
-		return new HttpSolrServer(solrBaseUrl + "/disease");
+	HttpSolrClient getDiseaseCore() {
+		return new HttpSolrClient(solrBaseUrl + "/disease");
 	}
 
 	//Gene
 	@Bean(name = "geneCore")
-	HttpSolrServer getGeneCore() {
-		return new HttpSolrServer(solrBaseUrl + "/gene");
+	HttpSolrClient getGeneCore() {
+		return new HttpSolrClient(solrBaseUrl + "/gene");
 	}
 
 	//GenotypePhenotype
 	@Bean(name = "genotypePhenotypeCore")
-	HttpSolrServer getGenotypePhenotypeCore() {
-		return new HttpSolrServer(solrBaseUrl + "/genotype-phenotype");
+	HttpSolrClient getGenotypePhenotypeCore() {
+		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
 	}
 
 	// Impc images core
 	@Bean(name = "impcImagesCore")
-	HttpSolrServer getImpcImagesCore() {
-		return new HttpSolrServer(solrBaseUrl + "/impc_images");
+	HttpSolrClient getImpcImagesCore() {
+		return new HttpSolrClient(solrBaseUrl + "/impc_images");
 	}
 
 	//SangerImages
 	@Bean(name = "sangerImagesCore")
-	HttpSolrServer getImagesCore() {
-		return new HttpSolrServer(solrBaseUrl + "/images");
+	HttpSolrClient getImagesCore() {
+		return new HttpSolrClient(solrBaseUrl + "/images");
 	}
 
 	//MA
 	@Bean(name = "maCore")
-	HttpSolrServer getMaCore() {
-		return new HttpSolrServer(solrBaseUrl + "/ma");
+	HttpSolrClient getMaCore() {
+		return new HttpSolrClient(solrBaseUrl + "/ma");
 	}
 
 	//ANATOMY
 	@Bean(name = "anatomyCore")
-	HttpSolrServer getAnatomyCore() { return new HttpSolrServer(solrBaseUrl + "/anatomy");	}
+	HttpSolrClient getAnatomyCore() { return new HttpSolrClient(solrBaseUrl + "/anatomy");	}
 
 	//MP
 	@Bean(name = "mpCore")
-	HttpSolrServer getMpCore() {
-		return new HttpSolrServer(solrBaseUrl + "/mp");
+	HttpSolrClient getMpCore() {
+		return new HttpSolrClient(solrBaseUrl + "/mp");
 	}
 
 	//EMAP
 	@Bean(name = "emapCore")
-	HttpSolrServer getEmapCore() {
-		return new HttpSolrServer(solrBaseUrl + "/emap");
+	HttpSolrClient getEmapCore() {
+		return new HttpSolrClient(solrBaseUrl + "/emap");
 	}
 
 	@Bean(name = "experimentCore")
-	HttpSolrServer getExperimentCore() {
-		return new HttpSolrServer(solrBaseUrl + "/experiment");
+	HttpSolrClient getExperimentCore() {
+		return new HttpSolrClient(solrBaseUrl + "/experiment");
 	}
 
 	//Pipeline
 	@Bean(name = "pipelineCore")
-	HttpSolrServer getPipelineCore() {
-		return new HttpSolrServer(solrBaseUrl + "/pipeline");
+	HttpSolrClient getPipelineCore() {
+		return new HttpSolrClient(solrBaseUrl + "/pipeline");
 	}
 
 
 	//Preqc
 	@Bean(name = "preqcCore")
-	HttpSolrServer getPreqcCore() {
-		return new HttpSolrServer(solrBaseUrl + "/preqc");
+	HttpSolrClient getPreqcCore() {
+		return new HttpSolrClient(solrBaseUrl + "/preqc");
 	}
 
 	//StatisticalResult
 	@Bean(name = "statisticalResultCore")
-	HttpSolrServer getStatisticalResultCore() {
-		return new HttpSolrServer(solrBaseUrl + "/statistical-result");
+	HttpSolrClient getStatisticalResultCore() {
+		return new HttpSolrClient(solrBaseUrl + "/statistical-result");
 	}
 
 	@Bean(name = "phenotypeCenterService")

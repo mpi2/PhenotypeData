@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.indexers;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,10 +94,31 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
 		List<StatisticalResultDTO> results = statisticalResultIndexer.getGrossPathologyResults().call();
 		assert (results.size() > 100);
+
+		List<String> ids = new ArrayList<>();
+		ids.addAll(results.stream().map(StatisticalResultDTO::getDocId).collect(Collectors.toList()));
+
+		Set<String> uniques = new HashSet<>();
+		Set<String> diff = ids
+				.stream()
+				.filter(e -> !uniques.add(e))
+				.collect(Collectors.toSet());
+
+		if ( ! diff.isEmpty()) {
+			System.out.println("Diff is : " + StringUtils.join(diff, ", "));
+			List<String> diffList = new ArrayList<>(diff);
+			List<StatisticalResultDTO> duplicated = results.stream().filter(p -> p.getDocId().equals(diffList.get(0))).collect(Collectors.toList());
+
+			System.out.println(duplicated);
+		}
+
+		assert (diff.isEmpty());
+		System.out.println("All generated IDs unique");
 	}
 
 
 	@Test
+	@Ignore
 	public void getSignificanceField() throws Exception {
 
 
@@ -162,6 +184,7 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
 	}
 
+	@Test
 	@Ignore
 	public void resultsUniqueIds() throws Exception {
 

@@ -44,7 +44,7 @@
 		<!-- An interceptor which keeps a hibernate session open to allow lazy
 			loading of form backing objects -->
 		<bean
-			class="org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor">
+			class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
 			<property name="sessionFactory" ref="sessionFactory" />
 		</bean>
 		<!--  add the deployment path to all pages -->

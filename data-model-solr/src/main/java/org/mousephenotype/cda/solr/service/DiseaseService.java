@@ -15,12 +15,13 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -35,7 +36,7 @@ public class DiseaseService implements WebStatus{
 
     @Autowired
     @Qualifier("diseaseCore")
-    private HttpSolrServer solr;
+    private HttpSolrClient solr;
 
     // Disease sources. When modifying these, please modify getAllDiseases() accordingly.
     public static final class DiseaseField {
@@ -52,14 +53,14 @@ public class DiseaseService implements WebStatus{
 
 
     public DiseaseService(String solrUrl) {
-        solr = new HttpSolrServer(solrUrl);
+        solr = new HttpSolrClient(solrUrl);
     }
 
     /**
      * @return all diseases from the disease core.
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public Set<String> getAllDiseases() throws SolrServerException {
+    public Set<String> getAllDiseases() throws SolrServerException, IOException  {
         Set<String> results = new HashSet<String>();
 
         String[] diseaseSources = { DiseaseField.DISEASE_SOURCE_DECIPHER, DiseaseField.DISEASE_SOURCE_OMIM, DiseaseField.DISEASE_SOURCE_ORPHANET };
@@ -76,9 +77,9 @@ public class DiseaseService implements WebStatus{
      * @param diseaseSource the desired disease source (e.g. DiseaseService.OMIM,
      * DiseaseSource.ORPHANET, etc.)
      *
-     * @throws SolrServerException
+     * @throws SolrServerException, IOException
      */
-    public Set<String> getAllDiseasesInDiseaseSource(String diseaseSource) throws SolrServerException {
+    public Set<String> getAllDiseasesInDiseaseSource(String diseaseSource) throws SolrServerException, IOException  {
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("disease_source:\"" + diseaseSource + "\"");
@@ -94,7 +95,7 @@ public class DiseaseService implements WebStatus{
     }
     
     @Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() throws SolrServerException, IOException  {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

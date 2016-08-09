@@ -113,7 +113,7 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request)
-	throws SolrServerException, IOException, URISyntaxException {
+	throws SolrServerException, IOException , URISyntaxException {
 		
 		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();

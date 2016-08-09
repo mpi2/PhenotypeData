@@ -104,7 +104,16 @@ $(document).ready(function () {
 		'disease' : '*:*',
 		'anatomy' : 'selected_top_level_anatomy_term:*',
 		'pipeline' : 'pipeline_stable_id:*',
-		'images' : '*:*'
+		'images' : '*:*',
+		'allele2' : 'type:Allele'
+	};
+	var facet2Label = {
+		'gene'        : 'Genes',
+		'mp'          : 'Phenotypes',
+		'disease'     : 'Diseases',
+		'anatomy'     : 'Anatomy',
+		'impc_images' : 'Images',
+		'allele2'     : 'Products'
 	};
 
 	// generic search input autocomplete javascript
@@ -112,8 +121,8 @@ $(document).ready(function () {
 
 
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
-	$( "input#s").val(decodeURI(srchkw));
-	$( "input#s").click(function(){
+	$("input#s").val(decodeURI(srchkw));
+	$("input#s").click(function(){
 		if ( $(this).val() == 'Search') {
 			$(this).val('');
 		};
@@ -122,13 +131,14 @@ $(document).ready(function () {
 		$("input#s").val('');
 	});
 
+	
 	$( "input#s" ).autocomplete({
 		source: function( request, response ) {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
-
+			var facetStr = "&facet=on&facet.field=docType&facet.mincount=1&facet.limit=-1";
 			$.ajax({
 				//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
-				url: solrUrl + "/autosuggest/select?fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq,
+				url: solrUrl + "/autosuggest/select?rows=5&fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + facetStr,
 				dataType: "jsonp",
 				'jsonp': 'json.wrf',
 				data: {
@@ -183,20 +193,23 @@ $(document).ready(function () {
 								aKVtmp[facet].push("<span class='" + facet + " sugList'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
 
 								if (i == 0){
-									// take the first found in
-									// autosuggest and open that
-									// facet
+									// take the first found in autosuggest and open that facet
 									matchedFacet = facet;
 								}
 							}
 						}
 					}
 					var dataTypeVal = [];
+
+					for( var corename in facet2Label ) {
+						dataTypeVal.push(_getDropdownList(corename, facet2Label, request.term));
+					}
+					dataTypeVal.push("<hr>");
+
 					var aKVtmpSorted = $.fn.sortJson(aKVtmp);
 					for ( var k in aKVtmpSorted ){
 
 						for ( var v in aKVtmpSorted[k] ) {
-
 							dataTypeVal.push(aKVtmpSorted[k][v]);
 						}
 					}
@@ -216,7 +229,7 @@ $(document).ready(function () {
 			// select by mouse / KB
 			//console.log(this.value + ' vs ' + ui.item.label);
 
-			// var oriText = $(ui.item.label).text();
+			//var oriText = $(ui.item.label).text();
 
 			var facet = $(ui.item.label).attr('class').replace(' sugList', '') == 'hp' ? 'mp' : $(ui.item.label).attr('class').replace(' sugList', '');
 
@@ -229,17 +242,25 @@ $(document).ready(function () {
 				q = matched[1];
 			}
 			else {
-				q = this.value;
+				var qVal = this.value;
+				var qRe = new RegExp(" in (Genes|Phenotypes|Diseases|Anatomy|Images|Products)\"$");
+				q = qVal.replace(qRe, "") + "\"";
 			}
 			q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
 			// we are choosing value from drop-down list so need to double quote the value for SOLR query
 			//document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
 
+			// // product is from allele2: autosuggest dropdown shows "product" to the users, but we need to query by allele2 internally
+			// if ( facet == 'product' ){
+			// 	facet = "allele2";
+			// }
+
 			var href = baseUrl + '/search/' + facet  + '?' + "kw=" + q;
 			if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
 				href += "&fq=" + facet2Fq[facet];
 			}
+
 			document.location.href = href;
 			// prevents escaped html tag displayed in input box
 			event.preventDefault(); return false;
@@ -368,7 +389,12 @@ $('input#s').keyup(function (e) {
 		}
 	}
 });
-		
+
+function _getDropdownList(corename, facet2Label, input) {
+	var catLabel = "<span class='category'>" + facet2Label[corename] + "</span>";
+	return "<span class='" + corename + " sugList'>" + input + " in " + catLabel + "</span>"; // so that we know it is category search
+}
+
 function _convertHp2MpAndSearch(input, facet){
 	input = input.toUpperCase();
 	$.ajax({

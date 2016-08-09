@@ -11,15 +11,6 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.DiseaseService;
 import org.mousephenotype.cda.solr.service.GeneService;
@@ -29,11 +20,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlSitemap;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlSitemapIndex;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlUrl;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlUrlSet;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -65,11 +64,11 @@ public class SiteMapController {
 	 *
 	 * @param request <code>HttpServletRequest</code> instance
 	 * @return an XML object containing a gene sitemap
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	@RequestMapping(value = "/sitemap_genes.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
 	@ResponseBody
-	public String createSitemapGenes(HttpServletRequest request) throws SolrServerException {
+	public String createSitemapGenes(HttpServletRequest request) throws SolrServerException, IOException {
 
 		List<String> geneIds = new ArrayList<>(geneService.getAllGenes());
 
@@ -94,11 +93,11 @@ public class SiteMapController {
 	 *
 	 * @param request <code>HttpServletRequest</code> instance
 	 * @return an XML object containing a phenotype sitemap
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	@RequestMapping(value = "/sitemap_phenotypes.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
 	@ResponseBody
-	public String createSitemapPhenotypes(HttpServletRequest request) throws SolrServerException {
+	public String createSitemapPhenotypes(HttpServletRequest request) throws SolrServerException, IOException {
 
 		List<String> phenotypeIds = new ArrayList<>(mpService.getAllPhenotypes());
 		String mappedHostname = (String) request.getAttribute("mappedHostname");
@@ -133,11 +132,11 @@ public class SiteMapController {
 	 *
 	 * @param request <code>HttpServletRequest</code> instance
 	 * @return an XML object containing a disease sitemap
-	 * @throws SolrServerException
+	 * @throws SolrServerException, IOException
 	 */
 	@RequestMapping(value = "/sitemap_diseases.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
 	@ResponseBody
-	public String createSitemapDiseases(HttpServletRequest request) throws SolrServerException {
+	public String createSitemapDiseases(HttpServletRequest request) throws SolrServerException, IOException {
 		List<String> diseases = new ArrayList<>(diseaseService.getAllDiseases());
 		String mappedHostname = (String) request.getAttribute("mappedHostname");
 		String baseUrl = (String) request.getAttribute("baseUrl");

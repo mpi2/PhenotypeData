@@ -4,6 +4,9 @@ ul.ui-autocomplete {
 	border: 1px solid #0978A1;
 	padding: 10px 15px;
 	z-index: 999;
+	-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+	-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
 
 }
 ul.ui-autocomplete li a {
@@ -32,6 +35,14 @@ span.gene, span.mp, span.anatomy, span.disease, span.hp {
 b.sugTerm {
 	color: #0978A1;
 }
+span.category {
+	color: #EF7B0B !important;
+	font-weight: bold;
+}
+span.sugList {
+	color: black;
+}
+
 /* New Facet Block without IDs */
 div.ffilter {
 	display: none; /*default, appears only when filter is added */
@@ -160,11 +171,15 @@ span.imgAnnots {
 span.annotType {
 	font-weight: bold;
 }
-table#diseaseGrid th:nth-child(1) {
-	width: 200px !important;
+
+div#diseaseTab table#dTable th:nth-child(1) {
+	width: 45% !important;
 }
-table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
-	width: 35% !important;
+div#allele2Tab table#dTable th:nth-child(3) {
+	width: 33% !important;
+}
+div#allele2Tab table#dTable td:nth-child(3) a {
+	margin-left: 5px;
 }
 /* end of dataTable on search page */
 
@@ -206,7 +221,7 @@ div#tabs {
 }
 
 ul.tabLabel{
-	margin-left: 30px;
+	margin-left: 15px;
 	margin-bottom: 0px;
 	height: 27px;
 	/*border-bottom: 1px solid grey;*/
@@ -226,7 +241,7 @@ ul.tabLabel li {
 }
 
 ul.tabLabel li a {
-	padding: 2px 30px 2px 30px;
+	padding: 0 15px 2px 15px;
 	color: white;
 	text-decoration: none;
 	font-weight: bold;
@@ -409,21 +424,27 @@ div.searchcontent {
 	-moz-border-radius:;
 	border-radius: 5px;
 	float: left;
-	width: 915px;
+	width: 95%;
 	background-color: #0978A1;
-	padding: 10px 5px 10px 10px;
+	padding: 10px 10px 10px 10px;
+	margin: 0 30px 0 0px;
+
 }
 #bigsearchbox input {
-	width: 905px;
+	width: 100%;
 	height: 45px !important;
 	padding: 0;
+	margin: 0;
 }
 #bigsearchbox i#sicon { position: absolute; top: 14px;}
 #bigsearchbox i#clearIcon {
+	position: absolute;
 	top: 27px;
+	right: 3.5em;
 }
 i.searchExample {
 	top: 22px;
+	float: right;
 }
 #batchQryLink {
 	display: block;
@@ -508,4 +529,14 @@ div#anaSep {
 	height: 1px;
 	border-bottom: 1px solid #777;
 	display: none;
+}
+i.fa a {
+	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif;
+}
+div.fullDef {
+	display: none;
+}
+div.moreLess {
+	cursor: pointer;
+	color: #0978A1;
 }

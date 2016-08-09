@@ -77,7 +77,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
         try {
             report.addAll(getBmpIpgttStats(observationService.getDatapointsByColony(resources, parameter, "experimental")));
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception in observationService.getDatapointsByColony. Reason: " + e.getLocalizedMessage());
         }
 

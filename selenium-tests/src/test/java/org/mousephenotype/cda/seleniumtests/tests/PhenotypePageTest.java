@@ -42,7 +42,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
+ import java.io.IOException;
+ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -54,7 +55,7 @@ import java.util.List;
   * Selenium test for phenotype page coverage ensuring each page works as expected.
   */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypePageTest {
 
@@ -136,7 +137,7 @@ public class PhenotypePageTest {
      */
     @Test
 //@Ignore
-    public void testMGI_MPLinksAreValid() throws SolrServerException {
+    public void testMGI_MPLinksAreValid() throws SolrServerException, IOException {
         RunStatus status = new RunStatus();
         String testName = "testMGI_MPLinksAreValid";
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
