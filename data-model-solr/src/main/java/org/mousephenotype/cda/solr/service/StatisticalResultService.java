@@ -176,10 +176,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	 * @since 2016/07/05
 	 * @param anatomyId
 	 * @return Number of genes in s-r core for anatomy term given. 
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 */
 	public Integer getGenesByAnatomy(String anatomyId) 
-	throws SolrServerException, IOException, IOException{
+	throws SolrServerException, IOException {
 		    	
 	 	 SolrQuery query = new SolrQuery();
 	     query.setQuery("(" + StatisticalResultDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " + 
@@ -198,7 +198,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			    
 	
 	public Map<String, Long> getColoniesNoMPHit(List<String> resourceName, ZygosityType zygosity)
-	throws SolrServerException, IOException, IOException{
+	throws SolrServerException, IOException {
 
 		Map<String, Long>  res = new HashMap<>();
     	SolrQuery q = new SolrQuery();
@@ -233,7 +233,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
 	public List<String> getCenters(String pipelineStableId, String observationType, String resource, String status)
-	throws SolrServerException, IOException, IOException{
+	throws SolrServerException, IOException {
 
 		List<String> res = new ArrayList<>();
 
@@ -358,7 +358,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
 	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl)
-	throws SolrServerException, IOException, IOException, MalformedURLException, IOException, URISyntaxException{
+	throws SolrServerException, IOException , MalformedURLException, IOException, URISyntaxException{
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
@@ -516,7 +516,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	
 
 	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, List<String> strains, String biologicalSample, String[] center, String[] sex)
-	throws SolrServerException, IOException, IOException {
+	throws SolrServerException, IOException  {
 
 		String urlParams = "";
 		SolrQuery query = new SolrQuery().addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
@@ -712,7 +712,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
     public Map<String, List<String>> getDistributionOfLinesByMPTopLevel(List<String> resourceName, Float pValueThreshold)
-	throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
+	throws SolrServerException, IOException , InterruptedException, ExecutionException {
 
 		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
 		String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME + "," + StatisticalResultDTO.COLONY_ID;
@@ -750,7 +750,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
     public Map<String, List<String>> getDistributionOfGenesByMPTopLevel(List<String> resourceName, Float pValueThreshold)
-	throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
+	throws SolrServerException, IOException , InterruptedException, ExecutionException {
 
 		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
 		String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
@@ -825,7 +825,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
      * Get the result for a set of
      *  allele strain phenotypeCenter, pipeline, parameter, metadata, zygosity, sex
      * @param statisticalType
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public List<? extends StatisticalResult> getStatisticalResult(
             String alleleAccession,
@@ -836,7 +836,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
             String metadataGroup,
             ZygosityType zygosity,
             SexType sex,
-            ObservationType statisticalType) throws SolrServerException, IOException, IOException {
+            ObservationType statisticalType) throws SolrServerException, IOException  {
 
         List<StatisticalResult> results = new ArrayList<>();
 
@@ -1027,11 +1027,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
      * @param gene
      * @param zygosity
      * @return SolrDocumentList grouped by top level MP term
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      * @author ilinca
      */
     public HashMap<String, SolrDocumentList> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity)
-    throws SolrServerException, IOException, IOException {
+    throws SolrServerException, IOException  {
 
 		HashMap<String, SolrDocumentList> res = new HashMap<>();
 		String query = "*:*";
@@ -1360,7 +1360,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
     public Map<String, List<String>> getParametersToProcedureMap(String alleleAccession, String geneAccession, String resourceName, String phenotypingCenter, String pipelineSrableId, String procedure)
-    throws SolrServerException, IOException, IOException{
+    throws SolrServerException, IOException {
 
         Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
 
@@ -1476,13 +1476,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	 * @param sex
 	 * @return Map < String parameterStableId , List<String
 	 *         geneMgiIdWithParameterXMeasured>>
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 * @author tudose
 	 */
 	public Map<String, List<String>> getParameterToGeneMap(SexType sex)
-	throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
+	throws SolrServerException, IOException , InterruptedException, ExecutionException {
 
 		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
@@ -1509,7 +1509,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	}
 
     public List<Group> getGenesBy(String mpId, SexType sex)
-    throws SolrServerException, IOException, IOException {
+    throws SolrServerException, IOException  {
 
 		SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
 				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " +
@@ -1527,7 +1527,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
 
-	public List<StatisticalResultDTO> getImpcPvalues() throws SolrServerException, IOException, IOException {
+	public List<StatisticalResultDTO> getImpcPvalues() throws SolrServerException, IOException  {
 		SolrQuery q = new SolrQuery("*:*")
 				.addFilterQuery(StatisticalResultDTO.STATUS + ":Success")
 				.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
@@ -1650,11 +1650,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     * @param mpId
     * @return List of stable ids for parameters that led to at least one association to the
     * given parameter or some class in its subtree
-    * @throws SolrServerException, IOException, IOException
+    * @throws SolrServerException, IOException
     * @author tudose
     */
    public List<String> getParametersForPhenotype(String mpId)
-   throws SolrServerException, IOException, IOException {
+   throws SolrServerException, IOException  {
 
        List<String> res = new ArrayList<>();
        SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
@@ -1677,7 +1677,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
    }
 
    @Override
-	public long getWebStatus() throws SolrServerException, IOException, IOException {
+	public long getWebStatus() throws SolrServerException, IOException  {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

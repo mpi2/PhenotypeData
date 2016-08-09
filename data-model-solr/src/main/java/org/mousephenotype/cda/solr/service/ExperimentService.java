@@ -91,7 +91,7 @@ public class ExperimentService{
     public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession,
     SexType sex, String phenotypingCenter, List<String> zygosities, String strain, String metaDataGroup,
     Boolean includeResults, String alleleAccession)
-    throws SolrServerException, IOException, IOException, URISyntaxException {
+    throws SolrServerException, IOException , URISyntaxException {
 
         List<ObservationDTO> observations = os.getExperimentObservationsBy(parameterId, pipelineId, geneAccession, zygosities, phenotypingCenter, strain, sex, metaDataGroup, alleleAccession);
         Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
@@ -419,7 +419,7 @@ public class ExperimentService{
     public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession,
     SexType sex, String phenotypingCenter, List<String> zygosities, String strain, String metaDataGroup,
     Boolean includeResults, String alleleAccession)
-    throws SolrServerException, IOException, IOException, URISyntaxException {
+    throws SolrServerException, IOException , URISyntaxException {
     	
     	ParameterDTO param = is.getParameterByStableId(parameterStableId);
     	return getExperimentDTO(param.getId(), pipelineId, geneAccession, sex, phenotypingCenter, zygosities, strain, metaDataGroup, includeResults, alleleAccession);
@@ -442,7 +442,7 @@ public class ExperimentService{
      * @throws URISyntaxException
      * @throws SpecificExperimentException
      */
-    public ViabilityDTO getSpecificViabilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, IOException, URISyntaxException, SpecificExperimentException {
+    public ViabilityDTO getSpecificViabilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
         ViabilityDTO viabilityDTO=new ViabilityDTO();
         Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
             //for viability we don't need to filter on Sex or Zygosity
@@ -467,7 +467,7 @@ public class ExperimentService{
         return viabilityDTO;
     }
 
-    public FertilityDTO getSpecificFertilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, IOException, URISyntaxException, SpecificExperimentException {
+    public FertilityDTO getSpecificFertilityExperimentDTO(Integer parameterId, Integer pipelineId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
     	FertilityDTO fertilityDTO=new FertilityDTO();
         Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
             //for viability we don't need to filter on Sex or Zygosity
@@ -522,7 +522,7 @@ public class ExperimentService{
      * @throws SpecificExperimentException
      */
     public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) 
-    throws SolrServerException, IOException, IOException, URISyntaxException, SpecificExperimentException {
+    throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
 
     	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
@@ -558,7 +558,7 @@ public class ExperimentService{
 
     
     public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) 
-    throws SolrServerException, IOException, IOException {
+    throws SolrServerException, IOException  {
         return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
     }
 

@@ -122,7 +122,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     public long getNumberOfDocuments(List<String> resourceName )
-        throws SolrServerException, IOException, IOException{
+        throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery();
         query.setRows(0);
@@ -140,10 +140,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * @author ilinca
      * @param anatomyId
      * @return
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public List<GenotypePhenotypeDTO> getPhenotypesForAnatomy(String anatomyId) 
-    throws SolrServerException, IOException, IOException{
+    throws SolrServerException, IOException {
     	
     	SolrQuery query = new SolrQuery();
     	query.setRows(Integer.MAX_VALUE);
@@ -160,7 +160,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
     
     public Collection<PhenotypeTableRowAnatomyPage> getCollapsedPhenotypesForAnatomy(String anatomyId, String baseUrl) 
-    throws SolrServerException, IOException, IOException{
+    throws SolrServerException, IOException {
     	
     	Map<String, PhenotypeTableRowAnatomyPage> res = new HashMap<>();
     	List<GenotypePhenotypeDTO> phenotypes = getPhenotypesForAnatomy(anatomyId);
@@ -185,20 +185,20 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     
     
     public List<String[]> getHitsDistributionByProcedure(List<String> resourceName)
-    throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
+    throws SolrServerException, IOException , InterruptedException, ExecutionException {
 
         return getHitsDistributionBySomething(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID, resourceName);
     }
 
     public List<String[]> getHitsDistributionByParameter(List<String> resourceName)
-    throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
+    throws SolrServerException, IOException , InterruptedException, ExecutionException {
 
         return getHitsDistributionBySomething(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, resourceName);
     }
 
 
     public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, List<String> resourceName, ZygosityType zygosity, int facetMincount, Double maxPValue)
-    throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
+    throws SolrServerException, IOException , InterruptedException, ExecutionException {
 
         Map<String, Long>  res = new HashMap<>();
         Long time = System.currentTimeMillis();
@@ -240,7 +240,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
 
     public Map<String, List<String>> getMpTermByGeneMap(List<String> geneSymbols, String facetPivot, List<String> resourceName)
-        throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
+        throws SolrServerException, IOException , InterruptedException, ExecutionException {
 
         Map<String, List<String>> mpTermsByGene = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -280,7 +280,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     private List<String[]> getHitsDistributionBySomething(String field, List<String> resourceName)
-        throws SolrServerException, IOException, IOException, InterruptedException, ExecutionException {
+        throws SolrServerException, IOException , InterruptedException, ExecutionException {
 
         List<String[]>  res = new ArrayList<>();
         Long time = System.currentTimeMillis();
@@ -336,10 +336,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      *
      * @param phenotypeResourceName
      * @return
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public List<GenotypePhenotypeDTO> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName)
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         List<String> fields = Arrays.asList(GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.MP_TERM_ID,
             GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
@@ -360,7 +360,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
   
 
     public List<Group> getGenesBy(String mpId, String sex, boolean onlyB6N)
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         // males only
         SolrQuery q = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
@@ -383,7 +383,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     public List<String> getGenesAssocByParamAndMp(String parameterStableId, String phenotype_id)
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         List<String> res = new ArrayList<String>();
         SolrQuery query = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\""
@@ -407,10 +407,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      *
      * @return a set of MARKER_ACCESSION_ID strings of all genes that have
      * phenotype associations.
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public Set<String> getAllGenesWithPhenotypeAssociations()
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":*");
@@ -432,10 +432,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      *
      * @return a set of MP_TERM_ID strings of all phenotypes that have gene
      * associations.
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public Set<String> getAllPhenotypesWithGeneAssociations()
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":*");
@@ -455,10 +455,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * Returns a set of MP_TERM_ID strings of all top-level phenotypes.
      *
      * @return a set of MP_TERM_ID strings of all top-level phenotypes.
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public Set<String> getAllTopLevelPhenotypes()
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":*");
@@ -481,10 +481,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * Returns a set of MP_TERM_ID strings of all intermediate-level phenotypes.
      *
      * @return a set of MP_TERM_ID strings of all intermediate-level phenotypes.
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public Set<String> getAllIntermediateLevelPhenotypes()
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":*");
@@ -508,7 +508,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * Methods used by PhenotypeSummaryDAO
      */
     public SolrDocumentList getPhenotypesForTopLevelTerm(String gene, String mpID, ZygosityType zygosity)
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         String query;
         if (gene.equalsIgnoreCase("*")) {
@@ -536,7 +536,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     public SolrDocumentList getPhenotypes(String gene)
-    throws SolrServerException, IOException, IOException {
+    throws SolrServerException, IOException  {
 
         SolrDocumentList result = runQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
         return result;
@@ -544,7 +544,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     
     public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(List<String> resourceName) 
-    throws SolrServerException, IOException, IOException {
+    throws SolrServerException, IOException  {
 
         SolrQuery query = new SolrQuery().setRows(1000000);
        
@@ -560,7 +560,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     
     
     public Set<String> getAllGenotypePhenotypesForGene(String markerAccession) 
-    throws SolrServerException, IOException, IOException {
+    throws SolrServerException, IOException  {
 
         Set <String> alleles = new HashSet<>();
         SolrQuery query = new SolrQuery().setRows(Integer.MAX_VALUE);
@@ -577,7 +577,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     
     public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) 
-    throws SolrServerException, IOException, IOException {
+    throws SolrServerException, IOException  {
         SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
             .setRows(Integer.MAX_VALUE);
 
@@ -586,7 +586,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     private SolrDocumentList runQuery(String q)
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         SolrQuery solrQuery = new SolrQuery().setQuery(q);
         solrQuery.setRows(1000000);
@@ -601,10 +601,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * @param gene
      * @param zyg
      * @return HashMap topLevelTerms <mp_id, mp_name>
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public Map<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg)
-        throws SolrServerException, IOException, IOException {
+        throws SolrServerException, IOException  {
 
         Map<String, String> tl = new HashMap<String, String>();
 
@@ -715,7 +715,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * @return
      * @throws IOException
      * @throws URISyntaxException
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public PhenotypeFacetResult getPhenotypeFacetResultByGenomicFeatures(Set<String> genomicFeatures)
         throws IOException, URISyntaxException, SolrServerException {
@@ -744,7 +744,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * PhenotypeCallSummary objects.
      * @throws IOException
      * @throws URISyntaxException
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      */
     public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
         throws IOException, URISyntaxException, SolrServerException {
@@ -1197,7 +1197,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * @author ilinca
      * @since 2016/07/07
      * @return CSV string of facet values (mp,gene,colony,phenCenter,sex,zyg,param,pVal). At the moment of writing used to compare calls from EBI to DCC
-     * @throws SolrServerException, IOException, IOException
+     * @throws SolrServerException, IOException
      * @throws URISyntaxException 
      * @throws IOException 
      * @throws MalformedURLException 

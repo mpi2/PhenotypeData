@@ -240,7 +240,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @throws SolrServerException, IOException
 	 */
 	public ImpressBaseDTO getPipeline(String pipelineStableId)
-			throws SolrServerException, IOException, IOException {
+			throws SolrServerException, IOException  {
 
 		SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
@@ -360,7 +360,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @throws SolrServerException, IOException
 	 */
 	public List<ParameterDTO> getParametersByProcedure(List<String> procedureStableIds, String observationType)
-	throws SolrServerException, IOException, IOException{
+	throws SolrServerException, IOException {
 
 		
 		List<ParameterDTO> parameters = new ArrayList<>();
@@ -509,7 +509,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @throws SolrServerException, IOException
 	 */
 	public ParameterDTO getParameterByStableId(String stableId)
-	throws SolrServerException, IOException, IOException {
+	throws SolrServerException, IOException  {
 
 		ParameterDTO param = new ParameterDTO();
 		SolrQuery query = new SolrQuery()
@@ -532,7 +532,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
-	public Map<String, Set<String>> getMpsForProcedures() throws SolrServerException, IOException, IOException {
+	public Map<String, Set<String>> getMpsForProcedures() throws SolrServerException, IOException  {
 
 		Map<String, Set<String>> mpsByProcedure = new HashMap<>();
 
@@ -563,7 +563,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 	@Override
-	public long getWebStatus() throws SolrServerException, IOException, IOException {
+	public long getWebStatus() throws SolrServerException, IOException  {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);
