@@ -97,7 +97,7 @@ public class AnatomyController {
 	 */
 	@RequestMapping(value = "/anatomy/{anatomy}", method = RequestMethod.GET)
 	public String loadMaPage(@PathVariable String anatomy, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws SolrServerException, IOException, IOException, URISyntaxException {
+	throws SolrServerException, IOException , URISyntaxException {
 
 		AnatomyDTO anatomyTerm = anatomyService.getTerm(anatomy);
 
@@ -190,7 +190,7 @@ public class AnatomyController {
      */
     @RequestMapping(value="/anatomyTree/json/{anatomyId}", method=RequestMethod.GET)
     public @ResponseBody String getParentChildren( @PathVariable String anatomyId, @RequestParam(value = "type", required = true) String type, Model model)
-    throws SolrServerException, IOException, IOException, URISyntaxException {
+    throws SolrServerException, IOException , URISyntaxException {
 
     	if (type.equals("parents")){
 
@@ -231,7 +231,7 @@ public class AnatomyController {
 								Model model,
 								HttpServletRequest request,
 								RedirectAttributes attributes)
-	throws SolrServerException, IOException, IOException, URISyntaxException {
+	throws SolrServerException, IOException , URISyntaxException {
 //this method doesn't get used anywhere???
     	System.out.println("calling anotomy frag");
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomyId, anatomyTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());

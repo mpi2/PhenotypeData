@@ -386,7 +386,7 @@ public class PhenotypesController {
      */
     @RequestMapping(value="/mpTree/json/{mpId}", method=RequestMethod.GET)	
     public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model) 
-    throws SolrServerException, IOException, IOException, URISyntaxException {
+    throws SolrServerException, IOException , URISyntaxException {
     	
     	if (type.equals("parents")){
     	

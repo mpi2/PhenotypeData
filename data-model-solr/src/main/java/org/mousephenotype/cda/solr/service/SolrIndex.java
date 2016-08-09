@@ -744,7 +744,7 @@ public class SolrIndex {
 	}
 
 	public Map<String, JSONObject> getExampleImages(int controlImageId,
-			int expImageId) throws SolrServerException, IOException, IOException,
+			int expImageId) throws SolrServerException, IOException ,
 			URISyntaxException {
 		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
 		JSONObject controlDocument = this.getImageInfo(controlImageId);

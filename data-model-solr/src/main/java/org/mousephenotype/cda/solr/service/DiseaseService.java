@@ -60,7 +60,7 @@ public class DiseaseService implements WebStatus{
      * @return all diseases from the disease core.
      * @throws SolrServerException, IOException
      */
-    public Set<String> getAllDiseases() throws SolrServerException, IOException, IOException {
+    public Set<String> getAllDiseases() throws SolrServerException, IOException  {
         Set<String> results = new HashSet<String>();
 
         String[] diseaseSources = { DiseaseField.DISEASE_SOURCE_DECIPHER, DiseaseField.DISEASE_SOURCE_OMIM, DiseaseField.DISEASE_SOURCE_ORPHANET };
@@ -79,7 +79,7 @@ public class DiseaseService implements WebStatus{
      *
      * @throws SolrServerException, IOException
      */
-    public Set<String> getAllDiseasesInDiseaseSource(String diseaseSource) throws SolrServerException, IOException, IOException {
+    public Set<String> getAllDiseasesInDiseaseSource(String diseaseSource) throws SolrServerException, IOException  {
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("disease_source:\"" + diseaseSource + "\"");
@@ -95,7 +95,7 @@ public class DiseaseService implements WebStatus{
     }
     
     @Override
-	public long getWebStatus() throws SolrServerException, IOException, IOException {
+	public long getWebStatus() throws SolrServerException, IOException  {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);

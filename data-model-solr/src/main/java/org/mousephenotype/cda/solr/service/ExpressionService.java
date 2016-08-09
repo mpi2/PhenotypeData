@@ -92,7 +92,7 @@ public class ExpressionService extends BasicService {
 
 	public QueryResponse getExpressionImagesForGeneByAnatomy(String mgiAccession, String anatomy,
 			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex, String metadataGroup, String strain)
-					throws SolrServerException, IOException, IOException {
+					throws SolrServerException, IOException  {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
@@ -122,10 +122,10 @@ public class ExpressionService extends BasicService {
 	 *            if mgi accesion null assume a request for control data
 	 * @param fields
 	 * @return
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 */
 	public QueryResponse getExpressionTableDataImages(String mgiAccession, boolean embryo, String... fields)
-			throws SolrServerException, IOException, IOException {
+			throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:106209%22&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		SolrQuery solrQuery = new SolrQuery();
@@ -155,10 +155,10 @@ public class ExpressionService extends BasicService {
 	 *            if mgi accesion null assume a request for control data
 	 * @param fields
 	 * @return
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 */
 	private QueryResponse getCategoricalAdultLacZData(String mgiAccession, boolean embryo, String... fields)
-			throws SolrServerException, IOException, IOException {
+			throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id:%22MGI:1351668%22&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(procedure_name:%22Adult%20LacZ%22)&rows=10000
 		SolrQuery solrQuery = new SolrQuery();
@@ -189,7 +189,7 @@ public class ExpressionService extends BasicService {
 		return response;
 	}
 
-	private QueryResponse getAdultLaczImageFacetsForGene(String mgiAccession, String... fields) throws SolrServerException, IOException, IOException {
+	private QueryResponse getAdultLaczImageFacetsForGene(String mgiAccession, String... fields) throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -213,7 +213,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	public List<Count> getLaczCategoricalParametersForGene(String mgiAccession, String... fields)
-			throws SolrServerException, IOException, IOException {
+			throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -253,7 +253,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	private QueryResponse getEmbryoLaczImageFacetsForGene(String mgiAccession, String... fields)
-			throws SolrServerException, IOException, IOException {
+			throws SolrServerException, IOException  {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -303,11 +303,11 @@ public class ExpressionService extends BasicService {
 	 *            display in the tabbed pane on the gene page.
 	 * @param model
 	 *            Spring MVC model
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 * @throws SQLException
 	 */
 	public void getLacImageDataForGene(String acc, String topMaNameFilter, boolean imagesOverview, boolean embryoOnly,
-			Model model) throws SolrServerException, IOException, IOException {
+			Model model) throws SolrServerException, IOException  {
 		QueryResponse laczResponse = null;
 		String noTopTermId = "";
 		String topLevelField = "";// type ma or emap imageDTO field for top
@@ -433,10 +433,10 @@ public class ExpressionService extends BasicService {
 	 * 
 	 * @param anatomogramDataBeans
 	 * @return
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 */
 	public Map<String, Long> getLacSelectedTopLevelMaCountsForAnatomogram(
-			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException, IOException, IOException {
+			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException, IOException  {
 		Map<String, Long> topLevelMaToCountMap = new HashMap<>();
 		for (AnatomogramDataBean bean : anatomogramDataBeans) {
 			for (String topMaId : bean.getTopLevelMaNames()) {
@@ -457,10 +457,10 @@ public class ExpressionService extends BasicService {
 	 * 
 	 * @param anatomogramDataBeans
 	 * @return
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 */
 	public Set<String> getLacSelectedTopLevelMaIdsForAnatomogram(
-			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException, IOException, IOException {
+			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException, IOException  {
 		Set<String> topLevelMaToCountMap = new HashSet<>();
 		for (AnatomogramDataBean bean : anatomogramDataBeans) {
 			for (String topMaId : bean.getTopLevelMaIds()) {
@@ -471,7 +471,7 @@ public class ExpressionService extends BasicService {
 		return topLevelMaToCountMap;
 	}
 
-	public List<AnatomogramDataBean> getAnatomogramDataBeans(List<Count> parameterCounts) throws SolrServerException, IOException, IOException {
+	public List<AnatomogramDataBean> getAnatomogramDataBeans(List<Count> parameterCounts) throws SolrServerException, IOException  {
 		List<AnatomogramDataBean> anatomogramDataBeans = new ArrayList<>();
 
 		//if the solr core wasn't up before the webapp starts then these maps maybe empty - of so we need to populate them before continuing
@@ -617,9 +617,9 @@ public class ExpressionService extends BasicService {
 	 *            mgi_accession for gene
 	 * @param model
 	 *            Spring MVC model
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 */
-	public Model getExpressionDataForGene(String acc, Model model, boolean embryo) throws SolrServerException, IOException, IOException {
+	public Model getExpressionDataForGene(String acc, Model model, boolean embryo) throws SolrServerException, IOException  {
 
 		QueryResponse laczDataResponse = getCategoricalAdultLacZData(acc, embryo, ImageDTO.ZYGOSITY,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_STABLE_ID,
@@ -687,7 +687,7 @@ public class ExpressionService extends BasicService {
 	
 	public List<AnatomyPageTableRow> getLacZDataForAnatomy(String anatomyId,List<String> anatomyTerms, List<String> phenotypingCenter,
 		List<String> procedure, List<String> paramAssoc, String baseUrl)
-					throws SolrServerException, IOException, IOException {
+					throws SolrServerException, IOException  {
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&fq=(anatomy_id:%22MA:0000031%22%20OR%20intermediate_anatomy_id:%22MA:0000031%22%20OR%20selected_top_level_anatomy_id:%22MA0000031%22)
 		SolrQuery query = new SolrQuery();
@@ -763,9 +763,9 @@ public class ExpressionService extends BasicService {
 	 * @since 2016/07/08
 	 * @param anatomyId
 	 * @return List of gene ids with positive expression in given anatomy term. 
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 */
-	public List<String> getGenesWithExpression(String anatomyId) throws SolrServerException, IOException, IOException{
+	public List<String> getGenesWithExpression(String anatomyId) throws SolrServerException, IOException {
 		
 		List<String> geneIds = new ArrayList<>();
 		SolrQuery q = new SolrQuery();
@@ -1142,7 +1142,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	public Map<String, Set<String>> getFacets(String anatomyId)
-			throws SolrServerException, IOException, IOException {
+			throws SolrServerException, IOException  {
 				Map<String, Set<String>> res = new HashMap<>();
 				SolrQuery query = getBasicExpressionQuery(anatomyId); // only have expressed and
 													// not expressed ingnore
@@ -1189,9 +1189,9 @@ public class ExpressionService extends BasicService {
 	 * Method that checks the impc images and categorical obeservations for expression data which is either expressed or not expressed.
 	 * @param anatomyId
 	 * @return
-	 * @throws SolrServerException, IOException, IOException
+	 * @throws SolrServerException, IOException
 	 */
-	public boolean expressionDataAvailable(String anatomyId) throws SolrServerException, IOException, IOException{
+	public boolean expressionDataAvailable(String anatomyId) throws SolrServerException, IOException {
 		boolean expressionData=false;
 		SolrQuery query = getBasicExpressionQuery(anatomyId);
 		query.setRows(0);
@@ -1207,7 +1207,7 @@ public class ExpressionService extends BasicService {
 		return expressionData;
 	}
 
-	private boolean impcImagesHasExpression(String anatomyId) throws SolrServerException, IOException, IOException {
+	private boolean impcImagesHasExpression(String anatomyId) throws SolrServerException, IOException  {
 		SolrQuery solrQuery=new SolrQuery();
 		solrQuery.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
 		solrQuery.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
