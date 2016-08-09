@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.dataimport.dcc;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.mousephenotype.cda.loads.dataimport.dcc.configs.DccConfigApp;
 import org.mousephenotype.cda.loads.dataimport.dcc.support.DccSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +46,7 @@ import java.util.List;
  * experiment files currently found at /usr/local/komp2/phenotype_data/impc. This class is meant to be an executable jar
  * whose arguments describe the profile containing the application.properties, the source file, and the database name.
  */
+@Import(DccConfigApp.class)
 public class ImportExperiments implements CommandLineRunner {
 
     private String filename;

@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.dataimport.dcc.support;
 
-import com.sun.xml.internal.fastinfoset.tools.FI_SAX_Or_XML_SAX_SAXEvent;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
@@ -700,7 +699,7 @@ public class DccSqlUtils {
             Map<String, Object> parameterMap = new HashMap<>();
 
             parameterMap.put("DOB", new java.sql.Date(mouse.getDOB().getTime().getTime()));
-            parameterMap.put("specimen_pk", specimenPk);
+            parameterMap.put("specimenPk", specimenPk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
@@ -1156,25 +1155,20 @@ public class DccSqlUtils {
      * Inserts the given {@link RelatedSpecimen} into the relatedSpecimen table. Duplicates are ignored.
      *
      * @param relatedSpecimen the relatedSpecimen to be inserted
+     * @param specimen_theirs_pk the primary key of the related specimen to be inserted
      *
      * @return the relatedSpecimen, with primary key loaded
      */
-
-
-
-    FIXME FIXME FIXME FIXME
-
-
-    public RelatedSpecimen insertRelatedSpecimen(RelatedSpecimen relatedSpecimen, long specimen_pk) {
+    public RelatedSpecimen insertRelatedSpecimen(RelatedSpecimen relatedSpecimen, long specimen_theirs_pk) {
         String insert = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_pk) "
-                      + "VALUES (:relationship, :specimenIdMine, :specimen_theirs_pk)";
+                      + "VALUES (:relationship, :specimenIdMine, :specimen_theirsPk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
 
             parameterMap.put("relationship", relatedSpecimen.getRelationship().value());
             parameterMap.put("specimenIdMine", relatedSpecimen.getSpecimenID());
-            parameterMap.put("specimen_pk", specimen_pk);
+            parameterMap.put("specimen_theirsPk", specimen_theirs_pk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
