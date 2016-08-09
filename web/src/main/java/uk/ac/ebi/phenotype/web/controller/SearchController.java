@@ -219,9 +219,11 @@ public class SearchController {
 			String thisFqStr = null;
 
 			if (thisCore.equals("gene")) {
-				String geneQf = "geneQf";
-				qfDefTypeWt = "&qf=" + geneQf + "&defType=edismax&wt=json";
+				qfDefTypeWt = "&qf=geneQf&defType=edismax&wt=json";
 			}
+			else if ( thisCore.equals("disease")) {
+                qfDefTypeWt = "&qf=diseaseQf&defType=edismax&wt=json";
+            }
 			else {
 				qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
 			}
