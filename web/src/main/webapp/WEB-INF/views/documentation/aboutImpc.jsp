@@ -141,7 +141,7 @@
       <div class="hideme"> <img src="${baseUrl}/img/alleleDesign.png" />
         <p></p>
         <span id="es"></span>
-        <span id="crispr">X number of KO CRISPR cell lines</span>
+        <span id="crispr">X number of KO CRISPR lines</span>
       </div>
     </div>
     <div ><span class="work">Coordinated production</span>
@@ -263,16 +263,21 @@
           else {
             sib.addClass('showme');
             if ( $(this).hasClass('alleleDesign') ){
-
+              console.log('allele design');
               $.ajax({
-                url : baseUrl + "/release.json",
-                //url : "http://dev.mousephenotype.org/data/release.json",
+                'url' : 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+                'data' : 'q=type:Allele AND es_cell_available:true&rows=0&wt=json',
+                'dataType' : 'jsonp',
+                'jsonp' : 'json.wrf',
                 timeout : 5000,
-                success: function(response) {
+                success: function(json) {
+                  console.log(json)
+                  //console.log(response.alleles_NCOM + " number KO ES cell lines");
 
-                 // console.log(response.alleles_NCOM + " number KO ES cell lines");
+                  $('span#es').text("ES cell available: " + json.response.numFound);
 
-                  $('span#es').text("test");
+
+
 
                 },
                 error: function(){
