@@ -177,9 +177,10 @@
 	
 	<!-- mp to hp mapping -->
 	<field name="hp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-	
-	<field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />  
+	<field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="hp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
