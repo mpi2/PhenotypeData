@@ -48,13 +48,14 @@ public class DccSqlUtils {
     private       CommonUtils          commonUtils = new CommonUtils();
     private final Logger               logger      = LoggerFactory.getLogger(this.getClass());
     private NamedParameterJdbcTemplate npJdbcTemplate;
-    private       LoadUtils            loadUtils = new LoadUtils(npJdbcTemplate);
+    private       LoadUtils            loadUtils;
 
 
     @Inject
     public DccSqlUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
         Assert.notNull(npJdbcTemplate, "Named parameter npJdbcTemplate cannot be null");
         this.npJdbcTemplate = npJdbcTemplate;
+        loadUtils = new LoadUtils(npJdbcTemplate);
     }
 
 
