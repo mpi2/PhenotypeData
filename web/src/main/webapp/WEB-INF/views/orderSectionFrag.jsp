@@ -143,7 +143,6 @@ $(document).ready(function () {
 	var base_url="${baseUrl}";
 	$('.iFrameFancy').click(function()
 		{
-		console.log('calling iframe fancy');
  			$.fancybox.open([ 
                   {
                      href : $(this).attr('data-url'), 
