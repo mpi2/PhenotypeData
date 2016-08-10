@@ -35,7 +35,18 @@
                  scope="page"
                  value="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">
           </c:set> 
-          <li class="showAdultImage"><a href="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">${entry.key}</a></li>
+          <c:choose>
+          <c:when test="${haveImpcAdultImages[entry.key]}">
+          <li class="showAdultImage" title="images available">
+          		<a href="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">${entry.key} </a>
+          </li>
+          </c:when>
+          <c:otherwise>
+          	<li class="showAdultImage" title="no images available, only categorical data">
+          		${entry.key}
+          	</li>
+          </c:otherwise>
+          </c:choose>
         </c:forEach>
       </ul>
     </div>

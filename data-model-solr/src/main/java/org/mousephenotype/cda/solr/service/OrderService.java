@@ -39,7 +39,7 @@ public class OrderService {
 	private HttpSolrClient eucommProduct;
 
 	@Autowired
-	@Qualifier("eucommToolsProductCore")
+	@Qualifier("productCore")
 	private HttpSolrClient productCore;
 	
 	 @Value("${imits.solr.host}")
@@ -80,7 +80,7 @@ public class OrderService {
 		query.addFilterQuery("type:Allele");
 		query.addFilterQuery("("+Allele2DTO.ES_CELL_AVAILABLE+":true OR "+Allele2DTO.TARGETING_VECTOR_AVAILABLE+":true OR "+Allele2DTO.MOUSE_AVAILABLE+":true)" );
 		query.setRows(rows);
-		System.out.println("query for alleles=" + query);
+		//System.out.println("query for alleles=" + query);
 		QueryResponse response = allele2Core.query(query);
 		System.out.println("number found of allele2 docs=" + response.getResults().getNumFound());
 		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
@@ -99,7 +99,7 @@ public class OrderService {
 		query.addFilterQuery("type:Allele");
 		query.addFilterQuery("allele_name:\"" + allele + "\"");
 		query.setRows(1);
-		System.out.println("query for alleles=" + query);
+		//System.out.println("query for alleles=" + query);
 		QueryResponse response = allele2Core.query(query);
 		System.out.println("number found of allele2 docs=" + response.getResults().getNumFound());
 		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
@@ -157,11 +157,10 @@ public class OrderService {
 			query.addFilterQuery("type:" + productType);
 		}
 		query.addFilterQuery("production_completed:true");
-		System.out.println("query for products=" + query);
+
 		QueryResponse response = productCore.query(query);
-		System.out.println("number found of products docs=" + response.getResults().getNumFound());
 		List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
-		System.out.println("number of productDTOs is " + productDTOs.size());
+
 		for (ProductDTO prod : productDTOs) {
 			if (!alleleNameToProductsMap.containsKey(prod.getAlleleName())) {
 				alleleNameToProductsMap.put(prod.getAlleleName(), new ArrayList<>());

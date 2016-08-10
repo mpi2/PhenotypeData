@@ -29,39 +29,40 @@ public class OrderServiceTest {
 
 	@Autowired
 	private OrderService orderService;
-	
+
 	@Configuration
 	@ComponentScan(
-		basePackages = {"org.mousephenotype.cda"},
-		useDefaultFilters = false,
-		includeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {OrderService.class})
-		})
+			basePackages = {"org.mousephenotype.cda"},
+			useDefaultFilters = false,
+			includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {OrderService.class})
+			})
 	static class ContextConfiguration {
 
 		@NotNull
-		@Value("${imits.solr.host}")
-		private String imitsSolrBaseUrl;
+		@Value("${solr.host}")
+		private String solrBaseUrl;
 
 		@Bean(name = "allele2Core")
 		HttpSolrClient getAllele2Core() {
-			return new HttpSolrClient(imitsSolrBaseUrl + "/allele2");
-		}
-		
-		@Bean(name = "eucommCreProductsCore")
-		HttpSolrClient getEucomCreToolsProduct() {
-			return new HttpSolrClient(imitsSolrBaseUrl + "/eucommtoolscre_product");
+			return new HttpSolrClient(solrBaseUrl + "/allele2");
 		}
 
-		@Bean(name = "eucommToolsProductCore")
-		HttpSolrClient getEucommToolsProductCore() {
-			return new HttpSolrClient(imitsSolrBaseUrl + "/product");
+		@Bean(name = "eucommCreProductsCore")
+		HttpSolrClient getEucomCreToolsProduct() {
+			return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_product");
+		}
+
+		@Bean(name = "productCore")
+		HttpSolrClient getProductCore() {
+			return new HttpSolrClient(solrBaseUrl + "/product");
 		}
 
 		@Bean(name = "eucommToolsCreAllele2Core")
 		HttpSolrClient getEucommToolsCreAllele2() {
-			return new HttpSolrClient(imitsSolrBaseUrl + "/eucommtoolscre_allele2");
+			return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_allele2");
 		}
-		
+
+
 		@Bean
 		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
 			return new PropertySourcesPlaceholderConfigurer();

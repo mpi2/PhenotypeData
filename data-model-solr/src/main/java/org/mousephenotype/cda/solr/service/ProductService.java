@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @Service
-public class EucommToolsProductService implements WebStatus{
+public class ProductService implements WebStatus{
 	
-	@Autowired @Qualifier("eucommToolsProductCore")
+	@Autowired @Qualifier("productCore")
 	private HttpSolrClient solr;
 
 	@Override
@@ -32,7 +32,7 @@ public class EucommToolsProductService implements WebStatus{
 	
 	@Override
 	public String getServiceName(){
-		return "Imits Eucomm Product Service";
+		return "Product Service";
 	}
 
 }

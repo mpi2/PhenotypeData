@@ -67,8 +67,8 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_product");
 	}
 
-	@Bean(name = "eucommToolsProductCore")
-	HttpSolrClient getEucommToolsProductCore() {
+	@Bean(name = "productCore")
+	HttpSolrClient getProductCore() {
 		return new HttpSolrClient(solrBaseUrl + "/product");
 	}
 
