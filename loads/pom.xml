@@ -87,25 +87,6 @@
             <version>1.4.1</version>
         </dependency>
 
-		<!--  OWL Depenencies -->
-		<dependency>
-		    <groupId>net.sourceforge.owlapi</groupId>
-		    <artifactId>owlapi-api</artifactId>
-		    <version>4.1.4</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>net.sourceforge.owlapi</groupId>
-			<artifactId>owlapi-apibinding</artifactId>
-			<version>4.1.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sourceforge.owlapi</groupId>
-			<artifactId>owlapi-distribution</artifactId>
-			<version>4.1.4</version>
-		</dependency>
-
         <!-- For command line option parsing -->
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
