@@ -42,7 +42,7 @@
           </li>
           </c:when>
           <c:otherwise>
-          	<li class="showAdultImage" title="no images available, only categorical data">
+          	<li class="showAdultImage" title="no images available, only categorical data - click the expression table link to the right to see data">
           		${entry.key}
           	</li>
           </c:otherwise>
