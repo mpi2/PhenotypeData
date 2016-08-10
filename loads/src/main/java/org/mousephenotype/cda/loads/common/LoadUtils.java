@@ -18,7 +18,9 @@ package org.mousephenotype.cda.loads.common;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.util.Assert;
 
+import javax.inject.Inject;
 import java.util.Map;
 
 /**
@@ -28,7 +30,10 @@ public class LoadUtils {
 
     private NamedParameterJdbcTemplate npJdbcTemplate;
 
+
+    @Inject
     public LoadUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
+        Assert.notNull(npJdbcTemplate, "Named parameter npJdbcTemplate cannot be null");
         this.npJdbcTemplate = npJdbcTemplate;
     }
 
