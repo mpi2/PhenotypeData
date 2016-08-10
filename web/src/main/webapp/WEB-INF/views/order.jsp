@@ -52,11 +52,12 @@
  								<br/>	
  								<br/>
  									<h4>This product is available from the following repositories:</h4> 
- 									<table class="reduce nonwrap">        
+ 									<table class="nonwrap">        
         							<thead>
         		 					</thead>
         		 					<tbody>
  										<c:forEach var="entry" items="${productsByName}">
+ 										
  											<tr><td>${entry.key}</td><td>
  											<!-- just to print out the order link in case there are multiple order names and links that aren't this one -->
 		 											<c:forEach var="orderName" items="${ entry.value[0].orderNames}" varStatus="repoIndex">
