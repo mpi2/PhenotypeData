@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.owl;
 
+import org.semanticweb.owlapi.model.OWLClass;
+
 import java.util.Set;
 
 /**
@@ -17,6 +19,7 @@ public class OntologyTermDTO {
     String replacementAccessionIds;
     String definition;
     boolean isObsolete;
+    OWLClass cls;
 
     public Set<OntologyTermDTO> getEquivalentClasses() {
         return equivalentClasses;
@@ -26,12 +29,12 @@ public class OntologyTermDTO {
         this.equivalentClasses = equivalentClasses;
     }
 
-    public Set<String> getNarrowSynonyms() {
-        return narrowSynonyms;
+    public OWLClass getCls() {
+        return cls;
     }
 
-    public void setNarrowSynonyms(Set<String> narrowSynonyms) {
-        this.narrowSynonyms = narrowSynonyms;
+    public void setCls(OWLClass cls) {
+        this.cls = cls;
     }
 
     public String getReplacementAccessionIds() {
