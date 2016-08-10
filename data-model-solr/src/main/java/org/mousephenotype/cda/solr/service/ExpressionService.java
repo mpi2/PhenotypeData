@@ -421,13 +421,13 @@ public class ExpressionService extends BasicService {
 				hasImages=true;
 			}
 			haveImpcImages.put(count.getName(),hasImages );
-			System.out.println("haveimages="+haveImpcImages);
+			
 		}
-System.out.println("haveimages after loop="+haveImpcImages);
+
 		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelAnatomyTerms);
 		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 
-		System.out.println("Check Top level anatomy terms: " + filteredTopLevelAnatomyTerms);
+		
 		if (embryoOnly) {
 			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelAnatomyTerms);
 			model.addAttribute("haveImpcEmbryoImages", haveImpcImages);
