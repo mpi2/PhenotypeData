@@ -104,7 +104,7 @@ public class OntologyParser {
     }
 
     /**
-     * @param maxLevels how many levels to go down for subclasses
+     * @param maxLevels how many levels to go down for subclasses; -1 for all.
      * @param cls
      * @return Set of labels + synonyms of all subclasses {maxLevels} away from cls. !! This method can be expensive so  values are not pe-loaded. Should only be used on leaf nodes !!
      */
@@ -128,7 +128,7 @@ public class OntologyParser {
         currentLevel ++;
         if (!subclasses.isEmpty()){
             children.addAll(subclasses);
-            if (currentLevel < maxLevels){
+            if (currentLevel < maxLevels || maxLevels < 0){
                 for (OWLClass subClass: subclasses ){
                     getDescendentsPartOf(subClass, maxLevels, currentLevel, children);
                 }
