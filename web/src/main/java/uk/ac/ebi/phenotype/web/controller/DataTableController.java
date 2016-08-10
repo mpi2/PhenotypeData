@@ -646,18 +646,16 @@ public class DataTableController {
           //  <a class="iFrameFancy btn" data-url="/phenotype-archive/order?acc=MGI:2443967&amp;allele=tm1a(EUCOMM)Hmgu&amp;type=targeting_vector&amp;bare=true"><i class="fa fa-shopping-cart"></i></a>
 			List<String> orders = new ArrayList<>();
             String dataUrl = "/data/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
+            String thisDataUrl = null;
 
 			if ( doc.containsKey("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
-			    dataUrl += "&type=targeting_vector";
-				orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "'><i class='fa fa-shopping-cart'>Targeting vector</i></a>");
+				orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'> Targeting vector</i></a>");
 			}
 			if ( doc.containsKey("es_cell_available") && doc.getBoolean("es_cell_available")){
-                dataUrl += "&type=es_cell";
-                orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "'><i class='fa fa-shopping-cart'>ES cell</i></a>");
+                orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'> ES cell</i></a>");
 			}
 			if ( doc.containsKey("mouse_available") && doc.getBoolean("mouse_available")){
-                dataUrl += "&type=mouse";
-                orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "'><i class='fa fa-shopping-cart'>Mouse</i></a>");
+                orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "&type=mouse'><i class='fa fa-shopping-cart'> Mouse</i></a>");
 			}
 			String order = StringUtils.join(orders, "<br>");
 
