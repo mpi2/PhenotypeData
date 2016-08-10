@@ -87,6 +87,26 @@ public class OntologyParserTest {
     }
 
     @Test
+    public void testNarrowSynonyms()
+    throws Exception {
+
+        ontologyParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP");
+        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
+        Set<String> narrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
+        if (narrowSynonyms.isEmpty()){
+            throw new Exception("Narrow synonyms list is empty!");
+        }
+        if (!narrowSynonyms.contains("conductive hearing impairment")){
+            throw new Exception("Narrow synonyms list does not contain a label!");
+        }
+        if (!narrowSynonyms.contains("complete hearing loss")){
+            throw new Exception("Narrow synonyms list does not contain an exact synonym!");
+        }
+
+
+    }
+
+    @Test
     public void testEquivalent()
     throws Exception {
 

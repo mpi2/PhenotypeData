@@ -23,12 +23,14 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.indexers.beans.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -139,8 +141,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private OntologyParser mpHpParser;
 
-    public MPIndexer() throws OWLOntologyCreationException{
-        mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP");
+    public MPIndexer() {
+
     }
 
 
@@ -152,18 +154,18 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
     @Override
-    public RunStatus run()
+    public RunStatus run ()
     throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
-
         initializeDatabaseConnections();
         initialiseSupportingBeans();
 
         try {
 
+            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP");
         	// maps MP to number of phenotyping calls
         	//populateGene2MpCalls();
 
@@ -191,7 +193,27 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
                 }
 
-                addMpHpTerms(mp, mphpBeans.get(termId));
+                //addMpHpTerms(mp, mphpBeans.get(termId)); // old way of adding mp-hp mapping using phenodigm data
+
+                // add mp-hp mapping using Monarch's mp-hp hybrid ontology
+                Set <OntologyTermDTO> hpTerms = mpHpParser.getOntologyTerm(termId).getEquivalentClasses();
+                for ( OntologyTermDTO hpTerm : hpTerms ){
+
+                    List<String> hpIds = new ArrayList<>();
+                    hpIds.add(hpTerm.getAccessonId());
+                    mp.setHpId(new HashSet(hpIds));
+
+                    if ( hpTerm.getName() != null ){
+                        List<String> hpNames = new ArrayList<>();
+                        hpNames.add(hpTerm.getName());
+                        mp.setHpTerm(new HashSet(hpNames));
+                    }
+
+                    if ( hpTerm.getSynonyms() != null ){
+                        mp.setHpTermSynonym(hpTerm.getSynonyms());
+                    }
+                }
+
                 mp.setMpNodeId(termNodeIds.get(termId));
 
                 addTopLevelNodes(mp);
@@ -221,6 +243,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
 
+
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
 
@@ -235,7 +258,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Send a final commit
             mpIndexing.commit();
 
-        } catch (SQLException | SolrServerException | IOException e) {
+        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException e) {
             throw new IndexerException(e);
         }
 
@@ -891,8 +914,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
 
             if (mp.getHpId() == null) {
-                mp.setHpId(new ArrayList<String>());
-                mp.setHpTerm(new ArrayList<String>());
+                mp.setHpId(new HashSet<String>());
+                mp.setHpTerm(new HashSet<String>());
             }
             mp.getHpId().addAll(hpIds);
             mp.getHpTerm().addAll(hpTerms);
