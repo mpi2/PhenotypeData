@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.dataimport.dcc.support;
 
+import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
@@ -44,9 +45,10 @@ import java.util.*;
  */
 public class DccSqlUtils {
 
-    private       CommonUtils commonUtils = new CommonUtils();
-    private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
+    private       CommonUtils          commonUtils = new CommonUtils();
+    private final Logger               logger      = LoggerFactory.getLogger(this.getClass());
     private NamedParameterJdbcTemplate npJdbcTemplate;
+    private       LoadUtils            loadUtils = new LoadUtils(npJdbcTemplate);
 
 
     @Inject
@@ -237,7 +239,7 @@ public class DccSqlUtils {
         parameterMap.put("project", project);
 
         try {
-            centerPk = npJdbcTemplate.queryForObject(query, new HashMap<>(), Long.class);
+            centerPk = loadUtils.queryForPk(query, parameterMap);
         } catch (Exception e) {
 
         }
@@ -254,7 +256,7 @@ public class DccSqlUtils {
         parameterMap.put("specimenPk", specimenPk);
 
         try {
-            center_specimenPk = npJdbcTemplate.queryForObject(query, new HashMap<>(), Long.class);
+            center_specimenPk = loadUtils.queryForPk(query, parameterMap);
         } catch (Exception e) {
 
         }
@@ -298,12 +300,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("colonyId", colonyId);
         parameterMap.put("center_procedurePk", center_procedurePk);
-
-        try {
-            pk = npJdbcTemplate.queryForObject(query, new HashMap<>(), Long.class);
-        } catch (Exception e) {
-
-        }
+        pk = loadUtils.queryForPk(query, parameterMap);
 
         return pk;
     }
@@ -1471,13 +1468,13 @@ public class DccSqlUtils {
 
         parameterMap.put("centerPk", centerPk);
         parameterMap.put("procedurePk", procedurePk);
-        pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+        pk = loadUtils.queryForPk(query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO center_procedure (center_pk, procedure_pk) VALUES (:centerPk, :procedurePk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+                    pk = loadUtils.queryForPk(query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {
@@ -1537,13 +1534,13 @@ public class DccSqlUtils {
 
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("specimenPk", specimenPk);
-        pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+        pk = loadUtils.queryForPk(query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO experiment_specimen (experiment_pk, specimen_pk) VALUES (:experimentPk, :specimenPk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+                    pk = loadUtils.queryForPk(query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {
@@ -1571,13 +1568,13 @@ public class DccSqlUtils {
 
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("statuscodePk", statuscodePk);
-        pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+        pk = loadUtils.queryForPk(query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO experiment_statuscode (experiment_pk, statuscode_pk) VALUES (:experimentPk, :statuscodePk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+                    pk = loadUtils.queryForPk(query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {

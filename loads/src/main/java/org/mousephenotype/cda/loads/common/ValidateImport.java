@@ -43,12 +43,14 @@ import java.util.*;
 @Import(CommonConfigApp.class)
 public class ValidateImport implements CommandLineRunner {
 
+    private final Logger               logger     = LoggerFactory.getLogger(this.getClass());
+    private       String[]             queries    = null;
+    private       List<List<String[]>> results    = new ArrayList<>();
+    private       boolean              logDropped = false;
+
     public static void main(String[] args) throws Exception {
         SpringApplication.run(ValidateImport.class, args);
     }
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private String[] queries = null;
 
     /**********************
      * DATABASE: CDA_BASE
@@ -72,9 +74,9 @@ public class ValidateImport implements CommandLineRunner {
             ", p.procedureId\n" +
             "FROM center_procedure cp\n" +
             "JOIN center c ON c.pk = cp.center_pk\n" +
-            "JOIN procedure_ p ON p.pk = cp.procedure_pk",
+            "JOIN procedure_ p ON p.pk = cp.procedure_pk"
 
-            "SELECT\n" +
+          , "SELECT\n" +
             "  c.centerId\n" +
             ", c.pipeline\n" +
             ", c.project\n" +
@@ -83,7 +85,7 @@ public class ValidateImport implements CommandLineRunner {
             "JOIN center c ON c.pk = cs.center_pk\n" +
             "JOIN specimen s ON s.pk = cs.specimen_pk"
 
-//            "SELECT\n" +
+//          , "SELECT\n" +
 //            "  e.experimentId\n" +
 //            ", c.centerId\n" +
 //            ", c.pipeline\n" +
@@ -109,13 +111,26 @@ public class ValidateImport implements CommandLineRunner {
 
         OptionParser parser = new OptionParser();
 
-        // parameter to indicate the database name
+        // parameter to indicate that the missing data should be written to the logger. By default it is not.
+        parser.accepts("logDropped");
+
+        // parameter to indicate the type of query to run (dcc or cdabase)
         parser.accepts("query").withRequiredArg().ofType(String.class);
+
+        // parameter to indicate profile (subdirectory of configfiles containing application.properties)
         parser.accepts("profile").withRequiredArg().ofType(String.class);
+
+        // parameter to indicate the older database name to compare against
         parser.accepts("dbname1").withRequiredArg().ofType(String.class);
+
+        // parameter to indicate the newer database name to compare against
         parser.accepts("dbname2").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);
+
+        if (options.has("logDropped")) {
+            logDropped = true;
+        }
 
         if (options.valuesOf("query").isEmpty()) {
             throw new DataImportException("Expected query={dcc | cdaBase}");
@@ -159,11 +174,13 @@ public class ValidateImport implements CommandLineRunner {
 
         logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
 
+        int queryIndex = 0;
         for (String query : queries) {
-
+            List<String[]> queryResult = new ArrayList<>();
+            results.add(queryResult);
             Set<List<String>> missing = new HashSet<>();
 
-            logger.info("Query: \n{}\n", query);
+            logger.info("Query: {}\n", query);
 
             Set<List<String>> results1 = new HashSet<>();
             SqlRowSet rs1 = jdbctemplate1.queryForRowSet(query);
@@ -177,25 +194,41 @@ public class ValidateImport implements CommandLineRunner {
                 results2.add(getData(rs2));
             }
 
-            // Log the rows found in results1 but not found in results2.
+            // Fill the results list with the rows found in results1 but not found in results2.
             results1.removeAll(results2);
 
             if ( ! results1.isEmpty()) {
-                final int DISPLAY_WIDTH = 15;
-                logger.warn("WARNING: DROPPED {} ROWS:", results1.size());
+                logger.warn("{} ROWS DROPPED{}", results1.size(), (logDropped ? ":" : "."));
                 String[] columnNames = rs1.getMetaData().getColumnNames();
-                logger.warn("\t" + formatString(columnNames, DISPLAY_WIDTH));
+               queryResult.add(columnNames);
+
                 Iterator<List<String>> it = results1.iterator();
                 while (it.hasNext()) {
-                    logger.warn("\t" + formatString(it.next().toArray(new String[0]), DISPLAY_WIDTH));
+                    queryResult.add(it.next().toArray(new String[0]));
+                }
+
+                if (logDropped) {
+                    logDropped(queryIndex);
                 }
             } else {
                 logger.info("PASSED");
             }
+
             logger.info(" ");
+
+            queryIndex++;
         }
 
         logger.info("VALIDATION COMPLETE.");
+    }
+
+    private void logDropped(int index) {
+        final int DISPLAY_WIDTH = 20;
+
+        List<String[]> queryResult = results.get(index);
+        for (String[] row : queryResult) {
+            logger.warn(formatString(row, DISPLAY_WIDTH));
+        }
     }
 
     private String formatString(String[] row, int cellWidth) {
@@ -252,5 +285,9 @@ public class ValidateImport implements CommandLineRunner {
         }
 
         return newRow;
+    }
+
+    public List<List<String[]>> getResults() {
+        return results;
     }
 }
