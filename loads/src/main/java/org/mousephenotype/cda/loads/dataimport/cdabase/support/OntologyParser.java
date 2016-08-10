@@ -229,6 +229,7 @@ public class OntologyParser {
 		return ids;
 
 	}
+
 	
 	private ConsiderId getConsiderObj(OWLAnnotation ann, OWLClass cls){
 		
@@ -239,4 +240,5 @@ public class OntologyParser {
 		}
 		return consider;
 	}
+
 }

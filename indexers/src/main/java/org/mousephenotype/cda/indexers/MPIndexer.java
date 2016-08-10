@@ -16,14 +16,9 @@
 package org.mousephenotype.cda.indexers;
 
 import net.sf.json.JSONObject;
-import org.apache.http.HttpHost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
@@ -33,9 +28,11 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
+import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +86,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
 
+    @NotNull
+    @Value("${owlpath}")
+    protected String owlpath;
+
     /**
      * Destination Solr core
      */
@@ -136,8 +137,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     // number of postqc calls of an MP
     Map<String, Integer> mpCalls = new HashMap<>();
 
-    public MPIndexer() {
+    private OntologyParser mpHpParser;
 
+    public MPIndexer() throws OWLOntologyCreationException{
+        mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP");
     }
 
 
