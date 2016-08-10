@@ -361,6 +361,7 @@ public class ExpressionService extends BasicService {
 		// now we need lists of images with these top level ma terms in their
 		// annotation
 		Map<String, SolrDocumentList> expFacetToDocs = new HashMap<>();
+		Map<String, Boolean> haveImpcImages = new HashMap<>();
 		expFacetToDocs.put(noTopTermId, new SolrDocumentList());
 
 
@@ -413,17 +414,28 @@ public class ExpressionService extends BasicService {
 		} else {
 			filteredTopLevelAnatomyTerms = topLevelAnatomyTerms;
 		}
-
+		
+		for(Count count: filteredTopLevelAnatomyTerms){
+			Boolean hasImages=false;
+			if(count.getCount()>0){
+				hasImages=true;
+			}
+			haveImpcImages.put(count.getName(),hasImages );
+			System.out.println("haveimages="+haveImpcImages);
+		}
+System.out.println("haveimages after loop="+haveImpcImages);
 		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelAnatomyTerms);
 		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 
 		System.out.println("Check Top level anatomy terms: " + filteredTopLevelAnatomyTerms);
 		if (embryoOnly) {
 			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelAnatomyTerms);
+			model.addAttribute("haveImpcEmbryoImages", haveImpcImages);
 			model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
 
 		} else {
 			model.addAttribute("impcAdultExpressionImageFacets", filteredTopLevelAnatomyTerms);
+			model.addAttribute("haveImpcAdultImages", haveImpcImages);
 			model.addAttribute("impcAdultExpressionFacetToDocs", expFacetToDocs);
 		}
 		// }
