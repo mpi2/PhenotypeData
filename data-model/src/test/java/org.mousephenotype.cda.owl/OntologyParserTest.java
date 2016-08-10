@@ -86,6 +86,36 @@ public class OntologyParserTest {
 
     }
 
+    @Test
+    public void testEquivalent()
+    throws Exception {
+
+        ontologyParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP");
+        List<OntologyTermDTO> terms = ontologyParser.getTerms();
+        if (terms.isEmpty()) {
+            throw new Exception("Term list is empty!");
+        }
+        OntologyTermDTO mp0000572 = ontologyParser.getOntologyTerm("MP:0000572");
+        if ( mp0000572 == null ){
+            throw new Exception("Could not find MP:0000572 in mp-hp.owl");
+        }
+        if (mp0000572.getEquivalentClasses().isEmpty()){
+            throw new Exception("Could not find equivalent class for MP:0000572 in mp-hp.owl. Equivalent class should be HP:0005922. ");
+        }
+        if (!mp0000572.getEquivalentClasses().isEmpty()){
+            boolean foundHp = false;
+            for (OntologyTermDTO cls : mp0000572.getEquivalentClasses()){
+                if (cls.getAccessonId().equals("HP:0005922")){
+                    foundHp = true;
+                }
+            }
+            if (!foundHp) {
+                throw new Exception("Could not find equivalent class for MP:0000572 in mp-hp.owl. Equivalent class should be HP:0005922. ");
+            }
+        }
+    }
+
+
 
     @Test
     public void testDeprecated()
