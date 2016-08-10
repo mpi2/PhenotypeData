@@ -119,7 +119,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     // hp
     Set<String> hpIdSet = new HashSet();
     Set<String> hpTermSet = new HashSet();
-    Set<String> hpSynonymSet = new HashSet();
+    Set<String> hpTermSynonymSet = new HashSet();
 
     // impcGwas
     // gene
@@ -193,7 +193,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             populateDiseaseAutosuggestTerms();
             populateAnatomyAutosuggestTerms();
             populateProductAutosuggestTerms(); // must run after populateGeneAutosuggestTerms to use the map markerSymbolSynonymsMap
-            populateHpAutosuggestTerms();
+            //populateHpAutosuggestTerms();
             populateGwasAutosuggestTerms();
 
             // Final commit
@@ -311,7 +311,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         List<String> mpFields = Arrays.asList(
                 MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.ALT_MP_ID, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
                 MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM, MpDTO.PARENT_MP_ID, MpDTO.PARENT_MP_TERM, MpDTO.PARENT_MP_TERM_SYNONYM,
-                MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM);
+                MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM, MpDTO.HP_ID, MpDTO.HP_TERM, MpDTO.HP_TERM_SYNONYM);
 
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
@@ -349,6 +349,43 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
+                                    asyn.setDocType("mp");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MpDTO.HP_ID:
+                        if ( mp.getHpId() != null ) {
+                            for ( String hpId : mp.getHpId() ) {
+                                if (hpIdSet.add(hpId)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setHpId(hpId);
+                                    asyn.setDocType("mp");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MpDTO.HP_TERM:
+                        if ( mp.getHpTerm() != null ) {
+                            for ( String hpTerm : mp.getHpTerm() ) {
+                                if (hpTermSet.add(hpTerm)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setHpTerm(hpTerm);
+                                    asyn.setDocType("mp");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MpDTO.HP_TERM_SYNONYM:
+                        if (mp.getHpTermSynonym() != null) {
+                            for (String hpTermSynonym : mp.getHpTermSynonym()) {
+
+                                if (hpTermSynonymSet.add(hpTermSynonym)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setHpTermSynonym(hpTermSynonym);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -1089,7 +1126,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 for (String s : hp.getHpSynonym()) {
                     mapKey = s;
 
-                    if (hpSynonymSet.add(mapKey)) {
+                    if (hpTermSynonymSet.add(mapKey)) {
                         AutosuggestBean asyn = new AutosuggestBean();
                         asyn.setDocType("hp");
                         asyn.setHpId(hp.getHpId());
