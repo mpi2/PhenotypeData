@@ -139,8 +139,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private OntologyParser mpHpParser;
 
-    public MPIndexer() throws OWLOntologyCreationException{
-        mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP");
+    public MPIndexer() {
+
     }
 
 
@@ -152,18 +152,18 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
     @Override
-    public RunStatus run()
+    public RunStatus run ()
     throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
-
         initializeDatabaseConnections();
         initialiseSupportingBeans();
 
         try {
 
+            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP");
         	// maps MP to number of phenotyping calls
         	//populateGene2MpCalls();
 
@@ -235,7 +235,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Send a final commit
             mpIndexing.commit();
 
-        } catch (SQLException | SolrServerException | IOException e) {
+        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException e) {
             throw new IndexerException(e);
         }
 
