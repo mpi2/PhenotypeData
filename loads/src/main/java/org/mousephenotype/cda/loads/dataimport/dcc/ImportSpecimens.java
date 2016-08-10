@@ -97,7 +97,6 @@ public class ImportSpecimens implements CommandLineRunner {
         filename = (String) options.valuesOf("filename").get(0);
 
         if (options.has("create")) {
-
             logger.info("Dropping and creating dcc specimen tables - begin");
             org.springframework.core.io.Resource r = new ClassPathResource("scripts/dcc/createSpecimen.sql");
             ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
