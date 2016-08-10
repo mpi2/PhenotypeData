@@ -38,6 +38,9 @@ b.sugTerm {
 span.sugList {
 	color: black;
 }
+span.category {
+    color: #EF7B0B;
+}
 
 /* New Facet Block without IDs */
 div.ffilter {
