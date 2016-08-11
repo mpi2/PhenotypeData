@@ -581,7 +581,7 @@ public class SolrIndex2 {
 
         }
 
-        String target = "type:allele AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
+        String target = "type:Allele AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
 
         String search_url = "/select?q="
                 + target
@@ -592,7 +592,7 @@ public class SolrIndex2 {
 
     private String getAlleleUrl(Set<String> alleleAccession) {
 
-        String target = "type:allele AND (allele_mgi_accession_id:\"" + StringUtils.join(alleleAccession, "\" OR allele_mgi_accession_id:\"") + "\")";
+        String target = "type:Allele AND (allele_mgi_accession_id:\"" + StringUtils.join(alleleAccession, "\" OR allele_mgi_accession_id:\"") + "\")";
 
         String search_url = IMITS_SOLR_CORE_URL + "/allele2" + "/select?q="
                 + target
@@ -608,7 +608,7 @@ public class SolrIndex2 {
             qallele_search = " AND cassette:\"" + cassette + "\" AND design_id:\"" + design + "\""  ;
         }
 
-        String target = "type:allele AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_search;
+        String target = "type:Allele AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_search;
 
         String search_url = "/select?q="
                 + target
@@ -619,7 +619,7 @@ public class SolrIndex2 {
 
     private String getGeneUrl(String accession) {
 
-        String target = "type:gene AND mgi_accession_id:" + accession.replace(":", "\\:");
+        String target = "type:Gene AND mgi_accession_id:" + accession.replace(":", "\\:");
 
         String search_url = "/select?q="
                 + target
