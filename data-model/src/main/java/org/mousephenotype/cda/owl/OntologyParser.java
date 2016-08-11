@@ -3,6 +3,7 @@ package org.mousephenotype.cda.owl;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.search.EntitySearcher;
+import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import java.io.File;
 import java.util.*;
@@ -23,6 +24,7 @@ public class OntologyParser {
     ArrayList<OWLAnnotationProperty> IS_OBSOLETE;
     ArrayList<OWLAnnotationProperty> SYNONYM_ANNOTATION;
     ArrayList<OWLAnnotationProperty> DEFINITION_ANNOTATION;
+    Set<OWLPropertyExpression> PART_OF;
 
     private Map<String, OntologyTermDTO> termMap = new HashMap<>(); // OBO-style ids because that's what we index.
 
@@ -42,6 +44,8 @@ public class OntologyParser {
                 termMap.put(term.getAccessonId(), term);
             }
         }
+
+
     }
 
     public List<OntologyTermDTO> getTerms(){
@@ -89,7 +93,48 @@ public class OntologyParser {
 
         CONSIDER = factory.getOWLAnnotationProperty(IRI.create("http://www.geneontology.org/formats/oboInOwl#consider"));
 
+        PART_OF = new HashSet<>();
+        PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/ma#part_of")));
+        PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/emap#part_of")));
+        PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/part_of")));
+        PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000050")));
+
         ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
+
+    }
+
+    /**
+     * @param maxLevels how many levels to go down for subclasses; -1 for all.
+     * @param cls
+     * @return Set of labels + synonyms of all subclasses {maxLevels} away from cls. !! This method can be expensive so  values are not pe-loaded. Should only be used on leaf nodes !!
+     */
+    public Set<String> getNarrowSynonyms(OntologyTermDTO cls, int maxLevels){
+
+        Set<OWLClass> descendents = new HashSet<>();
+        Set<String> res = new HashSet<>();
+        descendents = getDescendentsPartOf(cls.getCls(), 1, 0, descendents);
+
+        for (OWLClass desc : descendents){
+            res.addAll(getSynonyms(desc));
+            res.add(getLabel(desc));
+        }
+
+        return res;
+    }
+
+    private Set<OWLClass> getDescendentsPartOf(OWLClass cls, int maxLevels, int currentLevel, Set<OWLClass> children ){
+
+        Set<OWLClass> subclasses = getChildrenPartOf(cls);
+        currentLevel ++;
+        if (!subclasses.isEmpty()){
+            children.addAll(subclasses);
+            if (currentLevel < maxLevels || maxLevels < 0){
+                for (OWLClass subClass: subclasses ){
+                    getDescendentsPartOf(subClass, maxLevels, currentLevel, children);
+                }
+            }
+        }
+        return children;
 
     }
 
@@ -172,6 +217,7 @@ public class OntologyParser {
         term.setDefinition(getDefinition(cls));
         term.setSynonyms(getSynonyms(cls));
         term.setObsolete(isObsolete(cls));
+        term.setCls(cls);
         if (term.isObsolete()){
             if((getReplacementId(cls) != null)){
                 term.setReplacementAccessionIds(getReplacementId(cls));
@@ -261,6 +307,28 @@ public class OntologyParser {
             consider = ((OWLLiteral) ann.getValue()).getLiteral();
         }
         return consider;
+
+    }
+
+
+    private Set<OWLClass> getChildrenPartOf(OWLClass cls){
+
+        Set<OWLClass> children = new HashSet<>();
+
+        for ( OWLClassExpression classExpression: EntitySearcher.getSubClasses(cls, ontology)){
+            if (classExpression.isClassExpressionLiteral()){
+                children.add(classExpression.asOWLClass());
+            } else if (classExpression instanceof OWLObjectSomeValuesFrom){
+                OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) classExpression;
+                if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
+                    if (svf.getFiller() instanceof OWLNamedObject){
+                        children.add(svf.getFiller().asOWLClass());
+                    }
+                }
+            }
+        }
+
+        return children;
 
     }
 

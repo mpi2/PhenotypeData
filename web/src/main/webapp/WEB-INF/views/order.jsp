@@ -22,7 +22,6 @@
 
 	<jsp:attribute name="header">
 
-				<!-- JavaScript Local Imports -->
 	</jsp:attribute>
 		
 	<jsp:body>
@@ -35,14 +34,6 @@
 									<a href='' id='summarySection' class="fa fa-question-circle pull-right"></a>
 								</span>
 							</h1>
-
-							<!-- general Gene info -->
-							<div class="section">
-								<%--<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>--%>
-								<div class="inner">
- 									<img alt="image not found!" src="${allele.alleleSimpleImage}" width="930px">
- 								</div>
- 							</div>
  							
  							<div class="section">
  							
@@ -54,29 +45,35 @@
 									We provide links and contact information based on tracking data supplied by the IMPC centers, but are not responsible for the ordering process.
 								</p>
 								<p>
-									Clicking the link will send you to a third party site to find more about ordering a particular strain.
+									<b>Clicking the link will send you to a third party site to find more about ordering a particular strain.</b>
 								</p>
 								<div>
- 								<c:if test="${fn:length(productsByName)>0}">	
- 									<p>This product is available from the following repositories:<p> 
- 									<table class="reduce nonwrap">        
+ 								<c:if test="${fn:length(productsByName)>0}">
+ 								<br/>	
+ 								<br/>
+ 									<h4>This product is available from the following repositories:</h4> 
+ 									<table class="nonwrap">        
         							<thead>
         		 					</thead>
         		 					<tbody>
  										<c:forEach var="entry" items="${productsByName}">
+ 										
  											<tr><td>${entry.key}</td><td>
  											<!-- just to print out the order link in case there are multiple order names and links that aren't this one -->
 		 											<c:forEach var="orderName" items="${ entry.value[0].orderNames}" varStatus="repoIndex">
 		 											<c:if test="${orderName eq entry.key}">
-		 											<a class="btn" href="${ entry.value[0].orderLinks[repoIndex.index] }" target="_blank"><i class="fa fa-shopping-cart"></i></a>
+		 											<a class="btn" href="${ entry.value[0].orderLinks[repoIndex.index] }" target="_blank"><i class="fa fa-shopping-cart"></i>&nbsp;&nbsp;&nbsp;&nbsp;Third party site for info about ordering</a> OR <div class="btn close">Return to previous page</div>
 		 											</c:if>
 		 											</c:forEach>
-		 									</td>	
+		 									</td>
+		 									<td></td>	
  											</tr>
  											<!-- loop through the products so we get their name and qc links -->
  											<c:forEach var="prod" items="${entry.value}">
  											<!--qc data links like this http://localhost:8080/phenotype-archive/alleles/qc_data/es_cell/EPD0386_3_A05/ -->
- 											<tr><td>	${prod.name} </td>
+ 											<tr>
+ 											<td></td>
+ 											<td>	${prod.name} </td>
  											<td>
  											<c:if test="${fn:length(prod.qcData)>0}">
  											 	<a class="btn" href="${baseUrl}/qcData?type=${type}&productName=${prod.name}&alleleName=${prod.alleleName}&bare=true"><i class="fa fa-info"></i>QC Data</a>
@@ -101,13 +98,31 @@
  								</div>
  							</div>
  							
+ 							<div class="section">
+								<%--<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>--%>
+								<div class="inner">
+ 									<img alt="image not found!" src="${allele.alleleSimpleImage}" width="930px">
+ 								</div>
+ 							</div>
+ 							
  							
  						</div>
  					</div>
  				</div>
  			</div>
  
- 
+ <script type="text/javascript">
+
+//close the fancybox if the return to previous page button is clicked and they don't want to go to order page
+$(document).ready(function () {
+	$('.btn.close').click(function()
+		{
+		parent.$.fancybox.close(); 
+		}
+ 	);
+});
+    
+ </script>
 		
 	</jsp:body>
 </t:genericpage>
