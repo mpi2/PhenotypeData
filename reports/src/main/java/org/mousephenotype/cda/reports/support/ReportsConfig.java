@@ -1,13 +1,11 @@
 package org.mousephenotype.cda.reports.support;
 
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 
@@ -21,18 +19,27 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {
+@ComponentScan(
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, value = ComponentScanNonParticipant.class),
+        basePackages = {
         "org.mousephenotype.cda.reports",
         "org.mousephenotype.cda.db",
         "org.mousephenotype.cda.solr",
         "org.mousephenotype.cda.utilities" })
+@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 public class ReportsConfig {
 
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = "datasource.ontodb")
+    public DataSource ontodbDataSource() {
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
