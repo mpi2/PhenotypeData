@@ -193,11 +193,20 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
                 }
 
+                mp.setMpNodeId(termNodeIds.get(termId));
+
+                addTopLevelNodes(mp);
+                addIntermediateLevelNodes(mp);
+                addChildLevelNodes(mp);
+                addParentLevelNodes(mp);
+
                 //addMpHpTerms(mp, mphpBeans.get(termId)); // old way of adding mp-hp mapping using phenodigm data
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-                Set <OntologyTermDTO> hpTerms = mpHpParser.getOntologyTerm(termId).getEquivalentClasses();
+                OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
+                Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
                 for ( OntologyTermDTO hpTerm : hpTerms ){
+
 
                     List<String> hpIds = new ArrayList<>();
                     hpIds.add(hpTerm.getAccessonId());
@@ -214,12 +223,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     }
                 }
 
-                mp.setMpNodeId(termNodeIds.get(termId));
-
-                addTopLevelNodes(mp);
-                addIntermediateLevelNodes(mp);
-                addChildLevelNodes(mp);
-                addParentLevelNodes(mp);
+                if ( mp.getChildMpId() != null ) {
+                    // get the children of MP not in our slim (narrow synonyms)
+                    int levelForNarrowSynonyms = 3;
+                    Set<String> narrowSynonyms = mpHpParser.getNarrowSynonyms(mpTerm, levelForNarrowSynonyms);
+                    mp.setNarrowSynonyms(narrowSynonyms);
+                }
 
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
@@ -242,6 +251,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setScrollNode(scrollNodeId);
                 List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
+
+
+
 
 
                 logger.debug(" Added {} records for termId {}", count, termId);
