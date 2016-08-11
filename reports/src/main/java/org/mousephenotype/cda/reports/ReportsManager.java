@@ -32,7 +32,7 @@ import java.util.List;
  * Class to kick off reports from the command-line.
  *
  * Example command used to build the 3.1 reports:
- *  java -Dprofile=reports3.1 -jar /Users/mrelac/workspace/PhenotypeData/reports/target/reports-0.0.1.jar --targetDirectory=/Users/mrelac/reports/3.1
+ *  java -Dprofile=reports3.1 -jar /Users/mrelac/workspace/PhenotypeData/reports/target/reports-1.0.0-exec.jar --targetDirectory=/Users/mrelac/reports/3.1
  *
  * Created by mrelac on 23/06/2015.
  */
@@ -67,6 +67,9 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ImpcPValuesReport impcPValuesReport;
+
+    @Autowired
+    private ImportDccMissingReport importDccMissingReport;
 
     @Autowired
     private LaczExpressionReport lacZExpressionReport;
@@ -122,6 +125,7 @@ public class ReportsManager implements CommandLineRunner {
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
         IMPC_GAF("impcGaf", "IMPC GAF report"),
         IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
+        IMPORT_DCC_MISSING("importDccMissing", "Import DCC missing report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
         METABOLISM_CBC("metabolismCBC", "Metabolism CBC"),
@@ -289,6 +293,11 @@ public class ReportsManager implements CommandLineRunner {
                     case IMPC_P_VALUES:
                         impcPValuesReport.run(args);
                         file = impcPValuesReport.targetFile;
+                        break;
+
+                    case IMPORT_DCC_MISSING:
+                        importDccMissingReport.run(args);
+                        file = importDccMissingReport.targetFile;
                         break;
 
                     case PHENOTYPE_OVERVIEW_PER_GENE:
