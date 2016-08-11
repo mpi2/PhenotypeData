@@ -15,6 +15,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -52,9 +53,7 @@ public class TestConfig {
 			.ignoreFailedDrops(true)
 			.setName("komp2test")
 			.build();
-
 	}
-
 
 	@Bean(name = "admintoolsDataSource")
 	public DataSource admintoolsDataSource() {
@@ -117,4 +116,114 @@ public class TestConfig {
 	}
 
 
+	// dcc1 and dcc2 databases for testing SqlUtils.queryDiff()
+
+
+	// dcc1
+	@Bean(name = "dcc1DataSource")
+	public DataSource dcc1DataSource() {
+		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+			.ignoreFailedDrops(true)
+			.setName("dcc1test")
+			.build();
+	}
+
+	protected Properties buildHibernatePropertiesDcc1() {
+		Properties hibernateProperties = new Properties();
+
+		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+		hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/dcc1-test-data.sql");
+		hibernateProperties.setProperty("hibernate.show_sql", "false");
+		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
+		hibernateProperties.setProperty("hibernate.format_sql", "true");
+		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+		hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
+		hibernateProperties.setProperty("hibernate.ejb.entitymanager_factory_name", "emfDcc1");
+
+		return hibernateProperties;
+	}
+
+
+	@Bean(name = "sessionFactorydcc1")
+	public SessionFactory getSessionFactoryDcc1() {
+
+		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dcc1DataSource());
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.dao");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+
+		return sessionBuilder.buildSessionFactory();
+	}
+
+	@Bean
+	public LocalContainerEntityManagerFactoryBean entityManagerFactoryDcc1() {
+		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+		em.setDataSource(dcc1DataSource());
+		em.setPackagesToScan("org.mousephenotype.cda.db.dao", "org.mousephenotype.cda.db.pojo");
+
+		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		em.setJpaVendorAdapter(vendorAdapter);
+		em.setJpaProperties(buildHibernatePropertiesDcc1());
+
+		return em;
+	}
+
+	@Bean
+	public JdbcTemplate jdbc1() {
+		return new JdbcTemplate(dcc1DataSource());
+	}
+
+
+	// dcc2
+	@Bean(name = "DataSourceDcc2")
+	public DataSource dcc2DataSource() {
+		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+			.ignoreFailedDrops(true)
+			.setName("dcc2test")
+			.build();
+	}
+
+	protected Properties buildHibernatePropertiesdcc2() {
+		Properties hibernateProperties = new Properties();
+
+		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+		hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/dcc2-test-data.sql");
+		hibernateProperties.setProperty("hibernate.show_sql", "false");
+		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
+		hibernateProperties.setProperty("hibernate.format_sql", "true");
+		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+		hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
+		hibernateProperties.setProperty("hibernate.ejb.entitymanager_factory_name", "emfDcc2");
+
+		return hibernateProperties;
+	}
+
+	@Bean(name = "sessionFactorydcc2")
+	public SessionFactory getSessionFactorydcc2() {
+
+		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dcc2DataSource());
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.dao");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+
+		return sessionBuilder.buildSessionFactory();
+	}
+
+	@Bean
+	public LocalContainerEntityManagerFactoryBean entityManagerFactorydcc2() {
+		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+		em.setDataSource(dcc2DataSource());
+		em.setPackagesToScan("org.mousephenotype.cda.db.dao", "org.mousephenotype.cda.db.pojo");
+
+		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		em.setJpaVendorAdapter(vendorAdapter);
+		em.setJpaProperties(buildHibernatePropertiesdcc2());
+
+		return em;
+	}
+
+	@Bean
+	public JdbcTemplate jdbc2() {
+		return new JdbcTemplate(dcc2DataSource());
+	}
 }

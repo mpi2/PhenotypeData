@@ -30,6 +30,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 
+import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
@@ -98,10 +99,12 @@ public class ValidateImport implements CommandLineRunner {
         };
 
     @Autowired
+    @NotNull
     @Qualifier("jdbctemplate1")
     private JdbcTemplate jdbctemplate1;
 
     @Autowired
+    @NotNull
     @Qualifier("jdbctemplate2")
     private JdbcTemplate jdbctemplate2;
 

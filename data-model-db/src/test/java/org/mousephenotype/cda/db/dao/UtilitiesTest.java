@@ -22,25 +22,29 @@
 
 package org.mousephenotype.cda.db.dao;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.TestConfig;
 import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.StageUnitType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@Import(TestConfig.class)
 public class UtilitiesTest {
 
     @Autowired
@@ -48,6 +52,12 @@ public class UtilitiesTest {
 
     @Autowired
     Utilities impressUtilities;
+
+    @Autowired
+    JdbcTemplate jdbc1;
+
+    @Autowired
+    JdbcTemplate jdbc2;
 
 
     @Test
@@ -90,6 +100,54 @@ public class UtilitiesTest {
             // Need a method to convert impress input to represnetative EFO term
             OntologyTerm term = impressUtilities.getStageTerm(stage, stageUnit);
             org.junit.Assert.assertTrue(term==null);
+        }
+    }
+
+
+    // Test identical results. No difference is expected.
+    @Test
+    public void testQueryDiffNoDiffsIdentical() throws Exception{
+        SqlUtils sqlUtils = new SqlUtils();
+
+        System.out.println("Testing testQueryDiffNoDiffsIdentical");
+
+        List<String[]> actualResults = sqlUtils.queryDiff(jdbc1, jdbc1, "SELECT message FROM test");
+
+        assert(actualResults.isEmpty());
+    }
+
+
+    // Test more results in jdbc2 than jdbc1. No difference is expected.
+    @Test
+    public void testQueryDiffNoDiffsMoreResultsInJdbc2() throws Exception{
+        SqlUtils sqlUtils = new SqlUtils();
+
+        List<String[]> expectedResults = new ArrayList<>();
+
+        System.out.println("Testing testQueryDiffNoDiffsMoreResultsInJdbc2");
+
+        List<String[]> actualResults = sqlUtils.queryDiff(jdbc1, jdbc2, "SELECT message FROM test");
+
+        assert(actualResults.isEmpty());
+    }
+
+    // Test fewer results in jdbc2 than jdbc1. The extra rows in jdbc1 should be returned.
+    @Test
+    public void testQueryDiffTwoDiffs() throws Exception{
+        SqlUtils sqlUtils = new SqlUtils();
+
+        List<String[]> expectedResults = new ArrayList<>();
+        expectedResults.add(new String[] { "MESSAGE" } );
+        expectedResults.add(new String[] { "dcc line 6" } );
+        expectedResults.add(new String[] { "dcc line 7" } );
+
+        System.out.println("Testing testQueryDiffTwoDiffs");
+
+        List<String[]> actualResults = sqlUtils.queryDiff(jdbc2, jdbc1, "SELECT message FROM test");
+
+        assert(actualResults.size() == 3);
+        for (int i = 0; i < expectedResults.size(); i++) {
+            Assert.assertArrayEquals(expectedResults.get(i), actualResults.get(i));
         }
     }
 }
