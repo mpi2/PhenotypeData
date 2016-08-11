@@ -645,8 +645,7 @@ public class DataTableController {
 
           //  <a class="iFrameFancy btn" data-url="/phenotype-archive/order?acc=MGI:2443967&amp;allele=tm1a(EUCOMM)Hmgu&amp;type=targeting_vector&amp;bare=true"><i class="fa fa-shopping-cart"></i></a>
 			List<String> orders = new ArrayList<>();
-            String dataUrl = "/data/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
-            String thisDataUrl = null;
+            String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
 
 			if ( doc.containsKey("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
 				orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'> Targeting vector</i></a>");
