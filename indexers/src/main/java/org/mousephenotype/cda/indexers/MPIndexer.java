@@ -227,7 +227,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     // get the children of MP not in our slim (narrow synonyms)
                     int levelForNarrowSynonyms = 3;
                     Set<String> narrowSynonyms = mpHpParser.getNarrowSynonyms(mpTerm, levelForNarrowSynonyms);
-                    mp.setNarrowSynonyms(narrowSynonyms);
+                    mp.setMpNarrowSynonym(narrowSynonyms);
                 }
 
                 mp.setOntologySubset(ontologySubsets.get(termId));
@@ -251,10 +251,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setScrollNode(scrollNodeId);
                 List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
-
-
-
-
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;

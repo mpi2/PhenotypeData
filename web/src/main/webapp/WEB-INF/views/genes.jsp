@@ -724,13 +724,15 @@
 					$.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
 				}
 
+				console.log(${anatomogram});
 				// invoke anatomogram only when
 				// this check is not empty: impcAdultExpressionImageFacets
 
 				if ($('div#anatomogramContainer').size() == 1) {
 
 					// anatomogram stuff
-					var expData = JSON.parse(${anatomogram});
+					//var expData = JSON.parse(${anatomogram});
+					var expData = ${anatomogram};
 					var topLevelName2maIdMap = expData.topLevelName2maIdMap;
 					var maId2UberonMap = expData.maId2UberonMap;
 					var uberon2MaIdMap = expData.uberon2MaIdMap;

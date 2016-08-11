@@ -168,7 +168,7 @@ public class MpDTO {
 	private List<String> mpTermSynonym;
 
     @Field(MP_NARROW_SYNONYM)
-    private List<String> mpNarrowSynonym;
+    private Set<String> mpNarrowSynonym;
 
 	@Field(MP_NODE_ID)
 	private List<Integer> mpNodeId;
@@ -588,11 +588,11 @@ public class MpDTO {
 		this.mpTermSynonym = mpTermSynonym;
 	}
 
-    public List<String> getMpNarrowSynonym() {
+    public Set<String> getMpNarrowSynonym() {
         return mpNarrowSynonym;
     }
 
-    public void setMpNarrowSynonym(List<String> mpNarrowSynonym) {
+    public void setMpNarrowSynonym(Set<String> mpNarrowSynonym) {
         this.mpNarrowSynonym = mpNarrowSynonym;
     }
 
