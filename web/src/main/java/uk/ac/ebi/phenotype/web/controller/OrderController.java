@@ -29,7 +29,7 @@ public class OrderController {
 	public String orderSection(@RequestParam (required = false) String acc, 
 			@RequestParam (required=false, defaultValue="25") int rows,
 			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
-		System.out.println("orderSection being called blah!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		
 		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, rows);
 		model.addAttribute("acc",acc);
 		model.addAttribute("orderRows", orderRows);
@@ -56,7 +56,7 @@ public class OrderController {
 		OrderType orderType=OrderType.valueOf(type);
 		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele);
 		model.addAttribute("allele", allele2DTO);
-		System.out.println("size of allele2DTOs="+allele2DTO);
+		
 		
 		Map<String, List<ProductDTO>> productsByOrderName = orderService.getProductToOrderNameMap(acc, allele, orderType);
 		model.addAttribute("productsByName", productsByOrderName);
@@ -66,7 +66,6 @@ public class OrderController {
 	
 	@RequestMapping("/qcData")
 	public String qcData(@RequestParam (required= true) String type, @RequestParam (required=true)String productName,  @RequestParam (required=true)String alleleName, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
-		System.out.println("qcData being called with type="+type+" productName="+productName);
 		//get the qc_data list
 		OrderType orderType=OrderType.valueOf(type);
 		HashMap<String, HashMap<String, List<String>>> qcData = orderService.getProductQc(orderType, productName, alleleName);
