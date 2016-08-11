@@ -168,7 +168,7 @@ public class MpDTO {
 	private List<String> mpTermSynonym;
 
     @Field(MP_NARROW_SYNONYM)
-    private Set<String> mpNarrowSynonym;
+    private List<String> mpNarrowSynonym;
 
 	@Field(MP_NODE_ID)
 	private List<Integer> mpNodeId;
@@ -237,13 +237,13 @@ public class MpDTO {
 	private List<String> topLevelMpTermId;
 
 	@Field(HP_ID)
-	private Set<String> hpId;
+	private List<String> hpId;
 
 	@Field(HP_TERM)
-	private Set<String> hpTerm;
+	private List<String> hpTerm;
 
 	@Field(HP_TERM_SYNONYM)
-	private Set<String> hpTermSynonym;
+	private List<String> hpTermSynonym;
 
 	@Field(DATA_TYPE)
 	private String dataType;
@@ -588,11 +588,11 @@ public class MpDTO {
 		this.mpTermSynonym = mpTermSynonym;
 	}
 
-    public Set<String> getMpNarrowSynonym() {
+    public List<String> getMpNarrowSynonym() {
         return mpNarrowSynonym;
     }
 
-    public void setMpNarrowSynonym(Set<String> mpNarrowSynonym) {
+    public void setMpNarrowSynonym(List<String> mpNarrowSynonym) {
         this.mpNarrowSynonym = mpNarrowSynonym;
     }
 
@@ -844,34 +844,34 @@ public class MpDTO {
 	}
 
 
-	public Set<String> getHpId() {
+	public List<String> getHpId() {
 
 		return hpId;
 	}
 
 
-	public void setHpId(Set<String> hpId) {
+	public void setHpId(List<String> hpId) {
 
 		this.hpId = hpId;
 	}
 
 
-	public Set<String> getHpTerm() {
+	public List<String> getHpTerm() {
 
 		return hpTerm;
 	}
 
 
-	public void setHpTerm(Set<String> hpTerm) {
+	public void setHpTerm(List<String> hpTerm) {
 
 		this.hpTerm = hpTerm;
 	}
 
-	public Set<String> getHpTermSynonym() {
+	public List<String> getHpTermSynonym() {
 		return hpTermSynonym;
 	}
 
-	public void setHpTermSynonym(Set<String> hpTermSynonym) {
+	public void setHpTermSynonym(List<String> hpTermSynonym) {
 		this.hpTermSynonym = hpTermSynonym;
 	}
 
