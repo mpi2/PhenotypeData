@@ -91,9 +91,6 @@
 		<!--  hp fields -->
 		<field name="hp_id" type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="hp_term" type="string" indexed="true" stored="true" multiValued="false" />
-		<!--  Phenodigm field -->
-		<field name="hp_synonym" type="string" indexed="true" stored="false" multiValued="false" />
-		<!--  MPI2 copyField for hp_synonym -->
 		<field name="hp_term_synonym" type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="hpmp_id" type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="hpmp_term" type="string" indexed="true" stored="true" multiValued="false" />
@@ -198,8 +195,6 @@
 	<copyField source="marker_name" dest="auto_suggest"/>
 	<copyField source="marker_synonym" dest="auto_suggest"/>
 
-	<copyField source="hp_synonym" dest="hp_term_synonym" />
-	<copyField source="hp_synonym" dest="auto_suggest" />
 	<copyField source="hp_id" dest="auto_suggest"/>
 	<copyField source="hp_term" dest="auto_suggest"/>
 	<copyField source="hp_term_synonym" dest="auto_suggest"/>
