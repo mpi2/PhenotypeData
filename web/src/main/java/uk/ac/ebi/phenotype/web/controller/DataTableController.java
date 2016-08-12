@@ -895,60 +895,41 @@ public class DataTableController {
             String mpLink = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>" + mpTerm + "</a>";
             String mpCol = null;
 
-            if (doc.containsKey("mp_term_synonym") || doc.containsKey("hp_term")) {
+            if (doc.containsKey("mixSynQf")) {
 
                 mpCol = "<div class='title'>" + mpLink + "</div>";
 
-                if (doc.containsKey("mp_term_synonym")) {
-                    List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
-                    List<String> prefixSyns = new ArrayList();
+                JSONArray data = doc.getJSONArray("mixSynQf");
+                int counter = 0;
+                String synMatch = null;
+                String syn = null;
 
-                    for (String sn : mpSynonyms) {
-                        prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
-                    }
-
-                    String syns = null;
-                    if (prefixSyns.size() > 1) {
-                        syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
-                    } else {
-                        syns = prefixSyns.get(0);
-                    }
-
-//					mpCol = "<div class='mpCol'><div class='title'>"
-//							+ mpLink
-//							+ "</div>"
-//							+ "<div class='subinfo'>"
-//							+ "<span class='label'>synonym</span>: " + syns
-//							+ "</div>";
-                    //rowData.add(mpCol);
-                    mpCol += "<div class='subinfo'>"
-                            + "<span class='label'>synonym</span>: "
-                            + syns
-                            + "</div>";
-                }
-                if (doc.containsKey("hp_term")) {
-
-					// MP -> HP computational mapping
-                    Set<SimpleOntoTerm> hpTerms = mpService.getComputationalHPTerms(doc);
-                    String mappedHpTerms = "";
-
-                    if (hpTerms.size() > 1) {
-                        for (SimpleOntoTerm term : hpTerms) {
-                            if ( ! term.getTermName().equals("")) {
-                                mappedHpTerms += "<li>" + term.getTermName() + "</li>";
-                            }
+                for (Object d : data) {
+                    counter++;
+                    String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
+                    if (d.toString().toLowerCase().contains(targetStr)) {
+                        if (synMatch == null) {
+                            synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
                         }
-                        mappedHpTerms = "<ul class='hpTerms'>" + mappedHpTerms + "</ul>";
                     } else {
-                        Iterator hi = hpTerms.iterator();
-                        SimpleOntoTerm term = (SimpleOntoTerm) hi.next();
-                        mappedHpTerms = term.getTermName();
+                        if (counter == 1) {
+                            syn = d.toString();
+                        }
                     }
-                    mpCol += "<div class='subinfo'>"
-                            + "<span class='label'>computationally mapped HP term</span>: "
-                            + mappedHpTerms
-                            + "</div>";
                 }
+
+                if (synMatch != null) {
+                    syn = synMatch;
+                }
+                else if (counter > 1) {
+                    syn = syn + "<a href='" + baseUrl + "/phenotypes/" + mpId + "'> (see more ...)</a>";
+                }
+
+                mpCol += "<div class='subinfo'>"
+                        + "<span class='label'>synonym</span>: "
+                        + syn
+                        + "</div>";
+
                 mpCol = "<div class='mpCol'>" + mpCol + "</div>";
                 rowData.add(mpCol);
             } else {
