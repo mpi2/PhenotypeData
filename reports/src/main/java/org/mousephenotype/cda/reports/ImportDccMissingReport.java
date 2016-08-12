@@ -128,6 +128,12 @@ public class ImportDccMissingReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
+        try {
+            String db1Name = jdbc1.getDataSource().getConnection().getCatalog();
+            String db2Name = jdbc2.getDataSource().getConnection().getCatalog();
+            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+        } catch (Exception e) { }
+
         List<String[]> results = new ArrayList<>();
 
         int badQueryCount = 0;
@@ -135,14 +141,20 @@ public class ImportDccMissingReport extends AbstractReport {
             DccQuery dccQuery = queries[i];
 
             try {
+
+                logger.info("Query {}:\n{}", dccQuery.name, dccQuery.query);
                 List<String[]> missing = (sqlUtils.queryDiff(jdbc1, jdbc2, dccQuery.query));
                 if ( ! missing.isEmpty()) {
+
+                    logger.warn("{} ROWS MISSING", missing.size());
                     String[] summary = new String[]{Integer.toString(missing.size()) + " " + dccQuery.name + ":"};
                     if (badQueryCount > 0)
                         csvWriter.writeNext(EMPTY_ROW);
                     csvWriter.writeNext(summary);
                     csvWriter.writeAll(missing);
                     badQueryCount++;
+                } else {
+                    logger.info("SUCCESS");
                 }
 
 
