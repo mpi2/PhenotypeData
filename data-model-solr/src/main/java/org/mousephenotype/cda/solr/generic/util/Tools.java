@@ -63,7 +63,7 @@ public class Tools {
 	}
 
 	public static String highlightMatchedStrIfFound(String qry, String target, String selector, String cssClass) {
-		// the works for multiple words in the qry; it will match multiple places in the target string
+		// NOTE this can work for multiple words in the qry; it will match multiple places in the target string
 
 		String kw = "";
 
@@ -84,23 +84,23 @@ public class Tools {
 				   .replace("(", "\\(")
 				   .replace(")", "\\)");
 		}
-		else {
-			// non phrase search - split string into words and search using OR
-			// very loose match not using boundry: ie, matches anywhere in string -> less specificity
-
-			StringBuffer patBuff = new StringBuffer();
-			int count = 0;
-			for ( String s : kw.split(" |,") ){
-				count++;
-				if ( count != kw.split(" ").length ){
-					patBuff.append(s+"|");
-				}
-				else {
-					patBuff.append(s);
-				}
-			}
-			kw = patBuff.toString();
-		}
+//		else {
+//			// non phrase search - split string into words and search using OR
+//			// very loose match not using boundry: ie, matches anywhere in string -> less specificity
+//
+//			StringBuffer patBuff = new StringBuffer();
+//			int count = 0;
+//			for ( String s : kw.split(" |,") ){
+//				count++;
+//				if ( count != kw.split(" ").length ){
+//					patBuff.append(s+"|");
+//				}
+//				else {
+//					patBuff.append(s);
+//				}
+//			}
+//			kw = patBuff.toString();
+//		}
 
 		kw = kw.replace("*","")
 				.replace("+", "\\+");

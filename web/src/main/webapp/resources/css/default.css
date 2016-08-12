@@ -864,3 +864,10 @@ span.gene, span.mp, span.anatomy, span.disease, span.hp {
 }
 b.sugTerm {
     color: #0978A1;
+}
+span.sugList {
+    color: black;
+}
+span.category {
+    color: #EF7B0B;
+}

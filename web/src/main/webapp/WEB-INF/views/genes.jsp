@@ -345,7 +345,9 @@
 						color: #E2701E;
 					}
 					
-					
+					/*li.ui-menu-divider {*/
+						/*display: none;*/
+					/*}*/
                         #fancybox-close {
 	position: absolute;
 	top: -15px;

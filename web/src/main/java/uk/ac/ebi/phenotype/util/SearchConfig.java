@@ -160,13 +160,14 @@ public class SearchConfig {
                 "allele_name");
         List<String> mpFields = Arrays.asList("mp_id",
                 "mp_term",
-                "mp_term_synonym",
-                "mp_definition",
-                "top_level_mp_term",
-                "top_mp_term_id",
-                "hp_id",
-                "hp_term",
-                "pheno_calls");
+                "mixSynQf",
+                "mp_definition"
+//                "top_level_mp_term",
+//                "top_mp_term_id",
+//                "hp_id",
+//                "hp_term",
+//                "pheno_calls"
+        );
         List<String> diseaseFields = Arrays.asList("disease_id",
                 "disease_term",
                 "disease_source",
