@@ -59,37 +59,53 @@ public class ImportDccMissingReport extends AbstractReport {
      * DATABASES: DCC, 3I
      **********************
     */
-    private final String[] queries = new String[] {
-            "SELECT\n" +
-            "  c.centerId\n" +
-            ", c.pipeline\n" +
-            ", c.project\n" +
-            ", p.procedureId\n" +
-            "FROM center_procedure cp\n" +
-            "JOIN center c ON c.pk = cp.center_pk\n" +
-            "JOIN procedure_ p ON p.pk = cp.procedure_pk"
+    private class DccQuery {
+        public final String name;
+        public final String query;
 
-          , "SELECT\n" +
-            "  c.centerId\n" +
-            ", c.pipeline\n" +
-            ", c.project\n" +
-            ", s.specimenId\n" +
-            "FROM center_specimen cs\n" +
-            "JOIN center c ON c.pk = cs.center_pk\n" +
-            "JOIN specimen s ON s.pk = cs.specimen_pk"
+        public DccQuery(String name, String query) {
+            this.name = name;
+            this.query = query;
+        }
+    }
 
-//          , "SELECT\n" +
-//            "  e.experimentId\n" +
-//            ", c.centerId\n" +
-//            ", c.pipeline\n" +
-//            ", c.project\n" +
-//            ", p.procedureId\n" +
-//            "FROM experiment e\n" +
-//            "JOIN center_procedure cp ON cp.pk = e.center_procedure_pk\n" +
-//            "JOIN center c ON c.pk = cp.center_pk\n" +
-//            "JOIN procedure_ p ON p.pk = cp.procedure_pk"
-        };
+    private DccQuery[] queries = new DccQuery[] {
+            new DccQuery("MISSING PROCEDURES", "SELECT\n" +
+                                               "  c.centerId\n" +
+                                               ", c.project\n" +
+                                               ", c.pipeline\n" +
+                                               ", p.procedureId\n" +
+                                               "FROM center_procedure cp\n" +
+                                               "JOIN center           c ON c.pk = cp.center_pk\n" +
+                                               "JOIN procedure_       p ON p.pk = cp.procedure_pk\n")
 
+          , new DccQuery("MISSING SPECIMENS",  "SELECT\n" +
+                                               "  c.centerId\n" +
+                                               ", c.project\n" +
+                                               ", c.pipeline\n" +
+                                               ", s.specimenId\n" +
+                                               "FROM center_specimen cs\n" +
+                                               "JOIN center          c ON c.pk = cs.center_pk\n" +
+                                               "JOIN specimen        s ON s.pk = cs.specimen_pk\n")
+
+          , new DccQuery("MISSING COLONIES",   "SELECT DISTINCT\n" +
+                                               "  c.centerId\n" +
+                                               ", c.project\n" +
+                                               ", c.pipeline\n" +
+                                               ", s.colonyId\n" +
+                                               "FROM experiment                      e\n" +
+                                               "JOIN experiment_specimen             es     ON es .experiment_pk = e. pk\n" +
+                                               "JOIN specimen                        s      ON s  .pk =            es.specimen_pk\n" +
+                                               "JOIN center_procedure                cp     ON cp .pk =            e. center_procedure_pk\n" +
+                                               "JOIN center                          c      ON c  .pk =            cp.center_pk\n" +
+                                               "JOIN procedure_                      p      ON p  .pk =            cp.procedure_pk\n" +
+                                               "LEFT OUTER JOIN mediaParameter       mp     ON mp .procedure_pk =  p. pk\n" +
+                                               "LEFT OUTER JOIN simpleParameter      sp     ON sp .procedure_pk =  p. pk\n" +
+                                               "LEFT OUTER JOIN seriesParameter      ser    ON ser.procedure_pk =  p. pk\n" +
+                                               "LEFT OUTER JOIN seriesMediaParameter smp    ON smp.procedure_pk =  p. pk\n" +
+                                               "LEFT OUTER JOIN ontologyParameter    op     ON op .procedure_pk =  p. pk\n" +
+                                               "WHERE colonyId IS NOT NULL AND colonyId != ''\n")
+    };
 
 
     public ImportDccMissingReport() {
@@ -114,14 +130,21 @@ public class ImportDccMissingReport extends AbstractReport {
 
         List<String[]> results = new ArrayList<>();
 
+        int badQueryCount = 0;
         for (int i = 0; i < queries.length; i++) {
-            String query = queries[i];
+            DccQuery dccQuery = queries[i];
 
             try {
-                List<String[]> missing = (sqlUtils.queryDiff(jdbc1, jdbc2, query));
-                if (i > 0)
-                    missing.add(EMPTY_ROW);
-                csvWriter.writeAll(missing);
+                List<String[]> missing = (sqlUtils.queryDiff(jdbc1, jdbc2, dccQuery.query));
+                if ( ! missing.isEmpty()) {
+                    String[] summary = new String[]{Integer.toString(missing.size()) + " " + dccQuery.name + ":"};
+                    if (badQueryCount > 0)
+                        csvWriter.writeNext(EMPTY_ROW);
+                    csvWriter.writeNext(summary);
+                    csvWriter.writeAll(missing);
+                    badQueryCount++;
+                }
+
 
             } catch (Exception e) {
 
