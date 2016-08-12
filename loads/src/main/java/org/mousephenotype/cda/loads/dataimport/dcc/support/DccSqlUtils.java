@@ -1644,7 +1644,7 @@ public class DccSqlUtils {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException("INSERT of retVal(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
+                throw new RuntimeException("INSERT of retVal(" + parameterId + ", " + sequenceId + ") FAILED: " + e.getLocalizedMessage());
             }
         }
 

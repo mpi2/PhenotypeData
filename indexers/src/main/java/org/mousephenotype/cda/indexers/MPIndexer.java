@@ -208,18 +208,18 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 for ( OntologyTermDTO hpTerm : hpTerms ){
 
 
-                    List<String> hpIds = new ArrayList<>();
+                    Set<String> hpIds = new HashSet<>();
                     hpIds.add(hpTerm.getAccessonId());
-                    mp.setHpId(new HashSet(hpIds));
+                    mp.setHpId(new ArrayList(hpIds));
 
                     if ( hpTerm.getName() != null ){
-                        List<String> hpNames = new ArrayList<>();
+                        Set<String> hpNames = new HashSet<>();
                         hpNames.add(hpTerm.getName());
-                        mp.setHpTerm(new HashSet(hpNames));
+                        mp.setHpTerm(new ArrayList(hpNames));
                     }
 
                     if ( hpTerm.getSynonyms() != null ){
-                        mp.setHpTermSynonym(hpTerm.getSynonyms());
+                        mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
                     }
                 }
 
@@ -227,7 +227,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     // get the children of MP not in our slim (narrow synonyms)
                     int levelForNarrowSynonyms = 3;
                     Set<String> narrowSynonyms = mpHpParser.getNarrowSynonyms(mpTerm, levelForNarrowSynonyms);
-                    mp.setMpNarrowSynonym(narrowSynonyms);
+                    mp.setMpNarrowSynonym(new ArrayList(narrowSynonyms));
                 }
 
                 mp.setOntologySubset(ontologySubsets.get(termId));
@@ -922,8 +922,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
 
             if (mp.getHpId() == null) {
-                mp.setHpId(new HashSet<String>());
-                mp.setHpTerm(new HashSet<String>());
+                mp.setHpId(new ArrayList<String>());
+                mp.setHpTerm(new ArrayList<String>());
             }
             mp.getHpId().addAll(hpIds);
             mp.getHpTerm().addAll(hpTerms);

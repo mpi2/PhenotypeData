@@ -643,7 +643,6 @@ public class DataTableController {
 			String markerSymbol = doc.getString("marker_symbol");
 			String mutationType = doc.getString("mutation_type");
 
-          //  <a class="iFrameFancy btn" data-url="/phenotype-archive/order?acc=MGI:2443967&amp;allele=tm1a(EUCOMM)Hmgu&amp;type=targeting_vector&amp;bare=true"><i class="fa fa-shopping-cart"></i></a>
 			List<String> orders = new ArrayList<>();
             String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
 
