@@ -162,6 +162,7 @@
 								}//end of if heatmap generated
 
 						}
+							
 
 
 						});
@@ -343,6 +344,20 @@
 					ul#expList li a.mahighlight {
 						color: #E2701E;
 					}
+					
+					
+                        #fancybox-close {
+	position: absolute;
+	top: -15px;
+	right: -15px;
+	width: 30px;
+	height: 30px;
+	background: transparent url('fancybox.png') -40px 0px;
+	cursor: pointer;
+	z-index: 51103;
+	display: none;
+}
+
 
 				</style>
 
@@ -657,16 +672,7 @@
 						</div><!-- end of Disease -->
 
 
-						<!-- Order Mouse and ES Cells -->
-						<div class="section" id="order2">
-							<h2 class="title documentation" id="order-panel">Order Mouse and ES Cells<span
-									class="documentation"><a href='' id='orderSection' class="fa fa-question-circle pull-right"></a></span>
-							</h2>
-
-							<div class="inner">
-								<div id="allele2"></div>
-							</div>
-						</div><!-- End of Order Mouse and ES Cells -->
+						<!-- End of Order Mouse and ES Cells -->
 						
 						
 						<div class="section" id="order2">
@@ -675,7 +681,9 @@
 							</h2>
 
 							<div class="inner">
-								<div id="order_product"></div>
+								
+								<jsp:include page="orderSectionFrag.jsp"></jsp:include>
+								
 							</div>
 						</div>
 
@@ -728,7 +736,7 @@
 				// invoke anatomogram only when
 				// this check is not empty: impcAdultExpressionImageFacets
 
-				if ($('div#anatomogramContainer').size() == 1) {
+				 if ($('div#anatomogramContainer').size() == 1) {
 
 					// anatomogram stuff
 					//var expData = JSON.parse(${anatomogram});
@@ -822,7 +830,7 @@
 					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
 						$('ul#expList li a').removeClass("mahighlight");
 					});
-				}
+				} 
 
 				$("img.ui-button").each(function () {
 					// hide brain toggle for now
@@ -830,6 +838,29 @@
 						$(this).hide();
 					}
 				});
+				
+				$('.iFrameFancy').click(function()
+						{
+				 			$.fancybox.open([ 
+				                  {
+				                     href : $(this).attr('data-url'), 
+				                     title : 'Order Products'
+				                  } 
+				                  ], 
+				                   { 
+				                     'maxWidth'          : 1000, 
+				                     'maxHeight'         : 1900, 
+				                     'fitToView'         : false, 
+				                     'width'             : '100%',  
+				                     'height'            : '85%',  
+				                     'autoSize'          : false,  
+				                     'transitionIn'      : 'none', 
+				                     'transitionOut'     : 'none', 
+				                     'type'              : 'iframe', 
+				                     scrolling           : 'auto' 
+				                  }); 
+						}
+				 	);
 
 			});
 
