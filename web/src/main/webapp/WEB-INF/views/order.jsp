@@ -58,7 +58,7 @@
         		 					<tbody>
  										<c:forEach var="entry" items="${productsByName}">
  										
- 											<tr><td>${entry.key}</td><td>
+ 											<tr><td><img src="img/rep_icons/${fn:toLowerCase(entry.key)}.jpg" alt="${entry.key}"  width="100px" onerror="this.style.display='none';this.parentElement.parentElement.innerHTML='${entry.key}';" /></td><td>
  											<!-- just to print out the order link in case there are multiple order names and links that aren't this one -->
 		 											<c:forEach var="orderName" items="${ entry.value[0].orderNames}" varStatus="repoIndex">
 		 											<c:if test="${orderName eq entry.key}">
