@@ -905,24 +905,27 @@ public class DataTableController {
                 String syn = null;
 
                 for (Object d : data) {
-                    counter++;
+
                     String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
                     if (d.toString().toLowerCase().contains(targetStr)) {
                         if (synMatch == null) {
                             synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
                         }
-                    } else {
-                        if (counter == 1) {
-                            syn = d.toString();
-                        }
+                    }
+                    else {
+						counter++;
+						if ( counter == 1 ) {
+							syn = d.toString();
+						}
                     }
                 }
 
                 if (synMatch != null) {
                     syn = synMatch;
                 }
-                else if (counter > 1) {
-                    syn = syn + "<a href='" + baseUrl + "/phenotypes/" + mpId + "'> (see more ...)</a>";
+
+				if (counter > 1) {
+                    syn = syn + "<a href='" + baseUrl + "/phenotypes/" + mpId + "'> <span class='moreLess'>(Show more ...)</span></a>";
                 }
 
                 mpCol += "<div class='subinfo'>"
@@ -939,7 +942,7 @@ public class DataTableController {
             // some MP do not have definition
             String mpDef = "No definition data available";
             try {
-				int defaultLen = 100;
+				int defaultLen = 30;
 				mpDef = doc.getString("mp_definition");
 
 				if (mpDef.length() > defaultLen) {
@@ -1776,13 +1779,14 @@ public class DataTableController {
                     }
 
 					if ( synMatch != null ){
-						info.add(synMatch);
+						syn = synMatch;
 					}
-					else if ( counter == 1 ){
+
+					if ( counter == 1 ){
 						info.add(syn);
 					}
 					else if ( counter > 1 ){
-						info.add(syn + "<a href='" + geneUrl + "'> (see more ...)</a>");
+						info.add(syn + "<a href='" + geneUrl + "'> <span class='moreLess'>(see more ...)</span></a>");
 					}
                 }
 
