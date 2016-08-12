@@ -376,8 +376,8 @@ public class GenesController {
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 		
 		//process ardering section
-		int rows=25;
-		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, rows);
+		
+		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null);
 		model.addAttribute("acc",acc);
 		model.addAttribute("orderRows", orderRows);
 
