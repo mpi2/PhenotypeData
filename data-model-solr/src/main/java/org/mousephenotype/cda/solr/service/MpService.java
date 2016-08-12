@@ -74,7 +74,6 @@ public class MpService extends BasicService implements WebStatus{
 				.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
 				.setRows(1);
 
-		System.out.println(solrQuery.toString());
 		QueryResponse rsp = solr.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 
