@@ -43,6 +43,7 @@ public class AutosuggestBean {
 	public static final String MP_ID = "mp_id";
 	public static final String MP_TERM = "mp_term";
 	public static final String MP_TERM_SYNONYM = "mp_term_synonym";
+	public static final String MP_NARROW_SYNONYM = "mp_narrow_synonym";
 	public static final String ALT_MP_ID = "alt_mp_id";
 	public static final String CHILD_MP_ID = "child_mp_id";
 	public static final String CHILD_MP_TERM = "child_mp_term";
@@ -157,6 +158,9 @@ public class AutosuggestBean {
 
 	@Field(MP_TERM_SYNONYM)
 	private String mpTermSynonym;
+
+	@Field(MP_NARROW_SYNONYM)
+	private String mpNarrowSynonym;
 
 	@Field(CHILD_MP_ID)
 	private String childMpId;
@@ -450,6 +454,14 @@ public class AutosuggestBean {
 
 	public void setMpTermSynonym(String mpTermSynonym) {
 		this.mpTermSynonym = mpTermSynonym;
+	}
+
+	public String getMpNarrowSynonym() {
+		return mpNarrowSynonym;
+	}
+
+	public void setMpNarrowSynonym(String mpNarrowSynonym) {
+		this.mpNarrowSynonym = mpNarrowSynonym;
 	}
 
 	public String getChildMpId() {
@@ -884,6 +896,8 @@ public class AutosuggestBean {
 		if (mpTerm != null ? !mpTerm.equals(that.mpTerm) : that.mpTerm != null) return false;
 		if (mpTermSynonym != null ? !mpTermSynonym.equals(that.mpTermSynonym) : that.mpTermSynonym != null)
 			return false;
+		if (mpNarrowSynonym != null ? !mpNarrowSynonym.equals(that.mpNarrowSynonym) : that.mpNarrowSynonym != null)
+			return false;
 		if (childMpId != null ? !childMpId.equals(that.childMpId) : that.childMpId != null) return false;
 		if (childMpTerm != null ? !childMpTerm.equals(that.childMpTerm) : that.childMpTerm != null) return false;
 		if (childMpTermSynonym != null ? !childMpTermSynonym.equals(that.childMpTermSynonym) : that.childMpTermSynonym != null)
@@ -990,6 +1004,7 @@ public class AutosuggestBean {
 		result = 31 * result + (mpId != null ? mpId.hashCode() : 0);
 		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
 		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
+		result = 31 * result + (mpNarrowSynonym != null ? mpNarrowSynonym.hashCode() : 0);
 		result = 31 * result + (childMpId != null ? childMpId.hashCode() : 0);
 		result = 31 * result + (childMpTerm != null ? childMpTerm.hashCode() : 0);
 		result = 31 * result + (childMpTermSynonym != null ? childMpTermSynonym.hashCode() : 0);
@@ -1064,6 +1079,7 @@ public class AutosuggestBean {
 				", mpId='" + mpId + '\'' +
 				", mpTerm='" + mpTerm + '\'' +
 				", mpTermSynonym='" + mpTermSynonym + '\'' +
+				", mpNarrowSynonym='" + mpNarrowSynonym + '\'' +
 				", childMpId='" + childMpId + '\'' +
 				", childMpTerm='" + childMpTerm + '\'' +
 				", childMpTermSynonym='" + childMpTermSynonym + '\'' +
