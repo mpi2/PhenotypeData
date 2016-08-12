@@ -328,7 +328,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
 
         parameterMap.put("parameterId", parameterId);
-        if (sequenceId != null) {
+        if (sequenceId == null) {
             query = "SELECT * FROM parameterAssociation WHERE parameterId = :parameterId";
         } else {
             query = "SELECT * FROM parameterAssociation WHERE parameterId = :parameterId AND sequenceId = :sequenceId";
