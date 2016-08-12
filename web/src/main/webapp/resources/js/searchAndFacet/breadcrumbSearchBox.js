@@ -120,6 +120,7 @@ $(document).ready(function () {
 	var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75 disease_term:*^70 anatomy_term:*^60 anatomy_term_synonym:*^50";
 
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
+    srchkw = srchkw.replace(/%22/g, '');
 	$("input#s").val(decodeURI(srchkw));
 	$("input#s").click(function(){
 		if ( $(this).val() == 'Search') {
@@ -199,19 +200,25 @@ $(document).ready(function () {
 					for( var corename in facet2Label ) {
 						dataTypeVal.push(_getDropdownList(corename, facet2Label, request.term));
 					}
-					dataTypeVal.push("<hr>");
 
-					for ( var i=0; i<suggests.length; i++ ) {
-						dataTypeVal.push(suggests[i]);
-					}
+                    if ( suggests.length > 0 ) {
+                        //dataTypeVal.push("<hr>");
+                        for (var i = 0; i < suggests.length; i++) {
+                            dataTypeVal.push(suggests[i]);
+                        }
+                    }
 
-					response( $.fn.getUnique(dataTypeVal) );
+					response(dataTypeVal);
+
 				}
 			});
 		},
 		focus: function (event, ui) {
 			var thisInput = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
-			this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
+			//this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
+
+            // assign value to input box
+            this.value = thisInput.trim();
 
 			event.preventDefault(); // Prevent the default focus behavior.
 		},
@@ -234,21 +241,15 @@ $(document).ready(function () {
 			// }
 			// else {
 				var qVal = this.value;
-				var qRe = new RegExp(" in (Genes|Phenotypes|Diseases|Anatomy|Images|Products)\"$");
-				q = qVal.replace(qRe, "") + "\"";
+				var qRe = new RegExp(" in (Genes|Phenotypes|Diseases|Anatomy|Images|Products)$");
+				q = qVal.replace(qRe, "");
+
 			//}
 			q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
-			q = q.replace(/%22%22$/, "%22");
+            // default to send query to Solr in quotes !!!
 
-			// we are choosing value from drop-down list so need to double quote the value for SOLR query
-			//document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
-
-			// // product is from allele2: autosuggest dropdown shows "product" to the users, but we need to query by allele2 internally
-			// if ( facet == 'product' ){
-			// 	facet = "allele2";
-			// }
-			var href = baseUrl + '/search/' + facet  + '?' + "kw=" + q;
+			var href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"";
 			if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
 				href += "&fq=" + facet2Fq[facet];
 			}
@@ -357,12 +358,13 @@ $('input#s').keyup(function (e) {
 			}
 			else {
 
+			    // default to search by quotes
 				var fqStr = $.fn.fetchUrlParams("fq");
 				if (fqStr != undefined) {
-					document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
+					document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
 				}
 				else {
-					document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
+					document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
 				}
 			}
 
@@ -372,10 +374,10 @@ $('input#s').keyup(function (e) {
 			// is on non-search page
 			// user typed something and hit ENTER: need to figure out default core to load on search page
 			$.ajax({
-				url: baseUrl + "/fetchDefaultCore?q=" + input,
+				url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
 				type: 'get',
 				success: function (defaultCore) {
-					document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
+					document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
 				}
 			});
 		}
