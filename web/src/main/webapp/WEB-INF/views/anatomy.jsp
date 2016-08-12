@@ -82,11 +82,26 @@
 							<div class="section">
 								<div class="inner">
 									<c:if test="${fn:length(anatomy.getAnatomyTermSynonym()) > 0 }">
-										<p class="with-label"> <span class="label">Synonyms </span>
-											<c:forEach items="${anatomy.getAnatomyTermSynonym()}" var="synonym" varStatus="synonymLoop">
-												${synonym}<c:if test="${!synonymLoop.last}">,&nbsp;</c:if>
-											</c:forEach>
-										</p>
+
+										<div id="synonyms" class="with-label"> <span class="label">Synonyms</span>
+
+											<c:if test='${fn:length(anatomy.getAnatomyTermSynonym()) gt 1}'>
+												<ul>
+													<c:forEach var="synonym" items="${anatomy.getAnatomyTermSynonym()}" varStatus="loop">
+														<li>${synonym}</li>
+													</c:forEach>
+												</ul>
+											</c:if>
+											<c:if test='${fn:length(anatomy.getAnatomyTermSynonym()) == 1}'>
+
+												<c:forEach var="synonym" items="${anatomy.getAnatomyTermSynonym()}" varStatus="loop">
+													${synonym}
+													<%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+												</c:forEach>
+
+											</c:if>
+										</div>
+
 									</c:if>
 									<p class="with-label"> <span class="label">Stage</span>
 										<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
