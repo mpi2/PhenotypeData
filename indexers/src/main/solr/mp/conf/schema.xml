@@ -321,7 +321,10 @@
 
 
         <!-- bucket list qf -->
-        <field name="mpQf" type="text_ngram" indexed="true" stored="true" multiValued="true"/>
+        <field name="mpQf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+        <field name="mpSynQf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+        <field name="hpSynQf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+        <field name="mixSynQf" type="text_ngram" indexed="true" stored="true" multiValued="true"/>
 
         <!-- For ontology browser  -->
 
@@ -434,5 +437,16 @@
     <copyField source="hp_id" dest="mpQf" />
     <copyField source="hp_term" dest="mpQf" />
     <copyField source="hp_term_synonym" dest="mpQf" />
+
+    <copyField source="mp_term_synonym" dest="mpSynQf" />
+    <copyField source="mp_narrow_synonym" dest="mpSynQf" />
+
+    <copyField source="hp_term" dest="hpSynQf" />
+    <copyField source="hp_term_synonym" dest="hpSynQf" />
+
+    <copyField source="mp_term_synonym" dest="mixSynQf" />
+    <copyField source="mp_narrow_synonym" dest="mixSynQf" />
+    <copyField source="hp_term" dest="mixSynQf" />
+    <copyField source="hp_term_synonym" dest="mixSynQf" />
 
 </schema>
