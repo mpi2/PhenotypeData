@@ -29,18 +29,6 @@ span#rmFilters {
 span.ui-helper-hidden-accessible {
 	font-size: 14px;
 }
-span.gene, span.mp, span.anatomy, span.disease, span.hp {
-	color: black;
-}
-b.sugTerm {
-	color: #0978A1;
-}
-span.sugList {
-	color: black;
-}
-span.category {
-    color: #EF7B0B;
-}
 
 /* New Facet Block without IDs */
 div.ffilter {
@@ -180,6 +168,11 @@ div#allele2Tab table#dTable th:nth-child(3) {
 div#allele2Tab table#dTable td:nth-child(3) a {
 	margin-left: 5px;
 }
+
+div#impc_imagesTab div.mpi2-search {
+    margin-top: 0px;
+}
+
 /* end of dataTable on search page */
 
 
@@ -423,7 +416,7 @@ div.searchcontent {
 	-moz-border-radius:;
 	border-radius: 5px;
 	float: left;
-	width: 95%;
+	width: 94%;
 	background-color: #0978A1;
 	padding: 10px 14px 10px 10px;
 	margin: 0 30px 0 0px;
@@ -439,7 +432,7 @@ div.searchcontent {
 #bigsearchbox i#clearIcon {
 	position: absolute;
 	top: 27px;
-	right: 3.5em;
+	right: 4em;
 }
 i.searchExample {
 	top: 22px;
@@ -535,7 +528,8 @@ i.fa a {
 div.fullDef {
 	display: none;
 }
-div.moreLess {
+.moreLess {
 	cursor: pointer;
 	color: #0978A1;
+    font-size: 12px;
 }
