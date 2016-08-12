@@ -18,55 +18,79 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * This report calls the loads module's ValidateImport for a report of what procedures, specimens, and colonies exist
- * in a prior dcc database that no longer exist in a more recent version.
+ * This report produces a file of what procedures, specimens, and colonies exist
+ * in a prior dcc database that no longer exist in a more recent version of the database.
  *
  * Created by mrelac on 24/07/2015.
  */
 @Component
 public class ImportDccMissingReport extends AbstractReport {
 
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger   logger   = LoggerFactory.getLogger(this.getClass());
+    private SqlUtils sqlUtils = new SqlUtils();
 
     @Autowired
-    GeneService geneService;
-
-    @Autowired
-    @Qualifier("postqcService")
-    PostQcService genotypePhenotypeService;
-
-    @Autowired
-    ObservationService observationService;
-
     @NotNull
-    @Value("${drupalBaseUrl}")
-    protected String drupalBaseUrl;
+    @Qualifier("jdbctemplate1")
+    private JdbcTemplate jdbc1;
 
-    public static final String[] EMPTY_ROW = new String[]{""};
+    @Autowired
+    @NotNull
+    @Qualifier("jdbctemplate2")
+    private JdbcTemplate jdbc2;
+
+    /**********************
+     * DATABASES: DCC, 3I
+     **********************
+    */
+    private final String[] queries = new String[] {
+            "SELECT\n" +
+            "  c.centerId\n" +
+            ", c.pipeline\n" +
+            ", c.project\n" +
+            ", p.procedureId\n" +
+            "FROM center_procedure cp\n" +
+            "JOIN center c ON c.pk = cp.center_pk\n" +
+            "JOIN procedure_ p ON p.pk = cp.procedure_pk"
+
+          , "SELECT\n" +
+            "  c.centerId\n" +
+            ", c.pipeline\n" +
+            ", c.project\n" +
+            ", s.specimenId\n" +
+            "FROM center_specimen cs\n" +
+            "JOIN center c ON c.pk = cs.center_pk\n" +
+            "JOIN specimen s ON s.pk = cs.specimen_pk"
+
+//          , "SELECT\n" +
+//            "  e.experimentId\n" +
+//            ", c.centerId\n" +
+//            ", c.pipeline\n" +
+//            ", c.project\n" +
+//            ", p.procedureId\n" +
+//            "FROM experiment e\n" +
+//            "JOIN center_procedure cp ON cp.pk = e.center_procedure_pk\n" +
+//            "JOIN center c ON c.pk = cp.center_pk\n" +
+//            "JOIN procedure_ p ON p.pk = cp.procedure_pk"
+        };
+
+
 
     public ImportDccMissingReport() {
         super();
@@ -88,167 +112,24 @@ public class ImportDccMissingReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result = new ArrayList<>();
-        Map<Pair<String, ZygosityType>, Set<String>> mps = new TreeMap<>();
+        List<String[]> results = new ArrayList<>();
 
-        Map<GeneCenterZygosity, List<String>> data = new HashMap<>();
-        Map<GeneCenterZygosity, List<String>> viabilityData = new HashMap<>();
+        for (int i = 0; i < queries.length; i++) {
+            String query = queries[i];
 
-        String[] headerParams = {"MP Term", "Zygosity", "# Genes", "Gene Symbol (MGI Gene Id)"};
-        result.add(headerParams);
+            try {
+                List<String[]> missing = (sqlUtils.queryDiff(jdbc1, jdbc2, query));
+                if (i > 0)
+                    missing.add(EMPTY_ROW);
+                csvWriter.writeAll(missing);
 
-        try {
+            } catch (Exception e) {
 
-            // Get the list of phenotype calls
-            List<GenotypePhenotypeDTO> gps = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
-
-            for (GenotypePhenotypeDTO gp : gps) {
-
-                // Exclude Viability calls from the counts of genes by zygosity
-                if (gp.getParameterStableId().contains("VIA")) {
-                    continue;
-                }
-
-                // Exclude LacZ calls
-                if (gp.getParameterStableId().contains("ALZ")) {
-                    continue;
-                }
-
-                final String symbol = gp.getMarkerSymbol();
-                final ZygosityType zygosity = ZygosityType.valueOf(gp.getZygosity());
-                final List<String> topLevelMpTermName = gp.getTopLevelMpTermName();
-
-                if (topLevelMpTermName == null) continue;
-
-                // Collect top level MP term information
-                for (String mp : topLevelMpTermName) {
-                    Pair<String, ZygosityType> k = new ImmutablePair<>(mp, zygosity);
-                    if (!mps.containsKey(k)) {
-                        mps.put(k, new HashSet<String>());
-                    }
-                    mps.get(k).add(symbol);
-                }
-
-                // Collect gene center zygosity -> mp term
-                GeneCenterZygosity g = new GeneCenterZygosity();
-                g.setGeneSymbol(symbol);
-                g.setZygosity(ZygosityType.valueOf(gp.getZygosity()));
-                g.setPhenotypeCenter(gp.getPhenotypingCenter());
-                if (!data.containsKey(g)) {
-                    data.put(g, new ArrayList<String>());
-                }
-
-                data.get(g).add(gp.getMpTermName());
+                throw new ReportException(e);
             }
-
-            for (Pair<String, ZygosityType> k : mps.keySet()) {
-                final String mpSymbol = k.getLeft();
-                final String zygosity = k.getRight().getName();
-
-
-                Set<String> mpsSet = new HashSet<>();
-                for (String gene : mps.get(k)) {
-                    GeneDTO geneDTO = geneService.getGeneByGeneSymbol(gene);
-
-                    if ((geneDTO != null) && (geneDTO.getMgiAccessionId() != null) && ( ! geneDTO.getMgiAccessionId().isEmpty())) {
-                        mpsSet.add(gene + "(" + geneDTO.getMgiAccessionId() + ")");
-                    } else {
-                        mpsSet.add(gene);
-                    }
-                }
-
-                String[] row = {mpSymbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mpsSet, "::")};
-                result.add(row);
-            }
-
-            result.add(EMPTY_ROW);
-            result.add(EMPTY_ROW);
-
-            // Get the viability data from the experiment core directly
-            for (ObservationDTO obs : observationService.getObservationsByParameterStableId("IMPC_VIA_001_001")) {
-
-
-                // Skip records that are not for the resources we are interested in
-                if (!resources.contains(obs.getDataSourceName())) {
-                    continue;
-                }
-
-                String symbol = obs.getGeneSymbol();
-
-                GeneCenterZygosity g = new GeneCenterZygosity();
-                g.setGeneSymbol(symbol);
-                g.setZygosity(ZygosityType.valueOf(obs.getZygosity()));
-                g.setPhenotypeCenter(obs.getPhenotypingCenter());
-                if (!viabilityData.containsKey(g)) {
-                    viabilityData.put(g, new ArrayList<String>());
-                }
-
-                viabilityData.get(g).add(obs.getCategory());
-            }
-
-            String[] resetHeaderParams = {"Gene Symbol", "MGI Gene Id", "Center", "Viability", "Hom", "Het", "Hemi", "Gene Page URL"};
-            result.add(resetHeaderParams);
-
-            Set<String> geneSymbols = new HashSet<>();
-            for (GeneCenterZygosity g : data.keySet()) {
-                geneSymbols.add(g.getGeneSymbol());
-            }
-
-            Set<String> centers = new HashSet<>();
-            for (GeneCenterZygosity g : viabilityData.keySet()) {
-                geneSymbols.add(g.getGeneSymbol());
-                centers.add(g.getPhenotypeCenter());
-            }
-
-            for (String geneSymbol : geneSymbols) {
-
-                GeneDTO gene = geneService.getGeneByGeneSymbol(geneSymbol);
-
-                for (String center : centers) {
-
-                    boolean include = false;
-
-                    List<String> via = new ArrayList<>();
-
-                    GeneCenterZygosity candidate = new GeneCenterZygosity();
-                    candidate.setPhenotypeCenter(center);
-                    candidate.setGeneSymbol(geneSymbol);
-
-                    candidate.setZygosity(ZygosityType.homozygote);
-                    String homCount = (data.get(candidate) != null) ? Integer.toString(data.get(candidate).size()) : "";
-                    if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
-                    include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
-
-                    candidate.setZygosity(ZygosityType.heterozygote);
-                    String hetCount = (data.get(candidate) != null) ? Integer.toString(data.get(candidate).size()) : "";
-                    if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
-                    include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
-
-                    candidate.setZygosity(ZygosityType.hemizygote);
-                    String hemiCount = (data.get(candidate) != null) ? Integer.toString(data.get(candidate).size()) : "";
-                    if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
-                    include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
-
-                    String geneLink = "";
-                    if (gene != null) {
-                        geneLink = drupalBaseUrl + "/data/genes/" + gene.getMgiAccessionId();
-                        if (geneLink.startsWith("//")) {
-                            geneLink = "http:" + geneLink;
-                        }
-                    }
-
-                    String mgiGeneId = ((gene != null) && (gene.getMgiAccessionId() != null) ? gene.getMgiAccessionId() : "");
-                    String[] row = {geneSymbol, mgiGeneId, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink};
-                    if (include)
-                        result.add(row);
-                }
-            }
-
-            csvWriter.writeAll(result);
-
-        } catch (SolrServerException | IOException e) {
-            throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
+
+        csvWriter.writeAll(results);
 
         try {
             csvWriter.close();
@@ -257,84 +138,5 @@ public class ImportDccMissingReport extends AbstractReport {
         }
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
-    }
-
-
-    // PRIVATE METHODS
-
-
-    private class GeneCenterZygosity {
-        private String geneSymbol;
-        private String phenotypeCenter;
-        private ZygosityType zygosity;
-
-
-        public String getGeneSymbol() {
-
-            return geneSymbol;
-        }
-
-
-        public void setGeneSymbol(String geneSymbol) {
-
-            this.geneSymbol = geneSymbol;
-        }
-
-
-        public String getPhenotypeCenter() {
-
-            return phenotypeCenter;
-        }
-
-
-        public void setPhenotypeCenter(String phenotypeCenter) {
-
-            this.phenotypeCenter = phenotypeCenter;
-        }
-
-
-        public ZygosityType getZygosity() {
-
-            return zygosity;
-        }
-
-
-        public void setZygosity(ZygosityType zygosity) {
-
-            this.zygosity = zygosity;
-        }
-
-
-        @Override
-        public boolean equals(Object o) {
-
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof GeneCenterZygosity)) {
-                return false;
-            }
-
-            GeneCenterZygosity that = (GeneCenterZygosity) o;
-
-            if (geneSymbol != null ? !geneSymbol.equals(that.geneSymbol) : that.geneSymbol != null) {
-                return false;
-            }
-            if (phenotypeCenter != null ? !phenotypeCenter.equals(that.phenotypeCenter) : that.phenotypeCenter != null) {
-                return false;
-            }
-            return zygosity == that.zygosity;
-
-        }
-
-
-        @Override
-        public int hashCode() {
-
-            int result = geneSymbol != null ? geneSymbol.hashCode() : 0;
-            result = 31 * result + (phenotypeCenter != null ? phenotypeCenter.hashCode() : 0);
-            result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
-            return result;
-        }
     }
 }

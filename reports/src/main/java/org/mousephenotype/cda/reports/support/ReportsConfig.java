@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 
@@ -71,4 +72,30 @@ public class ReportsConfig {
     public SexualDimorphismDAO sexualDimorphismDAO() {
         return new SexualDimorphismDAOImpl();
     }
+
+    // Needed for ImportDccMissingReport
+
+    @Bean(name = "dcc1")
+       @ConfigurationProperties(prefix = "dcc1")
+   	public DataSource dcc1() {
+           DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+   		return ds;
+   	}
+
+   	@Bean(name = "dcc2")
+       @ConfigurationProperties(prefix = "dcc2")
+   	public DataSource dcc2() {
+           DataSource ds = DataSourceBuilder.create().build();
+   		return ds;
+   	}
+
+   	@Bean(name = "jdbctemplate1")
+   	public JdbcTemplate jdbctemplate1() {
+   		return new JdbcTemplate(dcc1());
+   	}
+
+   	@Bean(name = "jdbctemplate2")
+   	public JdbcTemplate jdbctemplate2() {
+   		return new JdbcTemplate(dcc2());
+   	}
 }

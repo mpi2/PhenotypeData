@@ -1,12 +1,17 @@
 package org.mousephenotype.cda.db.utilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 
 /**
@@ -14,6 +19,8 @@ import java.util.Date;
  */
 @Component
 public class SqlUtils {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Overloaded helper methods for preparing SQL statement
@@ -81,7 +88,7 @@ public class SqlUtils {
 
         try {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = df.parse(dateString);
+            java.util.Date date = df.parse(dateString);
             retVal = new java.sql.Date(date.getTime());
         }
         catch(ParseException e) { }
@@ -116,4 +123,91 @@ public class SqlUtils {
 		return found;
 	}
 
+    /**
+     * Given two {@link JdbcTemplate} instances and a query, executes the query against jdbc1, then against jdbc2,
+     * returning the set difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
+     * an empty list is returned. If results are returned, the first row is the column headings. Subsequent rows are the
+     * data.
+     *
+     * @param jdbc1 the first {@link JdbcTemplate} instance
+     * @param jdbc2 the second {@link JdbcTemplate} instance
+     * @param query the query to execute against both {@link JdbcTemplate} instances
+     *
+     * @return the set difference of the results found in jdbc1 but not found in jdbc2Q. If there are no differences,
+     *         null is returned.
+     *
+     * @throws Exception
+     */
+    public List<String[]> queryDiff(JdbcTemplate jdbc1, JdbcTemplate jdbc2, String query) throws Exception {
+        List<String[]> results = new ArrayList<>();
+
+        Set<List<String>> results1 = new HashSet<>();
+        SqlRowSet         rs1      = jdbc1.queryForRowSet(query);
+        while (rs1.next()) {
+            results1.add(getData(rs1));
+        }
+
+        Set<List<String>> results2 = new HashSet<>();
+        SqlRowSet rs2 = jdbc2.queryForRowSet(query);
+        while (rs2.next()) {
+            results2.add(getData(rs2));
+        }
+
+        // Fill the results list with the rows found in results1 but not found in results2.
+        results1.removeAll(results2);
+
+        if ( ! results1.isEmpty()) {
+            String[] columnNames = rs1.getMetaData().getColumnNames();
+            results.add(columnNames);
+
+            Iterator<List<String>> it = results1.iterator();
+            while (it.hasNext()) {
+                results.add(it.next().toArray(new String[0]));
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Given an {@link SqlRowSet}, extracts each column of data, converting to type {@link String} as necessary,
+     * returning the row's cells in a {@link List<String>}
+     *
+     * @param rs the sql result containng a row of data
+     *
+     * @return the row's cells in a {@link List<String>}
+     *
+     * @throws Exception
+     */
+    private List<String> getData(SqlRowSet rs) throws Exception {
+        List<String> newRow = new ArrayList<>();
+
+        SqlRowSetMetaData md = rs.getMetaData();
+
+        // Start index at 1, as column indexes are 1-relative.
+        for (int i = 1; i <= md.getColumnCount(); i++) {
+            int sqlType = md.getColumnType(i);
+            switch (sqlType) {
+                case Types.CHAR:
+                case Types.VARCHAR:
+                case Types.LONGVARCHAR:
+                    newRow.add(rs.getString(i));
+                    break;
+
+                case Types.INTEGER:
+                case Types.TINYINT:
+                    newRow.add(Integer.toString(rs.getInt(i)));
+                    break;
+
+                case Types.BIT:
+                    newRow.add(rs.getBoolean(i) ? "1" : "0");
+                    break;
+
+                default:
+                    throw new Exception("No rule to handle sql type '" + md.getColumnTypeName(i) + "' (" + sqlType + ").");
+            }
+        }
+
+        return newRow;
+    }
 }
