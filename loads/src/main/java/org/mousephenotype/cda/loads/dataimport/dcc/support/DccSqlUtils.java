@@ -1013,7 +1013,7 @@ public class DccSqlUtils {
             parameterMap.put("parameterId", ontologyParameter.getParameterID());
             parameterMap.put("parameterStatus", ontologyParameter.getParameterStatus());
             parameterMap.put("sequenceId", ontologyParameter.getSequenceID());
-            parameterMap.put("procedure_pk", procedurePk);
+            parameterMap.put("procedurePk", procedurePk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
