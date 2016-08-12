@@ -117,8 +117,7 @@ $(document).ready(function () {
 	};
 
 	// generic search input autocomplete javascript
-	var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 mp_term:*^90 mp_term_synonym:*^80 disease_term:*^70 anatomy_term:*^60 anatomy_term_synonym:*^50" ;
-
+	var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75 disease_term:*^70 anatomy_term:*^60 anatomy_term_synonym:*^50";
 
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
 	$("input#s").val(decodeURI(srchkw));
@@ -136,9 +135,10 @@ $(document).ready(function () {
 		source: function( request, response ) {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
 			var facetStr = "&facet=on&facet.field=docType&facet.mincount=1&facet.limit=-1";
+			var sortStr = "&sort=score desc";
 			$.ajax({
 				//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
-				url: solrUrl + "/autosuggest/select?rows=5&fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + facetStr,
+				url: solrUrl + "/autosuggest/select?rows=5&fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + facetStr + sortStr,
 				dataType: "jsonp",
 				'jsonp': 'json.wrf',
 				data: {
@@ -146,15 +146,16 @@ $(document).ready(function () {
 				},
 				success: function( data ) {
 
-					matchedFacet = false; // reset
+					//matchedFacet = false; // reset
 					var docs = data.response.docs;
 
-					var aKVtmp = {};
+					//var aKVtmp = {};
+					var suggests = [];
+					var seenTerm = {};
 					for ( var i=0; i<docs.length; i++ ){
 						var facet = null;
 
 						for ( var key in docs[i] ){
-
 
 							if ( facet == 'hp' && (key == 'hpmp_id' || key == 'hpmp_term') ){
 								continue;
@@ -162,9 +163,6 @@ $(document).ready(function () {
 
 							if ( key == 'docType' ){
 								facet = docs[i][key].toString();
-								if ( ! aKVtmp.hasOwnProperty(facet) ) {
-									aKVtmp[facet] = [];
-								}
 							}
 							else {
 
@@ -186,16 +184,13 @@ $(document).ready(function () {
 								var re = new RegExp("(" + termStr + ")", "gi") ;
 								var termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
 
-								if ( facet == 'hp' ){
-									termHl += " &raquo; <span class='hp2mp'>" + docs[i]['hpmp_id'].toString() + ' - ' + docs[i]['hpmp_term'].toString() + "</span>";
+								// add only once with the top score
+								var lowerCaseTerm = term.toLowerCase();
+								if ( seenTerm[lowerCaseTerm] == undefined){
+									seenTerm[lowerCaseTerm]++;
+									suggests.push("<span class='" + facet + " sugList'>" + termHl + "</span>");
 								}
 
-								aKVtmp[facet].push("<span class='" + facet + " sugList'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
-
-								if (i == 0){
-									// take the first found in autosuggest and open that facet
-									matchedFacet = facet;
-								}
 							}
 						}
 					}
@@ -206,12 +201,8 @@ $(document).ready(function () {
 					}
 					dataTypeVal.push("<hr>");
 
-					var aKVtmpSorted = $.fn.sortJson(aKVtmp);
-					for ( var k in aKVtmpSorted ){
-
-						for ( var v in aKVtmpSorted[k] ) {
-							dataTypeVal.push(aKVtmpSorted[k][v]);
-						}
+					for ( var i=0; i<suggests.length; i++ ) {
+						dataTypeVal.push(suggests[i]);
 					}
 
 					response( $.fn.getUnique(dataTypeVal) );
@@ -236,17 +227,19 @@ $(document).ready(function () {
 			var q;
 			//var matched = this.value.match(/.+ » (MP:\d+) - .+/);
 
-			var matched = decodeURIComponent(this.value).match(/.+(MP:\d+) - .+/);
-			//var matched = this.value.match(/.+(MP:\d+) - .+/);
-			if ( matched ){
-				q = matched[1];
-			}
-			else {
+			// var matched = decodeURIComponent(this.value).match(/.+(MP:\d+) - .+/);
+			// //var matched = this.value.match(/.+(MP:\d+) - .+/);
+			// if ( matched ){
+			// 	q = matched[1];
+			// }
+			// else {
 				var qVal = this.value;
 				var qRe = new RegExp(" in (Genes|Phenotypes|Diseases|Anatomy|Images|Products)\"$");
 				q = qVal.replace(qRe, "") + "\"";
-			}
+			//}
 			q = encodeURIComponent(q).replace("%3A", "\\%3A");
+
+			q = q.replace(/%22%22$/, "%22");
 
 			// we are choosing value from drop-down list so need to double quote the value for SOLR query
 			//document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
@@ -255,7 +248,6 @@ $(document).ready(function () {
 			// if ( facet == 'product' ){
 			// 	facet = "allele2";
 			// }
-
 			var href = baseUrl + '/search/' + facet  + '?' + "kw=" + q;
 			if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
 				href += "&fq=" + facet2Fq[facet];
