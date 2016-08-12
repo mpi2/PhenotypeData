@@ -22,43 +22,43 @@ jQuery(document).ready(	function() {
           return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
         }
 
-        try {
-            $.ajax({
-                    url: baseUrl + '/genesAllele2/' + gene_id,
-
-                    timeout: 5000,
-                    success: function (response) {
-
-                        $('#allele2').html(response);
-                    }
-                    ,error: function(x, t, m) {
-                        var errorMsg='<td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
-                        $('#allele2').html(errorMsg);
-                    }
-            });
-        }
-        catch(err) {
-            console.log("#### Exception: " + err);
-        }
+//        try {
+//            $.ajax({
+//                    url: baseUrl + '/genesAllele2/' + gene_id,
+//
+//                    timeout: 5000,
+//                    success: function (response) {
+//
+//                        $('#allele2').html(response);
+//                    }
+//                    ,error: function(x, t, m) {
+//                        var errorMsg='<td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
+//                        $('#allele2').html(errorMsg);
+//                    }
+//            });
+//        }
+//        catch(err) {
+//            console.log("#### Exception: " + err);
+//        }
         
-        try {
-            $.ajax({
-                    url: baseUrl + '/orderSection?acc=' + gene_id,
-
-                    timeout: 5000,
-                    success: function (response) {
-
-                        $('#order_product').html(response);
-                    }
-                    ,error: function(x, t, m) {
-                        var errorMsg='<td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
-                        $('#order_product').html(errorMsg);
-                    }
-            });
-        }
-        catch(err) {
-            console.log("#### Exception: " + err);
-        }
+//        try {
+//            $.ajax({
+//                    url: baseUrl + '/orderSection?acc=' + gene_id,
+//
+//                    timeout: 5000,
+//                    success: function (response) {
+//
+//                        $('#order_product').html(response);
+//                    }
+//                    ,error: function(x, t, m) {
+//                        var errorMsg='<td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
+//                        $('#order_product').html(errorMsg);
+//                    }
+//            });
+//        }
+//        catch(err) {
+//            console.log("#### Exception: " + err);
+//        }
 
         $('.qcData').each(function(){
             var type = $(this).data("type");

@@ -24,21 +24,7 @@ public class OrderController {
 	
 	@Autowired
 	OrderService orderService;
-	
-	@RequestMapping("/orderSection")
-	public String orderSection(@RequestParam (required = false) String acc, 
-			@RequestParam (required=false, defaultValue="25") int rows,
-			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
 		
-		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, rows);
-		model.addAttribute("acc",acc);
-		model.addAttribute("orderRows", orderRows);
-
-		//for cre products link at bottom of table
-		model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
-		return "orderSectionFrag";
-	}
-	
 	/**
 	 * 
 	 * @param allele e.g. Thpotm1(KOMP)Vlcg
