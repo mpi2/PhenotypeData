@@ -275,9 +275,9 @@ public class DccSqlUtils {
     public List<Dimension> getDimensions(long parameterAssociationPk) {
         List<Dimension> dimensions = new ArrayList<>();
 
-        String query = "SELECT * FROM dimension WHERE parameterAssociation_pk = :parameterAssociation_pk";
+        String query = "SELECT * FROM dimension WHERE parameterAssociation_pk = :parameterAssociationPk";
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("parameterAssociation_pk", parameterAssociationPk);
+        parameterMap.put("parameterAssociationPk", parameterAssociationPk);
         dimensions = npJdbcTemplate.query(query, parameterMap, new DimensionRowMapper());
 
         return dimensions;
@@ -518,12 +518,12 @@ public class DccSqlUtils {
      */
     public long insertCenter_specimen(long centerPk, long specimenPk) {
         long pk;
-        String insert = "INSERT INTO center_specimen (center_pk, specimen_pk) VALUES (:center_pk, :specimen_pk)";
+        String insert = "INSERT INTO center_specimen (center_pk, specimen_pk) VALUES (:centerPk, :specimenPk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
-            parameterMap.put("center_pk", centerPk);
-            parameterMap.put("specimen_pk", specimenPk);
+            parameterMap.put("centerPk", centerPk);
+            parameterMap.put("specimenPk", specimenPk);
 
             npJdbcTemplate.update(insert, parameterMap);
             pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
@@ -542,15 +542,15 @@ public class DccSqlUtils {
      *
      * @return the embryo, with primary key loaded
      */
-    public Embryo insertEmbryo(Embryo embryo, long specimen_pk) {
-        String insert = "INSERT INTO embryo (stage, stageUnit, specimen_pk) VALUES (:stage, :stageUnit, :specimen_pk)";
+    public Embryo insertEmbryo(Embryo embryo, long specimenPk) {
+        String insert = "INSERT INTO embryo (stage, stageUnit, specimen_pk) VALUES (:stage, :stageUnit, :specimenPk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
 
             parameterMap.put("stage", embryo.getStage());
             parameterMap.put("stageUnit", embryo.getStageUnit().value());
-            parameterMap.put("specimen_pk", specimen_pk);
+            parameterMap.put("specimenPk", specimenPk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
@@ -572,10 +572,10 @@ public class DccSqlUtils {
      *
      * @return the genotype, with primary key loaded
      */
-    public Genotype insertGenotype(Genotype genotype, long specimen_pk) {
+    public Genotype insertGenotype(Genotype genotype, long specimenPk) {
         long pk = 0L;
         String insert = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_pk) "
-                     + " VALUES (:geneSymbol, :mgiAlleleId, :mgiGeneId, :fatherZygosity, :motherZygosity, :specimen_pk)";
+                     + " VALUES (:geneSymbol, :mgiAlleleId, :mgiGeneId, :fatherZygosity, :motherZygosity, :specimenPk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
@@ -585,7 +585,7 @@ public class DccSqlUtils {
             parameterMap.put("mgiGeneId", genotype.getMGIGeneId());
             parameterMap.put("fatherZygosity", (genotype.getFatherZygosity() == null ? null : genotype.getFatherZygosity().value()));
             parameterMap.put("motherZygosity", (genotype.getMotherZygosity() == null ? null : genotype.getMotherZygosity().value()));
-            parameterMap.put("specimen_pk", specimen_pk);
+            parameterMap.put("specimenPk", specimenPk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
@@ -1013,7 +1013,7 @@ public class DccSqlUtils {
             parameterMap.put("parameterId", ontologyParameter.getParameterID());
             parameterMap.put("parameterStatus", ontologyParameter.getParameterStatus());
             parameterMap.put("sequenceId", ontologyParameter.getSequenceID());
-            parameterMap.put("procedure_pk", procedurePk);
+            parameterMap.put("procedurePk", procedurePk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
@@ -1153,11 +1153,11 @@ public class DccSqlUtils {
      * Inserts the given {@link RelatedSpecimen} into the relatedSpecimen table. Duplicates are ignored.
      *
      * @param relatedSpecimen the relatedSpecimen to be inserted
-     * @param specimen_theirs_pk the primary key of the related specimen to be inserted
+     * @param specimen_theirsPk the primary key of the related specimen to be inserted
      *
      * @return the relatedSpecimen, with primary key loaded
      */
-    public RelatedSpecimen insertRelatedSpecimen(RelatedSpecimen relatedSpecimen, long specimen_theirs_pk) {
+    public RelatedSpecimen insertRelatedSpecimen(RelatedSpecimen relatedSpecimen, long specimen_theirsPk) {
         String insert = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_pk) "
                       + "VALUES (:relationship, :specimenIdMine, :specimen_theirsPk)";
 
@@ -1166,7 +1166,7 @@ public class DccSqlUtils {
 
             parameterMap.put("relationship", relatedSpecimen.getRelationship().value());
             parameterMap.put("specimenIdMine", relatedSpecimen.getSpecimenID());
-            parameterMap.put("specimen_theirsPk", specimen_theirs_pk);
+            parameterMap.put("specimen_theirsPk", specimen_theirsPk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
