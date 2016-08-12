@@ -3,11 +3,8 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <!-- just for testing with styles remove -->
-<%-- <head>
-<link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
-</head> --%>
 <c:if test="${orderRows.size() > 0}">
-<table class="reduce nonwrap">        
+<table>        
         <thead>
         		 <tr>
                         <th style="border-bottom:0px;"></th>
@@ -136,37 +133,4 @@
         <div><a href="http://www.creline.org/eucommtools#${alleleProductsCre2.get('mgi_acc')}" target="_blank">Cre Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>       
     </c:when>
 </c:choose>
-<script type="text/javascript">
-<!--
-
-//-->
-$(document).ready(function () {
-
-	var base_url="${baseUrl}";
-	$('.iFrameFancy').click(function()
-		{
- 			$.fancybox.open([ 
-                  {
-                     href : $(this).attr('data-url'), 
-                     title : 'Order Products'
-                  } 
-                  ], 
-                   { 
-                     'maxWidth'          : 1000, 
-                     'maxHeight'         : 1900, 
-                     'fitToView'         : false, 
-                     'width'             : '100%',  
-                     'height'            : '85%',  
-                     'autoSize'          : false,  
-                     'transitionIn'      : 'none', 
-                     'transitionOut'     : 'none', 
-                     'type'              : 'iframe', 
-                     scrolling           : 'auto' 
-                  }); 
-		}
- 	);
-});
-    
- </script>
-<!-- <iframe id="fancybox-frame1470216593610" name="fancybox-frame1470216593610" class="fancybox-iframe" frameborder="0" vspace="0" hspace="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen="" scrolling="auto" src="/data/charts?accession=MGI:95698&amp;parameter_stable_id=IMPC_CSD_034_001&amp;allele_accession=MGI:5637207&amp;zygosity=heterozygote&amp;phenotyping_center=MRC Harwell&amp;bare=true"></iframe>
- -->	                               	
+                            	

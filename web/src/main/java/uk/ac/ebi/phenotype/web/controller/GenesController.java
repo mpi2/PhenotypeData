@@ -125,6 +125,9 @@ public class GenesController {
 
 	@Autowired
 	private UniprotService uniprotService;
+	
+	@Autowired
+	OrderService orderService;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -371,6 +374,16 @@ public class GenesController {
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
+		
+		//process ardering section
+		int rows=25;
+		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, rows);
+		model.addAttribute("acc",acc);
+		model.addAttribute("orderRows", orderRows);
+
+		//for cre products link at bottom of table
+		model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
+		
 	}
 
 	/**

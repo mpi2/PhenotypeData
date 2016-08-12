@@ -328,7 +328,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
 
         parameterMap.put("parameterId", parameterId);
-        if (sequenceId != null) {
+        if (sequenceId == null) {
             query = "SELECT * FROM parameterAssociation WHERE parameterId = :parameterId";
         } else {
             query = "SELECT * FROM parameterAssociation WHERE parameterId = :parameterId AND sequenceId = :sequenceId";
@@ -1644,7 +1644,7 @@ public class DccSqlUtils {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException("INSERT of retVal(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
+                throw new RuntimeException("INSERT of retVal(" + parameterId + ", " + sequenceId + ") FAILED: " + e.getLocalizedMessage());
             }
         }
 

@@ -39,17 +39,15 @@ import java.util.List;
 public abstract class AbstractReport {
 
     protected PropertiesConfiguration applicationProperties;
-    protected CommonUtils commonUtils = new CommonUtils();
-    protected MpCSVWriter csvWriter;
-    protected final ReportFormat defaultReportFormat = ReportFormat.csv;
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
-    protected ReportFormat reportFormat;
-    protected File targetFile;
-    protected String targetFilename;
-
-    protected List<String> resources = Arrays.asList(new String[] {"IMPC", "3i"});
-
-    protected ReportParser parser = new ReportParser();
+    protected CommonUtils             commonUtils         = new CommonUtils();
+    protected MpCSVWriter             csvWriter;
+    protected final ReportFormat      defaultReportFormat = ReportFormat.csv;
+    protected final Logger            log                 = LoggerFactory.getLogger(this.getClass());
+    protected ReportFormat            reportFormat;
+    protected File                    targetFile;
+    protected String                  targetFilename;
+    protected List<String>            resources           = Arrays.asList(new String[] {"IMPC", "3i"});
+    protected ReportParser            parser              = new ReportParser();
 
     public static final String DATA_ERROR = "DATA ERROR";
     public static final String NO_INFO_AVAILABLE = "No information available";
