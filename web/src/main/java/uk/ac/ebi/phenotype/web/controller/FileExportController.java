@@ -502,7 +502,10 @@ public class FileExportController {
 			rows = composeImpcImageDataTableRows(query, json, iDisplayStart, iDisplayLength, showImgView, fqStr, request);
 		} else if (solrCoreName.equals("disease")) {
 			rows = composeDiseaseDataTableRows(json, request);
+		} else if (solrCoreName.equals("allele2")) {
+			rows = composeProductDataTableRows(json, request);
 		}
+
 
 		return rows;
 	}
@@ -856,8 +859,14 @@ public class FileExportController {
 		System.out.println("baseUrl: " + baseUrl);
 		List<String> rowData = new ArrayList<>();
 		rowData.add(
-				"Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids\tPostqc call(s)"); // column
-																																																																													// names
+				"Mammalian phenotype term" +
+						"\tMammalian phenotype id" +
+						"\tMammalian phenotype id link" +
+						"\tMammalian phenotype definition" +
+						"\tMammalian phenotype synonym" +
+						"\tMammalian phenotype top level term" +
+						"\tComputationally mapped human phenotype terms" +
+						"\tComputationally mapped human phenotype term Ids");
 
 		for (int i = 0; i < docs.size(); i++) {
 			List<String> data = new ArrayList<>();
@@ -915,10 +924,6 @@ public class FileExportController {
 				data.add(NO_INFO_MSG);
 			}
 
-			// number of genes annotated to this MP
-			int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
-			data.add(Integer.toString(numCalls));
-
 			rowData.add(StringUtils.join(data, "\t"));
 		}
 		return rowData;
@@ -931,7 +936,12 @@ public class FileExportController {
 
 		List<String> rowData = new ArrayList<>();
 		rowData.add(
-				"Mouse anatomy term\tMouse anatomy id\tMouse anatomy id link\tMouse anatomy synonym\tLacZ Expression Images"); // column
+				"Mouse anatomy term" +
+						"\tMouse anatomy id" +
+						"\tMouse anatomy id link" +
+						"\tMouse anatomy synonym" +
+						"\tStage" +
+						"\tLacZ Expression Images"); // column
 																																						// names
 
 		for (int i = 0; i < docs.size(); i++) {
@@ -954,10 +964,37 @@ public class FileExportController {
 				data.add(NO_INFO_MSG);
 			}
 
+			// get stage (embryo or adult)
+			if (doc.has(AnatomyDTO.STAGE)){
+				data.add(doc.getString(AnatomyDTO.STAGE));
+			}
+
 			//get expression only images
 			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomyId, config, 1);
 			JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 			data.add(expressionImageDocs.size() == 0 ? "No" : "Yes");
+
+			rowData.add(StringUtils.join(data, "\t"));
+		}
+		return rowData;
+	}
+
+	private List<String> composeProductDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, URISyntaxException {
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+
+		List<String> rowData = new ArrayList<>();
+		rowData.add(
+				"Marker Symbol" +
+						"\tAllele Name" +
+						"\tMutation Type"); // column
+
+			for (int i = 0; i < docs.size(); i++) {
+			List<String> data = new ArrayList<>();
+			JSONObject doc = docs.getJSONObject(i);
+
+			data.add(doc.getString("marker_symbol"));
+			data.add(doc.getString("allele_name"));
+			data.add(doc.getString("mutation_type"));
 
 			rowData.add(StringUtils.join(data, "\t"));
 		}
