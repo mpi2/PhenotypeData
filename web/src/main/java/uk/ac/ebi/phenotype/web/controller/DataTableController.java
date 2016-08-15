@@ -1038,31 +1038,75 @@ public class DataTableController {
 			// check has expression data
 			//Anatomy ma = JSONMAUtils.getMA(anatomyId, config);
 
-            if (doc.containsKey(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
-                List<String> anatomySynonyms = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
-                List<String> prefixSyns = new ArrayList();
+			String anatomyCol = "<div class='title'>" + anatomylink + "</div>";
 
-                for (String sn : anatomySynonyms) {
-                    prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
-                }
+			if (doc.containsKey(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
 
-                String syns = null;
-                if (prefixSyns.size() > 1) {
-                    syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
-                } else {
-                    syns = prefixSyns.get(0);
-                }
+				JSONArray data = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
+				int counter = 0;
+				String synMatch = null;
+				String syn = null;
 
-                String anatomyCol = "<div class='anatomyCol'><div class='title'>"
-                        + anatomylink
-                        + "</div>"
-                        + "<div class='subinfo'>"
-                        + "<span class='label'>synonym: </span>" + syns
-                        + "</div>";
-                rowData.add(anatomyCol);
-            } else {
-                rowData.add(anatomylink);
-            }
+				for (Object d : data) {
+
+					String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
+					if (d.toString().toLowerCase().contains(targetStr)) {
+						if (synMatch == null) {
+							synMatch = Tools.highlightMatchedStrIfFound(targetStr, d.toString(), "span", "subMatch");
+						}
+					}
+					else {
+						counter++;
+						if ( counter == 1 ) {
+							syn = d.toString();
+						}
+					}
+				}
+
+				if (synMatch != null) {
+					syn = synMatch;
+				}
+
+				if (counter > 1) {
+					syn = syn + "<a href='" + baseUrl + "/anatomy/" + anatomyId + "'> <span class='moreLess'>(Show more ...)</span></a>";
+				}
+
+				anatomyCol += "<div class='subinfo'>"
+						+ "<span class='label'>synonym</span>: "
+						+ syn
+						+ "</div>";
+
+				anatomyCol = "<div class='mpCol'>" + anatomyCol + "</div>";
+				rowData.add(anatomyCol);
+			} else {
+				rowData.add(anatomyCol);
+			}
+
+//            if (doc.containsKey(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
+//                List<String> anatomySynonyms = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
+//                List<String> prefixSyns = new ArrayList();
+//
+//                for (String sn : anatomySynonyms) {
+//                    prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
+//                }
+//
+//                String syns = null;
+//                if (prefixSyns.size() > 1) {
+//                    syns = "<ul class='synonym'><li>" + StringUtils.join(prefixSyns, "</li><li>") + "</li></ul>";
+//                } else {
+//                    syns = prefixSyns.get(0);
+//                }
+//
+//                String anatomyCol = "<div class='anatomyCol'><div class='title'>"
+//                        + anatomylink
+//                        + "</div>"
+//                        + "<div class='subinfo'>"
+//                        + "<span class='label'>synonym: </span>" + syns
+//                        + "</div>";
+//                rowData.add(anatomyCol);
+//            } else {
+//                rowData.add(anatomylink);
+//            }
 
 			// developmental stage
 			rowData.add(doc.getString("stage"));

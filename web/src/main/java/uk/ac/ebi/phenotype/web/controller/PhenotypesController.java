@@ -155,8 +155,9 @@ public class PhenotypesController {
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         
         model.addAttribute("phenotype", mpTerm);
-        
-	    List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotype_id));
+
+
+        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotype_id));
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
 

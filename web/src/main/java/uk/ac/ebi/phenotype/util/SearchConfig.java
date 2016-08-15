@@ -97,7 +97,7 @@ public class SearchConfig {
         String defaultQf = "auto_suggest";
 
         coreDefault.put("gene", "geneQf");
-        coreDefault.put("mp", defaultQf);
+        coreDefault.put("mp", "mixSynQf");
         coreDefault.put("disease", "diseaseQf");
         coreDefault.put("anatomy", "anatomyQf");
         coreDefault.put("impc_images", defaultQf);
