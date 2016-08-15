@@ -77,8 +77,7 @@ public class ImportDccMissingReport extends AbstractReport {
                                                ", p.procedureId\n" +
                                                "FROM center_procedure cp\n" +
                                                "JOIN center           c ON c.pk = cp.center_pk\n" +
-                                               "JOIN procedure_       p ON p.pk = cp.procedure_pk\n" +
-                                               "ORDER BY c.centerId, c.project, c.pipeline, p.procedureId")
+                                               "JOIN procedure_       p ON p.pk = cp.procedure_pk\n")
 
           , new DccQuery("MISSING COLONIES",   "SELECT DISTINCT\n" +
                                                "  c.centerId\n" +
@@ -97,8 +96,7 @@ public class ImportDccMissingReport extends AbstractReport {
                                                "LEFT OUTER JOIN seriesParameter      ser    ON ser.procedure_pk =  p. pk\n" +
                                                "LEFT OUTER JOIN seriesMediaParameter smp    ON smp.procedure_pk =  p. pk\n" +
                                                "LEFT OUTER JOIN ontologyParameter    op     ON op. procedure_pk =  p. pk\n" +
-                                               "WHERE colonyId IS NOT NULL AND colonyId != ''\n" +
-                                               "ORDER BY c.centerId, c.project, c.pipeline, s.colonyId")
+                                               "WHERE colonyId IS NOT NULL AND colonyId != ''\n")
 
             , new DccQuery("MISSING SPECIMENS",  "SELECT\n" +
                                                  "  c.centerId\n" +
@@ -107,8 +105,7 @@ public class ImportDccMissingReport extends AbstractReport {
                                                  ", s.specimenId\n" +
                                                  "FROM center_specimen cs\n" +
                                                  "JOIN center          c ON c.pk = cs.center_pk\n" +
-                                                 "JOIN specimen        s ON s.pk = cs.specimen_pk\n" +
-                                                 "ORDER BY c.centerId, c.project, c.pipeline, s.specimenId")
+                                                 "JOIN specimen        s ON s.pk = cs.specimen_pk\n")
     };
 
 
