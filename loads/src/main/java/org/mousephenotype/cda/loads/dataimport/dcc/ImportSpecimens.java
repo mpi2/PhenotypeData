@@ -108,7 +108,8 @@ public class ImportSpecimens implements CommandLineRunner {
     }
 
     private void run() throws DataImportException {
-        int                  totalSpecimens = 0;
+        int                  totalSpecimens        = 0;
+        int                  totalSpecimenFailures = 0;
         List<CentreSpecimen> centerSpecimens;
 
         try {
@@ -128,15 +129,20 @@ public class ImportSpecimens implements CommandLineRunner {
             logger.debug("Parsing specimens for center {}", centerSpecimen.getCentreID());
 
             for (Specimen specimen : centerSpecimen.getMouseOrEmbryo()) {
-                insertSpecimen(specimen, centerSpecimen);
-                totalSpecimens++;
+                try {
+                    insertSpecimen(specimen, centerSpecimen);
+                    totalSpecimens++;
+                } catch (Exception e) {
+                    logger.error("ERROR IMPORTING SPECIMEN. CENTER: {}. SPECIMEN: {}. SPECIMEN SKIPPED. ERROR:\n{}", centerSpecimen.getCentreID(), specimen, e.getLocalizedMessage());
+                    totalSpecimenFailures++;
+                }
             }
         }
 
         // Update the relatedSpecimen.specimen_mine_pk column.
         int relatedSpecimenUpdateCount = dccSqlUtils.updateRelatedSpecimenMinePk();
 
-        logger.info("Inserted {} specimens. Updated {} related specimens", totalSpecimens, relatedSpecimenUpdateCount);
+        logger.info("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
     }
 
     @Transactional

@@ -111,7 +111,8 @@ public class ImportExperiments implements CommandLineRunner {
     }
 
     private void run() throws DataImportException {
-        int                   totalExperiments = 0;
+        int                   totalExperiments       = 0;
+        int                   totalExperimentsFailed = 0;
         List<CentreProcedure> centerProcedures;
 
         try {
@@ -132,27 +133,32 @@ public class ImportExperiments implements CommandLineRunner {
 
             for (Experiment experiment : centerProcedure.getExperiment()) {
 
-                // Get centerPk
-                long centerPk = dccSqlUtils.getCenterPk(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
-                if (centerPk < 1) {
-                    logger.warn("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
-                                        + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
-                    centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
-                }
+                try {
+                    // Get centerPk
+                    long centerPk = dccSqlUtils.getCenterPk(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+                    if (centerPk < 1) {
+                        logger.warn("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
+                                            + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
+                        centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+                    }
 
-                insertSpecimen(experiment, centerProcedure, centerPk);
-                totalExperiments++;
+                    insertExperiment(experiment, centerProcedure, centerPk);
+                    totalExperiments++;
+                } catch (Exception e) {
+                    logger.error("ERROR IMPORTING EXPERIMENT. CENTER: {}. EXPERIMENT: {}. EXPERIMENT SKIPPED. ERROR:\n{}" , centerProcedure.getCentreID(), experiment, e.getLocalizedMessage());
+                    totalExperimentsFailed++;
+                }
             }
         }
 
         // Update the relatedSpecimen.specimen_mine_pk column.
         int relatedSpecimenUpdateCount = dccSqlUtils.updateRelatedSpecimenMinePk();
 
-        logger.info("Inserted {} experiments", totalExperiments);
+        logger.info("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
     }
 
     @Transactional
-    private void insertSpecimen(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataImportException {
+    private void insertExperiment(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataImportException {
 
         Long specimenPk, procedurePk, center_procedurePk;
 
@@ -199,9 +205,8 @@ public class ImportExperiments implements CommandLineRunner {
                     if (line.getStatusCode() != null) {
                         // line_statuscode
                         for (StatusCode statuscode : line.getStatusCode()) {
-                            StatusCode existingStatuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
-                            long       statuscodePk       = existingStatuscode.getHjid();
-                            dccSqlUtils.insertLine_statuscode(linePk, statuscodePk);
+                            statuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
+                            dccSqlUtils.insertLine_statuscode(linePk, statuscode.getHjid());
                         }
                     }
                 }
@@ -216,6 +221,7 @@ public class ImportExperiments implements CommandLineRunner {
             // experiment_statuscode
             if (experiment.getStatusCode() != null) {
                 for (StatusCode statuscode : experiment.getStatusCode()) {
+                    statuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
                     dccSqlUtils.selectOrInsertExperiment_statuscode(experimentPk, statuscode.getHjid());
                 }
             }
