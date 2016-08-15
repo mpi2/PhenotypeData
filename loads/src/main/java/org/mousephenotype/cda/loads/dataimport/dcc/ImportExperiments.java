@@ -140,7 +140,7 @@ public class ImportExperiments implements CommandLineRunner {
                     centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
                 }
 
-                insertSpecimen(experiment, centerProcedure, centerPk);
+                insertExperiment(experiment, centerProcedure, centerPk);
                 totalExperiments++;
             }
         }
@@ -152,7 +152,7 @@ public class ImportExperiments implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertSpecimen(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataImportException {
+    private void insertExperiment(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataImportException {
 
         Long specimenPk, procedurePk, center_procedurePk;
 
@@ -199,9 +199,8 @@ public class ImportExperiments implements CommandLineRunner {
                     if (line.getStatusCode() != null) {
                         // line_statuscode
                         for (StatusCode statuscode : line.getStatusCode()) {
-                            StatusCode existingStatuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
-                            long       statuscodePk       = existingStatuscode.getHjid();
-                            dccSqlUtils.insertLine_statuscode(linePk, statuscodePk);
+                            statuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
+                            dccSqlUtils.insertLine_statuscode(linePk, statuscode.getHjid());
                         }
                     }
                 }
@@ -216,6 +215,7 @@ public class ImportExperiments implements CommandLineRunner {
             // experiment_statuscode
             if (experiment.getStatusCode() != null) {
                 for (StatusCode statuscode : experiment.getStatusCode()) {
+                    statuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
                     dccSqlUtils.selectOrInsertExperiment_statuscode(experimentPk, statuscode.getHjid());
                 }
             }
