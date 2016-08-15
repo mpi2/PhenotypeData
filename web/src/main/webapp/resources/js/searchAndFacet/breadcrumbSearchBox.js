@@ -147,10 +147,8 @@ $(document).ready(function () {
 				},
 				success: function( data ) {
 
-					//matchedFacet = false; // reset
 					var docs = data.response.docs;
 
-					//var aKVtmp = {};
 					var suggests = [];
 					var seenTerm = {};
 					for ( var i=0; i<docs.length; i++ ){
