@@ -77,16 +77,8 @@ public class ImportDccMissingReport extends AbstractReport {
                                                ", p.procedureId\n" +
                                                "FROM center_procedure cp\n" +
                                                "JOIN center           c ON c.pk = cp.center_pk\n" +
-                                               "JOIN procedure_       p ON p.pk = cp.procedure_pk\n")
-
-          , new DccQuery("MISSING SPECIMENS",  "SELECT\n" +
-                                               "  c.centerId\n" +
-                                               ", c.project\n" +
-                                               ", c.pipeline\n" +
-                                               ", s.specimenId\n" +
-                                               "FROM center_specimen cs\n" +
-                                               "JOIN center          c ON c.pk = cs.center_pk\n" +
-                                               "JOIN specimen        s ON s.pk = cs.specimen_pk\n")
+                                               "JOIN procedure_       p ON p.pk = cp.procedure_pk\n" +
+                                               "ORDER BY c.centerId, c.project, c.pipeline, p.procedureId")
 
           , new DccQuery("MISSING COLONIES",   "SELECT DISTINCT\n" +
                                                "  c.centerId\n" +
@@ -95,16 +87,28 @@ public class ImportDccMissingReport extends AbstractReport {
                                                ", s.colonyId\n" +
                                                "FROM experiment                      e\n" +
                                                "JOIN experiment_specimen             es     ON es .experiment_pk = e. pk\n" +
-                                               "JOIN specimen                        s      ON s  .pk =            es.specimen_pk\n" +
-                                               "JOIN center_procedure                cp     ON cp .pk =            e. center_procedure_pk\n" +
-                                               "JOIN center                          c      ON c  .pk =            cp.center_pk\n" +
-                                               "JOIN procedure_                      p      ON p  .pk =            cp.procedure_pk\n" +
-                                               "LEFT OUTER JOIN mediaParameter       mp     ON mp .procedure_pk =  p. pk\n" +
-                                               "LEFT OUTER JOIN simpleParameter      sp     ON sp .procedure_pk =  p. pk\n" +
+                                               "JOIN specimen                        s      ON s.  pk =            es.specimen_pk\n" +
+                                               "JOIN center_procedure                cp     ON cp. pk =            e. center_procedure_pk\n" +
+                                               "JOIN center                          c      ON c.  pk =            cp.center_pk\n" +
+                                               "JOIN procedure_                      p      ON p.  pk =            cp.procedure_pk\n" +
+                                               "LEFT OUTER JOIN mediaParameter       mp     ON mp. procedure_pk =  p. pk\n" +
+                                               "LEFT OUTER JOIN mediaSampleParameter msp    ON msp.procedure_pk =  p. pk\n" +
+                                               "LEFT OUTER JOIN simpleParameter      sp     ON sp. procedure_pk =  p. pk\n" +
                                                "LEFT OUTER JOIN seriesParameter      ser    ON ser.procedure_pk =  p. pk\n" +
                                                "LEFT OUTER JOIN seriesMediaParameter smp    ON smp.procedure_pk =  p. pk\n" +
-                                               "LEFT OUTER JOIN ontologyParameter    op     ON op .procedure_pk =  p. pk\n" +
-                                               "WHERE colonyId IS NOT NULL AND colonyId != ''\n")
+                                               "LEFT OUTER JOIN ontologyParameter    op     ON op. procedure_pk =  p. pk\n" +
+                                               "WHERE colonyId IS NOT NULL AND colonyId != ''\n" +
+                                               "ORDER BY c.centerId, c.project, c.pipeline, s.colonyId")
+
+            , new DccQuery("MISSING SPECIMENS",  "SELECT\n" +
+                                                 "  c.centerId\n" +
+                                                 ", c.project\n" +
+                                                 ", c.pipeline\n" +
+                                                 ", s.specimenId\n" +
+                                                 "FROM center_specimen cs\n" +
+                                                 "JOIN center          c ON c.pk = cs.center_pk\n" +
+                                                 "JOIN specimen        s ON s.pk = cs.specimen_pk\n" +
+                                                 "ORDER BY c.centerId, c.project, c.pipeline, s.specimenId")
     };
 
 
