@@ -127,7 +127,7 @@ public class SqlUtils {
      * Given two {@link JdbcTemplate} instances and a query, executes the query against jdbc1, then against jdbc2,
      * returning the set difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
      * an empty list is returned. If results are returned, the first row is the column headings. Subsequent rows are the
-     * data. The returned set is sorted, honouring any query with an ORDER BY clause.
+     * data.
      *
      * @param jdbc1 the first {@link JdbcTemplate} instance
      * @param jdbc2 the second {@link JdbcTemplate} instance
@@ -141,13 +141,13 @@ public class SqlUtils {
     public List<String[]> queryDiff(JdbcTemplate jdbc1, JdbcTemplate jdbc2, String query) throws Exception {
         List<String[]> results = new ArrayList<>();
 
-        SortedSet<List<String>> results1 = new TreeSet<>();
+        Set<List<String>> results1 = new HashSet<>();
         SqlRowSet         rs1      = jdbc1.queryForRowSet(query);
         while (rs1.next()) {
             results1.add(getData(rs1));
         }
 
-        SortedSet<List<String>> results2 = new TreeSet<>();
+        Set<List<String>> results2 = new HashSet<>();
         SqlRowSet rs2 = jdbc2.queryForRowSet(query);
         while (rs2.next()) {
             results2.add(getData(rs2));
