@@ -44,16 +44,25 @@
   </p>
 </c:if>
 
-<c:if
-        test="${!(empty gene.markerSynonym)}">
-  <p class="with-label no-margin">
-    <span id="summarySynonyms" class="label">Synonyms</span>
-    <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-      ${synonym}
-      <c:if test="${!loop.last}">, </c:if>
-      <c:if test="${loop.last}"></c:if>
-    </c:forEach>
-  </p>
+<c:if test="${!(empty gene.markerSynonym)}">
+
+  <div id="summarySynonyms" class="with-label"> <span class="label">Synonyms</span>
+      <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
+        <ul>
+          <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
+            <li>${synonym}</li>
+          </c:forEach>
+        </ul>
+      </c:if>
+      <c:if test='${fn:length(gene.markerSynonym) == 1}'>
+
+        <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
+          ${synonym}
+          <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+        </c:forEach>
+
+      </c:if>
+  </div>
 </c:if>
 
 <p class="with-label">

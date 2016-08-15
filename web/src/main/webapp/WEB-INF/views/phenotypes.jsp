@@ -87,22 +87,47 @@
 									<p id="definition" class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
 								</c:if>
 								<c:if test="${not empty phenotype.getMpTermSynonym()}">
-									<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
-										<c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
-											${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if>
-										</c:forEach>
-									</p>
+									<div id="synonyms" class="with-label"> <span class="label">Synonyms</span>
+
+										<c:if test='${fn:length(phenotype.getMpTermSynonym()) gt 1}'>
+											<ul>
+												<c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
+													<li>${synonym}</li>
+													<%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+												</c:forEach>
+											</ul>
+										</c:if>
+										<c:if test='${phenotype.getMpTermSynonym().size() == 1}'>
+
+												<c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
+													${synonym}
+													<%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+												</c:forEach>
+
+										</c:if>
+									</div>
 								</c:if>
-								<c:if test="${not empty phenotype.getHpTerm()}">
-									<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>
+								<c:if test="${not empty phenotype.getMpNarrowSynonym()}">
+
+									<div id="narrowSynonyms" class="with-label"> <span class="label">Related Synonyms</span>
 										<ul>
-											<c:forEach var="hpTerm" items="${phenotype.getHpTerm()}" varStatus="loop">
-												<li>${hpTerm}</li>
-												<c:if test="${loop.last}">&nbsp;</c:if>
+											<c:forEach var="nsynonym" items="${phenotype.getMpNarrowSynonym()}" varStatus="loop">
+												<li>${nsynonym}</li>
+												<%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
 											</c:forEach>
 										</ul>
 									</div>
 								</c:if>
+								<%--<c:if test="${not empty phenotype.getHpTerm()}">--%>
+									<%--<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>--%>
+										<%--<ul>--%>
+											<%--<c:forEach var="hpTerm" items="${phenotype.getHpTerm()}" varStatus="loop">--%>
+												<%--<li>${hpTerm}</li>--%>
+												<%--<c:if test="${loop.last}">&nbsp;</c:if>--%>
+											<%--</c:forEach>--%>
+										<%--</ul>--%>
+									<%--</div>--%>
+								<%--</c:if>--%>
 		
 		
 								<c:if test="${not empty procedures}">

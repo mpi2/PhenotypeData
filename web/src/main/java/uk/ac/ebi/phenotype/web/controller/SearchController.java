@@ -203,18 +203,23 @@ public class SearchController {
 			String thisCore = cores.get(i);
 			String thisFqStr = null;
 
-			if (thisCore.equals("gene")) {
-				qfDefTypeWt = "&qf=geneQf&defType=edismax&wt=json";
-			}
-			else if ( thisCore.equals("disease")) {
-                qfDefTypeWt = "&qf=diseaseQf&defType=edismax&wt=json";
-            }
-			else if ( thisCore.equals("anatomy")) {
-				qfDefTypeWt = "&qf=anatomyQf&defType=edismax&wt=json";
-			}
-			else {
-				qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
-			}
+			qfDefTypeWt = "&qf=" + searchConfig.getQf(thisCore) + "&defType=edismax&wt=json";
+
+//			if (thisCore.equals("gene")) {
+//				qfDefTypeWt = "&qf=geneQf&defType=edismax&wt=json";
+//			}
+//			else if ( thisCore.equals("disease")) {
+//				qfDefTypeWt = "&qf=diseaseQf&defType=edismax&wt=json";
+//			}
+//			else if ( thisCore.equals("disease")) {
+//                qfDefTypeWt = "&qf=diseaseQf&defType=edismax&wt=json";
+//            }
+//			else if ( thisCore.equals("anatomy")) {
+//				qfDefTypeWt = "&qf=anatomyQf&defType=edismax&wt=json";
+//			}
+//			else {
+//				qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
+//			}
 
 			if ( thisCore.equals(dataType) ) {
 				if ( thisCore.equals("gene") ){
