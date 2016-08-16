@@ -105,7 +105,7 @@ public class ImportSpecimens implements CommandLineRunner {
             logger.info("Dropping and creating dcc specimen tables - complete");
         }
 
-        logger.info("Loading specimen file {}", filename);
+        logger.debug("Loading specimen file {}", filename);
     }
 
     private void run() throws DataImportException {
