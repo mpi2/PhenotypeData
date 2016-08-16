@@ -20,7 +20,8 @@ import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
-import org.mousephenotype.cda.loads.dataimport.cdabase.support.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +46,8 @@ public class OntologyReader implements ItemReader<OntologyTerm> {
     private int dbId;
     private String sourceFilename;
     private String prefix;
-    private int readIndex = 0;
-    private List<OntologyTerm> terms = null;
+    private int                   readIndex = 0;
+    private List<OntologyTermDTO> terms     = null;
 
 
     public OntologyReader(String sourceFilename, int dbId, String prefix) throws DataImportException {
@@ -75,7 +76,7 @@ public class OntologyReader implements ItemReader<OntologyTerm> {
      */
     @Override
     public OntologyTerm read() throws DataImportException {
-        OntologyTerm term = null;
+        OntologyTermDTO term = null;
 
         if (terms == null) {
             try {
@@ -93,6 +94,7 @@ public class OntologyReader implements ItemReader<OntologyTerm> {
         if (readIndex < terms.size()) {
             term = terms.get(readIndex);
             term.setId(new DatasourceEntityId(term.getId().getAccession(), dbId));
+            term.setAccessonId(term.g);
             if (term.getSynonyms() != null) {
                 for (Synonym synonym : term.getSynonyms()) {
                     synonym.setAccessionId(term.getId().getAccession());
