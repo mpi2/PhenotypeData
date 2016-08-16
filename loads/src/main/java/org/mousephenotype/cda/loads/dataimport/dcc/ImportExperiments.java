@@ -68,6 +68,7 @@ public class ImportExperiments implements CommandLineRunner {
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(ImportExperiments.class);
         app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
         app.run(args);
     }
 
@@ -107,7 +108,7 @@ public class ImportExperiments implements CommandLineRunner {
             logger.info("Dropping and creating dcc experiment tables - complete");
         }
 
-        logger.info("Loading experiment file {}", filename);
+        logger.debug("Loading experiment file {}", filename);
     }
 
     private void run() throws DataImportException {
@@ -151,10 +152,11 @@ public class ImportExperiments implements CommandLineRunner {
             }
         }
 
-        // Update the relatedSpecimen.specimen_mine_pk column.
-        int relatedSpecimenUpdateCount = dccSqlUtils.updateRelatedSpecimenMinePk();
-
-        logger.info("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+        if (totalExperimentsFailed > 0) {
+            logger.warn("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+        } else {
+            logger.debug("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+        }
     }
 
     @Transactional
