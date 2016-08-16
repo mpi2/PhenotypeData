@@ -220,10 +220,10 @@ public class OntologyParser {
         term.setCls(cls);
         if (term.isObsolete()){
             if((getReplacementId(cls) != null)){
-                term.setReplacementAccessionIds(getReplacementId(cls));
+                term.setReplacementAccessionId(getReplacementId(cls));
             }
             if(getConsiderIds(cls) != null && getConsiderIds(cls).size() > 0){
-                term.setConsiderId(getConsiderIds(cls));
+                term.setConsiderIds(getConsiderIds(cls));
             }
         }
 
