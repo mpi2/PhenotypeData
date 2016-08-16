@@ -108,7 +108,7 @@ public class ImportExperiments implements CommandLineRunner {
             logger.info("Dropping and creating dcc experiment tables - complete");
         }
 
-        logger.info("Loading experiment file {}", filename);
+        logger.debug("Loading experiment file {}", filename);
     }
 
     private void run() throws DataImportException {
