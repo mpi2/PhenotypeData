@@ -925,7 +925,7 @@ public class DataTableController {
                 }
 
 				if (counter > 1) {
-                    syn = syn + "<a href='" + baseUrl + "/phenotypes/" + mpId + "'> <span class='moreLess'>(Show more ...)</span></a>";
+                    syn = syn + "<a href='" + baseUrl + "/phenotypes/" + mpId + "'> <span class='moreLess'>(Show more)</span></a>";
                 }
 
                 mpCol += "<div class='subinfo'>"
@@ -946,9 +946,14 @@ public class DataTableController {
 				mpDef = doc.getString("mp_definition");
 
 				if (mpDef.length() > defaultLen) {
-					String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(qryStr, mpDef.substring(0, defaultLen), "span", "subMatch") + "</div>";
+
+				    String trimmedDef = mpDef.substring(0, defaultLen);
+                    // retrim if in the middle of a word
+                    trimmedDef = trimmedDef.substring(0, Math.min(trimmedDef.length(), trimmedDef.lastIndexOf(" ")));
+
+					String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(qryStr, trimmedDef, "span", "subMatch") + " ...</div>";
 					mpDef = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(qryStr, mpDef, "span", "subMatch") + "</div>";
-					rowData.add(partMpDef + mpDef + "<div class='moreLess'>Show more ...</div>");
+					rowData.add(partMpDef + mpDef + "<div class='moreLess'>Show more</div>");
 				}
 				else {
 					rowData.add(mpDef);
@@ -1068,7 +1073,7 @@ public class DataTableController {
 				}
 
 				if (counter > 1) {
-					syn = syn + "<a href='" + baseUrl + "/anatomy/" + anatomyId + "'> <span class='moreLess'>(Show more ...)</span></a>";
+					syn = syn + "<a href='" + baseUrl + "/anatomy/" + anatomyId + "'> <span class='moreLess'>(Show more)</span></a>";
 				}
 
 				anatomyCol += "<div class='subinfo'>"
@@ -1830,7 +1835,7 @@ public class DataTableController {
 						info.add(syn);
 					}
 					else if ( counter > 1 ){
-						info.add(syn + "<a href='" + geneUrl + "'> <span class='moreLess'>(see more ...)</span></a>");
+						info.add(syn + "<a href='" + geneUrl + "'> <span class='moreLess'>(see more)</span></a>");
 					}
                 }
 

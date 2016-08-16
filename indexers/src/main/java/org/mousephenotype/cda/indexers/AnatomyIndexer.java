@@ -69,7 +69,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
 	private final Logger logger = LoggerFactory.getLogger(AnatomyIndexer.class);
 
-    @Value("classpath:uberonEfoMa_mappings.txt")
+    @Value("classpath:uberonEfoMaAnatomogram_mapping.txt")
 	Resource resource;
 
     @Autowired
@@ -434,7 +434,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
         }
 
-        maUberonEfoMap = IndexerMap.mapMaToUberronOrEfo(resource);
+        maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(resource);
     }
 
     public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {

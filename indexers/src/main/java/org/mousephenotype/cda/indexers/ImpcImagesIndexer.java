@@ -176,7 +176,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		impcAnnotationBaseUrl = impcMediaBaseUrl.replace("webgateway", "webclient");
 
 		try {
-			maUberonEfoMap = IndexerMap.mapMaToUberronOrEfo(resource);
+			maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(resource);
 		} catch (SQLException | IOException e1) {
 			e1.printStackTrace();
 		}

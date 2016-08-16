@@ -200,7 +200,7 @@ $(document).ready(function () {
 					}
 
                     if ( suggests.length > 0 ) {
-                        //dataTypeVal.push("<hr>");
+                        dataTypeVal.push("<hr>");
                         for (var i = 0; i < suggests.length; i++) {
                             dataTypeVal.push(suggests[i]);
                         }

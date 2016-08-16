@@ -837,20 +837,27 @@ ul.ui-autocomplete {
     -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
     -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
-
 }
 ul.ui-autocomplete li a {
     display: block;
     text-decoration: none;
-    padding-left: 5px;
+    padding: 0 0 0 5px !important;
 }
 ul.ui-autocomplete li {
     font-size: 14px !important;
+    border: none !important;
 }
 ul.ui-autocomplete li a:hover {
     background-color: #D4D4D4 !important;
-    border-radius: 4px;
+    border-radius: 4px !important;
 }
+ul.ui-autocomplete hr {
+    border:none;
+    border-top:1px dotted gray;
+    height:1px;
+    width:100%;
+}
+
 span#rmFilters {
     color: #0978A1;
     padding-right: 5px;
@@ -870,4 +877,12 @@ span.sugList {
 }
 span.category {
     color: #EF7B0B;
+}
+li.fullList {
+    display: none;
+}
+span.synToggle {
+    font-size: 12px;
+    cursor: pointer;
+    color: #0978A1;
 }
