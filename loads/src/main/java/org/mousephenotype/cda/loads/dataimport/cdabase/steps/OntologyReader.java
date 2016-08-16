@@ -16,9 +16,6 @@
 
 package org.mousephenotype.cda.loads.dataimport.cdabase.steps;
 
-import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
@@ -33,21 +30,20 @@ import org.springframework.batch.item.UnexpectedInputException;
 import java.util.List;
 
 /**
- * Implements an <code>ItemReader</code> that feeds a single ontology OWL XML file to an <code>OntologyParser</code>,
- * which returns a list of <code>OntologyTerm</code> that is iterated over by the read() method called by spring batch.
+ * Implements an <code>ItemReader</code> that feeds a single ontology OWL XML file to an {@link OntologyTermDTO},
+ * which returns a list of{@link OntologyTermDTO}s that is iterated over by the read() method called by spring batch.
  *
  * Created by mrelac on 13/04/2016.
  *
  */
-public class OntologyReader implements ItemReader<OntologyTerm> {
+public class OntologyReader implements ItemReader<OntologyTermDTO> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private int dbId;
     private String sourceFilename;
     private String prefix;
-    private int                   readIndex = 0;
-    private List<OntologyTermDTO> terms     = null;
+    private List<OntologyTermDTO> terms;
 
 
     public OntologyReader(String sourceFilename, int dbId, String prefix) throws DataImportException {
@@ -75,7 +71,7 @@ public class OntologyReader implements ItemReader<OntologyTerm> {
      * @throws Exception                     if an there is a non-specific error.
      */
     @Override
-    public OntologyTerm read() throws DataImportException {
+    public OntologyTermDTO read() throws DataImportException {
         OntologyTermDTO term = null;
 
         if (terms == null) {
@@ -90,20 +86,6 @@ public class OntologyReader implements ItemReader<OntologyTerm> {
                 throw new DataImportException(e);
             }
         }
-
-        if (readIndex < terms.size()) {
-            term = terms.get(readIndex);
-            term.setId(new DatasourceEntityId(term.getId().getAccession(), dbId));
-            term.setAccessonId(term.g);
-            if (term.getSynonyms() != null) {
-                for (Synonym synonym : term.getSynonyms()) {
-                    synonym.setAccessionId(term.getId().getAccession());
-                    synonym.setDbId(term.getId().getDatabaseId());
-                }
-            }
-        }
-
-        readIndex++;
 
         return term;
     }
