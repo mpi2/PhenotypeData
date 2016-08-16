@@ -72,7 +72,7 @@ public class IndexerMap {
 	 * @returns a map, where key is MA is and value is either UBERON or EFO (can be multi-valued) 
 	 */
 	
-    public static Map<String, Map<String,List<String>>> mapMaToUberronOrEfo(Resource resource) throws SQLException, IOException {
+    public static Map<String, Map<String,List<String>>> mapMaToUberronOrEfoForAnatomogram(Resource resource) throws SQLException, IOException {
 
     	if ( maUberonEfoMap == null ){
     		
@@ -84,12 +84,13 @@ public class IndexerMap {
 			
 				String line;
 				while ((line = bin.readLine()) != null) {
-					String[] kv = line.split(",");
+
+                    String[] kv = line.split("\\t");
 					if ( kv.length == 2 ){
-						String mappedId = kv[0];
-						String maId = kv[1].replace("_", ":");
-					
-						if ( ! maUberonEfoMap.containsKey(maId) ){
+						String mappedId = kv[1];
+						String maId = kv[0].replace("_", ":");
+
+                        if ( ! maUberonEfoMap.containsKey(maId) ){
 							maUberonEfoMap.put(maId, new HashMap<>());
 						}	
 						String key = mappedId.startsWith("U") ? "uberon_id" : "efo_id";

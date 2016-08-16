@@ -1,26 +1,4 @@
-/* autocomplete drop down ul */
-ul.ui-autocomplete {
-	background-color: white;
-	border: 1px solid #0978A1;
-	padding: 10px 15px;
-	z-index: 999;
-	-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
-	-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
-	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
 
-}
-ul.ui-autocomplete li a {
-	display: block;
-	text-decoration: none;
-	padding-left: 5px;
-}
-ul.ui-autocomplete li {
-	font-size: 14px !important;
-}
-ul.ui-autocomplete li a:hover {
-	background-color: #D4D4D4 !important;
-	border-radius: 4px;
-}
 span#rmFilters {
 	color: #0978A1;
 	padding-right: 5px;
@@ -89,7 +67,7 @@ li.fcat                                 { margin: 0; font-size: 0.9em; line-heig
 
 
 /* active facet filter */
-ul#facetFilter > li                     { display: none; }
+ul#facetFilter > li                     { display: none; }{}
 ul#facetFilter li.has-sub               { display: block; }
 ul#facetFilter li.has-sub span.fcap {
 	display: none;
@@ -344,7 +322,7 @@ span.ellipse {
 	padding-top: 10px;
 }
 
-div.mpCol div.title a, div.anatomyCol div.title a {
+div.title a {
 	font-weight: normal !important;
 	font-size: 16px !important;
 	text-decoration: none !important;

@@ -86,37 +86,61 @@
 								<c:if test="${not empty phenotype.getMpDefinition()}">
 									<p id="definition" class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
 								</c:if>
-								<c:if test="${not empty phenotype.getMpTermSynonym()}">
-									<div id="synonyms" class="with-label"> <span class="label">Synonyms</span>
 
-										<c:if test='${fn:length(phenotype.getMpTermSynonym()) gt 1}'>
-											<ul>
-												<c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
-													<li>${synonym}</li>
-													<%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
-												</c:forEach>
-											</ul>
-										</c:if>
-										<c:if test='${phenotype.getMpTermSynonym().size() == 1}'>
+                                <c:if test="${not empty phenotype.getMpTermSynonym()}">
+                                    <div id="synonyms" class="with-label"> <span class="label">Synonyms</span>
+                                        <c:if test='${phenotype.getMpTermSynonym().size() == 1}'>
 
-												<c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
-													${synonym}
-													<%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
-												</c:forEach>
+                                            <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
+                                                ${synonym}
+                                                <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+                                            </c:forEach>
+                                        </c:if>
 
-										</c:if>
-									</div>
-								</c:if>
+                                        <c:if test='${phenotype.getMpTermSynonym().size() gt 1}'>
+                                            <c:set var="count" value="0" scope="page"/>
+                                            <ul>
+                                                <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
+                                                    <c:set var="count" value="${count + 1}" scope="page"/>
+                                                    <c:if test='${count lt 3}'>
+                                                        <li class='defaultList'>${synonym}</li>
+                                                    </c:if>
+                                                    <li class='fullList'>${synonym}</li>
+                                                </c:forEach>
+                                            </ul>
+                                            <c:if test='${count gt 2}'>
+                                                <span class='synToggle'>Show more</span>
+                                            </c:if>
+                                        </c:if>
+                                    </div>
+                                </c:if>
+
 								<c:if test="${not empty phenotype.getMpNarrowSynonym()}">
+                                    <div id="narrowSynonyms" class="with-label"> <span class="label">Related<br>Synonyms <i class="fa fa-question-circle fa-1x relatedSyn"></i></span>
 
-									<div id="narrowSynonyms" class="with-label"> <span class="label">Related Synonyms</span>
-										<ul>
-											<c:forEach var="nsynonym" items="${phenotype.getMpNarrowSynonym()}" varStatus="loop">
-												<li>${nsynonym}</li>
-												<%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
-											</c:forEach>
-										</ul>
-									</div>
+                                        <c:if test='${phenotype.getMpNarrowSynonym().size() == 1}'>
+                                            <c:forEach var="nsynonym" items="${phenotype.getMpNarrowSynonym()}" varStatus="loop">
+                                                ${nsynonym}
+                                                <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
+                                            </c:forEach>
+                                        </c:if>
+
+                                        <c:if test='${phenotype.getMpNarrowSynonym().size() gt 1}'>
+                                            <c:set var="count" value="0" scope="page"/>
+                                            <ul>
+                                                <c:forEach var="nsynonym" items="${phenotype.getMpNarrowSynonym()}" varStatus="loop">
+                                                    <c:set var="count" value="${count + 1}" scope="page"/>
+                                                    <c:if test='${count lt 3}'>
+                                                      <li class='defaultList'>${nsynonym}</li>
+                                                    </c:if>
+                                                      <li class='fullList'>${nsynonym}</li>
+                                                </c:forEach>
+                                            </ul>
+                                            <c:if test='${count gt 2}'>
+                                                <span class='synToggle'>Show more</span>
+                                            </c:if>
+                                        </c:if>
+                                    </div>
 								</c:if>
 								<%--<c:if test="${not empty phenotype.getHpTerm()}">--%>
 									<%--<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>--%>
@@ -374,6 +398,40 @@
 	</div>
 </div>
 </div>
+    <script type="text/javascript">
+        $('document').ready(function(){
+
+            var whatIsRelatedSyn = "Related synonyms are mostly terms of the Human Phenotype Ontology that are mapped to an mammalian phenotype (MP) term. Occasionally, they may be children of the current MP term.";
+
+            // what is related synonym
+            $('i.relatedSyn').qtip({
+                content: {
+                    text: whatIsRelatedSyn
+                },
+                style: {
+                    classes: 'qtipimpc'
+                }
+            });
+
+
+            // show more/less for related synonyms
+            $('span.synToggle').click(function(){
+               var partList = $(this).siblings('ul').find('li.defaultList');
+               var fullList = $(this).siblings('ul').find('li.fullList');
+
+               if ($(this).siblings('ul').find('li.defaultList').is(':visible')){
+                   partList.hide();
+                   fullList.show();
+                   $(this).text('Show less');
+               }
+               else {
+                   partList.show();
+                   fullList.hide();
+                   $(this).text('Show more');
+               }
+            });
+        });
+    </script>
 
 </jsp:body>
 
