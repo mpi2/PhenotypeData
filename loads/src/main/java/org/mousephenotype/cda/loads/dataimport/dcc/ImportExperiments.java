@@ -68,6 +68,7 @@ public class ImportExperiments implements CommandLineRunner {
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(ImportExperiments.class);
         app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
         app.run(args);
     }
 
