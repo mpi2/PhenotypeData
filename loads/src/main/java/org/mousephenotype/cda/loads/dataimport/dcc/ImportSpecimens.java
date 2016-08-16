@@ -66,6 +66,7 @@ public class ImportSpecimens implements CommandLineRunner {
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(ImportSpecimens.class);
         app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
         app.run(args);
     }
 
@@ -104,7 +105,7 @@ public class ImportSpecimens implements CommandLineRunner {
             logger.info("Dropping and creating dcc specimen tables - complete");
         }
 
-        logger.info("Loading specimen file {}", filename);
+        logger.debug("Loading specimen file {}", filename);
     }
 
     private void run() throws DataImportException {
@@ -142,7 +143,11 @@ public class ImportSpecimens implements CommandLineRunner {
         // Update the relatedSpecimen.specimen_mine_pk column.
         int relatedSpecimenUpdateCount = dccSqlUtils.updateRelatedSpecimenMinePk();
 
-        logger.info("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
+        if (totalSpecimenFailures > 0) {
+            logger.warn("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
+        } else {
+            logger.debug("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
+        }
     }
 
     @Transactional
