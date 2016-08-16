@@ -142,7 +142,11 @@ public class ImportSpecimens implements CommandLineRunner {
         // Update the relatedSpecimen.specimen_mine_pk column.
         int relatedSpecimenUpdateCount = dccSqlUtils.updateRelatedSpecimenMinePk();
 
-        logger.info("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
+        if (totalSpecimenFailures > 0) {
+            logger.warn("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
+        } else {
+            logger.debug("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
+        }
     }
 
     @Transactional

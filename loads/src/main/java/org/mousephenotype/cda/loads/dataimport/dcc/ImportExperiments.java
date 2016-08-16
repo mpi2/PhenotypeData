@@ -151,10 +151,11 @@ public class ImportExperiments implements CommandLineRunner {
             }
         }
 
-        // Update the relatedSpecimen.specimen_mine_pk column.
-        int relatedSpecimenUpdateCount = dccSqlUtils.updateRelatedSpecimenMinePk();
-
-        logger.info("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+        if (totalExperimentsFailed > 0) {
+            logger.warn("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+        } else {
+            logger.debug("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+        }
     }
 
     @Transactional
