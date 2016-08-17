@@ -9,17 +9,17 @@ import java.util.Set;
  */
 public class OntologyTermDTO {
 
-    String accessonId;
-    String name;
-    Set<String> synonyms;
-    Set<String> narrowSynonyms;
+    String               accessonId;
+    String               name;
+    Set<String>          synonyms;
+    Set<String>          narrowSynonyms;
     Set<OntologyTermDTO> equivalentClasses; // from equivalent classes, return the
-    Set<String> considerId;
-    Set<String> broadSynonyms;
-    String replacementAccessionIds;
-    String definition;
-    boolean isObsolete;
-    OWLClass cls;
+    Set<String>          considerIds;
+    Set<String>          broadSynonyms;
+    String               replacementAccessionId;
+    String               definition;
+    boolean              isObsolete;
+    OWLClass             cls;
 
     public Set<OntologyTermDTO> getEquivalentClasses() {
         return equivalentClasses;
@@ -37,12 +37,12 @@ public class OntologyTermDTO {
         this.cls = cls;
     }
 
-    public String getReplacementAccessionIds() {
-        return replacementAccessionIds;
+    public String getReplacementAccessionId() {
+        return replacementAccessionId;
     }
 
-    public void setReplacementAccessionIds(String replacementAccessionIds) {
-        this.replacementAccessionIds = replacementAccessionIds;
+    public void setReplacementAccessionId(String replacementAccessionId) {
+        this.replacementAccessionId = replacementAccessionId;
     }
 
     public boolean isObsolete() {
@@ -81,12 +81,12 @@ public class OntologyTermDTO {
 
     }
 
-    public Set<String> getConsiderId() {
-        return considerId;
+    public Set<String> getConsiderIds() {
+        return considerIds;
     }
 
-    public void setConsiderId(Set<String> considerId) {
-        this.considerId = considerId;
+    public void setConsiderIds(Set<String> considerIds) {
+        this.considerIds = considerIds;
     }
 
     public Set<String> getBroadSynonyms() {
