@@ -587,7 +587,7 @@
 						}
 					}
 
-                    _doFancybox();
+                    _doProductFancyBox();
 
 					$(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");
 
@@ -947,11 +947,10 @@
 
 		});
 
-        function _doFancybox(){
+        function _doProductFancyBox(){
             $('.iFrameFancy').click(function()
                     {
-                        console.log('calling iframe fancy from search page');
-                        $.fancybox.open([
+                      $.fancybox.open([
                                     {
                                         href : $(this).attr('data-url'),
                                         title : 'Order Products'
