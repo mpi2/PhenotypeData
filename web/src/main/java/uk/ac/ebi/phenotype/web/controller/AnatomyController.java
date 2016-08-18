@@ -117,8 +117,10 @@ public class AnatomyController {
 		Map<String, Integer> pieData = new HashMap<>();
 		pieData.put("Phenotype present ", genesWithPhenotype);
 		pieData.put("No phenotype ", genesWithoutPhenotype);
-		List<AnatomogramDataBean> anatomogramDataBeans = getAnatomogramBeanByAnatomyTerm(anatomyTerm);
-		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
+
+        // Ignore anatomogram in anatomy page for now: too many MA terms and EMAPA terms are not supported by anatomogram
+//        List<AnatomogramDataBean> anatomogramDataBeans = getAnatomogramBeanByAnatomyTerm(anatomyTerm);
+//		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
 
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
@@ -131,7 +133,7 @@ public class AnatomyController {
         // Stuff for parent-child display
         model.addAttribute("hasChildren", (anatomyTerm.getChildAnatomyId() != null && anatomyTerm.getChildAnatomyId().size() > 0) ? true : false);
         model.addAttribute("hasParents", (anatomyTerm.getParentAnatomyId() != null && anatomyTerm.getParentAnatomyId().size() > 0) ? true : false);
-		model.addAttribute("anatomogram", anatomogram);
+		//model.addAttribute("anatomogram", anatomogram);
 
         return "anatomy";
 
