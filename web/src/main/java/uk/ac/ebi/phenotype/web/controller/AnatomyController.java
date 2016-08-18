@@ -118,10 +118,8 @@ public class AnatomyController {
 		pieData.put("Phenotype present ", genesWithPhenotype);
 		pieData.put("No phenotype ", genesWithoutPhenotype);
 		List<AnatomogramDataBean> anatomogramDataBeans = getAnatomogramBeanByAnatomyTerm(anatomyTerm);
-		System.out.println("check bean: "+ anatomogramDataBeans);
 		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
 
-		System.out.println("check anatomogram: " + anatomogram);
 		model.addAttribute("anatomy", anatomyTerm);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("genesWithExpression", expressionService.getGenesWithExpression(anatomy));

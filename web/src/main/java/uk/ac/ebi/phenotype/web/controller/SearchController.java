@@ -242,9 +242,9 @@ public class SearchController {
 		}
 
 		// test
-		for ( String core : cores ){
-			System.out.println("SearchController facetcount - " + core + " : " + qryBrokerJson.get(core));
-		}
+//		for ( String core : cores ){
+//			System.out.println("SearchController facetcount - " + core + " : " + qryBrokerJson.get(core));
+//		}
 
 		String subfacet = null;
 		return queryBrokerController.createJsonResponse(subfacet, qryBrokerJson, request);
