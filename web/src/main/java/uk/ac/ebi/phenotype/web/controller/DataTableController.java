@@ -906,6 +906,9 @@ public class DataTableController {
 
                 for (Object d : data) {
 
+                	if ( d.toString().startsWith("MP:") ){
+                		continue;
+					}
                     String targetStr = qryStr.toLowerCase().replaceAll("\"", "");
                     if (d.toString().toLowerCase().contains(targetStr)) {
                         if (synMatch == null) {
