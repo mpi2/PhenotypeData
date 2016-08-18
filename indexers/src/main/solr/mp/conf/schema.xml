@@ -430,22 +430,11 @@
 
 
     <!--  qf bucket list -->
-    <copyField source="mp_id" dest="mpQf" />
-    <copyField source="mp_term" dest="mpQf" />
-    <copyField source="mp_term_synonym" dest="mpQf" />
-    <copyField source="mp_narrow_synonym" dest="mpQf" />
-    <copyField source="hp_id" dest="mpQf" />
-    <copyField source="hp_term" dest="mpQf" />
-    <copyField source="hp_term_synonym" dest="mpQf" />
 
-    <copyField source="mp_term_synonym" dest="mpSynQf" />
-    <copyField source="mp_narrow_synonym" dest="mpSynQf" />
-
-    <copyField source="hp_term" dest="hpSynQf" />
-    <copyField source="hp_term_synonym" dest="hpSynQf" />
-
+    <copyField source="mp_id" dest="mixSynQf" />
     <copyField source="mp_term_synonym" dest="mixSynQf" />
     <copyField source="mp_narrow_synonym" dest="mixSynQf" />
+    <copyField source="hp_id" dest="mixSynQf" />
     <copyField source="hp_term" dest="mixSynQf" />
     <copyField source="hp_term_synonym" dest="mixSynQf" />
 
