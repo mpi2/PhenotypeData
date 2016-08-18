@@ -122,6 +122,7 @@ $(document).ready(function () {
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
     srchkw = srchkw.replace(/%22/g, '');
 	$("input#s").val(decodeURI(srchkw));
+
 	$("input#s").click(function(){
 		if ( $(this).val() == 'Search') {
 			$(this).val('');
