@@ -374,23 +374,34 @@
     <copyField source="gene_accession_id" dest="auto_suggest" />
     <copyField source="gene_symbol" dest="auto_suggest" />
     <copyField source="procedure_name" dest="auto_suggest" />
-    <copyField source="phenotyping_center" dest="latest_phenotyping_centre" />
 
+    <copyField source="mp_id" dest="auto_suggest" />
+    <copyField source="mp_term" dest="auto_suggest" />
+    <copyField source="mp_id_term" dest="auto_suggest" />
+    <copyField source="mp_term_synonym" dest="auto_suggest" />
+    <copyField source="top_level_mp_id" dest="auto_suggest" />
     <copyField source="top_level_mp_term" dest="auto_suggest" />
     <copyField source="top_level_mp_term_synonym" dest="auto_suggest" />
+    <copyField source="intermediate_mp_id" dest="auto_suggest" />
     <copyField source="intermediate_mp_term" dest="auto_suggest" />
     <copyField source="intermediate_mp_term_synonym" dest="auto_suggest" />
+    <copyField source="child_mp_id" dest="auto_suggest" />
     <copyField source="child_mp_term" dest="auto_suggest" />
     <copyField source="child_mp_term_synonym" dest="auto_suggest" />
 
+    <copyField source="anatomy_id" dest="auto_suggest" />
     <copyField source="anatomy_term" dest="auto_suggest" />
     <copyField source="anatomy_term_synonym" dest="auto_suggest" />
+    <copyField source="top_level_anatomy_id" dest="auto_suggest" />
     <copyField source="top_level_anatomy_term" dest="auto_suggest" />
     <copyField source="top_level_anatomy_term_synonym" dest="auto_suggest" />
+    <copyField source="selected_top_level_anatomy_id" dest="auto_suggest" />
     <copyField source="selected_top_level_anatomy_term" dest="auto_suggest" />
     <copyField source="selected_top_level_anatomy_term_synonym" dest="auto_suggest" />
+    <copyField source="child_anatomy_id" dest="auto_suggest" />
     <copyField source="child_anatomy_term" dest="auto_suggest" />
     <copyField source="child_anatomy_term_synonym" dest="auto_suggest" />
+
 
 
 </schema>
