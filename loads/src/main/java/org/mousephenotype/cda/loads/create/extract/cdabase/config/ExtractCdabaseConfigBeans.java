@@ -331,19 +331,12 @@ public class ExtractCdabaseConfigBeans {
         for (DownloadFilename filename : filenames) {
             if (filename instanceof DownloadOntologyFilename) {
                 DownloadOntologyFilename downloadOntology = (DownloadOntologyFilename) filename;
-                ontologyloaderList.add(new OntologyLoader(downloadOntology.targetFilename, downloadOntology.dbId, downloadOntology.prefix, stepBuilderFactory, ontologyWriter()));
+                ontologyloaderList.add(new OntologyLoader(downloadOntology.targetFilename, downloadOntology.dbId, downloadOntology.prefix, stepBuilderFactory, cdabaseSqlUtils()));
             }
         }
 
         return ontologyloaderList;
     }
-
-    @Bean(name = "ontologyWriter")
-    public OntologyWriter ontologyWriter() {
-        return new OntologyWriter();
-    }
-
-
 
     @Bean(name = "phenotypedcolonyLoader")
     public PhenotypedColonyLoader phenotypedcolonyLoader() throws DataImportException {
