@@ -122,6 +122,7 @@ $(document).ready(function () {
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
     srchkw = srchkw.replace(/%22/g, '');
 	$("input#s").val(decodeURI(srchkw));
+
 	$("input#s").click(function(){
 		if ( $(this).val() == 'Search') {
 			$(this).val('');
@@ -341,7 +342,6 @@ $('input#s').keyup(function (e) {
 				document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
 			}
 			else if (input.match(/HP\\\%3A\d+/i)) {
-
 				// work out the mapped mp_id and fire off the query
 				_convertHp2MpAndSearch(input, facet);
 			}
@@ -355,15 +355,27 @@ $('input#s').keyup(function (e) {
 				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
 			}
 			else {
-
-			    // default to search by quotes
-				var fqStr = $.fn.fetchUrlParams("fq");
-				if (fqStr != undefined) {
-					document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
-				}
-				else {
-					document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
-				}
+			    if ( window.location.search == ""){
+			        // when url lookes like .../search at end
+                    // need to figure out the default datatype tab
+                    $.ajax({
+                        url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+                        type: 'get',
+                        success: function (defaultCore) {
+                            document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+                        }
+                    });
+                }
+                else {
+                    // default to search by quotes
+                    var fqStr = $.fn.fetchUrlParams("fq");
+                    if (fqStr != undefined) {
+                        document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
+                    }
+                    else {
+                        document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
+                    }
+                }
 			}
 
 		}

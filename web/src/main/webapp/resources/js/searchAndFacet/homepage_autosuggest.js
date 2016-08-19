@@ -1,9 +1,60 @@
 <link href="/data/css/vendor/jquery.ui/jquery.ui.core.css" rel="stylesheet" />
     <link href="/data/css/vendor/jquery.ui/jquery.ui.theme.css" rel="stylesheet" /><!--<link href="/data/css/searchPage.css" rel="stylesheet" /> -->
-    <form action="/data/search" method="GET">
+    <form action="/data/search" method="GET"><!--      <i id='sicon' class='fa fa-search'></i>
+    <p><input id="q" name="q" placeholder="Search" type="text" /></p>
+    <i id='clearIcon' class='fa fa-times'></i> -->
     <p><input id="q" name="q" placeholder="Search" type="text" /></p>
     <style type="text/css">span.sugList {
     font-size: 12px !important;
+    text-decoration: none;
+}
+span.category {
+    color: #EF7B0B !important;
+}
+b.sugTerm {
+    color: rgb(9, 120, 161);
+    font-weight: normal;
+}
+input#q {
+    padding-right: 10px;
+    margin-top: 10px;
+    color: gray;
+}
+div#block-block-12 p {
+    margin: 15px 0 -14px 0;
+}
+/* autocomplete drop down ul */
+ul.ui-autocomplete {
+    background-color: white;
+    border: 1px solid #0978A1;
+    padding: 10px 15px;
+    z-index: 999;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+}
+ul.ui-autocomplete li a {
+    display: block;
+    text-decoration: none;
+    padding: 0 0 0 5px !important;
+}
+ul.ui-autocomplete li {
+    font-size: 14px !important;
+    border: none !important;
+}
+ul.ui-autocomplete li a:hover {
+    background-color: #D4D4D4 !important;
+    border-radius: 4px !important;
+    border: none !important;
+}
+ul.ui-autocomplete a {
+    text-decoration: none;
+}
+ul.ui-autocomplete hr {
+    border:none;
+    border-top:1px dotted gray;
+    height:1px;
+    width:100%;
 }
 </style>
 <p>Examples: <a href="/data/search/gene?kw=Ap4e1" style="color: white">Ap4e1</a>, <a href="/data/search/mp?kw='abnormal heart rate'&amp;fq=top_level_mp_term:*" style="color: white">Abnormal Heart Rate</a>, <a href="/data/search/disease?kw=&quot;Bernard-Soulier Syndrome&quot;" style="color: white">Bernard-Soulier Syndrome</a></p>
@@ -30,6 +81,15 @@ $(document).ready(function(){
         'pipeline' : 'pipeline_stable_id:*',
         'images' : '*:*'
     }
+
+    var facet2Label = {
+        'gene'        : 'Genes',
+        'mp'          : 'Phenotypes',
+        'disease'     : 'Diseases',
+        'anatomy'     : 'Anatomy',
+        'impc_images' : 'Images',
+        'allele2'     : 'Products'
+    };
 
     // if users do not hit ENTER too quickly and wait until drop down list
     // appears, then we know about which facet to display by default
@@ -92,7 +152,16 @@ $(document).ready(function(){
                 document.location.href = baseUrl + '/search/mp?kw=' + mpTerm + '&fq=' + fqStr;
             }
             else {
-                document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
+
+                // need to figure out the default datatype tab
+                $.ajax({
+                    url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+                    type: 'get',
+                    success: function (defaultCore) {
+                        // default to search by quotes
+                        document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+                    }
+                });
             }
 
             e.preventDefault();
@@ -100,28 +169,28 @@ $(document).ready(function(){
         }
     });
 
-    var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 mp_term:*^90 mp_term_synonym:*^80 disease_term:*^70 anatomy_term:*^60 anatomy_term_synonym:*^50" ;
-
+    // generic search input autocomplete javascript
+    var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75 disease_term:*^70 anatomy_term:*^60 anatomy_term_synonym:*^50";
     $(function() {
         $( "input#q" ).autocomplete({
             source: function( request, response ) {
                 var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
+                var facetStr = "&facet=on&facet.field=docType&facet.mincount=1&facet.limit=-1";
+                var sortStr = "&sort=score desc";
                 $.ajax({
-                    url: solrUrl + "/autosuggest/select?fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq,
+                    url: solrUrl + "/autosuggest/select?rows=5&fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + facetStr + sortStr,
                     dataType: "jsonp",
                     'jsonp': 'json.wrf',
                     data: {
                         q: '"'+request.term+'"'
                     },
                     success: function( data ) {
-
-                        matchedFacet = false; // reset
                         var docs = data.response.docs;
-                        // console.log(docs);
+                        var suggests = [];
+                        var seenTerm = {};
 
-                        var aKVtmp = {};
                         for ( var i=0; i<docs.length; i++ ){
-                            var facet;
+                            var facet = null;
                             for ( var key in docs[i] ){
                                 // console.log('key: '+key);
                                 if ( facet == 'hp' && (key == 'hpmp_id' || key == 'hpmp_term') ){
@@ -130,12 +199,8 @@ $(document).ready(function(){
 
                                 if ( key == 'docType' ){
                                     facet = docs[i][key].toString();
-                                    if ( ! aKVtmp.hasOwnProperty(facet) ) {
-                                        aKVtmp[facet] = [];
-                                    }
                                 }
                                 else {
-
                                     var term = docs[i][key].toString();
                                     var termHl = term;
 
@@ -154,37 +219,35 @@ $(document).ready(function(){
                                     var re = new RegExp("(" + termStr + ")", "gi") ;
                                     var termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
 
-                                    if ( facet == 'hp' ){
-                                        termHl += " &raquo; <span class='hp2mp'>" + docs[i]['hpmp_id'].toString() + ' - ' + docs[i]['hpmp_term'].toString() + "</span>";
+                                    // add only once with the top score
+                                    var lowerCaseTerm = term.toLowerCase();
+                                    if ( seenTerm[lowerCaseTerm] == undefined){
+                                        seenTerm[lowerCaseTerm]++;
+                                        suggests.push("<span class='" + facet + " sugList'>" + termHl + "</span>");
                                     }
-
-                                    aKVtmp[facet].push("<span class='" + facet + " sugList'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
-
-                                    if (i == 0){
-                                        // take the first found in
-                                        // autosuggest and open that
-                                        // facet
-                                        matchedFacet = facet;
-                                    }
-
                                 }
                             }
                         }
                         var dataTypeVal = [];
-                        var aKVtmpSorted = sortJson(aKVtmp);
-                        for ( var k in aKVtmpSorted ){
-                            for ( var v in aKVtmpSorted[k] ) {
-                                dataTypeVal.push(aKVtmpSorted[k][v]);
+                        for( var corename in facet2Label ) {
+                            dataTypeVal.push(_getDropdownList(corename, facet2Label, request.term));
+                        }
+                        if ( suggests.length > 0 ) {
+                            dataTypeVal.push("<hr>");
+                            for (var i = 0; i < suggests.length; i++) {
+                                dataTypeVal.push(suggests[i]);
                             }
                         }
-
                         response( dataTypeVal );
                     }
                 });
             },
             focus: function (event, ui) {
                 var thisInput = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
-                this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
+                //this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
+
+                // assign value to input box
+                this.value = thisInput.trim();
                 event.preventDefault(); // Prevent the default focus behavior.
             },
             minLength: 3,
@@ -196,20 +259,15 @@ $(document).ready(function(){
                 var facet = $(ui.item.label).attr('class').replace(' sugList', '') == 'hp' ? 'mp' : $(ui.item.label).attr('class').replace(' sugList', '');
 
                 var q;
-                var matched = decodeURIComponent(this.value).match(/.+(MP:\d+) - .+/);
+                var qVal = this.value;
+                var qRe = new RegExp(" in (Genes|Phenotypes|Diseases|Anatomy|Images|Products)$");
+                q = qVal.replace(qRe, "");
 
-                if ( matched ){
-                    q = matched[1];
-                }
-                else {
-                    q = this.value;
-                }
                 q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
-                // we are choosing value from drop-down list so need to double quote the value for SOLR query
-                //document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
+                // default to send query to Solr in quotes !!!
 
-                var href = baseUrl + '/search/' + facet  + '?' + "kw=" + q;
+                var href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"";
                 if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
                     href += "&fq=" + facet2Fq[facet];
                 }
@@ -246,7 +304,6 @@ $(document).ready(function(){
                 a.push(key);
             }
         }
-
         a.sort();
 
         for (key = 0; key < a.length; key++) {
@@ -255,6 +312,10 @@ $(document).ready(function(){
         return sorted;
     }
 
+    function _getDropdownList(corename, facet2Label, input) {
+        var catLabel = "<span class='category'>" + facet2Label[corename] + "</span>";
+        return "<span class='" + corename + " sugList'>" + input + " in " + catLabel + "</span>"; // so that we know it is category search
+    }
     function _convertHp2MpAndSearch(input, facet){
         input = input.toUpperCase();
         $.ajax({

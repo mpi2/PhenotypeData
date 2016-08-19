@@ -11,7 +11,9 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.apache.solr.common.util.JavaBinCodec;
 
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -102,7 +104,7 @@ public class ObservationDTOWrite extends ObservationDTOBase {
 	}
 
 
-	public class Iso8601ZonedDateTime {
+	public class Iso8601ZonedDateTime implements JavaBinCodec.ObjectResolver {
 		ZonedDateTime inner;
 
 		public Iso8601ZonedDateTime(ZonedDateTime zdt) {
@@ -117,7 +119,19 @@ public class ObservationDTOWrite extends ObservationDTOBase {
 
 			return inner.format(DateTimeFormatter.ISO_INSTANT);
 		}
+
+		// Need an ObjectResolver to turn this Iso8601ZonedDateTime object into a string for Solr indexing
+		@Override
+		public Object resolve(Object o, JavaBinCodec codec) throws IOException {
+			if (o instanceof Iso8601ZonedDateTime)
+			{
+				return this.toString();
+			}
+			return o;
+		}
 	}
+
+
 
 
 }

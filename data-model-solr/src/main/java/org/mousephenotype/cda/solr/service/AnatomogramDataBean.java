@@ -2,13 +2,14 @@ package org.mousephenotype.cda.solr.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class AnatomogramDataBean {
 
 	String parameterId;
 	String patameterName;
 	List<String> uberonIds;
+	List<String> anatomogramUberonIds;
+	List<String> anatomogramEfoIds;
 	
 	long count;
 	public long getCount() {
@@ -36,13 +37,18 @@ public class AnatomogramDataBean {
 		this.uberonIds = uberonIds;
 	}
 
-	public List<String> getDirectlyMappedUberonIds() {
-		return uberonIds;
+	public List<String> getMappedUberonIdsForAnatomogram() {
+		return anatomogramUberonIds;
 	}
-	public void setDirectlyMappedUberonIds(List<String> uberonIds) {
-		this.uberonIds = uberonIds;
+	public void setMappedUberonIdsForAnatomogram(List<String> uberonIds) {
+		this.anatomogramUberonIds = uberonIds;
 	}
-
+	public List<String> getMappedEfoIdsForAnatomogram() {
+		return anatomogramEfoIds;
+	}
+	public void setMappedEfoIdsForAnatomogram(List<String> uberonIds) {
+		this.anatomogramEfoIds = uberonIds;
+	}
 
 	public String getMaId() {
 		return maId;
@@ -82,14 +88,24 @@ public class AnatomogramDataBean {
 	public void setTopLevelMaNames(List<String> topLevelMaNames) {
 		this.topLevelMaNames = topLevelMaNames;
 	}
-	
-	
+
 	@Override
 	public String toString() {
-		return "AnatomogramDataBean [parameterId=" + parameterId + ", patameterName=" + patameterName + ", uberonIds="
-				+ uberonIds + ", count=" + count + ", maId=" + maId + ", topLevelMaIds=" + topLevelMaIds
-				+ ", topLevelMaNames=" + topLevelMaNames + ", maTerm=" + maTerm + ", efoIds=" + efoIds + "]";
+		return "AnatomogramDataBean{" +
+				"parameterId='" + parameterId + '\'' +
+				", patameterName='" + patameterName + '\'' +
+				", uberonIds=" + uberonIds +
+				", anatomogramUberonIds=" + anatomogramUberonIds +
+				", anatomogramEfoIds=" + anatomogramEfoIds +
+				", count=" + count +
+				", maId='" + maId + '\'' +
+				", topLevelMaIds=" + topLevelMaIds +
+				", topLevelMaNames=" + topLevelMaNames +
+				", maTerm='" + maTerm + '\'' +
+				", efoIds=" + efoIds +
+				'}';
 	}
+
 	public void addTopLevelMaIds(List<String> selectedTopLevelMas) {
 		this.topLevelMaIds.addAll(selectedTopLevelMas);
 		

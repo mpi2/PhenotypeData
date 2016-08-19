@@ -219,18 +219,25 @@ public class AnatomyService extends BasicService implements WebStatus {
 		SolrDocumentList res = rsp.getResults();
 
 		ArrayList<String> uberonIds = new ArrayList<String>();
-		ArrayList<String> directlyMappedUberonIds = new ArrayList<String>();
+		Set<String> mappedEfoIds = new HashSet<>();
+		Set<String> mappedUberonIds = new HashSet<>();
 
 		if (res.getNumFound() > 1) {
 			System.err.println("Warning - more than 1 anatomy term found where we only expect one doc!");
 		}
-		for (SolrDocument doc : res) {
 
+		for (SolrDocument doc : res) {
 			if (doc.containsKey(AnatomyDTO.UBERON_ID)) {
 				for (Object child : doc.getFieldValues(AnatomyDTO.UBERON_ID)) {
-					directlyMappedUberonIds.add((String) child);
+					mappedUberonIds.add((String) child);
 				}
-				bean.setDirectlyMappedUberonIds( directlyMappedUberonIds);
+				bean.setMappedUberonIdsForAnatomogram(new ArrayList(mappedUberonIds));
+			}
+			if (doc.containsKey(AnatomyDTO.EFO_ID)) {
+				for (Object child : doc.getFieldValues(AnatomyDTO.EFO_ID)) {
+					mappedEfoIds.add((String) child);
+				}
+				bean.setMappedUberonIdsForAnatomogram(new ArrayList(mappedEfoIds));
 			}
 
 			if (doc.containsKey(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID)) {
@@ -256,7 +263,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 
 
 		}
-
 		return bean;
 	}
 
