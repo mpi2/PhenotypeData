@@ -62,7 +62,8 @@ public class CdabaseDbInitialiser implements Tasklet, InitializingBean {
 
         logger.info("Database '{}': Create cdabase tables - start", dbname);
         org.springframework.core.io.Resource r = new ClassPathResource("scripts/cdabase/schema.sql");
-        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
+//        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(false, false, "iso-8859-15", r);
+        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
         p.execute(cdabase);
 
         logger.info("Database '{}': Create cda_base tables - end. Total elapsed time: {}", dbname, commonUtils.msToHms(new Date().getTime() - startStep));
