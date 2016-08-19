@@ -318,11 +318,6 @@ public class LoadDccConfigBeans {
 //        return ontologyloaderList;
 //    }
 //
-//    @Bean(name = "ontologyWriter")
-//    public OntologyWriter ontologyWriter() {
-//        return new OntologyWriter();
-//    }
-//
 //
 //
 //    @Bean(name = "phenotypedcolonyLoader")
