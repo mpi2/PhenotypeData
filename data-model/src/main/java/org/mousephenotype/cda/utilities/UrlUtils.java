@@ -18,6 +18,9 @@ package org.mousephenotype.cda.utilities;
 
 import org.mousephenotype.cda.enumerations.ZygosityType;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 
 /**
@@ -162,5 +165,29 @@ public class UrlUtils {
         }
 
         return retVal;
+    }
+
+    /**
+     * This method returns a string that is the redirected url, if any. It has a cost, as it has to open a connection
+     * to get the redirected url. If the URL is not redirected or is invalid, the original source string is returned.
+     *
+     * @param source the url source string for redirection
+     * @return the redirected url source string, if redirected; the original source string otherwise
+     */
+    public String getRedirectedUrl(String source) {
+
+        URLConnection urlConnection;
+        String        newSource;
+
+        try {
+            urlConnection = (new URL(source).openConnection());
+            urlConnection.connect();
+        } catch (IOException e) {
+            return source;
+        }
+
+        newSource = urlConnection.getHeaderField("Location");
+
+        return ((newSource != null) && ( ! newSource.isEmpty()) ? newSource : source);
     }
 }

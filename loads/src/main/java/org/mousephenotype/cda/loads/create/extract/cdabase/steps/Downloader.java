@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -50,19 +51,22 @@ import java.util.Date;
  */
 public class Downloader implements Tasklet, InitializingBean {
 
-    private       CommonUtils commonUtils = new CommonUtils();
-    private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
+    private CommonUtils commonUtils = new CommonUtils();
+    private Logger      logger      = LoggerFactory.getLogger(this.getClass());
+    private UrlUtils    urlUtils    = new UrlUtils();
 
     private String sourceUrl;
     private String targetFilename;
 
 
     public Downloader(String sourceUrl, String targetFilename) {
-        this.sourceUrl = sourceUrl;
+
+        this.sourceUrl = urlUtils.getRedirectedUrl(sourceUrl);      // RESOLVE ANY URL REDIRECTION
         this.targetFilename = targetFilename;
     }
 
     @Override
+
     public void afterPropertiesSet() throws Exception {
   	    Assert.notNull(sourceUrl, "sourceUrl must be set");
         Assert.notNull(targetFilename, "targetFilename must be set");
