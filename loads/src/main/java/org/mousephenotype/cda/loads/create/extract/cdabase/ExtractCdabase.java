@@ -74,9 +74,6 @@ public class ExtractCdabase implements CommandLineRunner {
     @Autowired
     public JobRepository jobRepository;
 
-    @Autowired
-    public CdabaseDbInitialiser databaseInitialiser;
-
     @Resource(name = "downloader")
     public List<Downloader> downloader;
 
@@ -124,8 +121,7 @@ public class ExtractCdabase implements CommandLineRunner {
         }
 
         Job[] jobs = new Job[] {
-                  databaseInitialiserJob()
-                , downloaderJob()
+                  downloaderJob()
                 , dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -144,15 +140,6 @@ public class ExtractCdabase implements CommandLineRunner {
         }
 
         return jobs;
-    }
-
-    public Job databaseInitialiserJob() throws DataImportException {
-
-        return jobBuilderFactory.get("databaseInitialiserJob")
-                .incrementer(new RunIdIncrementer())
-                .flow(databaseInitialiser.getStep(stepBuilderFactory))
-                .end()
-                .build();
     }
 
     public Job downloaderJob() throws DataImportException {
