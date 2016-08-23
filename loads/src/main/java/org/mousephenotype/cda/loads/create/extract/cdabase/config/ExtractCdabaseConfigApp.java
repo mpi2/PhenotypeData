@@ -40,9 +40,9 @@ public class ExtractCdabaseConfigApp {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Bean(name = "cdabase")
+    @Bean(name = "cdabaseDataSource")
     @ConfigurationProperties(prefix = "cdabase")
-    public DataSource cdabase() {
+    public DataSource cdabaseDataSource() {
         DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 
         return ds;
@@ -50,6 +50,6 @@ public class ExtractCdabaseConfigApp {
 
     @Bean(name = "jdbcCdabase")
     public NamedParameterJdbcTemplate jdbcCdabase() {
-        return new NamedParameterJdbcTemplate(cdabase());
+        return new NamedParameterJdbcTemplate(cdabaseDataSource());
     }
 }
