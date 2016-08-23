@@ -25,12 +25,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import javax.sql.DataSource;
 
 @Configuration
 @PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
-@EnableAutoConfiguration(exclude = {ExtractDccConfigApp.class})
+@EnableAutoConfiguration(exclude = {ExtractDccConfigApp.class, ResourceDatabasePopulator.class})
 /**
  * This configuration class holds configuration information shared by the data load create process.
  *
