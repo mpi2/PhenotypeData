@@ -1,0 +1,203 @@
+/*******************************************************************************
+ * Copyright © 2015 EMBL - European Bioinformatics Institute
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ ******************************************************************************/
+
+package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
+
+import org.mousephenotype.cda.db.pojo.ConsiderId;
+import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.Synonym;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
+import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
+
+import java.util.*;
+
+/**
+ * Loads a single ontology file into the ontology_term table of the target database.
+ *
+ * Created by mrelac on 13/04/2016.
+ *
+ */
+public class OntologyLoader implements Step, Tasklet, InitializingBean {
+
+    private CdabaseSqlUtils      cdabaseSqlUtils;
+    private CommonUtils          commonUtils = new CommonUtils();
+    private int                  dbId;
+    private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
+    private String               prefix;
+    private StepBuilderFactory   stepBuilderFactory;
+    private String               sourceFilename;
+    private Map<String, Integer> written     = new HashMap<>();
+
+
+    public OntologyLoader(String sourceFilename, int dbId, String prefix, StepBuilderFactory stepBuilderFactory, CdabaseSqlUtils cdabaseSqlUtils) throws DataImportException {
+        this.sourceFilename = sourceFilename;
+        this.dbId = dbId;
+        this.prefix = prefix;
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.cdabaseSqlUtils = cdabaseSqlUtils;
+
+        written.put("terms", 0);
+        written.put("synonyms", 0);
+        written.put("considerIds", 0);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(dbId, "dbId must be set");
+  	    Assert.notNull(sourceFilename, "sourceFilename must be set");
+        Assert.notNull(prefix, "prefix must be set");
+        Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
+        Assert.notNull(cdabaseSqlUtils, "cdabaseSqlUtils must be set");
+    }
+
+    /**
+     * @return the name of this step.
+     */
+    @Override
+    public String getName() {
+        return "ontologyLoaderStep";
+    }
+
+    /**
+     * @return true if a step that is already marked as complete can be started again.
+     */
+    @Override
+    public boolean isAllowStartIfComplete() {
+        return false;
+    }
+
+    /**
+     * @return the number of times a job can be started with the same identifier.
+     */
+    @Override
+    public int getStartLimit() {
+        return 10;
+    }
+
+    /**
+     * Process the step and assign progress and status meta information to the {@link StepExecution} provided. The
+     * {@link Step} is responsible for setting the meta information and also saving it if required by the
+     * implementation.<br>
+     * <p/>
+     * It is not safe to re-use an instance of {@link Step} to process multiple concurrent executions.
+     *
+     * @param stepExecution an entity representing the step to be executed
+     * @throws JobInterruptedException if the step is interrupted externally
+     */
+    @Override
+    public void execute(StepExecution stepExecution) throws JobInterruptedException {
+        stepBuilderFactory.get("ontologyLoaderStep")
+                .tasklet(this)
+                .build()
+                .execute(stepExecution);
+    }
+
+    @Override
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+
+        long startStep = new Date().getTime();
+
+        List<OntologyTermDTO> dtoTerms;
+        List<OntologyTerm> terms;
+
+        try {
+            dtoTerms = new OntologyParser(sourceFilename, prefix).getTerms();
+            terms = ontologyDTOTermsToOntologyTerms(dtoTerms);
+
+            logger.info("");
+            logger.info("FILENAME: {}. PREFIX: {}. TERMS COUNT: {}.",
+                        sourceFilename, prefix, terms.size());
+
+        } catch (OWLOntologyCreationException e) {
+
+            throw new DataImportException(e);
+        }
+
+        Map<String, Integer> counts = cdabaseSqlUtils.insertOntologyTerm(terms);
+        written.put("terms", written.get("terms") + counts.get("terms"));
+        written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
+        written.put("considerIds", written.get("considerIds") + counts.get("considerIds"));
+
+        logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        contribution.setExitStatus(ExitStatus.COMPLETED);
+        chunkContext.setComplete();
+
+        return RepeatStatus.FINISHED;
+    }
+
+    private List<OntologyTerm> ontologyDTOTermsToOntologyTerms(List<OntologyTermDTO> dtoTerms) {
+        List<OntologyTerm> terms = new ArrayList<>();
+
+        for (OntologyTermDTO dtoTerm : dtoTerms) {
+            OntologyTerm term = new OntologyTerm();
+
+            term.setId(new DatasourceEntityId(dtoTerm.getAccessonId(), dbId));
+            List<ConsiderId> considerIds = new ArrayList<>();
+            if ((dtoTerm.getConsiderIds() == null) || (dtoTerm.getConsiderIds().isEmpty())) {
+                term.setConsiderIds(considerIds);
+            } else {
+
+                // FIXME FIXME FIXME Use Streams here!!!!
+
+
+                for (String considerIdString : dtoTerm.getConsiderIds()) {
+                    considerIds.add(new ConsiderId(dtoTerm.getAccessonId(), considerIdString));
+                }
+                term.setConsiderIds(considerIds);
+            }
+
+            term.setDescription(dtoTerm.getDefinition());
+            term.setIsObsolete(dtoTerm.isObsolete());
+            term.setName(dtoTerm.getName());
+            term.setReplacementAcc(dtoTerm.getReplacementAccessionId());
+            List<Synonym> synonyms = new ArrayList<>();
+            if ((term.getSynonyms() == null) || (term.getSynonyms().isEmpty())) {
+                term.setSynonyms(synonyms);
+            } else {
+
+                // FIXME FIXME FIXME Use Streams here!!!!
+
+
+                for (String synonymString : dtoTerm.getSynonyms()) {
+                    Synonym synonym = new Synonym();
+                    synonym.setAccessionId(dtoTerm.getAccessonId());
+                    synonym.setDbId(dbId);
+                    synonym.setSymbol(synonymString);
+                    synonyms.add(synonym);
+                }
+                term.setSynonyms(synonyms);
+            }
+
+            terms.add(term);
+        }
+
+        return terms;
+    }
+}

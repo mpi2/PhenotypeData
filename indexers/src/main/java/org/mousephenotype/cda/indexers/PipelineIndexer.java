@@ -18,9 +18,9 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
@@ -52,12 +52,15 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	DataSource komp2DataSource;
 
 	@Autowired
-	@Qualifier("mpCore")
-	SolrClient mpCore;
-
-	@Autowired
 	@Qualifier("pipelineIndexing")
 	SolrClient pipelineIndexing;
+
+	@Autowired
+	MpOntologyDAO mpOntologyService;
+
+	@Autowired
+	@Qualifier("ontodbDataSource")
+	DataSource ontodbDataSource;
 
 	@Autowired
 	EmapaOntologyDAO emapaService;
@@ -69,6 +72,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	private Map<String, ObservationType> parameterToObservationTypeMap;
 	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
 
+	private static Connection ontoDbConnection;
 
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
@@ -99,6 +103,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		pipelines = populatePipelineList();
 		emap2EmapaMap = emapaService.populateEmap2EmapaMap();
 
+        ontoDbConnection = ontodbDataSource.getConnection();
 		addAbnormalMaOntology();
 		addAbnormalEmapOntology();
 		mpIdToMp = populateMpIdToMp();
@@ -304,8 +309,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				localParamDbIdToParameter.put(id, param);
 			}
 
-            if (localParamDbIdToParameter.size() < 5704) {
-                runStatus.addWarning(" localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5704 records.");
+            if (localParamDbIdToParameter.size() < 5000) {
+                runStatus.addWarning(" localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5000 records.");
             }
 
 		} catch (Exception e) {
@@ -458,7 +463,9 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
 
-        final int MIN_ROW_COUNT = 200;     // This is the minumum number of unique procedures produced by this query on 14-Jan-2016, rounded down (GROUP BY procedure_id)
+		// This is the minumum number of unique procedures produced by this query on 14-Jan-2016, rounded down (GROUP BY procedure_id)
+		// Harwell Ageing Screen parameters removed 2016-08-24
+        final int MIN_ROW_COUNT = 150;
 		String queryString = "SELECT procedure_id, parameter_id, pp.stable_id as parameter_stable_id, pproc.stable_id as procedure_stable_id "
 				+ " FROM phenotype_procedure_parameter ppp "
 				+ " INNER JOIN phenotype_parameter pp ON pp.id=ppp.parameter_id "
@@ -523,8 +530,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			e.printStackTrace();
 		}
 
-        if (procedureIdToProcedureMap.size() < 190) {
-            runStatus.addWarning(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 190 records.");
+        if (procedureIdToProcedureMap.size() < 150) {
+            runStatus.addWarning(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 150 records.");
         }
 
 		return procedureIdToProcedureMap;
@@ -619,17 +626,38 @@ protected void addAbnormalEmapOntology(){
 	}
 
 
-	protected Map<String, MpDTO> populateMpIdToMp()
-	throws IndexerException {
+    protected Map<String, MpDTO> populateMpIdToMp()
+    throws IndexerException, SQLException {
 
-		Map<String, MpDTO> map = null;
-		try {
-			map = SolrUtils.populateMpTermIdToMp(mpCore);
-		} catch (SolrServerException | IOException e) {
-			throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpTermIdToMp()", e);
-		}
-		return map;
-	}
+        Map<String, MpDTO> map = new HashMap<>();
+        String q = " select distinct 'mp' as dataType, ti.term_id, ti.name, ti.definition, group_concat(distinct alt.alt_id) as alt_ids from mp_term_infos ti left join mp_alt_ids alt on ti.term_id=alt.term_id where ti.term_id != 'MP:0000001' group by ti.term_id";
+        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+
+            String termId = rs.getString("term_id");
+
+            MpDTO mp = new MpDTO();
+            mp.setDataType(rs.getString("dataType"));
+            mp.setMpId(termId);
+            mp.setMpTerm(rs.getString("name"));
+            mp.setMpDefinition(rs.getString("definition"));
+
+            // alternative MP ID
+            String alt_ids = rs.getString("alt_ids");
+            if (!rs.wasNull()) {
+                mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
+            }
+
+            MPIndexer.addTopLevelNodes(mp, mpOntologyService);
+            MPIndexer.addIntermediateLevelNodes(mp, mpOntologyService);
+            MPIndexer.addParentLevelNodes(mp, mpOntologyService);
+
+            map.put(termId, mp);
+
+        }
+        return map;
+    }
 
 
 	/**@since 2015
