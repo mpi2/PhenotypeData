@@ -6,8 +6,8 @@
     <logger name="org.apache.maven"                                             level="WARN" />
     <logger name="org.apache.tomcat.jdbc.pool"                                  level="${log.level:-WARN}" />
     <logger name="org.apache.tomcat.jdbc.pool.PooledConnection"                 level="${log.level:-ERROR}" />
-    <logger name="org.hibernate"                                                level="${log.level:-info}" />
-    <logger name="org.springframework"                                          level="info" />
+    <logger name="org.hibernate"                                                level="${log.level:-WARN}" />
+    <logger name="org.springframework"                                          level="WARN" />
 
     <!-- ONTOLOGY PARSING - loads-> org.mousephenotype.cda.loads.cdaloader -->
     <logger name="org.semanticweb.owlapi.rdf.rdfxml.parser"                     level="WARN" />
