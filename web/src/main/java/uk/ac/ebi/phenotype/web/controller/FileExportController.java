@@ -799,7 +799,7 @@ public class FileExportController {
 			}
 
 			String defaultFqStr = "fq=(biological_sample_group:experimental)";
-			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl2);
+			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(query, json, baseUrl2);
 
 			int numFacets = annots.size();
 			int start = iDisplayStart; // 2 elements(name, count), hence
@@ -813,21 +813,22 @@ public class FileExportController {
 
 				AnnotNameValCount annot = annots.get(i);
 
-				String displayAnnotName = annot.name;
+				String displayAnnotName = annot.getName();
 				data.add(displayAnnotName);
 
-				String annotVal = annot.val;
+				String annotVal = annot.getVal();
 				data.add(annotVal);
 
-				if (annot.id != null) {
-					data.add(annot.id);
-					data.add(annot.link);
+				if (annot.getId() != null) {
+					data.add(annot.getId());
+					data.add(annot.getLink());
 				} else {
 					data.add(NO_INFO_MSG);
 					data.add(NO_INFO_MSG);
 				}
 
-				String thisFqStr = defaultFqStr + " AND " + annot.facet + ":\"" + annotVal + "\"";
+
+				String thisFqStr = defaultFqStr + " AND " + annot.getFq() + ":\"" + annotVal + "\"";
 
 				List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
 

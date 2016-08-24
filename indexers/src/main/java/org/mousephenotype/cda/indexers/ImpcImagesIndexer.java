@@ -115,6 +115,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap(); // key: MA id
 
+	private final String fieldSeparator = "___";
 
 	public ImpcImagesIndexer() {
 		super();
@@ -253,6 +254,14 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 							if (imageDTO.getSymbol() != null) {
 								String symbolGene = imageDTO.getSymbol() + "_" + imageDTO.getGeneAccession();
 								imageDTO.setSymbolGene(symbolGene);
+
+								if (imageDTO.getMarkerSynonym() != null){
+									List<String> synSymGene = new ArrayList<>();
+									for (String syn : imageDTO.getMarkerSynonym()) {
+										synSymGene.add(syn + fieldSeparator + symbolGene);
+									}
+									imageDTO.setMarkerSynonymSymbolGene(synSymGene);
+								}
 							}
 						}
 					}
@@ -285,21 +294,28 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		if (imageDTO.getParameterAssociationStableId() != null
 				&& !imageDTO.getParameterAssociationStableId().isEmpty()) {
 
+
+			List<String> paramAssocNameProcName = new ArrayList<>();
+			for(String paramAssocName : imageDTO.getParameterAssociationName()){
+				paramAssocNameProcName.add(paramAssocName + fieldSeparator + imageDTO.getProcedureName());
+			}
+			imageDTO.setParameterAssociationNameProcedureName(paramAssocNameProcName);
+
 			ArrayList<String> termIds = new ArrayList<>();
 			ArrayList<String> terms = new ArrayList<>();
 			ArrayList<String> termSynonyms = new ArrayList<>();
 
 			ArrayList<String> topLevelIds = new ArrayList<>();
-			ArrayList<String> topLevelTerm = new ArrayList<>();
-			ArrayList<String> topLevelTermSynonym = new ArrayList<>();
+			ArrayList<String> topLevelTerms = new ArrayList<>();
+			ArrayList<String> topLevelTermSynonyms = new ArrayList<>();
 
 			ArrayList<String> selectedTopLevelIds = new ArrayList<>();
-			ArrayList<String> selectedTopLevelTerm = new ArrayList<>();
-			ArrayList<String> selectedTopLevelTermSynonym = new ArrayList<>();
+			ArrayList<String> selectedTopLevelTerms = new ArrayList<>();
+			ArrayList<String> selectedTopLevelTermSynonyms = new ArrayList<>();
 
 			ArrayList<String> intermediateLevelIds = new ArrayList<>();
-			ArrayList<String> intermediateLevelTerm = new ArrayList<>();
-			ArrayList<String> intermediateLevelTermSynonym = new ArrayList<>();
+			ArrayList<String> intermediateLevelTerms = new ArrayList<>();
+			ArrayList<String> intermediateLevelTermSynonyms = new ArrayList<>();
 
 			for (String paramString : imageDTO.getParameterAssociationStableId()) {
 				if (stableIdToTermIdMap.containsKey(paramString)) {
@@ -320,34 +336,106 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					if (termBean != null) {
 
 						terms.add(termBean.getName());
-						termSynonyms.addAll(termBean.getSynonyms());
+
+						if ( termBean.getSynonyms() != null) {
+							termSynonyms.addAll(termBean.getSynonyms());
+
+							List<String> termSynIdTerm = new ArrayList<>();
+							for(String termSyn : termBean.getSynonyms()){
+								termSynIdTerm.add(termSyn + fieldSeparator + termBean.getTermIdTermName());
+							}
+							imageDTO.setAnatomyTermSynonymAnatomyIdTerm(termSynIdTerm);
+						}
+
+
 						List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(thisTermId, level);
+
 						for (OntologyTermBean topLevel : topLevels) {
 							if (!topLevelIds.contains(topLevel.getId())) {
 								topLevelIds.add(topLevel.getId());
-								topLevelTerm.add(topLevel.getName());
-								topLevelTermSynonym.addAll(topLevel.getSynonyms());
+								topLevelTerms.add(topLevel.getName());
+								topLevelTermSynonyms.addAll(topLevel.getSynonyms());
 							}
 						}
 
-						OntologyDetail maOntologyDetails = ontologyDAO.getSelectedTopLevelDetails(thisTermId);
-						
-							
-								selectedTopLevelIds.addAll(maOntologyDetails.getIds());
-								selectedTopLevelTerm.addAll(maOntologyDetails.getNames());
-								selectedTopLevelTermSynonym.addAll(maOntologyDetails.getSynonyms());
-							
-						
+						OntologyDetail selectedTopLevels = ontologyDAO.getSelectedTopLevelDetails(thisTermId);
+
+						List<String> selectedTopLevelIdIdTerm = new ArrayList<>();
+						List<String> selectedTopLevelTermIdTerm = new ArrayList<>();
+						List<String> selectedTopLevelTermSynIdTerm = new ArrayList<>();
+
+
+						if (selectedTopLevels.getIds() != null) {
+							for (String id : selectedTopLevels.getIds()) {
+								if (! selectedTopLevelIds.contains(id)) {
+									selectedTopLevelIds.add(id);
+									selectedTopLevelIdIdTerm.add(id + fieldSeparator + termBean.getTermIdTermName());
+								}
+							}
+						}
+						if (selectedTopLevels.getNames() != null) {
+							for (String name : selectedTopLevels.getNames()) {
+								if (! selectedTopLevelTerms.contains(name)) {
+									selectedTopLevelTerms.add(name);
+									selectedTopLevelTermIdTerm.add(name + fieldSeparator + termBean.getTermIdTermName());
+								}
+							}
+						}
+						if (selectedTopLevels.getSynonyms() != null) {
+							for (String syn : selectedTopLevels.getSynonyms()) {
+								if (! selectedTopLevelTermSynonyms.contains(syn)) {
+									selectedTopLevelTermSynonyms.add(syn);
+									selectedTopLevelTermSynIdTerm.add(syn + fieldSeparator + termBean.getTermIdTermName());
+								}
+							}
+						}
+
+						imageDTO.setSelectedTopLevelAnatomyIdAnatomyIdTerm(selectedTopLevelIdIdTerm);
+						imageDTO.setSelectedTopLevelAnatomyTermAnatomyIdTerm(selectedTopLevelTermIdTerm);
+						imageDTO.setSelectedTopLevelAnatomyTermSynonymAnatomyIdTerm(selectedTopLevelTermSynIdTerm);
+
 
 						List<OntologyTermBean> intermediateLevels = ontologyDAO.getIntermediates(thisTermId);
+
+						List<String> intermediateIdIdTerm = new ArrayList<>();
+						List<String> intermediateTermIdTerm = new ArrayList<>();
+						List<String> intermediateTermSynIdTerm = new ArrayList<>();
+
 						for (OntologyTermBean intermediateLevel : intermediateLevels) {
-							// System.out.println(topLevel.getName());
-							if (!intermediateLevelIds.contains(intermediateLevel.getId())) {
-								intermediateLevelIds.add(intermediateLevel.getId());
-								intermediateLevelTerm.add(intermediateLevel.getName());
-								intermediateLevelTermSynonym.addAll(intermediateLevel.getSynonyms());
+							String id = intermediateLevel.getId();
+							if (!intermediateLevelIds.contains(id)) {
+								intermediateLevelIds.add(id);
+								intermediateIdIdTerm.add(id + fieldSeparator + termBean.getTermIdTermName());
+							}
+
+							String name = intermediateLevel.getName();
+							if (!intermediateLevelTerms.contains(name)) {
+								intermediateLevelTerms.add(name);
+								intermediateTermIdTerm.add(name + fieldSeparator + termBean.getTermIdTermName());
+							}
+
+							if (intermediateLevel.getSynonyms() != null) {
+								for (String syn : intermediateLevel.getSynonyms()) {
+									intermediateLevelTermSynonyms.add(syn);
+									intermediateTermSynIdTerm.add(syn + fieldSeparator + termBean.getTermIdTermName());
+								}
 							}
 						}
+
+						imageDTO.setIntermediateAnatomyIdAnatomyIdTerm(intermediateIdIdTerm);
+						imageDTO.setIntermediateAnatomyTermAnatomyIdTerm(intermediateTermIdTerm);
+						imageDTO.setIntermediateAnatomyTermSynonymAnatomyIdTerm(intermediateTermSynIdTerm);
+
+
+
+//						for (OntologyTermBean intermediateLevel : intermediateLevels) {
+//							// System.out.println(topLevel.getName());
+//							if (!intermediateLevelIds.contains(intermediateLevel.getId())) {
+//								intermediateLevelIds.add(intermediateLevel.getId());
+//								intermediateLevelTerms.add(intermediateLevel.getName());
+//								intermediateLevelTermSynonyms.addAll(intermediateLevel.getSynonyms());
+//							}
+//						}
 					}
 					// <field name="selected_top_level_ma_id" type="string"
 					// indexed="true" stored="true" required="false"
@@ -366,8 +454,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			}
 
 			if (ontologyDAO instanceof EmapaOntologyDAO) {
-
-				if (!termIds.isEmpty()) {
+				if (! termIds.isEmpty()) {
 					imageDTO.setAnatomyId(termIds);
 
 					ArrayList<String> emapaIdTerms = new ArrayList<>();
@@ -394,29 +481,29 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				if (!topLevelIds.isEmpty()) {
 					imageDTO.setTopLevelAnatomyId(topLevelIds);
 				}
-				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setTopLevelAnatomyTerm(topLevelTerm);
+				if (!topLevelTerms.isEmpty()) {
+					imageDTO.setTopLevelAnatomyTerm(topLevelTerms);
 				}
-				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setTopLevelAnatomyTermSynonym(topLevelTermSynonym);
+				if (!topLevelTermSynonyms.isEmpty()) {
+					imageDTO.setTopLevelAnatomyTermSynonym(topLevelTermSynonyms);
 				}
 				if (!selectedTopLevelIds.isEmpty()) {
 					imageDTO.setSelectedTopLevelAnatomyId(selectedTopLevelIds);
 				}
-				if (!selectedTopLevelTerm.isEmpty()) {
-					imageDTO.setSelectedTopLevelAnatomyTerm(selectedTopLevelTerm);
+				if (!selectedTopLevelTerms.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTerm(selectedTopLevelTerms);
 				}
-				if (!selectedTopLevelTermSynonym.isEmpty()) {
-					imageDTO.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevelTermSynonym);
+				if (!selectedTopLevelTermSynonyms.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevelTermSynonyms);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
 					imageDTO.setIntermediateAnatomyId(intermediateLevelIds);
 				}
-				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateAnatomyTerm(intermediateLevelTerm);
+				if (!intermediateLevelTerms.isEmpty()) {
+					imageDTO.setIntermediateAnatomyTerm(intermediateLevelTerms);
 				}
-				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateAnatomyTermSynonym(intermediateLevelTermSynonym);
+				if (!intermediateLevelTermSynonyms.isEmpty()) {
+					imageDTO.setIntermediateAnatomyTermSynonym(intermediateLevelTermSynonyms);
 				}
 			}
 
@@ -467,29 +554,29 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				if (!topLevelIds.isEmpty()) {
 					imageDTO.setTopLevelAnatomyId(topLevelIds);
 				}
-				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setTopLevelAnatomyTerm(topLevelTerm);
+				if (!topLevelTerms.isEmpty()) {
+					imageDTO.setTopLevelAnatomyTerm(topLevelTerms);
 				}
-				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setTopLevelAnatomyTermSynonym(topLevelTermSynonym);
+				if (!topLevelTermSynonyms.isEmpty()) {
+					imageDTO.setTopLevelAnatomyTermSynonym(topLevelTermSynonyms);
 				}
 				if (!selectedTopLevelIds.isEmpty()) {
 					imageDTO.setSelectedTopLevelAnatomyId(selectedTopLevelIds);
 				}
-				if (!selectedTopLevelTerm.isEmpty()) {
-					imageDTO.setSelectedTopLevelAnatomyTerm(selectedTopLevelTerm);
+				if (!selectedTopLevelTerms.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTerm(selectedTopLevelTerms);
 				}
-				if (!selectedTopLevelTermSynonym.isEmpty()) {
-					imageDTO.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevelTermSynonym);
+				if (!selectedTopLevelTermSynonyms.isEmpty()) {
+					imageDTO.setSelectedTopLevelAnatomyTermSynonym(selectedTopLevelTermSynonyms);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
 					imageDTO.setIntermediateAnatomyId(intermediateLevelIds);
 				}
-				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateAnatomyTerm(intermediateLevelTerm);
+				if (!intermediateLevelTerms.isEmpty()) {
+					imageDTO.setIntermediateAnatomyTerm(intermediateLevelTerms);
 				}
-				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateAnatomyTermSynonym(intermediateLevelTermSynonym);
+				if (!intermediateLevelTermSynonyms.isEmpty()) {
+					imageDTO.setIntermediateAnatomyTermSynonym(intermediateLevelTermSynonyms);
 				}
 			}
 
@@ -624,6 +711,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				if (allele.getMarkerSynonym() != null) {
 					img.addMarkerSynonym(allele.getMarkerSynonym());
 				}
+
 				// //
 				// xpath="/response/result/doc/arr[@name='marker_synonym']/str"
 				// // />
