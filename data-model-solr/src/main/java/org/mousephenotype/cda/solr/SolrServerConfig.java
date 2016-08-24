@@ -128,11 +128,8 @@ public class SolrServerConfig {
 
 	// Impc images core
 	@Bean(name = "impcImagesCore")
-//	HttpSolrClient getImpcImagesCore() {
-//		return new HttpSolrClient(solrBaseUrl + "/impc_images");
-//	}
 	HttpSolrClient getImpcImagesCore() {
-		return new HttpSolrClient("http://localhost:8090/solr" + "/impc_images");
+		return new HttpSolrClient(solrBaseUrl + "/impc_images");
 	}
 
 	//SangerImages
