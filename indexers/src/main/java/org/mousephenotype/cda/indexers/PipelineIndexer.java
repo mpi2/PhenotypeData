@@ -309,8 +309,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				localParamDbIdToParameter.put(id, param);
 			}
 
-            if (localParamDbIdToParameter.size() < 5704) {
-                runStatus.addWarning(" localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5704 records.");
+            if (localParamDbIdToParameter.size() < 5000) {
+                runStatus.addWarning(" localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5000 records.");
             }
 
 		} catch (Exception e) {
@@ -463,7 +463,9 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
 
-        final int MIN_ROW_COUNT = 200;     // This is the minumum number of unique procedures produced by this query on 14-Jan-2016, rounded down (GROUP BY procedure_id)
+		// This is the minumum number of unique procedures produced by this query on 14-Jan-2016, rounded down (GROUP BY procedure_id)
+		// Harwell Ageing Screen parameters removed 2016-08-24
+        final int MIN_ROW_COUNT = 150;
 		String queryString = "SELECT procedure_id, parameter_id, pp.stable_id as parameter_stable_id, pproc.stable_id as procedure_stable_id "
 				+ " FROM phenotype_procedure_parameter ppp "
 				+ " INNER JOIN phenotype_parameter pp ON pp.id=ppp.parameter_id "
@@ -528,8 +530,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			e.printStackTrace();
 		}
 
-        if (procedureIdToProcedureMap.size() < 190) {
-            runStatus.addWarning(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 190 records.");
+        if (procedureIdToProcedureMap.size() < 150) {
+            runStatus.addWarning(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 150 records.");
         }
 
 		return procedureIdToProcedureMap;

@@ -139,7 +139,7 @@ public class SearchController {
 		Boolean legacyOnly = false;
 		String evidRank = "";
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
-		//System.out.println("solrParamStr: "+ solrParamStr);
+//		System.out.println("SearchController solrParamStr: "+ solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 //		System.out.println("CONTENT: " + content);
 
@@ -179,11 +179,15 @@ public class SearchController {
 
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
+            if ( dataType.equals("impc_images")){
+                solrParamStr += "AND (biological_sample_group:experimental)";
+            }
 		}
 		else {
 			solrParamStr += "&fq=" + searchConfig.getFqStr(dataType);
 		}
-		//System.out.println(dataType + ": SOLR params: "+ solrParamStr);
+
+
 		return solrParamStr;
 	}
 
@@ -204,22 +208,6 @@ public class SearchController {
 			String thisFqStr = null;
 
 			qfDefTypeWt = "&qf=" + searchConfig.getQf(thisCore) + "&defType=edismax&wt=json";
-
-//			if (thisCore.equals("gene")) {
-//				qfDefTypeWt = "&qf=geneQf&defType=edismax&wt=json";
-//			}
-//			else if ( thisCore.equals("disease")) {
-//				qfDefTypeWt = "&qf=diseaseQf&defType=edismax&wt=json";
-//			}
-//			else if ( thisCore.equals("disease")) {
-//                qfDefTypeWt = "&qf=diseaseQf&defType=edismax&wt=json";
-//            }
-//			else if ( thisCore.equals("anatomy")) {
-//				qfDefTypeWt = "&qf=anatomyQf&defType=edismax&wt=json";
-//			}
-//			else {
-//				qfDefTypeWt = "&qf=auto_suggest&defType=edismax&wt=json";
-//			}
 
 			if ( thisCore.equals(dataType) ) {
 				if ( thisCore.equals("gene") ){
@@ -242,9 +230,9 @@ public class SearchController {
 		}
 
 		// test
-		for ( String core : cores ){
-			System.out.println("SearchController facetcount - " + core + " : " + qryBrokerJson.get(core));
-		}
+//		for ( String core : cores ){
+//			System.out.println("SearchController facetcount - " + core + " : " + qryBrokerJson.get(core));
+//		}
 
 		String subfacet = null;
 		return queryBrokerController.createJsonResponse(subfacet, qryBrokerJson, request);
