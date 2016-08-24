@@ -115,6 +115,17 @@ public class ImageDTO extends ObservationDTO {
 	public static final String INCREMENT_VALUE = "increment_value";
 	public static final String STAGE = "stage";
 
+	//	used for lexical match on search page
+	public static final String MARKER_SYNONYM_SYMBOL_GENE = "marker_synonym_symbol_gene";
+	public static final String PARAMETER_ASSOCIATION_NAME_PROCEDURE_NAME = "parameter_association_name_procedure_name";
+	public static final String SELECTED_TOP_LEVEL_ANATOMY_ID_ANATOMY_ID_TERM = "selected_top_level_anatomy_id_anatomy_id_term";
+    public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM_ANATOMY_ID_TERM = "selected_top_level_anatomy_term_anatomy_id_term";
+    public static final String SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "selected_top_level_anatomy_term_synonym_anatomy_id_term";
+    public static final String INTERMEDIATE_ANATOMY_ID_ANATOMY_ID_TERM = "intermediate_anatomy_id_anatomy_id_term";
+    public static final String INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM = "intermediate_anatomy_term_anatomy_id_term";
+    public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "intermediate_anatomy_term_synonym_anatomy_id_term";
+	public static final String ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "anatomy_term_synonym_anatomy_id_term";
+	
 	@Field(MpDTO.MP_ID)
 	private List<String> mpTermIds;
 
@@ -207,7 +218,110 @@ public class ImageDTO extends ObservationDTO {
 
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypeStatus;
-	
+
+	// used for lexical match on search page
+	@Field(MARKER_SYNONYM_SYMBOL_GENE)
+	private List<String> markerSynonymSymbolGene;
+	@Field(PARAMETER_ASSOCIATION_NAME_PROCEDURE_NAME)
+	private List<String> parameterAssociationNameProcedureName;
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_ID_ANATOMY_ID_TERM)
+	private List<String> selectedTopLevelAnatomyIdAnatomyIdTerm;
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_TERM_ANATOMY_ID_TERM)
+	private List<String> selectedTopLevelAnatomyTermAnatomyIdTerm;
+	@Field(SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM)
+	private List<String> selectedTopLevelAnatomyTermSynonymAnatomyIdTerm;
+	@Field(INTERMEDIATE_ANATOMY_ID_ANATOMY_ID_TERM)
+	private List<String> intermediateAnatomyIdAnatomyIdTerm;
+	@Field(INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM)
+	private List<String> intermediateAnatomyTermAnatomyIdTerm;
+	@Field(INTERMEDIATE_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM)
+	private List<String> intermediateAnatomyTermSynonymAnatomyIdTerm;
+	@Field(ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM)
+	private List<String> anatomyTermSynonymAnatomyIdTerm;
+
+
+	public List<String> getMarkerSynonymSymbolGene() {
+		return markerSynonymSymbolGene;
+	}
+
+	public void setMarkerSynonymSymbolGene(List<String> markerSynonymSymbolGene) {
+		this.markerSynonymSymbolGene = markerSynonymSymbolGene;
+	}
+
+	public List<String> getParameterAssociationNameProcedureName() {
+		return parameterAssociationNameProcedureName;
+	}
+
+	public void setParameterAssociationNameProcedureName(List<String> parameterAssociationNameProcedureName) {
+		this.parameterAssociationNameProcedureName = parameterAssociationNameProcedureName;
+	}
+
+	public List<String> getSelectedTopLevelAnatomyIdAnatomyIdTerm() {
+		return selectedTopLevelAnatomyIdAnatomyIdTerm;
+	}
+
+	public void setSelectedTopLevelAnatomyIdAnatomyIdTerm(List<String> selectedTopLevelAnatomyIdAnatomyIdTerm) {
+		this.selectedTopLevelAnatomyIdAnatomyIdTerm = selectedTopLevelAnatomyIdAnatomyIdTerm;
+	}
+
+	public List<String> getSelectedTopLevelAnatomyTermAnatomyIdTerm() {
+		return selectedTopLevelAnatomyTermAnatomyIdTerm;
+	}
+
+	public void setSelectedTopLevelAnatomyTermAnatomyIdTerm(List<String> selectedTopLevelAnatomyTermAnatomyIdTerm) {
+		this.selectedTopLevelAnatomyTermAnatomyIdTerm = selectedTopLevelAnatomyTermAnatomyIdTerm;
+	}
+
+	public List<String> getSelectedTopLevelAnatomyTermSynonymAnatomyIdTerm() {
+		return selectedTopLevelAnatomyTermSynonymAnatomyIdTerm;
+	}
+
+	public void setSelectedTopLevelAnatomyTermSynonymAnatomyIdTerm(List<String> selectedTopLevelAnatomyTermSynonymAnatomyIdTerm) {
+		this.selectedTopLevelAnatomyTermSynonymAnatomyIdTerm = selectedTopLevelAnatomyTermSynonymAnatomyIdTerm;
+	}
+
+	public List<String> getIntermediateAnatomyIdAnatomyIdTerm() {
+		return intermediateAnatomyIdAnatomyIdTerm;
+	}
+
+	public void setIntermediateAnatomyIdAnatomyIdTerm(List<String> intermediateAnatomyIdAnatomyIdTerm) {
+		this.intermediateAnatomyIdAnatomyIdTerm = intermediateAnatomyIdAnatomyIdTerm;
+	}
+
+	public List<String> getIntermediateAnatomyTermAnatomyIdTerm() {
+		return intermediateAnatomyTermAnatomyIdTerm;
+	}
+
+	public void setIntermediateAnatomyTermAnatomyIdTerm(List<String> intermediateAnatomyTermAnatomyIdTerm) {
+		this.intermediateAnatomyTermAnatomyIdTerm = intermediateAnatomyTermAnatomyIdTerm;
+	}
+
+	public List<String> getIntermediateAnatomyTermSynonymAnatomyIdTerm() {
+		return intermediateAnatomyTermSynonymAnatomyIdTerm;
+	}
+
+	public void setIntermediateAnatomyTermSynonymAnatomyIdTerm(List<String> intermediateAnatomyTermSynonymAnatomyIdTerm) {
+		this.intermediateAnatomyTermSynonymAnatomyIdTerm = intermediateAnatomyTermSynonymAnatomyIdTerm;
+	}
+
+//	@Override
+//	public List<String> getAnatomyIdTerm() {
+//		return anatomyIdTerm;
+//	}
+//
+//	@Override
+//	public void setAnatomyIdTerm(List<String> anatomyIdTerm) {
+//		this.anatomyIdTerm = anatomyIdTerm;
+//	}
+
+	public List<String> getAnatomyTermSynonymAnatomyIdTerm() {
+		return anatomyTermSynonymAnatomyIdTerm;
+	}
+
+	public void setAnatomyTermSynonymAnatomyIdTerm(List<String> anatomyTermSynonymAnatomyIdTerm) {
+		this.anatomyTermSynonymAnatomyIdTerm = anatomyTermSynonymAnatomyIdTerm;
+	}
+
 	public List<String> getMpIdTerm() {
 		return mpIdTerm;
 	}
@@ -556,9 +670,9 @@ public class ImageDTO extends ObservationDTO {
 		this.humanGeneSymbol.addAll(humanGeneSymbol);
 	}
 
-	public void addSymbol(String markerName) {
+	public void addSymbol(String markerSymbol) {
 
-		this.symbol=markerName;
+		this.symbol=markerSymbol;
 	}
 
 	public void setLatestPhenotypeStatus(List<String> latestPhenotypeStatus) {
@@ -589,139 +703,176 @@ public class ImageDTO extends ObservationDTO {
 		return getParameterAssociationValue().get(pos);
 
 	}
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ImageDTO imageDTO = (ImageDTO) o;
-
-        if (omeroId != imageDTO.omeroId) return false;
-        if (mpTermIds != null ? !mpTermIds.equals(imageDTO.mpTermIds) : imageDTO.mpTermIds != null) return false;
-        if (mpTerm != null ? !mpTerm.equals(imageDTO.mpTerm) : imageDTO.mpTerm != null) return false;
-        if (mpIdTerm != null ? !mpIdTerm.equals(imageDTO.mpIdTerm) : imageDTO.mpIdTerm != null) return false;
-        if (mpTermSynonym != null ? !mpTermSynonym.equals(imageDTO.mpTermSynonym) : imageDTO.mpTermSynonym != null)
-            return false;
-        if (mpNarrowSynonym != null ? !mpNarrowSynonym.equals(imageDTO.mpNarrowSynonym) : imageDTO.mpNarrowSynonym != null)
-            return false;
-        if (fullResolutionFilePath != null ? !fullResolutionFilePath.equals(imageDTO.fullResolutionFilePath) : imageDTO.fullResolutionFilePath != null)
-            return false;
-        if (downloadUrl != null ? !downloadUrl.equals(imageDTO.downloadUrl) : imageDTO.downloadUrl != null)
-            return false;
-        if (imageLink != null ? !imageLink.equals(imageDTO.imageLink) : imageDTO.imageLink != null) return false;
-        if (jpegUrl != null ? !jpegUrl.equals(imageDTO.jpegUrl) : imageDTO.jpegUrl != null) return false;
-        if (efoId != null ? !efoId.equals(imageDTO.efoId) : imageDTO.efoId != null) return false;
-        if (uberonId != null ? !uberonId.equals(imageDTO.uberonId) : imageDTO.uberonId != null) return false;
-        if (symbolGene != null ? !symbolGene.equals(imageDTO.symbolGene) : imageDTO.symbolGene != null) return false;
-        if (status != null ? !status.equals(imageDTO.status) : imageDTO.status != null) return false;
-        if (imitsPhenotypeStarted != null ? !imitsPhenotypeStarted.equals(imageDTO.imitsPhenotypeStarted) : imageDTO.imitsPhenotypeStarted != null)
-            return false;
-        if (imitsPhenotypeComplete != null ? !imitsPhenotypeComplete.equals(imageDTO.imitsPhenotypeComplete) : imageDTO.imitsPhenotypeComplete != null)
-            return false;
-        if (imitsPhenotypeStatus != null ? !imitsPhenotypeStatus.equals(imageDTO.imitsPhenotypeStatus) : imageDTO.imitsPhenotypeStatus != null)
-            return false;
-        if (legacyPhenotypeStatus != null ? !legacyPhenotypeStatus.equals(imageDTO.legacyPhenotypeStatus) : imageDTO.legacyPhenotypeStatus != null)
-            return false;
-        if (latestProductionCentre != null ? !latestProductionCentre.equals(imageDTO.latestProductionCentre) : imageDTO.latestProductionCentre != null)
-            return false;
-        if (latestPhenotypingCentre != null ? !latestPhenotypingCentre.equals(imageDTO.latestPhenotypingCentre) : imageDTO.latestPhenotypingCentre != null)
-            return false;
-        if (alleleName != null ? !alleleName.equals(imageDTO.alleleName) : imageDTO.alleleName != null) return false;
-        if (markerSymbol != null ? !markerSymbol.equals(imageDTO.markerSymbol) : imageDTO.markerSymbol != null)
-            return false;
-        if (markerName != null ? !markerName.equals(imageDTO.markerName) : imageDTO.markerName != null) return false;
-        if (markerSynonym != null ? !markerSynonym.equals(imageDTO.markerSynonym) : imageDTO.markerSynonym != null)
-            return false;
-        if (markerType != null ? !markerType.equals(imageDTO.markerType) : imageDTO.markerType != null) return false;
-        if (humanGeneSymbol != null ? !humanGeneSymbol.equals(imageDTO.humanGeneSymbol) : imageDTO.humanGeneSymbol != null)
-            return false;
-        if (symbol != null ? !symbol.equals(imageDTO.symbol) : imageDTO.symbol != null) return false;
-        if (subtype != null ? !subtype.equals(imageDTO.subtype) : imageDTO.subtype != null) return false;
-        if (increment != null ? !increment.equals(imageDTO.increment) : imageDTO.increment != null) return false;
-        if (stage != null ? !stage.equals(imageDTO.stage) : imageDTO.stage != null) return false;
-        return latestPhenotypeStatus != null ? latestPhenotypeStatus.equals(imageDTO.latestPhenotypeStatus) : imageDTO.latestPhenotypeStatus == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mpTermIds != null ? mpTermIds.hashCode() : 0;
-        result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
-        result = 31 * result + (mpIdTerm != null ? mpIdTerm.hashCode() : 0);
-        result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
-        result = 31 * result + (mpNarrowSynonym != null ? mpNarrowSynonym.hashCode() : 0);
-        result = 31 * result + (fullResolutionFilePath != null ? fullResolutionFilePath.hashCode() : 0);
-        result = 31 * result + omeroId;
-        result = 31 * result + (downloadUrl != null ? downloadUrl.hashCode() : 0);
-        result = 31 * result + (imageLink != null ? imageLink.hashCode() : 0);
-        result = 31 * result + (jpegUrl != null ? jpegUrl.hashCode() : 0);
-        result = 31 * result + (efoId != null ? efoId.hashCode() : 0);
-        result = 31 * result + (uberonId != null ? uberonId.hashCode() : 0);
-        result = 31 * result + (symbolGene != null ? symbolGene.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
-        result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
-        result = 31 * result + (imitsPhenotypeStatus != null ? imitsPhenotypeStatus.hashCode() : 0);
-        result = 31 * result + (legacyPhenotypeStatus != null ? legacyPhenotypeStatus.hashCode() : 0);
-        result = 31 * result + (latestProductionCentre != null ? latestProductionCentre.hashCode() : 0);
-        result = 31 * result + (latestPhenotypingCentre != null ? latestPhenotypingCentre.hashCode() : 0);
-        result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
-        result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
-        result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
-        result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
-        result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
-        result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
-        result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
-        result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
-        result = 31 * result + (increment != null ? increment.hashCode() : 0);
-        result = 31 * result + (stage != null ? stage.hashCode() : 0);
-        result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "ImageDTO{" +
-                "mpTermIds=" + mpTermIds +
-                ", mpTerm=" + mpTerm +
-                ", mpIdTerm=" + mpIdTerm +
-                ", mpTermSynonym=" + mpTermSynonym +
-                ", mpNarrowSynonym=" + mpNarrowSynonym +
-                ", fullResolutionFilePath='" + fullResolutionFilePath + '\'' +
-                ", omeroId=" + omeroId +
-                ", downloadUrl='" + downloadUrl + '\'' +
-                ", imageLink='" + imageLink + '\'' +
-                ", jpegUrl='" + jpegUrl + '\'' +
-                ", efoId=" + efoId +
-                ", uberonId=" + uberonId +
-                ", symbolGene='" + symbolGene + '\'' +
-                ", status=" + status +
-                ", imitsPhenotypeStarted=" + imitsPhenotypeStarted +
-                ", imitsPhenotypeComplete=" + imitsPhenotypeComplete +
-                ", imitsPhenotypeStatus=" + imitsPhenotypeStatus +
-                ", legacyPhenotypeStatus=" + legacyPhenotypeStatus +
-                ", latestProductionCentre=" + latestProductionCentre +
-                ", latestPhenotypingCentre=" + latestPhenotypingCentre +
-                ", alleleName=" + alleleName +
-                ", markerSymbol=" + markerSymbol +
-                ", markerName=" + markerName +
-                ", markerSynonym=" + markerSynonym +
-                ", markerType='" + markerType + '\'' +
-                ", humanGeneSymbol=" + humanGeneSymbol +
-                ", symbol='" + symbol + '\'' +
-                ", subtype='" + subtype + '\'' +
-                ", increment=" + increment +
-                ", stage='" + stage + '\'' +
-                ", latestPhenotypeStatus=" + latestPhenotypeStatus +
-                '}';
-    }
-
-
-    public void setMpTermId(ArrayList<String> mpTermIds) {
+	public void setMpTermId(ArrayList<String> mpTermIds) {
 		this.mpTermIds=mpTermIds;
 
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ImageDTO imageDTO = (ImageDTO) o;
+
+		if (omeroId != imageDTO.omeroId) return false;
+		if (mpTermIds != null ? !mpTermIds.equals(imageDTO.mpTermIds) : imageDTO.mpTermIds != null) return false;
+		if (mpTerm != null ? !mpTerm.equals(imageDTO.mpTerm) : imageDTO.mpTerm != null) return false;
+		if (mpIdTerm != null ? !mpIdTerm.equals(imageDTO.mpIdTerm) : imageDTO.mpIdTerm != null) return false;
+		if (mpTermSynonym != null ? !mpTermSynonym.equals(imageDTO.mpTermSynonym) : imageDTO.mpTermSynonym != null)
+			return false;
+		if (mpNarrowSynonym != null ? !mpNarrowSynonym.equals(imageDTO.mpNarrowSynonym) : imageDTO.mpNarrowSynonym != null)
+			return false;
+		if (fullResolutionFilePath != null ? !fullResolutionFilePath.equals(imageDTO.fullResolutionFilePath) : imageDTO.fullResolutionFilePath != null)
+			return false;
+		if (downloadUrl != null ? !downloadUrl.equals(imageDTO.downloadUrl) : imageDTO.downloadUrl != null)
+			return false;
+		if (imageLink != null ? !imageLink.equals(imageDTO.imageLink) : imageDTO.imageLink != null) return false;
+		if (jpegUrl != null ? !jpegUrl.equals(imageDTO.jpegUrl) : imageDTO.jpegUrl != null) return false;
+		if (efoId != null ? !efoId.equals(imageDTO.efoId) : imageDTO.efoId != null) return false;
+		if (uberonId != null ? !uberonId.equals(imageDTO.uberonId) : imageDTO.uberonId != null) return false;
+		if (symbolGene != null ? !symbolGene.equals(imageDTO.symbolGene) : imageDTO.symbolGene != null) return false;
+		if (status != null ? !status.equals(imageDTO.status) : imageDTO.status != null) return false;
+		if (imitsPhenotypeStarted != null ? !imitsPhenotypeStarted.equals(imageDTO.imitsPhenotypeStarted) : imageDTO.imitsPhenotypeStarted != null)
+			return false;
+		if (imitsPhenotypeComplete != null ? !imitsPhenotypeComplete.equals(imageDTO.imitsPhenotypeComplete) : imageDTO.imitsPhenotypeComplete != null)
+			return false;
+		if (imitsPhenotypeStatus != null ? !imitsPhenotypeStatus.equals(imageDTO.imitsPhenotypeStatus) : imageDTO.imitsPhenotypeStatus != null)
+			return false;
+		if (legacyPhenotypeStatus != null ? !legacyPhenotypeStatus.equals(imageDTO.legacyPhenotypeStatus) : imageDTO.legacyPhenotypeStatus != null)
+			return false;
+		if (latestProductionCentre != null ? !latestProductionCentre.equals(imageDTO.latestProductionCentre) : imageDTO.latestProductionCentre != null)
+			return false;
+		if (latestPhenotypingCentre != null ? !latestPhenotypingCentre.equals(imageDTO.latestPhenotypingCentre) : imageDTO.latestPhenotypingCentre != null)
+			return false;
+		if (alleleName != null ? !alleleName.equals(imageDTO.alleleName) : imageDTO.alleleName != null) return false;
+		if (markerSymbol != null ? !markerSymbol.equals(imageDTO.markerSymbol) : imageDTO.markerSymbol != null)
+			return false;
+		if (markerName != null ? !markerName.equals(imageDTO.markerName) : imageDTO.markerName != null) return false;
+		if (markerSynonym != null ? !markerSynonym.equals(imageDTO.markerSynonym) : imageDTO.markerSynonym != null)
+			return false;
+		if (markerType != null ? !markerType.equals(imageDTO.markerType) : imageDTO.markerType != null) return false;
+		if (humanGeneSymbol != null ? !humanGeneSymbol.equals(imageDTO.humanGeneSymbol) : imageDTO.humanGeneSymbol != null)
+			return false;
+		if (symbol != null ? !symbol.equals(imageDTO.symbol) : imageDTO.symbol != null) return false;
+		if (subtype != null ? !subtype.equals(imageDTO.subtype) : imageDTO.subtype != null) return false;
+		if (increment != null ? !increment.equals(imageDTO.increment) : imageDTO.increment != null) return false;
+		if (stage != null ? !stage.equals(imageDTO.stage) : imageDTO.stage != null) return false;
+		if (latestPhenotypeStatus != null ? !latestPhenotypeStatus.equals(imageDTO.latestPhenotypeStatus) : imageDTO.latestPhenotypeStatus != null)
+			return false;
+		if (markerSynonymSymbolGene != null ? !markerSynonymSymbolGene.equals(imageDTO.markerSynonymSymbolGene) : imageDTO.markerSynonymSymbolGene != null)
+			return false;
+		if (parameterAssociationNameProcedureName != null ? !parameterAssociationNameProcedureName.equals(imageDTO.parameterAssociationNameProcedureName) : imageDTO.parameterAssociationNameProcedureName != null)
+			return false;
+		if (selectedTopLevelAnatomyIdAnatomyIdTerm != null ? !selectedTopLevelAnatomyIdAnatomyIdTerm.equals(imageDTO.selectedTopLevelAnatomyIdAnatomyIdTerm) : imageDTO.selectedTopLevelAnatomyIdAnatomyIdTerm != null)
+			return false;
+		if (selectedTopLevelAnatomyTermAnatomyIdTerm != null ? !selectedTopLevelAnatomyTermAnatomyIdTerm.equals(imageDTO.selectedTopLevelAnatomyTermAnatomyIdTerm) : imageDTO.selectedTopLevelAnatomyTermAnatomyIdTerm != null)
+			return false;
+		if (selectedTopLevelAnatomyTermSynonymAnatomyIdTerm != null ? !selectedTopLevelAnatomyTermSynonymAnatomyIdTerm.equals(imageDTO.selectedTopLevelAnatomyTermSynonymAnatomyIdTerm) : imageDTO.selectedTopLevelAnatomyTermSynonymAnatomyIdTerm != null)
+			return false;
+		if (intermediateAnatomyIdAnatomyIdTerm != null ? !intermediateAnatomyIdAnatomyIdTerm.equals(imageDTO.intermediateAnatomyIdAnatomyIdTerm) : imageDTO.intermediateAnatomyIdAnatomyIdTerm != null)
+			return false;
+		if (intermediateAnatomyTermAnatomyIdTerm != null ? !intermediateAnatomyTermAnatomyIdTerm.equals(imageDTO.intermediateAnatomyTermAnatomyIdTerm) : imageDTO.intermediateAnatomyTermAnatomyIdTerm != null)
+			return false;
+		if (intermediateAnatomyTermSynonymAnatomyIdTerm != null ? !intermediateAnatomyTermSynonymAnatomyIdTerm.equals(imageDTO.intermediateAnatomyTermSynonymAnatomyIdTerm) : imageDTO.intermediateAnatomyTermSynonymAnatomyIdTerm != null)
+			return false;
+		if (anatomyIdTerm != null ? !anatomyIdTerm.equals(imageDTO.anatomyIdTerm) : imageDTO.anatomyIdTerm != null)
+			return false;
+		return anatomyTermSynonymAnatomyIdTerm != null ? anatomyTermSynonymAnatomyIdTerm.equals(imageDTO.anatomyTermSynonymAnatomyIdTerm) : imageDTO.anatomyTermSynonymAnatomyIdTerm == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mpTermIds != null ? mpTermIds.hashCode() : 0;
+		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
+		result = 31 * result + (mpIdTerm != null ? mpIdTerm.hashCode() : 0);
+		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
+		result = 31 * result + (mpNarrowSynonym != null ? mpNarrowSynonym.hashCode() : 0);
+		result = 31 * result + (fullResolutionFilePath != null ? fullResolutionFilePath.hashCode() : 0);
+		result = 31 * result + omeroId;
+		result = 31 * result + (downloadUrl != null ? downloadUrl.hashCode() : 0);
+		result = 31 * result + (imageLink != null ? imageLink.hashCode() : 0);
+		result = 31 * result + (jpegUrl != null ? jpegUrl.hashCode() : 0);
+		result = 31 * result + (efoId != null ? efoId.hashCode() : 0);
+		result = 31 * result + (uberonId != null ? uberonId.hashCode() : 0);
+		result = 31 * result + (symbolGene != null ? symbolGene.hashCode() : 0);
+		result = 31 * result + (status != null ? status.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeStatus != null ? imitsPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (legacyPhenotypeStatus != null ? legacyPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (latestProductionCentre != null ? latestProductionCentre.hashCode() : 0);
+		result = 31 * result + (latestPhenotypingCentre != null ? latestPhenotypingCentre.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
+		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
+		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
+		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
+		result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
+		result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
+		result = 31 * result + (increment != null ? increment.hashCode() : 0);
+		result = 31 * result + (stage != null ? stage.hashCode() : 0);
+		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (markerSynonymSymbolGene != null ? markerSynonymSymbolGene.hashCode() : 0);
+		result = 31 * result + (parameterAssociationNameProcedureName != null ? parameterAssociationNameProcedureName.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelAnatomyIdAnatomyIdTerm != null ? selectedTopLevelAnatomyIdAnatomyIdTerm.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelAnatomyTermAnatomyIdTerm != null ? selectedTopLevelAnatomyTermAnatomyIdTerm.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelAnatomyTermSynonymAnatomyIdTerm != null ? selectedTopLevelAnatomyTermSynonymAnatomyIdTerm.hashCode() : 0);
+		result = 31 * result + (intermediateAnatomyIdAnatomyIdTerm != null ? intermediateAnatomyIdAnatomyIdTerm.hashCode() : 0);
+		result = 31 * result + (intermediateAnatomyTermAnatomyIdTerm != null ? intermediateAnatomyTermAnatomyIdTerm.hashCode() : 0);
+		result = 31 * result + (intermediateAnatomyTermSynonymAnatomyIdTerm != null ? intermediateAnatomyTermSynonymAnatomyIdTerm.hashCode() : 0);
+		result = 31 * result + (anatomyIdTerm != null ? anatomyIdTerm.hashCode() : 0);
+		result = 31 * result + (anatomyTermSynonymAnatomyIdTerm != null ? anatomyTermSynonymAnatomyIdTerm.hashCode() : 0);
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "ImageDTO{" +
+				"mpTermIds=" + mpTermIds +
+				", mpTerm=" + mpTerm +
+				", mpIdTerm=" + mpIdTerm +
+				", mpTermSynonym=" + mpTermSynonym +
+				", mpNarrowSynonym=" + mpNarrowSynonym +
+				", fullResolutionFilePath='" + fullResolutionFilePath + '\'' +
+				", omeroId=" + omeroId +
+				", downloadUrl='" + downloadUrl + '\'' +
+				", imageLink='" + imageLink + '\'' +
+				", jpegUrl='" + jpegUrl + '\'' +
+				", efoId=" + efoId +
+				", uberonId=" + uberonId +
+				", symbolGene='" + symbolGene + '\'' +
+				", status=" + status +
+				", imitsPhenotypeStarted=" + imitsPhenotypeStarted +
+				", imitsPhenotypeComplete=" + imitsPhenotypeComplete +
+				", imitsPhenotypeStatus=" + imitsPhenotypeStatus +
+				", legacyPhenotypeStatus=" + legacyPhenotypeStatus +
+				", latestProductionCentre=" + latestProductionCentre +
+				", latestPhenotypingCentre=" + latestPhenotypingCentre +
+				", alleleName=" + alleleName +
+				", markerSymbol=" + markerSymbol +
+				", markerName=" + markerName +
+				", markerSynonym=" + markerSynonym +
+				", markerType='" + markerType + '\'' +
+				", humanGeneSymbol=" + humanGeneSymbol +
+				", symbol='" + symbol + '\'' +
+				", subtype='" + subtype + '\'' +
+				", increment=" + increment +
+				", stage='" + stage + '\'' +
+				", latestPhenotypeStatus=" + latestPhenotypeStatus +
+				", markerSynonymSymbolGene=" + markerSynonymSymbolGene +
+				", parameterAssociationNameProcedureName=" + parameterAssociationNameProcedureName +
+				", selectedTopLevelAnatomyIdAnatomyIdTerm=" + selectedTopLevelAnatomyIdAnatomyIdTerm +
+				", selectedTopLevelAnatomyTermAnatomyIdTerm=" + selectedTopLevelAnatomyTermAnatomyIdTerm +
+				", selectedTopLevelAnatomyTermSynonymAnatomyIdTerm=" + selectedTopLevelAnatomyTermSynonymAnatomyIdTerm +
+				", intermediateAnatomyIdAnatomyIdTerm=" + intermediateAnatomyIdAnatomyIdTerm +
+				", intermediateAnatomyTermAnatomyIdTerm=" + intermediateAnatomyTermAnatomyIdTerm +
+				", intermediateAnatomyTermSynonymAnatomyIdTerm=" + intermediateAnatomyTermSynonymAnatomyIdTerm +
+				", anatomyIdTerm=" + anatomyIdTerm +
+				", anatomyTermSynonymAnatomyIdTerm=" + anatomyTermSynonymAnatomyIdTerm +
+				'}';
+	}
 
 }
