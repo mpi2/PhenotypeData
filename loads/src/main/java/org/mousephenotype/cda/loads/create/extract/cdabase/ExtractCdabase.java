@@ -34,6 +34,7 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
@@ -96,6 +97,7 @@ public class ExtractCdabase implements CommandLineRunner {
     public PhenotypedColonyLoader phenotypedColonyLoader;
 
     @Autowired
+    @Qualifier("cdabaseDataSource")
     private DataSource cdabase;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
