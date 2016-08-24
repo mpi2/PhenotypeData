@@ -23,7 +23,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.indexers.beans.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -195,10 +194,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 mp.setMpNodeId(termNodeIds.get(termId));
 
-                addTopLevelNodes(mp);
-                addIntermediateLevelNodes(mp);
+                addTopLevelNodes(mp, mpOntologyService);
+                addIntermediateLevelNodes(mp, mpOntologyService);
                 addChildLevelNodes(mp);
-                addParentLevelNodes(mp);
+                addParentLevelNodes(mp, mpOntologyService);
 
                 //addMpHpTerms(mp, mphpBeans.get(termId)); // old way of adding mp-hp mapping using phenodigm data
 
@@ -930,7 +929,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    private void addTopLevelNodes(MpDTO mp) {
+    protected static void addTopLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
 
     	List<String> ids = new ArrayList<>();
       	List<String> names = new ArrayList<>();
@@ -952,7 +951,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    private void addIntermediateLevelNodes(MpDTO mp) {
+    protected static void addIntermediateLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
 
 
     	List<String> ids = new ArrayList<>();
@@ -991,7 +990,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    private void addParentLevelNodes(MpDTO mp) {
+    protected static void addParentLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
 
         List<String> parentTermIds = new ArrayList<>();
         List<String> parentTermNames = new ArrayList<>();

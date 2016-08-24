@@ -2,11 +2,14 @@ package org.mousephenotype.cda.db.utilities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -167,6 +170,14 @@ public class SqlUtils {
         }
 
         return results;
+    }
+
+    public void createSpringBatchTables(DataSource datasource) {
+
+        logger.info("Creating SPRING BATCH tables");
+        org.springframework.core.io.Resource r = new ClassPathResource("org/springframework/batch/core/schema-mysql.sql");
+        ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
+        p.execute(datasource);
     }
 
     /**
