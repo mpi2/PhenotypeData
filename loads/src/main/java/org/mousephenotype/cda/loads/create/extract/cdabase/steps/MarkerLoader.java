@@ -61,7 +61,7 @@ public class MarkerLoader implements InitializingBean, Step {
     public enum FilenameKeys {
           MARKER_LIST
         , MARKER_COORDINATES
-        , XREFS_MGI_Gene
+        , XREFS_HGNC_homologene
         , XREFS_MGI_EntrezGene
         , XREFS_MRK_ENSEMBL
         , XREFS_MRK_VEGA
@@ -84,7 +84,7 @@ public class MarkerLoader implements InitializingBean, Step {
           , "synonyms"                  // L - Synonyms (| - delimited)
         };
 
-    // Fields within MGI_Gene.rpt:
+    // Fields within HGNC_homologene.rpt:
     private final String[] xrefGeneColumnNames = new String[] {
             "mgiMarkerAccessionId"    // A - MGI Accession ID
           , "unused_2"                // B - Marker Symbol
@@ -203,7 +203,7 @@ public class MarkerLoader implements InitializingBean, Step {
         lineMapperGenes.setFieldSetMapper(new GenesFieldSetMapper());
         genesReader.setLineMapper(lineMapperGenes);
 
-        xrefGenesReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.XREFS_MGI_Gene)));
+        xrefGenesReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.XREFS_HGNC_homologene)));
         xrefGenesReader.setComments(new String[] {"#" });
         xrefGenesReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
         DefaultLineMapper<List<Xref>> lineMapperGeneXrefs = new DefaultLineMapper<>();
@@ -235,7 +235,7 @@ public class MarkerLoader implements InitializingBean, Step {
         lineMapperEnsemblXrefs.setLineTokenizer(tokenizerEnsemblXrefs);
         lineMapperEnsemblXrefs.setFieldSetMapper(new XrefFieldSetMapper());
         xrefEnsemblReader.setLineMapper(lineMapperEnsemblXrefs);
-   
+
         xrefVegaReader.setResource(new FileSystemResource(markerKeys.get(FilenameKeys.XREFS_MRK_VEGA)));
         xrefVegaReader.setComments(new String[] {"#" });
         xrefVegaReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
@@ -371,7 +371,7 @@ public class MarkerLoader implements InitializingBean, Step {
         protected Set<String> logStatus() {
             logger.info("XREF GENE: Added {} new gene xrefs to map from file {} in {}.",
                     ((MarkerProcessorXrefGenes) markerProcessorXrefGenes).getXrefsAdded(),
-                    markerKeys.get(FilenameKeys.XREFS_MGI_Gene),
+                    markerKeys.get(FilenameKeys.XREFS_HGNC_homologene),
                     commonUtils.formatDateDifference(start, stop));
 
             return ((MarkerProcessorXrefGenes) markerProcessorXrefGenes).getErrMessages();
