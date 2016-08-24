@@ -98,7 +98,7 @@ public class ExtractCdabase implements CommandLineRunner {
 
     @Autowired
     @Qualifier("cdabaseDataSource")
-    private DataSource cdabase;
+    private DataSource cdabaseDataSource;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     private SqlUtils sqlUtils = new SqlUtils();
@@ -112,10 +112,10 @@ public class ExtractCdabase implements CommandLineRunner {
 
         // Populate Spring Batch tables if necessary.
         try {
-            boolean exists = sqlUtils.columnInSchemaMysql(cdabase.getConnection(), "BATCH_JOB_INSTANCE", "JOB_INSTANCE_ID");
+            boolean exists = sqlUtils.columnInSchemaMysql(cdabaseDataSource.getConnection(), "BATCH_JOB_INSTANCE", "JOB_INSTANCE_ID");
             if ( ! exists) {
                 logger.info("Creating SPRING BATCH tables");
-                sqlUtils.createSpringBatchTables(cdabase);
+                sqlUtils.createSpringBatchTables(cdabaseDataSource);
             }
 
         } catch (Exception e) {
