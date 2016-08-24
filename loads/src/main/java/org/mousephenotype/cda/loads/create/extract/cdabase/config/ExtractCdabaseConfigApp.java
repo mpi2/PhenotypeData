@@ -52,7 +52,7 @@ public class ExtractCdabaseConfigApp {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Bean(name = "cdabaseDataSource")
-    @ConfigurationProperties(prefix = "cdabaseDataSource")
+    @ConfigurationProperties(prefix = "datasource.cdabase")
     public DataSource cdabaseDataSource() {
         DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 
