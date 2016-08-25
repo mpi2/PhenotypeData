@@ -30,7 +30,6 @@
 				<li id="allele2T"><a href="${baseUrl}/search/allele2?kw=*&showImgView=false">Products</a></li>
 			</ul>
 		</div>
-		<!--<div><div id="resultMsg"></div><div class='saveTable'></div></div>-->
 
 		<div id="geneTab" class="hideme">
 			<div class="region region-sidebar-first">
@@ -60,8 +59,6 @@
 			<div class="region region-content">
 				<div class="block block-system">
 					<div class='content'>
-						<div class="clear"></div>
-						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable, mpi2-search"></div>
 					</div>
@@ -97,8 +94,6 @@
 			<div class="region region-content">
 				<div class="block block-system">
 					<div class='content'>
-						<div class="clear"></div>
-						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable, mpi2-search"></div>
 					</div>
@@ -133,8 +128,6 @@
 			<div class="region region-content">
 				<div class="block block-system">
 					<div class='content'>
-						<div class="clear"></div>
-						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable, mpi2-search"></div>
 					</div>
@@ -169,8 +162,6 @@
 			<div class="region region-content">
 				<div class="block block-system">
 					<div class='content'>
-						<div class="clear"></div>
-						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable, mpi2-search"></div>
 					</div>
@@ -206,8 +197,6 @@
 			<div class="region region-content">
 				<div class="block block-system">
 					<div class='content'>
-						<div class="clear"></div>
-						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable, mpi2-search"></div>
 					</div>
@@ -244,8 +233,6 @@
 			<div class="region region-content">
 				<div class="block block-system">
 					<div class='content'>
-						<div class="clear"></div>
-						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable, mpi2-search"></div>
 					</div>
@@ -281,8 +268,6 @@
 			<div class="region region-content">
 				<div class="block block-system">
 					<div class='content'>
-						<div class="clear"></div>
-						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable, mpi2-search"></div>
 					</div>
@@ -290,6 +275,7 @@
 			</div>
 			<div style="clear: both"></div>
 		</div>
+        <div id='saveTable'></div>
 
 		<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
@@ -760,7 +746,7 @@
 						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
 						//+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
-				$("div#"+coreName + "Tab").find("div.saveTable").html(toolBox);
+                $("div#saveTable").html(toolBox);
 
 				var cutoff = 10000;
 				$("a#tsvA, a#xlsA").click(function(){
