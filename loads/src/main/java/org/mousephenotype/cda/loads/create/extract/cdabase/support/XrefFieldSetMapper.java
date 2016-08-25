@@ -26,6 +26,7 @@ import org.springframework.validation.BindException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by mrelac on 24/06/16.
@@ -100,7 +101,7 @@ public class XrefFieldSetMapper implements FieldSetMapper<List<Xref>> {
             rawId = fs.readString("ccdsId");
 
             if ((rawId != null) && (!rawId.isEmpty()) && (!rawId.toLowerCase().equals("null"))) {
-                String[] ids = rawId.split(",");
+                String[] ids = rawId.split(Pattern.quote("|"));
                 for (String id : ids) {
                     Xref ccds = new Xref();
                     ccds.setAccession(fs.readString("mgiMarkerAccessionId"));

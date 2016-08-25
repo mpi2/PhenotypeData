@@ -34,6 +34,8 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
@@ -61,7 +63,10 @@ public class ExtractCdabase implements CommandLineRunner {
      * biological models, and phenotyped colony information read from reports.
      */
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(ExtractCdabase.class, args);
+        SpringApplication app = new SpringApplication(ExtractCdabase.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
+        app.run(args);
     }
 
     @Autowired
@@ -96,7 +101,8 @@ public class ExtractCdabase implements CommandLineRunner {
     public PhenotypedColonyLoader phenotypedColonyLoader;
 
     @Autowired
-    private DataSource cdabase;
+    @Qualifier("cdabaseDataSource")
+    private DataSource cdabaseDataSource;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     private SqlUtils sqlUtils = new SqlUtils();
@@ -110,10 +116,10 @@ public class ExtractCdabase implements CommandLineRunner {
 
         // Populate Spring Batch tables if necessary.
         try {
-            boolean exists = sqlUtils.columnInSchemaMysql(cdabase.getConnection(), "BATCH_JOB_INSTANCE", "JOB_INSTANCE_ID");
+            boolean exists = sqlUtils.columnInSchemaMysql(cdabaseDataSource.getConnection(), "BATCH_JOB_INSTANCE", "JOB_INSTANCE_ID");
             if ( ! exists) {
                 logger.info("Creating SPRING BATCH tables");
-                sqlUtils.createSpringBatchTables(cdabase);
+                sqlUtils.createSpringBatchTables(cdabaseDataSource);
             }
 
         } catch (Exception e) {

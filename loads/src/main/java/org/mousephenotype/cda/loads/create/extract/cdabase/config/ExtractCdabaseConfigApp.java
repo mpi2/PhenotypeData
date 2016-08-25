@@ -19,7 +19,12 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.config;
 import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigApp;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,8 +34,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
-@EnableAutoConfiguration(exclude = {ExtractDccConfigApp.class})
+@PropertySource(value = "file:${user.home}/configfiles/${profile}/datarelease.properties")
+@EnableAutoConfiguration(exclude = {
+        ExtractDccConfigApp.class,
+        JndiConnectionFactoryAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class})
 /**
  * This configuration class holds configuration information shared by the data load create process.
  *
@@ -40,9 +51,9 @@ public class ExtractCdabaseConfigApp {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Bean(name = "cdabase")
-    @ConfigurationProperties(prefix = "cdabase")
-    public DataSource cdabase() {
+    @Bean(name = "cdabaseDataSource")
+    @ConfigurationProperties(prefix = "datasource.cdabase")
+    public DataSource cdabaseDataSource() {
         DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 
         return ds;
@@ -50,6 +61,8 @@ public class ExtractCdabaseConfigApp {
 
     @Bean(name = "jdbcCdabase")
     public NamedParameterJdbcTemplate jdbcCdabase() {
-        return new NamedParameterJdbcTemplate(cdabase());
+        return new NamedParameterJdbcTemplate(cdabaseDataSource());
     }
+
+
 }

@@ -98,7 +98,7 @@ public class ExtractCdabaseConfigBeans {
         , HMD_HumanPhenotype
         , KOMP_Allele
         , MGI_EntrezGene
-        , MGI_Gene
+        , HGNC_homologene
         , MGI_Gene_Model_Coord
         , MGI_GenePheno
         , MGI_PhenoGenoMP
@@ -137,7 +137,7 @@ public class ExtractCdabaseConfigBeans {
             , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype,     "ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdabaseWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.KOMP_Allele,            "ftp://ftp.informatics.jax.org/pub/reports/KOMP_Allele.rpt", cdabaseWorkspace + "/KOMP_Allele.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_EntrezGene,         "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt", cdabaseWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_Gene,               "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene.rpt", cdabaseWorkspace + "/MGI_Gene.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.HGNC_homologene,        "ftp://ftp.informatics.jax.org/pub/reports/HGNC_homologene.rpt", cdabaseWorkspace + "/HGNC_homologene.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord,   "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdabaseWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_GenePheno,          "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdabaseWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.MGI_PhenoGenoMP,        "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenoGenoMP.rpt", cdabaseWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
@@ -278,7 +278,7 @@ public class ExtractCdabaseConfigBeans {
         Map<MarkerLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(MarkerLoader.FilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
         filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MGI_EntrezGene, downloadFilenameMap.get(DownloadFileEnum.MGI_EntrezGene).targetFilename);
-        filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MGI_Gene, downloadFilenameMap.get(DownloadFileEnum.MGI_Gene).targetFilename);
+        filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_HGNC_homologene, downloadFilenameMap.get(DownloadFileEnum.HGNC_homologene).targetFilename);
         filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MRK_ENSEMBL, downloadFilenameMap.get(DownloadFileEnum.MRK_ENSEMBL).targetFilename);
         filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MRK_VEGA, downloadFilenameMap.get(DownloadFileEnum.MRK_VEGA).targetFilename);
 
