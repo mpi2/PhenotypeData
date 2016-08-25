@@ -35,6 +35,7 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
@@ -62,7 +63,10 @@ public class ExtractCdabase implements CommandLineRunner {
      * biological models, and phenotyped colony information read from reports.
      */
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(ExtractCdabase.class, args);
+        SpringApplication app = new SpringApplication(ExtractCdabase.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.setLogStartupInfo(false);
+        app.run(args);
     }
 
     @Autowired
