@@ -58,7 +58,7 @@ public class SearchConfig {
         coreDefault.put("mp", "*:*");
         coreDefault.put("disease", "*:*");
         coreDefault.put("anatomy", "*:*");
-        coreDefault.put("impc_images", "*:*");
+        coreDefault.put("impc_images", "biological_sample_group:experimental");
         //coreDefault.put("images", "*:*");
         coreDefault.put("allele2", "type:Allele");
 
@@ -100,7 +100,7 @@ public class SearchConfig {
         coreDefault.put("mp", "mixSynQf");
         coreDefault.put("disease", "diseaseQf");
         coreDefault.put("anatomy", "anatomyQf");
-        coreDefault.put("impc_images", defaultQf);
+        coreDefault.put("impc_images", "imgQf");
         //coreDefault.put("images", "*:*");
         coreDefault.put("allele2", defaultQf);
 
@@ -254,7 +254,19 @@ public class SearchConfig {
                 "mgi_novel_predicted_in_locus");
         List<String> anatomyFacets =  Arrays.asList("selected_top_level_anatomy_term", "stage");
         //List<String> imagesFacets =  Arrays.asList("procedure_name", "top_level_mp_term", "selected_top_level_anatomy_term", "marker_type");
-        List<String> impc_imagesFacets =  Arrays.asList("procedure_name", "selected_top_level_anatomy_term", "stage");
+        List<String> impc_imagesFacets =  Arrays.asList("procedure_name", "parameter_association_name_procedure_name",
+                "anatomy_id_term",
+                "anatomy_term_synonym_anatomy_id_term",
+                "selected_top_level_anatomy_term",
+                "selected_top_level_anatomy_id_anatomy_id_term",
+                "selected_top_level_anatomy_term_anatomy_id_term",
+                "selected_top_level_anatomy_term_synonym_anatomy_id_term",
+                "intermediate_anatomy_id_anatomy_id_term",
+                "intermediate_anatomy_term_anatomy_id_term",
+                "intermediate_anatomy_term_synonym_anatomy_id_term",
+                "symbol_gene",
+                "marker_synonym_symbol_gene",
+                "stage");
         List<String> allele2Facets =  Arrays.asList("mutation_type_str", "es_cell_available", "mouse_available", "targeting_vector_available", "allele_category_str", "allele_features_str");
 
         facetMap.put("gene", geneFacets);
