@@ -119,7 +119,7 @@ public class SolrServerConfig {
 	HttpSolrClient getGeneCore() {
 		return new HttpSolrClient(solrBaseUrl + "/gene");
 	}
-§
+
 	//GenotypePhenotype
 	@Bean(name = "genotypePhenotypeCore")
 	HttpSolrClient getGenotypePhenotypeCore() {
@@ -132,8 +132,6 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/impc_images");
 	}
 
-
-	///// test here
 	//SangerImages
 	@Bean(name = "sangerImagesCore")
 	HttpSolrClient getImagesCore() {
