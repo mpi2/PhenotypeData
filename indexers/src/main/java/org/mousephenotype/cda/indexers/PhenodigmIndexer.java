@@ -252,7 +252,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
                 String diseaseId = r.getString("disease_id");
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setDiseaseID(diseaseId);
 
@@ -320,7 +321,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
             ResultSet r = p.executeQuery();
             while (r.next()) {
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setType(r.getString("type"));
                 doc.setMarkerAccession(r.getString("model_gene_id"));
@@ -372,7 +374,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
                 Integer mouseId = r.getInt("model_id");
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setType(r.getString("type"));
                 doc.setModelID(mouseId);
@@ -412,7 +415,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
                 String hpId = r.getString("hp_id");
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setType(r.getString("type"));
                 doc.setHpID(hpId);
@@ -445,7 +449,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
                 String mpId = r.getString("mp_id");
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setType(r.getString("type"));
                 doc.setMpID(mpId);
@@ -508,7 +513,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                     continue;
                 }
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setType(r.getString("type"));
                 doc.setDiseaseID(diseaseId);
@@ -600,7 +606,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                     continue;
                 }
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setType(r.getString("type"));
                 doc.setDiseaseID(diseaseId);
@@ -636,7 +643,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
                 String hpId = r.getString("hp_id");
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setType(r.getString("type"));
                 doc.setHpID(hpId);
@@ -670,7 +678,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
             ResultSet r = p.executeQuery();
             while (r.next()) {
 
-                PhenodigmDTO doc = new PhenodigmDTO().setId(UUID.randomUUID().toString());
+                PhenodigmDTO doc = new PhenodigmDTO();
+                doc.setId(UUID.randomUUID().toString());
 
                 doc.setType(r.getString("type"));
                 doc.setHpID(r.getString("hp_id"));
