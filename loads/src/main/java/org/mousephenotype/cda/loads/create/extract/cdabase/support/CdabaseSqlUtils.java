@@ -400,7 +400,7 @@ public class CdabaseSqlUtils {
                 countsMap.put("genes", countsMap.get("genes") + count);
 
             } catch (DuplicateKeyException dke) {
-                logger.warn("Duplicate genomic_feature entry. Accession id: " + gene.getId().getAccession() + ". GenomicFeature: " + gene.getName() + ". GenomicFeature not added.");
+                //logger.info("Duplicate genomic_feature entry. Accession id: " + gene.getId().getAccession() + ". GenomicFeature: " + gene.getName() + ". GenomicFeature not added.");
                 continue;
             }
 

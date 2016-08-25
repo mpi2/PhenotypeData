@@ -109,7 +109,7 @@ public class Downloader implements Tasklet, InitializingBean {
             logger.error(source + " -> " + target + "(" + commonUtils.msToHms(new Date().getTime() - start) + "). Reason: " + e.getLocalizedMessage());
         }
 
-        logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
         contribution.setExitStatus(ExitStatus.COMPLETED);
         chunkContext.setComplete();
         return RepeatStatus.FINISHED;

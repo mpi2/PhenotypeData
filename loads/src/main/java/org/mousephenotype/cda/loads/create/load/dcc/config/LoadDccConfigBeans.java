@@ -265,7 +265,7 @@ public class LoadDccConfigBeans {
 //        Map<MarkerLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
 //        filenameKeys.put(MarkerLoader.FilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
 //        filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MGI_EntrezGene, downloadFilenameMap.get(DownloadFileEnum.MGI_EntrezGene).targetFilename);
-//        filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MGI_Gene, downloadFilenameMap.get(DownloadFileEnum.MGI_Gene).targetFilename);
+//        filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_HGNC_homologene, downloadFilenameMap.get(DownloadFileEnum.MGI_Gene).targetFilename);
 //        filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MRK_ENSEMBL, downloadFilenameMap.get(DownloadFileEnum.MRK_ENSEMBL).targetFilename);
 //        filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MRK_VEGA, downloadFilenameMap.get(DownloadFileEnum.MRK_VEGA).targetFilename);
 //

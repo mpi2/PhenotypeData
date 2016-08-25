@@ -37,6 +37,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Loads a single ontology file into the ontology_term table of the target database.
@@ -131,7 +132,6 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
             dtoTerms = new OntologyParser(sourceFilename, prefix).getTerms();
             terms = ontologyDTOTermsToOntologyTerms(dtoTerms);
 
-            logger.info("");
             logger.info("FILENAME: {}. PREFIX: {}. TERMS COUNT: {}.",
                         sourceFilename, prefix, terms.size());
 
@@ -145,7 +145,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
         written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
         written.put("considerIds", written.get("considerIds") + counts.get("considerIds"));
 
-        logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
         contribution.setExitStatus(ExitStatus.COMPLETED);
         chunkContext.setComplete();
 
@@ -163,13 +163,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
             if ((dtoTerm.getConsiderIds() == null) || (dtoTerm.getConsiderIds().isEmpty())) {
                 term.setConsiderIds(considerIds);
             } else {
-
-                // FIXME FIXME FIXME Use Streams here!!!!
-
-
-                for (String considerIdString : dtoTerm.getConsiderIds()) {
-                    considerIds.add(new ConsiderId(dtoTerm.getAccessonId(), considerIdString));
-                }
+                considerIds = dtoTerm.getConsiderIds().stream().map(considerIdString -> new ConsiderId(dtoTerm.getAccessonId(), considerIdString)).collect(Collectors.toList());
                 term.setConsiderIds(considerIds);
             }
 
@@ -181,17 +175,13 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
             if ((term.getSynonyms() == null) || (term.getSynonyms().isEmpty())) {
                 term.setSynonyms(synonyms);
             } else {
-
-                // FIXME FIXME FIXME Use Streams here!!!!
-
-
-                for (String synonymString : dtoTerm.getSynonyms()) {
+                synonyms = dtoTerm.getSynonyms().stream().map(synonymString -> {
                     Synonym synonym = new Synonym();
                     synonym.setAccessionId(dtoTerm.getAccessonId());
                     synonym.setDbId(dbId);
                     synonym.setSymbol(synonymString);
-                    synonyms.add(synonym);
-                }
+                    return synonym;
+                }).collect(Collectors.toList());
                 term.setSynonyms(synonyms);
             }
 
