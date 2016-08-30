@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.create.extract.dcc.config;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.mousephenotype.cda.loads.create.extract.cdabase.config.ExtractCdabaseConfigApp;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -54,8 +55,10 @@ public class ExtractDccConfigApp {
     @Bean(name = "dccDataSource")
     @ConfigurationProperties(prefix = "datasource.dcc")
     public DataSource dccDataSource() {
-        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        DataSource ds = DataSourceBuilder.create().type(BasicDataSource.class).driverClassName("com.mysql.jdbc.Driver").build();
+        ((BasicDataSource) ds).setInitialSize(1);
 
+        System.out.println("Using BasicDataSource. initialPoolSize = " + ((BasicDataSource)ds).getInitialSize());
         return ds;
     }
 
