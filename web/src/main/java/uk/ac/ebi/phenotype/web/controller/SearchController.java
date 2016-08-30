@@ -25,11 +25,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -42,7 +45,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.util.SearchConfig;
-import uk.ac.ebi.phenotype.util.SolrUtils;
 
 
 @Controller
@@ -73,8 +75,113 @@ public class SearchController {
 	@Autowired
 	private QueryBrokerController queryBrokerController;
 
+    @Autowired
+    @Qualifier("geneCore")
+    private SolrClient geneCore;
 
-	/**
+    @Autowired
+    @Qualifier("mpCore")
+    private SolrClient mpCore;
+
+    @Autowired
+    @Qualifier("diseaseCore")
+    private SolrClient diseaseCore;
+
+    @Autowired
+    @Qualifier("anatomyCore")
+    private SolrClient anatomyCore;
+
+    @Autowired
+    @Qualifier("impcImagesCore")
+    private SolrClient impcImagesCore;
+
+    @Autowired
+    @Qualifier("allele2Core")
+    private SolrClient allele2Core;
+
+
+    /**
+     * searchOverview page
+     *
+     */
+
+    @RequestMapping("/searchoverview")
+    public String searchResult(
+            @RequestParam(value = "kw", required = false, defaultValue = "*") String query,
+            HttpServletRequest request,
+            Model model) throws IOException, URISyntaxException{
+
+        String dataType = null;
+        String fqStr = null;
+
+		System.out.println("query: " + query);
+        if ( query.equals("*") ){
+            query = "*:*";
+        }
+
+
+        String paramString = request.getQueryString();
+		System.out.println("paramString " + paramString);
+//        JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
+//        System.out.println(facetCountJsonResponse.toString());
+//        model.addAttribute("facetCount", facetCountJsonResponse);
+
+        Integer iDisplayStart = 0;
+        Integer iDisplayLength = 1;
+        Boolean showImgView = false;
+
+        JSONObject coreResult = new JSONObject();
+        Boolean doFacet = false;
+
+        Map<String, SolrClient> solrCoreMap = new HashMap<>();
+        solrCoreMap.put("gene", geneCore);
+        solrCoreMap.put("mp", mpCore);
+        solrCoreMap.put("disease", diseaseCore);
+        solrCoreMap.put("anatomy", anatomyCore);
+        solrCoreMap.put("impc_images", impcImagesCore);
+        solrCoreMap.put("allele2", allele2Core);
+
+		Map<String, Integer> coreCount = new HashMap<>();
+		Map<String, SolrDocument> coreData = new HashMap<>();
+
+		for ( String thisCore : solrCoreMap.keySet() ){
+
+			SolrQuery solrParams = composeSolrJParamStr(query, fqStr, thisCore, doFacet);
+			System.out.println("param: " + solrParams.toString());
+
+			QueryResponse response = null;
+			try {
+				response = solrCoreMap.get(thisCore).query(solrParams);
+				System.out.println("check: " + solrCoreMap.get(thisCore).query(solrParams));
+				Integer docCount = (int) (long) response.getResults().getNumFound();
+				System.out.println(thisCore + " num found: "+ docCount);
+				coreCount.put(thisCore, docCount);
+				//coreData.put(thisCore, response.getResults());
+				SolrDocument doc = null;
+				if ( docCount != 0 ) {
+					doc = response.getResults().get(0);
+					System.out.println(thisCore + ": one doc");
+					System.out.println(doc.toString());
+				}
+				else {
+					System.out.println(thisCore + ": no doc");
+				}
+				coreData.put(thisCore, doc);
+				//System.out.println("doc: " + doc.toString());
+			} catch (SolrServerException e) {
+				System.out.println(e.getStackTrace());
+			}
+		}
+
+		System.out.println(coreData.toString());
+		model.addAttribute("coreCount", coreCount);
+		model.addAttribute("coreData", coreData);
+
+        return "searchoverview";
+    }
+
+
+    /**
 	 * search page
 	 *
 	 */
@@ -138,7 +245,8 @@ public class SearchController {
 		String solrCoreName = dataType;
 		Boolean legacyOnly = false;
 		String evidRank = "";
-		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
+        Boolean doFacet = true;
+		String solrParamStr = composeSolrParamStr(query, fqStr, dataType, doFacet);
 //		System.out.println("SearchController solrParamStr: "+ solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 //		System.out.println("CONTENT: " + content);
@@ -155,8 +263,8 @@ public class SearchController {
 		model.addAttribute("gridHeaderListStr", StringUtils.join(searchConfig.getGridHeaders(dataType), ","));
 
 		// results on the right panel of search page
-
-		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
+        Boolean doFacet = true;
+		String solrParamStr = composeSolrParamStr(query, fqStr, dataType, doFacet);
 		//System.out.println("SearchController solrParamStr: " + solrParamStr);
 		String mode = dataType + "Grid";
 		JSONObject json = solrIndex.getQueryJson(query, dataType, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
@@ -164,7 +272,32 @@ public class SearchController {
 		return json;
 	}
 
-	public String composeSolrParamStr(String query, String fqStr, String dataType){
+    public SolrQuery composeSolrJParamStr(String query, String fqStr, String dataType, Boolean doFacet){
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(query);
+		solrQuery.set("qf", searchConfig.getQf(dataType));
+		solrQuery.set("defType", searchConfig.getDefType());
+		solrQuery.set("fl", StringUtils.join(searchConfig.getFieldList(dataType), ","));
+		solrQuery.set("bq", searchConfig.getBqStr(dataType, query).replace("&bq=", ""));
+		solrQuery.set("wt", "json");
+		solrQuery.setRows(1);
+
+        if (fqStr != null) {
+            solrQuery.setFilterQueries(fqStr);
+            if ( dataType.equals("impc_images")){
+				solrQuery.setFilterQueries(fqStr + " AND (biological_sample_group:experimental)");
+            }
+        }
+        else {
+			solrQuery.setFilterQueries(searchConfig.getFqStr(dataType));
+        }
+
+
+        return solrQuery;
+    }
+
+	public String composeSolrParamStr(String query, String fqStr, String dataType, Boolean doFacet){
 
 		String qfStr = searchConfig.getQfSolrStr(dataType);
 		String defTypeStr = searchConfig.getDefTypeSolrStr();
@@ -174,8 +307,13 @@ public class SearchController {
 		String sortStr = searchConfig.getSortingStr(dataType);
 
 		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
-		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr;
-
+        String solrParamStr = null;
+        if ( doFacet ) {
+            solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + bqStr + facetStr;
+        }
+        else {
+            solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + bqStr;
+        }
 
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
