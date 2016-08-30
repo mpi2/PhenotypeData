@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.create.extract.dcc;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
 import org.mousephenotype.cda.loads.create.extract.dcc.support.ExtractDccSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
@@ -39,7 +40,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by mrelac on 09/02/2016.
@@ -53,7 +57,12 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
     private String dbname;
     private String filename;
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final org.slf4j.Logger logger         = LoggerFactory.getLogger(this.getClass());
+
+    // Do not load the 3i procedures when loading the IMPC data
+   	// 3i data is loaded using the ImpcThreeIXmlFormatExperimentLoader class
+   	private       Set<String>      skipProcedures = new HashSet<>(Arrays.asList(
+   		"SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS", "MGP_ANA", "MGP_BCI", "MGP_BMI", "MGP_EEI", "MGP_MLN", "MGP_PBI", "MGP_IMM"));
 
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
@@ -95,6 +104,9 @@ public class ExtractDccExperiments implements CommandLineRunner {
         // parameter to indicate profile (subdirectory of configfiles containing application.properties)
         parser.accepts("profile").withRequiredArg().ofType(String.class);
 
+        // parameter to indicate procedures to be skipped in experiment files.
+        parser.accepts("skip-procedures").withRequiredArg().ofType(String.class);
+
         OptionSet options = parser.parse(args);
 
         filename = (String) options.valuesOf("filename").get(0);
@@ -111,6 +123,14 @@ public class ExtractDccExperiments implements CommandLineRunner {
             ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
             p.execute(dcc);
             logger.info("Dropping and creating dcc experiment tables for database {} - complete", dbname);
+        }
+
+        if (options.has("skip-procedures")) {
+            String       commaListSkipProcs = (String) options.valuesOf("skip-procedures").get(0);
+            List<String> skipProcs          = Arrays.asList(commaListSkipProcs.split(","));
+            skipProcedures.addAll(skipProcs);
+
+            logger.info("Skipping procedures {}", StringUtils.join(skipProcedures, ", "));
         }
 
         logger.debug("Loading experiment file {}", filename);
@@ -169,6 +189,8 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         Long specimenPk, procedurePk, center_procedurePk;
 
+processExperiment:      // Used by skipProcedure to skip experiments with procedure groups marked to be skipped.
+
         for (String specimenId : experiment.getSpecimenID()) {
 
             // get specimenPk
@@ -204,6 +226,20 @@ public class ExtractDccExperiments implements CommandLineRunner {
             // line
             if (centerProcedure.getLine() != null) {
                 for (Line line : centerProcedure.getLine()) {
+
+                    final Procedure             impressProcedure = line.getProcedure();
+                    final List<SimpleParameter> parameters       = impressProcedure.getSimpleParameter();
+                    final String                procedureName    = impressProcedure.getProcedureID();
+                    final String                colonyId         = line.getColonyID();
+
+                    // Skip any experiments whose procedure group has been marked to be skipped.
+                    String procedureGroup = getProcedureGroup(procedureName);
+                    if (skipProcedures.contains(procedureGroup)) {
+                        String experimentID = String.format("%s-%s", line.getProcedure().getProcedureID(), colonyId);
+                        logger.info("Skipped Experiment ID {} as it contains excluded procedure ID {}", experimentID , line.getProcedure().getProcedureID());
+                        continue processExperiment;     // Continue with the next experiment.
+                    }
+
                     long linePk = extractDccSqlUtils.getLinePk(line.getColonyID(), center_procedurePk);
                     if (linePk == 0) {
                         linePk = extractDccSqlUtils.insertLine(line, center_procedurePk);
@@ -357,4 +393,9 @@ public class ExtractDccExperiments implements CommandLineRunner {
             }
         }
     }
+
+    public String getProcedureGroup(String procedureName) {
+   		String procedureGroup = procedureName.substring(0, procedureName.lastIndexOf('_'));
+   		return procedureGroup;
+   	}
 }
