@@ -59,7 +59,7 @@ public class SolrServerConfig {
 
 	@Bean(name = "allele2Core")
 	HttpSolrClient getAllele2Core() {
-		return new HttpSolrClient(solrBaseUrl + "/allele2");
+		return new HttpSolrClient(imitsSolrBaseUrl + "/allele2");
 	}
 
 	@Bean(name = "eucommCreProductsCore")
