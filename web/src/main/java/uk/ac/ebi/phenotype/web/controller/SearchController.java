@@ -109,37 +109,40 @@ public class SearchController {
     public String searchResult(
             @RequestParam(value = "kw", required = false, defaultValue = "*") String query,
             HttpServletRequest request,
-            Model model) throws IOException, URISyntaxException{
+            Model model) throws IOException, URISyntaxException {
 
-        String dataType = null;
-        String fqStr = null;
+			String fqStr = null;
+		return processSearchOverview("gene", query, fqStr, request, model);
+	}
+
+	private String processSearchOverview(String dataType, String query, String fqStr, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 
 		System.out.println("query: " + query);
-        if ( query.equals("*") ){
-            query = "*:*";
-        }
+		if ( query.equals("*") ){
+			query = "*:*";
+		}
 
 
-        String paramString = request.getQueryString();
+		String paramString = request.getQueryString();
 		System.out.println("paramString " + paramString);
 //        JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 //        System.out.println(facetCountJsonResponse.toString());
 //        model.addAttribute("facetCount", facetCountJsonResponse);
 
-        Integer iDisplayStart = 0;
-        Integer iDisplayLength = 1;
-        Boolean showImgView = false;
+//		iDisplayStart = 0;
+//		iDisplayLength = 1;
+		Boolean showImgView = false;
 
-        JSONObject coreResult = new JSONObject();
-        Boolean doFacet = false;
+		JSONObject coreResult = new JSONObject();
+		Boolean doFacet = false;
 
-        Map<String, SolrClient> solrCoreMap = new HashMap<>();
-        solrCoreMap.put("gene", geneCore);
-        solrCoreMap.put("mp", mpCore);
-        solrCoreMap.put("disease", diseaseCore);
-        solrCoreMap.put("anatomy", anatomyCore);
-        solrCoreMap.put("impc_images", impcImagesCore);
-        solrCoreMap.put("allele2", allele2Core);
+		Map<String, SolrClient> solrCoreMap = new HashMap<>();
+		solrCoreMap.put("gene", geneCore);
+		solrCoreMap.put("mp", mpCore);
+		solrCoreMap.put("disease", diseaseCore);
+		solrCoreMap.put("anatomy", anatomyCore);
+		solrCoreMap.put("impc_images", impcImagesCore);
+		solrCoreMap.put("allele2", allele2Core);
 
 		Map<String, Integer> coreCount = new HashMap<>();
 		Map<String, SolrDocument> coreData = new HashMap<>();
@@ -176,9 +179,50 @@ public class SearchController {
 		System.out.println(coreData.toString());
 		model.addAttribute("coreCount", coreCount);
 		model.addAttribute("coreData", coreData);
+        model.addAttribute("params", paramString);
 
-        return "searchoverview";
-    }
+		return "searchoverview";
+	}
+
+	@RequestMapping("/searchoverview/{dataType}")
+	public String searchOverviewResult(
+			@PathVariable ()String dataType,
+			@RequestParam(value = "kw", required = false, defaultValue = "*") String query,
+			@RequestParam(value = "fq", required = false) String fqStr,
+			@RequestParam(value = "iDisplayStart", required = false) Integer iDisplayStart,
+			@RequestParam(value = "iDisplayLength", required = false) Integer iDisplayLength,
+			@RequestParam(value = "showImgView", required = false) boolean showImgView,
+			HttpServletRequest request,
+			Model model) throws IOException, URISyntaxException {
+
+		return processDataTypeSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
+	}
+
+	private String processDataTypeSearch(String dataType, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
+		iDisplayStart =  iDisplayStart == null ? 0 : iDisplayStart;
+		request.setAttribute("iDisplayStart", iDisplayStart);
+		iDisplayLength = iDisplayLength == null ? 10 : iDisplayLength;
+		request.setAttribute("iDisplayLength", iDisplayLength);
+
+		String debug = request.getParameter("debug");
+
+		String paramString = request.getQueryString();
+//		System.out.println("paramString " + paramString);
+		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
+
+		model.addAttribute("facetCount", facetCountJsonResponse);
+		model.addAttribute("searchQuery", query.replaceAll("\\\\",""));
+		model.addAttribute("dataType", dataType); // lowercase: core name
+		model.addAttribute("dataTypeParams", paramString);
+
+		JSONObject json = fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+		model.addAttribute("jsonStr", convert2DataTableJson(request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
+
+		return "searchDatatype";
+	}
+
+
+
 
 
     /**

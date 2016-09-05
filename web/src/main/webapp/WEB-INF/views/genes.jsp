@@ -5,7 +5,7 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">Gene details for ${gene.markerName}</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/searchoverview">Search overview &raquo; </a><a
 			href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">

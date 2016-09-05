@@ -65,7 +65,8 @@
 
 		var self = this;
 		var numFound = json.iTotalRecords;
-
+		console.log("do gene facet")
+console.log(json)
 		/*-------------------------------------------------------*/
 		/* ------ displaying sidebar and update dataTable ------ */
 		/*-------------------------------------------------------*/
