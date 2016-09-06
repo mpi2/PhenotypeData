@@ -31,6 +31,7 @@ $(document).ready(function(){
 	
 	var previousControlId;
 	var previousMutantId;
+
 	var viewport = $.WeblitzViewport($("#viewport"), impcMediaBaseUrl, {
         'mediaroot': omeroStaticUrl
     });
@@ -135,7 +136,26 @@ $(document).ready(function(){
 	  //$('#mutant_only_button').toggleAttr('value','full_frame');
 	});
     
-    
+  $("#overlap").click(function() {
+	  console.log('calling overlap');
+	  window.open(baseUrl+'/overlap?id1='+id+'&id2='+id2, 'Overlap');
+	  //need to change the classes for the two images to overlap them and add the js to move the top one around.
+	  //change mutant_box to the resizable class
+//	  $('#mutant_box').toggleClass('half_box_right resizable');
+//	  $( "#resizable" ).draggable({ cursor: "crosshair"});
+//	    $("#resizable").resizable({
+//	        aspectRatio: true
+//	    });
+//	    
+//	    $("#reset").click(function () {
+//			  console.log('calling reset');
+//			    $("#resizable").animate({
+//			        top: "20px",
+//			        left: "20px"
+//			    });
+//			});
+	  
+  });
 console.log('comparator.js ready');
 
 

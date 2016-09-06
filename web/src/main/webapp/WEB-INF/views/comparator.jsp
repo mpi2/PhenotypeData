@@ -104,7 +104,7 @@
              			<option value="${zyg.name}" <c:if test="${param.zygosity eq zyg.name}">selected</c:if>>${zyg.name}</option>
             		</c:forEach>
             		</select>
-            		<input type="submit" value="Go"> <span class="btn" id="mutant_only_button">Display Mutant Only</span>
+            		<input type="submit" value="Go"> <span class="btn" id="mutant_only_button">Display Mutant Only</span>&nbsp;&nbsp;&nbsp;<span class="btn" id="overlap">Overlap Mode</span>
             	</div>
             		<div id="control_box" class="box half_box_left">
             		<div class="thumbList" style="float:left">
@@ -179,7 +179,7 @@
 	            		
 	            		
 	            		
-					<div id="mutant_box" class="box half_box_right">
+					<div id="mutant_box" class="half_box_right">
 						<%-- <c:choose>
 				            	<c:when test="${not empty mutants}">
 				            		<c:choose>
