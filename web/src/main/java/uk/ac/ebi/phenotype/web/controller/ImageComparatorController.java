@@ -126,6 +126,11 @@ public class ImageComparatorController {
 		return "comparator";//js viewport used to view images in this view.
 	}
 	
+	@RequestMapping("/overlap")
+	public String overlap(@RequestParam String id1, @RequestParam String id2, Model model){
+		return "overlap";
+	}
+	
 	@RequestMapping("/imageComparatorTest")
 	public String imageCompBrowser(){
 		return "comparatorBasicTest";
