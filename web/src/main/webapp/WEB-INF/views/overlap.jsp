@@ -89,6 +89,8 @@
 	<script>
 	  $( function() {
 	    $( "#resizable" ).draggable({ cursor: "crosshair"});
+	    var initialResizableWidth=$('#resizable').width();
+	    var initialResizableHeight=$('#resizable').height();
 	    $("#resizable").resizable({
 	        aspectRatio: true
 	    });
@@ -97,7 +99,9 @@
 			  console.log('calling reset');
 			    $("#resizable").animate({
 			        top: "20px",
-			        left: "20px"
+			        left: "20px",
+			        width: initialResizableWidth,
+			        height : initialResizableWidth
 			    });
 			});
 	    
@@ -121,7 +125,7 @@
         		
 				<div class="inner">
 					<p>
-						<button id="reset" name="reset">Reset</button>
+						<div id="reset" class="btn">Reset</div>
 					</p>
 				
 				
