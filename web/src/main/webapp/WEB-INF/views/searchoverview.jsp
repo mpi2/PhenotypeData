@@ -70,7 +70,7 @@
                 <tr>
                     <td class="tdout">
                         <table class="in">
-                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/gene?${params}">Genes<br><span class="coreCount">(${coreCount.gene})</span></a><p><p><p><img src="http://www.mousephenotype.org/sites/dev.mousephenotype.org/files/homepageicons/gene.png"/></span></td>
+                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/gene?${params}">Genes<br><span class="coreCount">(${coreCount.gene})</span></a><p><p><img src="${baseUrl}/img/dna.png"/></span></td>
                             <td class="in2"><a href="${baseUrl}/genes/${coreData.gene.mgi_accession_id}">${coreData.gene.marker_symbol}</a><br>
                                 <c:if test="${not empty coreData.gene.name}">
                                     name: ${coreData.gene.marker_name}<br>
@@ -86,7 +86,7 @@
                     </td>
                     <td class="tdout">
                         <table class="in">
-                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/mp?${params}">Phenotypes<br><span class="coreCount">(${coreCount.mp})</span></a><p><p><p><img src="http://www.mousephenotype.org/sites/dev.mousephenotype.org/files/homepageicons/graph.png"/></span></td>
+                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/mp?${params}">Phenotypes<br><span class="coreCount">(${coreCount.mp})</span></a><p><p><img src="${baseUrl}/img/stats.png" /></span></td>
                             <td class="in2"><a href="${baseUrl}/phenotypes/${coreData.mp.mp_id}">${coreData.mp.mp_term}</a><br>
                                 <c:if test="${not empty coreData.mp.mp_definition}">
                                     <li>definition: ${coreData.mp.mp_definition}</li>
@@ -102,7 +102,7 @@
                 <tr>
                     <td class="tdout">
                         <table class="in">
-                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/disease?${params}">Disease<br><span class="coreCount">(${coreCount.disease})</span></a><p><p><p><img src="http://www.mousephenotype.org/sites/dev.mousephenotype.org/files/homepageicons/people.png"/></span></td>
+                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/disease?${params}">Disease<br><span class="coreCount">(${coreCount.disease})</span></a><p><p><img src="${baseUrl}/img/disease.png"/></span></td>
                             <td class="in2"><a href="${baseUrl}/disease/${coreData.disease.disease_id}">${coreData.disease.disease_term}</a><br>
                                 <c:if test="${not empty coreData.desease.disease_source}">
                                     <li>Source: ${coreData.desease.disease_source}</li>
@@ -113,7 +113,7 @@
                     </td>
                     <td class="tdout">
                         <table class="in">
-                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/anatomy?${params}">Anatomy<br><span class="coreCount">(${coreCount.anatomy})</span></a><p><p><p><img src="http://www.mousephenotype.org/sites/dev.mousephenotype.org/files/homepageicons/people.png"/></span></td>
+                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/anatomy?${params}">Anatomy<br><span class="coreCount">(${coreCount.anatomy})</span></a><p><p><img src="${baseUrl}/img/anatomy.png"/></span></td>
                             <td class="in2"><a href="${baseUrl}/anatomy/${coreData.anatomy.anatomy_id}">${coreData.anatomy.anatomy_term}</a>
                                 <c:if test="${not empty coreData.anatomy.stage}">
                                     <li>stage: ${coreData.anatomy.stage}</li>
@@ -126,7 +126,7 @@
                 </tr>
                 <tr>
                     <td class="tdout">
-                        <table class="in"><td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/impc_images?${params}">Images<br><span class="coreCount">(${coreCount.impc_images})</span></a><p><p><p><img src="http://www.mousephenotype.org/sites/dev.mousephenotype.org/files/homepageicons/people.png"/></span></td>
+                        <table class="in"><td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/impc_images?${params}">Images<br><span class="coreCount">(${coreCount.impc_images})</span></a><p><p><img src="${baseUrl}/img/image.png"/></span></td>
                             <td class="in2"><c:if test="${not empty coreData.impc_images.procedure_name}">
                                 <li>procedure name: ${coreData.impc_images.procedure_name}</li>
                             </c:if>
@@ -146,7 +146,7 @@
                     </td>
                     <td class="tdout">
                         <table class="in">
-                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/allele2?${params}">Product<br><span class="coreCount">(${coreCount.allele2})</span></a><p><p><p><img src="http://www.mousephenotype.org/sites/dev.mousephenotype.org/files/homepageicons/people.png"/></span></td>
+                            <td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/searchoverview/allele2?${params}">Product<br><span class="coreCount">(${coreCount.allele2})</span></a><p><p><img src="${baseUrl}/img/mouse.png"/></span></td>
                             <td class="in2">
                                 <c:if test="${not empty coreData.allele2.allele_name}">
                                     <li>allele: ${coreData.allele2.marker_symbol}${coreData.allele2.allele_name}</li>
