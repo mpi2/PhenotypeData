@@ -161,7 +161,9 @@ public class SearchConfig {
         List<String> mpFields = Arrays.asList("mp_id",
                 "mp_term",
                 "mixSynQf",
-                "mp_definition"
+                "mp_definition",
+                "mp_term_synonym",
+                "mp_narrow_synonym"
 //                "top_level_mp_term",
 //                "top_mp_term_id",
 //                "hp_id",

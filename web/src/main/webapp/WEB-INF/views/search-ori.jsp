@@ -4,7 +4,7 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">IMPC Search</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search?">Search Overview</a> &raquo; <a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a> &raquo; ${searchQuery}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a> &raquo; ${searchQuery}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
@@ -16,38 +16,265 @@
 	</jsp:attribute>
 
 	<jsp:body>
-		<div class="region region-sidebar-first">
 
-			<div class='facet' class='fblock block'>
-				<div class='filterHint'>Filter <span class='documentation title textright'>
+		<div id='datasets'></div>
+
+		<div id="tabs">
+			<ul class="tabLabel">
+				<li id="geneT"><a href="${baseUrl}/search/gene?kw=*">Genes</a></li>
+				<li id="mpT"><a href="${baseUrl}/search/mp?kw=*">Phenotypes</a></li>
+				<li id="diseaseT"><a href="${baseUrl}/search/disease?kw=*">Diseases</a></li>
+				<li id="anatomyT"><a href="${baseUrl}/search/anatomy?kw=*">Anatomy</a></li>
+				<li id="impc_imagesT"><a href="${baseUrl}/search/impc_images?kw=*&showImgView=false">Images</a></li>
+				<!-- li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li-->
+				<li id="allele2T"><a href="${baseUrl}/search/allele2?kw=*&showImgView=false">Products</a></li>
+			</ul>
+		</div>
+
+		<div id="geneTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div class='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
 						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 						</span>
+					</div>
+					<div class='content'>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="gene">
+									<span class="flabel">Genes</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+
+						</div>
+					</div>
 				</div>
-				<div class='content'>
-					<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
-					<div class="flist">
-						<ul>
-							<li class="fmcat" id="">
-								<span class="flabel"></span>
-								<span class="fcount"></span>
-								<ul></ul>
-							</li>
-						</ul>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable, mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+
+		<div id="mpTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="mp">
+									<span class="flabel">Phenotypes</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable, mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+
+		<div id="diseaseTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="disease">
+									<span class="flabel">Diseases</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</div>
 
-		</div>
-		<div class="region region-content">
-			<div class="block block-system">
-				<div class='content'>
-					<!-- container to display dataTable -->
-					<div class="HomepageTable, mpi2-search"></div>
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable, mpi2-search"></div>
+					</div>
 				</div>
 			</div>
+			<div style="clear: both"></div>
 		</div>
-		<div style="clear: both"></div>
 
+		<div id="anatomyTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="anatomy">
+									<span class="flabel">Anatomy</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable, mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+
+		<div id="impc_imagesTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="impc_images">
+									<span class="flabel">IMPC Images</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable, mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+
+
+		<div id="imagesTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="images">
+									<span class="flabel">Images</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable, mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both"></div>
+		</div>
+
+		<div id="allele2Tab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="allele2">
+									<span class="flabel">Products</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable, mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both"></div>
+		</div>
         <div id='saveTable'></div>
 
 		<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
@@ -70,6 +297,30 @@
 
 				$.fn.qTip({'pageName':'search'});
 
+				// populate facet counts to all "tabs"
+				<%--$('ul.tabLabel li').each(function(){--%>
+					<%--var id = $(this).attr('id').replace('T','');--%>
+					<%--//if ( id == 'gene' ){id += '2'}  // count for protein coding gene only--%>
+
+					<%--if (${facetCount}[id] == 0){--%>
+						<%--$(this).addClass('noData');--%>
+						<%--$(this).find('a').addClass('noData')--%>
+					<%--}--%>
+
+					<%--$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");--%>
+				<%--});--%>
+
+				// so that we don't see the "tabs" appear w/o facet counts
+				// because the counts are appended after those "tabs" markup are loaded
+				$('ul.tabLabel li').css('visibility', 'visible');
+
+//
+//				$('ul.tabLabel li.noData').mouseover(function(){
+//					// no background change for zero count dataset
+//					//$(this).parent().css({'background-color':'white','border':'1px solid grey','border-bottom':'none'});
+//				}).click(function(){
+//					return false;
+//				});
 
 				$('div#resultMsg').css('border-top', '1px solid grey');
 
@@ -84,9 +335,6 @@
 
 				var solrFqs = [];
 				var showImgViewStr = "showImgView=false";  // default
-
-				var labelMap = {"gene":"Genes", "mp":"Phenotypes", "disease":"Diseases", "anatomy":"Anatomy", "impc_images":"Images", "allele2":"Products"};
-
 
 				//---------------------- parse URL ----------------------------
 				if ( /search\/?\w*\/?.*$/.exec(location.href) ){
@@ -105,11 +353,12 @@
 						coreName = "gene";
 					}
 
-					$('div.flist li.fmcat').attr('id', coreName);
-					$('span.flabel').text(labelMap[coreName]);
+					// activate this 'tab'
+					//alert('div#' + coreName +'Tab')
+					$('div#' + coreName +'Tab').show();
 
 					var paramStr = matches[2].replace(/^\?/,'');
-					console.log("paramStr: "+paramStr)
+					//alert("paramStr: "+paramStr)
 
 					var kw = paramStr.split("&");
 
@@ -159,29 +408,61 @@
 					query = query.replace("\\%3A", ":");
 
 					$('input#s').val(decodeURI(query));
-					console.log('corename: '+coreName);
 				}
 
 				//---------------------- end of parse URL ----------------------------
 
+				$("ul.tabLabel > li a").each(function(){
+					$(this).removeClass('currDataType noData'); // reset
+					$(this).parent().removeClass('noData'); // reset
+
+					var thisId = $(this).parent().attr('id').replace("T","");
+
+					// ----------- update "tab" url ---------------------
+
+					var currKw = $.fn.fetchUrlParams('kw');
+
+					if ( currKw == undefined ){
+						query = "*";
+					}
+					// update url for all other datatypes (tabs)
+
+					if ( thisId != coreName ) {
+						//console.log("tab: " + thisId + " --- query: " + query);
+
+						if ( query.indexOf(":") != -1 ){
+							query = query.replace(":", "\\%3A");
+						}
+						//console.log("search.jsp: " + baseUrl + '/search/' + thisId + '?kw=' + query)
+
+						if (${facetCount}[thisId] == 0) {
+							$(this).attr('href', '');
+							$(this).addClass('noData');
+							$(this).parent().addClass('noData');
+						}
+						else {
+							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
+						}
+
+					}
 
 					// ----------- highlights current "tab" and populates its facet filters and dataTable -----------
+					if ( thisId == coreName ){
 
+						// update "tab" link url
+						if ( $.fn.fetchUrlParams('fq') != undefined ){
+							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query + '&fq=' + $.fn.fetchUrlParams('fq'));
+						}
+						else {
+							if (${facetCount}[thisId] == 0) {
+								$(this).attr('href', '');
+							}
+							else {
+								$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
+							}
+						}
 
-						<%--// update "tab" link url--%>
-						<%--if ( $.fn.fetchUrlParams('fq') != undefined ){--%>
-							<%--$(this).attr('href', baseUrl + '/search/' + coreName + '?kw=' + query + '&fq=' + $.fn.fetchUrlParams('fq'));--%>
-						<%--}--%>
-						<%--else {--%>
-							<%--if (${facetCount}[coreName] == 0) {--%>
-								<%--$(this).attr('href', '');--%>
-							<%--}--%>
-							<%--else {--%>
-								<%--$(this).attr('href', baseUrl + '/search/' + coreName + '?kw=' + query);--%>
-							<%--}--%>
-						<%--}--%>
-
-
+						$(this).parent().addClass('currDataType');//.click();
 
 						$.fn.displayFacets(coreName, ${jsonStr});
 
@@ -190,12 +471,12 @@
 							highlightFilters(solrFqs);
 						}
 
-//						var tabId = '#' + coreName + 'Tab';
-						var parentContainer = $("div.mpi2-search");
-//
-//						$(".activeFilter").removeClass("activeFilter");
-//
-//						$(tabId).addClass("activeFilter");
+						var tabId = '#' + coreName + 'Tab';
+						var parentContainer = $(tabId).find("div.mpi2-search");
+						
+						$(".activeFilter").removeClass("activeFilter");
+						
+						$(tabId).addClass("activeFilter");
 
 						// images cores related
 						if ( coreName.indexOf('images') != -1 ) {
@@ -240,8 +521,8 @@
 						//console.log("${gridHeaderListStr}");
 						prepare_dataTable("${gridHeaderListStr}", tableId, parentContainer);
 
-						var infoDivId = coreName + "_info";
-						var paginationDivId = coreName + "_pagination";
+						var infoDivId = tableId + "_info";
+						var paginationDivId = tableId + "_pagination";
 
 						var noSort = {}; // should match all existing columns
 						noSort["gene"] = [1,2,3];
@@ -276,9 +557,9 @@
 
 
 						// do these only when there is result found
-						//if ( $('div#dTable_pagination li.active a').size() > 0 ) {
+						if ( $('div#dTable_pagination li.active a').size() > 0 ) {
 							// add Download
-							//addDownloadTool();
+							addDownloadTool();
 
 							// highlight synonyms
 							highlighSynonym();
@@ -289,18 +570,18 @@
 							if (coreName == 'allele2'){
 								decodeAlleleName();
 							}
-						//}
-
+						}
+					}
 
                     _doProductFancyBox();
 
-					<%--$(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");--%>
+					$(this).append("<span class='tabfc'> ("+${facetCount}[thisId]+")</span>");
 
-//					$('li.noData').click(function(){
-//						return false;
-//					});
+					$('li.noData').click(function(){
+						return false;
+					});
 
-
+				});
 				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
 
 
@@ -563,7 +844,6 @@
 				var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, tableId);
 
 				parentContainer.append(dTable);
-				console.log(parentContainer);
 
 			}
 

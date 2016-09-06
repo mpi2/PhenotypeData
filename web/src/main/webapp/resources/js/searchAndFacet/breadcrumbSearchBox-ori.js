@@ -8,31 +8,31 @@ $(document).ready(function () {
 		+ '</p>'
 		+ '<h5>Gene query examples</h5>'
 		+ '<p>'
-		+ '<a href="' + baseUrl + '/searchoverview/gene?kw=akt2&fq=*:*">Akt2</a>'
+		+ '<a href="' + baseUrl + '/search/gene?kw=akt2&fq=*:*">Akt2</a>'
 		+ '- looking for a specific gene, Akt2'
 		+ '<br>'
-		+ '<a href="' + baseUrl + '/searchoverview/gene?kw=*rik&fq=*:*">*rik</a>'
+		+ '<a href="' + baseUrl + '/search/gene?kw=*rik&fq=*:*">*rik</a>'
 		+ '- looking for all Riken genes'
 		+ '<br>'
-		+ '<a href="' + baseUrl + '/searchoverview/gene?kw=hox*&fq=*:*">hox*</a>'
+		+ '<a href="' + baseUrl + '/search/gene?kw=hox*&fq=*:*">hox*</a>'
 		+ '- looking for all hox genes'
 		+ '</p>'
 		+ '<h5>Phenotype query examples</h5>'
 		+ '<p>'
-		+ '<a href="' + baseUrl + '/searchoverview/mp?kw=abnormal skin morphology&fq=top_level_mp_term:*">abnormal skin morphology</a>'
+		+ '<a href="' + baseUrl + '/search/mp?kw=abnormal skin morphology&fq=top_level_mp_term:*">abnormal skin morphology</a>'
 		+ '- looking for a specific phenotype'
 		+ '<br>'
-		+ '<a href="' + baseUrl + '/searchoverview/mp?kw=ear&fq=top_level_mp_term:*">ear</a>'
+		+ '<a href="' + baseUrl + '/search/mp?kw=ear&fq=top_level_mp_term:*">ear</a>'
 		+ '- find all ear related phenotypes'
 		+ '</p>'
 		+ '<h5>Phrase query Example</h5>'
 		+ '<p>'
-		+ '<a href="' + baseUrl + '/searchoverview/gene?kw=zinc finger protein&fq=*:*">zinc finger protein</a>'
+		+ '<a href="' + baseUrl + '/search/gene?kw=zinc finger protein&fq=*:*">zinc finger protein</a>'
 		+ '- looking for genes whose product is zinc finger protein'
 		+ '</p>'
 		+ '<h5>Phrase wildcard query Example</h5>'
 		+ '<p>'
-		+ '<a href="' + baseUrl + '/searchoverview/mp?kw=abnormal phy*&fq=top_level_mp_term:*">abnormal phy*</a>'
+		+ '<a href="' + baseUrl + '/search/mp?kw=abnormal phy*&fq=top_level_mp_term:*">abnormal phy*</a>'
 		+ '- can look for phenotypes that contain abnormal phenotype or abnormal physiology.<br>'
 		+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.'
 		+ '</p>';
@@ -248,7 +248,7 @@ $(document).ready(function () {
 
             // default to send query to Solr in quotes !!!
 
-			var href = baseUrl + '/searchoverview/' + facet  + '?' + "kw=\"" + q + "\"";
+			var href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"";
 			if (q.match(/(MGI:|MP:|MA:|EMAP:|EMAPA:|HP:|OMIM:|ORPHANET:|DECIPHER:)\d+/i)) {
 				href += "&fq=" + facet2Fq[facet];
 			}
@@ -328,23 +328,18 @@ $('input#s').keyup(function (e) {
 
 		// check for current datatype (tab) and use this as default core
 		// instead of figuring this out for the user
-        var paths = window.location.pathname.split("/");
-        var lastInPath = paths[paths.length - 1];
-        var facet = lastInPath == "searchoverview" ? null : lastInPath;
+		var facet = null;
 
-        var currBaseUrl = facet != null ?
-        baseUrl + '/searchoverview/' + facet + '?' : baseUrl + '/searchoverview?';
-
-		//if ($('ul.tabLabel').size() > 0) {
+		if ($('ul.tabLabel').size() > 0) {
 			// is on search page
-			// $('ul.tabLabel li').each(function () {
-			// 	if ($(this).hasClass('currDataType')) {
-			// 		facet = $(this).attr('id').replace("T", "");
-			// 	}
-			// });
+			$('ul.tabLabel li').each(function () {
+				if ($(this).hasClass('currDataType')) {
+					facet = $(this).attr('id').replace("T", "");
+				}
+			});
 
 			if (input == '') {
-                document.location.href = currBaseUrl + 'kw=*';
+				document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
 			}
 			else if (input.match(/HP\\\%3A\d+/i)) {
 				// work out the mapped mp_id and fire off the query
@@ -357,47 +352,45 @@ $('input#s').keyup(function (e) {
 				var mpTerm = '"' + matched[1] + '"';
 				var fqStr = $.fn.getCurrentFq('mp');
 
-                document.location.href = currBaseUrl + 'kw=' + mpTerm + '&fq=' + fqStr;
+				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
 			}
 			else {
 			    if ( window.location.search == ""){
 			        // when url lookes like .../search at end
                     // need to figure out the default datatype tab
-                    document.location.href = currBaseUrl + 'kw="' + input + '"';
-
-                    // $.ajax({
-                    //     url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
-                    //     type: 'get',
-                    //     success: function (defaultCore) {
-                    //         document.location.href = baseUrl + '/searchoverview?kw="' + input + '"';
-                    //     }
-                    // });
+                    $.ajax({
+                        url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+                        type: 'get',
+                        success: function (defaultCore) {
+                            document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+                        }
+                    });
                 }
                 else {
                     // default to search by quotes
                     var fqStr = $.fn.fetchUrlParams("fq");
                     if (fqStr != undefined) {
-                        document.location.href = currBaseUrl + 'kw="' + input + '"&fq=' + fqStr;
+                        document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
                     }
                     else {
-                        document.location.href = currBaseUrl + 'kw="' + input + '"';
+                        document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
                     }
                 }
 			}
 
-		//}
-		// else {
-         //    document.location.href = baseUrl + '/searchoverview?kw="' + input + '"';
-		// 	// is on non-search page
-		// 	// user typed something and hit ENTER: need to figure out default core to load on search page
-		// 	// $.ajax({
-		// 	// 	url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
-		// 	// 	type: 'get',
-		// 	// 	success: function (defaultCore) {
-		// 	// 		document.location.href = baseUrl + '/searchoverview/' + defaultCore + '?kw="' + input + '"';
-		// 	// 	}
-		// 	// });
-		// }
+		}
+		else {
+
+			// is on non-search page
+			// user typed something and hit ENTER: need to figure out default core to load on search page
+			$.ajax({
+				url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+				type: 'get',
+				success: function (defaultCore) {
+					document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+				}
+			});
+		}
 	}
 });
 
@@ -416,7 +409,7 @@ function _convertHp2MpAndSearch(input, facet){
 		async: false,
 		success: function( json ) {
 				var mpid = json.response.docs[0].hpmp_id;
-				document.location.href = baseUrl + '/searchoverview/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
+				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
 		}
 	});
 }
@@ -441,7 +434,7 @@ function _convertInputForSearch(input){
 				}
 			}
 
-			document.location.href = baseUrl + '/searchoverview/' + facet + '?kw=' + q;
+			document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
 		}
 	});
 }

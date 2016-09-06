@@ -327,8 +327,8 @@
         <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
    		<c:choose>
             <c:when test="${param['bare'] == null}">
-        		<%--<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script>--%>
-                <script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBoxOverview.js?v=${version}"></script>
+        		<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script>
+                <%--<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBoxOverview.js?v=${version}"></script>--%>
             </c:when>
 	    </c:choose>
 

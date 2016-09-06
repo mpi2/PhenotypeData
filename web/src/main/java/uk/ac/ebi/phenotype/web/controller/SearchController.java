@@ -17,10 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,6 +30,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -105,7 +104,7 @@ public class SearchController {
      *
      */
 
-    @RequestMapping("/searchoverview")
+    @RequestMapping("/search")
     public String searchResult(
             @RequestParam(value = "kw", required = false, defaultValue = "*") String query,
             HttpServletRequest request,
@@ -165,6 +164,8 @@ public class SearchController {
 					doc = response.getResults().get(0);
 					System.out.println(thisCore + ": one doc");
 					System.out.println(doc.toString());
+
+                    doc = highlightMatches(doc, query, thisCore);
 				}
 				else {
 					System.out.println(thisCore + ": no doc");
@@ -181,10 +182,10 @@ public class SearchController {
 		model.addAttribute("coreData", coreData);
         model.addAttribute("params", paramString);
 
-		return "searchoverview";
+		return "search";
 	}
 
-	@RequestMapping("/searchoverview/{dataType}")
+	@RequestMapping("/search/{dataType}")
 	public String searchOverviewResult(
 			@PathVariable ()String dataType,
 			@RequestParam(value = "kw", required = false, defaultValue = "*") String query,
@@ -222,7 +223,85 @@ public class SearchController {
 	}
 
 
+    private SolrDocument highlightMatches(SolrDocument doc, String query, String coreName){
+        String lcQuery = query.toLowerCase().replaceAll("\"", "");
 
+        try {
+            if (coreName.equals("gene")) {
+                String markerName = doc.getFieldValue(GeneDTO.MARKER_NAME).toString();
+                if (markerName.toLowerCase().contains(lcQuery)) {
+                    String mnMatch = Tools.highlightMatchedStrIfFound(lcQuery, markerName, "span", "subMatch");
+                    doc.setField(MpDTO.MARKER_NAME, mnMatch);
+                }
+
+                for (String hs : (List<String>) doc.getFieldValue(GeneDTO.HUMAN_GENE_SYMBOL)) {
+                    if (hs.toLowerCase().contains(lcQuery)) {
+                        String synMatch = Tools.highlightMatchedStrIfFound(lcQuery, hs, "span", "subMatch");
+                        List<String> synMatches = new ArrayList<>();
+                        synMatches.add(synMatch);
+                        doc.setField(GeneDTO.HUMAN_GENE_SYMBOL, synMatches);
+                    }
+                }
+                for (String syn : (List<String>) doc.getFieldValue(GeneDTO.MARKER_SYNONYM)) {
+                    if (syn.toLowerCase().contains(lcQuery)) {
+
+                        String synMatch = Tools.highlightMatchedStrIfFound(lcQuery, syn, "span", "subMatch");
+                        List<String> synMatches = new ArrayList<>();
+                        synMatches.add(synMatch);
+                        doc.setField(GeneDTO.MARKER_SYNONYM, synMatches);
+                    }
+                }
+            } else if (coreName.equals("mp")) {
+                String def = doc.getFieldValue(MpDTO.MP_DEFINITION).toString();
+                if (def.toLowerCase().contains(lcQuery)) {
+
+                    String defMatch = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(lcQuery, def, "span", "subMatch") + "</div>";
+
+                    int defaultLen = 30;
+
+                    if (def.length() > defaultLen) {
+
+                        String trimmedDef = def.substring(0, defaultLen);
+                        // retrim if in the middle of a word
+                        trimmedDef = trimmedDef.substring(0, Math.min(trimmedDef.length(), trimmedDef.lastIndexOf(" ")));
+
+                        String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(lcQuery, trimmedDef, "span", "subMatch") + " ...</div>";
+                        doc.setField(MpDTO.MP_DEFINITION, partMpDef + defMatch + "<div class='moreLess'>Show more</div>");
+                    }
+                    else {
+                        doc.setField(MpDTO.MP_DEFINITION, defMatch);
+                    }
+                }
+
+                String synMatch = null;
+                for (String syn : (List<String>) doc.getFieldValue(MpDTO.MP_TERM_SYNONYM)) {
+                    if (syn.toLowerCase().contains(lcQuery)) {
+                        synMatch = Tools.highlightMatchedStrIfFound(lcQuery, syn, "span", "subMatch");
+                        List<String> synMatches = new ArrayList<>();
+                        synMatches.add(synMatch);
+                        doc.setField(MpDTO.MP_TERM_SYNONYM, synMatches);
+                        break;
+                    }
+                }
+                if (synMatch == null) {
+                    for (String syn : (List<String>) doc.getFieldValue(MpDTO.MP_NARROW_SYNONYM)) {
+                        if (syn.toLowerCase().contains(lcQuery)) {
+                            synMatch = Tools.highlightMatchedStrIfFound(lcQuery, syn, "span", "subMatch");
+                            List<String> synMatches = new ArrayList<>();
+                            synMatches.add(synMatch);
+                            doc.setField(MpDTO.MP_TERM_SYNONYM, synMatches);
+                            break;
+                        }
+                    }
+                }
+
+            }
+        }
+        catch (Exception e){
+            System.out.println("Error: "+e.getStackTrace());
+        }
+        return doc;
+    }
 
 
     /**
@@ -230,34 +309,34 @@ public class SearchController {
 	 *
 	 */
 
-	@RequestMapping("/search")
-	public String searchResult2(
-			HttpServletRequest request,
-			Model model) throws IOException, URISyntaxException {
-
-	//	System.out.println("path: /search");
-
-		return processSearch("gene", "*", null, null, null, false, request, model);
-	}
-
-	@RequestMapping("/search/{dataType}")
-	public String searchResult(
-			@PathVariable ()String dataType,
-			@RequestParam(value = "kw", required = false, defaultValue = "*") String query,
-			@RequestParam(value = "fq", required = false) String fqStr,
-			@RequestParam(value = "iDisplayStart", required = false) Integer iDisplayStart,
-			@RequestParam(value = "iDisplayLength", required = false) Integer iDisplayLength,
-			@RequestParam(value = "showImgView", required = false) boolean showImgView,
-			HttpServletRequest request,
-			Model model) throws IOException, URISyntaxException {
-
-//		System.out.println("path: /search/" + dataType);
-		if ( query.equals("*") ){
-			query = "*:*";
-		}
-
-		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
-	}
+//	@RequestMapping("/search")
+//	public String searchResult2(
+//			HttpServletRequest request,
+//			Model model) throws IOException, URISyntaxException {
+//
+//	//	System.out.println("path: /search");
+//
+//		return processSearch("gene", "*", null, null, null, false, request, model);
+//	}
+//
+//	@RequestMapping("/search/{dataType}")
+//	public String searchResult(
+//			@PathVariable ()String dataType,
+//			@RequestParam(value = "kw", required = false, defaultValue = "*") String query,
+//			@RequestParam(value = "fq", required = false) String fqStr,
+//			@RequestParam(value = "iDisplayStart", required = false) Integer iDisplayStart,
+//			@RequestParam(value = "iDisplayLength", required = false) Integer iDisplayLength,
+//			@RequestParam(value = "showImgView", required = false) boolean showImgView,
+//			HttpServletRequest request,
+//			Model model) throws IOException, URISyntaxException {
+//
+////		System.out.println("path: /search/" + dataType);
+//		if ( query.equals("*") ){
+//			query = "*:*";
+//		}
+//
+//		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
+//	}
 
 	private String processSearch(String dataType, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 		iDisplayStart =  iDisplayStart == null ? 0 : iDisplayStart;

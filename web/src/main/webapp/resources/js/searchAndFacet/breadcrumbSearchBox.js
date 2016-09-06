@@ -328,18 +328,23 @@ $('input#s').keyup(function (e) {
 
 		// check for current datatype (tab) and use this as default core
 		// instead of figuring this out for the user
-		var facet = null;
+        var paths = window.location.pathname.split("/");
+        var lastInPath = paths[paths.length - 1];
+        var facet = lastInPath == "search" ? null : lastInPath;
 
-		if ($('ul.tabLabel').size() > 0) {
+        var currBaseUrl = facet != null ?
+        baseUrl + '/search/' + facet + '?' : baseUrl + '/search?';
+
+		//if ($('ul.tabLabel').size() > 0) {
 			// is on search page
-			$('ul.tabLabel li').each(function () {
-				if ($(this).hasClass('currDataType')) {
-					facet = $(this).attr('id').replace("T", "");
-				}
-			});
+			// $('ul.tabLabel li').each(function () {
+			// 	if ($(this).hasClass('currDataType')) {
+			// 		facet = $(this).attr('id').replace("T", "");
+			// 	}
+			// });
 
 			if (input == '') {
-				document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
+                document.location.href = currBaseUrl + 'kw=*';
 			}
 			else if (input.match(/HP\\\%3A\d+/i)) {
 				// work out the mapped mp_id and fire off the query
@@ -352,45 +357,47 @@ $('input#s').keyup(function (e) {
 				var mpTerm = '"' + matched[1] + '"';
 				var fqStr = $.fn.getCurrentFq('mp');
 
-				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
+                document.location.href = currBaseUrl + 'kw=' + mpTerm + '&fq=' + fqStr;
 			}
 			else {
 			    if ( window.location.search == ""){
 			        // when url lookes like .../search at end
                     // need to figure out the default datatype tab
-                    $.ajax({
-                        url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
-                        type: 'get',
-                        success: function (defaultCore) {
-                            document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
-                        }
-                    });
+                    document.location.href = currBaseUrl + 'kw="' + input + '"';
+
+                    // $.ajax({
+                    //     url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+                    //     type: 'get',
+                    //     success: function (defaultCore) {
+                    //         document.location.href = baseUrl + '/search?kw="' + input + '"';
+                    //     }
+                    // });
                 }
                 else {
                     // default to search by quotes
                     var fqStr = $.fn.fetchUrlParams("fq");
                     if (fqStr != undefined) {
-                        document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
+                        document.location.href = currBaseUrl + 'kw="' + input + '"&fq=' + fqStr;
                     }
                     else {
-                        document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
+                        document.location.href = currBaseUrl + 'kw="' + input + '"';
                     }
                 }
 			}
 
-		}
-		else {
-
-			// is on non-search page
-			// user typed something and hit ENTER: need to figure out default core to load on search page
-			$.ajax({
-				url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
-				type: 'get',
-				success: function (defaultCore) {
-					document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
-				}
-			});
-		}
+		//}
+		// else {
+         //    document.location.href = baseUrl + '/search?kw="' + input + '"';
+		// 	// is on non-search page
+		// 	// user typed something and hit ENTER: need to figure out default core to load on search page
+		// 	// $.ajax({
+		// 	// 	url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+		// 	// 	type: 'get',
+		// 	// 	success: function (defaultCore) {
+		// 	// 		document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+		// 	// 	}
+		// 	// });
+		// }
 	}
 });
 
