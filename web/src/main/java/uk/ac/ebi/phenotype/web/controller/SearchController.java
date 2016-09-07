@@ -30,7 +30,9 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -149,26 +151,18 @@ public class SearchController {
 		for ( String thisCore : solrCoreMap.keySet() ){
 
 			SolrQuery solrParams = composeSolrJParamStr(query, fqStr, thisCore, doFacet);
-			System.out.println("param: " + solrParams.toString());
+			//System.out.println("param: " + solrParams.toString());
 
 			QueryResponse response = null;
 			try {
 				response = solrCoreMap.get(thisCore).query(solrParams);
-				System.out.println("check: " + solrCoreMap.get(thisCore).query(solrParams));
 				Integer docCount = (int) (long) response.getResults().getNumFound();
-				System.out.println(thisCore + " num found: "+ docCount);
 				coreCount.put(thisCore, docCount);
 				//coreData.put(thisCore, response.getResults());
 				SolrDocument doc = null;
 				if ( docCount != 0 ) {
 					doc = response.getResults().get(0);
-					System.out.println(thisCore + ": one doc");
-					System.out.println(doc.toString());
-
                     doc = highlightMatches(doc, query, thisCore);
-				}
-				else {
-					System.out.println(thisCore + ": no doc");
 				}
 				coreData.put(thisCore, doc);
 				//System.out.println("doc: " + doc.toString());
@@ -177,7 +171,6 @@ public class SearchController {
 			}
 		}
 
-		System.out.println(coreData.toString());
 		model.addAttribute("coreCount", coreCount);
 		model.addAttribute("coreData", coreData);
         model.addAttribute("params", paramString);
@@ -226,83 +219,98 @@ public class SearchController {
     private SolrDocument highlightMatches(SolrDocument doc, String query, String coreName){
         String lcQuery = query.toLowerCase().replaceAll("\"", "");
 
-        try {
-            if (coreName.equals("gene")) {
-                String markerName = doc.getFieldValue(GeneDTO.MARKER_NAME).toString();
-                if (markerName.toLowerCase().contains(lcQuery)) {
-                    String mnMatch = Tools.highlightMatchedStrIfFound(lcQuery, markerName, "span", "subMatch");
-                    doc.setField(MpDTO.MARKER_NAME, mnMatch);
-                }
+        if (coreName.equals("gene")) {
+            doc = getMatchStr(doc, GeneDTO.MARKER_NAME, lcQuery, false);
 
-                for (String hs : (List<String>) doc.getFieldValue(GeneDTO.HUMAN_GENE_SYMBOL)) {
-                    if (hs.toLowerCase().contains(lcQuery)) {
-                        String synMatch = Tools.highlightMatchedStrIfFound(lcQuery, hs, "span", "subMatch");
-                        List<String> synMatches = new ArrayList<>();
-                        synMatches.add(synMatch);
-                        doc.setField(GeneDTO.HUMAN_GENE_SYMBOL, synMatches);
-                    }
-                }
-                for (String syn : (List<String>) doc.getFieldValue(GeneDTO.MARKER_SYNONYM)) {
-                    if (syn.toLowerCase().contains(lcQuery)) {
-
-                        String synMatch = Tools.highlightMatchedStrIfFound(lcQuery, syn, "span", "subMatch");
-                        List<String> synMatches = new ArrayList<>();
-                        synMatches.add(synMatch);
-                        doc.setField(GeneDTO.MARKER_SYNONYM, synMatches);
-                    }
-                }
-            } else if (coreName.equals("mp")) {
-                String def = doc.getFieldValue(MpDTO.MP_DEFINITION).toString();
-                if (def.toLowerCase().contains(lcQuery)) {
-
-                    String defMatch = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(lcQuery, def, "span", "subMatch") + "</div>";
-
-                    int defaultLen = 30;
-
-                    if (def.length() > defaultLen) {
-
-                        String trimmedDef = def.substring(0, defaultLen);
-                        // retrim if in the middle of a word
-                        trimmedDef = trimmedDef.substring(0, Math.min(trimmedDef.length(), trimmedDef.lastIndexOf(" ")));
-
-                        String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(lcQuery, trimmedDef, "span", "subMatch") + " ...</div>";
-                        doc.setField(MpDTO.MP_DEFINITION, partMpDef + defMatch + "<div class='moreLess'>Show more</div>");
-                    }
-                    else {
-                        doc.setField(MpDTO.MP_DEFINITION, defMatch);
-                    }
-                }
-
-                String synMatch = null;
-                for (String syn : (List<String>) doc.getFieldValue(MpDTO.MP_TERM_SYNONYM)) {
-                    if (syn.toLowerCase().contains(lcQuery)) {
-                        synMatch = Tools.highlightMatchedStrIfFound(lcQuery, syn, "span", "subMatch");
-                        List<String> synMatches = new ArrayList<>();
-                        synMatches.add(synMatch);
-                        doc.setField(MpDTO.MP_TERM_SYNONYM, synMatches);
-                        break;
-                    }
-                }
-                if (synMatch == null) {
-                    for (String syn : (List<String>) doc.getFieldValue(MpDTO.MP_NARROW_SYNONYM)) {
-                        if (syn.toLowerCase().contains(lcQuery)) {
-                            synMatch = Tools.highlightMatchedStrIfFound(lcQuery, syn, "span", "subMatch");
-                            List<String> synMatches = new ArrayList<>();
-                            synMatches.add(synMatch);
-                            doc.setField(MpDTO.MP_TERM_SYNONYM, synMatches);
-                            break;
-                        }
-                    }
-                }
-
+            List<String> fields = Arrays.asList(GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.MARKER_SYNONYM);
+            for(String field : fields){
+                doc = getMatchStr(doc, field, lcQuery, true);
             }
         }
-        catch (Exception e){
-            System.out.println("Error: "+e.getStackTrace());
+        else if (coreName.equals("mp")) {
+            List<String> fields = Arrays.asList(MpDTO.MP_TERM_SYNONYM, MpDTO.MP_NARROW_SYNONYM);
+            for(String field : fields){
+                doc = getMatchStr(doc, field, lcQuery, true);
+            }
+
+            String def = doc.getFieldValue(MpDTO.MP_DEFINITION).toString();
+            if (def.toLowerCase().contains(lcQuery)) {
+
+                String defMatch = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(lcQuery, def, "span", "subMatch") + "</div>";
+
+                int defaultLen = 30;
+
+                if (def.length() > defaultLen) {
+
+                    String trimmedDef = def.substring(0, defaultLen);
+                    // retrim if in the middle of a word
+                    trimmedDef = trimmedDef.substring(0, Math.min(trimmedDef.length(), trimmedDef.lastIndexOf(" ")));
+
+                    String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(lcQuery, trimmedDef, "span", "subMatch") + " ...</div>";
+                    doc.setField(MpDTO.MP_DEFINITION, partMpDef + defMatch + "<div class='moreLess'>Show more</div>");
+                }
+                else {
+                    doc.setField(MpDTO.MP_DEFINITION, defMatch);
+                }
+            }
+
         }
+        else if (coreName.equals("anatomy")){
+            doc = getMatchStr(doc, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, lcQuery, false);
+        }
+        else if (coreName.equals("impc_images")) {
+            List<String> fields = Arrays.asList(ImageDTO.PROCEDURE_NAME, ImageDTO.GENE_SYMBOL);
+            for(String field : fields){
+                doc = getMatchStr(doc, field, lcQuery, false);
+            }
+            List<String> fields2 = Arrays.asList(ImageDTO.ANATOMY_TERM, ImageDTO.MARKER_SYNONYM, ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, ImageDTO.INTERMEDIATE_ANATOMY_TERM);
+            for(String field : fields2){
+                doc = getMatchStr(doc, field, lcQuery, true);
+            }
+        }
+
+
         return doc;
     }
 
+    private SolrDocument getMatchStr(SolrDocument doc, String fieldName, String lcQuery, Boolean isList){
+        try {
+            String fieldVal = null;
+
+            if (isList){
+                //System.out.println(fieldName + " : " + doc.getFieldValue(fieldName));
+                for (String fv : (List<String>) doc.getFieldValue(fieldName)) {
+                    if (fv.toLowerCase().contains(lcQuery)) {
+                        fieldVal = fv;
+                        break;
+                    }
+                }
+            }
+            else {
+                if (doc.getFieldValue(fieldName).toString().toLowerCase().contains(lcQuery)) {
+                    fieldVal = doc.getFieldValue(fieldName).toString();
+                }
+            }
+
+            if (fieldVal != null) {
+                //System.out.println(fieldName + " GOT VAL: " + fieldVal);
+                String fieldValMatch = Tools.highlightMatchedStrIfFound(lcQuery, fieldVal, "span", "subMatch");
+                if (isList) {
+                    List<String> matches = new ArrayList<>();
+                    matches.add(fieldValMatch);
+                    doc.setField(fieldName, matches);
+                } else {
+                    //System.out.println("MATCH: " + fieldValMatch);
+                    doc.setField(fieldName, fieldValMatch);
+                }
+            }
+        }
+        catch (Exception e){
+            System.out.println(fieldName + ": Error: " + e.getStackTrace());
+        }
+
+        return doc;
+    }
 
     /**
 	 * search page

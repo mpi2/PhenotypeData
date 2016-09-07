@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <t:genericpage>
 
@@ -62,8 +63,7 @@
 
     <jsp:body>
 
-     <%--${data}--%>
-        <%--<div style="clear: both"></div>--%>
+        <c:set var="subMatch" value="subMatch"/>
         <div id="overview">
 
             <table class="out">
@@ -91,8 +91,16 @@
                                 <c:if test="${not empty coreData.mp.mp_definition}">
                                     <li><span class="label">definition</span>: ${coreData.mp.mp_definition}</li>
                                 </c:if>
-                                <c:if test="${not empty coreData.mp.mp_term_synonym}">
+                                <c:if test="${not empty coreData.mp.mp_term_synonym[0] && coreData.mp.mp_term_synonym[0].contains(subMatch)}">
                                     <li><span class="label">synonym</span>: ${coreData.mp.mp_term_synonym[0]}</li>
+                                </c:if>
+
+                                <c:if test="${(not empty coreData.mp.mp_term_synonym[0]
+                                    && ! coreData.mp.mp_term_synonym[0].contains(subMatch))
+                                    || empty coreData.mp.mp_term_synonym[0]}">
+                                    <c:if test="${not empty coreData.mp.mp_narrow_synonym[0] && coreData.mp.mp_narrow_synonym[0].contains(subMatch)}">
+                                        <li><span class="label">synonym</span>: ${coreData.mp.mp_narrow_synonym[0]}</li>
+                                    </c:if>
                                 </c:if>
                             </td>
                         </table>
@@ -129,12 +137,31 @@
                         <table class="in"><td class="in dtypeBdr"><span class="dtype"><a href="${baseUrl}/search/impc_images?${params}">Images<br><span class="coreCount">(${coreCount.impc_images})</span></a><p><p><img src="${baseUrl}/img/image.png"/></span></td>
                             <td class="in2"><c:if test="${not empty coreData.impc_images.procedure_name}">
                                 <li><span class="label">procedure name</span>: ${coreData.impc_images.procedure_name}</li>
-                            </c:if>
+                                </c:if>
                                 <c:if test="${not empty coreData.impc_images.gene_symbol}">
-                                    <li><span class="label">gene</span>: <a href="${baseUrl}/genes/${coreData.impc_images.gene_accession_id}">${coreData.impc_images.gene_symbol}</a></li>
+                                    <li><span class="label">gene</span>: <a href="${baseUrl}/genes/${coreData.impc_images.gene_accession_id}">${coreData.impc_images.gene_symbol}</a>
+                                        <%--<c:if test="${not empty coreData.impc_images.marker_synonym} && ${fn:containsIgnoreCase(coreData.impc_images.marker_synonym[0], \"subMatch\")}">--%>
+
+                                        <c:if test="${not empty coreData.impc_images.marker_synonym[0] && coreData.impc_images.marker_synonym[0].contains(subMatch)}">
+                                            (${coreData.impc_images.marker_synonym[0]})
+                                        </c:if>
+                                    </li>
                                 </c:if>
                                 <c:if test="${not empty coreData.impc_images.anatomy_id}">
-                                    <li><span class="label">anatomy</span>: <a href="${baseUrl}/anatomy/${coreData.impc_images.anatomy_id[0]}">${coreData.impc_images.anatomy_term[0]}</a</li>
+                                    <li><span class="label">anatomy</span>: <a href="${baseUrl}/anatomy/${coreData.impc_images.anatomy_id[0]}">${coreData.impc_images.anatomy_term[0]}</a>
+                                        <c:if test="${not empty coreData.impc_images.selected_top_level_anatomy_term[0]
+                                            && coreData.impc_images.selected_top_level_anatomy_term[0].contains(subMatch)}">
+                                            (${coreData.impc_images.selected_top_level_anatomy_term[0]})
+                                        </c:if>
+                                        <c:if test="${(not empty coreData.impc_images.selected_top_level_anatomy_term[0]
+                                            && ! coreData.impc_images.selected_top_level_anatomy_term[0].contains(subMatch))
+                                            || empty coreData.impc_images.selected_top_level_anatomy_term[0]}">
+                                            <c:if test="${not empty coreData.impc_images.intermediate_anatomy_term[0]
+                                                && coreData.impc_images.intermediate_anatomy_term[0].contains(subMatch)}">
+                                                (${coreData.impc_images.intermediate_anatomy_term[0]})
+                                            </c:if>
+                                        </c:if>
+                                    </li>
                                 </c:if>
                                 <c:if test="${not empty coreData.impc_images.jpeg_url}">
                                     <li><span class="label">image</span>: <a href="${coreData.impc_images.download_url}"><img src="{coreData.impc_images.jpeg_url}"/></a></li>
@@ -179,6 +206,9 @@
                     var count = $(this).text().replace(/\(|\)/g, "");
                     if ( count == 0 ){
                         $(this).parent().css("cursor", "not-allowed");
+                        $(this).parent().click(function(e){
+                            return false;
+                        });
                     }
                 });
 
