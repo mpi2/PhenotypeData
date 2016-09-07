@@ -1,34 +1,5 @@
 $(document).ready(function(){						
-	
-	
-	
-//	var viewport = $.WeblitzViewport($("#viewport"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
-//        'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
-//    });
-//    /* Load the selected image into the viewport */
-//    viewport.load(87269);
-//
-//
-//    // Alternative for testing non-big image viewer
-//    // viewport = $.WeblitzViewport($("#viewport"), "https://learning.openmicroscopy.org/dundee/webgateway/", {
-//    //         'mediaroot': "https://learning.openmicroscopy.org/dundee/static/"
-//    //     });
-//    // viewport.load(1296);
-//
-//
-//    /* Prepare right viewport */
-//    var viewport2 = $.WeblitzViewport($("#viewport2"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
-//        'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
-//    });
-//    /* Load the selected image into the viewport */
-//    viewport2.load(87043);
-	
-	
-	
-	
-	
-	
-	
+		
 	var previousControlId;
 	var previousMutantId;
 
@@ -138,7 +109,7 @@ $(document).ready(function(){
     
   $("#overlap").click(function() {
 	  console.log('calling overlap');
-	  window.open(baseUrl+'/overlap?id1='+id+'&id2='+id2, 'Overlap');
+	  window.open(baseUrl+'/overlap?acc='+acc+'&id1='+id+'&id2='+id2, 'Overlap');
 	  //need to change the classes for the two images to overlap them and add the js to move the top one around.
 	  //change mutant_box to the resizable class
 //	  $('#mutant_box').toggleClass('half_box_right resizable');
