@@ -62,6 +62,7 @@ $(document).ready(function(){
 		
         $('#'+this.id).toggleClass( "img_selected");
 		previousControlId=this.id;
+		id=this.id;
 		$('#control_annotation').text($(this).attr('oldtitle'));
     });
 
@@ -84,6 +85,7 @@ $(document).ready(function(){
 	  }
   	  $('#'+this.id).toggleClass( "img_selected");
   	  previousMutantId=this.id;
+  	  id2=this.id;
   	  //change the text under the main image to be the same as the title
   	  $('#mutant_annotation').text($(this).attr('oldtitle'));
   	//viewport2.initialise();
