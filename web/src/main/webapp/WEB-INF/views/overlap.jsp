@@ -47,7 +47,7 @@
 
 <jsp:attribute name="addToFooter">
 	<%-- <script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script> --%>
-	<script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
+	<script type='text/javascript' src="${baseUrl}/js/comparator/overlap.js?v=${version}"></script>
 	
 	 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
   
@@ -112,6 +112,7 @@
 </jsp:attribute>
 <jsp:body>
 
+	            
 <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
 		        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
 		        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
@@ -124,9 +125,9 @@
         	<div class="section" >
         		
 				<div class="inner">
-					<p>
+					
 						<div id="reset" class="btn">Reset</div>
-					</p>
+					
 				
 				
 					<div id="overlap_container" class="ui-widget-content">
@@ -142,5 +143,12 @@
 		</div>
 	</div>
 </div>
+<script type='text/javascript'>
+	var jpegUrlDetailWithoutId = "${jpegUrlDetailWithoutId}";
+	var pdfWithoutId = "${pdfWithoutId}";
+	var googlePdf="//docs.google.com/gview?url=replace&embedded=true";
+	var omeroStaticUrl="${omeroStaticUrl}";
+	var acc="${gene.mgiAccessionId}";
+	</script>
 </jsp:body>
 </t:genericpage>
