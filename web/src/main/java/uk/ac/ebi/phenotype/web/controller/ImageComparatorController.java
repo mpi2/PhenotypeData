@@ -127,7 +127,9 @@ public class ImageComparatorController {
 	}
 	
 	@RequestMapping("/overlap")
-	public String overlap(@RequestParam String id1, @RequestParam String id2, Model model){
+	public String overlap(@RequestParam String acc,@RequestParam String id1, @RequestParam String id2, Model model) throws SolrServerException, IOException{
+		
+		this.addGeneToPage(acc, model);
 		return "overlap";
 	}
 	

@@ -424,6 +424,7 @@
 	var pdfWithoutId = "${pdfWithoutId}";
 	var googlePdf="//docs.google.com/gview?url=replace&embedded=true";
 	var omeroStaticUrl="${omeroStaticUrl}";
+	var acc="${gene.mgiAccessionId}";
 	</script>
 
 </jsp:body>
