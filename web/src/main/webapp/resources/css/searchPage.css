@@ -397,7 +397,8 @@ div.searchcontent {
 	float: left;
 	width: 94%;
 	background-color: #0978A1;
-	padding: 10px 14px 10px 10px;
+	/*padding: 10px 14px 10px 10px;*/
+    padding: 5px 9px 5px 5px;
 	margin: 0 30px 0 0px;
 
 }
@@ -407,10 +408,10 @@ div.searchcontent {
 	padding: 0;
 	margin: 0;
 }
-#bigsearchbox i#sicon { position: absolute; top: 14px;}
+#bigsearchbox i#sicon { position: absolute; top: 8px;}
 #bigsearchbox i#clearIcon {
 	position: absolute;
-	top: 27px;
+	top: 23px;
 	right: 4em;
 }
 i.searchExample {

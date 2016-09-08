@@ -332,6 +332,10 @@ $('input#s').keyup(function (e) {
         var lastInPath = paths[paths.length - 1];
         var facet = lastInPath == "search" ? null : lastInPath;
 
+        if (lastInPath != "gene" || lastInPath != "mp" || lastInPath != "disease" || lastInPath != "anatomy" || lastInPath != "impc_images" || lastInPath != "allele2"){
+            facet = null;
+        }
+
         var currBaseUrl = facet != null ?
         baseUrl + '/search/' + facet + '?' : baseUrl + '/search?';
 
