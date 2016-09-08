@@ -369,7 +369,7 @@ public class MarkerLoader implements InitializingBean, Step {
     public class MarkerLoaderXrefGeneStepListener extends LogStatusStepListener {
         @Override
         protected Set<String> logStatus() {
-            logger.info("XREF GENE: Added {} new gene xrefs to map from file {} in {}.",
+            logger.info("XREF GENE: Added {} new gene, ensembl, entrez, and vega xrefs to map from file {} in {}.",
                     ((MarkerProcessorXrefGenes) markerProcessorXrefGenes).getXrefsAdded(),
                     markerKeys.get(FilenameKeys.XREFS_HGNC_homologene),
                     commonUtils.formatDateDifference(start, stop));
