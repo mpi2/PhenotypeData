@@ -1,36 +1,8 @@
 $(document).ready(function(){						
-	
-	
-	
-//	var viewport = $.WeblitzViewport($("#viewport"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
-//        'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
-//    });
-//    /* Load the selected image into the viewport */
-//    viewport.load(87269);
-//
-//
-//    // Alternative for testing non-big image viewer
-//    // viewport = $.WeblitzViewport($("#viewport"), "https://learning.openmicroscopy.org/dundee/webgateway/", {
-//    //         'mediaroot': "https://learning.openmicroscopy.org/dundee/static/"
-//    //     });
-//    // viewport.load(1296);
-//
-//
-//    /* Prepare right viewport */
-//    var viewport2 = $.WeblitzViewport($("#viewport2"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
-//        'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
-//    });
-//    /* Load the selected image into the viewport */
-//    viewport2.load(87043);
-	
-	
-	
-	
-	
-	
-	
+		
 	var previousControlId;
 	var previousMutantId;
+
 	var viewport = $.WeblitzViewport($("#viewport"), impcMediaBaseUrl, {
         'mediaroot': omeroStaticUrl
     });
@@ -90,6 +62,7 @@ $(document).ready(function(){
 		
         $('#'+this.id).toggleClass( "img_selected");
 		previousControlId=this.id;
+		id=this.id;
 		$('#control_annotation').text($(this).attr('oldtitle'));
     });
 
@@ -112,6 +85,7 @@ $(document).ready(function(){
 	  }
   	  $('#'+this.id).toggleClass( "img_selected");
   	  previousMutantId=this.id;
+  	  id2=this.id;
   	  //change the text under the main image to be the same as the title
   	  $('#mutant_annotation').text($(this).attr('oldtitle'));
   	//viewport2.initialise();
@@ -135,7 +109,26 @@ $(document).ready(function(){
 	  //$('#mutant_only_button').toggleAttr('value','full_frame');
 	});
     
-    
+  $("#overlap").click(function() {
+	  console.log('calling overlap');
+	  window.open(baseUrl+'/overlap?acc='+acc+'&id1='+id+'&id2='+id2, 'Overlap');
+	  //need to change the classes for the two images to overlap them and add the js to move the top one around.
+	  //change mutant_box to the resizable class
+//	  $('#mutant_box').toggleClass('half_box_right resizable');
+//	  $( "#resizable" ).draggable({ cursor: "crosshair"});
+//	    $("#resizable").resizable({
+//	        aspectRatio: true
+//	    });
+//	    
+//	    $("#reset").click(function () {
+//			  console.log('calling reset');
+//			    $("#resizable").animate({
+//			        top: "20px",
+//			        left: "20px"
+//			    });
+//			});
+	  
+  });
 console.log('comparator.js ready');
 
 
