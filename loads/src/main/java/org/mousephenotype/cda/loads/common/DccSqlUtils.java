@@ -14,15 +14,11 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.extract.dcc.support;
+package org.mousephenotype.cda.loads.common;
 
-import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Zygosity;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.slf4j.Logger;
@@ -43,7 +39,7 @@ import java.util.*;
 /**
  * Created by mrelac on 02/03/2016.
  */
-public class ExtractDccSqlUtils {
+public class DccSqlUtils {
 
     private       CommonUtils          commonUtils = new CommonUtils();
     private final Logger               logger      = LoggerFactory.getLogger(this.getClass());
@@ -52,7 +48,7 @@ public class ExtractDccSqlUtils {
 
 
     @Inject
-    public ExtractDccSqlUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
+    public DccSqlUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
         Assert.notNull(npJdbcTemplate, "Named parameter npJdbcTemplate cannot be null");
         this.npJdbcTemplate = npJdbcTemplate;
         loadUtils = new LoadUtils(npJdbcTemplate);
@@ -415,36 +411,29 @@ public class ExtractDccSqlUtils {
     }
 
     /**
-     * Looks for the {@code specimen} for the given specimenId and centerId.
-     * Retuns the {@link Specimen} instance if found; null otherwise.
+     * Returns all specimens from the specimen table.
      *
-     * @param specimenId The specimen id
-     * @param centerId   The center id
-     * @return The <code>Specimen</code> instance if found; null otherwise.
-     * <p/>
-     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
+     * @return The {@link List} of {@link Specimen} instances
      */
-    public Specimen getSpecimen(String specimenId, String centerId) {
-        Specimen specimen = null;
+    public List<Specimen> getSpecimens() {
+        // The Specimen class is abstract. Instances are of either Mouse or Embryo. Select info for both. The RowMapper
+        // will return a Specimen of type Mouse or Embryo with all mouse or embryo table columns filled out.
         final String query =
-                "SELECT s.*, sc.value AS status\n" +
+                "SELECT\n" +
+                "  s.*\n" +
+                ", CASE WHEN m.DOB IS NULL THEN 0 ELSE 1 END AS is_mouse\n" +
+                ", e.stage\n" +
+                ", e.stageUnit\n" +
+                ", m.DOB\n" +
                 "FROM specimen s\n" +
-                "JOIN            center_specimen cs ON cs.specimen_pk =  s .pk\n" +
-                "JOIN            center          c  ON c .pk          =  cs.center_pk\n" +
-                "LEFT OUTER JOIN statuscode      sc ON sc.pk          =  s .statuscode_pk\n" +
-                "WHERE s.specimenId = :specimenId AND c.centerId = :centerId";
+                "LEFT OUTER JOIN mouse m ON m.specimen_pk = s.pk\n" +
+                "LEFT OUTER JOIN embryo e on e.specimen_pk = s.pk";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("specimenId", specimenId);
-        parameterMap.put("centerId", centerId);
 
         List<Specimen> specimens = npJdbcTemplate.query(query, parameterMap, new SpecimenRowMapper());
-        if ( ! specimens.isEmpty()) {
-            specimen = specimens.get(0);
-            specimen.setStatusCode(selectOrInsertStatuscode(specimen.getStatusCode()));
-        }
 
-        return specimen;
+        return specimens;
     }
 
     /**
@@ -1407,6 +1396,8 @@ public class ExtractDccSqlUtils {
                 long specimenPk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
                 specimen.setHjid(specimenPk);
             }
+        } catch (DuplicateKeyException e ) {
+
         } catch (Exception e) {
             throw new DataImportException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
         }
@@ -1822,13 +1813,33 @@ public class ExtractDccSqlUtils {
         }
     }
 
+    /**
+     * {@link Specimen} is an abstract class from which {@link Mouse} and {@link Embryo} are derived. This RowMapper
+     * creates either a {@link Mouse} or a {@link Embryo}, returning it as the generic {@link Specimen}.
+     */
     public class SpecimenRowMapper implements RowMapper<Specimen> {
 
         @Override
         public Specimen mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Specimen specimen = new SpecimenCda();
+            Specimen specimen;
 
-            specimen.setHjid(rs.getLong("s.pk"));
+            // Create the correct Specimen type and load the Mouse- or Embryo-specific data.
+            boolean isMouse = (rs.getInt("is_mouse") == 1 ? true : false);
+            if (isMouse) {
+                Mouse mouse = new Mouse();
+                GregorianCalendar gc = new GregorianCalendar();
+                gc.setTime(rs.getDate("DOB"));
+                mouse.setDOB(gc);
+                specimen = mouse;
+            } else {
+                Embryo embryo = new Embryo();
+                embryo.setStage(rs.getString("stage"));
+                embryo.setStageUnit(StageUnit.fromValue(rs.getString("stageUnit")));
+                specimen = embryo;
+            }
+
+            // Load the remaining common Specimen data.
+            specimen.setHjid(rs.getLong("pk"));
             String colonyId = rs.getString("colonyId");
             if ( ! rs.wasNull()) {
                 specimen.setColonyID(colonyId);
@@ -1850,7 +1861,7 @@ public class ExtractDccSqlUtils {
             }
             specimen.setZygosity(Zygosity.fromValue(rs.getString("zygosity")));
             StatusCode statusCode = new StatusCode();
-            statusCode.setValue(rs.getString("status"));
+            statusCode.setHjid(rs.getLong("statuscode_pk"));
             specimen.setStatusCode(statusCode);
 
             return specimen;

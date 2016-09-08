@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -34,7 +34,7 @@ public class PhenotypedColonyWriter implements ItemWriter {
 
     @Autowired
     @Qualifier("cdabaseSqlUtils")
-    private CdabaseSqlUtils cdabaseSqlUtils;
+    private CdaSqlUtils cdaSqlUtils;
 
     private int count = 0;
 
@@ -49,7 +49,7 @@ public class PhenotypedColonyWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        count += cdabaseSqlUtils.insertPhenotypedColonies((List<PhenotypedColony>)items);
+        count += cdaSqlUtils.insertPhenotypedColonies((List<PhenotypedColony>)items);
     }
 
     public int getCount() {

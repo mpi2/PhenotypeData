@@ -453,7 +453,7 @@ CREATE TABLE biological_model (
 	PRIMARY KEY (id),
 	KEY allelic_composition_idx (allelic_composition),
 	KEY genetic_background_idx (genetic_background),
-	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100), zygosity)
+	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100))
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -539,13 +539,13 @@ CREATE TABLE biological_sample (
 	sample_group              VARCHAR(100) NOT NULL,
 	organisation_id           INT(10) UNSIGNED NOT NULL,
   production_center_id      INT(10) UNSIGNED NULL,
-  litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY external_id_idx(external_id),
 	KEY external_db_idx(db_id),
 	KEY group_idx (sample_group),
 	KEY sample_type_idx (sample_type_acc, sample_type_db_id),
+	UNIQUE KEY external_id_phenotyping_center (external_id, organisation_id),
 
 	KEY organisation_idx (organisation_id)
 
@@ -562,9 +562,10 @@ CREATE TABLE live_sample (
 	colony_id                 VARCHAR(100) NOT NULL,
 	developmental_stage_acc   VARCHAR(20) NOT NULL,
 	developmental_stage_db_id INT(10) NOT NULL,
-	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data'),
+	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data', 'both'),
 	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
 	date_of_birth             TIMESTAMP NULL,
+  litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY colony_idx (colony_id),
@@ -1039,10 +1040,8 @@ CREATE TABLE phenotyped_colony (
 	es_cell_name                                VARCHAR(64),
 	gf_acc                                      VARCHAR(20) NOT NULL,
 	gf_db_id                                    INT(11)     NOT NULL,
-	allele_acc                                  VARCHAR(20) NOT NULL,
-	allele_db_id                                INT(11)     NOT NULL,
-	strain_acc                                  VARCHAR(20) NOT NULL,
-	strain_db_id                                INT(11)     NOT NULL,
+	allele_symbol                               VARCHAR(64) NOT NULL,
+	background_strain_name                      VARCHAR(64) NOT NULL,
 	production_centre_organisation_id           INT(11)     NOT NULL,
 	production_consortium_project_id            INT(11)     NOT NULL,
 	phenotyping_centre_organisation_id          INT(11)     NOT NULL,
@@ -1050,10 +1049,11 @@ CREATE TABLE phenotyped_colony (
 	cohort_production_centre_organisation_id    INT(11)     NOT NULL,
 
 	PRIMARY KEY (id),
+	UNIQUE KEY (colony_name),
 	KEY colony_name_idx (colony_name),
 	KEY phenotypedColony_genomicFeature_idx (gf_acc, gf_db_id),
-	KEY phenotypedColony_Allele_idx (allele_acc, allele_db_id),
-	KEY phenotypedColony_Strain_idx (strain_acc, strain_db_id),
+	KEY phenotypedColony_AlleleSymbol_idx (allele_symbol),
+	KEY phenotypedColony_BackgroundStrainName_idx (background_strain_name),
 	KEY production_centre_organisation_id_idx(production_centre_organisation_id),
 	KEY production_consortium_project_id_idx(production_consortium_project_id),
 	KEY phenotyping_centre_organisation_id_idx(phenotyping_centre_organisation_id),

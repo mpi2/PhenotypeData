@@ -22,7 +22,7 @@ import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,8 +195,8 @@ public class ExtractCdabaseConfigBeans {
     }
 
     @Bean(name = "cdabaseSqlUtils")
-    public CdabaseSqlUtils cdabaseSqlUtils() {
-        return new CdabaseSqlUtils(jdbcCdabase);
+    public CdaSqlUtils cdabaseSqlUtils() {
+        return new CdaSqlUtils(jdbcCdabase);
     }
 
 
@@ -341,7 +341,7 @@ public class ExtractCdabaseConfigBeans {
 
     @Bean(name = "phenotypedColonyProcessor")
     public PhenotypedColonyProcessor phenotypedColonyProcessor() throws DataImportException {
-        return new PhenotypedColonyProcessor(alleles, genes, strains);
+        return new PhenotypedColonyProcessor(genes);
     }
 
     @Bean(name = "phenotypedColonyWriter")

@@ -195,8 +195,9 @@ public class BiologicalModelLoader implements InitializingBean, Step {
             }
 
             stop = new Date();
-            logger.info("  Wrote {} bioModels, {} bioModelAlleles, {} bioModelGenomicFeatures, and {} bioModelPhenotypes to database in {}",
-                    writer.getWrittenBioModels(), writer.getWrittenBioModelAlleles(), writer.getWrittenBioModelGenomicFeatures(), writer.getWrittenBioModelPhenotypes(),
+            logger.info("  Wrote {} bioModelsInserted, {} bioModelsUpdated, {} bioModelAlleles, {} bioModelGenomicFeatures, and {} bioModelPhenotypes to database in {}",
+                    writer.getWrittenBioModelsInserted(), writer.getWrittenBioModelsUpdated(), writer.getWrittenBioModelAlleles(),
+                        writer.getWrittenBioModelGenomicFeatures(), writer.getWrittenBioModelPhenotypes(),
                     commonUtils.formatDateDifference(start, stop));
             logger.info("");
 

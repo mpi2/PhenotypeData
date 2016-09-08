@@ -28,12 +28,38 @@ public class BiologicalModelAggregator {
     private String      alleleSymbol;
     private int         biologicalModelId;
     private String      geneticBackground;
+    private String      zygosity;
     private Set<String> alleleAccessionIds = new HashSet<>();
     private Set<String> mpAccessionIds     = new HashSet<>();
     private Set<String> markerAccessionIds = new HashSet<>();
+    private Set<String> strainAccessionIds = new HashSet<>();
 
     public BiologicalModelAggregator() {
 
+    }
+
+    /**
+     * Creates a {@link BiologicalModelAggregator} instance from the given inputs.
+     *
+     * @param allelicComposition
+     * @param alleleSymbol
+     * @param geneticBackground
+     * @param zygosity
+     * @param alleleAccessionId
+     * @param markerAccessionId
+     * @param strainAccessionId
+     */
+    public BiologicalModelAggregator(String allelicComposition, String alleleSymbol,
+                                     String geneticBackground, String zygosity,
+                                     String alleleAccessionId, String markerAccessionId,
+                                     String strainAccessionId) {
+        this.allelicComposition = allelicComposition;
+        this.alleleSymbol = alleleSymbol;
+        this.geneticBackground = geneticBackground;
+        this.zygosity = zygosity;
+        this.alleleAccessionIds.add(alleleAccessionId);
+        this.markerAccessionIds.add(markerAccessionId);
+        this.strainAccessionIds.add(strainAccessionId);
     }
 
     /**
@@ -49,12 +75,15 @@ public class BiologicalModelAggregator {
         this.alleleSymbol = bioModel.alleleSymbol;
         this.biologicalModelId = bioModel.biologicalModelId;
         this.geneticBackground = bioModel.geneticBackground;
+        this.zygosity = bioModel.zygosity;
         this.alleleAccessionIds = new HashSet<>();
         this.alleleAccessionIds.addAll(bioModel.getAlleleAccessionIds());
         this.mpAccessionIds = new HashSet<>();
         this.mpAccessionIds.addAll(bioModel.getMpAccessionIds());
         this.markerAccessionIds = new HashSet<>();
         this.markerAccessionIds.addAll(bioModel.getMarkerAccessionIds());
+        this.strainAccessionIds = new HashSet<>();
+        this.strainAccessionIds.addAll(bioModel.getStrainAccessionIds());
 
         return this;
     }
@@ -115,6 +144,22 @@ public class BiologicalModelAggregator {
         this.markerAccessionIds = markerAccessionIds;
     }
 
+    public Set<String> getStrainAccessionIds() {
+        return strainAccessionIds;
+    }
+
+    public void setStrainAccessionIds(Set<String> strainAccessionIds) {
+        this.strainAccessionIds = strainAccessionIds;
+    }
+
+    public String getZygosity() {
+        return zygosity;
+    }
+
+    public void setZygosity(String zygosity) {
+        this.zygosity = zygosity;
+    }
+
     @Override
     public String toString() {
         return "BiologicalModelAggregator{" +
@@ -122,6 +167,7 @@ public class BiologicalModelAggregator {
                 ", alleleSymbol='" + alleleSymbol + '\'' +
                 ", biologicalModelId=" + biologicalModelId +
                 ", geneticBackground='" + geneticBackground + '\'' +
+                ", zygosity='" + zygosity + '\'' +
                 '}';
     }
 }

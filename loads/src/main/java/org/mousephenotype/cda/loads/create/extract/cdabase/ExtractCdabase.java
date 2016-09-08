@@ -126,9 +126,9 @@ public class ExtractCdabase implements CommandLineRunner {
             throw new DataImportException("Unable to create Spring Batch tables.");
         }
 
-        Job[] jobs = new Job[] {
-                  downloaderJob()
-                , dbLoaderJob()
+        Job[] jobs = new Job[]{
+                downloaderJob(),
+                dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -214,14 +214,14 @@ public class ExtractCdabase implements CommandLineRunner {
         Flow phenotypedColoniesFlow = new FlowBuilder<Flow>("phenotypedColoniesFlow").from(phenotypedColonyLoader).end();
 
         return jobBuilderFactory.get("dbLoaderJob")
-                .incrementer(new RunIdIncrementer())
-                .start(ontologyFlow)
-                .next(markersFlow)
-                .next(allelesFlow)
-                .next(strainsFlow)
-                .next(bioModelsFlow)
-                .next(phenotypedColoniesFlow)
-                .end()
-                .build();
+                                .incrementer(new RunIdIncrementer())
+                                .start(ontologyFlow)
+                                .next(markersFlow)
+                                .next(allelesFlow)
+                                .next(strainsFlow)
+                                .next(bioModelsFlow)
+                                .next(phenotypedColoniesFlow)
+                                .end()
+                                .build();
     }
 }

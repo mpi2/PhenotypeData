@@ -14,11 +14,17 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.load.dcc.config;
+package org.mousephenotype.cda.loads.create.load.config;
 
+import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigApp;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,19 +36,26 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = {
+        ExtractDccConfigApp.class,
+        JndiConnectionFactoryAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class})
 /**
  * This configuration class holds configuration information shared by the data load create process.
  *
  * Created by mrelac on 18/08/2016.
  */
-public class LoadDccConfigApp {
+public class LoadConfigApp {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Bean(name = "cda")
-    @ConfigurationProperties(prefix = "cda")
-    public DataSource cda() {
+    @Bean(name = "cdaDataSource")
+    @Primary
+    @ConfigurationProperties(prefix = "datasource.cda")
+    public DataSource cdaDataSource() {
         DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 
         return ds;
@@ -50,13 +63,13 @@ public class LoadDccConfigApp {
 
     @Bean(name = "jdbcCda")
     public NamedParameterJdbcTemplate jdbcCda() {
-        return new NamedParameterJdbcTemplate(cda());
+        return new NamedParameterJdbcTemplate(cdaDataSource());
     }
 
 
-    @Bean(name = "dcc")
- //   @ConfigurationProperties(prefix = "dcc")
-    public DataSource dcc() {
+    @Bean(name = "dccDataSource")
+    @ConfigurationProperties(prefix = "datasource.dcc")
+    public DataSource dccDataSource() {
         DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 
         return ds;
@@ -64,16 +77,6 @@ public class LoadDccConfigApp {
 
     @Bean(name = "jdbcDcc")
     public NamedParameterJdbcTemplate jdbcDcc() {
-        return new NamedParameterJdbcTemplate(dcc());
-    }
-
-
-    @Bean(name = "komp2")
-    @Primary
-    @ConfigurationProperties(prefix = "komp2")
-    public DataSource komp2DataSource() {
-        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-
-        return ds;
+        return new NamedParameterJdbcTemplate(dccDataSource());
     }
 }
