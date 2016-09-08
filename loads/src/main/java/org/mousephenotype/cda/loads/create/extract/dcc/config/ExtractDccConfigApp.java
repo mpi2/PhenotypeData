@@ -16,10 +16,16 @@
 
 package org.mousephenotype.cda.loads.create.extract.dcc.config;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.mousephenotype.cda.loads.create.extract.cdabase.config.ExtractCdabaseConfigApp;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +36,13 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
-@EnableAutoConfiguration(exclude = {ExtractCdabaseConfigApp.class})
+@EnableAutoConfiguration(exclude = {
+        ExtractCdabaseConfigApp.class,
+        JndiConnectionFactoryAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class})
 /**
  * This configuration class holds configuration information shared by the data load create process.
  *
@@ -41,10 +53,12 @@ public class ExtractDccConfigApp {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Bean(name = "dccDataSource")
-    @ConfigurationProperties(prefix = "dcc")
+    @ConfigurationProperties(prefix = "datasource.dcc")
     public DataSource dccDataSource() {
-        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        DataSource ds = DataSourceBuilder.create().type(BasicDataSource.class).driverClassName("com.mysql.jdbc.Driver").build();
+        ((BasicDataSource) ds).setInitialSize(1);
 
+        System.out.println("Using BasicDataSource. initialPoolSize = " + ((BasicDataSource)ds).getInitialSize());
         return ds;
     }
 
