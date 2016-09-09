@@ -18,9 +18,9 @@ package org.mousephenotype.cda.loads.create.extract.dcc;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
@@ -115,7 +115,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         logger.debug("Loading specimen file {}", filename);
     }
 
-    private void run() throws DataImportException {
+    private void run() throws DataLoadException {
         int                  totalSpecimens        = 0;
         int                  totalSpecimenFailures = 0;
         List<CentreSpecimen> centerSpecimens;
@@ -123,12 +123,12 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         try {
             centerSpecimens = XMLUtils.unmarshal(ExtractDccSpecimens.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
         } catch (Exception e) {
-            throw new DataImportException(e);
+            throw new DataLoadException(e);
         }
 
         if (centerSpecimens.size() == 0) {
             logger.error("{} failed to unmarshall", filename);
-            throw new DataImportException(filename + " failed to unmarshall.", new XMLloadingException());
+            throw new DataLoadException(filename + " failed to unmarshall.", new XMLloadingException());
         }
 
         logger.debug("There are {} center specimen sets in specimen file {}", centerSpecimens.size(), filename);
@@ -158,7 +158,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertSpecimen(Specimen specimen, CentreSpecimen centerSpecimen) throws DataImportException {
+    private void insertSpecimen(Specimen specimen, CentreSpecimen centerSpecimen) throws DataLoadException {
 
         Long specimenPk;
 
@@ -183,7 +183,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         } else  if (specimen instanceof Mouse) {
             dccSqlUtils.insertMouse((Mouse) specimen, specimenPk);
         } else {
-            throw new DataImportException("Unknown specimen type '" + specimen.getClass().getSimpleName());
+            throw new DataLoadException("Unknown specimen type '" + specimen.getClass().getSimpleName());
         }
 
         // genotype
@@ -198,7 +198,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
 
         // chromosomalAlteration
         if ( ! specimen.getChromosomalAlteration().isEmpty()) {
-            throw new DataImportException("chromosomalAlteration is not yet supported. Records found!");
+            throw new DataLoadException("chromosomalAlteration is not yet supported. Records found!");
         }
 
         // center_specimen

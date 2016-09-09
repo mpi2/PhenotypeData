@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.common;
 
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
@@ -51,7 +51,7 @@ public class DccSqlUtils {
     public DccSqlUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
         Assert.notNull(npJdbcTemplate, "Named parameter npJdbcTemplate cannot be null");
         this.npJdbcTemplate = npJdbcTemplate;
-        loadUtils = new LoadUtils(npJdbcTemplate);
+        loadUtils = new LoadUtils();
     }
 
 
@@ -236,7 +236,7 @@ public class DccSqlUtils {
         parameterMap.put("project", project);
 
         try {
-            centerPk = loadUtils.queryForPk(query, parameterMap);
+            centerPk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         } catch (Exception e) {
 
         }
@@ -253,7 +253,7 @@ public class DccSqlUtils {
         parameterMap.put("specimenPk", specimenPk);
 
         try {
-            center_specimenPk = loadUtils.queryForPk(query, parameterMap);
+            center_specimenPk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         } catch (Exception e) {
 
         }
@@ -297,7 +297,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("colonyId", colonyId);
         parameterMap.put("center_procedurePk", center_procedurePk);
-        pk = loadUtils.queryForPk(query, parameterMap);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
 
         return pk;
     }
@@ -1370,7 +1370,7 @@ public class DccSqlUtils {
      *
      * @return the specimen, with primary key loaded
      */
-    public Specimen insertSpecimen(Specimen specimen) throws DataImportException {
+    public Specimen insertSpecimen(Specimen specimen) throws DataLoadException {
         final String insert = "INSERT INTO specimen (" +
                     "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project, specimenId, strainId, zygosity, statuscode_pk) VALUES " +
                     "(:colonyId, :gender, :isBaseline, :litterId, :phenotypingCenter, :pipeline, :productionCenter, :project, :specimenId, :strainId, :zygosity, :statuscodePk);";
@@ -1399,7 +1399,7 @@ public class DccSqlUtils {
         } catch (DuplicateKeyException e ) {
 
         } catch (Exception e) {
-            throw new DataImportException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
+            throw new DataLoadException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
         }
         
         return specimen;
@@ -1413,7 +1413,7 @@ public class DccSqlUtils {
      *
      * @return the simpleParameter, with primary key loaded
      */
-    public SimpleParameter insertSimpleParameter(SimpleParameter simpleParameter, long procedurePk) throws DataImportException {
+    public SimpleParameter insertSimpleParameter(SimpleParameter simpleParameter, long procedurePk) throws DataLoadException {
         final String insert = "INSERT INTO simpleParameter (parameterId, parameterStatus, procedure_pk, sequenceId, unit, value) "
                             + "VALUES (:parameterId, :parameterStatus, :procedurePk, :sequenceId, :unit, :value)";
 
@@ -1433,7 +1433,7 @@ public class DccSqlUtils {
                 simpleParameter.setHjid(simpleParameterPk);
             }
         } catch (Exception e) {
-            throw new DataImportException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
+            throw new DataLoadException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
         }
         
         return simpleParameter;
@@ -1460,13 +1460,13 @@ public class DccSqlUtils {
 
         parameterMap.put("centerPk", centerPk);
         parameterMap.put("procedurePk", procedurePk);
-        pk = loadUtils.queryForPk(query, parameterMap);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO center_procedure (center_pk, procedure_pk) VALUES (:centerPk, :procedurePk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = loadUtils.queryForPk(query, parameterMap);
+                    pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {
@@ -1526,13 +1526,13 @@ public class DccSqlUtils {
 
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("specimenPk", specimenPk);
-        pk = loadUtils.queryForPk(query, parameterMap);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO experiment_specimen (experiment_pk, specimen_pk) VALUES (:experimentPk, :specimenPk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = loadUtils.queryForPk(query, parameterMap);
+                    pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {
@@ -1560,13 +1560,13 @@ public class DccSqlUtils {
 
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("statuscodePk", statuscodePk);
-        pk = loadUtils.queryForPk(query, parameterMap);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO experiment_statuscode (experiment_pk, statuscode_pk) VALUES (:experimentPk, :statuscodePk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = loadUtils.queryForPk(query, parameterMap);
+                    pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {

@@ -21,7 +21,7 @@ import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
@@ -140,7 +140,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         logger.debug("Loading experiment file {}", filename);
     }
 
-    private void run() throws DataImportException {
+    private void run() throws DataLoadException {
         int                   totalExperiments       = 0;
         int                   totalExperimentsFailed = 0;
         List<CentreProcedure> centerProcedures;
@@ -148,12 +148,12 @@ public class ExtractDccExperiments implements CommandLineRunner {
         try {
             centerProcedures = XMLUtils.unmarshal(ExtractDccExperiments.CONTEXT_PATH, CentreProcedureSet.class, filename).getCentre();
         } catch (Exception e) {
-            throw new DataImportException(e);
+            throw new DataLoadException(e);
         }
 
         if (centerProcedures.size() == 0) {
             logger.error("{} failed to unmarshall", filename);
-            throw new DataImportException(filename + " failed to unmarshall.", new XMLloadingException());
+            throw new DataLoadException(filename + " failed to unmarshall.", new XMLloadingException());
         }
 
         logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
@@ -189,7 +189,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertExperiment(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataImportException {
+    private void insertExperiment(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
 
         Long specimenPk, procedurePk, center_procedurePk;
 

@@ -21,7 +21,7 @@ import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -57,7 +57,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
     private Map<String, Integer> written     = new HashMap<>();
 
 
-    public OntologyLoader(String sourceFilename, int dbId, String prefix, StepBuilderFactory stepBuilderFactory, CdaSqlUtils cdaSqlUtils) throws DataImportException {
+    public OntologyLoader(String sourceFilename, int dbId, String prefix, StepBuilderFactory stepBuilderFactory, CdaSqlUtils cdaSqlUtils) throws DataLoadException {
         this.sourceFilename = sourceFilename;
         this.dbId = dbId;
         this.prefix = prefix;
@@ -137,7 +137,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
 
         } catch (OWLOntologyCreationException e) {
 
-            throw new DataImportException(e);
+            throw new DataLoadException(e);
         }
 
         Map<String, Integer> counts = cdaSqlUtils.insertOntologyTerm(terms);

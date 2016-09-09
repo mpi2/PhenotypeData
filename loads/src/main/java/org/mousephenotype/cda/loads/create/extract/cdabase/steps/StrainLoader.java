@@ -20,7 +20,7 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.StrainFieldSetMapper;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobInterruptedException;
@@ -73,7 +73,7 @@ public class StrainLoader implements InitializingBean, Step {
     private StrainWriter writer;
 
 
-    public StrainLoader(Map<FilenameKeys, String> markerKeys) throws DataImportException {
+    public StrainLoader(Map<FilenameKeys, String> markerKeys) throws DataLoadException {
         this.strainKeys = markerKeys;
     }
 

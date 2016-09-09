@@ -21,7 +21,7 @@ import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.DbIdType;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +91,7 @@ public class StrainProcessorImsr implements ItemProcessor<Strain, Strain> {
 
             for (int i = 0; i < expectedHeadings.length; i++) {
                 if ( ! expectedHeadings[i].equals(actualHeadings[i])) {
-                    throw new DataImportException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
+                    throw new DataLoadException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
                 }
 
                 return null;

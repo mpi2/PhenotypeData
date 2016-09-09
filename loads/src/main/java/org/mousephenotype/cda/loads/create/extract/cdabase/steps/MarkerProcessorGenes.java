@@ -22,7 +22,7 @@ import org.mousephenotype.cda.db.pojo.SequenceRegion;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -114,7 +114,7 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
 
             for (int i = 0; i < expectedHeadings.length; i++) {
                 if ( ! expectedHeadings[i].equals(actualHeadings[i])) {
-                    throw new DataImportException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
+                    throw new DataLoadException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
                 }
             }
 
@@ -133,7 +133,7 @@ public class MarkerProcessorGenes implements ItemProcessor<GenomicFeature, Genom
             try {
                 subtype = featureTypes.get(gene.getSubtype().getName());
                 if (subtype == null) {
-                    throw new DataImportException("Unknown subtype '" + gene.getSubtype().getName());
+                    throw new DataLoadException("Unknown subtype '" + gene.getSubtype().getName());
                 }
             } catch (Exception e) {
                 if ( ! unknownList.contains(gene.getSubtype().getName())) {
