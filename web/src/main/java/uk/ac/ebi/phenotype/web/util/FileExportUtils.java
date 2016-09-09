@@ -31,7 +31,7 @@ public class FileExportUtils {
 		Workbook wb;
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Expires", "0");
-		String outfile = fileName.replaceAll(",", "").replaceAll("%", "") + "." + fileType;
+		String outfile = escapeCharsFileName(fileName) + "." + fileType;
 
 		if (fileType.equals("tsv")) {
 
@@ -74,7 +74,7 @@ public class FileExportUtils {
 				tableData = Tools.composeXlsTableData(dataRows);
 			}
 
-			wb = new ExcelWorkBook(titles, tableData, escapeCharsFileName(fileName)).fetchWorkBook();
+			wb = new ExcelWorkBook(titles, tableData, fileName).fetchWorkBook();
 			wb.write(output);
 			output.close();			
 
@@ -84,7 +84,7 @@ public class FileExportUtils {
 	
 	// ExcelWorkBook complains about some special characters, i.e. "/"
 	private static String escapeCharsFileName(String fileName){
-		return fileName.replaceAll("/", " ");
+		return fileName.replaceAll("/", " ").replaceAll(",", "");
 	}
 	
 }
