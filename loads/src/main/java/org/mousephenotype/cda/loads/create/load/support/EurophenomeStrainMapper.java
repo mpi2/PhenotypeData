@@ -23,7 +23,7 @@ import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,12 +112,12 @@ public class EuroPhenomeStrainMapper {
     }
 
     @Inject
-    public EuroPhenomeStrainMapper(CdaSqlUtils cdaSqlUtils) throws org.mousephenotype.cda.loads.exceptions.DataImportException {
+    public EuroPhenomeStrainMapper(CdaSqlUtils cdaSqlUtils) throws DataLoadException {
         this.cdaSqlUtils = cdaSqlUtils;
         initialise();
     }
 
-    private void initialise() throws org.mousephenotype.cda.loads.exceptions.DataImportException {
+    private void initialise() throws DataLoadException {
         uncharacterizedBackgroundStrain = cdaSqlUtils.getOntologyTermByName("IMPC uncharacterized background strain");
 
         this.strainsByAccessionId = cdaSqlUtils.getStrains();
@@ -183,9 +183,9 @@ public class EuroPhenomeStrainMapper {
      *
      * @return the genetic background, reformatted
      *
-     * @throws DataImportException
+     * @throws DataLoadException
      */
-    public String filterEuroPhenomeGeneticBackground(String backgroundStrainName) throws DataImportException {
+    public String filterEuroPhenomeGeneticBackground(String backgroundStrainName) throws DataLoadException {
 
         List<Strain> strains           = getGeneticBackgroundStrains(backgroundStrainName);
         String       geneticBackground = "involves: ";
@@ -206,16 +206,16 @@ public class EuroPhenomeStrainMapper {
      *
      * @param backgroundStrainName the raw background strain name, as provided by the dcc
      *
-     * @throws org.mousephenotype.cda.loads.exceptions.DataImportException if a strain is not found
+     * @throws DataLoadException if a strain is not found
      */
-    private List<Strain> getGeneticBackgroundStrains(String backgroundStrainName) throws org.mousephenotype.cda.loads.exceptions.DataImportException {
+    private List<Strain> getGeneticBackgroundStrains(String backgroundStrainName) throws DataLoadException {
 
         List<Strain> strains     = new ArrayList<>();
         String[]     intermediateBackgrounds;
 
         // Fail fast
         if (backgroundStrainName == null) {
-            throw new org.mousephenotype.cda.loads.exceptions.DataImportException("Unknown genetic background. No background strain supplied.");
+            throw new DataLoadException("Unknown genetic background. No background strain supplied.");
         }
 
         Strain strain = lookupBackgroundStrain(backgroundStrainName);
@@ -246,11 +246,12 @@ public class EuroPhenomeStrainMapper {
                     strain = createBackgroundStrain(intermediateBackground);
                     cdaSqlUtils.insertStrain(strain);
                 }
+                strains.add(strain);
             }
         }
 
         if (strains.isEmpty()) {
-            throw new org.mousephenotype.cda.loads.exceptions.DataImportException("Unknown genetic background. Strains not found for background " + backgroundStrainName);
+            throw new DataLoadException("Unknown genetic background. Strains not found for background " + backgroundStrainName);
         }
 
         return strains;
@@ -284,7 +285,7 @@ public class EuroPhenomeStrainMapper {
         }
 
         // Use the background strain name as: strain name, then synonym, then accession id to find the strain.
-        // If it is not found, create a new strain instance.
+        // If it is not found, return null.
         strain = strainsByName.get(backgroundStrainName);
         if (strain == null) {
             strain = strainsBySynonymSymbol.get(backgroundStrainName);

@@ -89,6 +89,8 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         written.put("biologicalModel", 0);
         written.put("biologicalSample", 0);
         written.put("liveSample", 0);
+        written.put("controlSample", 0);
+        written.put("experimentalSample", 0);
     }
 
     @Override
@@ -170,8 +172,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
             if (isControl) {
                 counts = insertSampleControlSpecimen(specimen);
+                written.put("controlSample", written.get("controlSample") + 1);
             } else {
                 counts = insertSampleExperimentalSpecimen(specimen);
+                written.put("experimentalSample", written.get("experimentalSample") + 1);
             }
 
             written.put("biologicalModel", written.get("biologicalModel") + counts.get("biologicalModel"));
@@ -190,6 +194,13 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             String stage = unexpectedStageIt.next();
             logger.info("Unexpected value for embryonic DCP stage: " + stage);
         }
+
+        logger.info("Wrote {} new biological models", written.get("biologicalModel"));
+        logger.info("Wrote {} new biological samples", written.get("biologicalSample"));
+        logger.info("Wrote {} new live samples", written.get("liveSample"));
+        logger.info("Processed {} experimental samples", written.get("experimentalSample"));
+        logger.info("Processed {} control samples", written.get("controlSample"));
+        logger.info("Processed {} total samples", written.get("experimentalSample") + written.get("controlSample"));
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
         contribution.setExitStatus(ExitStatus.COMPLETED);

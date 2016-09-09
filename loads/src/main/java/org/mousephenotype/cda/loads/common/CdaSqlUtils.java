@@ -1541,7 +1541,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    		// Insert the allele into the database
         int count = insertAlleles(alleles);
         if (count > 0) {
-            logger.info("Created allele {}", allele.toString());
+            logger.info("Created allele '{}', '{}', '{}'", allele.getId().getAccession(), allele.getSymbol(), (gene == null ? "null" : gene.getSymbol()));
         }
 
         return allele;
@@ -1571,7 +1571,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         // insert the strain into the database
    		Map<String, Integer> count = insertStrain(strain);
         if (count.get("strains") > 0) {
-            logger.info("Created strain {}", strain.toString());
+            logger.info("Created strain '{}', '{}'", strain.getId().getAccession(), strain.getName());
         }
 
    		return strain;
