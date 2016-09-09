@@ -39,7 +39,7 @@ public class BiologicalModelAggregator {
     }
 
     /**
-     * Creates a {@link BiologicalModelAggregator} instance from the given inputs.
+     * Creates a {@link BiologicalModelAggregator} instance from the given inputs. Used for experimental sample.
      *
      * @param allelicComposition
      * @param alleleSymbol
@@ -49,9 +49,12 @@ public class BiologicalModelAggregator {
      * @param markerAccessionId
      * @param strainAccessionId
      */
-    public BiologicalModelAggregator(String allelicComposition, String alleleSymbol,
-                                     String geneticBackground, String zygosity,
-                                     String alleleAccessionId, String markerAccessionId,
+    public BiologicalModelAggregator(String allelicComposition,
+                                     String alleleSymbol,
+                                     String geneticBackground,
+                                     String zygosity,
+                                     String alleleAccessionId,
+                                     String markerAccessionId,
                                      String strainAccessionId) {
         this.allelicComposition = allelicComposition;
         this.alleleSymbol = alleleSymbol;
@@ -59,6 +62,27 @@ public class BiologicalModelAggregator {
         this.zygosity = zygosity;
         this.alleleAccessionIds.add(alleleAccessionId);
         this.markerAccessionIds.add(markerAccessionId);
+        this.strainAccessionIds.add(strainAccessionId);
+    }
+
+    /**
+     * Creates a {@link BiologicalModelAggregator} instance from the given inputs. Used for control sample.
+     *
+     * @param allelicComposition
+     * @param geneticBackground
+     * @param zygosity
+     * @param strainAccessionId
+     */
+    public BiologicalModelAggregator(String allelicComposition,
+                                     String geneticBackground,
+                                     String zygosity,
+                                     String strainAccessionId) {
+        this.allelicComposition = allelicComposition;
+        this.alleleSymbol = null;
+        this.geneticBackground = geneticBackground;
+        this.zygosity = zygosity;
+        this.alleleAccessionIds = null;
+        this.markerAccessionIds = null;
         this.strainAccessionIds.add(strainAccessionId);
     }
 

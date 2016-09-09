@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.*;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
 import org.slf4j.Logger;
@@ -88,7 +88,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
     private PhenotypedColonyWriter writer;
 
 
-    public PhenotypedColonyLoader(Map<FilenameKeys, String> phenotypedColonyKeys) throws DataImportException {
+    public PhenotypedColonyLoader(Map<FilenameKeys, String> phenotypedColonyKeys) throws DataLoadException {
         this.phenotypedColonyKeys = phenotypedColonyKeys;
     }
 

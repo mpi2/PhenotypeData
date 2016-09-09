@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.slf4j.Logger;
@@ -71,6 +70,7 @@ public class CdaSqlUtils {
     public CdaSqlUtils(NamedParameterJdbcTemplate jdbcCda) {
         this.jdbcCda = jdbcCda;
     }
+
     /**
      * Return a list of all alleles, keyed by allele accession id
      * @return a list of all alleles, keyed by allele accession id
@@ -137,7 +137,7 @@ public class CdaSqlUtils {
      *
      * @return the count of inserted alleles.
      */
-    public int insertAlleles(List<Allele> alleles) throws DataImportException {
+    public int insertAlleles(List<Allele> alleles) throws DataLoadException {
         int count = 0;
         final String query = "INSERT INTO allele (acc, db_id, gf_acc, gf_db_id, biotype_acc, biotype_db_id, symbol, name) " +
                              "VALUES (:acc, :db_id, :gf_acc, :gf_db_id, :biotype_acc, :biotype_db_id, :symbol, :name)";
@@ -210,11 +210,10 @@ public class CdaSqlUtils {
      *
      * @param allelicComposition allelic composition
      * @param backgroundStrainName background strain name
-     * @param zygosity zygosity
      *
      * @return the {@link BiologicalModel} for the given input parameters
      */
-    public BiologicalModel getBiologicalModel(String allelicComposition, String backgroundStrainName, String zygosity) {
+    public BiologicalModel getBiologicalModel(String allelicComposition, String backgroundStrainName) {
         BiologicalModel bm = null;
         String query =
                 "SELECT * FROM cda_5_0.biological_model\n" +
@@ -342,7 +341,7 @@ public class CdaSqlUtils {
      *
      * @return the number of {@code bioModel}s inserted
      */
-    public Map<String, Integer> insertBiologicalModel(List<BiologicalModelAggregator> bioModels) throws DataImportException {
+    public Map<String, Integer> insertBiologicalModel(List<BiologicalModelAggregator> bioModels) throws DataLoadException {
         int count = 0;
 
         Map<String, Integer> countsMap = new HashMap<>();
@@ -394,52 +393,56 @@ public class CdaSqlUtils {
                 if (count > 0) {
                     countsMap.put("bioModelsUpdated", countsMap.get("bioModelsUpdated") + count);
                 } else {
-                    throw new DataImportException("Insert and Update failed for bioModel " + bioModel.toString() + "'. Skipping...");
+                    throw new DataLoadException("Insert and Update failed for bioModel " + bioModel.toString() + "'. Skipping...");
                 }
 
                 return countsMap;
             }
 
-            // biological_model_allele
-            for (String alleleAccessionId : bioModel.getAlleleAccessionIds()) {
-                try {
-                    parameterMap = new HashMap<>();
-                    parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
-                    parameterMap.put("allele_acc", alleleAccessionId);
-                    parameterMap.put("allele_db_id", DbIdType.MGI.intValue());
+            // biological_model_allele. Controls don't have allele or gene associations so will be null.
+            if (bioModel.getAlleleAccessionIds() != null) {
+                for (String alleleAccessionId : bioModel.getAlleleAccessionIds()) {
+                    try {
+                        parameterMap = new HashMap<>();
+                        parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
+                        parameterMap.put("allele_acc", alleleAccessionId);
+                        parameterMap.put("allele_db_id", DbIdType.MGI.intValue());
 
-                    count = jdbcCda.update(bioModelAlleleInsert, parameterMap);
-                    countsMap.put("bioModelAlleles", countsMap.get("bioModelAlleles") + count);
+                        count = jdbcCda.update(bioModelAlleleInsert, parameterMap);
+                        countsMap.put("bioModelAlleles", countsMap.get("bioModelAlleles") + count);
 
-                } catch (DuplicateKeyException e) {
+                    } catch (DuplicateKeyException e) {
 
-                    logger.warn("Duplicate biological_model_allele entry: {}. biological model not added.", bioModels);
-                    return countsMap;
+                        logger.warn("Duplicate biological_model_allele entry: {}. biological model not added.", bioModels);
+                        return countsMap;
 
-                } catch (Exception e) {
-                    logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
+                    } catch (Exception e) {
+                        logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
+                    }
                 }
             }
 
-            // biological_model_genomic_feature
-            for (String markerAccessionId : bioModel.getMarkerAccessionIds()) {
-                try {
-                    parameterMap = new HashMap<>();
-                    parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
-                    parameterMap.put("gf_acc", markerAccessionId);
-                    parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
+            // biological_model_genomic_feature. Controls don't have allele or gene associations so will be null.
+            if (bioModel.getMarkerAccessionIds() != null) {
+                for (String markerAccessionId : bioModel.getMarkerAccessionIds()) {
+                    try {
+                        parameterMap = new HashMap<>();
+                        parameterMap.put("biological_model_id", bioModel.getBiologicalModelId());
+                        parameterMap.put("gf_acc", markerAccessionId);
+                        parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
 
-                    count = jdbcCda.update(bioModelGFInsert, parameterMap);
-                    countsMap.put("bioModelGenomicFeatures", countsMap.get("bioModelGenomicFeatures") + count);
+                        count = jdbcCda.update(bioModelGFInsert, parameterMap);
+                        countsMap.put("bioModelGenomicFeatures", countsMap.get("bioModelGenomicFeatures") + count);
 
-                } catch (DuplicateKeyException e) {
+                    } catch (DuplicateKeyException e) {
 
-                    logger.warn("Duplicate biological_model_genomic_feature entry: {}. biological model not added.", bioModels);
-                    return countsMap;
+                        logger.warn("Duplicate biological_model_genomic_feature entry: {}. biological model not added.", bioModels);
+                        return countsMap;
 
-                } catch (Exception e) {
+                    } catch (Exception e) {
 
-                    logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
+                        logger.warn("Skipping bioModel {}: {}", bioModels, e.getLocalizedMessage());
+                    }
                 }
             }
 
@@ -526,11 +529,11 @@ public class CdaSqlUtils {
      * @param sampleType
      * @param sampleGroup
      * @param phenotypingCenterId
-     * @param productionCenterId
+     * @param productionCenterId (May be null)
      * @return a map with the number of rows inserted ("count") and the biologicalSampleId ("biologicalSampleId")
      * @throws DataLoadException
      */
-    public Map<String, Integer> insertBiologicalSample(String externalId, int dbId, OntologyTerm sampleType, String sampleGroup, int phenotypingCenterId, int productionCenterId) throws DataLoadException {
+    public Map<String, Integer> insertBiologicalSample(String externalId, int dbId, OntologyTerm sampleType, String sampleGroup, int phenotypingCenterId, Integer productionCenterId) throws DataLoadException {
         Map<String, Integer> results = new HashMap<>();
 
         final String insert = "INSERT INTO biological_sample (external_id, db_id, sample_type_acc, sample_type_db_id, sample_group, organisation_id, production_center_id) " +
@@ -587,7 +590,7 @@ public class CdaSqlUtils {
         try {
             Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("id", biologicalSampleId);
-            parameterMap.put("colony_id", colonyId);
+            parameterMap.put("colony_id", (colonyId == null ? "unknown" : colonyId));
             parameterMap.put("date_of_birth", dateOfBirth);
             parameterMap.put("developmental_stage_acc", developmentalStage.getId().getAccession());
             parameterMap.put("developmental_stage_db_id", developmentalStage.getId().getDatabaseId());
@@ -611,7 +614,7 @@ public class CdaSqlUtils {
      *
      * @return a map, keyed by type (genes, synonyms, xrefs) of the number of {@code gene} components inserted
      */
-    public Map<String, Integer> insertGene(GenomicFeature gene) throws DataImportException {
+    public Map<String, Integer> insertGene(GenomicFeature gene) throws DataLoadException {
         List<GenomicFeature> geneList = new ArrayList<>();
         geneList.add(gene);
 
@@ -625,7 +628,7 @@ public class CdaSqlUtils {
      *
      * @return a map, keyed by type (genes, synonyms, xrefs) of the number of {@code gene} components inserted
      */
-    public Map<String, Integer> insertGenes(List<GenomicFeature> genes) throws DataImportException {
+    public Map<String, Integer> insertGenes(List<GenomicFeature> genes) throws DataLoadException {
         int count = 0;
 
         Map<String, Integer> countsMap = new HashMap<>();
@@ -710,7 +713,7 @@ public class CdaSqlUtils {
                     } catch (DuplicateKeyException dke) {
 
                     } catch (Exception e) {
-                        throw new DataImportException(e + "\n\txref: " + xref.toString());
+                        throw new DataLoadException(e + "\n\txref: " + xref.toString());
                     }
                 }
             }
@@ -757,11 +760,11 @@ public class CdaSqlUtils {
     * @param term the term to be matched
     *
     * @return {@code OntologyTerm} matching the given {@code dbId} and {@code term}, if
-    *         found; null if not found. If more than one result is found, DataImportException is thrown.
+    *         found; null if not found. If more than one result is found, DataLoadException is thrown.
     *
-    * @throws DataImportException
+    * @throws DataLoadException
     */
-    public OntologyTerm getMappedBiotype(int dbId, String term) throws DataImportException {
+    public OntologyTerm getMappedBiotype(int dbId, String term) throws DataLoadException {
         String mappedTerm = loaderUtils.translateTerm(term);
 
         return getOntologyTerm(dbId, mappedTerm);
@@ -776,17 +779,17 @@ public class CdaSqlUtils {
      * @param term the term to be matched
      *
      * @return {@code OntologyTerm} matching the given {@code dbId} and {@code term}, if
-     *         found; null if not found. If more than one result is found, DataImportException is thrown.
+     *         found; null if not found. If more than one result is found, DataLoadException is thrown.
      *
-     * @throws DataImportException if more than one term would be returned
+     * @throws DataLoadException if more than one term would be returned
      */
 
-    public OntologyTerm getOntologyTerm(int dbId, String term) throws DataImportException {
+    public OntologyTerm getOntologyTerm(int dbId, String term) throws DataLoadException {
         List<OntologyTerm> terms = new ArrayList<>();
 
         List<OntologyTerm> ontologyTerms = new ArrayList<>(getOntologyTerms(dbId).values());
         for (OntologyTerm ontologyTerm : ontologyTerms) {
-            if (ontologyTerm.getName().equals(term)) {
+            if (ontologyTerm.getName().equalsIgnoreCase(term)) {
                 terms.add(ontologyTerm);
             }
         }
@@ -796,7 +799,7 @@ public class CdaSqlUtils {
         } else if (terms.size() == 1) {
             return terms.get(0);
         } else {
-            throw new DataImportException("There is more than one ontology term for the given dbId '" + dbId + "' for term name '" + term + "': " + StringUtils.join(terms, ", "));
+            throw new DataLoadException("There is more than one ontology term for the given dbId '" + dbId + "' for term name '" + term + "': " + StringUtils.join(terms, ", "));
         }
     }
 
@@ -806,13 +809,13 @@ public class CdaSqlUtils {
      *
      * @return the ontology term matching {@code name}, if found, null otherwise
      *
-     * @throws DataImportException if more than one term was found. Use {@code getOntologyTermsByName()} for a list.
+     * @throws DataLoadException if more than one term was found. Use {@code getOntologyTermsByName()} for a list.
      */
-    public OntologyTerm getOntologyTermByName(String name) throws DataImportException {
+    public OntologyTerm getOntologyTermByName(String name) throws DataLoadException {
         List<OntologyTerm> terms = getOntologyTermsByName(name);
 
         if (terms.size() > 1) {
-            throw new DataImportException(terms.size() + " terms were found for ontology term name '" + name + "'.");
+            throw new DataLoadException(terms.size() + " terms were found for ontology term name '" + name + "'.");
         }
 
         return (terms.isEmpty() ? null : terms.get(0));
@@ -988,7 +991,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      *
      * @return the count of inserted phenotype colonies.
      */
-    public int insertPhenotypedColonies(List<PhenotypedColony> phenotypedColonies) throws DataImportException {
+    public int insertPhenotypedColonies(List<PhenotypedColony> phenotypedColonies) throws DataLoadException {
         int count = 0;
 
         String query = "INSERT INTO phenotyped_colony (" +
@@ -1104,18 +1107,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      *
      * @return the {@code Strain} instance matching {@code accessionId}, if found; null otherwise
      *
-     * @throws DataImportException
+     * @throws DataLoadException
      */
-    public Strain getStrain(String accessionId) throws DataImportException {
+    public Strain getStrain(String accessionId) throws DataLoadException {
         return getStrains().get(accessionId);
     }
 
     /**
      * @return a list of all strains, keyed by accession id
      *
-     * @throws DataImportException
+     * @throws DataLoadException
      */
-    public Map<String, Strain> getStrains() throws DataImportException {
+    public Map<String, Strain> getStrains() throws DataLoadException {
 
         if ((strains == null) || strains.isEmpty()) {
             strains = new ConcurrentHashMap<>();
@@ -1138,9 +1141,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     /**
      * @return a list of all strains, keyed by strain name
      *
-     * @throws DataImportException
+     * @throws DataLoadException
      */
-    public Map<String, Strain> getStrainsByName() throws DataImportException {
+    public Map<String, Strain> getStrainsByName() throws DataLoadException {
 
         if ((strainsByName == null) || strainsByName.isEmpty()) {
             strainsByName = new ConcurrentHashMap<>();
@@ -1165,9 +1168,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      *
      * @return the {@code Strain} instance matching {@code strainName}, if found; null otherwise
      *
-     * @throws DataImportException
+     * @throws DataLoadException
      */
-    public Strain getStrainByName(String strainName) throws DataImportException {
+    public Strain getStrainByName(String strainName) throws DataLoadException {
         return getStrainsByName().get(strainName);
     }
 
@@ -1178,7 +1181,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      *
      * @return a map, keyed by type (strains, synonyms) of the number of {@code strain} components inserted
      */
-    public Map<String, Integer> insertStrain(Strain strain) throws DataImportException {
+    public Map<String, Integer> insertStrain(Strain strain) throws DataLoadException {
         List<Strain> strainList = new ArrayList<>();
         strainList.add(strain);
         return insertStrains(strainList);
@@ -1191,7 +1194,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      *
      * @return a map, keyed by type (strains, synonyms) of the number of {@code strain} components inserted
      */
-    public Map<String, Integer> insertStrains(List<Strain> strains) throws DataImportException {
+    public Map<String, Integer> insertStrains(List<Strain> strains) throws DataLoadException {
         int count;
 
         Map<String, Integer> countsMap = new HashMap<String, Integer>();
@@ -1490,7 +1493,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public OntologyTerm getTargetedTerm() {
         if (targetedTerm == null) {
             try {
-                targetedTerm = getOntologyTerm(DbIdType.MGI.intValue(), "targeted");
+                targetedTerm = getOntologyTermByName("targeted");
             } catch (Exception e) {
 
             }
@@ -1506,11 +1509,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    	 * @param alleleSymbol the allele symbol
    	 * @return an allele DAO object representing the newly created allele, or null if the allele symbol is bad.
    	 */
-   	public Allele createAndInsertAllele(String alleleSymbol) throws DataImportException {
+   	public Allele createAndInsertAllele(String alleleSymbol) throws DataLoadException {
 
         if (alleleSymbol == null || alleleSymbol.isEmpty()) {
-      			return null;
-      		}
+      		throw new DataLoadException("Allele symbol is null");
+        }
 
    		// Create the allele based on the symbol
    		// e.g. allele symbol Lama4<tm1.1(KOMP)Vlcg>
@@ -1528,7 +1531,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         Allele allele = new Allele();
         allele.setBiotype(getTargetedTerm());
         allele.setGene(gene);
-        allele.setId(new DatasourceEntityId(alleleAccession, DbIdType.MGI.intValue()));
+        allele.setId(new DatasourceEntityId(alleleAccession, DbIdType.IMPC.intValue()));
         allele.setName(alleleSymbol);
         allele.setSymbol(alleleSymbol);
         allele.setSynonyms(new ArrayList<>());
@@ -1541,7 +1544,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             logger.info("Created allele {}", allele.toString());
         }
 
-        return getAllele(alleleAccession);
+        return allele;
    	}
 
 
@@ -1551,7 +1554,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    	 * @param strainName the strain name
    	 * @return the {@link Strain} instance representing the newly created strain, or null if the strain name is bad.
    	 */
-   	public Strain createAndInsertStrain(String strainName) throws DataImportException {
+   	public Strain createAndInsertStrain(String strainName) throws DataLoadException {
 
    		if (strainName == null || strainName.isEmpty()) {
    			return null;
@@ -1562,7 +1565,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         // Create the strain based on the strain name
         Strain strain = new Strain();
-        strain.setId(new DatasourceEntityId(strainAccession, DbIdType.MGI.intValue()));
+        strain.setId(new DatasourceEntityId(strainAccession, DbIdType.IMPC.intValue()));
         strain.setName(strainName);
 
         // insert the strain into the database
@@ -1629,32 +1632,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             term.setReplacementAcc(rs.getString("replacement_acc"));
 
             return term;
-        }
-    }
-
-    public class OrganisationRowMapper implements RowMapper<Organisation> {
-
-        /**
-         * Implementations must implement this method to map each row of data
-         * in the ResultSet. This method should not call {@code next()} on
-         * the ResultSet; it is only supposed to map values of the current row.
-         *
-         * @param rs     the ResultSet to map (pre-initialized for the current row)
-         * @param rowNum the number of the current row
-         * @return the result object for the current row
-         * @throws SQLException if a SQLException is encountered getting
-         *                      column values (that is, there's no need to catch SQLException)
-         */
-        @Override
-        public Organisation mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Organisation organisation = new Organisation();
-
-            organisation.setId(rs.getInt("id"));
-            organisation.setName(rs.getString("name"));
-            organisation.setFullname(rs.getString("fullname"));
-            organisation.setCountry(rs.getString("country"));
-
-            return organisation;
         }
     }
 

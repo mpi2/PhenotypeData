@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
     };
 
 
-    public PhenotypedColonyProcessor(Map<String, GenomicFeature> genes) throws DataImportException {
+    public PhenotypedColonyProcessor(Map<String, GenomicFeature> genes) throws DataLoadException {
         this.genes = genes;
     }
 
@@ -98,7 +98,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
             for (int i = 0; i < expectedHeadings.length; i++) {
                 if ( ! expectedHeadings[i].equals(actualHeadings[i])) {
-                    throw new DataImportException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
+                    throw new DataLoadException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
                 }
             }
 

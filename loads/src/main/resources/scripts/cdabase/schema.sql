@@ -47,7 +47,6 @@ DROP TABLE IF EXISTS experiment_observation;
 DROP TABLE IF EXISTS external_db;
 DROP TABLE IF EXISTS genomic_feature;
 DROP TABLE IF EXISTS higher_level_annotation;
-DROP TABLE IF EXISTS ilar;
 DROP TABLE IF EXISTS image_record_observation;
 DROP TABLE IF EXISTS live_sample;
 DROP TABLE IF EXISTS metadata_observation;
@@ -244,20 +243,6 @@ CREATE TABLE participant (
 
 	KEY project (project_id),
 	KEY organisation (organisation_id)
-
-	) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-/**
- * Very mouse specific . What about Zebrafish? ZFIN
- */
-CREATE TABLE ilar (
-
-	labcode                  VARCHAR(50) NOT NULL,
-	status                   ENUM('active', 'pending', 'retired'),
-	investigator             VARCHAR(255) NOT NULL DEFAULT '',
-	organisation             VARCHAR(255) NOT NULL DEFAULT '',
-
-	PRIMARY KEY (labcode)
 
 	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 

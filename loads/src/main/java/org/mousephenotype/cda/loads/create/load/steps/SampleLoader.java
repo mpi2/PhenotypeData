@@ -22,9 +22,9 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StageUnit;
@@ -60,6 +60,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private CdaSqlUtils                cdaSqlUtils;
     private DccSqlUtils                dccSqlUtils;
     private NamedParameterJdbcTemplate jdbcCda;
+    private LoadUtils                  loadUtils = new LoadUtils();
+
+    private Set<String> missingColonyIds = new HashSet<>();
+    private Set<String> unexpectedStage = new HashSet<>();
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
     private StepBuilderFactory   stepBuilderFactory;
@@ -161,11 +165,30 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Map<String, Integer> counts;
 
         for (Specimen specimen : specimens) {
-            counts = insertSample(specimen);
+            String sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
+            boolean isControl = (sampleGroup.equals("control"));
+
+            if (isControl) {
+                counts = insertSampleControlSpecimen(specimen);
+            } else {
+                counts = insertSampleExperimentalSpecimen(specimen);
+            }
 
             written.put("biologicalModel", written.get("biologicalModel") + counts.get("biologicalModel"));
             written.put("biologicalSample", written.get("biologicalSample") + counts.get("biologicalSample"));
             written.put("liveSample", written.get("liveSample") + counts.get("liveSample"));
+        }
+
+        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
+        while (missingColonyIdsIt.hasNext()) {
+            String colonyId = missingColonyIdsIt.next();
+            logger.error("Missing phenotyped_colony information for dcc-supplied colony " + colonyId + ". Skipping...");
+        }
+
+        Iterator<String> unexpectedStageIt = unexpectedStage.iterator();
+        while (unexpectedStageIt.hasNext()) {
+            String stage = unexpectedStageIt.next();
+            logger.info("Unexpected value for embryonic DCP stage: " + stage);
         }
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
@@ -176,7 +199,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     }
 
     @Transactional
-    private Map<String, Integer> insertSample(Specimen specimen) throws DataLoadException {
+    private Map<String, Integer> insertSampleExperimentalSpecimen(Specimen specimen) throws DataLoadException {
         Map<String, Integer> counts = new HashMap<>();
         counts.put("biologicalModel", 0);
         counts.put("biologicalSample", 0);
@@ -190,9 +213,8 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         // Query iMits first for specimen information. iMits is more up-to-date than the dcc.
         PhenotypedColony colony = cdaSqlUtils.getPhenotypedColony(specimen.getColonyID());
         if (colony == null) {
-            message = "Missing phenotyped_colony information for dcc-supplied colony " + specimen.getColonyID() + ". Skipping...";
-            logger.error(message);
-            throw new DataLoadException(message);
+            missingColonyIds.add(specimen.getColonyID());
+            return counts;
         }
 
         // Get the allele by symbol.
@@ -200,15 +222,16 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         if (allele == null) {
             try {
                 allele = cdaSqlUtils.createAndInsertAllele(colony.getAlleleSymbol());
-            } catch (DataImportException e) {
+
+            } catch (DataLoadException e) {
                 message = "Missing allele information for dcc-supplied colony " + specimen.getColonyID() + ". Skipping...";
                 logger.error(message);
-                throw new DataLoadException(message);
+                throw new DataLoadException(message, e);
             }
         }
 
         // Get the gene. Mark as error and skip if no gene.
-        gene = allele.getGene();
+        gene = colony.getGene();
         if (gene == null) {
             message = "Missing gene information for dcc-supplied colony " + specimen.getColonyID() + " for allele " + allele.toString() + ". Skipping...";
             logger.error(message);
@@ -229,9 +252,9 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
                 backgroundStrain = cdaSqlUtils.createAndInsertStrain(backgroundStrainName);
             }
 
-        } catch (DataImportException e) {
+        } catch (DataLoadException e) {
 
-            message = "Insert strain " + colony.getBackgroundStrainName() + " for dcc-supplied colony " + specimen.getColonyID() + " failed. Skipping...";
+            message = "Insert strain " + colony.getBackgroundStrainName() + " for dcc-supplied colony " + specimen.getColonyID() + " failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
             logger.error(message);
             throw new DataLoadException(message, e);
         }
@@ -286,6 +309,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         String zygosity = null;
         switch (specimen.getZygosity().value()) {
+            case "wild type":
             case "homozygous":
                 zygosity = ZygosityType.homozygote.getName();
                 break;
@@ -310,29 +334,23 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         // Get the biological model. Create one if it is not found.
         BiologicalModel biologicalModel = cdaSqlUtils.getBiologicalModelByJoins(colony.getGene().getId().getAccession(), allele.getSymbol(), backgroundStrainName);
         if (biologicalModel == null) {
-            try {
-                String allelicComposition = euroPhenomeStrainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);
-                BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
-                          allelicComposition
-                        , allele.getSymbol()
-                        , backgroundStrainName
-                        , zygosity
-                        , allele.getId().getAccession()
-                        , colony.getGene().getId().getAccession()
-                        , backgroundStrain.getId().getAccession());
-                List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
-                biologicalModelAggregators.add(biologicalModelAggregator);
+            String allelicComposition = euroPhenomeStrainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);
+            BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
+                    allelicComposition,
+                    allele.getSymbol(),
+                    backgroundStrainName,
+                    zygosity,
+                    allele.getId().getAccession(),
+                    colony.getGene().getId().getAccession(),
+                    backgroundStrain.getId().getAccession());
+            List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
+            biologicalModelAggregators.add(biologicalModelAggregator);
 
-                cdaSqlUtils.insertBiologicalModel(biologicalModelAggregators);
-                // Currently zygosity is null in the target query, so any non-null zygosity will fail to match.
-                biologicalModel = cdaSqlUtils.getBiologicalModel(allelicComposition, backgroundStrainName, null);
-                if (biologicalModel != null) {
-                    counts.put("biologicalModel", counts.get("biologicalModel") + 1);
-                }
+            cdaSqlUtils.insertBiologicalModel(biologicalModelAggregators);
 
-            } catch (DataImportException e) {
-                logger.error(e.getLocalizedMessage());
-                throw new DataLoadException(e);
+            biologicalModel = cdaSqlUtils.getBiologicalModel(allelicComposition, backgroundStrainName);
+            if (biologicalModel != null) {
+                counts.put("biologicalModel", counts.get("biologicalModel") + 1);
             }
         }
 
@@ -342,6 +360,189 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Map<String, Integer> results = cdaSqlUtils.insertBiologicalSample(externalId, externalDbId, sampleType, sampleGroup, phenotypingCenterId, productionCenterId);
         counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count"));
         int biologicalSampleId = results.get("biologicalSampleId");
+
+        // live_sample
+        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, colonyId, dateOfBirth, developmentalStage, litterId, sex, zygosity);
+        if (liveSampleId > 0) {
+            counts.put("liveSample", counts.get("liveSample") + 1);
+        }
+
+        // biological_model_sample
+        int biologicalModelSampleId = cdaSqlUtils.insertBiologicalModelSample(biologicalModelId, biologicalSampleId);
+
+        return counts;
+    }
+
+    private Strain getBackgroundStrain(Specimen specimen) throws DataLoadException {
+        Strain backgroundStrain;
+        String backgroundStrainName;
+        String message;
+
+        // specimen.strainId can contain an MGI strain accession id in the form "MGI:", or a strain name like C57BL/6N.
+        if (specimen.getStrainID().toLowerCase().startsWith("mgi:")) {
+            backgroundStrain = cdaSqlUtils.getStrain(specimen.getStrainID());
+            if (backgroundStrain == null) {
+                throw new DataLoadException("No strain table entry found for strain accession id '" + specimen.getStrainID() + "'");
+            }
+            backgroundStrainName = backgroundStrain.getName();
+
+        } else {
+                backgroundStrainName = specimen.getStrainID();
+        }
+
+        try {
+            backgroundStrainName = euroPhenomeStrainMapper.filterEuroPhenomeGeneticBackground(backgroundStrainName);
+            backgroundStrain = cdaSqlUtils.getStrainByName(backgroundStrainName);
+            if (backgroundStrain == null) {
+                backgroundStrain = cdaSqlUtils.createAndInsertStrain(backgroundStrainName);
+            }
+
+        } catch (DataLoadException e) {
+
+            message = "Insert strain " + specimen.getStrainID() + " failed. Skipping...";
+            logger.error(message);
+            throw new DataLoadException(message, e);
+        }
+
+        return backgroundStrain;
+    }
+
+    @Transactional
+    private Map<String, Integer> insertSampleControlSpecimen(Specimen specimen) throws DataLoadException {
+        String allelicComposition;
+        Strain backgroundStrain;
+        int biologicalSampleId;
+        String colonyId;
+        Date dateOfBirth;
+        OntologyTerm developmentalStage;
+        String externalId;
+        String litterId;
+        String message;
+        int phenotypingCenterId;
+        Integer productionCenterId ;        // This int value is optional.
+        String sampleGroup;
+        OntologyTerm sampleType;
+        String sex;
+        String zygosity;
+
+        Map<String, Integer> counts = new HashMap<>();
+        counts.put("biologicalModel", 0);
+        counts.put("biologicalSample", 0);
+        counts.put("liveSample", 0);
+
+        // NEED FOR biological_model:
+        //      allelicComposition
+        //      zygosity
+        //      backgroundStrainName
+        //      backgroundStrain.getId().getAccession());
+
+        // NEED FOR biological_sample:
+        //      externalId
+        //      externalDbId
+        //      sampleType
+        //      sampleGroup
+        //      phenotypingCenterId
+        //      productionCenterId
+
+        // NEED FOR live_sample:
+        //      biologicalSampleId
+        //      colonyId
+        //      dateOfBirth
+        //      developmentalStage
+        //      litterId
+        //      sex
+        //      zygosity
+
+        // Get the various components needed for inserting into biological_model, biological_sample, live_sample, and biological_model_sample.
+        allelicComposition = "";
+        zygosity = ZygosityType.homozygote.getName();
+        backgroundStrain = getBackgroundStrain(specimen);
+
+        externalId = specimen.getSpecimenID();
+        sampleType = (specimen instanceof Mouse ? sampleTypeWholeOrganism : sampleTypeMouseEmbryoStage);
+        sampleGroup = "control";
+        phenotypingCenterId = loadUtils.translateILAR(jdbcCda,  specimen.getPhenotypingCentre().value()).getId();
+        productionCenterId = (specimen.getProductionCentre() != null ? loadUtils.translateILAR(jdbcCda, specimen.getProductionCentre().value()).getId() : null);
+
+        colonyId = specimen.getColonyID();
+        if (specimen instanceof Mouse) {
+            dateOfBirth = ((Mouse) specimen).getDOB().getTime();
+            developmentalStage = developmentalStageMouse;
+
+        } else if (specimen instanceof Embryo) {
+            dateOfBirth = null;
+            String stage = ((Embryo) specimen).getStage().replaceAll("E", "");
+            StageUnit stageUnit = ((Embryo) specimen).getStageUnit();
+            developmentalStage = selectOrInsertStageTerm(stage, stageUnit);
+            if (developmentalStage == null) {
+                message = "Specimen ID '" + specimen.getSpecimenID() + "', colony ID '" + specimen.getColonyID() + "': Unknown developmental stage '" + stage + "'. Skipping...";
+                logger.error(message);
+                throw new DataLoadException(message);
+            }
+        } else {
+            message = "Specimen ID '" + specimen.getSpecimenID() + "', colony ID '" + specimen.getColonyID() + "': Expected specimen sample class 'Mouse' or 'Embryo' but found '" + specimen.getClass().getCanonicalName() + "'. Skipping...";
+            logger.error(message);
+            throw new DataLoadException(message);
+        }
+        litterId = specimen.getLitterId();
+        sex = specimen.getGender().value();
+        try {
+            // Remap sex values to consistent values (or throw an exception if there is no match)
+            sex = SexType.getByDisplayName(sex).getName();
+        } catch (IllegalArgumentException e) {
+
+            message = "Specimen ID '" + specimen.getSpecimenID() + "', colony ID '" + specimen.getColonyID() + "' has unknown sex value '" + sex + "'. Skipping...";
+            logger.error(message);
+            throw new DataLoadException(message);
+        }
+
+
+        // Do the table  INSERTs.
+        // NOTE: For biological_model, biological_sample, and live_sample, avoid using the hibernate DTOs, as they add a lot of overhead and confusion to an otherwise simple schema.
+
+
+        // Get the biological model. Create one if it is not found.
+        BiologicalModel biologicalModel = cdaSqlUtils.getBiologicalModel(allelicComposition, backgroundStrain.getName());
+        if (biologicalModel == null) {
+            BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
+                    allelicComposition,
+                    backgroundStrain.getName(),
+                    zygosity,
+                    backgroundStrain.getId().getAccession());
+            List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
+            biologicalModelAggregators.add(biologicalModelAggregator);
+
+            cdaSqlUtils.insertBiologicalModel(biologicalModelAggregators);
+
+            biologicalModel = cdaSqlUtils.getBiologicalModel(allelicComposition, backgroundStrain.getName());
+            if (biologicalModel == null) {
+                throw new DataLoadException("Inserted biological model (" + allelicComposition + ", " + backgroundStrain.getName() + ") but INSERT failed.");
+            }
+
+            counts.put("biologicalModel", counts.get("biologicalModel") + 1);
+        }
+
+        int biologicalModelId = biologicalModel.getId();
+
+        // biological_sample
+
+
+Map<String, Integer> results = null;
+try {
+            /*Map<String, Integer>*/ results = cdaSqlUtils.insertBiologicalSample(externalId, externalDbId, sampleType, sampleGroup, phenotypingCenterId, productionCenterId);
+} catch(Exception e) {
+    int mm  = 17;
+}
+
+
+
+
+
+
+
+
+        counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count"));
+        biologicalSampleId = results.get("biologicalSampleId");
 
         // live_sample
         int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, colonyId, dateOfBirth, developmentalStage, litterId, sex, zygosity);
@@ -402,7 +603,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
    				termName = String.format("embryonic day %s", stage);
 
    				if( ! expectedDpc.contains(stage)) {
-   					logger.warn("Unexpected value for embryonic DCP stage: " + stage);
+   					unexpectedStage.add(stage);
    				}
    				break;
 
