@@ -31,7 +31,7 @@ public class FileExportUtils {
 		Workbook wb;
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Expires", "0");
-		String outfile = fileName.replaceAll(",", "") + "." + fileType;
+		String outfile = fileName.replaceAll(",", "").replaceAll("%", "") + "." + fileType;
 
 		if (fileType.equals("tsv")) {
 
