@@ -38,7 +38,7 @@ import java.util.Map;
  * <p/>
  * Created by mrelac on 06/09/16. Ported from AdminTools. Original creator: Gautier Koscielny, Feb 2012.
  */
-public class EuroPhenomeStrainMapper {
+public class EuroPhenomeStrainMapperx {
     private CdaSqlUtils cdaSqlUtils;
     private Logger      logger = LoggerFactory.getLogger(this.getClass());
 
@@ -112,7 +112,7 @@ public class EuroPhenomeStrainMapper {
     }
 
     @Inject
-    public EuroPhenomeStrainMapper(CdaSqlUtils cdaSqlUtils) throws DataLoadException {
+    public EuroPhenomeStrainMapperx(CdaSqlUtils cdaSqlUtils) throws DataLoadException {
         this.cdaSqlUtils = cdaSqlUtils;
         initialise();
     }
