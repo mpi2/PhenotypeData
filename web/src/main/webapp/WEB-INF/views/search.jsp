@@ -76,7 +76,7 @@
 
         <c:set var="subMatch" value="subMatch"/>
         <div id="overview">
-
+            Search result overview with best hit
             <table class="out">
                 <tr>
                     <td class="tdout">
