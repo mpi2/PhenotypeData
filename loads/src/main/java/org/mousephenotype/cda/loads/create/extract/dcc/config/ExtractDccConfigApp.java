@@ -26,7 +26,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -53,7 +52,7 @@ public class ExtractDccConfigApp {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Bean(name = "dccDataSource")
-    @ConfigurationProperties(prefix = "datasource.dcc")
+//    @ConfigurationProperties(prefix = "datasource.dcc")
     public DataSource dccDataSource() {
         DataSource ds = DataSourceBuilder.create().type(BasicDataSource.class).driverClassName("com.mysql.jdbc.Driver").build();
         ((BasicDataSource) ds).setInitialSize(1);
