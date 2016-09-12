@@ -24,7 +24,7 @@ import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
-import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
+import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapperx;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StageUnit;
@@ -55,7 +55,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
     private Map<String, Allele>     allelesBySymbol         = new HashMap<>();
     private CommonUtils             commonUtils             = new CommonUtils();
-    private EuroPhenomeStrainMapper euroPhenomeStrainMapper;
+    private EuroPhenomeStrainMapperx euroPhenomeStrainMapper;
 
     private CdaSqlUtils                cdaSqlUtils;
     private DccSqlUtils                dccSqlUtils;
@@ -100,7 +100,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
         sampleTypeWholeOrganism = cdaSqlUtils.getOntologyTermByName("whole organism");
         allelesBySymbol = cdaSqlUtils.getAllelesBySymbol();
-        this.euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
+        this.euroPhenomeStrainMapper = new EuroPhenomeStrainMapperx(cdaSqlUtils);
         setExternalDb(externalDbShortName);
         this.efoDbId = cdaSqlUtils.getExternalDbId("EFO");
 
