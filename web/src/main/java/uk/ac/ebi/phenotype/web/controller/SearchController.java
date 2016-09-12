@@ -30,10 +30,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -163,9 +160,10 @@ public class SearchController {
 				if ( docCount != 0 ) {
 					doc = response.getResults().get(0);
                     doc = highlightMatches(doc, query, thisCore);
+                    //System.out.println(thisCore + " - doc: " + doc.toString());
 				}
 				coreData.put(thisCore, doc);
-				//System.out.println("doc: " + doc.toString());
+
 			} catch (SolrServerException e) {
 				System.out.println(e.getStackTrace());
 			}
@@ -201,7 +199,7 @@ public class SearchController {
 		String debug = request.getParameter("debug");
 
 		String paramString = request.getQueryString();
-//		System.out.println("paramString " + paramString);
+		//System.out.println("paramString " + paramString);
 		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 
 		model.addAttribute("facetCount", facetCountJsonResponse);
@@ -250,7 +248,7 @@ public class SearchController {
                     doc.setField(MpDTO.MP_DEFINITION, partMpDef + defMatch + "<div class='moreLess'>Show more</div>");
                 }
                 else {
-                    doc.setField(MpDTO.MP_DEFINITION, defMatch);
+                    doc.setField(MpDTO.MP_DEFINITION, def);
                 }
             }
 
@@ -259,6 +257,9 @@ public class SearchController {
             doc = getMatchStr(doc, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, lcQuery, false);
         }
         else if (coreName.equals("impc_images")) {
+            String thumb = doc.getFieldValue(ImageDTO.JPEG_URL).toString().replace("render_image", "render_birds_eye_view");
+            doc.setField(ImageDTO.JPEG_URL, thumb);
+
             List<String> fields = Arrays.asList(ImageDTO.PROCEDURE_NAME, ImageDTO.GENE_SYMBOL);
             for(String field : fields){
                 doc = getMatchStr(doc, field, lcQuery, false);
@@ -268,7 +269,12 @@ public class SearchController {
                 doc = getMatchStr(doc, field, lcQuery, true);
             }
         }
+        else if (coreName.equals("allele2")) {
+            doc = getMatchStr(doc, AlleleDTO.MARKER_SYMBOL, lcQuery, false);
+            String sup = "<sup>" + doc.getFieldValue(Allele2DTO.ALLELE_NAME).toString() + "</sup>";
+            doc.setField(Allele2DTO.ALLELE_NAME, sup);
 
+        }
 
         return doc;
     }
@@ -399,7 +405,7 @@ public class SearchController {
 		//System.out.println("SearchController solrParamStr: " + solrParamStr);
 		String mode = dataType + "Grid";
 		JSONObject json = solrIndex.getQueryJson(query, dataType, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-//		System.out.println("SearchController JSON: " + json.toString());
+		System.out.println("SearchController JSON: " + json.toString());
 		return json;
 	}
 
