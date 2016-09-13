@@ -21,6 +21,7 @@ import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -43,7 +44,7 @@ import java.util.Map;
  * Created by mrelac on 03/05/16.
  */
 @Configuration
-@Import(ExtractCdabaseConfigApp.class)
+@Import(DataSourcesConfigApp.class)
 public class ExtractCdabaseConfigBeans {
 
     private Map<String, OntologyTerm>   mgiFeatureTypes;
