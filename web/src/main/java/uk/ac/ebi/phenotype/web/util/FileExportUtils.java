@@ -1,19 +1,17 @@
 package uk.ac.ebi.phenotype.web.util;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.poi.ss.usermodel.Workbook;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.ac.ebi.phenotype.generic.util.ExcelWorkBook;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * @since 2016/05/05
@@ -33,7 +31,7 @@ public class FileExportUtils {
 		Workbook wb;
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Expires", "0");
-		String outfile = fileName + "." + fileType;
+		String outfile = escapeCharsFileName(fileName) + "." + fileType;
 
 		if (fileType.equals("tsv")) {
 
@@ -76,7 +74,7 @@ public class FileExportUtils {
 				tableData = Tools.composeXlsTableData(dataRows);
 			}
 
-			wb = new ExcelWorkBook(titles, tableData, escapeCharsFileName(fileName)).fetchWorkBook();
+			wb = new ExcelWorkBook(titles, tableData, fileName).fetchWorkBook();
 			wb.write(output);
 			output.close();			
 
@@ -86,7 +84,7 @@ public class FileExportUtils {
 	
 	// ExcelWorkBook complains about some special characters, i.e. "/"
 	private static String escapeCharsFileName(String fileName){
-		return fileName.replaceAll("/", " ");
+		return fileName.replaceAll("/", " ").replaceAll(",", "");
 	}
 	
 }

@@ -296,7 +296,7 @@
 	    		
 	    		// embryo view data availabe
 	    		var embryoViewerSect = $("<li class='fcatsection embryo_viewer'></li>");		 
-	    		embryoViewerSect.append($('<span></span>').attr({'class':'flabel'}).text('Embryo Image Viewer'));
+	    		embryoViewerSect.append($('<span></span>').attr({'class':'flabel'}).text('3D Imaging'));
 	    		
 	    		var embview_facets = json.facet_counts['facet_fields']['embryo_data_available'];
 	    		foundMatch.embryo_viewer = embview_facets.length;
