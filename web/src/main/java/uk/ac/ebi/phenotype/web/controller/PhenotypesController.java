@@ -357,7 +357,7 @@ public class PhenotypesController {
 		for (PhenotypePageTableRow row : phenotypes) {
 			dataRows.add(row.toTabbedString());
 		}
-		
+
 		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
     }
     

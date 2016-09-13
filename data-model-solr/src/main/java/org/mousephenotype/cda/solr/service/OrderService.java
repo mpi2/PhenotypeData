@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -79,7 +80,9 @@ public class OrderService {
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
 		query.addFilterQuery("("+Allele2DTO.ES_CELL_AVAILABLE+":true OR "+Allele2DTO.TARGETING_VECTOR_AVAILABLE+":true OR "+Allele2DTO.MOUSE_AVAILABLE+":true)" );
+		if(rows!=null){
 		query.setRows(rows);
+		}
 		//System.out.println("query for alleles=" + query);
 		QueryResponse response = allele2Core.query(query);
 		System.out.println("number found of allele2 docs=" + response.getResults().getNumFound());
@@ -121,7 +124,7 @@ public class OrderService {
 		if (productsMap.keySet().size() > 1) {
 			System.err.println("more than one key for products - should only be one");
 		}
-		for (String key : productsMap.keySet()) {
+		for (String key : productsMap.keySet()) {//just get a list of products
 			productList = productsMap.get(key);
 		}
 
@@ -167,7 +170,7 @@ public class OrderService {
 			}
 			alleleNameToProductsMap.get(prod.getAlleleName()).add(prod);
 		}
-
+System.out.println("alleleNameToProductsMap="+alleleNameToProductsMap);
 		return alleleNameToProductsMap;
 
 	}
