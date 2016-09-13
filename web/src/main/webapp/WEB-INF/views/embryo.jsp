@@ -93,6 +93,7 @@
                             <tr><td>E14.5-E15.5 microCT screening</td><td>at least 2 homs</td><td>reconstructions available</td></tr>
                             <tr><td>E18.5 Gross morphology</td><td>at least 2 homs</td><td>images optional</td></tr>
                             <tr><td>E18.5 microCT</td><td>at least 2 homs, 2 wt</td><td>reconstructions available</td></tr>
+                            <tr><td>E14.5 HREM</td><td>screening at 3 homs, 1wt</td><td> reconstructions available</td></tr>
                             </table>
                             <p>
                             In addition, the NIH is supporting in-depth phenotyping of embryonic lethal lines with three current awardees.
