@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.dcc.config;
 
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
  * Created by mrelac on 18/08/16.
  */
 @Configuration
-@Import(ExtractDccConfigApp.class)
+@Import(DataSourcesConfigApp.class)
 public class ExtractDccConfigBeans {
 
     @Autowired

@@ -16,9 +16,8 @@
 
 package org.mousephenotype.cda.loads.create.load.config;
 
-import com.google.inject.Inject;
-import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -32,7 +31,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
  * Created by mrelac on 03/09/16.
  */
 @Configuration
-@Import(LoadConfigApp.class)
+@Import(DataSourcesConfigApp.class)
 public class LoadConfigBeans {
 
     private int externalIdDbId;

@@ -14,10 +14,11 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.load.config;
+package org.mousephenotype.cda.loads.common;
 
-import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigApp;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -37,7 +38,6 @@ import javax.sql.DataSource;
 @Configuration
 @PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
 @EnableAutoConfiguration(exclude = {
-        ExtractDccConfigApp.class,
         JndiConnectionFactoryAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
@@ -48,15 +48,69 @@ import javax.sql.DataSource;
  *
  * Created by mrelac on 18/08/2016.
  */
-public class LoadConfigApp {
+public class DataSourcesConfigApp {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${datasource.cdabase.url}")
+    String cdabaseUrl;
+
+    @Value("${datasource.cda.url}")
+    String cdaUrl;
+
+    @Value("${datasource.dcc.url}")
+    String dccUrl;
+
+    @Value("${datasource.cdabase.username}")
+    String username;
+
+    @Value("${datasource.cdabase.password}")
+    String password;
+
+    @Bean(name = "cdabaseDataSource")
+    @ConfigurationProperties(prefix = "datasource.cdabase")
+    public DataSource cdabaseDataSource() {
+//        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+
+        DataSource ds = DataSourceBuilder
+                .create()
+                .url(cdabaseUrl)
+                .username(username)
+                .password(password)
+                .driverClassName("com.mysql.jdbc.Driver")
+                .build();
+
+        try {
+            logger.info("Using cda_base database {}", ds.getConnection().getCatalog());
+        } catch (Exception e) { }
+
+        return ds;
+    }
+
+    @Bean(name = "jdbcCdabase")
+    public NamedParameterJdbcTemplate jdbcCdabase() {
+        return new NamedParameterJdbcTemplate(cdabaseDataSource());
+    }
+
+
 
     @Bean(name = "cdaDataSource")
     @Primary
     @ConfigurationProperties(prefix = "datasource.cda")
     public DataSource cdaDataSource() {
-        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+//        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+
+        DataSource ds = DataSourceBuilder
+                .create()
+                .url(cdaUrl)
+                .username(username)
+                .password(password)
+                .driverClassName("com.mysql.jdbc.Driver")
+                .build();
+
+        try {
+            logger.info("Using cda database {}", ds.getConnection().getCatalog());
+        } catch (Exception e) { }
 
         return ds;
     }
@@ -67,10 +121,26 @@ public class LoadConfigApp {
     }
 
 
+
     @Bean(name = "dccDataSource")
     @ConfigurationProperties(prefix = "datasource.dcc")
     public DataSource dccDataSource() {
-        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+//        DataSource ds = DataSourceBuilder.create().type(BasicDataSource.class).driverClassName("com.mysql.jdbc.Driver").build();
+//        ((BasicDataSource) ds).setInitialSize(1);
+
+        DataSource ds = DataSourceBuilder
+                .create()
+                .url(dccUrl)
+                .username(username)
+                .password(password)
+                .type(BasicDataSource.class)
+                .driverClassName("com.mysql.jdbc.Driver").build();
+        ((BasicDataSource) ds).setInitialSize(1);
+
+        try {
+            logger.info("Using dcc database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+
+        } catch (Exception e) { }
 
         return ds;
     }
