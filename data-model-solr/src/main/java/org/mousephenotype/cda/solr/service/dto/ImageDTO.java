@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import org.apache.solr.client.solrj.beans.Field;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.solr.client.solrj.beans.Field;
 
 public class ImageDTO extends ObservationDTO {
 
@@ -111,9 +111,15 @@ public class ImageDTO extends ObservationDTO {
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
 
 	public static final String MP_ID_TERM = "mp_id_term";
+	public static final String MP_ID = MpDTO.MP_ID;
+	public static final String MP_TERM = MpDTO.MP_TERM;
+	public static final String MP_TERM_SYNONYM = MpDTO.MP_TERM_SYNONYM;
+	public static final String MP_NARROW_SYNONYM = MpDTO.MP_NARROW_SYNONYM;
+
 
 	public static final String INCREMENT_VALUE = "increment_value";
 	public static final String STAGE = "stage";
+
 
 	//	used for lexical match on search page
 	public static final String MARKER_SYNONYM_SYMBOL_GENE = "marker_synonym_symbol_gene";
@@ -125,20 +131,20 @@ public class ImageDTO extends ObservationDTO {
     public static final String INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM = "intermediate_anatomy_term_anatomy_id_term";
     public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "intermediate_anatomy_term_synonym_anatomy_id_term";
 	public static final String ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "anatomy_term_synonym_anatomy_id_term";
-	
-	@Field(MpDTO.MP_ID)
+
+	@Field(MP_ID)
 	private List<String> mpTermIds;
 
-	@Field(MpDTO.MP_TERM)
+	@Field(MP_TERM)
 	private List<String> mpTerm;
 
 	@Field(MP_ID_TERM)
 	private List<String> mpIdTerm;
 
-	@Field(MpDTO.MP_TERM_SYNONYM)
+	@Field(MP_TERM_SYNONYM)
 	private List<String> mpTermSynonym;
 
-    @Field(MpDTO.MP_NARROW_SYNONYM)
+    @Field(MP_NARROW_SYNONYM)
     private Set<String> mpNarrowSynonym;
 
 	@Field(FULL_RESOLUTION_FILE_PATH)

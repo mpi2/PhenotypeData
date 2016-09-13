@@ -87,7 +87,7 @@
                              were performed.</p>
                             <p>To see all test results for adult data, press the "All Adult Data" button (described below).
                             <br />
-                            If there are embryo images, press the "Embryo Viewer" button (described below) to view them.</p>
+                            If there are embryo images, press the "3D Imaging" button (described below) to view them.</p>
                             <img src="img/gene-phenotype-summary.png" />
 
 
@@ -103,7 +103,7 @@
                             <img src="img/all-data.png" />
                             <br/><br/>
 
-                            <h4 id="embryo-viewer">Embryo Viewer</h4>
+                            <h4 id="embryo-viewer">3D Imaging</h4>
                             <p>This button appears when there are embryo images. Click this button to launch the embryo viewer.</p>
                             <br />
                             <img src="img/embryo-viewer.png" />
