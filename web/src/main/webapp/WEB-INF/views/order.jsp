@@ -56,34 +56,37 @@
         							<thead>
         		 					</thead>
         		 					<tbody>
- 										<c:forEach var="entry" items="${productsByName}">
+ 										<c:forEach var="repo" items="${productsByName}">
  										
- 											<tr><td><img src="img/rep_icons/${fn:toLowerCase(entry.key)}.jpg" alt="${entry.key}"  width="100px" onerror="this.style.display='none';this.parentElement.parentElement.innerHTML='${entry.key}';" /></td><td>
- 											<!-- just to print out the order link in case there are multiple order names and links that aren't this one -->
-		 											<c:forEach var="orderName" items="${ entry.value[0].orderNames}" varStatus="repoIndex">
-		 											<c:if test="${orderName eq entry.key}">
-		 											<a class="btn" href="${ entry.value[0].orderLinks[repoIndex.index] }" target="_blank"><i class="fa fa-shopping-cart"></i>&nbsp;&nbsp;&nbsp;&nbsp;Third party site for info about ordering</a> OR <div class="btn close">Return to previous page</div>
+ 											<tr>
+ 												<td>repo=${ repo}value=${ repo.value} <img src="img/rep_icons/${fn:toLowerCase(repo.key)}.jpg" alt="${repo.key}"  width="100px" onerror="this.style.display='none';this.parentElement.parentElement.innerHTML='${repo.key}';" />
+ 												</td>
+ 												<td>
+ 												<!-- just to print out the order link in case there are multiple order names and links that aren't this one -->
+		 											<c:forEach var="orderName" items="${ repo.value[0].orderNames}" varStatus="repoIndex">
+		 											<c:if test="${orderName eq repo}">
+		 												<a class="btn" href="${ entry.value[0].orderLinks[repoIndex.index] }" target="_blank"><i class="fa fa-shopping-cart"></i>&nbsp;&nbsp;&nbsp;&nbsp;Third party site for info about ordering</a> OR <div class="btn close">Return to previous page</div>
 		 											</c:if>
 		 											</c:forEach>
-		 									</td>
-		 									<td></td>	
+		 										</td>
+		 										<td></td>	
  											</tr>
  											<!-- loop through the products so we get their name and qc links -->
- 											<c:forEach var="prod" items="${entry.value}">
+ 											<c:forEach var="prod" items="${repo.value}">
  											<!--qc data links like this http://localhost:8080/phenotype-archive/alleles/qc_data/es_cell/EPD0386_3_A05/ -->
  											<tr>
- 											<td></td>
- 											<td>	${prod.name} </td>
- 											<td>
- 											<c:if test="${fn:length(prod.qcData)>0}">
- 											 	<a class="btn" href="${baseUrl}/qcData?type=${type}&productName=${prod.name}&alleleName=${prod.alleleName}&bare=true"><i class="fa fa-info"></i>QC Data</a>
- 											 	</c:if>
- 											
- 											
- 											<c:if test="${fn:length(prod.qcData)==0}">
- 											No QC Data Available
- 											</c:if>
- 											 </td>
+	 											<td>should be empty</td>
+	 											<td>prod name=	${prod.name} </td>
+	 											<td>
+	 											<c:if test="${fn:length(prod.qcData)>0}">
+	 											 	<a class="btn" href="${baseUrl}/qcData?type=${type}&productName=${prod.name}&alleleName=${prod.alleleName}&bare=true"><i class="fa fa-info"></i>QC Data</a>
+	 											 	</c:if>
+	 											
+	 											
+	 											<c:if test="${fn:length(prod.qcData)==0}">
+	 											No QC Data Available
+	 											</c:if>
+	 											</td>
  											 </tr>
  											</c:forEach> 
  																				

@@ -489,7 +489,7 @@
 													<c:otherwise>
 														<div id="tabs-1">
 															<!-- Expression in Anatomogram -->
-															No expression data was found
+															No expression data was found for this adult tab
 														</div>
 													</c:otherwise>
 												</c:choose>
@@ -508,7 +508,7 @@
 													</c:when>
 													<c:otherwise>
 														<div id="tabs-3">
-															No expression image was found
+															No expression image was found for this adult tab
 														</div>
 													</c:otherwise>
 												</c:choose>
@@ -521,7 +521,7 @@
 													</c:when>
 													<c:otherwise>
 														<div id="tabs-4">
-															No expression data was found
+															No expression data was found for this embryo tab
 														</div>
 													</c:otherwise>
 												</c:choose>
@@ -533,7 +533,7 @@
 													</c:when>
 													<c:otherwise>
 														<div id="tabs-5">
-															No expression image was found
+															No expression image was found for this embryo tab
 														</div>
 													</c:otherwise>
 												</c:choose>
