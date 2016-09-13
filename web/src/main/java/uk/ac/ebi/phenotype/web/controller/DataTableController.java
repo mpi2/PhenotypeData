@@ -751,7 +751,9 @@ public class DataTableController {
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
-        for (int i = 0; i < docs.size(); i ++) {
+		String baseUrl = request.getAttribute("baseUrl").toString();
+
+		for (int i = 0; i < docs.size(); i ++) {
 
             List<String> rowData = new ArrayList<String>();
 
@@ -761,7 +763,8 @@ public class DataTableController {
 
             // phenotyping status
             String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
-            String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
+            String geneLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + mgiId + "\"";
+
 
             // ES cell/mice production status
             boolean toExport = false;
