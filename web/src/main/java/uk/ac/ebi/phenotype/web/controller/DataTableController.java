@@ -763,7 +763,8 @@ public class DataTableController {
 
             // phenotyping status
             String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
-            String geneLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + mgiId + "\"";
+            String geneSymbol = doc.getString(GeneDTO.MARKER_SYMBOL);
+            String geneLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
 
 
             // ES cell/mice production status
