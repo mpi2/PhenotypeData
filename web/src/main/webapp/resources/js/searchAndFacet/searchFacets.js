@@ -871,6 +871,7 @@
 				}
 			}
 
+			var defaultLen = 25;
 
 			// Subfacets: mutation_tyoe / allele category / allele feature
 			var oSubFacets1 = {'mutation_type_str':'Mutation Type', 'allele_category_str':'Allele Category', 'allele_features_str':'Allele Feature'};
