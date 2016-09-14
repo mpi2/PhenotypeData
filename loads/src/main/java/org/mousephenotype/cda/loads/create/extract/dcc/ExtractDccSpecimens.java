@@ -56,7 +56,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
     // Required by the Harwell DCC export utilities
     public static final  String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
 
-    private String dbname;
+    private String    dbname;
 
     @NotNull
     @Autowired
@@ -99,12 +99,13 @@ public class ExtractDccSpecimens implements CommandLineRunner {
 
         filename = (String) options.valuesOf("filename").get(0);
 
+        try {
+            dbname = dcc.getConnection().getCatalog();
+        } catch (SQLException e) {
+            dbname = "Unknown";
+        }
+
         if (options.has("create")) {
-            try {
-                dbname = dcc.getConnection().getCatalog();
-            } catch (SQLException e) {
-                dbname = "Unknown";
-            }
             logger.info("Dropping and creating dcc specimen tables for database {} - begin", dbname);
             org.springframework.core.io.Resource r = new ClassPathResource("scripts/dcc/createSpecimen.sql");
             ResourceDatabasePopulator            p = new ResourceDatabasePopulator(r);
@@ -145,15 +146,6 @@ public class ExtractDccSpecimens implements CommandLineRunner {
                     totalSpecimenFailures++;
                 }
             }
-        }
-
-        // Update the relatedSpecimen.specimen_mine_pk column.
-        int relatedSpecimenUpdateCount = dccSqlUtils.updateRelatedSpecimenMinePk();
-
-        if (totalSpecimenFailures > 0) {
-            logger.warn("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
-        } else {
-            logger.debug("Inserted {} specimens ({} failed). Updated {} related specimens", totalSpecimens, totalSpecimenFailures, relatedSpecimenUpdateCount);
         }
     }
 
@@ -204,10 +196,10 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         // center_specimen
         dccSqlUtils.insertCenter_specimen(centerPk, specimenPk);
 
-        // relatedSpecimen NOTE: 'specimen_mine_pk cannot be loaded until ALL of the specimen files have been loaded,
-        // as the related specimens are not guaranteed to be defined in the same specimen file (and, in fact, are not).
+        // relatedSpecimen
+        String centerId = dccSqlUtils.getCenterId(centerPk);
         for (RelatedSpecimen relatedSpecimen : specimen.getRelatedSpecimen()) {
-            dccSqlUtils.insertRelatedSpecimen(relatedSpecimen, specimenPk);
+            dccSqlUtils.insertRelatedSpecimen(centerId, specimenPk, specimen.getSpecimenID(), relatedSpecimen.getRelationship().value(), relatedSpecimen.getSpecimenID());
         }
     }
 }
