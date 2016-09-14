@@ -262,6 +262,23 @@ public class DccSqlUtils {
     }
 
     /**
+     *
+     * @param centerPk
+     * @return the centerId for the given center primary key
+     */
+    public String getCenterId(long centerPk) {
+        String centerId;
+        String query = "SELECT centerId FROM center WHERE pk = :centerPk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("centerPk", centerPk);
+
+        centerId = npJdbcTemplate.queryForObject(query, parameterMap, String.class);
+
+        return centerId;
+    }
+
+    /**
      * Returns a {@link List} of {@link Dimension} instances associated with parameter association primary key. If
      * there are no associations, an empty list is returned.
      *
@@ -1141,33 +1158,36 @@ public class DccSqlUtils {
     /**
      * Inserts the given {@link RelatedSpecimen} into the relatedSpecimen table. Duplicates are ignored.
      *
-     * @param relatedSpecimen the relatedSpecimen to be inserted
-     * @param specimen_theirsPk the primary key of the related specimen to be inserted
+     * @param centerId the center id
+     * @param specimenPk the specimen id primary key
+     * @param specimenId the specimen id
+     * @param relationship the relationship of the related specimen id to the specimen id
+     * @param relatedSpecimenId the related specimen id
      *
-     * @return the relatedSpecimen, with primary key loaded
+     * @return the number of rows inserted
      */
-    public RelatedSpecimen insertRelatedSpecimen(RelatedSpecimen relatedSpecimen, long specimen_theirsPk) {
-        String insert = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_pk) "
-                      + "VALUES (:relationship, :specimenIdMine, :specimen_theirsPk)";
+    public int insertRelatedSpecimen(String centerId, long specimenPk, String specimenId, String relationship, String relatedSpecimenId) {
+        int count;
+        String insert = "INSERT INTO relatedSpecimen (centerId, specimenIdPk, specimenId, relationship, relatedSpecimenId) "
+                      + "VALUES (:centerId, :specimenIdPk, :specimenId, :relationship, :relatedSpecimenId)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
 
-            parameterMap.put("relationship", relatedSpecimen.getRelationship().value());
-            parameterMap.put("specimenIdMine", relatedSpecimen.getSpecimenID());
-            parameterMap.put("specimen_theirsPk", specimen_theirsPk);
+            parameterMap.put("centerId", centerId);
+            parameterMap.put("specimenIdPk", specimenPk);
+            parameterMap.put("specimenId", specimenId);
+            parameterMap.put("relationship", relationship);
+            parameterMap.put("relatedSpecimenId", relatedSpecimenId);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
-            if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
-                relatedSpecimen.setHjid(pk);
-            }
+            count = npJdbcTemplate.update(insert, parameterMap);
+
 
         } catch (DuplicateKeyException e) {
-
+            count = 0;
         }
 
-        return relatedSpecimen;
+        return count;
     }
 
     /**
@@ -1719,17 +1739,6 @@ public class DccSqlUtils {
             return null;
 
         return selectOrInsertStatuscode(statuscode.getValue(), statuscode.getDate());
-    }
-
-
-    // UPDATES
-
-
-    public int updateRelatedSpecimenMinePk() {
-        final String update = "UPDATE relatedSpecimen SET specimen_mine_pk = (SELECT pk FROM specimen WHERE relatedSpecimen.specimenIdMine = specimen.specimenId)";
-        int count = npJdbcTemplate.update(update, new HashMap<String, Object>());
-
-        return count;
     }
 
 
