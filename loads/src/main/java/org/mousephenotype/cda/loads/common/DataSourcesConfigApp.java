@@ -26,7 +26,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -67,21 +66,21 @@ public class DataSourcesConfigApp {
     @Value("${datasource.cdabase.password}")
     String password;
 
-    @Bean(name = "cdabaseDataSource")
-    @ConfigurationProperties(prefix = "datasource.cdabase")
+    @Bean(name = "cdabaseDataSource", destroyMethod = "close")
     public DataSource cdabaseDataSource() {
-//        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 
         DataSource ds = DataSourceBuilder
                 .create()
                 .url(cdabaseUrl)
                 .username(username)
                 .password(password)
-                .driverClassName("com.mysql.jdbc.Driver")
-                .build();
+                .type(BasicDataSource.class)
+                .driverClassName("com.mysql.jdbc.Driver").build();
+        ((BasicDataSource) ds).setInitialSize(1);
 
         try {
-            logger.info("Using cda_base database {}", ds.getConnection().getCatalog());
+            logger.info("Using cdasource database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+
         } catch (Exception e) { }
 
         return ds;
@@ -94,22 +93,22 @@ public class DataSourcesConfigApp {
 
 
 
-    @Bean(name = "cdaDataSource")
+    @Bean(name = "cdaDataSource", destroyMethod = "close")
     @Primary
-    @ConfigurationProperties(prefix = "datasource.cda")
     public DataSource cdaDataSource() {
-//        DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
 
         DataSource ds = DataSourceBuilder
                 .create()
                 .url(cdaUrl)
                 .username(username)
                 .password(password)
-                .driverClassName("com.mysql.jdbc.Driver")
-                .build();
+                .type(BasicDataSource.class)
+                .driverClassName("com.mysql.jdbc.Driver").build();
+        ((BasicDataSource) ds).setInitialSize(1);
 
         try {
-            logger.info("Using cda database {}", ds.getConnection().getCatalog());
+            logger.info("Using cda database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+
         } catch (Exception e) { }
 
         return ds;
@@ -122,11 +121,8 @@ public class DataSourcesConfigApp {
 
 
 
-    @Bean(name = "dccDataSource")
-    @ConfigurationProperties(prefix = "datasource.dcc")
+    @Bean(name = "dccDataSource", destroyMethod = "close")
     public DataSource dccDataSource() {
-//        DataSource ds = DataSourceBuilder.create().type(BasicDataSource.class).driverClassName("com.mysql.jdbc.Driver").build();
-//        ((BasicDataSource) ds).setInitialSize(1);
 
         DataSource ds = DataSourceBuilder
                 .create()
