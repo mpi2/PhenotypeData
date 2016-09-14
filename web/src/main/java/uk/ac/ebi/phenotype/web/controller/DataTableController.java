@@ -641,7 +641,7 @@ public class DataTableController {
             String alleleName = doc.getString("allele_name");
             String markerAcc = doc.getString("mgi_accession_id");
 			String markerSymbol = doc.getString("marker_symbol");
-			String mutationType = doc.getString("mutation_type");
+			String mutationType = doc.getString("mutation_type") + "; " + doc.getString("allele_description");
 
 			List<String> orders = new ArrayList<>();
             String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
