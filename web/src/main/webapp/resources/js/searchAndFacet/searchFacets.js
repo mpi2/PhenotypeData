@@ -839,7 +839,7 @@
 			// Subfacets: availability for es cells, mouse, targeting vector
 			//var thisUlContainer = $("<ul></ul>");
 
-			var oSubFacets = {'targeting_vector_available':'Targeting Vector Available', 'es_cell_available':'ES Cell Availale', 'mouse_available':'Mouse Available'};
+			var oSubFacets = {'targeting_vector_available':'Targeting Vector Available', 'es_cell_available':'ES Cell Available', 'mouse_available':'Mouse Available'};
 			for ( var fq in oSubFacets ){
 
 				var aData = json.facet_fields[fq];
@@ -871,6 +871,7 @@
 				}
 			}
 
+			var defaultLen = 25;
 
 			// Subfacets: mutation_tyoe / allele category / allele feature
 			var oSubFacets1 = {'mutation_type_str':'Mutation Type', 'allele_category_str':'Allele Category', 'allele_features_str':'Allele Feature'};
