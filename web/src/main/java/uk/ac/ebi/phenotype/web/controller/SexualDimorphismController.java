@@ -15,12 +15,11 @@ import java.io.IOException;
  @Controller
 public class SexualDimorphismController {
 
-    @RequestMapping("/sexualDimorphism")
+    @RequestMapping("/sexual-dimorphism")
     public String allImages(  HttpServletRequest request, Model model, RedirectAttributes attributes)
     throws SolrServerException, IOException {
 
         //model.addAttribute("manuscriptLink", ));
-        System.out.println("CALLEDDDD");
         return "sd";
     }
 
