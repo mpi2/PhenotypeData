@@ -99,9 +99,9 @@
 
   <jsp:body>
     <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-
-    <h1>What is IMPC?</h1>
     <a name="whatisimpc"></a>
+    <h1>What is IMPC?</h1>
+
     <img src="${baseUrl}/img/IMPC_map6.jpg" /><br>
     <h3>IMPC Members</h3>
     <b>The IMPC is currently composed of 17 research institutions and 5 national funders.</b><p>
