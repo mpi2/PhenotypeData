@@ -188,7 +188,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
             // this query would only pick up lines that imits have phenotype / production status info about
             SolrQuery query = new SolrQuery("latest_project_status:*");
-            query.addFilterQuery("feature_type:* AND type:gene");
+            query.addFilterQuery("feature_type:* AND type:(gene OR Gene)");
 
             query.setRows(BATCH_SIZE);
 
@@ -300,7 +300,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         }
     }
 
-    public Map<String, List<String>> populateMgiGeneId2EnsemblGeneId() {
+    Map<String, List<String>> populateMgiGeneId2EnsemblGeneId() {
 
     	String query = "SELECT acc, xref_acc FROM xref WHERE db_id=3 AND xref_db_id=18";
 
@@ -312,7 +312,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             	String ensemblGeneId = resultSet.getString("xref_acc");
 
             	if ( ! mgiGeneId2EnsemblGeneId.containsKey(mgiGeneId) ){
-            		mgiGeneId2EnsemblGeneId.put(mgiGeneId, new ArrayList<String>());
+            		mgiGeneId2EnsemblGeneId.put(mgiGeneId, new ArrayList<>());
             	}
             	mgiGeneId2EnsemblGeneId.get(mgiGeneId).add(ensemblGeneId);
             }
@@ -325,13 +325,13 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     public class GoAnnotations {
 
-        public String goTermId;
-        public String goTermName;
+        String goTermId;
+        String goTermName;
         public String goTermDef;    // not populated for now
-        public String goTermEvid;
-        public String goTermDomain;
-		public String mgiSymbol;
-		public String goUniprot;  // GOId_UniprotAcc
+        String goTermEvid;
+        String goTermDomain;
+		String mgiSymbol;
+		String goUniprot;  // GOId_UniprotAcc
 		@Override
 		public int hashCode() {
 			final int prime = 31;

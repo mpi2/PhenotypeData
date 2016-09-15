@@ -99,8 +99,9 @@
 
   <jsp:body>
     <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <a name="whatisimpc"></a>
+    <h1>What is IMPC?</h1>
 
-    <h1 name="whatisimpc">What is IMPC?</h1>
     <img src="${baseUrl}/img/IMPC_map6.jpg" /><br>
     <h3>IMPC Members</h3>
     <b>The IMPC is currently composed of 17 research institutions and 5 national funders.</b><p>
@@ -114,8 +115,9 @@
     </ul>
 
     <div class="secSep"></div>
+    <a name="whatdoesimpcdo"></a>
+    <h1>What does IMPC do?</h1>
 
-    <h1 name="whatdoesimpcdo">What does IMPC do?</h1>
     <div id="threeCols">
       <div id="lcol" class="fcol"><div class="fcolCap">Mouse production and phenotyping</div>
           <ul><li>Standardized allele production and phenotyping pipelines</li></ul>
@@ -139,7 +141,8 @@
     </div>
 
     <div class="secSep"></div>
-    <h1 name="howdoesimpcwork">How does IMPC work?</h1>
+    <a name="howdoesimpcwork"></a>
+    <h1>How does IMPC work?</h1>
 
     <div ><span class="work alleleDesign">Allele design</span>
       <div class="hideme"> <img src="${baseUrl}/img/alleleDesign.png" />
@@ -164,6 +167,8 @@
             The pipeline is currently in development. The protocols in the core IMPC Pipeline are currently being developed by the IMPC phenotyping working groups
             and the current versions on this site are still under final review. The phenotyping working groups are working closely with the data wranglers to
             complete an agreed first version. Updates on the progress of this will be available through IMPReSS.</p>
+
+          You can click on the protocols below for more information.<p></p>
 
 
           <img src="https://www.mousephenotype.org/impress/images/pipeline_horizontal_vE8.gif" style="margin:10px 0; min-width:1020px !important" usemap="#meowmap" alt="The IMPC Pipeline" height="814" border="0" width="1020">
