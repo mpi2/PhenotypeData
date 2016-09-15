@@ -103,6 +103,7 @@ public class OrderServiceTest {
 				System.out.println("store="+store);
 				System.out.println("products="+storeToMap.get(store));
 			}
+			assertTrue(storeToMap.size()>0);
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
