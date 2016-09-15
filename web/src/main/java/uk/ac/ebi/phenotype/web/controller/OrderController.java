@@ -44,8 +44,8 @@ public class OrderController {
 		model.addAttribute("allele", allele2DTO);
 		
 		
-		Map<String, List<ProductDTO>> productsByOrderName = orderService.getProductToOrderNameMap(acc, allele, orderType);
-		model.addAttribute("productsByName", productsByOrderName);
+		Map<String, List<ProductDTO>> storeToProductsMap = orderService.getStoreNameToProductsMap(acc, allele, orderType);
+		model.addAttribute("storeToProductsMap", storeToProductsMap);
 		model.addAttribute("type", orderType);
 		return "order";
 	}

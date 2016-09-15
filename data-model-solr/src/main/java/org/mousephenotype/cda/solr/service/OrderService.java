@@ -118,7 +118,7 @@ public class OrderService {
 		return this.getProducts(geneAcc, null, null);
 	}
 
-	public Map<String, List<ProductDTO>> getProductToOrderNameMap(String geneAcc, String alleleName, OrderType productType)  throws SolrServerException, IOException {
+	public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName, OrderType productType)  throws SolrServerException, IOException {
 		List<ProductDTO> productList = null;
 		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType);
 		if (productsMap.keySet().size() > 1) {
@@ -170,7 +170,7 @@ public class OrderService {
 			}
 			alleleNameToProductsMap.get(prod.getAlleleName()).add(prod);
 		}
-System.out.println("alleleNameToProductsMap="+alleleNameToProductsMap);
+
 		return alleleNameToProductsMap;
 
 	}
