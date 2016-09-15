@@ -15,38 +15,16 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.management.monitor.StringMonitor;
-import javax.sql.DataSource;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.xmlbeans.impl.xb.ltgfmt.TestCase;
-import org.apache.xmlbeans.impl.xb.xsdschema.ListDocument;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDetail;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -66,6 +44,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Populate the experiment core
@@ -876,7 +867,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	Map<String, String> getAllParameters() throws SQLException {
 		Map<String, String> parameters = new HashMap<>();
 
-		String query = "SELECT stable_id, name FROM komp2.phenotype_parameter";
+		String query = "SELECT stable_id, name FROM phenotype_parameter";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();

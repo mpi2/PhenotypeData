@@ -30,9 +30,9 @@
 					<div class="content">
 						<div class="node node-gene"> -->
 							<h3 class="title" id="top">${type.name}:<t:formatAllele>${allele.markerSymbol}<${allele.alleleName}></t:formatAllele>
-								<span class="documentation">
-									<a href='' id='summarySection' class="fa fa-question-circle pull-right"></a>
-								</span>
+								<!-- <span class="documentation">
+									<a href='' id='orderSection' class="fa fa-question-circle pull-right"></a>
+								</span> -->
 							</h3>
  							
  							<!-- <div class="section">
@@ -41,7 +41,7 @@
 									<div>
 		 								<c:if test="${fn:length(storeToProductsMap)>0}">
 		 									<h4>This product is available from the following repositories:</h4> 
-		 									<table class="nonwrap">        
+		 									<table>        
 			        							<thead>
 			        		 					</thead>
 			        		 					<tbody>

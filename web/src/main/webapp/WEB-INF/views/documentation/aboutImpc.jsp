@@ -115,9 +115,9 @@
     </ul>
 
     <div class="secSep"></div>
-
-    <h1>What does IMPC do?</h1>
     <a name="whatdoesimpcdo"></a>
+    <h1>What does IMPC do?</h1>
+
     <div id="threeCols">
       <div id="lcol" class="fcol"><div class="fcolCap">Mouse production and phenotyping</div>
           <ul><li>Standardized allele production and phenotyping pipelines</li></ul>
@@ -141,15 +141,15 @@
     </div>
 
     <div class="secSep"></div>
-    <h1>How does IMPC work?</h1>
     <a name="howdoesimpcwork"></a>
+    <h1>How does IMPC work?</h1>
 
     <div ><span class="work alleleDesign">Allele design</span>
       <div class="hideme"> <img src="${baseUrl}/img/alleleDesign.png" />
         <hr>
         <span id="es"></span>
         <span id="mouse"></span>
-        <span id="crispr">X number of KO CRISPR lines</span>
+        <span id="crispr"></span>
         <div style="clear: both"></div>
       </div>
     </div>
