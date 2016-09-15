@@ -213,6 +213,7 @@ public class SearchConfig {
                 "mgi_accession_id",
                 "allele_name",
                 "allele_description",
+                "allele_image",
                 "mutation_type",
                 "es_cell_available",
                 "mouse_available",

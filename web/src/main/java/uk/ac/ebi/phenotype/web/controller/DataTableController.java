@@ -642,6 +642,7 @@ public class DataTableController {
             String markerAcc = doc.getString("mgi_accession_id");
 			String markerSymbol = doc.getString("marker_symbol");
 			String mutationType = doc.getString("mutation_type") + "; " + doc.getString("allele_description");
+			String vectorMap = "<br><a class='iFrameVector' data-url='" + doc.getString("allele_image") + "'>See Vector map</a>";
 
 			List<String> orders = new ArrayList<>();
             String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
@@ -658,7 +659,7 @@ public class DataTableController {
 			String order = StringUtils.join(orders, "<br>");
 
 			rowData.add(markerSymbol + "<sup>" + alleleName + "</sup>");
-			rowData.add(mutationType);
+			rowData.add(mutationType + vectorMap);
 			rowData.add(order);
 
 			j.getJSONArray("aaData").add(rowData);
