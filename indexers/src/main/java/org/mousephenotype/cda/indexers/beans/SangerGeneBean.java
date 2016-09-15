@@ -44,29 +44,40 @@ public class SangerGeneBean {
 
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;
+
 	@Field(MGI_ALLELE_ACCESSION_ID)
 	private List<String> mgiAlleleAccessionIds;
+
 	@Field(FEATURE_TYPE)
 	private String featureType;
+
 	@Field(MARKER_SYMBOL)
 	private String markerSymbol;
+
 	@Field(MARKER_SYMBOL_LOWERCASE)
 	private String markerSymbolLowercase;
 	
 	@Field(LATEST_ES_CELL_STATUS)
 	private String latestEsCellStatus;
+
 	@Field(LATEST_MOUSE_STATUS)
 	private String latestMouseStatus;
+
 	@Field(LATEST_PROJECT_STATUS)
 	private String latestProjectStatus;
+
 	@Field(LATEST_PHENOTYPE_STARTED)
 	private String latestPhenotypeStarted;
+
 	@Field(LATEST_PHENOTYPE_COMPLETE)
 	private String latestPhenotypeComplete;
+
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private String latestPhenotypeStatus;
+
 	@Field(LATEST_PRODUCTION_CENTRE)
 	private List<String> latestProductionCentre;
+
 	@Field(LATEST_PHENOTYPING_CENTRE)
 	private List<String> latestPhenotypingCentre;
 
