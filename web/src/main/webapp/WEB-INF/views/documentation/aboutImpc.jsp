@@ -82,7 +82,11 @@
         div.showme {
           display: block;
         }
-        span#crispr {float: right;}
+        span#es, span#mouse, span#crispr {
+          float: left;
+          margin-right: 20px;
+          padding: 20px 10px 10px 10px;
+        }
         div#impress iframe {min-width: 960px; min-height: 600px;}
        
       </style>
@@ -95,8 +99,9 @@
 
   <jsp:body>
     <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <a name="whatisimpc"></a>
+    <h1>What is IMPC?</h1>
 
-    <h1 name="whatisimpc">What is IMPC?</h1>
     <img src="${baseUrl}/img/IMPC_map6.jpg" /><br>
     <h3>IMPC Members</h3>
     <b>The IMPC is currently composed of 17 research institutions and 5 national funders.</b><p>
@@ -111,7 +116,8 @@
 
     <div class="secSep"></div>
 
-    <h1 name="whatdoesimpcdo">What does IMPC do?</h1>
+    <h1>What does IMPC do?</h1>
+    <a name="whatdoesimpcdo"></a>
     <div id="threeCols">
       <div id="lcol" class="fcol"><div class="fcolCap">Mouse production and phenotyping</div>
           <ul><li>Standardized allele production and phenotyping pipelines</li></ul>
@@ -135,13 +141,16 @@
     </div>
 
     <div class="secSep"></div>
-    <h1 name="howdoesimpcwork">How does IMPC work?</h1>
+    <h1>How does IMPC work?</h1>
+    <a name="howdoesimpcwork"></a>
 
     <div ><span class="work alleleDesign">Allele design</span>
       <div class="hideme"> <img src="${baseUrl}/img/alleleDesign.png" />
-        <p></p>
+        <hr>
         <span id="es"></span>
+        <span id="mouse"></span>
         <span id="crispr">X number of KO CRISPR lines</span>
+        <div style="clear: both"></div>
       </div>
     </div>
     <div ><span class="work">Coordinated production</span>
@@ -158,6 +167,8 @@
             The pipeline is currently in development. The protocols in the core IMPC Pipeline are currently being developed by the IMPC phenotyping working groups
             and the current versions on this site are still under final review. The phenotyping working groups are working closely with the data wranglers to
             complete an agreed first version. Updates on the progress of this will be available through IMPReSS.</p>
+
+          You can click on the protocols below for more information.<p></p>
 
 
           <img src="https://www.mousephenotype.org/impress/images/pipeline_horizontal_vE8.gif" style="margin:10px 0; min-width:1020px !important" usemap="#meowmap" alt="The IMPC Pipeline" height="814" border="0" width="1020">
@@ -263,27 +274,35 @@
           else {
             sib.addClass('showme');
             if ( $(this).hasClass('alleleDesign') ){
-              console.log('allele design');
               $.ajax({
                 'url' : 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
-                'data' : 'q=type:Allele AND es_cell_available:true&rows=0&wt=json',
+                'data' : 'q=type:Allele&facet=on&facet.field=es_cell_available&facet.field=mutation_type&facet.mincount=1&facet.limit=-1&rows=0&wt=json',
                 'dataType' : 'jsonp',
                 'jsonp' : 'json.wrf',
                 timeout : 5000,
                 success: function(json) {
-                  console.log(json)
-                  //console.log(response.alleles_NCOM + " number KO ES cell lines");
+                  var esCells = json.facet_counts.facet_fields.es_cell_available;
+                  var mutationTypes = json.facet_counts.facet_fields.mutation_type;
 
-                  $('span#es').text("ES cell available: " + json.response.numFound);
+                  for ( var i=0; i<esCells.length; i++){
+                    if (esCells[i] == "true"){
+                      $('span#es').text("ES cell vailable: " + esCells[i+1]);
+                      break;
+                    }
+                  }
 
-
-
-
+                  for (var j=0; j<mutationTypes.length; j++){
+                    if (mutationTypes[j] == "Endonuclease-mediated"){
+                      $('span#crispr').text("KO CRISPR lines available: " + mutationTypes[j+1]);
+                    }
+                    else if (mutationTypes[j] == "Targeted"){
+                      $('span#mouse').text("Mouse lines available: " + mutationTypes[j+1]);
+                    }
+                  }
                 },
                 error: function(){
                   console.log("ajax error")
                 }
-
               });
             }
           }
