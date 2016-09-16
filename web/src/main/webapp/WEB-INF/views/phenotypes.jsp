@@ -212,7 +212,7 @@
 						<div class="inner">
 							<!-- Phenotype Assoc. summary -->
 
-							<c:if test="${parametersAssociated.size() == 0}">
+							<%-- <c:if test="${parametersAssociated.size() == 0}">
 								<div class="half">
 									<c:if test="${genePercentage.getTotalGenesTested() > 0}">
 										<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
@@ -230,27 +230,49 @@
 										<script type="text/javascript">	${genePercentage.getPieChartCode()}	</script>
 									</div>
 								</div>
-							</c:if>
+							</c:if> --%>
+							
+							<!-- baseline charts -->
 							<c:if test="${parametersAssociated.size() > 0}">
 								<div class="half">
-									<c:if test="${genePercentage.getTotalGenesTested() > 0}">
-										<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
-										(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
-									</c:if>
-									<c:if test="${genePercentage.getFemaleGenesTested() > 0}">
-										<p class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
-									</c:if>
-									<c:if test="${genePercentage.getMaleGenesTested() > 0}">									
-										<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
-									</c:if>
-									<div id="pieChart">
-											<script type="text/javascript">
-												${genePercentage.getPieChartCode()}
-											</script>
-									</div>
+									baseline graph should be here
+									<c:forEach var="paramId" items="${parametersAssociated}">
+									${paramId.stableId }/ ${paramId.name }
+									</c:forEach>
+									<div id="baselineChart"></div>
+										<c:if test="${parametersAssociated.size() > 0}">
+												<div id="chartsHalf" class="half">
+												<c:if test="${parametersAssociated.size() > 1}">
+													<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
+														<select class="overviewSelect" onchange="ajaxToBeBaseline('${phenotype.getMpId()}', this.options[this.selectedIndex].value);">
+															<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
+																<option value="${assocParam.getStableId()}">${assocParam.getName()} (${assocParam.getStableId()})</option>
+															</c:forEach>
+														</select>
+													</p>
+												</c:if>
+												<br/>
+			
+												<div id="baseline-chart-container">
+													<div id="baseline-chart-div" class="baselineChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.getMpId()}">
+													</div>
+													<div id="spinner-baseline-charts"><i class="fa fa-refresh fa-spin"></i></div>
+												</div>
+			
+												<div id='baseline-chartFilters'></div>
+			
+											</div>
+										</c:if>
 								</div>
+
+
+
+
+
+
+
 								<!-- Overview Graphs -->
-								<c:if test="${parametersAssociated.size() > 0}">
+								 <c:if test="${parametersAssociated.size() > 0}">
 									<div id="chartsHalf" class="half">
 									<c:if test="${parametersAssociated.size() > 1}">
 										<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
