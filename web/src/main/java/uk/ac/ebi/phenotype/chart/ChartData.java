@@ -25,6 +25,13 @@ import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
 public class ChartData {
+	@Override
+	public String toString() {
+		return "ChartData [expBiologicalModel=" + expBiologicalModel + ", experiment=" + experiment + ", chart=" + chart
+				+ ", organisation=" + organisation + ", min=" + min + ", max=" + max + ", id=" + id + ", lines=" + lines
+				+ "]";
+	}
+
 	BiologicalModel expBiologicalModel;
 	private ExperimentDTO experiment;
 	private String chart;
