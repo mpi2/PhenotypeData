@@ -149,7 +149,7 @@
         <hr>
         <span id="es"></span>
         <span id="mouse"></span>
-        <span id="crispr">X number of KO CRISPR lines</span>
+        <span id="crispr"></span>
         <div style="clear: both"></div>
       </div>
     </div>
