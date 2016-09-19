@@ -59,22 +59,22 @@ public class SolrServerConfig {
 
 	@Bean(name = "allele2Core")
 	HttpSolrClient getAllele2Core() {
-		return new HttpSolrClient(solrBaseUrl + "/allele2");
+		return new HttpSolrClient(imitsSolrBaseUrl + "/allele2");
 	}
 
 	@Bean(name = "eucommCreProductsCore")
 	HttpSolrClient getEucomCreToolsProduct() {
-		return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_product");
+		return new HttpSolrClient(imitsSolrBaseUrl + "/eucommtoolscre_product");
 	}
 
 	@Bean(name = "productCore")
 	HttpSolrClient getProductCore() {
-		return new HttpSolrClient(solrBaseUrl + "/product");
+		return new HttpSolrClient(imitsSolrBaseUrl + "/product");
 	}
 
 	@Bean(name = "eucommToolsCreAllele2Core")
 	HttpSolrClient getEucommToolsCreAllele2() {
-		return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_allele2");
+		return new HttpSolrClient(imitsSolrBaseUrl + "/eucommtoolscre_allele2");
 	}
 
 
