@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,13 +26,16 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -60,16 +64,9 @@ public class BaselineChartsController {
 
 	@Autowired
 	ObservationService os;
-
+	
 	@Autowired
-	PostQcService gpService;
-
-
-	@Autowired
-	StatisticalResultService srs;
-
-	@Autowired
-	Utilities impressUtilities;
+	ImpressService impressService;
 
 	public BaselineChartsController(){
 
@@ -78,13 +75,56 @@ public class BaselineChartsController {
 	@RequestMapping(value="/baselineCharts/{phenotype_id}", method=RequestMethod.GET)
 	public String getGraph(
 		@PathVariable String phenotype_id,
-		@RequestParam(required = true, value = "parameter_id") String parameterId,
+		@RequestParam(required = true, value = "parameter_id") String parameterStableId,
 		Model model,
 		HttpServletRequest request,
 		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, SQLException{
 		System.out.println("calling baselineCharts");
-			
-			return "baselineChart";
+		List<FieldStatsInfo> baselinesForParameter = os.getStatisticsForParameterFromCenter(parameterStableId, null);
+		String baseLineChart=this.generateBaselineChart("chartId",parameterStableId,  baselinesForParameter);
+		model.addAttribute("baselineChart", baseLineChart);
+		return "baselineChart";
+	}
+
+	private String generateBaselineChart(String chartId, String parameterStableId, List<FieldStatsInfo> baselinesForParameter) {
+		List<String> xAxisLabels=new ArrayList();
+		List<String> minAndMax=new ArrayList();
+		for(FieldStatsInfo baseLine:baselinesForParameter){
+			xAxisLabels.add("'"+baseLine.getName()+"'");
+			minAndMax.add("["+baseLine.getMin()+","+baseLine.getMax()+"]");
+		}
+		//[-9.7, 9.4],
+		
+		String minAndMaxData=StringUtils.join(minAndMax, ",");
+		System.out.println("minAndMaxData="+minAndMaxData);
+		
+		 String chartString="$('#baseline-chart-div').highcharts({"+
+
+		        " chart: {  "
+				        + " type: 'columnrange',  inverted: false },  title: { text: 'Temperature variation by month' }, subtitle: {  text: 'Observed in Vik i Sogn, Norway' },"
+				        + "  xAxis: {"
+				        + " categories: "+xAxisLabels 
+				        +"},"
+				        + "  yAxis: {"
+				        			+ " title: { text: 'Temperature ( °C )' }"
+				        		+ "  },"
+				        		+ "  tooltip: {"
+				        		+ "  valueSuffix: '°C' },"
+				        		+ "  plotOptions: {"
+				        		+ " columnrange: { "
+				        				+ "dataLabels: {"
+				        				+ "  enabled: true,   formatter: function () { return this.y + '°C'; }"
+				        				+ "   }"
+				        		+ "  }"
+				        		+ "}, legend: { enabled: false  },"
+				        				+ " series: "
+				        				+ "[ {  name: 'Temperatures', data: [  "+minAndMaxData
+				        				+ " ] },"
+				        		+ " {  type: 'scatter', name: 'Observations', data: [1, 1.5, 2.8, 3.5, 3.9, 4.2], marker: { radius: 4 } }]"
+				        		+ "  });";
+		
+	return chartString;
+	
 	}
 
 	
