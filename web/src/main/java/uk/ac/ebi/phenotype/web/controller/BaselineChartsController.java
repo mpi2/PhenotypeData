@@ -39,6 +39,7 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,17 +87,23 @@ public class BaselineChartsController {
 		return "baselineChart";
 	}
 
-	private String generateBaselineChart(String chartId, String parameterStableId, List<FieldStatsInfo> baselinesForParameter) {
+	private String generateBaselineChart(String chartId, String parameterStableId, List<FieldStatsInfo> baselinesForParameter) throws SolrServerException, IOException {
+		ParameterDTO parameter=impressService.getParameterByStableId(parameterStableId);
+		
+		String yAxisTitle=parameter.getUnitX();
 		List<String> xAxisLabels=new ArrayList();
 		List<String> minAndMax=new ArrayList();
+		List<String> means=new ArrayList();
 		for(FieldStatsInfo baseLine:baselinesForParameter){
 			xAxisLabels.add("'"+baseLine.getName()+"'");
 			minAndMax.add("["+baseLine.getMin()+","+baseLine.getMax()+"]");
+			means.add(baseLine.getMean().toString());
 		}
 		//[-9.7, 9.4],
 		
 		String minAndMaxData=StringUtils.join(minAndMax, ",");
 		System.out.println("minAndMaxData="+minAndMaxData);
+		System.out.println("means="+means);
 		
 		 String chartString="$('#baseline-chart-div').highcharts({"+
 
@@ -106,21 +113,21 @@ public class BaselineChartsController {
 				        + " categories: "+xAxisLabels 
 				        +"},"
 				        + "  yAxis: {"
-				        			+ " title: { text: 'Temperature ( °C )' }"
+				        			+ " title: { text: '"+yAxisTitle+"' }"
 				        		+ "  },"
 				        		+ "  tooltip: {"
-				        		+ "  valueSuffix: '°C' },"
+				        		+ "  valueSuffix: '"+yAxisTitle+"' },"
 				        		+ "  plotOptions: {"
 				        		+ " columnrange: { "
 				        				+ "dataLabels: {"
-				        				+ "  enabled: true,   formatter: function () { return this.y + '°C'; }"
+				        				+ "  enabled: true,   formatter: function () { return this.y + '"+yAxisTitle+"'; }"
 				        				+ "   }"
 				        		+ "  }"
 				        		+ "}, legend: { enabled: false  },"
 				        				+ " series: "
 				        				+ "[ {  name: 'Temperatures', data: [  "+minAndMaxData
 				        				+ " ] },"
-				        		+ " {  type: 'scatter', name: 'Observations', data: [1, 1.5, 2.8, 3.5, 3.9, 4.2], marker: { radius: 4 } }]"
+				        		+ " {  type: 'scatter', name: 'Observations', data: "+means+", marker: { radius: 4 } }]"
 				        		+ "  });";
 		
 	return chartString;
