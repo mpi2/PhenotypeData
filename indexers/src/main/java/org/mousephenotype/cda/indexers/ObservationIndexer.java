@@ -1082,7 +1082,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc).getEmapaId() : ontoAcc);
 				}
 				else {
-					logger.error("Parameter {} missing ontology association: ", resultSet.getString("stable_id"));
+					logger.warn("Parameter {} missing ontology association.", resultSet.getString("stable_id"));
 				}
 			}
 		}
