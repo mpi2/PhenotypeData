@@ -8,6 +8,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.enumerations.OrderType;
+import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader=AnnotationConfigContextLoader.class)
@@ -77,9 +81,36 @@ public class OrderServiceTest {
 	}
 	
 	@Test
-	public void getProductDocsTest() throws IOException, SolrServerException {
+	public void getProductDocsTest()  {
 		String geneAcc="MGI:1859328";
-			assertTrue(orderService.getProductsForGene(geneAcc).size()>2);
+			try {
+				assertTrue(orderService.getProductsForGene(geneAcc).size()>2);
+			} catch (SolrServerException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+	
+	@Test
+	public void testGetStoreNameToProductsMap() {
+		String acc = "MGI:1859328";
+		String allele = "tm1a(EUCOMM)Wtsi";
+		OrderType orderType = OrderType.mouse;
+
+		try {
+			Map<String, List<ProductDTO>> storeToMap = orderService.getStoreNameToProductsMap(acc, allele, orderType);
+			for(String store: storeToMap.keySet()){
+				System.out.println("store="+store);
+				System.out.println("products="+storeToMap.get(store));
+			}
+			assertTrue(storeToMap.size()>0);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	

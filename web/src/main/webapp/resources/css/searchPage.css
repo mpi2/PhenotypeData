@@ -470,6 +470,8 @@ div.flist ul li.fmcat > .flabel {
 ul li.fcatsection span.flabel, ul li.fcat span.flabel {
 	font-size: 14px !important;
 	font-weight: normal !important;
+    word-wrap: break-word;
+    max-width: 160px; /* for wordwrap */
 }
 
 div.flist ul > li.fmcat > .flabel, li.fcatsection > .flabel {

@@ -858,7 +858,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	Map<String, String> getAllParameters() throws SQLException {
 		Map<String, String> parameters = new HashMap<>();
 
-		String query = "SELECT stable_id, name FROM komp2.phenotype_parameter";
+		String query = "SELECT stable_id, name FROM phenotype_parameter";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
@@ -1073,7 +1073,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc).getEmapaId() : ontoAcc);
 				}
 				else {
-					logger.error("Parameter {} missing ontology association: ", resultSet.getString("stable_id"));
+					logger.warn("Parameter {} missing ontology association.", resultSet.getString("stable_id"));
 				}
 			}
 		}

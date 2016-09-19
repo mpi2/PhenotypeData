@@ -91,6 +91,7 @@
                             <tr><td>E9.5 OPT screening</td><td>at least 2 homs</td><td>reconstructions available</td></tr>
                             <tr><td>E14.5-E15.5 Gross morphology</td><td>at least 2 homs, 2 wt</td><td>images optional</td></tr>
                             <tr><td>E14.5-E15.5 microCT screening</td><td>at least 2 homs</td><td>reconstructions available</td></tr>
+                            <tr><td>E14.5 HREM</td><td>at least 3 homs, 1wt</td><td> reconstructions available</td></tr>
                             <tr><td>E18.5 Gross morphology</td><td>at least 2 homs</td><td>images optional</td></tr>
                             <tr><td>E18.5 microCT</td><td>at least 2 homs, 2 wt</td><td>reconstructions available</td></tr>
                             </table>
@@ -116,7 +117,7 @@
                             	<div class="half">
                             		<h2>Embryo LacZ</h2>
                             		<img src="${baseUrl}/img/Tmem100_het.jpeg" height="200" style="width:auto" class="twothird"/>
-                            		<a class="onethird" href="${baseUrl}/imageComparator?acc=MGI:1915138&parameter_stable_id=IMPC_ELZ_063_001">Tmem100</a>
+                            		<a class="onethird" href="${baseUrl}/impcImages/embryolaczimages/MGI:1915138/TS20%20embryo%20or%20Unassigned">Tmem100</a>
                             		<div class="clear"></div> 
                             		<p class="minpadding"> The majority of IMPC knockout strains replace a critical protein coding exon with a LacZ gene expression 
                             		reporter element. Heterozygote E12.5 embryos from IMPC strains are treated to determine in situ expression of the targeted gene.

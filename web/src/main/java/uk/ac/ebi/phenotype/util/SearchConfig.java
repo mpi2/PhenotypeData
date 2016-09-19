@@ -212,6 +212,9 @@ public class SearchConfig {
         List<String> allele2Fields = Arrays.asList("marker_symbol",
                 "mgi_accession_id",
                 "allele_name",
+                //"synonym",
+                "allele_description",
+                "allele_image",
                 "mutation_type",
                 "es_cell_available",
                 "mouse_available",
@@ -353,7 +356,7 @@ public class SearchConfig {
 
         List<String> impc_imagesCols = Arrays.asList("Name", "Images");
         List<String> imagesCols = Arrays.asList("Name", "Image(s)");
-        List<String> allele2Cols = Arrays.asList("Allele Name", "Mutation Type", "Order");
+        List<String> allele2Cols = Arrays.asList("Allele Name", "Mutation", "Order");
 
         gridHeaderMap.put("gene", geneCols);
         gridHeaderMap.put("mp", mpCols);

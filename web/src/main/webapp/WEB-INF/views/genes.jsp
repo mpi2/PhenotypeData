@@ -855,7 +855,7 @@
 				                     'fitToView'         : false, 
 				                     'width'             : '100%',  
 				                     'height'            : '85%',  
-				                     'autoSize'          : false,  
+				                     'autoSize'          : true,  
 				                     'transitionIn'      : 'none', 
 				                     'transitionOut'     : 'none', 
 				                     'type'              : 'iframe', 
