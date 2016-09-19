@@ -212,6 +212,7 @@ public class SearchConfig {
         List<String> allele2Fields = Arrays.asList("marker_symbol",
                 "mgi_accession_id",
                 "allele_name",
+                //"synonym",
                 "allele_description",
                 "allele_image",
                 "mutation_type",

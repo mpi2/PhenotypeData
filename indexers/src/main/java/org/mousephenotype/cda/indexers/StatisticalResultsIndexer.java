@@ -1444,6 +1444,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		String query = "SELECT DISTINCT " +
 			"  CONCAT_WS('-', exp.procedure_stable_id, parameter.stable_id, ls.colony_id, bm.zygosity, sex, exp.organisation_id, exp.metadata_group) AS doc_id,  " +
+			"  CONCAT(parameter.stable_id, '_', ls.colony_id, exp.organisation_id) AS significant_id, " +
 			"  'embryo' AS data_type, 'Success' AS status, " +
 			"  exp.metadata_group, exp.pipeline_id, exp.procedure_id, obs.parameter_id, parameter.stable_id AS dependent_variable, " +
 			"  bm.id AS biological_model_id, bm.zygosity AS experimental_zygosity, ls.colony_id, sex, " +
@@ -1474,14 +1475,15 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				p.setFetchSize(Integer.MIN_VALUE);
 
 				ResultSet r = p.executeQuery();
+				Integer i = 0;
 
 				while (r.next()) {
 
 					StatisticalResultDTO doc = parseLineResult(r);
-					doc.setDocId(doc.getDocId());
+					doc.setDocId(doc.getDocId()+"-"+(i++));
 
-					if (embryoSignificantResults.containsKey(r.getString("doc_id"))) {
-						addMpTermData(embryoSignificantResults.get(r.getString("doc_id")), doc);
+					if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
+						addMpTermData(embryoSignificantResults.get(r.getString("significant_id")), doc);
 					}
 
 					docs.add(doc);
@@ -1585,9 +1587,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 				p.setFetchSize(Integer.MIN_VALUE);
 				ResultSet r = p.executeQuery();
+				Integer i = 0;
 				while (r.next()) {
 
 					StatisticalResultDTO doc = parseLineResult(r);
+					doc.setDocId(doc.getDocId()+"-"+(i++));
+
 					docs.add(doc);
 					shouldHaveAdded.add(doc.getDocId());
 				}

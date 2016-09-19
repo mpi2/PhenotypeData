@@ -39,6 +39,7 @@ import org.w3c.dom.NodeList;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
@@ -119,16 +120,35 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             conn_komp2 = komp2DataSource.getConnection();
             conn_ontodb = ontodbDataSource.getConnection();
 
+            logger.info("  Populate Gene Symbol to Id Map");
             doGeneSymbol2IdMapping();
-            doAlleleSymbol2NameIdMapping();
-            doStrainId2NameMapping();
-            doImpressSid2NameMapping();
-            doOntologyMapping();
-            populatePostQcData();
-            populateResourceMap();
-            preqcIndexing.deleteByQuery("*:*");
 
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(preqcXmlFilename));
+            logger.info("  Populate Allele Symbol to Name ID Map");
+            doAlleleSymbol2NameIdMapping();
+
+            logger.info("  Populate Strain ID to Name Map");
+            doStrainId2NameMapping();
+
+            logger.info("  Populate IMPReSS Map");
+            doImpressSid2NameMapping();
+
+            logger.info("  Populate ontology Map");
+            doOntologyMapping();
+
+            logger.info("  Populate post QC data Map");
+            populatePostQcData();
+
+            logger.info("  Populate resource Map");
+            populateResourceMap();
+
+
+            logger.info("Truncating existing PreQC index");
+            preqcIndexing.deleteByQuery("*:*");
+            preqcIndexing.commit();
+
+            logger.info("Start reading the file");
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new BufferedInputStream(new FileInputStream(preqcXmlFilename)));
+            logger.info("Done reading the file");
 
             Element rootElement = document.getDocumentElement();
             NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
