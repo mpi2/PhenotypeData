@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -37,7 +37,7 @@ public class StrainWriter implements ItemWriter {
 
     @Autowired
     @Qualifier("cdabaseSqlUtils")
-    private CdabaseSqlUtils cdabaseSqlUtils;
+    private CdaSqlUtils cdaSqlUtils;
     private Map<String, Integer> written = new HashMap<>();
 
         public StrainWriter() {
@@ -57,7 +57,7 @@ public class StrainWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        Map<String, Integer> counts = cdabaseSqlUtils.insertStrains(items);
+        Map<String, Integer> counts = cdaSqlUtils.insertStrains(items);
         written.put("strains", written.get("strains") + counts.get("strains"));
         written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
     }

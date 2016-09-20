@@ -18,8 +18,8 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Xref;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -69,7 +69,7 @@ public class MarkerProcessorXrefGenes implements ItemProcessor<List<Xref>, List<
 
     @Autowired
     @Qualifier("cdabaseSqlUtils")
-    private CdabaseSqlUtils cdabaseSqlUtils;
+    private CdaSqlUtils cdaSqlUtils;
 
 
     public MarkerProcessorXrefGenes(Map<String, GenomicFeature> genomicFeatures) {
@@ -111,7 +111,7 @@ public class MarkerProcessorXrefGenes implements ItemProcessor<List<Xref>, List<
 
             for (int i = 0; i < expectedHeadings.length; i++) {
                 if ( ! expectedHeadings[i].equals(actualHeadings[i])) {
-                    throw new DataImportException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
+                    throw new DataLoadException("Expected heading '" + expectedHeadings[i] + "' but found '" + actualHeadings[i] + "'.");
                 }
             }
 

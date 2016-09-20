@@ -20,7 +20,7 @@ import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -50,7 +50,7 @@ public class StrainProcessorMgi implements ItemProcessor<Strain, Strain> {
 
     @Autowired
     @Qualifier("cdabaseSqlUtils")
-    private CdabaseSqlUtils cdabaseSqlUtils;
+    private CdaSqlUtils cdaSqlUtils;
 
 
     public StrainProcessorMgi(Map<String, Strain> strainsMap, Map<String, Allele> allelesMap) {
@@ -74,7 +74,7 @@ public class StrainProcessorMgi implements ItemProcessor<Strain, Strain> {
             strain.getId().setDatabaseId(DbIdType.MGI.intValue());
 
             // Call the remaining methods to finish setting the strain instance.
-            OntologyTerm biotype = cdabaseSqlUtils.getOntologyTerm(DbIdType.MGI.intValue(), strain.getBiotype().getName());
+            OntologyTerm biotype = cdaSqlUtils.getOntologyTerm(DbIdType.MGI.intValue(), strain.getBiotype().getName());
             if (biotype == null) {
                 logger.warn("Line {} : NO biotype FOR strain {}.", lineNumber, strain.toString());
                 return null;

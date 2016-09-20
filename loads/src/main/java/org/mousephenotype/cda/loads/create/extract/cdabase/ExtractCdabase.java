@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.config.ExtractCdabaseConfigBeans;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -112,7 +112,7 @@ public class ExtractCdabase implements CommandLineRunner {
         runJobs();
     }
 
-    public Job[] runJobs() throws DataImportException {
+    public Job[] runJobs() throws DataLoadException {
 
         // Populate Spring Batch tables if necessary.
         try {
@@ -123,12 +123,12 @@ public class ExtractCdabase implements CommandLineRunner {
             }
 
         } catch (Exception e) {
-            throw new DataImportException("Unable to create Spring Batch tables.");
+            throw new DataLoadException("Unable to create Spring Batch tables.");
         }
 
-        Job[] jobs = new Job[] {
-                  downloaderJob()
-                , dbLoaderJob()
+        Job[] jobs = new Job[]{
+                downloaderJob(),
+                dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -141,14 +141,14 @@ public class ExtractCdabase implements CommandLineRunner {
                 job.execute(execution);
             } catch (Exception e) {
 
-                throw new DataImportException(e);
+                throw new DataLoadException(e);
             }
         }
 
         return jobs;
     }
 
-    public Job downloaderJob() throws DataImportException {
+    public Job downloaderJob() throws DataLoadException {
 
         List<Flow> flows = new ArrayList<>();
         for (int i = 0; i < downloader.size(); i++) {
@@ -170,7 +170,7 @@ public class ExtractCdabase implements CommandLineRunner {
                 .build();
     }
 
-    public Job dbLoaderJob() throws DataImportException {
+    public Job dbLoaderJob() throws DataLoadException {
         List<Flow> ontologyFlows = new ArrayList<>();
 
 //        // Ontologies - synchronous flows.
@@ -214,14 +214,14 @@ public class ExtractCdabase implements CommandLineRunner {
         Flow phenotypedColoniesFlow = new FlowBuilder<Flow>("phenotypedColoniesFlow").from(phenotypedColonyLoader).end();
 
         return jobBuilderFactory.get("dbLoaderJob")
-                .incrementer(new RunIdIncrementer())
-                .start(ontologyFlow)
-                .next(markersFlow)
-                .next(allelesFlow)
-                .next(strainsFlow)
-                .next(bioModelsFlow)
-                .next(phenotypedColoniesFlow)
-                .end()
-                .build();
+                                .incrementer(new RunIdIncrementer())
+                                .start(ontologyFlow)
+                                .next(markersFlow)
+                                .next(allelesFlow)
+                                .next(strainsFlow)
+                                .next(bioModelsFlow)
+                                .next(phenotypedColoniesFlow)
+                                .end()
+                                .build();
     }
 }

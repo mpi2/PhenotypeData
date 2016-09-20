@@ -24,13 +24,13 @@ public class PhenotypedColony {
     private GenomicFeature gene;
     private String colonyName;
     private String es_cell_name;
-    private Strain strain;
+    private String backgroundStrain;
     private Organisation productionCentre;
     private Project productionConsortium;
     private Organisation phenotypingCentre;
     private Project phenotypingConsortium;
     private Organisation CohortProductionCentre;
-    private Allele allele;
+    private String alleleSymbol;
 
     public int getId() {
         return id;
@@ -64,12 +64,12 @@ public class PhenotypedColony {
         this.es_cell_name = es_cell_name;
     }
 
-    public Strain getStrain() {
-        return strain;
+    public String getBackgroundStrainName() {
+        return backgroundStrain;
     }
 
-    public void setStrain(Strain strain) {
-        this.strain = strain;
+    public void setBackgroundStrainName(String backgroundStrain) {
+        this.backgroundStrain = backgroundStrain;
     }
 
     public Organisation getProductionCentre() {
@@ -112,12 +112,12 @@ public class PhenotypedColony {
         CohortProductionCentre = cohortProductionCentre;
     }
 
-    public Allele getAllele() {
-        return allele;
+    public String getAlleleSymbol() {
+        return alleleSymbol;
     }
 
-    public void setAllele(Allele allele) {
-        this.allele = allele;
+    public void setAlleleSymbol(String alleleSymbol) {
+        this.alleleSymbol = alleleSymbol;
     }
 
     @Override
@@ -127,13 +127,13 @@ public class PhenotypedColony {
                 ", gene=" + gene +
                 ", colonyName='" + colonyName + '\'' +
                 ", es_cell_name='" + (es_cell_name == null ? "null" : es_cell_name) + '\'' +
-                ", strain=" + strain +
+                ", backgroundStrain=" + backgroundStrain +
                 ", productionCentre=" + productionCentre +
                 ", productionConsortium=" + productionConsortium +
                 ", phenotypingCentre=" + phenotypingCentre +
                 ", phenotypingConsortium=" + phenotypingConsortium +
                 ", CohortProductionCentre=" + CohortProductionCentre +
-                ", allele=" + allele +
+                ", alleleSymbol=" + alleleSymbol +
                 '}';
     }
 }
