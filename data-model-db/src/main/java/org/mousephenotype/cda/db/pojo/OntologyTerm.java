@@ -26,12 +26,10 @@ package org.mousephenotype.cda.db.pojo;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.*;
-import org.springframework.data.annotation.*;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -180,12 +178,12 @@ public class OntologyTerm {
 	public String toString() {
 		return "OntologyTerm{" +
 				"id={" + (id == null ? "null" : id.getAccession() + "," + id.getDatabaseId()) + "}" +
-				", description='" + description + '\'' +
 				", name='" + name + '\'' +
 				", isObsolete=" + isObsolete +
 				", replacementAcc=" + replacementAcc +
 				", considerIds=" + ((considerIds == null) || considerIds.isEmpty() ? "null" : "String [" + StringUtils.join(considerIds, ", ") + "]") +
 				", synonyms=" + ((synonyms == null) || synonyms.isEmpty() ? "null" : StringUtils.join(synonyms, ",")) +
+				", description='" + description + '\'' +
 				'}';
 	}
 
