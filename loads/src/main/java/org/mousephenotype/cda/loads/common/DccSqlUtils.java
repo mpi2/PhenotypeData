@@ -14,15 +14,11 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.extract.dcc.support;
+package org.mousephenotype.cda.loads.common;
 
-import org.mousephenotype.cda.loads.common.LoadUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Zygosity;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.slf4j.Logger;
@@ -43,7 +39,7 @@ import java.util.*;
 /**
  * Created by mrelac on 02/03/2016.
  */
-public class ExtractDccSqlUtils {
+public class DccSqlUtils {
 
     private       CommonUtils          commonUtils = new CommonUtils();
     private final Logger               logger      = LoggerFactory.getLogger(this.getClass());
@@ -52,10 +48,10 @@ public class ExtractDccSqlUtils {
 
 
     @Inject
-    public ExtractDccSqlUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
+    public DccSqlUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
         Assert.notNull(npJdbcTemplate, "Named parameter npJdbcTemplate cannot be null");
         this.npJdbcTemplate = npJdbcTemplate;
-        loadUtils = new LoadUtils(npJdbcTemplate);
+        loadUtils = new LoadUtils();
     }
 
 
@@ -240,7 +236,7 @@ public class ExtractDccSqlUtils {
         parameterMap.put("project", project);
 
         try {
-            centerPk = loadUtils.queryForPk(query, parameterMap);
+            centerPk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         } catch (Exception e) {
 
         }
@@ -257,12 +253,29 @@ public class ExtractDccSqlUtils {
         parameterMap.put("specimenPk", specimenPk);
 
         try {
-            center_specimenPk = loadUtils.queryForPk(query, parameterMap);
+            center_specimenPk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         } catch (Exception e) {
 
         }
 
         return center_specimenPk;
+    }
+
+    /**
+     *
+     * @param centerPk
+     * @return the centerId for the given center primary key
+     */
+    public String getCenterId(long centerPk) {
+        String centerId;
+        String query = "SELECT centerId FROM center WHERE pk = :centerPk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("centerPk", centerPk);
+
+        centerId = npJdbcTemplate.queryForObject(query, parameterMap, String.class);
+
+        return centerId;
     }
 
     /**
@@ -301,7 +314,7 @@ public class ExtractDccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("colonyId", colonyId);
         parameterMap.put("center_procedurePk", center_procedurePk);
-        pk = loadUtils.queryForPk(query, parameterMap);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
 
         return pk;
     }
@@ -415,36 +428,29 @@ public class ExtractDccSqlUtils {
     }
 
     /**
-     * Looks for the {@code specimen} for the given specimenId and centerId.
-     * Retuns the {@link Specimen} instance if found; null otherwise.
+     * Returns all specimens from the specimen table.
      *
-     * @param specimenId The specimen id
-     * @param centerId   The center id
-     * @return The <code>Specimen</code> instance if found; null otherwise.
-     * <p/>
-     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
+     * @return The {@link List} of {@link Specimen} instances
      */
-    public Specimen getSpecimen(String specimenId, String centerId) {
-        Specimen specimen = null;
+    public List<Specimen> getSpecimens() {
+        // The Specimen class is abstract. Instances are of either Mouse or Embryo. Select info for both. The RowMapper
+        // will return a Specimen of type Mouse or Embryo with all mouse or embryo table columns filled out.
         final String query =
-                "SELECT s.*, sc.value AS status\n" +
+                "SELECT\n" +
+                "  s.*\n" +
+                ", CASE WHEN m.DOB IS NULL THEN 0 ELSE 1 END AS is_mouse\n" +
+                ", e.stage\n" +
+                ", e.stageUnit\n" +
+                ", m.DOB\n" +
                 "FROM specimen s\n" +
-                "JOIN            center_specimen cs ON cs.specimen_pk =  s .pk\n" +
-                "JOIN            center          c  ON c .pk          =  cs.center_pk\n" +
-                "LEFT OUTER JOIN statuscode      sc ON sc.pk          =  s .statuscode_pk\n" +
-                "WHERE s.specimenId = :specimenId AND c.centerId = :centerId";
+                "LEFT OUTER JOIN mouse m ON m.specimen_pk = s.pk\n" +
+                "LEFT OUTER JOIN embryo e on e.specimen_pk = s.pk";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("specimenId", specimenId);
-        parameterMap.put("centerId", centerId);
 
         List<Specimen> specimens = npJdbcTemplate.query(query, parameterMap, new SpecimenRowMapper());
-        if ( ! specimens.isEmpty()) {
-            specimen = specimens.get(0);
-            specimen.setStatusCode(selectOrInsertStatuscode(specimen.getStatusCode()));
-        }
 
-        return specimen;
+        return specimens;
     }
 
     /**
@@ -1152,33 +1158,36 @@ public class ExtractDccSqlUtils {
     /**
      * Inserts the given {@link RelatedSpecimen} into the relatedSpecimen table. Duplicates are ignored.
      *
-     * @param relatedSpecimen the relatedSpecimen to be inserted
-     * @param specimen_theirsPk the primary key of the related specimen to be inserted
+     * @param centerId the center id
+     * @param specimenPk the specimen id primary key
+     * @param specimenId the specimen id
+     * @param relationship the relationship of the related specimen id to the specimen id
+     * @param relatedSpecimenId the related specimen id
      *
-     * @return the relatedSpecimen, with primary key loaded
+     * @return the number of rows inserted
      */
-    public RelatedSpecimen insertRelatedSpecimen(RelatedSpecimen relatedSpecimen, long specimen_theirsPk) {
-        String insert = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_pk) "
-                      + "VALUES (:relationship, :specimenIdMine, :specimen_theirsPk)";
+    public int insertRelatedSpecimen(String centerId, long specimenPk, String specimenId, String relationship, String relatedSpecimenId) {
+        int count;
+        String insert = "INSERT INTO relatedSpecimen (centerId, specimenIdPk, specimenId, relationship, relatedSpecimenId) "
+                      + "VALUES (:centerId, :specimenIdPk, :specimenId, :relationship, :relatedSpecimenId)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
 
-            parameterMap.put("relationship", relatedSpecimen.getRelationship().value());
-            parameterMap.put("specimenIdMine", relatedSpecimen.getSpecimenID());
-            parameterMap.put("specimen_theirsPk", specimen_theirsPk);
+            parameterMap.put("centerId", centerId);
+            parameterMap.put("specimenIdPk", specimenPk);
+            parameterMap.put("specimenId", specimenId);
+            parameterMap.put("relationship", relationship);
+            parameterMap.put("relatedSpecimenId", relatedSpecimenId);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
-            if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
-                relatedSpecimen.setHjid(pk);
-            }
+            count = npJdbcTemplate.update(insert, parameterMap);
+
 
         } catch (DuplicateKeyException e) {
-
+            count = 0;
         }
 
-        return relatedSpecimen;
+        return count;
     }
 
     /**
@@ -1381,7 +1390,7 @@ public class ExtractDccSqlUtils {
      *
      * @return the specimen, with primary key loaded
      */
-    public Specimen insertSpecimen(Specimen specimen) throws DataImportException {
+    public Specimen insertSpecimen(Specimen specimen) throws DataLoadException {
         final String insert = "INSERT INTO specimen (" +
                     "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project, specimenId, strainId, zygosity, statuscode_pk) VALUES " +
                     "(:colonyId, :gender, :isBaseline, :litterId, :phenotypingCenter, :pipeline, :productionCenter, :project, :specimenId, :strainId, :zygosity, :statuscodePk);";
@@ -1407,8 +1416,10 @@ public class ExtractDccSqlUtils {
                 long specimenPk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
                 specimen.setHjid(specimenPk);
             }
+        } catch (DuplicateKeyException e ) {
+
         } catch (Exception e) {
-            throw new DataImportException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
+            throw new DataLoadException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
         }
         
         return specimen;
@@ -1422,7 +1433,7 @@ public class ExtractDccSqlUtils {
      *
      * @return the simpleParameter, with primary key loaded
      */
-    public SimpleParameter insertSimpleParameter(SimpleParameter simpleParameter, long procedurePk) throws DataImportException {
+    public SimpleParameter insertSimpleParameter(SimpleParameter simpleParameter, long procedurePk) throws DataLoadException {
         final String insert = "INSERT INTO simpleParameter (parameterId, parameterStatus, procedure_pk, sequenceId, unit, value) "
                             + "VALUES (:parameterId, :parameterStatus, :procedurePk, :sequenceId, :unit, :value)";
 
@@ -1442,7 +1453,7 @@ public class ExtractDccSqlUtils {
                 simpleParameter.setHjid(simpleParameterPk);
             }
         } catch (Exception e) {
-            throw new DataImportException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
+            throw new DataLoadException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
         }
         
         return simpleParameter;
@@ -1469,13 +1480,13 @@ public class ExtractDccSqlUtils {
 
         parameterMap.put("centerPk", centerPk);
         parameterMap.put("procedurePk", procedurePk);
-        pk = loadUtils.queryForPk(query, parameterMap);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO center_procedure (center_pk, procedure_pk) VALUES (:centerPk, :procedurePk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = loadUtils.queryForPk(query, parameterMap);
+                    pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {
@@ -1535,13 +1546,13 @@ public class ExtractDccSqlUtils {
 
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("specimenPk", specimenPk);
-        pk = loadUtils.queryForPk(query, parameterMap);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO experiment_specimen (experiment_pk, specimen_pk) VALUES (:experimentPk, :specimenPk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = loadUtils.queryForPk(query, parameterMap);
+                    pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {
@@ -1569,13 +1580,13 @@ public class ExtractDccSqlUtils {
 
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("statuscodePk", statuscodePk);
-        pk = loadUtils.queryForPk(query, parameterMap);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
         if ((pk == null) || (pk == 0)) {
             String insert = "INSERT INTO experiment_statuscode (experiment_pk, statuscode_pk) VALUES (:experimentPk, :statuscodePk)";
             try {
                 int count = npJdbcTemplate.update(insert, parameterMap);
                 if (count > 0) {
-                    pk = loadUtils.queryForPk(query, parameterMap);
+                    pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
                 }
 
             } catch (DuplicateKeyException e) {
@@ -1731,17 +1742,6 @@ public class ExtractDccSqlUtils {
     }
 
 
-    // UPDATES
-
-
-    public int updateRelatedSpecimenMinePk() {
-        final String update = "UPDATE relatedSpecimen SET specimen_mine_pk = (SELECT pk FROM specimen WHERE relatedSpecimen.specimenIdMine = specimen.specimenId)";
-        int count = npJdbcTemplate.update(update, new HashMap<String, Object>());
-
-        return count;
-    }
-
-
     // ROWMAPPERS
 
 
@@ -1822,13 +1822,33 @@ public class ExtractDccSqlUtils {
         }
     }
 
+    /**
+     * {@link Specimen} is an abstract class from which {@link Mouse} and {@link Embryo} are derived. This RowMapper
+     * creates either a {@link Mouse} or a {@link Embryo}, returning it as the generic {@link Specimen}.
+     */
     public class SpecimenRowMapper implements RowMapper<Specimen> {
 
         @Override
         public Specimen mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Specimen specimen = new SpecimenCda();
+            Specimen specimen;
 
-            specimen.setHjid(rs.getLong("s.pk"));
+            // Create the correct Specimen type and load the Mouse- or Embryo-specific data.
+            boolean isMouse = (rs.getInt("is_mouse") == 1 ? true : false);
+            if (isMouse) {
+                Mouse mouse = new Mouse();
+                GregorianCalendar gc = new GregorianCalendar();
+                gc.setTime(rs.getDate("DOB"));
+                mouse.setDOB(gc);
+                specimen = mouse;
+            } else {
+                Embryo embryo = new Embryo();
+                embryo.setStage(rs.getString("stage"));
+                embryo.setStageUnit(StageUnit.fromValue(rs.getString("stageUnit")));
+                specimen = embryo;
+            }
+
+            // Load the remaining common Specimen data.
+            specimen.setHjid(rs.getLong("pk"));
             String colonyId = rs.getString("colonyId");
             if ( ! rs.wasNull()) {
                 specimen.setColonyID(colonyId);
@@ -1850,7 +1870,7 @@ public class ExtractDccSqlUtils {
             }
             specimen.setZygosity(Zygosity.fromValue(rs.getString("zygosity")));
             StatusCode statusCode = new StatusCode();
-            statusCode.setValue(rs.getString("status"));
+            statusCode.setHjid(rs.getLong("statuscode_pk"));
             specimen.setStatusCode(statusCode);
 
             return specimen;
