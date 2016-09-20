@@ -53,6 +53,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.ChartData;
+import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
@@ -82,25 +83,35 @@ public class BaselineChartsController {
 		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, SQLException{
 		System.out.println("calling baselineCharts");
 		List<FieldStatsInfo> baselinesForParameter = os.getStatisticsForParameterFromCenter(parameterStableId, null);
-		String baseLineChart=this.generateBaselineChart("chartId",parameterStableId,  baselinesForParameter);
+		String baseLineChart=this.generateBaselineChart(parameterStableId,baselinesForParameter);
 		model.addAttribute("baselineChart", baseLineChart);
 		return "baselineChart";
 	}
 
-	private String generateBaselineChart(String chartId, String parameterStableId, List<FieldStatsInfo> baselinesForParameter) throws SolrServerException, IOException {
+	private String generateBaselineChart(String parameterStableId, List<FieldStatsInfo> baselinesForParameter) throws SolrServerException, IOException {
 		ParameterDTO parameter=impressService.getParameterByStableId(parameterStableId);
+		//String procedureName = parameter.getProcedures().iterator().next().getName();
+		System.out.println("procedure names="+parameter.getProcedureNames());
 		
 		String yAxisTitle=parameter.getUnitX();
 		List<String> xAxisLabels=new ArrayList();
-		List<String> minAndMax=new ArrayList();
+		
 		List<String> means=new ArrayList();
 		for(FieldStatsInfo baseLine:baselinesForParameter){
 			xAxisLabels.add("'"+baseLine.getName()+"'");
-			minAndMax.add("["+baseLine.getMin()+","+baseLine.getMax()+"]");
 			means.add(baseLine.getMean().toString());
+			System.out.println(baseLine.getMin()+ " " +baseLine.getMax()+" "+baseLine.getMean());
 		}
 		//[-9.7, 9.4],
+		int decimalPlaces=ChartUtils.getDecimalPlacesFromStrings(means);
+		System.out.println("decimalPlaces="+decimalPlaces);
+		List<Float> meanFloats = getDecimalAdjustedValues(means, decimalPlaces);
 		
+		
+		List<String> minAndMax=new ArrayList<>();
+		for(FieldStatsInfo baseLine:baselinesForParameter){
+		minAndMax.add("["+ChartUtils.getDecimalAdjustedFloat(new Float(baseLine.getMin().toString()), decimalPlaces)+","+new Float(baseLine.getMax().toString())+"]");
+		}
 		String minAndMaxData=StringUtils.join(minAndMax, ",");
 		System.out.println("minAndMaxData="+minAndMaxData);
 		System.out.println("means="+means);
@@ -108,7 +119,7 @@ public class BaselineChartsController {
 		 String chartString="$('#baseline-chart-div').highcharts({"+
 
 		        " chart: {  "
-				        + " type: 'columnrange',  inverted: false },  title: { text: 'Temperature variation by month' }, subtitle: {  text: 'Observed in Vik i Sogn, Norway' },"
+				        + " type: 'columnrange',  inverted: false },  title: { text: '"+parameter.getName()+"' }, subtitle: {  text: '"+parameter.getProcedureNames().get(0)+"' },"
 				        + "  xAxis: {"
 				        + " categories: "+xAxisLabels 
 				        +"},"
@@ -127,11 +138,19 @@ public class BaselineChartsController {
 				        				+ " series: "
 				        				+ "[ {  name: 'Temperatures', data: [  "+minAndMaxData
 				        				+ " ] },"
-				        		+ " {  type: 'scatter', name: 'Observations', data: "+means+", marker: { radius: 4 } }]"
+				        		+ " {  type: 'scatter', name: 'Observations', data: "+meanFloats+", marker: { radius: 4 } }]"
 				        		+ "  });";
 		
 	return chartString;
 	
+	}
+
+	private List<Float> getDecimalAdjustedValues(List<String> means, int decimalPlaces) {
+		List<Float> meanFloats=new ArrayList<>();
+		for(String mean:means){
+		meanFloats.add(ChartUtils.getDecimalAdjustedFloat(new Float(mean), decimalPlaces));
+		}
+		return meanFloats;
 	}
 
 	
