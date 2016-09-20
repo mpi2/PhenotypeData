@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobInterruptedException;
@@ -102,7 +102,7 @@ public class AlleleLoader implements InitializingBean, Step {
     private AlleleWriter writer;
 
 
-    public AlleleLoader(Map<FilenameKeys, String> alleleKeys) throws DataImportException {
+    public AlleleLoader(Map<FilenameKeys, String> alleleKeys) throws DataLoadException {
         this.alleleKeys = alleleKeys;
     }
 
