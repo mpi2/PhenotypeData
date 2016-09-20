@@ -153,8 +153,8 @@ public class Strain {
 
 		return "Strain{" +
 				"id=" + id +
-				", biotype=" + (biotype == null ? "null" : biotype) +
 				", name='" + name + '\'' +
+				", biotype=" + (biotype == null ? "null" : biotype) +
 				", synonyms=[" + toStringSynonyms() + "]" +
 				'}';
 	}

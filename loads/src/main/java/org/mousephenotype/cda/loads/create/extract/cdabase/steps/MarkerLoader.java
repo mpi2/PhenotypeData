@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.XrefFieldSetMapper;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.GenesFieldSetMapper;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
@@ -185,7 +185,7 @@ public class MarkerLoader implements InitializingBean, Step {
     private MarkerWriter writer;
 
 
-    public MarkerLoader(Map<FilenameKeys, String> markerKeys) throws DataImportException {
+    public MarkerLoader(Map<FilenameKeys, String> markerKeys) throws DataLoadException {
         this.markerKeys = markerKeys;
     }
 

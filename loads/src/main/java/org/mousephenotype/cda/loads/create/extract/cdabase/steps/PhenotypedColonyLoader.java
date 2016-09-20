@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.*;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Loads the alleles from the mgi report files.
+ * Loads the iMits colony information from the iMits report files.
  *
  * Created by mrelac on 13/04/2016.
  *
@@ -68,7 +68,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             , "mgiMarkerAccessionId"        // B - MGI Accession ID
             , "colonyName"                  // C - Colony Name
             , "esCellName"                  // D - Es Cell Name
-            , "backgroundStrain"            // E - Colony Background Strain
+            , "backgroundStrainName"        // E - Colony Background Strain Name
             , "productionCentre"            // F - Production Centre
             , "productionConsortium"        // G - Production Consortium
             , "phenotypingCentre"           // H - Phenotyping Centre
@@ -88,7 +88,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
     private PhenotypedColonyWriter writer;
 
 
-    public PhenotypedColonyLoader(Map<FilenameKeys, String> phenotypedColonyKeys) throws DataImportException {
+    public PhenotypedColonyLoader(Map<FilenameKeys, String> phenotypedColonyKeys) throws DataLoadException {
         this.phenotypedColonyKeys = phenotypedColonyKeys;
     }
 
@@ -130,9 +130,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
 
             phenotypedColony.setEs_cell_name(fs.readString("esCellName"));
 
-            Strain backgroundStrain = new Strain();
-            backgroundStrain.setName(fs.readString("backgroundStrain"));
-            phenotypedColony.setStrain(backgroundStrain);
+            phenotypedColony.setBackgroundStrainName(fs.readString("backgroundStrainName"));
 
             Organisation productionCentre = new Organisation();
             productionCentre.setName(fs.readString("productionCentre"));
@@ -154,9 +152,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             cohortProductionCentre.setName(fs.readString("cohortProductionCentre"));
             phenotypedColony.setCohortProductionCentre(cohortProductionCentre);
 
-            Allele allele = new Allele();
-            allele.setSymbol(fs.readString("alleleSymbol"));
-            phenotypedColony.setAllele(allele);
+            phenotypedColony.setAlleleSymbol(fs.readString("alleleSymbol"));
 
             return phenotypedColony;
         }
@@ -227,22 +223,12 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
 
         @Override
         protected Set<String> logStatus() {
-            logger.info("PHENOTYPED_COLONY: Added {} new phenotypeColonies, {} alleles, {} genes, and {} strains to database from file {} in {}.",
+            logger.info("PHENOTYPED_COLONY: Added {} new phenotypeColonies and {} genes to database from file {} in {}.",
                         ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getAddedPhenotypedColoniesCount(),
-                        ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getAddedAllelesCount(),
                         ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getAddedGenesCount(),
-                        ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getAddedStrainsCount(),
                         phenotypedColonyKeys.get(FilenameKeys.EBI_PhenotypedColony),
                         commonUtils.formatDateDifference(start, stop));
-            
-            Set<String> missingStrains = ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getMissingStrains();
-            if ( ! missingStrains.isEmpty()) {
-                logger.warn("Missing strains:");
-                for (String strain : missingStrains.toArray(new String[0])) {
-                    logger.warn("\t" + strain);
-                }
-            }
-            
+
             Set<String> missingOrganisations = ((PhenotypedColonyProcessor) phenotypedColonyProcessor).getMissingOrganisations();
             if ( ! missingOrganisations.isEmpty()) {
                 logger.warn("Missing organisations:");
