@@ -14,10 +14,13 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.extract.dcc.config;
+package org.mousephenotype.cda.loads.create.load.config;
 
-import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
+import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,17 +28,41 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**
- * Created by mrelac on 18/08/16.
+ * Created by mrelac on 03/09/16.
  */
 @Configuration
 @Import(DataSourcesConfigApp.class)
-public class ExtractDccConfigBeans {
+public class LoadConfigBeans {
+
+    private int externalIdDbId;
+
+    @Autowired
+    private NamedParameterJdbcTemplate jdbcCda;
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcDcc;
 
-    @Bean(name = "extractDccSqlUtils")
-    public DccSqlUtils extractDccSqlUtils() {
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Bean
+    public SampleLoader sampleLoader() {
+//        String externalDbShortName = "EuroPhenome";
+//        String externalDbShortName = "3i";
+        String externalDbShortName = "IMPC";
+
+        SampleLoader sampleLoader = new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), externalDbShortName);
+
+        return sampleLoader;
+    }
+
+    @Bean
+    public CdaSqlUtils cdaSqlUtils() {
+        return new CdaSqlUtils(jdbcCda);
+    }
+
+    @Bean
+    public DccSqlUtils dccSqlUtils() {
         return new DccSqlUtils(jdbcDcc);
     }
 }

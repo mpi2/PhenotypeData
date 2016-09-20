@@ -21,9 +21,10 @@ import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +44,7 @@ import java.util.Map;
  * Created by mrelac on 03/05/16.
  */
 @Configuration
-@Import(ExtractCdabaseConfigApp.class)
+@Import(DataSourcesConfigApp.class)
 public class ExtractCdabaseConfigBeans {
 
     private Map<String, OntologyTerm>   mgiFeatureTypes;
@@ -195,8 +196,8 @@ public class ExtractCdabaseConfigBeans {
     }
 
     @Bean(name = "cdabaseSqlUtils")
-    public CdabaseSqlUtils cdabaseSqlUtils() {
-        return new CdabaseSqlUtils(jdbcCdabase);
+    public CdaSqlUtils cdabaseSqlUtils() {
+        return new CdaSqlUtils(jdbcCdabase);
     }
 
 
@@ -204,7 +205,7 @@ public class ExtractCdabaseConfigBeans {
 
 
     @Bean(name = "alleleLoader")
-    public AlleleLoader alleleLoader() throws DataImportException {
+    public AlleleLoader alleleLoader() throws DataLoadException {
         Map<AlleleLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(AlleleLoader.FilenameKeys.EUCOMM, downloadFilenameMap.get(DownloadFileEnum.EUCOMM_Allele).targetFilename);
         filenameKeys.put(AlleleLoader.FilenameKeys.GENOPHENO, downloadFilenameMap.get(DownloadFileEnum.MGI_GenePheno).targetFilename);
@@ -254,7 +255,7 @@ public class ExtractCdabaseConfigBeans {
 
 
     @Bean(name = "bioModelLoader")
-    public BiologicalModelLoader bioModelLoader() throws DataImportException {
+    public BiologicalModelLoader bioModelLoader() throws DataLoadException {
         Map<BiologicalModelLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(BiologicalModelLoader.FilenameKeys.MGI_PhenoGenoMP, downloadFilenameMap.get(DownloadFileEnum.MGI_PhenoGenoMP).targetFilename);
 
@@ -274,7 +275,7 @@ public class ExtractCdabaseConfigBeans {
 
 
     @Bean(name = "markerLoader")
-    public MarkerLoader markerLoader() throws DataImportException {
+    public MarkerLoader markerLoader() throws DataLoadException {
         Map<MarkerLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(MarkerLoader.FilenameKeys.MARKER_LIST, downloadFilenameMap.get(DownloadFileEnum.MRK_List1).targetFilename);
         filenameKeys.put(MarkerLoader.FilenameKeys.XREFS_MGI_EntrezGene, downloadFilenameMap.get(DownloadFileEnum.MGI_EntrezGene).targetFilename);
@@ -318,7 +319,7 @@ public class ExtractCdabaseConfigBeans {
 
     
     @Bean(name = "ontologyLoaderList")
-    public List<OntologyLoader> ontologyLoader() throws DataImportException {
+    public List<OntologyLoader> ontologyLoader() throws DataLoadException {
         List<OntologyLoader> ontologyloaderList = new ArrayList<>();
 
         for (DownloadFilename filename : filenames) {
@@ -332,7 +333,7 @@ public class ExtractCdabaseConfigBeans {
     }
 
     @Bean(name = "phenotypedcolonyLoader")
-    public PhenotypedColonyLoader phenotypedcolonyLoader() throws DataImportException {
+    public PhenotypedColonyLoader phenotypedcolonyLoader() throws DataLoadException {
         Map<PhenotypedColonyLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(PhenotypedColonyLoader.FilenameKeys.EBI_PhenotypedColony, downloadFilenameMap.get(DownloadFileEnum.EBI_PhenotypedColony).targetFilename);
 
@@ -340,8 +341,8 @@ public class ExtractCdabaseConfigBeans {
     }
 
     @Bean(name = "phenotypedColonyProcessor")
-    public PhenotypedColonyProcessor phenotypedColonyProcessor() throws DataImportException {
-        return new PhenotypedColonyProcessor(alleles, genes, strains);
+    public PhenotypedColonyProcessor phenotypedColonyProcessor() throws DataLoadException {
+        return new PhenotypedColonyProcessor(genes);
     }
 
     @Bean(name = "phenotypedColonyWriter")
@@ -352,7 +353,7 @@ public class ExtractCdabaseConfigBeans {
 
     
     @Bean(name = "strainLoader")
-    public StrainLoader strainLoader() throws DataImportException {
+    public StrainLoader strainLoader() throws DataLoadException {
         Map<StrainLoader.FilenameKeys, String> filenameKeys = new HashMap<>();
         filenameKeys.put(StrainLoader.FilenameKeys.MGI, downloadFilenameMap.get(DownloadFileEnum.MGI_Strain).targetFilename);
         filenameKeys.put(StrainLoader.FilenameKeys.IMSR, downloadFilenameMap.get(DownloadFileEnum.IMSR_report).targetFilename);

@@ -629,14 +629,11 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, ls.developmental_stage_acc, ot.name AS developmental_stage_name, ot.acc as developmental_stage_acc,"
 				+ "bms.biological_model_id, "
 				+ "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition, "
+				+ "bs.production_center_id, prod_org.name as production_center_name, ls.litter_id, "
 				+ "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, "
 				+ "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bms.biological_model_id)  as allele_symbol, "
 				+ "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bms.biological_model_id) as acc, "
 				+ "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bms.biological_model_id)  as symbol ";
-
-		if (featureFlags.contains("production_center_id") && featureFlags.contains("litter_id")) {
-			query += ", bs.production_center_id, prod_org.name as production_center_name, bs.litter_id ";
-		}
 
 		query += "FROM biological_sample bs " + "INNER JOIN organisation org ON bs.organisation_id=org.id "
 				+ "INNER JOIN live_sample ls ON bs.id=ls.id "
@@ -644,11 +641,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id "
 				+ "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc "
 				+ "INNER JOIN biological_model bm ON bm.id = bms.biological_model_id "
-				+ "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc ";
-
-		if (featureFlags.contains("production_center_id") && featureFlags.contains("litter_id")) {
-			query += "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id ";
-		}
+				+ "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc "
+		        + "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id ";
 
 		try (PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -686,13 +680,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.zygosity = resultSet.getString("zygosity");
 				b.developmentalStageAcc = resultSet.getString("developmental_stage_acc");
 				b.developmentalStageName = resultSet.getString("developmental_stage_name");
+				b.productionCenterId = resultSet.getInt("production_center_id");
+				b.productionCenterName = resultSet.getString("production_center_name");
+				b.litterId = resultSet.getString("litter_id");
 
-				if (featureFlags.contains("production_center_id") && featureFlags.contains("litter_id")) {
-					b.productionCenterId = resultSet.getInt("production_center_id");
-					b.productionCenterName = resultSet.getString("production_center_name");
-					b.litterId = resultSet.getString("litter_id");
-
-				}
 
 				biologicalData.put(resultSet.getString("biological_sample_id"), b);
 			}
