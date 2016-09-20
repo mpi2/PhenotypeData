@@ -229,23 +229,6 @@ $(document).ready(function(){
 	
 });
 
-function ajaxToBeBaseline(phenotype, parameter){
-	$( '#spinner-baseline-charts' ).show();
-	var chartUrl = document.URL.split("/phenotypes/")[0];
-	chartUrl += "/baselineCharts/" + phenotype + "?parameter_id=" + parameter;
-	console.log('calling ajaxToBeBaseline');
-	$.ajax({
-	  url: chartUrl,
-	  cache: false
-	})
-	.done(function( html ) {
-		$( '#spinner-baseline-charts' ).hide();
-		$( '#baseline-chart-div' ).html( html );
-		$( '#baseline-chart-div' ).attr("parameter", parameter);
-	});
-	
-}
-
 function ajaxToBe(phenotype, parameter){
 	console.log('calling ajaxToBe');
 	$( '#spinner-overview-charts' ).show();
@@ -259,6 +242,20 @@ function ajaxToBe(phenotype, parameter){
 		$( '#spinner-overview-charts' ).hide();
 		$( '#single-chart-div' ).html( html );
 		$( '#single-chart-div' ).attr("parameter", parameter);
+	});
+	
+	$( '#spinner-baseline-charts' ).show();
+	var chartUrl = document.URL.split("/phenotypes/")[0];
+	chartUrl += "/baselineCharts/" + phenotype + "?parameter_id=" + parameter;
+	console.log('calling ajaxToBeBaseline');
+	$.ajax({
+	  url: chartUrl,
+	  cache: false
+	})
+	.done(function( html ) {
+		$( '#spinner-baseline-charts' ).hide();
+		$( '#baseline-chart-div' ).html( html );
+		$( '#baseline-chart-div' ).attr("parameter", parameter);
 	});
 	
 }
