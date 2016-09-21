@@ -27,7 +27,10 @@ import javax.sql.DataSource;
         "org.mousephenotype.cda.db",
         "org.mousephenotype.cda.solr",
         "org.mousephenotype.cda.utilities" })
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+@PropertySource({
+        "file:${user.home}/configfiles/${profile:jenkins}/application.properties",
+        "file:${user.home}/configfiles/${profile:jenkins}/datarelease.properties"
+})
 public class ReportsConfig {
 
     @Bean
@@ -73,29 +76,84 @@ public class ReportsConfig {
         return new SexualDimorphismDAOImpl();
     }
 
-    // Needed for ImportDccMissingReport
+    
+    
+    // Needed for extract/load validation reports
 
-    @Bean(name = "dcc1")
-       @ConfigurationProperties(prefix = "dcc1")
-   	public DataSource dcc1() {
+
+    @Bean(name = "cdaPrevious")
+    @ConfigurationProperties(prefix = "datasource.cdaComparePrevious")
+   	public DataSource cdaPrevious() {
            DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
    		return ds;
    	}
 
-   	@Bean(name = "dcc2")
-       @ConfigurationProperties(prefix = "dcc2")
-   	public DataSource dcc2() {
+   	@Bean(name = "cdaCurrent")
+    @ConfigurationProperties(prefix = "datasource.cdaCompareCurrent")
+   	public DataSource cdaCurrent() {
            DataSource ds = DataSourceBuilder.create().build();
    		return ds;
    	}
 
-   	@Bean(name = "jdbctemplate1")
-   	public JdbcTemplate jdbctemplate1() {
-   		return new JdbcTemplate(dcc1());
+   	@Bean(name = "jdbcCdaPrevious")
+   	public JdbcTemplate jdbcCdaPrevious() {
+   		return new JdbcTemplate(cdaPrevious());
    	}
 
-   	@Bean(name = "jdbctemplate2")
-   	public JdbcTemplate jdbctemplate2() {
-   		return new JdbcTemplate(dcc2());
+   	@Bean(name = "jdbcCdaCurrent")
+   	public JdbcTemplate jdbcCdaCurrent() {
+   		return new JdbcTemplate(cdaCurrent());
+   	}
+
+    
+    
+    @Bean(name = "dccPrevious")
+    @ConfigurationProperties(prefix = "datasource.dccComparePrevious")
+   	public DataSource dccPrevious() {
+           DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+   		return ds;
+   	}
+
+   	@Bean(name = "dccCurrent")
+    @ConfigurationProperties(prefix = "datasource.dccCompareCurrent")
+   	public DataSource dccCurrent() {
+           DataSource ds = DataSourceBuilder.create().build();
+   		return ds;
+   	}
+
+   	@Bean(name = "jdbcDccPrevious")
+   	public JdbcTemplate jdbcDccPrevious() {
+   		return new JdbcTemplate(dccPrevious());
+   	}
+
+   	@Bean(name = "jdbcDccCurrent")
+   	public JdbcTemplate jdbcDccCurrent() {
+   		return new JdbcTemplate(dccCurrent());
+   	}
+
+
+
+    @Bean(name = "impressPrevious")
+    @ConfigurationProperties(prefix = "datasource.impressComparePrevious")
+   	public DataSource impressPrevious() {
+           DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+   		return ds;
+   	}
+
+   	@Bean(name = "impressCurrent")
+    @ConfigurationProperties(prefix = "datasource.impressCompareCurrent")
+   	public DataSource impressCurrent() {
+           DataSource ds = DataSourceBuilder.create().build();
+   		return ds;
+   	}
+
+   	@Bean(name = "jdbcImpressPrevious")
+   	public JdbcTemplate jdbcImpressPrevious() {
+   		return new JdbcTemplate(impressPrevious());
+   	}
+
+   	@Bean(name = "jdbcImpressCurrent")
+   	public JdbcTemplate jdbcImpressCurrent() {
+   		return new JdbcTemplate(impressCurrent());
    	}
 }
