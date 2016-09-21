@@ -1325,7 +1325,7 @@ CREATE TABLE stat_result_phenotype_call_summary (
 	INDEX srpcs_unidimensional_result_id_idx (unidimensional_result_id),
 	INDEX srpcs_rrplus_result_id_idx (rrplus_result_id)
 
-)	COLLATE =utf8_general_ciENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 --
@@ -1378,7 +1378,7 @@ CREATE TABLE statistical_result (
 	KEY pipeline_idx (pipeline_id),
 	KEY parameter_idx (parameter_id)
 
-)	COLLATE =utf8_general_ciENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
@@ -1403,7 +1403,7 @@ CREATE TABLE statistical_result_additional (
 	PRIMARY KEY (id),
 	FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
 
-)	COLLATE =utf8_general_ciENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_phenstat;
