@@ -46,17 +46,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * Loads the cda database from the dcc database.
  * Created by mrelac on 31/08/2016.
  */
 @EnableBatchProcessing
 @Import( {LoadConfigBeans.class })
-public class LoadCda implements CommandLineRunner {
+public class LoadFromDcc implements CommandLineRunner {
 
     /**
      * This class is intended to be a command-line callable java main program that loads the cda database.
      */
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(LoadCda.class);
+        SpringApplication app = new SpringApplication(LoadFromDcc.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);
