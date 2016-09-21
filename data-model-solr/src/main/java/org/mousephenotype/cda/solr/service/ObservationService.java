@@ -2216,6 +2216,7 @@ public class ObservationService extends BasicService implements WebStatus {
 		query.setGetFieldStatistics(ObservationDTO.DATA_POINT);
 		query.setParam("stats.facet", ObservationDTO.PHENOTYPING_CENTER); 
 		query.setFacetLimit(-1);
+		query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
 		if (parameterStableId != null) {
 			query.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":"+  parameterStableId);
 		}
