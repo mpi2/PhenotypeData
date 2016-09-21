@@ -535,7 +535,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 							String maTerm = terms.get(i);
 							maIdTerms.add(maId + "_" + maTerm);
 						} catch (Exception e) {
-							runStatus.addWarning(" Could not find term when indexing MA " + maId + ". i = " + i + ". termIds = " + StringUtils.join(termIds, ", ") + ". Exception: "
+							runStatus.addWarning(" Could not find term when indexing MA " + maId + ". i = " + i + ". termIds = " + StringUtils.join(termIds, ", ") + ". LocalizedMessage: "
 									+ e.getLocalizedMessage());
 						}
 					}
