@@ -15,15 +15,12 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDetail;
+import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -538,7 +535,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 							String maTerm = terms.get(i);
 							maIdTerms.add(maId + "_" + maTerm);
 						} catch (Exception e) {
-							runStatus.addWarning(" Could not find term when indexing MA " + maId + ". Exception: "
+							runStatus.addWarning(" Could not find term when indexing MA " + maId + ". i = " + i + ". termIds = " + StringUtils.join(termIds, ", ") + ". Exception: "
 									+ e.getLocalizedMessage());
 						}
 					}
