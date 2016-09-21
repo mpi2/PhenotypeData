@@ -52,6 +52,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.ChartColors;
 import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
@@ -115,11 +116,13 @@ public class BaselineChartsController {
 		String minAndMaxData=StringUtils.join(minAndMax, ",");
 		System.out.println("minAndMaxData="+minAndMaxData);
 		System.out.println("means="+means);
-		
-		 String chartString="$('#baseline-chart-div').highcharts({"+
+		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
+		 String chartString="$('#baseline-chart-div').highcharts({"  + " colors:" + colors
+		        + ", "+
 
-		        " chart: {  "
-				        + " type: 'columnrange',  inverted: false },  title: { text: '"+parameter.getName()+"' }, subtitle: {  text: '"+parameter.getProcedureNames().get(0)+"' },"
+		        " chart: {  " 
+				        + " type: 'columnrange',  inverted: false },  title: { text: '"+parameter.getName()+" WT Variation By Center' }, subtitle: {  text: '"+parameter.getProcedureNames().get(0)+"' },"
+				        + " plotOptions: {   series: {  states: { hover: { enabled: false  }   }  } },"
 				        + "  xAxis: {"
 				        + " categories: "+xAxisLabels 
 				        +"},"
@@ -131,16 +134,17 @@ public class BaselineChartsController {
 				        		+ "  plotOptions: {"
 				        		+ " columnrange: { "
 				        				+ "dataLabels: {"
-				        				+ "  enabled: true,   formatter: function () { return this.y + '"+yAxisTitle+"'; }"
+				        				+ "  enabled: false,   formatter: function () { return this.y + '"+yAxisTitle+"'; }"
 				        				+ "   }"
 				        		+ "  }"
-				        		+ "}, legend: { enabled: false  },"
+				        		+ "}, legend: { enabled: false  }, tooltip: { enabled: false },"
 				        				+ " series: "
-				        				+ "[ {  name: 'Temperatures', data: [  "+minAndMaxData
+				        				+ "[ {  name: '"+parameter.getName()+yAxisTitle+"',  data: [  "+minAndMaxData
 				        				+ " ] },"
 				        		+ " {  type: 'scatter', name: 'Observations', data: "+meanFloats+", marker: { radius: 4 } }]"
 				        		+ "  });";
 		
+		 System.out.println("chartString="+chartString);
 	return chartString;
 	
 	}
