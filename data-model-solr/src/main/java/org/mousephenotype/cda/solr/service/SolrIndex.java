@@ -385,7 +385,7 @@ public class SolrIndex {
 		else if ( mode.equals("allele2Grid")){
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
-			//System.out.println("ALLELE2 PARAMS: " + url);
+//			System.out.println("ALLELE2 PARAMS: " + url);
 		}
 		else if (mode.equals("all") || mode.equals("page") || mode.equals("")) { // download search page result
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows=" + iDisplayLength;
