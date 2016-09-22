@@ -118,7 +118,7 @@ public class ReportsController {
 		
 			if (!someMatch && ignoreList.contains(ebi.parameterStableId.substring(0,8))){
 				ignore++;
-				System.out.println("Param not analyzed : " + ebi.getKey());
+//				System.out.println("Param not analyzed : " + ebi.getKey());
 				someMatch = true;
 			} 
 			
@@ -133,14 +133,10 @@ public class ReportsController {
 				grouped.put(call.parameterStableId, grouped.get(call.parameterStableId) + 1);
 			} else {
 				grouped.put(call.parameterStableId, 1);
-				//System.out.println("MISSING --" + call);
+				System.out.println("MISSING -- " + call);
 			}
 		}
-//
-//		for (String param: grouped.keySet()){
-//			System.out.println(param + "\t" + grouped.get(param));
-//		}
-		
+
 		Map<String, Integer> labelToNumber = new HashMap<String, Integer>();
 		labelToNumber.put("Exact match", exact);
 		labelToNumber.put("Same MP, different p-value", differentPvalue);
