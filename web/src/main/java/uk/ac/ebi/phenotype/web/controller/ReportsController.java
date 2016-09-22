@@ -16,19 +16,6 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
@@ -39,8 +26,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 /**
@@ -97,10 +90,8 @@ public class ReportsController {
 			keyNoPvalNoMp.put(dcc.getKeyNoPvalNoMp(), dcc);
 			keyExact.add(dcc.getKey());
 			keyNoPval.put(dcc.getKeyNoPval(), dcc);
-			System.out.println("_____ " +dcc.getKeyNoPvalNoMp() + "\t" + dcc.getKeyNoPval() );
 		}
-		
-		
+
 		
 		for (CallDTO ebi: ebiList){
 			
@@ -116,20 +107,18 @@ public class ReportsController {
 				&& ebi.mpParentIds.contains(keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpTermId)){
 					moreGeneralCallDcc ++;
 					someMatch = true;
-					break;
 			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp()) 
 				&& keyNoPvalNoMp.get(ebi.getKeyNoPvalNoMp()).mpParentIds.contains(ebi.mpTermId)){
 					moreGeneralCallEbi ++;
 					someMatch = true;
-					break;
 			} else if (keyNoPvalNoMp.containsKey(ebi.getKeyNoPvalNoMp())){
 					differentMps ++;
 					someMatch = true;
-					break;
 			}
 		
 			if (!someMatch && ignoreList.contains(ebi.parameterStableId.substring(0,8))){
 				ignore++;
+//				System.out.println("Param not analyzed : " + ebi.getKey());
 				someMatch = true;
 			} 
 			
@@ -144,14 +133,10 @@ public class ReportsController {
 				grouped.put(call.parameterStableId, grouped.get(call.parameterStableId) + 1);
 			} else {
 				grouped.put(call.parameterStableId, 1);
-				System.out.println("--" + call);
+				System.out.println("MISSING -- " + call);
 			}
 		}
 
-		for (String param: grouped.keySet()){
-			System.out.println(param + "\t" + grouped.get(param));
-		}
-		
 		Map<String, Integer> labelToNumber = new HashMap<String, Integer>();
 		labelToNumber.put("Exact match", exact);
 		labelToNumber.put("Same MP, different p-value", differentPvalue);
@@ -170,6 +155,7 @@ public class ReportsController {
 		model.addAttribute("ignore", ignore);
 		model.addAttribute("differentMps", differentMps);
 		model.addAttribute("total", ebiList.size());
+		model.addAttribute("totalDcc", dccList.size());
 		
 		System.out.println("Exact " + exact + " differentPvalue "+ differentPvalue + " moreGeneralCallDcc " + moreGeneralCallDcc);
 		
@@ -178,14 +164,13 @@ public class ReportsController {
 
 	private List<CallDTO> getCalls(String content) 
 	throws SolrServerException, IOException{
-		
+
 		String[] list = content.split("\\r\\n|\\n|\\r");
 		List<CallDTO> res = new ArrayList<>();
 		// Start from 1 to skip header column
 		for (int i = 1; i< list.length; i++){
 			res.add(new CallDTO(list[i].replace("\"", "")));
 		}
-		System.out.println("SIZE Of RES " + res.size());
 		return res;
 		
 	}
@@ -206,7 +191,7 @@ public class ReportsController {
 		
 		public CallDTO(String line) 
 		throws SolrServerException, IOException{
-			
+
 			String[] split = line.split(",");
 			mpTermId= split[0];
 			markerSymbol = split[1];

@@ -21,8 +21,8 @@ import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.DbIdType;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -52,10 +52,10 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
 
     @Autowired
     @Qualifier("cdabaseSqlUtils")
-    private CdabaseSqlUtils cdabaseSqlUtils;
+    private CdaSqlUtils cdaSqlUtils;
 
-    public abstract Allele setBiotype(Allele allele) throws DataImportException;
-    public abstract Allele setGene(Allele allele) throws DataImportException;
+    public abstract Allele setBiotype(Allele allele) throws DataLoadException;
+    public abstract Allele setGene(Allele allele) throws DataLoadException;
 
 
     public AlleleProcessorAbstract(Map<String, GenomicFeature> genes) {
@@ -71,7 +71,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
         if (lineNumber == 1) {
             if ( ! allele.getId().getAccession().toLowerCase().startsWith("mgi:") ||
                ( ! allele.getGene().getId().getAccession().toLowerCase().startsWith("mgi:"))) {
-                throw new DataImportException("Parsing error on line " + lineNumber
+                throw new DataLoadException("Parsing error on line " + lineNumber
                         + ": Expected allele and gene accession ids to begin with 'MGI:'. allele: '"
                         + allele.getId().getAccession() + "'. Gene: '"
                         + allele.getGene().getId().getAccession() + "'");
@@ -80,7 +80,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
 
         // Initialise collections.
         if (mgiFeatureTypes == null) {
-            mgiFeatureTypes = cdabaseSqlUtils.getOntologyTerms(DbIdType.MGI.intValue());
+            mgiFeatureTypes = cdaSqlUtils.getOntologyTerms(DbIdType.MGI.intValue());
         }
 
         if (alleles.containsKey(allele.getId().getAccession())) {
@@ -163,12 +163,12 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
      *
      * @return the allele being processed, with the biotype component set.
      *
-     * @throws DataImportException
+     * @throws DataLoadException
      */
-    protected Allele setBiotypeMouseMutants(Allele allele) throws DataImportException {
+    protected Allele setBiotypeMouseMutants(Allele allele) throws DataLoadException {
         if (biotypeTm1a == null) {
-            biotypeTm1a = cdabaseSqlUtils.getOntologyTerm(DbIdType.MGI.intValue(), CdabaseSqlUtils.BIOTYPE_TM1A_STRING);
-            biotypeTm1e = cdabaseSqlUtils.getOntologyTerm(DbIdType.MGI.intValue(), CdabaseSqlUtils.BIOTYPE_TM1E_STRING);
+            biotypeTm1a = cdaSqlUtils.getOntologyTerm(DbIdType.MGI.intValue(), CdaSqlUtils.BIOTYPE_TM1A_STRING);
+            biotypeTm1e = cdaSqlUtils.getOntologyTerm(DbIdType.MGI.intValue(), CdaSqlUtils.BIOTYPE_TM1E_STRING);
         }
 
         allele.setBiotype(allele.getSymbol().contains("tm1a") ? biotypeTm1a : biotypeTm1e);
@@ -215,9 +215,9 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
      *
      * @return the allele being processed, with the gene component set.
      *
-     * @throws DataImportException
+     * @throws DataLoadException
      */
-    protected Allele setGeneNullMeansAddWithdraw(Allele allele) throws DataImportException {
+    protected Allele setGeneNullMeansAddWithdraw(Allele allele) throws DataLoadException {
         GenomicFeature gene;
         if ((allele.getGene() == null) || (allele.getGene().getId().getAccession().trim().isEmpty())) {
             gene = null;
@@ -226,17 +226,17 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
             if (gene == null) {
                 withdrawnGenesCount++;
 
-                OntologyTerm biotype = cdabaseSqlUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), CdabaseSqlUtils.BIOTYPE_GENE_STRING);
+                OntologyTerm biotype = cdaSqlUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), CdaSqlUtils.BIOTYPE_GENE_STRING);
                 gene = new GenomicFeature();
                 gene.setId(new DatasourceEntityId(allele.getGene().getId().getAccession(), DbIdType.MGI.intValue()));
                 gene.setBiotype(biotype);
                 gene.setSymbol(allele.getGene().getSymbol());
                 gene.setName(allele.getGene().getSymbol());
-                gene.setStatus(CdabaseSqlUtils.STATUS_WITHDRAWN);
+                gene.setStatus(CdaSqlUtils.STATUS_WITHDRAWN);
                 logger.warn("MGI IMSR_report file is out-of-sync. Adding withdrawn gene {} to allele {}.",
                         gene.toString(), allele.toString());
 
-                cdabaseSqlUtils.insertGene(gene);
+                cdaSqlUtils.insertGene(gene);
             }
         }
 

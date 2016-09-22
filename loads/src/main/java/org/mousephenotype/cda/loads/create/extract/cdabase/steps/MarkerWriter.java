@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -36,7 +36,7 @@ public class MarkerWriter implements ItemWriter {
 
     @Autowired
     @Qualifier("cdabaseSqlUtils")
-    private CdabaseSqlUtils cdabaseSqlUtils;
+    private CdaSqlUtils cdaSqlUtils;
 
     private SqlUtils             sqlUtils = new SqlUtils();
     private Map<String, Integer> written  = new HashMap<>();
@@ -58,7 +58,7 @@ public class MarkerWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        Map<String, Integer> counts = cdabaseSqlUtils.insertGenes(items);
+        Map<String, Integer> counts = cdaSqlUtils.insertGenes(items);
         written.put("genes", written.get("genes") + counts.get("genes"));
         written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
         written.put("xrefs", written.get("xrefs") + counts.get("xrefs"));

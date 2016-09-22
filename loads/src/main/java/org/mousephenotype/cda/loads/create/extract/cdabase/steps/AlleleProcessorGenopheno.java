@@ -18,8 +18,8 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -32,15 +32,15 @@ public class AlleleProcessorGenopheno extends AlleleProcessorAbstract {
 
     @Autowired
     @Qualifier("cdabaseSqlUtils")
-    private CdabaseSqlUtils cdabaseSqlUtils;
+    private CdaSqlUtils cdaSqlUtils;
 
     @Override
-    public Allele setBiotype(Allele allele) throws DataImportException {
+    public Allele setBiotype(Allele allele) throws DataLoadException {
         return super.setBiotypeMouseMutants(allele);
     }
 
     @Override
-    public Allele setGene(Allele allele) throws DataImportException {
+    public Allele setGene(Allele allele) throws DataLoadException {
         return super.setGeneNullMeansAddWithdraw(allele);
     }
 
@@ -58,7 +58,7 @@ public class AlleleProcessorGenopheno extends AlleleProcessorAbstract {
 
         allele = super.process(allele);
         if (allele != null) {
-            allele.setName(CdabaseSqlUtils.NAME_NOT_SPECIFIED);
+            allele.setName(CdaSqlUtils.NAME_NOT_SPECIFIED);
         }
 
 //        if (lineNumber % 10000 == 0) {
