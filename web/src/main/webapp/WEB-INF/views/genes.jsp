@@ -698,11 +698,17 @@
 		<script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
 
-		<%-- these copies have the http:// changed to // --%>
-		<script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>
-		<script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>
 
-		<%--reinvoke this when atlas people are ready supporting https--%>
+        <%-- for anatomogram released in 201609 --%>
+		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/vendorCommons.bundle.js?v=${version}"></script>--%>
+		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/anatomogramBuilder.bundle.js?v=${version}"></script>--%>
+
+        <%-- these copies have the http:// changed to // --%>
+        <script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>
+        <script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>
+
+
+        <%--reinvoke this when atlas people are ready supporting https--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>--%>
 		<%--<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>--%>
 
@@ -738,16 +744,81 @@
 				// invoke anatomogram only when
 				// this check is not empty: impcAdultExpressionImageFacets
 
-				 if ($('div#anatomogramContainer').size() == 1) {
+				if ($('div#anatomogramContainer').size() == 1) {
 
 					// anatomogram stuff
 					//var expData = JSON.parse(${anatomogram});
 					var expData = ${anatomogram};
+                    console.log(expData);
 					var topLevelName2maIdMap = expData.topLevelName2maIdMap;
-					var maId2UberonMap = expData.maId2UberonMap;
-					var uberon2MaIdMap = expData.uberon2MaIdMap;
+					var maId2UberonEfoMap = expData.maId2UberonEfoMap;
+					var uberonEfo2MaIdMap = expData.uberonEfo2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
+
+                    //------------ anatomogram 201609 version ----------
+//                    var anatomogramConfig = {mountNode: 'anatomogramContainer', hoveredTissueColour: 'red'};
+//                    anatomogramBuilder.render(anatomogramConfig);
+//
+//                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseEnter', function(pathID) {
+//
+//                        console.log('Entering ' + pathID)
+//                        //console.log('Ma? '+ uberonEfo2MaIdMap[pathID]);
+//                        var maIds = uberonEfo2MaIdMap[pathID];
+//
+//                        if (maIds != undefined) {
+//                            var topLevelNames = [];
+//                            for (var i = 0; i < maIds.length; i++) {
+//                                var tops = maId2topLevelNameMap[maIds[i]];
+//                                for (var j = 0; j < tops.length; j++) {
+//                                    topLevelNames.push(tops[j].trim());
+//                                }
+//                            }
+//
+//                            topLevelNames = $.fn.getUnique(topLevelNames);
+//                            $('ul#expList li a,ul#expList li').each(function () {
+//                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
+//                                    $(this).addClass("mahighlight");
+//                                }
+//                            });
+//                        }
+//                    });
+//                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseLeave', function(pathID) {
+//                        console.log('Leaving ' + pathID)
+//                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
+//                    });
+//
+//
+//                    // top level MA term talks to anatomogram
+//					$("ul#expList li a,ul#expList li").on("mouseover", function() {
+//						var topname = $(this).text().trim();
+//                        console.log("top:"+topname+"--")
+//						var maIds = topLevelName2maIdMap[topname];
+//						//log(topname + " - " + maIds);
+//						var uberonIds = [];
+//						for( var a=0; a<maIds.length; a++){
+//							uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
+//						}
+//						uberonIds = $.fn.getUnique(uberonIds);
+//
+//						//console.log(topname + " : " + uberonIds);
+//
+//                        $(this).addClass("mahighlight");
+//
+//                        // change tissue color
+//                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: uberonIds}));
+//
+//					}).on("mouseout", function(){
+//                        // revert text color
+//                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
+//                        // revert tissue color
+//                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: []}));
+//					});
+
+                    //------------ end of anatomogram 201609 version ----------
+
+
+                    //-------------------------------------------
 					var anatomogramData = {
 
 						"maleAnatomogramFile": "mouse_male.svg",
@@ -790,12 +861,12 @@
 
 					// top level MA term talks to anatomogram
 					$("ul#expList li a").on("mouseover", function() {
-						var topname = $(this).text();
+						var topname = $(this).text().trim();
 						var maIds = topLevelName2maIdMap[topname];
 						//log(topname + " - " + maIds);
 						var uberonIds = [];
 						for( var a=0; a<maIds.length; a++){
-							uberonIds = uberonIds.concat(maId2UberonMap[maIds[a]]);
+							uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
 						}
 						uberonIds = $.fn.getUnique(uberonIds);
 
@@ -811,7 +882,7 @@
 					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
 						//console.log(e)
 
-						var maIds = uberon2MaIdMap[e];
+						var maIds = uberonEfo2MaIdMap[e];
 						var topLevelNames = [];
 						for( var i=0; i<maIds.length; i++) {
 							var tops = maId2topLevelNameMap[maIds[i]];
@@ -823,7 +894,7 @@
 						topLevelNames = $.fn.getUnique(topLevelNames);
 
 						$('ul#expList li a').each(function () {
-							if ($.fn.inArray($(this).text(), topLevelNames)) {
+							if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
 								$(this).addClass("mahighlight");
 							}
 						});
@@ -842,27 +913,27 @@
 				});
 				
 				$('.iFrameFancy').click(function()
-						{
-				 			$.fancybox.open([ 
-				                  {
-				                     href : $(this).attr('data-url'), 
-				                     title : 'Order Products'
-				                  } 
-				                  ], 
-				                   { 
-				                     'maxWidth'          : 1000, 
-				                     'maxHeight'         : 1900, 
-				                     'fitToView'         : false, 
-				                     'width'             : '100%',  
-				                     'height'            : '85%',  
-				                     'autoSize'          : true,  
-				                     'transitionIn'      : 'none', 
-				                     'transitionOut'     : 'none', 
-				                     'type'              : 'iframe', 
-				                     scrolling           : 'auto' 
-				                  }); 
-						}
-				 	);
+                    {
+                        $.fancybox.open([
+                              {
+                                 href : $(this).attr('data-url'),
+                                 title : 'Order Products'
+                              }
+                              ],
+                               {
+                                 'maxWidth'          : 1000,
+                                 'maxHeight'         : 1900,
+                                 'fitToView'         : false,
+                                 'width'             : '100%',
+                                 'height'            : '85%',
+                                 'autoSize'          : true,
+                                 'transitionIn'      : 'none',
+                                 'transitionOut'     : 'none',
+                                 'type'              : 'iframe',
+                                 scrolling           : 'auto'
+                              });
+                    }
+                );
 
 			});
 
