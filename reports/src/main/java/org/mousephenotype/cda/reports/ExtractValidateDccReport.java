@@ -34,26 +34,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This report produces a file of what procedures, specimens, and colonies exist
- * in a prior dcc database that no longer exist in a more recent version of the database.
+ ** This report produces a file of dcc database differences between a previous version and the current one.
  *
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class ImportDccMissingReport extends AbstractReport {
+public class ExtractValidateDccReport extends AbstractReport {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
     private SqlUtils sqlUtils = new SqlUtils();
 
     @Autowired
     @NotNull
-    @Qualifier("jdbctemplate1")
-    private JdbcTemplate jdbc1;
+    @Qualifier("jdbcDccPrevious")
+    private JdbcTemplate jdbcPrevious;
 
     @Autowired
     @NotNull
-    @Qualifier("jdbctemplate2")
-    private JdbcTemplate jdbc2;
+    @Qualifier("jdbcDccCurrent")
+    private JdbcTemplate jdbcCurrent;
 
     /**********************
      * DATABASES: DCC, 3I
@@ -109,7 +108,7 @@ public class ImportDccMissingReport extends AbstractReport {
     };
 
 
-    public ImportDccMissingReport() {
+    public ExtractValidateDccReport() {
         super();
     }
 
@@ -122,7 +121,7 @@ public class ImportDccMissingReport extends AbstractReport {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("ImportDccMissingReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("ExtractValidateDccReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
@@ -130,8 +129,8 @@ public class ImportDccMissingReport extends AbstractReport {
         long start = System.currentTimeMillis();
 
         try {
-            String db1Name = jdbc1.getDataSource().getConnection().getCatalog();
-            String db2Name = jdbc2.getDataSource().getConnection().getCatalog();
+            String db1Name = jdbcPrevious.getDataSource().getConnection().getCatalog();
+            String db2Name = jdbcCurrent.getDataSource().getConnection().getCatalog();
             logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
         } catch (Exception e) { }
 
@@ -144,7 +143,7 @@ public class ImportDccMissingReport extends AbstractReport {
             try {
 
                 logger.info("Query {}:\n{}", dccQuery.name, dccQuery.query);
-                List<String[]> missing = (sqlUtils.queryDiff(jdbc1, jdbc2, dccQuery.query));
+                List<String[]> missing = (sqlUtils.queryDiff(jdbcPrevious, jdbcCurrent, dccQuery.query));
                 if ( ! missing.isEmpty()) {
 
                     logger.warn("{} ROWS MISSING", missing.size());

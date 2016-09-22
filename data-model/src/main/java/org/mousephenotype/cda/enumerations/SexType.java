@@ -28,6 +28,7 @@ public enum SexType {
 	female("female"),
 	hermaphrodite("hermaphrodite"),
 	male("male"),
+	not_applicable("not applicable"),
 	no_data("no data"),
 	both("both");
 
@@ -40,5 +41,16 @@ public enum SexType {
 
 	public String getName(){
 		return this.toString();
+	}
+	public static SexType getByDisplayName(String displayName) {
+		switch (displayName) {
+			case "female":	return SexType.female;
+			case "hermaphrodite": return SexType.hermaphrodite;
+			case "male": return SexType.male;
+			case "not applicable": return SexType.not_applicable;
+			case "no data": return SexType.no_data;
+			case "both": return SexType.both;
+			default: throw new IllegalArgumentException("No enum constant " + SexType.class + "." + displayName);
+		}
 	}
 }

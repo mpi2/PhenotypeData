@@ -69,10 +69,19 @@ public class ReportsManager implements CommandLineRunner {
     private ImpcPValuesReport impcPValuesReport;
 
     @Autowired
-    private ImportDccMissingReport importDccMissingReport;
+    private ExtractValidateCdabaseReport extractValidateCdabaseReport;
+
+    @Autowired
+    private ExtractValidateDccReport extractValidateDccReport;
+
+    @Autowired
+    private ExtractValidateImpressReport extractValidateImpressReport;
 
     @Autowired
     private LaczExpressionReport lacZExpressionReport;
+
+    @Autowired
+    private LoadValidateCdaReport loadValidateCdaReport;
 
     @Autowired
     private MetabolismCalorimetryReport metabolismCalorimetryReport;
@@ -125,8 +134,11 @@ public class ReportsManager implements CommandLineRunner {
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
         IMPC_GAF("impcGaf", "IMPC GAF report"),
         IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
-        IMPORT_DCC_MISSING("importDccMissing", "Import DCC missing report"),
+        EXTRACT_VALIDATE_CDA_BASE("extractValidateCdabase", "Extract Validate cda_base report"),
+        EXTRACT_VALIDATE_DCC("extractValidateDcc", "Extract Validate DCC report"),
+        EXTRACT_VALIDATE_IMPRESS("extractValidateImpress", "Extract Validate Impress report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
+        LOAD_VALIDATE_CDA("loadValidateCda", "Load Validate cda report"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
         METABOLISM_CBC("metabolismCBC", "Metabolism CBC"),
         METABOLISM_DEXA("metabolismDEXA", "Metabolism DEXA"),
@@ -295,9 +307,24 @@ public class ReportsManager implements CommandLineRunner {
                         file = impcPValuesReport.targetFile;
                         break;
 
-                    case IMPORT_DCC_MISSING:
-                        importDccMissingReport.run(args);
-                        file = importDccMissingReport.targetFile;
+                    case EXTRACT_VALIDATE_CDA_BASE:
+                        extractValidateCdabaseReport.run(args);
+                        file = extractValidateCdabaseReport.targetFile;
+                        break;
+
+                    case EXTRACT_VALIDATE_DCC:
+                        extractValidateDccReport.run(args);
+                        file = extractValidateDccReport.targetFile;
+                        break;
+
+                    case EXTRACT_VALIDATE_IMPRESS:
+                        extractValidateImpressReport.run(args);
+                        file = extractValidateImpressReport.targetFile;
+                        break;
+
+                    case LOAD_VALIDATE_CDA:
+                        loadValidateCdaReport.run(args);
+                        file = loadValidateCdaReport.targetFile;
                         break;
 
                     case PHENOTYPE_OVERVIEW_PER_GENE:

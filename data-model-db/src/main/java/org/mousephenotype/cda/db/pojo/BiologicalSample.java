@@ -33,6 +33,29 @@ import java.io.Serializable;
 @Table(name = "biological_sample")
 public class BiologicalSample implements Serializable {
 
+	public BiologicalSample() {
+
+	}
+
+	public BiologicalSample(
+		  String stableId
+		, int dbId
+		, String group
+		, OntologyTerm sampleType
+		, Organisation phenotypingCenter
+		, Organisation productionCenter
+		, BiologicalModel biologicalModel)
+	{
+		this.stableId = stableId;
+		this.datasource = new Datasource();
+		this.datasource.setId(dbId);
+		this.group = group;
+		this.type = sampleType;
+		this.organisation = phenotypingCenter;
+		this.productionCenter = productionCenter;
+		this.biologicalModel = biologicalModel;
+	}
+
 	/**
 	 *
 	 */
@@ -67,6 +90,10 @@ public class BiologicalSample implements Serializable {
 	@OneToOne
 	@JoinColumn(name = "organisation_id")
 	private Organisation organisation;
+
+	@OneToOne
+	@JoinColumn(name = "production_center_id")
+	private Organisation productionCenter;
 
 	//a association table is used to store the link between the 2 entities
 	// will implement this later!
@@ -182,4 +209,11 @@ public class BiologicalSample implements Serializable {
 		this.organisation = organisation;
 	}
 
+	public Organisation getProductionCenter() {
+		return productionCenter;
+	}
+
+	public void setProductionCenter(Organisation productionCenter) {
+		this.productionCenter = productionCenter;
+	}
 }
