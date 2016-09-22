@@ -152,7 +152,6 @@ public class HttpProxy {
 		InputStreamReader inStream;
 		String content = "";
 		Proxy proxy = getProxy(url, external);
-
 		if (proxy != null) {
 			urlConn = (HttpURLConnection) url.openConnection(proxy);
 		} else {
@@ -164,12 +163,10 @@ public class HttpProxy {
 		try {
 			inStream = new InputStreamReader(urlConn.getInputStream());
 		} catch (Exception e) {
-			System.out.println("throwing url not found exception in getNonSecureContent method");
 			throw new IOException("solr url not found");
 		}
 
 		content = IOUtils.toString(inStream).trim();
-
 		return content;
 	}
 
