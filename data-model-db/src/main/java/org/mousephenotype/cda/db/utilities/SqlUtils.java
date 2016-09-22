@@ -214,6 +214,10 @@ public class SqlUtils {
                     newRow.add(rs.getBoolean(i) ? "1" : "0");
                     break;
 
+                case Types.BIGINT:
+                    newRow.add(Long.toString(rs.getLong(i)));
+                    break;
+
                 default:
                     throw new Exception("No rule to handle sql type '" + md.getColumnTypeName(i) + "' (" + sqlType + ").");
             }

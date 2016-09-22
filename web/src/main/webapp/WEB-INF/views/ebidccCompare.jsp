@@ -35,6 +35,7 @@
 									<p>EBI and DC calls are significant but different MPs are assigned: ${differentMps} (${differentMps/total*100})</p>
 									<p>EBI calls missing from DCC, but for un-analysed parameters: ${ignore} (${ignore/total*100})</p>
 									<p>Total EBI calls: ${total}</p>
+									<p>Total DCC calls: ${totalDcc}</p>
 									<p class="info">If the numbers look odd, it's probably because preqc was not re-indexed with common data. By default we exclude DCC calls when EBI has analysed the data too. </p>					
 							</div>
 						</div>	
