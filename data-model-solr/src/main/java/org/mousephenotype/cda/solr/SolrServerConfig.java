@@ -126,7 +126,9 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
 	}
 
-//	@Bean(name = "genotypePhenotypeCore")//DELETEME
+	//DELETEME
+//	//GenotypePhenotype
+//	@Bean(name = "genotypePhenotypeCore")
 //	HttpSolrClient getGenotypePhenotypeCore() {
 //		return new HttpSolrClient("http://ves-hx-d1:8090/mi/impc/beta/solr/genotype-phenotype");
 //	}
@@ -180,6 +182,7 @@ public class SolrServerConfig {
 	HttpSolrClient getPreqcCore() {
 		return new HttpSolrClient(solrBaseUrl + "/preqc");
 	}
+
 
 //	@Bean(name = "preqcCore") //DELETEME
 //	HttpSolrClient getPreqcCore() {
