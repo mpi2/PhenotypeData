@@ -28,7 +28,7 @@ public class OmeroStatusService implements WebStatus {
 
     @Override
     public long getWebStatus() throws SolrServerException, IOException {
-        String url = "http:" + omeroUrl + "/render_thumbnail/1/";
+        String url = "http:" + omeroUrl + "/render_birds_eye_view/1/";
 
         try {
             URL obj = new URL(url);
