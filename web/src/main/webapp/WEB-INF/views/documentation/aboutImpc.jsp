@@ -313,18 +313,28 @@
     <div><span class="work">Statistics to Phenotype</span>
       <div class="hideme"><h3>Statistics to Phenotype</h3>
 
-        <p>If the mutant genotype effect represents a significant change from the control group, then the IMPC pipeline will
-          attempt to associate a <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian Phenotype (MP) term</a> to the data.</p>
+          The selection of the statistical method is an important step in the process of phenotype data analysis and is dependent on the experimental implementation, and the variable characteristics (e.g. continuous or categorical).
 
-        <p>The particular MP term(s) defined for a parameter are maintained in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>.
-          Frequently, the term indicates an <strong>increase</strong> or <strong>decrease</strong> of the parameter measured.</p>
+          <p>The statistical analysis was done using an R package developed for IMPC called <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a>.<br>
+          PhenStat is a statistical analysis tool suite developed based on known variation in experimental workflow and design of phenotyping pipelines (<a href="http://europepmc.org/abstract/MED/26147094">Kurbatova N et al, 2015)</a>.
+          <p></p>
+          <div>• <b>Categorical data analysis</b> was performed using a Fisher’s Exact test. Concerning continuous data, it has been shown that gender, weight, and environmental effects (batch) are a significant source of variation. See
+              <ul>
+                  <li><a href="http://europepmc.org/abstract/MED/22829707">The fallacy of ratio correction to address confounding factors</a></li>
+                  <li><a href="http://europepmc.org/abstract/MED/25343444">Impact of temporal variation on design and analysis of mouse knockout phenotyping studies</a></li>
+              </ul>
+          </div>
+          <p></p><p></p>
+          <div>•	<b>Continuous data analysis</b> was performed with the PhenStat Mixed Model (MM) framework which uses linear mixed models where batch is treated as a random effect. Details of the implementation, including decision tree and models descriptions, are available in the <a href="http://goo.gl/tfbA5k">PhenStat package user's guide</a>.</div>  
 
-        <p>When a statistical result is determined as significant, the following diagram is used for associating MP terms:</p>
-        <img src="img/stats-mpterms.png" />
+          <div>•	For <b>viability and fertility data</b>, the center conducting the experiment use a statistical method appropriate for the breeding scheme used (exact details are available on the IMPC data portal) and supplied the analysis results to the IMPC.</div>
+          <p></p><p></p>
 
-        <h4>Significance</h4>
+          Following statistical assessment, if the mutant genotype effect represents a significant change from the control group, then the IMPC pipeline will attempt to associate a Mammalian Phenotype (MP) term to the data.
+          The particular MP term(s) defined for a parameter are maintained in IMPReSS. Frequently, the term indicates an increase or decrease of the parameter measured.
+          more details about how IMPC uses statistics and call for phenotypes can be found in the
+          <a href="http://dev.mousephenotype.org/data/documentation/doc-method">documentation section</a>.
 
-        <p>When a mutant genotype effect P value is less than 1.0E-4 (i.e. 0.0001), it is considered significant.</p>
       </div>
     </div>
     <div ><span class="work">Human disease association</span>
