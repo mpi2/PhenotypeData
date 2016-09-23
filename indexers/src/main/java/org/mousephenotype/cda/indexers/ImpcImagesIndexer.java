@@ -97,7 +97,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	MpOntologyDAO mpService;
 
 	@Value("classpath:uberonEfoMa_mappings.txt")
-	org.springframework.core.io.Resource resource;
+	org.springframework.core.io.Resource anatomogramResource;
 
 	private Map<String, List<AlleleDTO>> alleles;
 	private Map<String, ImageBean> imageBeans;
@@ -174,7 +174,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		impcAnnotationBaseUrl = impcMediaBaseUrl.replace("webgateway", "webclient");
 
 		try {
-			maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(resource);
+			maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
 		} catch (SQLException | IOException e1) {
 			e1.printStackTrace();
 		}
