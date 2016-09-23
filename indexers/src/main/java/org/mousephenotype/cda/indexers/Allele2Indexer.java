@@ -96,7 +96,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             line = in.readLine();
 
             allele2Core.addBean(doc);
-            if (index % 5000 == 0) {
+            if (index % 1000 == 0) {
                 allele2Core.commit();
             }
         }
@@ -124,6 +124,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
         }
     }
 
+
     private Boolean getBooleanValueFor (String field, String[] array){
 
         if (columns.containsKey(field)) {
@@ -137,6 +138,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             return null;
         }
     }
+
 
     private List<String> getListValueFor (String field, String[] array){
 
@@ -153,6 +155,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             return null;
         }
     }
+
 
     private Long getLongValueFor (String field, String[] array){
 
