@@ -62,7 +62,6 @@ public class Allele2DTO {
 	public static final String WITHOUT_ALLELE_FEATURES = "without_allele_features";
 
 
-
 	@Field(MUTATION_TYPE)
 	private String mutationType;
 	@Field(ALLELE_CATEGORY)
@@ -95,52 +94,38 @@ public class Allele2DTO {
 	private List<String> sequenceMapLinks;
 	@Field(GENE_MODEL_IDS)
 	private List<String> geneModelIds;
-
 	@Field(LATEST_PHENOTYPE_STARTED)
 	private String latestPhenotypeStarted;
-
 	@Field(LATEST_PHENOTYPE_COMPLETE)
 	private String latestPhenotypeComplete;
-
 	@Field(GENETIC_MAP_LINKS)
 	private List<String> geneticMapLinks;
-
 	@Field(PHENOTYPING_CENTRES)
 	private List<String> phenotypingCentres;
-
 	@Field(LATEST_PROJECT_STATUS_LEGACY)
 	private String latestProjectStatusLegacy;
-
 	@Field(LATEST_PROJECT_STATUS)
 	private String latestProjectStatus;
-
 	@Field(PHENOTYPING_CENTRE)
 	private String phenotypingCentre;
-
 	@Field(PRODUCTION_CENTRES)
 	private List<String> productionCentres;
-
 	@Field(MARKER_TYPE)
 	private String markerType;
-
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;
-
 	@Field(MARKER_SYMBOL)
 	private String markerSymbol;
-
+	@Field(MARKER_NAME)
+	private String markerName;
 	@Field(ALLELE_MGI_ACCESSION_ID)
 	private String alleleMgiAccessionId;
-
 	@Field(ALLELE_NAME)
 	private String alleleName;
-
 	@Field(ALLELE_TYPE)
 	private String alleleType;
-
 	@Field(ALLELE_DESCRIPTION)
 	private String alleleDescription;
-
 	@Field(GENBANK_FILE)
 	private String genbankFile;
 
@@ -182,15 +167,12 @@ public class Allele2DTO {
 
 	@Field(ES_CELL_AVAILABLE)
 	private Boolean esCellAvailable;
-	
 
 	@Field(MOUSE_AVAILABLE)
 	private Boolean mouseAvailable;
-	
 
 	@Field(VECTOR_ALLELE_IMAGE)
 	private String vectorAlleleImage;
-	
 
 	@Field(VECTOR_GENBANK_LINK)
 	private String vectorGenbankLink;
@@ -430,6 +412,14 @@ public class Allele2DTO {
 		this.autoSuggest = autoSuggest;
 	}
 
+	public String getMarkerName() {
+		return markerName;
+	}
+
+	public void setMarkerName(String markerName) {
+		this.markerName = markerName;
+	}
+
 	public List<String> getSynonym() {
 		return synonym;
 	}
@@ -532,5 +522,60 @@ public class Allele2DTO {
 
 	public void setMarkerType(String markerType) {
 		this.markerType = markerType;
+	}
+
+	@Override
+	public String toString() {
+		return "Allele2DTO{" +
+				"mutationType='" + mutationType + '\'' +
+				", alleleCategory='" + alleleCategory + '\'' +
+				", alleleFeatures=" + alleleFeatures +
+				", withoutAlleleFeatures=" + withoutAlleleFeatures +
+				", featureCoordEnd=" + featureCoordEnd +
+				", phenotypeStatus='" + phenotypeStatus + '\'' +
+				", latestEsCellStatus='" + latestEsCellStatus + '\'' +
+				", latestMouseStatus='" + latestMouseStatus + '\'' +
+				", featureChromosome='" + featureChromosome + '\'' +
+				", featureStrand='" + featureStrand + '\'' +
+				", featureCoordStart=" + featureCoordStart +
+				", autoSuggest=" + autoSuggest +
+				", synonym=" + synonym +
+				", featureType='" + featureType + '\'' +
+				", sequenceMapLinks=" + sequenceMapLinks +
+				", geneModelIds=" + geneModelIds +
+				", latestPhenotypeStarted='" + latestPhenotypeStarted + '\'' +
+				", latestPhenotypeComplete='" + latestPhenotypeComplete + '\'' +
+				", geneticMapLinks=" + geneticMapLinks +
+				", phenotypingCentres=" + phenotypingCentres +
+				", latestProjectStatusLegacy='" + latestProjectStatusLegacy + '\'' +
+				", latestProjectStatus='" + latestProjectStatus + '\'' +
+				", phenotypingCentre='" + phenotypingCentre + '\'' +
+				", productionCentres=" + productionCentres +
+				", markerType='" + markerType + '\'' +
+				", mgiAccessionId='" + mgiAccessionId + '\'' +
+				", markerSymbol='" + markerSymbol + '\'' +
+				", markerName='" + markerName + '\'' +
+				", alleleMgiAccessionId='" + alleleMgiAccessionId + '\'' +
+				", alleleName='" + alleleName + '\'' +
+				", alleleType='" + alleleType + '\'' +
+				", alleleDescription='" + alleleDescription + '\'' +
+				", genbankFile='" + genbankFile + '\'' +
+				", alleleImage='" + alleleImage + '\'' +
+				", alleleSimpleImage='" + alleleSimpleImage + '\'' +
+				", designId='" + designId + '\'' +
+				", cassette='" + cassette + '\'' +
+				", mouseStatus='" + mouseStatus + '\'' +
+				", esCellStatus='" + esCellStatus + '\'' +
+				", productionCentre='" + productionCentre + '\'' +
+				", type='" + type + '\'' +
+				", ikmcProject=" + ikmcProject +
+				", pipeline=" + pipeline +
+				", links=" + links +
+				", targetingVectorAvailable=" + targetingVectorAvailable +
+				", esCellAvailable=" + esCellAvailable +
+				", mouseAvailable=" + mouseAvailable +
+				", vectorAlleleImage='" + vectorAlleleImage + '\'' +
+				", vectorGenbankLink='" + vectorGenbankLink + '\'' +
+				'}';
 	}
 }
