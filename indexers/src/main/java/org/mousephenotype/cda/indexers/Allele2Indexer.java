@@ -32,16 +32,14 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
     @Override
     public RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException {
 
-
         allele2Core.deleteByQuery("*:*");
         allele2Core.commit();
 
+        long time = System.currentTimeMillis();
         BufferedReader in = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
-
         String[] header = in.readLine().split("\t");
         for (int i = 0; i < header.length; i++){
             columns.put(header[i], i);
-            System.out.println("COL " + header[i]);
         }
 
         int index = 0 ;
@@ -50,10 +48,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
         while (line != null){
 
             String[] array = line.split("\t", -1);
-
             index ++;
-            System.out.println("i " + index + " " + array.length + " " + line);
-
             Allele2DTO doc = new Allele2DTO();
 
             doc.setAlleleCategory(getValueFor(Allele2DTO.ALLELE_CATEGORY, array));
@@ -64,7 +59,6 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setAlleleSimpleImage(getValueFor(Allele2DTO.ALLELE_SIMPLE_IMAGE,array));
             doc.setAlleleType(getValueFor(Allele2DTO.ALLELE_TYPE,array));
             doc.setAlleleFeatures(getListValueFor(Allele2DTO.ALLELE_FEATURES, array));
-            doc.setAutoSuggest(getListValueFor(Allele2DTO.AUTO_SUGGEST, array));
             doc.setCassette(getValueFor(Allele2DTO.CASSETTE,array));
             doc.setDesignId(getValueFor(Allele2DTO.DESIGN_ID,array));
             doc.setEsCellStatus(getValueFor(Allele2DTO.ES_CELL_STATUS,array));
@@ -101,15 +95,15 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
             line = in.readLine();
 
-            System.out.println(doc);
-
             allele2Core.addBean(doc);
-            allele2Core.commit();
-            if (index  == 100) {
-                break;
+            if (index % 5000 == 0) {
+                allele2Core.commit();
             }
         }
 
+        allele2Core.commit();
+
+        System.out.println("Indexing took " + (System.currentTimeMillis() - time));
         return null;
     }
 
