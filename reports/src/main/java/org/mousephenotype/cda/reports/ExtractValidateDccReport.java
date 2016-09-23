@@ -18,7 +18,7 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.reports.support.LoadsQuery;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,8 +40,8 @@ import java.util.List;
 @Component
 public class ExtractValidateDccReport extends AbstractReport {
 
+    private LoadValidateMissingQuery loadValidateMissingQuery;
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
-    private SqlUtils sqlUtils = new SqlUtils();
 
     @Autowired
     @NotNull
@@ -58,54 +57,51 @@ public class ExtractValidateDccReport extends AbstractReport {
      * DATABASES: DCC, 3I
      **********************
     */
-    private class DccQuery {
-        public final String name;
-        public final String query;
-
-        public DccQuery(String name, String query) {
-            this.name = name;
-            this.query = query;
-        }
-    }
-
-    private DccQuery[] queries = new DccQuery[] {
-            new DccQuery("MISSING PROCEDURES", "SELECT\n" +
-                                               "  c.centerId\n" +
-                                               ", c.project\n" +
-                                               ", c.pipeline\n" +
-                                               ", p.procedureId\n" +
-                                               "FROM center_procedure cp\n" +
-                                               "JOIN center           c ON c.pk = cp.center_pk\n" +
-                                               "JOIN procedure_       p ON p.pk = cp.procedure_pk\n")
-
-          , new DccQuery("MISSING COLONIES",   "SELECT DISTINCT\n" +
-                                               "  c.centerId\n" +
-                                               ", c.project\n" +
-                                               ", c.pipeline\n" +
-                                               ", s.colonyId\n" +
-                                               "FROM experiment                      e\n" +
-                                               "JOIN experiment_specimen             es     ON es .experiment_pk = e. pk\n" +
-                                               "JOIN specimen                        s      ON s.  pk =            es.specimen_pk\n" +
-                                               "JOIN center_procedure                cp     ON cp. pk =            e. center_procedure_pk\n" +
-                                               "JOIN center                          c      ON c.  pk =            cp.center_pk\n" +
-                                               "JOIN procedure_                      p      ON p.  pk =            cp.procedure_pk\n" +
-                                               "LEFT OUTER JOIN mediaParameter       mp     ON mp. procedure_pk =  p. pk\n" +
-                                               "LEFT OUTER JOIN mediaSampleParameter msp    ON msp.procedure_pk =  p. pk\n" +
-                                               "LEFT OUTER JOIN simpleParameter      sp     ON sp. procedure_pk =  p. pk\n" +
-                                               "LEFT OUTER JOIN seriesParameter      ser    ON ser.procedure_pk =  p. pk\n" +
-                                               "LEFT OUTER JOIN seriesMediaParameter smp    ON smp.procedure_pk =  p. pk\n" +
-                                               "LEFT OUTER JOIN ontologyParameter    op     ON op. procedure_pk =  p. pk\n" +
-                                               "WHERE colonyId IS NOT NULL AND colonyId != ''\n")
-
-            , new DccQuery("MISSING SPECIMENS",  "SELECT\n" +
+    private LoadsQuery[] queries = new LoadsQuery[] {
+            new LoadsQuery("MISSING PROCEDURES", "SELECT\n" +
                                                  "  c.centerId\n" +
                                                  ", c.project\n" +
                                                  ", c.pipeline\n" +
-                                                 ", s.specimenId\n" +
-                                                 "FROM center_specimen cs\n" +
-                                                 "JOIN center          c ON c.pk = cs.center_pk\n" +
-                                                 "JOIN specimen        s ON s.pk = cs.specimen_pk\n")
+                                                 ", p.procedureId\n" +
+                                                 "FROM center_procedure cp\n" +
+                                                 "JOIN center           c ON c.pk = cp.center_pk\n" +
+                                                 "JOIN procedure_       p ON p.pk = cp.procedure_pk\n")
+
+          , new LoadsQuery("MISSING COLONIES",   "SELECT DISTINCT\n" +
+                                                 "  c.centerId\n" +
+                                                 ", c.project\n" +
+                                                 ", c.pipeline\n" +
+                                                 ", s.colonyId\n" +
+                                                 "FROM experiment                      e\n" +
+                                                 "JOIN experiment_specimen             es     ON es .experiment_pk = e. pk\n" +
+                                                 "JOIN specimen                        s      ON s.  pk =            es.specimen_pk\n" +
+                                                 "JOIN center_procedure                cp     ON cp. pk =            e. center_procedure_pk\n" +
+                                                 "JOIN center                          c      ON c.  pk =            cp.center_pk\n" +
+                                                 "JOIN procedure_                      p      ON p.  pk =            cp.procedure_pk\n" +
+                                                 "LEFT OUTER JOIN mediaParameter       mp     ON mp. procedure_pk =  p. pk\n" +
+                                                 "LEFT OUTER JOIN mediaSampleParameter msp    ON msp.procedure_pk =  p. pk\n" +
+                                                 "LEFT OUTER JOIN simpleParameter      sp     ON sp. procedure_pk =  p. pk\n" +
+                                                 "LEFT OUTER JOIN seriesParameter      ser    ON ser.procedure_pk =  p. pk\n" +
+                                                 "LEFT OUTER JOIN seriesMediaParameter smp    ON smp.procedure_pk =  p. pk\n" +
+                                                 "LEFT OUTER JOIN ontologyParameter    op     ON op. procedure_pk =  p. pk\n" +
+                                                 "WHERE colonyId IS NOT NULL AND colonyId != ''\n")
+
+            , new LoadsQuery("MISSING SPECIMENS",  "SELECT\n" +
+                                                   "  c.centerId\n" +
+                                                   ", c.project\n" +
+                                                   ", c.pipeline\n" +
+                                                   ", s.specimenId\n" +
+                                                   "FROM center_specimen cs\n" +
+                                                   "JOIN center          c ON c.pk = cs.center_pk\n" +
+                                                   "JOIN specimen        s ON s.pk = cs.specimen_pk\n")
     };
+
+    @Override
+    protected void initialise(String[] args) throws ReportException {
+        super.initialise(args);
+        loadValidateMissingQuery = new LoadValidateMissingQuery(jdbcPrevious, jdbcCurrent, csvWriter);
+        loadValidateMissingQuery.addQueries(queries);
+    }
 
 
     public ExtractValidateDccReport() {
@@ -132,39 +128,10 @@ public class ExtractValidateDccReport extends AbstractReport {
             String db1Name = jdbcPrevious.getDataSource().getConnection().getCatalog();
             String db2Name = jdbcCurrent.getDataSource().getConnection().getCatalog();
             logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+
         } catch (Exception e) { }
 
-        List<String[]> results = new ArrayList<>();
-
-        int badQueryCount = 0;
-        for (int i = 0; i < queries.length; i++) {
-            DccQuery dccQuery = queries[i];
-
-            try {
-
-                logger.info("Query {}:\n{}", dccQuery.name, dccQuery.query);
-                List<String[]> missing = (sqlUtils.queryDiff(jdbcPrevious, jdbcCurrent, dccQuery.query));
-                if ( ! missing.isEmpty()) {
-
-                    logger.warn("{} ROWS MISSING", missing.size());
-                    String[] summary = new String[]{Integer.toString(missing.size()) + " " + dccQuery.name + ":"};
-                    if (badQueryCount > 0)
-                        csvWriter.writeNext(EMPTY_ROW);
-                    csvWriter.writeNext(summary);
-                    csvWriter.writeAll(missing);
-                    badQueryCount++;
-                } else {
-                    logger.info("SUCCESS");
-                }
-
-
-            } catch (Exception e) {
-
-                throw new ReportException(e);
-            }
-        }
-
-        csvWriter.writeAll(results);
+        loadValidateMissingQuery.execute();
 
         try {
             csvWriter.close();
