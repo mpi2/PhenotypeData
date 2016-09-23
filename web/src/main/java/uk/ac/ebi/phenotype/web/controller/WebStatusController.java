@@ -90,7 +90,7 @@ public class WebStatusController {
 	@Autowired
 	EucommToolsCreAllele2Service eucommToolsCreAllele2Service;
 
-	List<WebStatus> imitsWebStatusObjects;
+	List<WebStatus> nonEssentialWebStatusObjects;
 
 	@PostConstruct
 	public void initialise() {
@@ -114,13 +114,13 @@ public class WebStatusController {
 		webStatusObjects.add(autoSuggestService);
 		webStatusObjects.add(ppDAO);
 		webStatusObjects.add(phenodigmService);
-		//webStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second!
-
-		imitsWebStatusObjects = new ArrayList<>();
-		imitsWebStatusObjects.add(allele2);
-		imitsWebStatusObjects.add(eucommCreProductService);
-		imitsWebStatusObjects.add(productService);
-		imitsWebStatusObjects.add(eucommToolsCreAllele2Service);
+		
+		nonEssentialWebStatusObjects = new ArrayList<>();
+		nonEssentialWebStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second - put back in as render_birds_eye_view should be cached by omero!
+		nonEssentialWebStatusObjects.add(allele2);
+		nonEssentialWebStatusObjects.add(eucommCreProductService);
+		nonEssentialWebStatusObjects.add(productService);
+		nonEssentialWebStatusObjects.add(eucommToolsCreAllele2Service);
 	}
 
 	@RequestMapping("/webstatus")
@@ -167,7 +167,8 @@ public class WebStatusController {
 
 		// check the imits services
 		List<WebStatusModel> imitsWebStatusModels = new ArrayList<>();
-		for (WebStatus status : imitsWebStatusObjects) {
+		boolean nonEssentialOk=true;
+		for (WebStatus status : nonEssentialWebStatusObjects) {
 
 			Future<Long> future = null;
 			String name = status.getServiceName();
@@ -189,6 +190,7 @@ public class WebStatusController {
 				if (future!=null) {future.cancel(true);}
 
 				// Do not change the website status for an unavailable non-critical resource
+				nonEssentialOk=false;
 				e.printStackTrace();
 			}
 			WebStatusModel wModel = new WebStatusModel(name, number);
@@ -202,6 +204,7 @@ public class WebStatusController {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		model.addAttribute("ok", ok);
+		model.addAttribute("nonEssentialOk",nonEssentialOk);
 		return "webStatus";
 	}
 
