@@ -1,8 +1,8 @@
 package org.mousephenotype.cda.solr.service.dto;
 
-import java.util.List;
-
 import org.apache.solr.client.solrj.beans.Field;
+
+import java.util.List;
 
 public class ProductDTO {
 
@@ -15,13 +15,81 @@ public class ProductDTO {
     public static final String ALLELE_HAS_ISSUES = "allele_has_issues";
     public static final String TYPE = "type";
     public static final String NAME = "name";
-    public static final String PRODUCT_CENTRE = "production_centre";
-    public static final String PRODUCT_COMPLETED = "production_completed";
+    public static final String PRODUCTION_CENTRE = "production_centre";
+    public static final String PRODUCTION_COMPLETED = "production_completed";
     public static final String STATUS = "status";
     public static final String OTHER_LINKS = "other_links";
     public static final String ORDER_LINKS = "order_links";
     public static final String ORDER_NAMES = "order_names";
     public static final String QC_DATA = "qc_data";
+    public static final String GENETIC_INFO = "genetic_info";
+
+    public static final String PRODUCTION_PIPELINE = "production_pipeline";
+    public static final String PRODUCTION_COMPELTED = "production_completed";
+    public static final String STATUS_DATE = "status_date";
+    public static final String PRODUCTION_INFO = "production_info";
+
+    public static final String ASSOCIATION_PRODUCT_COLONY_NAME = "associated_product_colony_name";
+    public static final String ASSOCIATED_PRODUCT_ES_CELL_NAME = "associated_product_es_cell_name";
+    public static final String ASSOCIATED_PRODUCT_VECTOR_NAME = "associated_product_vector_name";
+    public static final String ASSOCIATED_PRODUCT_COLONY_NAMES = "associated_products_colony_names";
+    public static final String ASSOCIATED_PRODUCTS_ES_CELL_NAMES = "associated_products_es_cell_names";
+
+    public static final String CONTRACT_NAMES = "contact_names";
+    public static final String CONTACT_LINKS = "contact_links";
+    public static final String IKMC_PROJECT_ID = "ikmc_project_id";
+    public static final String CASSETTE = "cassette";
+    public static final String DESIGN_ID = "design_id";
+    public static final String LOA_ASSAYS = "loa_assays";
+    public static final String ALLELE_SYMBOL = "allele_symbol";
+    public static final String AUTO_SUGGEST = "auto_suggest";
+
+
+    @Field(IKMC_PROJECT_ID)
+    private String ikmcProjectId;
+
+    @Field(CASSETTE)
+    private String cassette;
+
+    @Field(DESIGN_ID)
+    private String designId;
+
+    @Field(LOA_ASSAYS)
+    private List<String> laoAssays;
+
+    @Field(AUTO_SUGGEST)
+    private List<String> autoSuggest;
+
+    @Field(ASSOCIATED_PRODUCT_ES_CELL_NAME)
+    private String associatedProductEsCellName;
+    @Field(ASSOCIATED_PRODUCT_VECTOR_NAME)
+    private String associatedProductVectorName;
+    @Field(ASSOCIATED_PRODUCT_COLONY_NAMES)
+    private List<String> associatedProductColonyNames;
+    @Field(ASSOCIATED_PRODUCTS_ES_CELL_NAMES)
+    private List<String> associatedProductEsCellNames;
+    @Field(CONTRACT_NAMES)
+    private List<String> contractNames;
+    @Field(CONTACT_LINKS)
+    private List<String> contactLinks;
+
+    @Field(STATUS_DATE)
+    private String statusDate;
+
+    @Field(PRODUCTION_INFO)
+    private List<String> productionInfo;
+
+    @Field(ASSOCIATION_PRODUCT_COLONY_NAME)
+    private String associatedProductColonyName;
+
+    @Field(GENETIC_INFO)
+    private List<String> geneticInfo;
+
+    @Field(PRODUCTION_PIPELINE)
+    private String productionPipeline;
+
+    @Field(PRODUCTION_COMPELTED)
+    private Boolean productionCompleted;
 
     @Field(PRODUCT_ID)
     private String productId;
@@ -50,11 +118,8 @@ public class ProductDTO {
     @Field(NAME)
     private String name;
 
-    @Field(PRODUCT_CENTRE)
+    @Field(PRODUCTION_CENTRE)
     private String productionCentre;
-
-    @Field(PRODUCT_COMPLETED)
-    private boolean productionCompleted;
 
     @Field(STATUS)
     private String status;
@@ -200,14 +265,181 @@ public class ProductDTO {
 
     }
 
-    @Override
-    public String toString() {
-        return "ProductDTO [productId=" + productId + ", alleleId=" + alleleId + ", markerSymbol=" + markerSymbol
-                + ", mgiAccessionId=" + mgiAccessionId + ", alleleType=" + alleleType + ", alleleName=" + alleleName
-                + ", alleleHasIssues=" + alleleHasIssues + ", type=" + type + ", name=" + name + ", productionCentre="
-                + productionCentre + ", productionCompleted=" + productionCompleted + ", status=" + status
-                + ", otherLinks=" + otherLinks + ", orderLinks=" + orderLinks + ", orderNames=" + orderNames + "]";
+    public static String getTYPE() {
+        return TYPE;
     }
 
+    public String getIkmcProjectId() {
+        return ikmcProjectId;
+    }
 
+    public void setIkmcProjectId(String ikmcProjectId) {
+        this.ikmcProjectId = ikmcProjectId;
+    }
+
+    public String getCassette() {
+        return cassette;
+    }
+
+    public void setCassette(String cassette) {
+        this.cassette = cassette;
+    }
+
+    public String getDesignId() {
+        return designId;
+    }
+
+    public void setDesignId(String designId) {
+        this.designId = designId;
+    }
+
+    public List<String> getLaoAssays() {
+        return laoAssays;
+    }
+
+    public void setLaoAssays(List<String> laoAssays) {
+        this.laoAssays = laoAssays;
+    }
+
+    public List<String> getAutoSuggest() {
+        return autoSuggest;
+    }
+
+    public void setAutoSuggest(List<String> autoSuggest) {
+        this.autoSuggest = autoSuggest;
+    }
+
+    public String getAssociatedProductEsCellName() {
+        return associatedProductEsCellName;
+    }
+
+    public void setAssociatedProductEsCellName(String associatedProductEsCellName) {
+        this.associatedProductEsCellName = associatedProductEsCellName;
+    }
+
+    public String getAssociatedProductVectorName() {
+        return associatedProductVectorName;
+    }
+
+    public void setAssociatedProductVectorName(String associatedProductVectorName) {
+        this.associatedProductVectorName = associatedProductVectorName;
+    }
+
+    public List<String> getAssociatedProductColonyNames() {
+        return associatedProductColonyNames;
+    }
+
+    public void setAssociatedProductColonyNames(List<String> associatedProductColonyNames) {
+        this.associatedProductColonyNames = associatedProductColonyNames;
+    }
+
+    public List<String> getAssociatedProductEsCellNames() {
+        return associatedProductEsCellNames;
+    }
+
+    public void setAssociatedProductEsCellNames(List<String> associatedProductEsCellNames) {
+        this.associatedProductEsCellNames = associatedProductEsCellNames;
+    }
+
+    public List<String> getContractNames() {
+        return contractNames;
+    }
+
+    public void setContractNames(List<String> contractNames) {
+        this.contractNames = contractNames;
+    }
+
+    public List<String> getContactLinks() {
+        return contactLinks;
+    }
+
+    public void setContactLinks(List<String> contactLinks) {
+        this.contactLinks = contactLinks;
+    }
+
+    public String getStatusDate() {
+        return statusDate;
+    }
+
+    public void setStatusDate(String statusDate) {
+        this.statusDate = statusDate;
+    }
+
+    public List<String> getProductionInfo() {
+        return productionInfo;
+    }
+
+    public void setProductionInfo(List<String> productionInfo) {
+        this.productionInfo = productionInfo;
+    }
+
+    public String getAssociatedProductColonyName() {
+        return associatedProductColonyName;
+    }
+
+    public void setAssociatedProductColonyName(String associatedProductColonyName) {
+        this.associatedProductColonyName = associatedProductColonyName;
+    }
+
+    public List<String> getGeneticInfo() {
+        return geneticInfo;
+    }
+
+    public void setGeneticInfo(List<String> geneticInfo) {
+        this.geneticInfo = geneticInfo;
+    }
+
+    public String getProductionPipeline() {
+        return productionPipeline;
+    }
+
+    public void setProductionPipeline(String productionPipeline) {
+        this.productionPipeline = productionPipeline;
+    }
+
+    public Boolean getProductionCompleted() {
+        return productionCompleted;
+    }
+
+    public void setProductionCompleted(Boolean productionCompleted) {
+        this.productionCompleted = productionCompleted;
+    }
+
+    @Override
+    public String toString() {
+        return "ProductDTO{" +
+                "ikmcProjectId='" + ikmcProjectId + '\'' +
+                ", cassette='" + cassette + '\'' +
+                ", designId='" + designId + '\'' +
+                ", laoAssays=" + laoAssays +
+                ", autoSuggest=" + autoSuggest +
+                ", associatedProductEsCellName='" + associatedProductEsCellName + '\'' +
+                ", associatedProductVectorName='" + associatedProductVectorName + '\'' +
+                ", associatedProductColonyNames=" + associatedProductColonyNames +
+                ", associatedProductEsCellNames=" + associatedProductEsCellNames +
+                ", contractNames=" + contractNames +
+                ", contactLinks=" + contactLinks +
+                ", statusDate='" + statusDate + '\'' +
+                ", productionInfo=" + productionInfo +
+                ", associatedProductColonyName='" + associatedProductColonyName + '\'' +
+                ", geneticInfo=" + geneticInfo +
+                ", productionPipeline='" + productionPipeline + '\'' +
+                ", productionCompleted=" + productionCompleted +
+                ", productId='" + productId + '\'' +
+                ", alleleId='" + alleleId + '\'' +
+                ", markerSymbol='" + markerSymbol + '\'' +
+                ", mgiAccessionId='" + mgiAccessionId + '\'' +
+                ", alleleType='" + alleleType + '\'' +
+                ", alleleName='" + alleleName + '\'' +
+                ", alleleHasIssues=" + alleleHasIssues +
+                ", type='" + type + '\'' +
+                ", name='" + name + '\'' +
+                ", productionCentre='" + productionCentre + '\'' +
+                ", status='" + status + '\'' +
+                ", otherLinks=" + otherLinks +
+                ", orderLinks=" + orderLinks +
+                ", orderNames=" + orderNames +
+                ", qcData=" + qcData +
+                '}';
+    }
 }
