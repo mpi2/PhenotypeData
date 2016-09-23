@@ -58,7 +58,8 @@ public class SearchConfig {
         coreDefault.put("mp", "*:*");
         coreDefault.put("disease", "*:*");
         coreDefault.put("anatomy", "*:*");
-        coreDefault.put("impc_images", "biological_sample_group:experimental");
+        //coreDefault.put("impc_images", "biological_sample_group:experimental");
+        coreDefault.put("impc_images", "*:*");
         //coreDefault.put("images", "*:*");
         coreDefault.put("allele2", "type:Allele");
 
@@ -212,7 +213,7 @@ public class SearchConfig {
         List<String> allele2Fields = Arrays.asList("marker_symbol",
                 "mgi_accession_id",
                 "allele_name",
-                //"synonym",
+                "synonym",
                 "allele_description",
                 "allele_image",
                 "mutation_type",

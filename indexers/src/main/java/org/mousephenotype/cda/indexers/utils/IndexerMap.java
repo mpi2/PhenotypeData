@@ -28,7 +28,9 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,6 +52,7 @@ import java.util.Map;
  *
  * @author mrelac
  */
+
 public class IndexerMap {
 	
     private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
@@ -72,13 +75,13 @@ public class IndexerMap {
 	 * @returns a map, where key is MA is and value is either UBERON or EFO (can be multi-valued) 
 	 */
 	
-    public static Map<String, Map<String,List<String>>> mapMaToUberronOrEfoForAnatomogram(Resource resource) throws SQLException, IOException {
-
-    	if ( maUberonEfoMap == null ){
+    public static Map<String, Map<String,List<String>>> mapMaToUberronOrEfoForAnatomogram(Resource anatomogramResource) throws SQLException, IOException {
+        
+    	if ( maUberonEfoMap == null || maUberonEfoMap.isEmpty() ){
     		
     		maUberonEfoMap = new HashMap<>();
     		
-	    	InputStreamReader in = new InputStreamReader(resource.getInputStream());
+	    	InputStreamReader in = new InputStreamReader(anatomogramResource.getInputStream());
 	    	
 			try (BufferedReader bin = new BufferedReader(in)) {
 			
