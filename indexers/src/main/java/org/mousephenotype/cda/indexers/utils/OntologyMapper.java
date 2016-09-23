@@ -16,30 +16,17 @@ package org.mousephenotype.cda.indexers.utils;
  *******************************************************************************/
 
 
-        import java.io.File;
-        import java.io.IOException;
-        import java.nio.charset.StandardCharsets;
-        import java.nio.file.Files;
-        import java.nio.file.Path;
-        import java.nio.file.Paths;
-        import java.util.ArrayList;
-        import java.util.HashMap;
-        import java.util.HashSet;
-        import java.util.List;
-        import java.util.Set;
-
         import org.semanticweb.owlapi.apibinding.OWLManager;
-        import org.semanticweb.owlapi.model.IRI;
-        import org.semanticweb.owlapi.model.OWLAnnotation;
-        import org.semanticweb.owlapi.model.OWLAnnotationProperty;
-        import org.semanticweb.owlapi.model.OWLClass;
-        import org.semanticweb.owlapi.model.OWLDataFactory;
-        import org.semanticweb.owlapi.model.OWLLiteral;
-        import org.semanticweb.owlapi.model.OWLOntology;
-        import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-        import org.semanticweb.owlapi.model.OWLOntologyManager;
-        import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-        import org.semanticweb.owlapi.search.EntitySearcher;
+import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.search.EntitySearcher;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 
 /**
@@ -93,19 +80,20 @@ public class OntologyMapper {
 
         List<String> res = new ArrayList<>();
         // From http://purl.obolibrary.org/obo/uberon/ext.owl
-        fillHashesFor("/Users/tudose/Documents/ontologies/uberon.owl") ;
-        fillHashesFor("/Users/tudose/Documents/ontologies/efo.owl") ;
+        fillHashesFor("/Users/ilinca/Documents/ontologies/uberon.owl") ;
+        fillHashesFor("/Users/ilinca/Documents/ontologies/efo.owl") ;
         // From http://purl.obolibrary.org/obo/cl.owl
-        fillHashesFor("/Users/tudose/Documents/ontologies/cl.owl") ;
+        fillHashesFor("/Users/ilinca/Documents/ontologies/cl.owl") ;
 
-        Path path = Paths.get("/Users/tudose/git/PhenotypeData/indexers/src/main/resources/unique_both_sex_uberon_efo.txt");
+        Path path = Paths.get("/Users/ilinca/IdeaProjects/PhenotypeData/indexers/src/main/resources/unique_both_sex_uberon_efo.txt");
         List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 
         for (String line : lines) {
             res.add(line + "," + ((externalToMa.get(line) != null) ? externalToMa.get(line).iterator().next() : ""));
         }
 
-        path = Paths.get("/Users/tudose/git/PhenotypeData/indexers/src/main/resources/anatogram_mappings.txt");
+        File f = new File("/Users/ilincs/Documents/anatogram_mappings.txt");
+        path = Paths.get("/Users/ilincs/Documents/anatogram_mappings.txt");
         Files.write(path, res);
 
     }

@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.utilities;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -57,7 +56,7 @@ public class RunStatus {
         this.errorMessages.add(errorMessage);
     }
     
-    public void addError(List<String> errorMessages) {
+    public void addError(Set<String> errorMessages) {
         this.errorMessages.addAll(errorMessages);
     }
 
@@ -65,7 +64,7 @@ public class RunStatus {
         this.warningMessages.add(warningMessage);
     }
     
-    public void addWarning(List<String> warningMessage) {
+    public void addWarning(Set<String> warningMessage) {
         this.warningMessages.addAll(warningMessage);
     }
     

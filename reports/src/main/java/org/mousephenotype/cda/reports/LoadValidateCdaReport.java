@@ -34,8 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This report produces a file of what procedures, specimens, and colonies exist
- * in a prior dcc database that no longer exist in a more recent version of the database.
+ ** This report produces a file of cda/komp2 database differences between a previous version and the current one.
  *
  * Created by mrelac on 24/07/2015.
  */
