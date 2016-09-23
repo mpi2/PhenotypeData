@@ -18,6 +18,7 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.reports.support.LoadValidateMissingQuery;
 import org.mousephenotype.cda.reports.support.LoadsQuery;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;

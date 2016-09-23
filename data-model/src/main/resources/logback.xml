@@ -19,12 +19,7 @@
     <!-- PHENOTYPE ARCHIVE -->
     <logger name="org.mousephenotype"                                           level="INFO"/>
    	<logger name="org.mousephenotype.cda.solr"                                  level="INFO" />
-    <logger name="org.mousephenotype.cda.reports"                               level="WARN" />
-    <logger name="org.mousephenotype.cda.reports.ExtractValidateCdabaseReport"  level="INFO" />
-    <logger name="org.mousephenotype.cda.reports.ExtractValidateDccReport"      level="INFO" />
-    <logger name="org.mousephenotype.cda.reports.ExtractValidateImpressReport"  level="INFO" />
-    <logger name="org.mousephenotype.cda.reports.LoadValidateCdaReportReport"   level="INFO" />
-    <logger name="org.mousephenotype.cda.reports.LoadValidateMissingQuery"      level="INFO" />
+    <logger name="org.mousephenotype.cda.reports"                               level="INFO" />
    	<logger name="org.mousephenotype.cda.seleniumtests"                         level="INFO" />
     <logger name="org.mousephenotype.cda.utilities.HttpProxy"                   level="WARN" />
     <logger name="org.mousephenotype.cda.loads"                                 level="INFO" />

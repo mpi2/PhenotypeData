@@ -14,12 +14,10 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.reports.support;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.reports.support.LoadsQuery;
-import org.mousephenotype.cda.reports.support.MpCSVWriter;
-import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.reports.AbstractReport;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +89,7 @@ public class LoadValidateMissingQuery {
             try {
 
                 logger.info("Query {}:\n{}", loadsQuery.getName(), loadsQuery.getQuery());
-                List<String[]> missing = (sqlUtils.queryDiff(jdbcPrevious, jdbcCurrent, loadsQuery.getQuery()));
+                List<String[]> missing = sqlUtils.queryDiff(jdbcPrevious, jdbcCurrent, loadsQuery.getQuery());
                 if ( ! missing.isEmpty()) {
 
                     logger.warn("{} ROWS MISSING", missing.size());
@@ -102,8 +100,10 @@ public class LoadValidateMissingQuery {
                     csvWriter.writeAll(missing);
                     status.addError("missing rows");
                 } else {
-                    logger.info("SUCCESS");
+                    System.out.println("SUCCESS");
                 }
+
+                System.out.println();
 
 
             } catch (Exception e) {
