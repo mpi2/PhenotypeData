@@ -18,7 +18,8 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.reports.support.LoadValidateCountsQuery;
+import org.mousephenotype.cda.reports.support.LoadsQueryDelta;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +42,7 @@ import java.util.List;
 public class LoadValidateCdaReport extends AbstractReport {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
-    private SqlUtils sqlUtils = new SqlUtils();
+    private LoadValidateCountsQuery loadValidateCountsQuery;
 
     @Autowired
     @NotNull
@@ -58,23 +58,30 @@ public class LoadValidateCdaReport extends AbstractReport {
      * DATABASES: cda, komp2_base
      ****************************
     */
-    private class CdaQuery {
-        public final String name;
-        public final String query;
-
-        public CdaQuery(String name, String query) {
-            this.name = name;
-            this.query = query;
-        }
-    }
-
-    private CdaQuery[] queries = new CdaQuery[] {
-            new CdaQuery("phenotype_call_summary COUNT", "SELECT count(*) FROM phenotype_call_summary")
+    private final double      DELTA   = 0.8;
+    private LoadsQueryDelta[] queries = new LoadsQueryDelta[] {
+            new LoadsQueryDelta("allele COUNTS", DELTA, "SELECT count(*) FROM allele"),
+            new LoadsQueryDelta("biological_model COUNTS", DELTA, "SELECT count(*) FROM biological_model"),
+            new LoadsQueryDelta("biological_model_allele COUNTS", DELTA, "SELECT count(*) FROM biological_model_allele"),
+            new LoadsQueryDelta("biological_model_genomic_feature COUNTS", DELTA, "SELECT count(*) FROM biological_model_genomic_feature"),
+            new LoadsQueryDelta("biological_model_phenotype COUNTS", DELTA, "SELECT count(*) FROM biological_model_phenotype"),
+            new LoadsQueryDelta("biological_model_sample COUNTS", DELTA, "SELECT count(*) FROM biological_model_sample"),
+            new LoadsQueryDelta("biological_model_strain COUNTS", DELTA, "SELECT count(*) FROM biological_model_strain"),
+            new LoadsQueryDelta("biological_sample COUNTS", DELTA, "SELECT count(*) FROM biological_sample"),
+            new LoadsQueryDelta("external_db COUNTS", DELTA, "SELECT count(*) FROM external_db"),
+            new LoadsQueryDelta("genomic_feature COUNTS", DELTA, "SELECT count(*) FROM genomic_feature"),
+            new LoadsQueryDelta("live_sample COUNTS", DELTA, "SELECT count(*) FROM live_sample"),
+            new LoadsQueryDelta("ontology_term COUNTS", DELTA, "SELECT count(*) FROM ontology_term"),
+            new LoadsQueryDelta("organisation COUNTS", DELTA, "SELECT count(*) FROM organisation"),
+            new LoadsQueryDelta("project COUNTS", DELTA, "SELECT count(*) FROM project"),
+            new LoadsQueryDelta("strain COUNTS", DELTA, "SELECT count(*) FROM strain")
     };
 
-
-    public LoadValidateCdaReport() {
-        super();
+    @Override
+    protected void initialise(String[] args) throws ReportException {
+        super.initialise(args);
+        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcPrevious, jdbcCurrent, csvWriter);
+        loadValidateCountsQuery.addQueries(queries);
     }
 
     @Override
@@ -97,39 +104,10 @@ public class LoadValidateCdaReport extends AbstractReport {
             String db1Name = jdbcPrevious.getDataSource().getConnection().getCatalog();
             String db2Name = jdbcCurrent.getDataSource().getConnection().getCatalog();
             logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+
         } catch (Exception e) { }
 
-        List<String[]> results = new ArrayList<>();
-
-        int badQueryCount = 0;
-        for (int i = 0; i < queries.length; i++) {
-            CdaQuery cdaQuery = queries[i];
-
-            try {
-
-                logger.info("Query {}:\n{}", cdaQuery.name, cdaQuery.query);
-                List<String[]> missing = (sqlUtils.queryDiff(jdbcPrevious, jdbcCurrent, cdaQuery.query));
-                if ( ! missing.isEmpty()) {
-
-                    logger.warn("{} ROWS MISSING", missing.size());
-                    String[] summary = new String[]{Integer.toString(missing.size()) + " " + cdaQuery.name + ":"};
-                    if (badQueryCount > 0)
-                        csvWriter.writeNext(EMPTY_ROW);
-                    csvWriter.writeNext(summary);
-                    csvWriter.writeAll(missing);
-                    badQueryCount++;
-                } else {
-                    logger.info("SUCCESS");
-                }
-
-
-            } catch (Exception e) {
-
-                throw new ReportException(e);
-            }
-        }
-
-        csvWriter.writeAll(results);
+        loadValidateCountsQuery.execute();
 
         try {
             csvWriter.close();
