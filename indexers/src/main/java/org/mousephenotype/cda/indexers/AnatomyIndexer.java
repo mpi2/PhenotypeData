@@ -70,15 +70,15 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 	private final Logger logger = LoggerFactory.getLogger(AnatomyIndexer.class);
 
     @Value("classpath:uberonEfoMaAnatomogram_mapping.txt")
-	Resource resource;
+    Resource anatomogramResource;
 
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
 
-    @Autowired
-    @Qualifier("sangerImagesCore")
-    SolrClient imagesCore;
+//    @Autowired
+//    @Qualifier("sangerImagesCore")
+//    SolrClient imagesCore;
 
     @Autowired
     @Qualifier("anatomyIndexing")
@@ -120,11 +120,11 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             anatomyIndexing.deleteByQuery("*:*");
             anatomyIndexing.commit();
 
-            logger.info(" Source of images core: " + SolrUtils.getBaseURL(imagesCore) );
+//            logger.info(" Source of images core: " + SolrUtils.getBaseURL(imagesCore) );
             initialiseSupportingBeans();
 
             List<AnatomyDTO> maBatch = new ArrayList<>(BATCH_SIZE);
-            List<OntologyTermBean> beans = maOntologyService.getAllTerms();
+            List<OntologyTermBean> maBeans = maOntologyService.getAllTerms();
             List<OntologyTermBean> emapaBeans = emapaOntologyService.getAllTerms();
 
 
@@ -132,7 +132,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             //List<String> excludedNodeIds = ontologyBrowser.getExcludedNodeIds();
 
             // Add all ma terms to the index.
-            for (OntologyTermBean bean : beans) {
+            for (OntologyTermBean bean : maBeans) {
                 AnatomyDTO anatomyTerm = new AnatomyDTO();
 
                 String id = bean.getId();
@@ -428,13 +428,17 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     private final Integer MAX_ITERATIONS = 2;                                   // Set to non-null value > 0 to limit max_iterations.
 
     private void initialiseSupportingBeans() throws IndexerException, SQLException, IOException {
-        // Grab all the supporting database content
-        maImagesMap = IndexerMap.getSangerImagesByMA(imagesCore);
-        if (logger.isDebugEnabled()) {
-            IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
-        }
+//        // Grab all the supporting database content
+//        maImagesMap = IndexerMap.getSangerImagesByMA(imagesCore);
+//        if (logger.isDebugEnabled()) {
+//            IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
+//        }
 
-        maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(resource);
+        try {
+            maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
+        } catch (SQLException | IOException e1) {
+            e1.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
