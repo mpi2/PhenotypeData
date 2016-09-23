@@ -127,13 +127,13 @@ public class SqlUtils {
 	}
 
     /**
-     * Given two {@link JdbcTemplate} instances and a query, executes the query against jdbc1, then against jdbc2,
-     * returning the set difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
-     * an empty list is returned. If results are returned, the first row is the column headings. Subsequent rows are the
-     * data.
+     * Given two {@link JdbcTemplate} instances and a query, executes the query against {@code jdbcPrevious}, then
+     * against {@code jdbcCurrent}, returning the set difference of the results found in {@code jdbcPrevious} but not
+     * found in {@code jdbcCurrent}. If there are no differences, an empty list is returned. If results are returned,
+     * the first row is the column headings. Subsequent rows are the data.
      *
-     * @param jdbc1 the first {@link JdbcTemplate} instance
-     * @param jdbc2 the second {@link JdbcTemplate} instance
+     * @param jdbcPrevious the previous {@link JdbcTemplate} instance
+     * @param jdbcCurrent the current {@link JdbcTemplate} instance
      * @param query the query to execute against both {@link JdbcTemplate} instances
      *
      * @return the set difference of the results found in jdbc1 but not found in jdbc2Q. If there are no differences,
@@ -141,17 +141,17 @@ public class SqlUtils {
      *
      * @throws Exception
      */
-    public List<String[]> queryDiff(JdbcTemplate jdbc1, JdbcTemplate jdbc2, String query) throws Exception {
+    public List<String[]> queryDiff(JdbcTemplate jdbcPrevious, JdbcTemplate jdbcCurrent, String query) throws Exception {
         List<String[]> results = new ArrayList<>();
 
         Set<List<String>> results1 = new HashSet<>();
-        SqlRowSet         rs1      = jdbc1.queryForRowSet(query);
+        SqlRowSet         rs1      = jdbcPrevious.queryForRowSet(query);
         while (rs1.next()) {
             results1.add(getData(rs1));
         }
 
         Set<List<String>> results2 = new HashSet<>();
-        SqlRowSet rs2 = jdbc2.queryForRowSet(query);
+        SqlRowSet rs2 = jdbcCurrent.queryForRowSet(query);
         while (rs2.next()) {
             results2.add(getData(rs2));
         }
@@ -168,6 +168,42 @@ public class SqlUtils {
                 results.add(it.next().toArray(new String[0]));
             }
         }
+
+        return results;
+    }
+
+    /**
+     * Given two {@link JdbcTemplate} instances of the same schema type and a query that produces a single int/long
+     * value, this method executes the query against {@code jdbcPrevious}, then against {@code jdbcCurrent}. The status,
+     * query, counts, ratio, delta, and a column indicating whether or not the ratio is below the threshold are returned
+     * as row 2 of the results list.
+     *
+     * @param jdbcPrevious the previous {@link JdbcTemplate} instance
+     * @param jdbcCurrent the current {@link JdbcTemplate} instance
+     * @param delta the ratio of currentValue / previousValue beneath which the query should be marked as a warning
+     * @param query the query to execute against both {@link JdbcTemplate} instances. The query should return a single
+     *              int/long value.
+     *
+     * @return a {@link List} of strings with the results. The first list element is the heading. The second list
+     * element is the results, encapsulated as a set of strings.
+     */
+    public List<String[]> queryForLongValue(JdbcTemplate jdbcPrevious, JdbcTemplate jdbcCurrent, Double delta, String query) {
+        List<String[]> results = new ArrayList<>();
+
+        long previousValue = jdbcPrevious.queryForObject(query, Long.class);
+        long currentValue = jdbcCurrent.queryForObject(query, Long.class);
+
+        double difference = ((double)currentValue) / previousValue;
+        results.add(new String[] {"Status", "Query", "Previous count", "Current count", "Ratio", "Delta", "Below Threshold"});
+        results.add(new String[] {
+                (difference < delta ? "FAIL" : "SUCCESS"),
+                query,
+                Long.toString(previousValue),
+                Long.toString(currentValue),
+                String.format("%.5f", difference),
+                String.format("%.5f", delta),
+                (difference < delta ? "true" : "false")
+        });
 
         return results;
     }

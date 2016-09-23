@@ -21,6 +21,7 @@
 		of controllers are wired using Autowired support. - The URI scheme is controller
 		using RequestMapping annotations -->
 
+	<mvc:resources mapping="/dist/**" location="/resources/js/anatomogram/dist/" />
 	<mvc:resources mapping="/css/**" location="/resources/css/" />
 	<mvc:resources mapping="/js/**" location="/resources/js/" />
 	<mvc:resources mapping="/img/**" location="/resources/img/" />

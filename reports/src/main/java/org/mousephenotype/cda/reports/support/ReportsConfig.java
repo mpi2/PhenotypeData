@@ -81,15 +81,41 @@ public class ReportsConfig {
     // Needed for extract/load validation reports
 
 
+    @Bean(name = "cdabasePrevious")
+    @ConfigurationProperties(prefix = "datasource.cdabasebase.compare.previous")
+   	public DataSource cdabasePrevious() {
+           DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+   		return ds;
+   	}
+
+   	@Bean(name = "cdabaseCurrent")
+    @ConfigurationProperties(prefix = "datasource.cdabasebase.compare.current")
+   	public DataSource cdabaseCurrent() {
+           DataSource ds = DataSourceBuilder.create().build();
+   		return ds;
+   	}
+
+   	@Bean(name = "jdbcCdabasePrevious")
+   	public JdbcTemplate jdbcCdabasePrevious() {
+   		return new JdbcTemplate(cdabasePrevious());
+   	}
+
+   	@Bean(name = "jdbcCdabaseCurrent")
+   	public JdbcTemplate jdbcCdabaseCurrent() {
+   		return new JdbcTemplate(cdabaseCurrent());
+   	}
+    
+
+
     @Bean(name = "cdaPrevious")
-    @ConfigurationProperties(prefix = "datasource.cdaComparePrevious")
+    @ConfigurationProperties(prefix = "datasource.cda.compare.previous")
    	public DataSource cdaPrevious() {
            DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
    		return ds;
    	}
 
    	@Bean(name = "cdaCurrent")
-    @ConfigurationProperties(prefix = "datasource.cdaCompareCurrent")
+    @ConfigurationProperties(prefix = "datasource.cda.compare.current")
    	public DataSource cdaCurrent() {
            DataSource ds = DataSourceBuilder.create().build();
    		return ds;
@@ -105,17 +131,18 @@ public class ReportsConfig {
    		return new JdbcTemplate(cdaCurrent());
    	}
 
-    
+
+
     
     @Bean(name = "dccPrevious")
-    @ConfigurationProperties(prefix = "datasource.dccComparePrevious")
+    @ConfigurationProperties(prefix = "datasource.dcc.compare.previous")
    	public DataSource dccPrevious() {
            DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
    		return ds;
    	}
 
    	@Bean(name = "dccCurrent")
-    @ConfigurationProperties(prefix = "datasource.dccCompareCurrent")
+    @ConfigurationProperties(prefix = "datasource.dcc.compare.current")
    	public DataSource dccCurrent() {
            DataSource ds = DataSourceBuilder.create().build();
    		return ds;
@@ -134,14 +161,14 @@ public class ReportsConfig {
 
 
     @Bean(name = "impressPrevious")
-    @ConfigurationProperties(prefix = "datasource.impressComparePrevious")
+    @ConfigurationProperties(prefix = "datasource.impress.compare.previous")
    	public DataSource impressPrevious() {
            DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
    		return ds;
    	}
 
    	@Bean(name = "impressCurrent")
-    @ConfigurationProperties(prefix = "datasource.impressCompareCurrent")
+    @ConfigurationProperties(prefix = "datasource.impress.compare.current")
    	public DataSource impressCurrent() {
            DataSource ds = DataSourceBuilder.create().build();
    		return ds;
