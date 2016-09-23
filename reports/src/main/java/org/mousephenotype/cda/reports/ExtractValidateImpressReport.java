@@ -18,7 +18,8 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.reports.support.LoadValidateCountsQuery;
+import org.mousephenotype.cda.reports.support.LoadsQueryDelta;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +42,7 @@ import java.util.List;
 public class ExtractValidateImpressReport extends AbstractReport {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
-    private SqlUtils sqlUtils = new SqlUtils();
+    private LoadValidateCountsQuery loadValidateCountsQuery;
 
     @Autowired
     @NotNull
@@ -58,23 +58,28 @@ public class ExtractValidateImpressReport extends AbstractReport {
      * DATABASE: impress
      **********************
     */
-    private class CdaQuery {
-        public final String name;
-        public final String query;
-
-        public CdaQuery(String name, String query) {
-            this.name = name;
-            this.query = query;
-        }
-    }
-
-    private CdaQuery[] queries = new CdaQuery[] {
-            new CdaQuery("PHENOTYPE PARAMETER COUNT", "SELECT count(*) FROM phenotype_parameter")
+    private final double      DELTA   = 1.0;
+    private LoadsQueryDelta[] queries = new LoadsQueryDelta[] {
+            new LoadsQueryDelta("phenotype_parameter COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter"),
+            new LoadsQueryDelta("phenotype_parameter_eq_annotation COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_eq_annotation"),
+            new LoadsQueryDelta("phenotype_parameter_lnk_eq_annotation COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_lnk_eq_annotation"),
+            new LoadsQueryDelta("phenotype_parameter_lnk_increment COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_lnk_increment"),
+            new LoadsQueryDelta("phenotype_parameter_lnk_ontology_annotation COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_lnk_ontology_annotation"),
+            new LoadsQueryDelta("phenotype_parameter_lnk_option COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_lnk_option"),
+            new LoadsQueryDelta("phenotype_parameter_ontology_annotation COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_ontology_annotation"),
+            new LoadsQueryDelta("phenotype_parameter_option COUNTS", DELTA, "SELECT count(*) FROM phenotype_parameter_option"),
+            new LoadsQueryDelta("phenotype_pipeline COUNTS", DELTA, "SELECT count(*) FROM phenotype_pipeline"),
+            new LoadsQueryDelta("phenotype_pipeline_procedure COUNTS", DELTA, "SELECT count(*) FROM phenotype_pipeline_procedure"),
+            new LoadsQueryDelta("phenotype_procedure COUNTS", DELTA, "SELECT count(*) FROM phenotype_procedure"),
+            new LoadsQueryDelta("phenotype_procedure_meta_data COUNTS", DELTA, "SELECT count(*) FROM phenotype_procedure_meta_data"),
+            new LoadsQueryDelta("phenotype_procedure_parameter COUNTS", DELTA, "SELECT count(*) FROM phenotype_procedure_parameter")
     };
 
-
-    public ExtractValidateImpressReport() {
-        super();
+    @Override
+    protected void initialise(String[] args) throws ReportException {
+        super.initialise(args);
+        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcPrevious, jdbcCurrent, csvWriter);
+        loadValidateCountsQuery.addQueries(queries);
     }
 
     @Override
@@ -97,39 +102,10 @@ public class ExtractValidateImpressReport extends AbstractReport {
             String db1Name = jdbcPrevious.getDataSource().getConnection().getCatalog();
             String db2Name = jdbcCurrent.getDataSource().getConnection().getCatalog();
             logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+
         } catch (Exception e) { }
 
-        List<String[]> results = new ArrayList<>();
-
-        int badQueryCount = 0;
-        for (int i = 0; i < queries.length; i++) {
-            CdaQuery cdaQuery = queries[i];
-
-            try {
-
-                logger.info("Query {}:\n{}", cdaQuery.name, cdaQuery.query);
-                List<String[]> missing = (sqlUtils.queryDiff(jdbcPrevious, jdbcCurrent, cdaQuery.query));
-                if ( ! missing.isEmpty()) {
-
-                    logger.warn("{} ROWS MISSING", missing.size());
-                    String[] summary = new String[]{Integer.toString(missing.size()) + " " + cdaQuery.name + ":"};
-                    if (badQueryCount > 0)
-                        csvWriter.writeNext(EMPTY_ROW);
-                    csvWriter.writeNext(summary);
-                    csvWriter.writeAll(missing);
-                    badQueryCount++;
-                } else {
-                    logger.info("SUCCESS");
-                }
-
-
-            } catch (Exception e) {
-
-                throw new ReportException(e);
-            }
-        }
-
-        csvWriter.writeAll(results);
+        loadValidateCountsQuery.execute();
 
         try {
             csvWriter.close();
