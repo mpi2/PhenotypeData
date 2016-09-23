@@ -18,7 +18,6 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.reports.support.LoadValidateCountsQuery;
 import org.mousephenotype.cda.reports.support.LoadsQueryDelta;
 import org.mousephenotype.cda.reports.support.ReportException;
@@ -44,7 +43,6 @@ public class ExtractValidateCdabaseReport extends AbstractReport {
 
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
     private LoadValidateCountsQuery loadValidateCountsQuery;
-    private SqlUtils sqlUtils = new SqlUtils();
 
     @Autowired
     @NotNull
@@ -67,12 +65,8 @@ public class ExtractValidateCdabaseReport extends AbstractReport {
             new LoadsQueryDelta("biological_model_allele COUNTS", DELTA, "SELECT count(*) FROM biological_model_allele"),
             new LoadsQueryDelta("biological_model_genomic_feature COUNTS", DELTA, "SELECT count(*) FROM biological_model_genomic_feature"),
             new LoadsQueryDelta("biological_model_phenotype COUNTS", DELTA, "SELECT count(*) FROM biological_model_phenotype"),
-            new LoadsQueryDelta("biological_model_sample COUNTS", DELTA, "SELECT count(*) FROM biological_model_sample"),
-            new LoadsQueryDelta("biological_model_strain COUNTS", DELTA, "SELECT count(*) FROM biological_model_strain"),
-            new LoadsQueryDelta("biological_sample COUNTS", DELTA, "SELECT count(*) FROM biological_sample"),
             new LoadsQueryDelta("external_db COUNTS", DELTA, "SELECT count(*) FROM external_db"),
             new LoadsQueryDelta("genomic_feature COUNTS", DELTA, "SELECT count(*) FROM genomic_feature"),
-            new LoadsQueryDelta("live_sample COUNTS", DELTA, "SELECT count(*) FROM live_sample"),
             new LoadsQueryDelta("ontology_term COUNTS", DELTA, "SELECT count(*) FROM ontology_term"),
             new LoadsQueryDelta("organisation COUNTS", DELTA, "SELECT count(*) FROM organisation"),
             new LoadsQueryDelta("project COUNTS", DELTA, "SELECT count(*) FROM project"),
@@ -84,11 +78,6 @@ public class ExtractValidateCdabaseReport extends AbstractReport {
         super.initialise(args);
         loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcPrevious, jdbcCurrent, csvWriter);
         loadValidateCountsQuery.addQueries(queries);
-    }
-
-
-    public ExtractValidateCdabaseReport() {
-        super();
     }
 
     @Override
