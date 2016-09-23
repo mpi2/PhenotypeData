@@ -166,7 +166,7 @@ public class WebStatusController {
 		model.addAttribute("webStatusModels", webStatusModels);
 
 		// check the imits services
-		List<WebStatusModel> imitsWebStatusModels = new ArrayList<>();
+		List<WebStatusModel> nonEssentialWebStatusModels = new ArrayList<>();
 		boolean nonEssentialOk=true;
 		for (WebStatus status : nonEssentialWebStatusObjects) {
 
@@ -194,10 +194,10 @@ public class WebStatusController {
 				e.printStackTrace();
 			}
 			WebStatusModel wModel = new WebStatusModel(name, number);
-			imitsWebStatusModels.add(wModel);
+			nonEssentialWebStatusModels.add(wModel);
 		}
 
-		model.addAttribute("imitsWebStatusModels", imitsWebStatusModels);
+		model.addAttribute("nonEssentialWebStatusModels", nonEssentialWebStatusModels);
 		if (ok) {
 			response.setStatus(HttpServletResponse.SC_OK);
 		} else {
