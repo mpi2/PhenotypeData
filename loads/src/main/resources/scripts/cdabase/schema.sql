@@ -1811,6 +1811,7 @@ CREATE TABLE mts_mouse_allele_mv (
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
+DROP TABLE IF EXISTS higher_level_annotation;
 CREATE TABLE higher_level_annotation (
   term_id varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY    (term_id)
