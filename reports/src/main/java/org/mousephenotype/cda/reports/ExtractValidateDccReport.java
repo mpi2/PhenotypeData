@@ -18,9 +18,7 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.reports.support.LoadValidateMissingQuery;
-import org.mousephenotype.cda.reports.support.LoadsQuery;
-import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.reports.support.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +40,7 @@ import java.util.List;
 public class ExtractValidateDccReport extends AbstractReport {
 
     private LoadValidateMissingQuery loadValidateMissingQuery;
+    private LoadValidateCountsQuery loadValidateCountsQuery;
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -58,6 +57,16 @@ public class ExtractValidateDccReport extends AbstractReport {
      * DATABASES: DCC, 3I
      **********************
     */
+
+    private final double DELTA = 0.8;
+    private LoadsQueryDelta[] deltaQueries = new LoadsQueryDelta[] {
+            new LoadsQueryDelta("specimen COUNTS", DELTA, "SELECT count(*) FROM specimen"),
+            new LoadsQueryDelta("embryo COUNTS", DELTA, "SELECT count(*) FROM embryo"),
+            new LoadsQueryDelta("mouse COUNTS", DELTA, "SELECT count(*) FROM mouse"),
+            new LoadsQueryDelta("experiment COUNTS", DELTA, "SELECT count(*) FROM experiment"),
+            new LoadsQueryDelta("procedure_ COUNTS", DELTA, "SELECT count(*) FROM procedure_"),
+    };
+
     private LoadsQuery[] queries = new LoadsQuery[] {
             new LoadsQuery("MISSING PROCEDURES", "SELECT\n" +
                                                  "  c.centerId\n" +
@@ -100,6 +109,8 @@ public class ExtractValidateDccReport extends AbstractReport {
     @Override
     protected void initialise(String[] args) throws ReportException {
         super.initialise(args);
+        loadValidateCountsQuery = new LoadValidateCountsQuery(jdbcPrevious, jdbcCurrent, csvWriter);
+        loadValidateCountsQuery.addQueries(deltaQueries);
         loadValidateMissingQuery = new LoadValidateMissingQuery(jdbcPrevious, jdbcCurrent, csvWriter);
         loadValidateMissingQuery.addQueries(queries);
     }
@@ -132,6 +143,7 @@ public class ExtractValidateDccReport extends AbstractReport {
 
         } catch (Exception e) { }
 
+        loadValidateCountsQuery.execute();
         loadValidateMissingQuery.execute();
 
         try {
