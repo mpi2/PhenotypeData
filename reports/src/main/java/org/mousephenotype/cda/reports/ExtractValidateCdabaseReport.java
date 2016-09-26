@@ -46,12 +46,12 @@ public class ExtractValidateCdabaseReport extends AbstractReport {
 
     @Autowired
     @NotNull
-    @Qualifier("jdbcCdaPrevious")
+    @Qualifier("jdbcCdabasePrevious")
     private JdbcTemplate jdbcPrevious;
 
     @Autowired
     @NotNull
-    @Qualifier("jdbcCdaCurrent")
+    @Qualifier("jdbcCdabaseCurrent")
     private JdbcTemplate jdbcCurrent;
 
     /********************
