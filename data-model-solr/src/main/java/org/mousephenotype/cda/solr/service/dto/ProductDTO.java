@@ -25,11 +25,10 @@ public class ProductDTO {
     public static final String GENETIC_INFO = "genetic_info";
 
     public static final String PRODUCTION_PIPELINE = "production_pipeline";
-    public static final String PRODUCTION_COMPELTED = "production_completed";
     public static final String STATUS_DATE = "status_date";
     public static final String PRODUCTION_INFO = "production_info";
 
-    public static final String ASSOCIATION_PRODUCT_COLONY_NAME = "associated_product_colony_name";
+    public static final String ASSOCIATED_PRODUCT_COLONY_NAME = "associated_product_colony_name";
     public static final String ASSOCIATED_PRODUCT_ES_CELL_NAME = "associated_product_es_cell_name";
     public static final String ASSOCIATED_PRODUCT_VECTOR_NAME = "associated_product_vector_name";
     public static final String ASSOCIATED_PRODUCT_COLONY_NAMES = "associated_products_colony_names";
@@ -79,7 +78,7 @@ public class ProductDTO {
     @Field(PRODUCTION_INFO)
     private List<String> productionInfo;
 
-    @Field(ASSOCIATION_PRODUCT_COLONY_NAME)
+    @Field(ASSOCIATED_PRODUCT_COLONY_NAME)
     private String associatedProductColonyName;
 
     @Field(GENETIC_INFO)
@@ -88,7 +87,7 @@ public class ProductDTO {
     @Field(PRODUCTION_PIPELINE)
     private String productionPipeline;
 
-    @Field(PRODUCTION_COMPELTED)
+    @Field(PRODUCTION_COMPLETED)
     private Boolean productionCompleted;
 
     @Field(PRODUCT_ID)
@@ -395,14 +394,6 @@ public class ProductDTO {
 
     public void setProductionPipeline(String productionPipeline) {
         this.productionPipeline = productionPipeline;
-    }
-
-    public Boolean getProductionCompleted() {
-        return productionCompleted;
-    }
-
-    public void setProductionCompleted(Boolean productionCompleted) {
-        this.productionCompleted = productionCompleted;
     }
 
     @Override

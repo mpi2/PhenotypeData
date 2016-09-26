@@ -56,10 +56,12 @@ public class SolrServerConfig {
 	// Required for spring-data-solr repositories
 
 
-
 	@Bean(name = "allele2Core")
 	HttpSolrClient getAllele2Core() {
-		return new HttpSolrClient(solrBaseUrl + "/allele2");
+
+		return new HttpSolrClient("http://localhost:8086/solr-example/allele");
+		//return new HttpSolrClient(solrBaseUrl + "/allele2");
+
 	}
 
 	@Bean(name = "eucommCreProductsCore")
@@ -69,7 +71,10 @@ public class SolrServerConfig {
 
 	@Bean(name = "productCore")
 	HttpSolrClient getProductCore() {
-		return new HttpSolrClient(imitsSolrBaseUrl + "/product");
+
+		//return new HttpSolrClient(imitsSolrBaseUrl + "/product");
+		return new HttpSolrClient("http://localhost:8086/solr-example/product");
+
 	}
 
 	@Bean(name = "eucommToolsCreAllele2Core")
@@ -175,7 +180,6 @@ public class SolrServerConfig {
 	HttpSolrClient getPipelineCore() {
 		return new HttpSolrClient(solrBaseUrl + "/pipeline");
 	}
-
 
 	//Preqc
 	@Bean(name = "preqcCore")

@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -29,6 +29,10 @@ import org.springframework.context.annotation.PropertySource;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Matt Pearce
@@ -107,5 +111,80 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
         return runStatus;
     }
+
+    /**
+     * Method for allele2 and product core indexins. Helper methods to parte the tsv file.
+     * @param field
+     * @param array
+     * @param columns
+     * @return
+     */
+    protected String getValueFor (String field, String[] array, Map<String, Integer> columns, RunStatus runStatus){
+
+        if (columns.containsKey(field)) {
+            String el = array[columns.get(field)];
+            if(el.isEmpty()){
+                return null;
+            } else if (el.equals("\"\"")){
+                return "";
+            }
+            return el;
+        } else {
+            System.out.println();
+            runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
+            return null;
+        }
+    }
+
+    // Method for allele2 and product core indexins. Helper methods to parte the tsv file.
+    protected Boolean getBooleanValueFor (String field, String[] array, Map<String, Integer> columns, RunStatus runStatus){
+
+        if (columns.containsKey(field)) {
+            String el = array[columns.get(field)];
+            if(el.isEmpty()){
+                return null;
+            }
+            return new Boolean(el);
+        } else {
+            System.out.println("Field not found " + field);
+            runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
+            return null;
+        }
+    }
+
+    // Method for allele2 and product core indexins. Helper methods to parte the tsv file.
+    protected List<String> getListValueFor (String field, String[] array, Map<String, Integer> columns, RunStatus runStatus){
+
+        List<String> list = new ArrayList<>();
+
+        if (columns.containsKey(field)) {
+            String el = array[columns.get(field)];
+            if(el.isEmpty()){
+                return null;
+            }
+            return Arrays.asList(el.split("\\|", -1));
+        } else {
+            System.out.println("Field not found " + field);
+            runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
+            return null;
+        }
+    }
+
+    // Method for allele2 and product core indexins. Helper methods to parte the tsv file.
+    protected Long getLongValueFor (String field, String[] array, Map<String, Integer> columns, RunStatus runStatus){
+
+        if (columns.containsKey(field)) {
+            String el = array[columns.get(field)];
+            if(el.isEmpty()){
+                return null;
+            }
+            return new Long(el);
+        } else {
+            System.out.println("Field not found " + field);
+            runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
+            return null;
+        }
+    }
+
 
 }
