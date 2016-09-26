@@ -16,47 +16,47 @@
 package org.mousephenotype.cda.db.pojo;
 
 /**
- * Representation of a consider id in the database.
+ * Representation of a alternate id in the database.
  *
  * @author Mike Relac
  *
  */
-public class ConsiderId {
+public class AlternateId {
 
 	private String ontologyTermAccessionId;
-	private String considerAccessionId;
+	private String alternateAccessionId;
 
-	public ConsiderId() {
+	public AlternateId() {
 
 	}
 
 	/**
-	 * Create a new {@code ConsiderId} instance
+	 * Create a new {@code AlternateId} instance
 	 *
 	 * @param ontologyTermAccessionId the ontology term accession id (foreign key to the ontology_term table)
-	 * @param @param considerAccessionId the consider accession id
+	 * @param @param alternateAccessionId the alternate accession id
      */
-	public ConsiderId(String ontologyTermAccessionId, String considerAccessionId) {
+	public AlternateId(String ontologyTermAccessionId, String alternateAccessionId) {
 		this.ontologyTermAccessionId = ontologyTermAccessionId;
-		this.considerAccessionId = considerAccessionId;
+		this.alternateAccessionId = alternateAccessionId;
 	}
 
 	/**
-	 * Return the consider accession id
+	 * Return the alternate accession id
 	 *
-	 * @return the consider accession id
+	 * @return the alternate accession id
 	 */
-	public String getConsiderAccessionId() {
-		return considerAccessionId;
+	public String getAlternateAccessionId() {
+		return alternateAccessionId;
 	}
 
 	/**
-	 * Set the consider accession id
+	 * Set the alternate accession id
 	 *
-	 * @param considerAccessionId the consider accession id to set
+	 * @param alternateAccessionId the alternate accession id to set
 	 */
-	public void setConsiderAccessionId(String considerAccessionId) {
-		this.considerAccessionId = considerAccessionId;
+	public void setAlternateAccessionId(String alternateAccessionId) {
+		this.alternateAccessionId = alternateAccessionId;
 	}
 
 	/**
@@ -79,9 +79,9 @@ public class ConsiderId {
 
 	@Override
 	public String toString() {
-		return "ConsiderId{" +
+		return "AlternateId{" +
 				"ontologyTermAccessionId='" + ontologyTermAccessionId + '\'' +
-				", considerAccessionId='" + considerAccessionId + '\'' +
+				", alternateAccessionId='" + alternateAccessionId + '\'' +
 				'}';
 	}
 }
