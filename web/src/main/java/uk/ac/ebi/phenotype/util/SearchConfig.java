@@ -88,6 +88,8 @@ public class SearchConfig {
         String solrStr = "";
         List<String> fls = new ArrayList<>();
         for ( String fl : getFieldList(coreName) ){
+
+
             fls.add(fl);
         }
         return "&fl=" + StringUtils.join(fls, ",");
@@ -215,7 +217,7 @@ public class SearchConfig {
                 "allele_name",
                 "synonym",
                 "allele_description",
-                "allele_image",
+                "allele_simple_image",
                 "mutation_type",
                 "es_cell_available",
                 "mouse_available",
