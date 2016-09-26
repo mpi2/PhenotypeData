@@ -472,8 +472,20 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         externalId = specimen.getSpecimenID();
         sampleType = (specimen instanceof Mouse ? sampleTypeWholeOrganism : sampleTypeMouseEmbryoStage);
         sampleGroup = "control";
-        phenotypingCenterId = loadUtils.translateILAR(jdbcCda,  specimen.getPhenotypingCentre().value()).getId();
-        productionCenterId = (specimen.getProductionCentre() != null ? loadUtils.translateILAR(jdbcCda, specimen.getProductionCentre().value()).getId() : null);
+
+        try {
+            phenotypingCenterId = loadUtils.translateILAR(jdbcCda, specimen.getPhenotypingCentre().value()).getId();
+        } catch (Exception e) {
+            logger.error("Exception: unknown phenotyping center '{}' for specimenId {}, colonyId {}. Skipping...", specimen.getPhenotypingCentre().value(), specimen.getSpecimenID(), specimen.getColonyID());
+            return counts;
+        }
+
+        try {
+            productionCenterId = (specimen.getProductionCentre() != null ? loadUtils.translateILAR(jdbcCda, specimen.getProductionCentre().value()).getId() : null);
+        } catch (Exception e) {
+            logger.error("Exception: unknown production center '{}' for specimenId {}, colonyId {}. Skipping...", specimen.getProductionCentre().value(), specimen.getSpecimenID(), specimen.getColonyID());
+            return counts;
+        }
 
         colonyId = specimen.getColonyID();
         if (specimen instanceof Mouse) {
