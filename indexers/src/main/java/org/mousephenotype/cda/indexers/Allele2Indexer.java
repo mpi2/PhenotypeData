@@ -136,7 +136,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
         RunStatus runStatus = new RunStatus();
         Long actualSolrDocumentCount = getDocumentCount(allele2Core);
 
-        if (actualSolrDocumentCount <= alleleDocCount) {
+        if (actualSolrDocumentCount < alleleDocCount) {
            runStatus.addError("Expected " + alleleDocCount + " documents. Actual count: " + actualSolrDocumentCount + ".");
         }
 

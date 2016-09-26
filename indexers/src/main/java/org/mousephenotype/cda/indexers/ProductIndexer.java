@@ -122,7 +122,7 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
         RunStatus runStatus = new RunStatus();
         Long actualSolrDocumentCount = getDocumentCount(productCore);
 
-        if (actualSolrDocumentCount <= productDocCount) {
+        if (actualSolrDocumentCount < productDocCount) {
             runStatus.addError("Expected " + productDocCount + " documents. Actual count: " + actualSolrDocumentCount + ".");
         }
 
