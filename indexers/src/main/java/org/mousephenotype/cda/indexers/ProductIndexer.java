@@ -1,15 +1,18 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 
+import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,15 +26,19 @@ import java.util.Map;
  */
 public class ProductIndexer  extends AbstractIndexer implements CommandLineRunner {
 
-
-
     @Autowired
     @Qualifier("productCore")
     private SolrClient productCore;
 
+    // This is needed only for validation.
+    @Autowired
+    @Qualifier("allele2Core")
+    private SolrClient allele2Core;
 
-    //TODO REPLACE
-    String pathToProductFile = "/Users/ilinca/Documents/temp/product-2016-09-23_15-32-40.tsv";
+    @NotNull
+    @Value("${productFile}")
+    String pathToProductFile;
+
     Map<String, Integer> columns = new HashMap<>();
     Integer productDocCount;
 
@@ -116,6 +123,26 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
 
         if (actualSolrDocumentCount <= productDocCount) {
             runStatus.addError("Expected " + productDocCount + " documents. Actual count: " + actualSolrDocumentCount + ".");
+        }
+
+        // product core number of marker_symbol+allele_type should be equal to the number in allele core. Warning only!
+
+        String pivot = ProductDTO.MARKER_SYMBOL + "," + ProductDTO.ALLELE_NAME;
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*");
+        query.setParam("facet.pivot", pivot);
+        query.setFacet(true);
+        query.setRows(0);
+        query.setFacetLimit(-1);
+
+        try {
+            Long countAlleleCore = getFacetCountTwoLevelPivot(allele2Core,query, pivot);
+            Long countProductCore = getFacetCountTwoLevelPivot(productCore, query, pivot);
+            if (countAlleleCore != countProductCore){
+                runStatus.addWarning("Count of alleles in allele2 and product core should be equal. Instead allele has " + countAlleleCore + " and product has " + countProductCore);
+            }
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
         }
 
         return runStatus;

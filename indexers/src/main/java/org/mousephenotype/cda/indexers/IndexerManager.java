@@ -107,8 +107,8 @@ public class IndexerManager  {
 	    , PHENODIGM_CORE
 
           // These are built daily.
-        , PRODUCT_CORE
         , ALLELE2_CORE
+        , PRODUCT_CORE
         , PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
@@ -124,8 +124,8 @@ public class IndexerManager  {
 
     static final String[] allDailyCoresArray = new String[] {
           // In dependency order. These are built daily.
-         PRODUCT_CORE
-        , ALLELE2_CORE
+            ALLELE2_CORE
+        , PRODUCT_CORE
         , PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
