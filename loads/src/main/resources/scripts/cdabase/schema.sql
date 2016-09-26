@@ -1818,6 +1818,15 @@ CREATE TABLE higher_level_annotation (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS ontology_term_correction;
+CREATE TABLE ontology_term_correction (
+  original_acc       VARCHAR(128) NOT NULL,
+  replacement_acc    VARCHAR(128) NOT NULL,
+  reason             VARCHAR(128),
+  PRIMARY KEY    (original_acc)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 
 /**
  * External resources / database to populate
