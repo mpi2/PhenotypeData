@@ -132,6 +132,9 @@ public class Allele2DTO {
 	@Field(ALLELE_IMAGE)
 	private String alleleImage;
 
+	@Field(ALLELE_SYMBOL)
+	private List<String> alleleSymbol;
+
 	@Field(ALLELE_SIMPLE_IMAGE)
 	private String alleleSimpleImage;
 
@@ -314,6 +317,14 @@ public class Allele2DTO {
 	}
 	public void setLinks(List<String> links) {
 		this.links = links;
+	}
+
+	public List<String> getAlleleSymbol() {
+		return alleleSymbol;
+	}
+
+	public void setAlleleSymbol(List<String> alleleSymbol) {
+		this.alleleSymbol = alleleSymbol;
 	}
 
 	public String getMutationType() {
