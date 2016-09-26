@@ -104,7 +104,7 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
             productCore.addBean(doc);
             if (index % 1000 == 0) {
                 productCore.commit();
-                System.out.println("Commited " + index);
+//                System.out.println("Commited " + index);
             }
 
         }

@@ -110,7 +110,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             allele2Core.addBean(doc);
             if (index % 1000 == 0) {
                 allele2Core.commit();
-                System.out.println("committed " + index);
+//                System.out.println("committed " + index);
             }
         }
 
