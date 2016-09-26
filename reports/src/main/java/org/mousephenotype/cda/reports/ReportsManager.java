@@ -364,7 +364,7 @@ public class ReportsManager implements CommandLineRunner {
                 }
 
                 String fqFilename = (file != null ? file.getAbsolutePath() : "<unknown>");
-                log.info("Created report '" + reportType + "' in " + fqFilename + ".");
+                log.info("Created report '" + reportType + "' in " + fqFilename);
 
             } catch (Exception e) {
 

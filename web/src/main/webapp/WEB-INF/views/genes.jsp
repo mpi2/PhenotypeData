@@ -590,7 +590,7 @@
 							
 							<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
 							<div class="section">
-								<h2 class="title" id="section-images">Phenotype Associated Images new
+								<h2 class="title" id="section-images">Associated Images
 									<span class="documentation"><a href="" id="phenoAssocImgSection" class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
@@ -601,7 +601,7 @@
 
 									<c:if test="${not empty impcImageGroups or not empty solrFacets}">
 										<c:if test="${not empty impcImageGroups}">
-											<h5 class="sectHint">IMPC Phenotype Associated Images</h5>
+											<h5 class="sectHint">Associated Images</h5>
 											<jsp:include page="genesImpcImagesAssocFrag.jsp"></jsp:include>
 										</c:if>
 
