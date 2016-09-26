@@ -548,21 +548,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         int biologicalModelId = biologicalModel.getId();
 
         // biological_sample
-
-
-Map<String, Integer> results = null;
-try {
-            /*Map<String, Integer>*/ results = cdaSqlUtils.insertBiologicalSample(externalId, externalDbId, sampleType, sampleGroup, phenotypingCenterId, productionCenterId);
-} catch(Exception e) {
-    int mm  = 17;
-}
-
-
-
-
-
-
-
+        Map<String, Integer> results = cdaSqlUtils.insertBiologicalSample(externalId, externalDbId, sampleType, sampleGroup, phenotypingCenterId, productionCenterId);
 
         counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count"));
         biologicalSampleId = results.get("biologicalSampleId");
