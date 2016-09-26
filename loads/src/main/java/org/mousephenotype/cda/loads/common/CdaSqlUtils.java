@@ -216,7 +216,7 @@ public class CdaSqlUtils {
     public BiologicalModel getBiologicalModel(String allelicComposition, String backgroundStrainName) {
         BiologicalModel bm = null;
         String query =
-                "SELECT * FROM cda_5_0.biological_model\n" +
+                "SELECT * FROM biological_model\n" +
                 "WHERE allelic_composition = :allelic_composition AND genetic_background = :genetic_background\n";
 
         Map<String, Object> parameterMap = new HashMap<>();

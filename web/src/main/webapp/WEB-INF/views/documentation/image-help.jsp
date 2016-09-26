@@ -41,4 +41,4 @@
 </p>
 
 <p>See the gene page <a href="gene-help#impc-expression">Expression</a> documentation for more information on gene page expression images.</p>
-<p>See the gene page <a href="gene-help#impc-images">Phenotype Associated Images</a> documentation for more information on gene page phenotype associated images.</p>
+<p>See the gene page <a href="gene-help#impc-images">Associated Images</a> documentation for more information on gene page associated images.</p>
