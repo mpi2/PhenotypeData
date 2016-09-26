@@ -33,7 +33,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
     private String pathToAlleleFile;
 
     @Autowired
-    @Qualifier("allele2Core")
+    @Qualifier("allele2Indexing")
     private SolrClient allele2Core;
 
     Integer alleleDocCount;

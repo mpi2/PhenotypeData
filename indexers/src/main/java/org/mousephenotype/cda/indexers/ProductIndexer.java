@@ -27,12 +27,12 @@ import java.util.Map;
 public class ProductIndexer  extends AbstractIndexer implements CommandLineRunner {
 
     @Autowired
-    @Qualifier("productCore")
+    @Qualifier("productIndexing")
     private SolrClient productCore;
 
     // This is needed only for validation.
     @Autowired
-    @Qualifier("allele2Core")
+    @Qualifier("allele2Indexing")
     private SolrClient allele2Core;
 
     @NotNull
