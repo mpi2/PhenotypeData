@@ -112,7 +112,8 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
         productCore.commit();
         productDocCount = index;
         System.out.println("Indexing took " + (System.currentTimeMillis() - time));
-        return null;
+
+        return runStatus;
     }
 
     @Override
