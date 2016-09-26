@@ -222,9 +222,23 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Strain backgroundStrain;
 
         // Query iMits first for specimen information. iMits is more up-to-date than the dcc.
+        // NOTE: A certain set of EuroPhenome colonies that have duplicated work on a cell line must have their colony
+        //       ids filtered in order to match the iMits colony to which they belong.
         PhenotypedColony colony = cdaSqlUtils.getPhenotypedColony(specimen.getColonyID());
         if (colony == null) {
-            missingColonyIds.add(specimen.getColonyID());
+            // Try looking up the colony id after removing the characters after the trailing underscore.
+            String colonyId = specimen.getColonyID();
+            int lastUnderscoreIndex = colonyId.lastIndexOf("_");
+            if (lastUnderscoreIndex >= 0) {
+System.out.println("colonyId before: " + colonyId);
+                String truncatedColonyId = specimen.getColonyID().substring(0, lastUnderscoreIndex);
+System.out.println("colonyId before: " + truncatedColonyId);
+                colony = cdaSqlUtils.getPhenotypedColony(truncatedColonyId);
+                if (colony == null) {
+                    missingColonyIds.add(truncatedColonyId);
+                }
+            }
+
             return counts;
         }
 
