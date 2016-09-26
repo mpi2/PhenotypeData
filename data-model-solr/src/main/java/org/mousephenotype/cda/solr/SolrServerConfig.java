@@ -59,8 +59,8 @@ public class SolrServerConfig {
 	@Bean(name = "allele2Core")
 	HttpSolrClient getAllele2Core() {
 
-		return new HttpSolrClient("http://localhost:8086/solr-example/allele");
-		//return new HttpSolrClient(solrBaseUrl + "/allele2");
+		//return new HttpSolrClient("http://localhost:8086/solr-example/allele");
+		return new HttpSolrClient(solrBaseUrl + "/allele2");
 
 	}
 
@@ -72,8 +72,8 @@ public class SolrServerConfig {
 	@Bean(name = "productCore")
 	HttpSolrClient getProductCore() {
 
-		//return new HttpSolrClient(imitsSolrBaseUrl + "/product");
-		return new HttpSolrClient("http://localhost:8086/solr-example/product");
+		return new HttpSolrClient(imitsSolrBaseUrl + "/product");
+		//return new HttpSolrClient("http://localhost:8086/solr-example/product");
 
 	}
 
