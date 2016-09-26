@@ -82,14 +82,14 @@ public class ReportsConfig {
 
 
     @Bean(name = "cdabasePrevious")
-    @ConfigurationProperties(prefix = "datasource.cdabasebase.compare.previous")
+    @ConfigurationProperties(prefix = "datasource.cdabase.compare.previous")
    	public DataSource cdabasePrevious() {
            DataSource ds = DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
    		return ds;
    	}
 
    	@Bean(name = "cdabaseCurrent")
-    @ConfigurationProperties(prefix = "datasource.cdabasebase.compare.current")
+    @ConfigurationProperties(prefix = "datasource.cdabase.compare.current")
    	public DataSource cdabaseCurrent() {
            DataSource ds = DataSourceBuilder.create().build();
    		return ds;

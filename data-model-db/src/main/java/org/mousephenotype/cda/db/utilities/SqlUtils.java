@@ -193,16 +193,20 @@ public class SqlUtils {
         long previousValue = jdbcPrevious.queryForObject(query, Long.class);
         long currentValue = jdbcCurrent.queryForObject(query, Long.class);
 
-        double difference = ((double)currentValue) / previousValue;
+        // Let's not divide by zero.
+        double ratio = 1;
+        if (previousValue > 0)
+            ratio = ((double)currentValue / previousValue);
+
         results.add(new String[] {"Status", "Query", "Previous count", "Current count", "Ratio", "Delta", "Below Threshold"});
         results.add(new String[] {
-                (difference < delta ? "FAIL" : "SUCCESS"),
+                (ratio < delta ? "FAIL" : "SUCCESS"),
                 query,
                 Long.toString(previousValue),
                 Long.toString(currentValue),
-                String.format("%.5f", difference),
+                String.format("%.5f", ratio),
                 String.format("%.5f", delta),
-                (difference < delta ? "true" : "false")
+                (ratio < delta ? "true" : "false")
         });
 
         return results;
