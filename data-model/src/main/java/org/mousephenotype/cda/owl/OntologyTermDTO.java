@@ -14,6 +14,7 @@ public class OntologyTermDTO {
     Set<String>          synonyms;
     Set<String>          narrowSynonyms;
     Set<OntologyTermDTO> equivalentClasses; // from equivalent classes, return the
+    Set<String>          alternateIds;
     Set<String>          considerIds;
     Set<String>          broadSynonyms;
     String               replacementAccessionId;
@@ -83,6 +84,22 @@ public class OntologyTermDTO {
 
     public Set<String> getConsiderIds() {
         return considerIds;
+    }
+
+    public Set<String> getNarrowSynonyms() {
+        return narrowSynonyms;
+    }
+
+    public void setNarrowSynonyms(Set<String> narrowSynonyms) {
+        this.narrowSynonyms = narrowSynonyms;
+    }
+
+    public Set<String> getAlternateIds() {
+        return alternateIds;
+    }
+
+    public void setAlternateIds(Set<String> alternateIds) {
+        this.alternateIds = alternateIds;
     }
 
     public void setConsiderIds(Set<String> considerIds) {
