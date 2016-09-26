@@ -7,10 +7,12 @@ import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -26,10 +28,9 @@ import java.util.Map;
 @EnableAutoConfiguration
 public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunner {
 
-    //TODO REPLACE
-    String pathToAlleleFile = "/Users/ilinca/Documents/temp/allele2-2016-09-23_15-50-37.tsv";
-    //SolrClient allele2Core = new HttpSolrClient("http://localhost:8086/solr-example/allele");
-
+    @NotNull
+    @Value("${allele2File}")
+    private String pathToAlleleFile;
 
     @Autowired
     @Qualifier("allele2Core")

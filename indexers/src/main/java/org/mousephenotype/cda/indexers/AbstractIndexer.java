@@ -18,6 +18,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -73,6 +74,21 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         logger.debug("number found = " + numFound);
         return numFound;
     }
+
+
+    public long getFacetCountTwoLevelPivot(SolrClient solr, SolrQuery q, String pivot) throws IOException, SolrServerException {
+
+        Long count = new Long(0);
+        List<PivotField> facetPivots = solr.query(q).getFacetPivot().get(pivot);
+
+        for( PivotField p : facetPivots){
+            List<String> secondLevelFacets = new ArrayList<>();
+            count += secondLevelFacets.size();
+        }
+
+        return count;
+    }
+
 
 	public void initialise() throws IndexerException {
 
