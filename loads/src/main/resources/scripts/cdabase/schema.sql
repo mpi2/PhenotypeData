@@ -670,6 +670,19 @@ CREATE TABLE categorical_observation (
 
 
 /**
+ * This table will store the ontology 'alternate id's.
+ */
+DROP TABLE IF EXISTS alternate_id;
+CREATE TABLE alternate_id (
+	ontology_term_acc          VARCHAR(30) NOT NULL,
+	acc                        VARCHAR(30) NOT NULL,
+
+  FOREIGN KEY ontology_term_acc_alt_id_fk (ontology_term_acc) REFERENCES ontology_term (acc)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+
+/**
  * This table will store the ontology 'consider id's.
  */
 DROP TABLE IF EXISTS consider_id;
