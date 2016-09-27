@@ -675,9 +675,9 @@ CREATE TABLE categorical_observation (
 DROP TABLE IF EXISTS alternate_id;
 CREATE TABLE alternate_id (
 	ontology_term_acc          VARCHAR(30) NOT NULL,
-	acc                        VARCHAR(30) NOT NULL,
+	alternate_id_acc           VARCHAR(30) NOT NULL,
 
-  FOREIGN KEY ontology_term_acc_alt_id_fk (ontology_term_acc) REFERENCES ontology_term (acc)
+  KEY alternate_id_acc_idx(alternate_id_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -688,9 +688,7 @@ CREATE TABLE alternate_id (
 DROP TABLE IF EXISTS consider_id;
 CREATE TABLE consider_id (
 	ontology_term_acc          VARCHAR(30) NOT NULL,
-	acc                        VARCHAR(30) NOT NULL,
-
-  FOREIGN KEY ontology_term_acc_fk (ontology_term_acc) REFERENCES ontology_term (acc)
+	consider_id_acc            VARCHAR(30) NOT NULL
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
