@@ -47,7 +47,7 @@
 
 <jsp:attribute name="addToFooter">
 	<%-- <script src="${omeroStaticUrl}/omeroweb.viewer.min.js" type="text/javascript"></script> --%>
-	<script type='text/javascript' src="${baseUrl}/js/comparator/overlap.js?v=${version}"></script>
+	<%-- <script type='text/javascript' src="${baseUrl}/js/comparator/overlap.js?v=${version}"></script> --%>
 	
 	 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
   
@@ -58,18 +58,20 @@
     position: relative;
     width: 800px;
     height: auto;
+    background: blue;
 }
 #control_box{
     width: 100%;
 	height: auto;
-    background: blue;
-     opacity: 1.0;
-    filter: alpha(opacity=100); /* For IE8 and earlier */
+   /*  background: blue; */
+     opacity: 0.5;
+    filter: alpha(opacity=50); /* For IE8 and earlier */
 }
 #mutant_box{
     width: 100%;
     auto: 100%;
-   
+    opacity: 0.5;
+    filter: alpha(opacity=50); /* For IE8 and earlier */
 }
 
 #resizable{
@@ -78,7 +80,7 @@
     right: -20px;
     width: 100%;
     auto: 100%;
-     /* background: red; */
+    background: orange;
     opacity: 0.5;
     filter: alpha(opacity=50); /* For IE8 and earlier */
 }
@@ -87,10 +89,19 @@
   	<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
   
 	<script>
-	  $( function() {
+	$(document).ready(function() {
+		 var initialResizableWidth;
+		 var initialResizableHeight;
 	    $( "#resizable" ).draggable({ cursor: "crosshair"});
-	    var initialResizableWidth=$('#resizable').width();
-	    var initialResizableHeight=$('#resizable').height();
+	    
+	  
+	        $("#mutant_box").load(function() {
+	        	 initialResizableWidth=$('#resizable').width();
+	        	 initialResizableHeight=$('#resizable').height();
+	        });
+	   
+	    /* var initialResizableWidth=$('#resizable').width();
+	    var initialResizableHeight=$('#resizable').height(); */
 	    $("#resizable").resizable({
 	        aspectRatio: true
 	    });
@@ -101,7 +112,7 @@
 			        top: "20px",
 			        left: "20px",
 			        width: initialResizableWidth,
-			        height : initialResizableWidth
+			        height : initialResizableHeight
 			    });
 			});
 	    

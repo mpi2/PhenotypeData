@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
 import org.slf4j.Logger;
@@ -70,7 +70,7 @@ public class BiologicalModelLoader implements InitializingBean, Step {
     private BiologicalModelWriter writer;
 
 
-    public BiologicalModelLoader(Map<FilenameKeys, String> bioModelKeys) throws DataImportException {
+    public BiologicalModelLoader(Map<FilenameKeys, String> bioModelKeys) throws DataLoadException {
         this.bioModelKeys = bioModelKeys;
     }
 
@@ -195,8 +195,9 @@ public class BiologicalModelLoader implements InitializingBean, Step {
             }
 
             stop = new Date();
-            logger.info("  Wrote {} bioModels, {} bioModelAlleles, {} bioModelGenomicFeatures, and {} bioModelPhenotypes to database in {}",
-                    writer.getWrittenBioModels(), writer.getWrittenBioModelAlleles(), writer.getWrittenBioModelGenomicFeatures(), writer.getWrittenBioModelPhenotypes(),
+            logger.info("  Wrote {} bioModelsInserted, {} bioModelsUpdated, {} bioModelAlleles, {} bioModelGenomicFeatures, and {} bioModelPhenotypes to database in {}",
+                    writer.getWrittenBioModelsInserted(), writer.getWrittenBioModelsUpdated(), writer.getWrittenBioModelAlleles(),
+                        writer.getWrittenBioModelGenomicFeatures(), writer.getWrittenBioModelPhenotypes(),
                     commonUtils.formatDateDifference(start, stop));
             logger.info("");
 

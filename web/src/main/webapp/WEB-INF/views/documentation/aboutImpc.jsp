@@ -88,7 +88,10 @@
           padding: 20px 10px 10px 10px;
         }
         div#impress iframe {min-width: 960px; min-height: 600px;}
-       
+        ul#derived li {
+            list-style-type: square;
+            margin-left: 50px;
+        }
       </style>
 
 	</jsp:attribute>
@@ -145,12 +148,80 @@
     <h1>How does IMPC work?</h1>
 
     <div ><span class="work alleleDesign">Allele design</span>
-      <div class="hideme"> <img src="${baseUrl}/img/alleleDesign.png" />
-        <hr>
-        <span id="es"></span>
-        <span id="mouse"></span>
-        <span id="crispr"></span>
-        <div style="clear: both"></div>
+      <div class="hideme">
+          <div>The IMPC consortium is using different targeting strategies that have different and complementary properties to produce Knockout alleles.
+            Below is a general outline of all the targeting strategies used by IMPC teams.
+          </div>
+          <div id="tabs">
+              <ul>
+                  <li><a href="#tabs-1">Velocigene null allele design</a></li>
+                  <li><a href="#tabs-2">Knockout-first</a></li>
+                  <li><a href="#tabs-3">Cas9 CRISPR allele</a></li>
+              </ul>
+
+              <div id="tabs-1">
+
+                  <img src="${baseUrl}/img/velocigene.jpg" />
+                  <div>In most cases this design will result in complete null alleles that delete the entire protein coding sequence of the target gene.
+                      This allele design can be applied to any gene transcribed by RNA polymerase II regardless of its size, intron-exon structure, RNA splicing pattern, or protein-coding capacity
+                      (<a href="http://europepmc.org/abstract/MED/12730667">Valenzuela et al., 2003</a>).</div>
+                  <br>
+                  <div>VelociGene lines available: <span id="velocigene"></span></div>
+              </div>
+              <div id="tabs-2">
+                  <br>
+                  <div>This strategy relies on the identification of a 'critical' exon common to all transcript variants that, when deleted, creates a frame-shift mutation.
+                      The Knockout first allele is flexible and can produce reporter knockouts, conditional knockouts, and null alleles following exposure to site-specific recombinases Cre and Flp.
+                      Promoterless and promoter-driven targeting cassettes are used for the generation of a 'Knockout-first allele' in C57BL/6N embryonic stem cells (<a href="http://europepmc.org/abstract/MED/19525957">Pettitt et al., 2009</a>).<br>
+                      These two strategies have been shown to yield different targeting efficiencies (<a href="http://europepmc.org/abstract/MED/21677750">Skarnes et al., 2011</a>).</div>
+
+                  <img src="${baseUrl}/img/promoterless.png" />
+                  <img src="${baseUrl}/img/promoter-driven.png" />
+                  <img src="${baseUrl}/img/targeted-non-conditional.png" />
+                  <div>"Targeted, non-conditional " alleles (tm1e) are missing the downstream loxP site. The 3’ loxP site is often lost due to recombination events in the homology region between the targeting cassette and 3’ loxP site.
+                      These mutations cannot be converted to conditional alleles following Flp treatment.</div><br>
+
+                  <div>Standard deletion alleles with the promoter-driven targeting cassette:</div>
+                  <img src="${baseUrl}/img/targeted-deletion.png" />
+                  <div>
+                      Number of available derivative alleles:
+                      <ul id="derived">
+                          <li>tm1a: KO first allele (reporter-tagged insertion allele): <span id="tm1a">0</span></li>
+                          <li>tm1b: Reporter-tagged deletion allele (post-Cre): <span id="tm1b">0</span></li>
+                          <li>tm1c: Conditional allele (post-Flp): <span id="tm1c">0</span></li>
+                          <li>tm1d: Deletion allele (post-Flp and Cre with no reporter): <span id="tm1d">0</span></li>
+                          <li>tm1e: targeted, non-conditional allele: <span id="tm1e">0</span></li>
+                          <li>tm1: Reporter-tagged deletion allele (with selection cassette): <span id="tm1">0</span></li>
+                          <li>tm1.1: Reporter-tagged deletion allele (post Cre, with no selection cassette): <span id="tm11">0</span></li>
+                          <li>tm1.2: Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette): <span id="tm12">0</span></li>
+                      </ul>
+                  </div>
+              </div>
+              <div id="tabs-3">
+                    <br>
+                <h3>IMPC alleles viable for high throughput pipieline</h3>
+                <img src="${baseUrl}/img/crispr-viable.png" />
+                <ul><li>(i) Small Deletions (single cut strategy)</li>
+                    <li>(ii) Exon Deletion / large Deletions (2 cut strategy)</li>
+                </ul>
+
+                <h3>Alleles on request</h3>
+                <img src="${baseUrl}/img/crispr-on-request.png" />
+                <ul>
+                    <li>(i) Loxp-flanked critical regions</li>
+                    <li>(ii) Point Mutations</li><li>(iii) Conditional & lacZ reporter Allele - Insertion of dsVector</li>
+                </ul>
+                <br>
+                <div>
+                    CRISPR alleles available:
+                    <ul>
+                        <li class="crisprProduced">Total: <span id="crisprTotal"></span></li>
+                        <li class="crisprProduced">NHEJ Alleles (small deletions): <span id="nhej"></span></li>
+                        <li class="crisprProduced">Large Deletion/ Exon deletion: <span id="deletion"></span></li>
+                    </ul>
+                </div>
+              </div>
+          </div>
       </div>
     </div>
     <div ><span class="work">Coordinated production</span>
@@ -242,18 +313,28 @@
     <div><span class="work">Statistics to Phenotype</span>
       <div class="hideme"><h3>Statistics to Phenotype</h3>
 
-        <p>If the mutant genotype effect represents a significant change from the control group, then the IMPC pipeline will
-          attempt to associate a <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian Phenotype (MP) term</a> to the data.</p>
+          The selection of the statistical method is an important step in the process of phenotype data analysis and is dependent on the experimental implementation, and the variable characteristics (e.g. continuous or categorical).
 
-        <p>The particular MP term(s) defined for a parameter are maintained in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>.
-          Frequently, the term indicates an <strong>increase</strong> or <strong>decrease</strong> of the parameter measured.</p>
+          <p>The statistical analysis was done using an R package developed for IMPC called <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a>.<br>
+          PhenStat is a statistical analysis tool suite developed based on known variation in experimental workflow and design of phenotyping pipelines (<a href="http://europepmc.org/abstract/MED/26147094">Kurbatova N et al, 2015)</a>.
+          <p></p>
+          <div>• <b>Categorical data analysis</b> was performed using a Fisher’s Exact test. Concerning continuous data, it has been shown that gender, weight, and environmental effects (batch) are a significant source of variation. See
+              <ul>
+                  <li><a href="http://europepmc.org/abstract/MED/22829707">The fallacy of ratio correction to address confounding factors</a></li>
+                  <li><a href="http://europepmc.org/abstract/MED/25343444">Impact of temporal variation on design and analysis of mouse knockout phenotyping studies</a></li>
+              </ul>
+          </div>
+          <p></p><p></p>
+          <div>•	<b>Continuous data analysis</b> was performed with the PhenStat Mixed Model (MM) framework which uses linear mixed models where batch is treated as a random effect. Details of the implementation, including decision tree and models descriptions, are available in the <a href="http://goo.gl/tfbA5k">PhenStat package user's guide</a>.</div>  
 
-        <p>When a statistical result is determined as significant, the following diagram is used for associating MP terms:</p>
-        <img src="img/stats-mpterms.png" />
+          <div>•	For <b>viability and fertility data</b>, the center conducting the experiment use a statistical method appropriate for the breeding scheme used (exact details are available on the IMPC data portal) and supplied the analysis results to the IMPC.</div>
+          <p></p><p></p>
 
-        <h4>Significance</h4>
+          Following statistical assessment, if the mutant genotype effect represents a significant change from the control group, then the IMPC pipeline will attempt to associate a Mammalian Phenotype (MP) term to the data.
+          The particular MP term(s) defined for a parameter are maintained in IMPReSS. Frequently, the term indicates an increase or decrease of the parameter measured.
+          more details about how IMPC uses statistics and call for phenotypes can be found in the
+          <a href="http://dev.mousephenotype.org/data/documentation/doc-method">documentation section</a>.
 
-        <p>When a mutant genotype effect P value is less than 1.0E-4 (i.e. 0.0001), it is considered significant.</p>
       </div>
     </div>
     <div ><span class="work">Human disease association</span>
@@ -264,7 +345,6 @@
     <script>
       $(document).ready(function(){
 
-
         $('span.work').click(function(){
 
           var sib = $(this).siblings('div.hideme');
@@ -274,46 +354,113 @@
           else {
             sib.addClass('showme');
             if ( $(this).hasClass('alleleDesign') ){
-              $.ajax({
-                'url' : 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
-                'data' : 'q=type:Allele&facet=on&facet.field=es_cell_available&facet.field=mutation_type&facet.mincount=1&facet.limit=-1&rows=0&wt=json',
-                'dataType' : 'jsonp',
-                'jsonp' : 'json.wrf',
-                timeout : 5000,
-                success: function(json) {
-                  var esCells = json.facet_counts.facet_fields.es_cell_available;
-                  var mutationTypes = json.facet_counts.facet_fields.mutation_type;
+                $( "#tabs" ).tabs({ active: 0 });
 
-                  for ( var i=0; i<esCells.length; i++){
-                    if (esCells[i] == "true"){
-                      $('span#es').text("ES cell vailable: " + esCells[i+1]);
-                      break;
-                    }
-                  }
+                _fetchVelocigenes();
+                _fetchKoFirst();
+                _fetchCrispr();
 
-                  for (var j=0; j<mutationTypes.length; j++){
-                    if (mutationTypes[j] == "Endonuclease-mediated"){
-                      $('span#crispr').text("KO CRISPR lines available: " + mutationTypes[j+1]);
-                    }
-                    else if (mutationTypes[j] == "Targeted"){
-                      $('span#mouse').text("Mouse lines available: " + mutationTypes[j+1]);
-                    }
-                  }
-                },
-                error: function(){
-                  console.log("ajax error")
-                }
-              });
+//                $.ajax({
+//                'url' : 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+//                'data' : 'q=type:Allele&facet=on&facet.field=es_cell_available&facet.field=mutation_type&facet.mincount=1&facet.limit=-1&rows=0&wt=json',
+//                'dataType' : 'jsonp',
+//                'jsonp' : 'json.wrf',
+//                timeout : 5000,
+//                success: function(json) {
+//                  var esCells = json.facet_counts.facet_fields.es_cell_available;
+//                  var mutationTypes = json.facet_counts.facet_fields.mutation_type;
+//
+//                  for ( var i=0; i<esCells.length; i++){
+//                    if (esCells[i] == "true"){
+//                      $('span#es').text("ES cell vailable: " + esCells[i+1]);
+//                      break;
+//                    }
+//                  }
+//
+//                  for (var j=0; j<mutationTypes.length; j++){
+//                    if (mutationTypes[j] == "Endonuclease-mediated"){
+//                      $('span#crispr').text("KO CRISPR lines available: " + mutationTypes[j+1]);
+//                    }
+//                    else if (mutationTypes[j] == "Targeted"){
+//                      $('span#mouse').text("Mouse lines available: " + mutationTypes[j+1]);
+//                    }
+//                  }
+//                },
+//                error: function(){
+//                  console.log("ajax error")
+//                }
+//              });
             }
           }
         });
 
-
-
-
-
-
-    });
+        function _fetchVelocigenes(){
+            $.ajax({
+                'url': 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+                'data': 'q=type:Allele AND pipeline:"KOMP-Regeneron"&rows=0&wt=json',
+                'dataType': 'jsonp',
+                'jsonp': 'json.wrf',
+                timeout: 5000,
+                success: function (json) {
+                    $('span#velocigene').text(json.response.numFound);
+                },
+                error: function(){
+                    console.log("AJAX error fetching number of VelociGene alleles...")
+                }
+            });
+        }
+        function _fetchKoFirst(){
+            console.log("doing ko")
+            $.ajax({
+              'url': 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+              'data': 'q=type:Allele AND !feature_type:"CpG island" AND mutation_type:Targeted AND (mouse_available:true OR es_cell_available:true)&facet=on&facet.field=allele_type&facet.mincount=1&facet.limit=-1&rows=0&wt=json',
+              'dataType': 'jsonp',
+              'jsonp': 'json.wrf',
+              timeout: 5000,
+              success: function (json) {
+                var alleleTypes = json.facet_counts.facet_fields.allele_type;
+                //var names = ["a", "b", "c", "d", "e", "", ".1", ".2"];
+                for ( var i=0; i<alleleTypes.length; i=i+2){
+                    var type = "tm1" + alleleTypes[i].replace(".",""); // trouble with "."
+                    var count = alleleTypes[i+1];
+                    $('span#'+type).text(count);
+                }
+              },
+              error: function(){
+                  console.log("AJAX error fetching number of Knock-out-first alleles...")
+              }
+            });
+          }
+        function _fetchCrispr(){
+            $.ajax({
+             'url': 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+             'data': 'q=type:Allele AND mutation_type:Endonuclease-mediated&facet=on&facet.field=allele_type&facet.limit=-1&facet.mincount=1&rows=0&wt=json',
+             'dataType': 'jsonp',
+             'jsonp': 'json.wrf',
+             timeout: 5000,
+             success: function (json) {
+                var mutationTypes = json.facet_counts.facet_fields.allele_type;
+                var total = null;
+                for ( var i=0; i<mutationTypes.length; i++){
+                    if (mutationTypes[i] == "Deletion"){
+                        var num = mutationTypes[i+1];
+                        $('span#deletion').text(num);
+                        total += num;
+                    }
+                    if (mutationTypes[i] == "NHEJ"){
+                        var num = mutationTypes[i+1];
+                        $('span#nhej').text(num);
+                        total += num;
+                    }
+                }
+                $('span#crisprTotal').text(total);
+             },
+             error: function(){
+                 console.log("AJAX error fetching number of CRISPR alleles...")
+             }
+            });
+        }
+      });
 
     </script>
 

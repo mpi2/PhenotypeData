@@ -16,26 +16,20 @@
 
 package org.mousephenotype.cda.loads.common;
 
+
+import org.mousephenotype.cda.db.pojo.Organisation;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.util.Assert;
 
-import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by mrelac on 10/08/16.
  */
 public class LoadUtils {
-
-    private NamedParameterJdbcTemplate npJdbcTemplate;
-
-
-    @Inject
-    public LoadUtils(NamedParameterJdbcTemplate npJdbcTemplate) {
-        Assert.notNull(npJdbcTemplate, "Named parameter npJdbcTemplate cannot be null");
-        this.npJdbcTemplate = npJdbcTemplate;
-    }
 
     /**
      * Wrapper for namedParameterJdbcTemplat.queryForObject
@@ -43,7 +37,7 @@ public class LoadUtils {
      * @param paramMap the parameter map
      * @return the result, if found; 0 otherwise
      */
-    public long queryForPk(String query, Map<String, ?> paramMap) {
+    public long queryForPk(NamedParameterJdbcTemplate npJdbcTemplate, String query, Map<String, ?> paramMap) {
         long pk = 0L;
 
         try {
@@ -55,4 +49,47 @@ public class LoadUtils {
         return pk;
     }
 
+
+    /**
+     * Maps external input names to Organisation.name. Lookups are case-insensitive.
+     */
+    private final Map<String, String> mappedTerms = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+        //   External name          Organisation.name
+        put("CDTA",                 "CDTA");
+        put("Bcm",                  "BCM");
+        put("EUMODIC",              "EUCOMM-EUMODIC");
+        put("Gmc",                  "HMGU");
+        put("Hmgu",                 "HMGU");
+        put("H",                    "MRC Harwell");
+        put("Ics",                  "ICS");
+        put("J",                    "JAX");
+        put("Krb",                  "KMPC");
+        put("MGP",                  "MGP Legacy");
+        put("Ning",                 "NING");
+        put("Ncom",                 "CMHD");
+        put("Rbrc",                 "RBRC");
+        put("RIKEN BRC",            "RBRC");
+        put("Tcp",                  "TCP");
+        put("Ucd",                  "UC Davis");
+        put("Wtsi",                 "WTSI");
+    }};
+    /**
+     * @param ilarValue (e.g. J for Jax)
+     * @return {@link Organisation} instance matching {@code ilarValue}, if found; null otherwise
+     */
+    public Organisation translateILAR(NamedParameterJdbcTemplate jdbcCda, String ilarValue) {
+        String query = "SELECT * FROM organisation WHERE name = :name";
+        String organisationName = mappedTerms.get(ilarValue);
+        if (organisationName == null)
+            return null;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("name", organisationName);
+        List<Organisation> organisations = jdbcCda.query(query, parameterMap,new OrganisationRowMapper());
+
+        if (organisations.isEmpty())
+            return null;
+
+        return organisations.get(0);
+    }
 }

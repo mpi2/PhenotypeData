@@ -156,11 +156,11 @@ public class Allele {
 	@Override
 	public String toString() {
 		return "Allele{" +
-				"id=" + id +
+				"symbol='" + symbol + '\'' +
+				", id=" + id +
+				", name='" + name + '\'' +
 				", biotype=" + biotype +
 				", gene=" + gene +
-				", name='" + name + '\'' +
-				", symbol='" + symbol + '\'' +
 				'}';
 	}
 
