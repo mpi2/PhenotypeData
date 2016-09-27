@@ -58,7 +58,8 @@ public class SearchConfig {
         coreDefault.put("mp", "*:*");
         coreDefault.put("disease", "*:*");
         coreDefault.put("anatomy", "*:*");
-        coreDefault.put("impc_images", "biological_sample_group:experimental");
+        //coreDefault.put("impc_images", "biological_sample_group:experimental");
+        coreDefault.put("impc_images", "*:*");
         //coreDefault.put("images", "*:*");
         coreDefault.put("allele2", "type:Allele");
 
