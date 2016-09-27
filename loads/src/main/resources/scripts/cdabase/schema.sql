@@ -675,9 +675,9 @@ CREATE TABLE categorical_observation (
 DROP TABLE IF EXISTS alternate_id;
 CREATE TABLE alternate_id (
 	ontology_term_acc          VARCHAR(30) NOT NULL,
-	acc                        VARCHAR(30) NOT NULL,
+	alternate_id_acc           VARCHAR(30) NOT NULL,
 
-  FOREIGN KEY ontology_term_acc_alt_id_fk (ontology_term_acc) REFERENCES ontology_term (acc)
+  KEY alternate_id_acc_idx(alternate_id_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -688,9 +688,7 @@ CREATE TABLE alternate_id (
 DROP TABLE IF EXISTS consider_id;
 CREATE TABLE consider_id (
 	ontology_term_acc          VARCHAR(30) NOT NULL,
-	acc                        VARCHAR(30) NOT NULL,
-
-  FOREIGN KEY ontology_term_acc_fk (ontology_term_acc) REFERENCES ontology_term (acc)
+	consider_id_acc            VARCHAR(30) NOT NULL
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -1811,9 +1809,19 @@ CREATE TABLE mts_mouse_allele_mv (
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
+DROP TABLE IF EXISTS higher_level_annotation;
 CREATE TABLE higher_level_annotation (
   term_id varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY    (term_id)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS ontology_term_correction;
+CREATE TABLE ontology_term_correction (
+  original_acc       VARCHAR(128) NOT NULL,
+  replacement_acc    VARCHAR(128) NOT NULL,
+  reason             VARCHAR(128),
+  PRIMARY KEY    (original_acc)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
@@ -1876,6 +1884,7 @@ INSERT INTO project(id, name, fullname, description) VALUES(20, 'EMBL Monteroton
 INSERT INTO project(id, name, fullname, description) VALUES(21, 'Infrafrontier-I3', 'Infrafrontier-I3 Consortium', 'Infrafrontier-I3 Consortium');
 INSERT INTO project(id, name, fullname, description) VALUES(22, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea Mouse Phenotyping Center');
 INSERT INTO project(id, name, fullname, description) VALUES(23, 'UC Davis', 'University of California at Davis School of Veterinary Medicine', 'UC Davis Veterinary Medicine');
+INSERT INTO project(id, name, fullname, description) VALUES(24, 'NARLabs', 'National Applied Research Laboratories', 'National Applied Research Laboratories');
 
 
 /**
