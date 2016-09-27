@@ -51,22 +51,27 @@ public class LoadUtils {
 
 
     /**
-     * Maps external input names to Organisation.name
+     * Maps external input names to Organisation.name. Lookups are case-insensitive.
      */
     private final Map<String, String> mappedTerms = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
         //   External name          Organisation.name
+        put("CDTA",                 "CDTA");
         put("Bcm",                  "BCM");
+        put("EUMODIC",              "EUCOMM-EUMODIC");
         put("Gmc",                  "HMGU");
+        put("Hmgu",                 "HMGU");
         put("H",                    "MRC Harwell");
         put("Ics",                  "ICS");
         put("J",                    "JAX");
         put("Krb",                  "KMPC");
+        put("MGP",                  "MGP Legacy");
         put("Ning",                 "NING");
+        put("Ncom",                 "CMHD");
         put("Rbrc",                 "RBRC");
+        put("RIKEN BRC",            "RBRC");
         put("Tcp",                  "TCP");
         put("Ucd",                  "UC Davis");
         put("Wtsi",                 "WTSI");
-        put("CDTA",                 "CDTA");
     }};
     /**
      * @param ilarValue (e.g. J for Jax)
