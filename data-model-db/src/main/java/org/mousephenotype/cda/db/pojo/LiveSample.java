@@ -58,6 +58,7 @@ public class LiveSample extends BiologicalSample {
 		name = "production_center_id"
 	)
 	private Organisation productionCenter;
+
 	@Column(
 		name = "litter_id"
 	)

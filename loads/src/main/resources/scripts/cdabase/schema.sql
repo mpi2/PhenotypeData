@@ -20,66 +20,11 @@
 set NAMES utf8;
 SET collation_connection = utf8_general_ci;
 
---
--- Drop all the komp2 database tables if they exist
---
-DROP TABLE IF EXISTS analytics_specimen_load;
-DROP TABLE IF EXISTS analytics_experiment_load;
-DROP TABLE IF EXISTS anatomy_call_summary;
-DROP TABLE IF EXISTS meta_info;
-DROP TABLE IF EXISTS meta_history;
-DROP TABLE IF EXISTS analytics_mp_calls;
-DROP TABLE IF EXISTS allele;
-DROP TABLE IF EXISTS biological_model;
-DROP TABLE IF EXISTS biological_model_allele;
-DROP TABLE IF EXISTS biological_model_strain;
-DROP TABLE IF EXISTS biological_model_genomic_feature;
-DROP TABLE IF EXISTS biological_model_phenotype;
-DROP TABLE IF EXISTS biological_model_sample;
-DROP TABLE IF EXISTS biological_sample;
-DROP TABLE IF EXISTS biological_sample_relationship;
-DROP TABLE IF EXISTS categorical_observation;
-DROP TABLE IF EXISTS consider_id;
-DROP TABLE IF EXISTS coord_system;
-DROP TABLE IF EXISTS datetime_observation;
-DROP TABLE IF EXISTS experiment;
-DROP TABLE IF EXISTS experiment_observation;
-DROP TABLE IF EXISTS external_db;
-DROP TABLE IF EXISTS genomic_feature;
-DROP TABLE IF EXISTS higher_level_annotation;
-DROP TABLE IF EXISTS ilar;
-DROP TABLE IF EXISTS image_record_observation;
-DROP TABLE IF EXISTS live_sample;
-DROP TABLE IF EXISTS metadata_observation;
-DROP TABLE IF EXISTS multidimensional_observation;
-DROP TABLE IF EXISTS observation;
-DROP TABLE IF EXISTS observation_population;
-DROP TABLE IF EXISTS population;
-DROP TABLE IF EXISTS ontology_entity;
-DROP TABLE IF EXISTS ontology_observation;
-DROP TABLE IF EXISTS ontology_relationship;
-DROP TABLE IF EXISTS ontology_term;
-DROP TABLE IF EXISTS organisation;
-DROP TABLE IF EXISTS participant;
-DROP TABLE IF EXISTS phenotype_call_summary;
-DROP TABLE IF EXISTS phenotyped_colony;
-DROP TABLE IF EXISTS project;
-DROP TABLE IF EXISTS seq_region;
-DROP TABLE IF EXISTS strain;
-DROP TABLE IF EXISTS synonym;
-DROP TABLE IF EXISTS text_observation;
-DROP TABLE IF EXISTS time_series_observation;
-DROP TABLE IF EXISTS unidimensional_observation;
-DROP TABLE IF EXISTS xref;
-DROP TABLE IF EXISTS image_record_observation;
-DROP TABLE IF EXISTS dimension;
-DROP TABLE IF EXISTS parameter_association;
-DROP TABLE IF EXISTS procedure_meta_data;
-DROP TABLE IF EXISTS genes_secondary_project;
 
 /**
  * Contains information about the loading of specimen files
  */
+DROP TABLE IF EXISTS analytics_specimen_load;
 CREATE TABLE analytics_specimen_load (
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	filename                   VARCHAR(255) NOT NULL DEFAULT '',
@@ -104,9 +49,11 @@ CREATE TABLE analytics_specimen_load (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Contains information about the loading of experiment files
  */
+DROP TABLE IF EXISTS analytics_experiment_load;
 CREATE TABLE analytics_experiment_load (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	filename                 VARCHAR(255) NOT NULL DEFAULT '',
@@ -129,6 +76,7 @@ CREATE TABLE analytics_experiment_load (
 	PRIMARY KEY (id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 
 /**
  * Contains information about the loading of experiment files
@@ -154,6 +102,7 @@ CREATE TABLE analytics_statistics_load (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Contains meta information about the database like
  * the version of the code that can run safely on the data
@@ -161,6 +110,7 @@ CREATE TABLE analytics_statistics_load (
  * the different phenodeviant calls made for this version
  * the version of the database schema
  */
+DROP TABLE IF EXISTS meta_info;
 CREATE TABLE meta_info (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	property_key             VARCHAR(255) NOT NULL DEFAULT '',
@@ -173,10 +123,12 @@ CREATE TABLE meta_info (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Contains meta information from release to release to keep track of
  * Numbers through time
  */
+DROP TABLE IF EXISTS meta_history;
 CREATE TABLE meta_history (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	property_key             VARCHAR(255) NOT NULL DEFAULT '',
@@ -190,6 +142,7 @@ CREATE TABLE meta_history (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
+DROP TABLE IF EXISTS analytics_mp_calls;
 CREATE TABLE analytics_mp_calls (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	phenotyping_center       VARCHAR(255) NOT NULL DEFAULT '',
@@ -208,11 +161,13 @@ CREATE TABLE analytics_mp_calls (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
 @table project
 @desc This table stores information about each phenotyping project
 We made this table generic enough to store legacy project data
 */
+DROP TABLE IF EXISTS project;
 CREATE TABLE project (
 	id                       INT(10) UNSIGNED NOT NULL,
 	name                     VARCHAR(255) NOT NULL DEFAULT '',
@@ -222,10 +177,11 @@ CREATE TABLE project (
 	PRIMARY KEY (id),
 	UNIQUE KEY name_idx (name)
 
-	) COLLATE=utf8_general_ci ENGINE=MyISAM;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
+DROP TABLE IF EXISTS organisation;
 CREATE TABLE organisation (
-
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	name                     VARCHAR(255) NOT NULL DEFAULT '',
 	fullname                 VARCHAR(255) NOT NULL DEFAULT '',
@@ -234,8 +190,10 @@ CREATE TABLE organisation (
 	PRIMARY KEY (id),
 	UNIQUE KEY name_idx (name)
 
-	) COLLATE=utf8_general_ci ENGINE=MyISAM;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
+DROP TABLE IF EXISTS participant;
 CREATE TABLE participant (
 
 	project_id               INT(10) UNSIGNED NOT NULL,
@@ -245,29 +203,15 @@ CREATE TABLE participant (
 	KEY project (project_id),
 	KEY organisation (organisation_id)
 
-	) COLLATE=utf8_general_ci ENGINE=MyISAM;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-/**
- * Very mouse specific . What about Zebrafish? ZFIN
- */
-CREATE TABLE ilar (
-
-	labcode                  VARCHAR(50) NOT NULL,
-	status                   ENUM('active', 'pending', 'retired'),
-	investigator             VARCHAR(255) NOT NULL DEFAULT '',
-	organisation             VARCHAR(255) NOT NULL DEFAULT '',
-
-	PRIMARY KEY (labcode)
-
-	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * This table holds all the external datasources (MGI, Ensembl)
  */
-
 -- this table holds all the external/ASTD database names
+DROP TABLE IF EXISTS external_db;
 CREATE TABLE external_db (
-
 	id                       INT(10) UNSIGNED NOT NULL,
 	name                     VARCHAR(100) NOT NULL,
 	short_name               VARCHAR(40) NOT NULL,
@@ -279,9 +223,11 @@ CREATE TABLE external_db (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * This table will store the ontological terms we need for controlled vocabulary
  */
+DROP TABLE IF EXISTS ontology_term;
 CREATE TABLE ontology_term (
 	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
@@ -293,6 +239,8 @@ CREATE TABLE ontology_term (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
+DROP TABLE IF EXISTS ontology_relationship;
 CREATE TABLE ontology_relationship (
 	a_acc                      VARCHAR(20) NOT NULL,
 	a_db_id                    INT(10) NOT NULL,
@@ -305,15 +253,15 @@ CREATE TABLE ontology_relationship (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * The sequence and genomic information goes there.
  * We picked up some of the table from Ensembl to build our sequence information
  * At the moment, we don't plan to have multiple coordinate system for the same
  * genome.
  */
-
+DROP TABLE IF EXISTS coord_system;
 CREATE TABLE coord_system (
-
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	name                       VARCHAR(40) NOT NULL,
 	strain_acc                 VARCHAR(20) DEFAULT NULL,
@@ -328,8 +276,8 @@ CREATE TABLE coord_system (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
+DROP TABLE IF EXISTS seq_region;
 CREATE TABLE seq_region (
-
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	name                       VARCHAR(40) NOT NULL,
 	coord_system_id            INT(10) UNSIGNED NOT NULL,
@@ -341,11 +289,13 @@ CREATE TABLE seq_region (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Genomic feature table
  * Contains any genomic site, whether functional or not
  * that can be mapped through formal genetic analysis
  */
+DROP TABLE IF EXISTS genomic_feature;
 CREATE TABLE genomic_feature (
 	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
@@ -371,8 +321,9 @@ CREATE TABLE genomic_feature (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-CREATE TABLE synonym (
 
+DROP TABLE IF EXISTS synonym;
+CREATE TABLE synonym (
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
@@ -384,11 +335,12 @@ CREATE TABLE synonym (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Genomic feature cross-reference from other datasources.
  */
+DROP TABLE IF EXISTS xref;
 CREATE TABLE xref (
-
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	acc                        VARCHAR(30) NOT NULL,
 	db_id                      INT(10) NOT NULL,
@@ -401,13 +353,14 @@ CREATE TABLE xref (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Allele table
  * Contains sequence variant of a gene recognized by a DNA assay (polymorphic)
  * or a variant phenotype (mutant)
  */
+DROP TABLE IF EXISTS allele;
 CREATE TABLE allele (
-
 	acc                       VARCHAR(30) NOT NULL,
 	db_id                     INT(10) NOT NULL,
 	gf_acc                    VARCHAR(20),
@@ -424,11 +377,9 @@ CREATE TABLE allele (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-/**
- * Strain table
- */
-CREATE TABLE strain (
 
+DROP TABLE IF EXISTS strain;
+CREATE TABLE strain (
 	acc                       VARCHAR(30) NOT NULL,   -- There really is a strain 'CSD1918305-1b-(EUCOMM)Wtsi'.
 	db_id                     INT(10) NOT NULL,
 	biotype_acc               VARCHAR(20),
@@ -443,8 +394,8 @@ CREATE TABLE strain (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
+DROP TABLE IF EXISTS biological_model;
 CREATE TABLE biological_model (
-
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	db_id                     INT(10) NOT NULL,
 	allelic_composition       VARCHAR(300) NOT NULL,
@@ -453,12 +404,13 @@ CREATE TABLE biological_model (
 	PRIMARY KEY (id),
 	KEY allelic_composition_idx (allelic_composition),
 	KEY genetic_background_idx (genetic_background),
-	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100), zygosity)
+	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100))
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-CREATE TABLE biological_model_allele (
 
+DROP TABLE IF EXISTS biological_model_allele;
+CREATE TABLE biological_model_allele (
 	biological_model_id       INT(10) UNSIGNED NOT NULL,
 	allele_acc                VARCHAR(20) NOT NULL,
 	allele_db_id              INT(10) NOT NULL,
@@ -469,8 +421,9 @@ CREATE TABLE biological_model_allele (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-CREATE TABLE biological_model_strain (
 
+DROP TABLE IF EXISTS biological_model_strain;
+CREATE TABLE biological_model_strain (
 	biological_model_id       INT(10) UNSIGNED NOT NULL,
 	strain_acc                VARCHAR(20) NOT NULL,
 	strain_db_id              INT(10) NOT NULL,
@@ -481,12 +434,13 @@ CREATE TABLE biological_model_strain (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * This table is an association table between the
  * allele table, the phenotype information and biological model
  */
+DROP TABLE IF EXISTS biological_model_phenotype;
 CREATE TABLE biological_model_phenotype (
-
 	biological_model_id       INT(10) UNSIGNED NOT NULL,
 	phenotype_acc             VARCHAR(20) NOT NULL,
 	phenotype_db_id           INT(10) NOT NULL,
@@ -497,8 +451,9 @@ CREATE TABLE biological_model_phenotype (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-CREATE TABLE biological_model_genomic_feature (
 
+DROP TABLE IF EXISTS biological_model_genomic_feature;
+CREATE TABLE biological_model_genomic_feature (
 	biological_model_id       INT(10) UNSIGNED NOT NULL,
 	gf_acc                    VARCHAR(20) NOT NULL,
 	gf_db_id                  INT(10) NOT NULL,
@@ -509,11 +464,12 @@ CREATE TABLE biological_model_genomic_feature (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Links a sample to a biological model
  */
+DROP TABLE IF EXISTS biological_model_sample;
 CREATE TABLE biological_model_sample (
-
 	biological_model_id       INT(10) UNSIGNED NOT NULL,
 	biological_sample_id      INT(10) UNSIGNED NOT NULL,
 
@@ -522,6 +478,7 @@ CREATE TABLE biological_model_sample (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Experimental sample
  * Contains information about a sample
@@ -529,8 +486,8 @@ CREATE TABLE biological_model_sample (
  * The EFO ontology can be used to reference 'whole organism', 'animal fluid', 'animal body part'
  * A sample group defines what role or experimental group the sample belongs to. It can be 'control' / 'experimental'
  */
+DROP TABLE IF EXISTS biological_sample;
 CREATE TABLE biological_sample (
-
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	external_id               VARCHAR(100),
 	db_id                     INT(10),
@@ -539,32 +496,33 @@ CREATE TABLE biological_sample (
 	sample_group              VARCHAR(100) NOT NULL,
 	organisation_id           INT(10) UNSIGNED NOT NULL,
   production_center_id      INT(10) UNSIGNED NULL,
-  litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY external_id_idx(external_id),
 	KEY external_db_idx(db_id),
 	KEY group_idx (sample_group),
 	KEY sample_type_idx (sample_type_acc, sample_type_db_id),
+	UNIQUE KEY external_id_phenotyping_center (external_id, organisation_id),
 
 	KEY organisation_idx (organisation_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * An animal sample is a type of sample
  * The discriminative value is on the sample type
  */
-
+DROP TABLE IF EXISTS live_sample;
 CREATE TABLE live_sample (
-
 	id                        INT(10) UNSIGNED NOT NULL,
 	colony_id                 VARCHAR(100) NOT NULL,
 	developmental_stage_acc   VARCHAR(20) NOT NULL,
 	developmental_stage_db_id INT(10) NOT NULL,
-	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data'),
+	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data', 'both'),
 	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
 	date_of_birth             TIMESTAMP NULL,
+  litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY colony_idx (colony_id),
@@ -574,12 +532,13 @@ CREATE TABLE live_sample (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * One sample can refer to another sample
  * Example one: organ to whole organism as a part_of relationship
  */
+DROP TABLE IF EXISTS biological_sample_relationship;
 CREATE TABLE biological_sample_relationship (
-
 	biological_sample_a_id     INT(10),
 	biological_sample_b_id     INT(10),
 	relationship               VARCHAR(30) NOT NULL,
@@ -589,6 +548,7 @@ CREATE TABLE biological_sample_relationship (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * experiment
  * A scientific procedure undertaken to make a discovery, test a hypothesis, or
@@ -596,8 +556,8 @@ CREATE TABLE biological_sample_relationship (
  * An experiment has several observation associated to it.
  * See table observation
  */
+DROP TABLE IF EXISTS experiment;
 CREATE TABLE experiment (
-
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	db_id                      INT(10) UNSIGNED NOT NULL,
 	external_id                VARCHAR(100),
@@ -628,10 +588,11 @@ CREATE TABLE experiment (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * Links multiple observations to experiment
  */
-
+DROP TABLE IF EXISTS experiment_observation;
 CREATE TABLE experiment_observation (
 	experiment_id              INT(10) UNSIGNED NOT NULL,
 	observation_id             INT(10) UNSIGNED NOT NULL,
@@ -640,6 +601,7 @@ CREATE TABLE experiment_observation (
 	KEY observation_idx(observation_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 
 /**
  * observation
@@ -653,8 +615,8 @@ CREATE TABLE experiment_observation (
  * deleting data from this table
  * missing: tells if there was no data for this observation.
  */
+DROP TABLE IF EXISTS observation;
 CREATE TABLE observation (
-
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	db_id                      INT(10) UNSIGNED NOT NULL,
 	biological_sample_id       INT(10) UNSIGNED NULL,
@@ -680,8 +642,8 @@ CREATE TABLE observation (
  * text_observation
  * Free text to annotate a phenotype
  */
+DROP TABLE IF EXISTS text_observation;
 CREATE TABLE text_observation (
-
 	id                         INT(10) UNSIGNED NOT NULL,
 	text                       TEXT,
 
@@ -690,13 +652,14 @@ CREATE TABLE text_observation (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * categorical_observation
  * Categorical phenotypic observation like
  * coat hair pattern: mono-colored, multi-colored, spotted, etc.
  */
+DROP TABLE IF EXISTS categorical_observation;
 CREATE TABLE categorical_observation (
-
 	id                         INT(10) UNSIGNED NOT NULL,
 	category                   VARCHAR(200) NOT NULL,
 
@@ -705,24 +668,37 @@ CREATE TABLE categorical_observation (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
+/**
+ * This table will store the ontology 'alternate id's.
+ */
+DROP TABLE IF EXISTS alternate_id;
+CREATE TABLE alternate_id (
+	ontology_term_acc          VARCHAR(30) NOT NULL,
+	alternate_id_acc           VARCHAR(30) NOT NULL,
+
+  KEY alternate_id_acc_idx(alternate_id_acc)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+
 /**
  * This table will store the ontology 'consider id's.
  */
+DROP TABLE IF EXISTS consider_id;
 CREATE TABLE consider_id (
-
 	ontology_term_acc          VARCHAR(30) NOT NULL,
-	acc                        VARCHAR(30) NOT NULL,
-
-  FOREIGN KEY ontology_term_acc_fk (ontology_term_acc) REFERENCES ontology_term (acc)
+	consider_id_acc            VARCHAR(30) NOT NULL
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 
 /**
  * unidimensional_observation
  * Unidimensional data point measurement
  */
+DROP TABLE IF EXISTS unidimensional_observation;
 CREATE TABLE unidimensional_observation (
-
 	id                        INT(10) UNSIGNED NOT NULL,
 	data_point                FLOAT NOT NULL,
 
@@ -731,37 +707,35 @@ CREATE TABLE unidimensional_observation (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * ontology_observation
  * ontology data measurement/observation
  */
+DROP TABLE IF EXISTS ontology_observation;
 CREATE TABLE ontology_observation (
-
 	id           INT(10) UNSIGNED NOT NULL,
 	parameter_id VARCHAR(255)     NOT NULL, /**not necessary to store this as in main parameter when store observation, we should remove it but in for dev testing**/
 	sequence_id  INT(10)          NULL,
 
 	PRIMARY KEY (id)
+)	COLLATE = utf8_general_ci	ENGINE = MyISAM;
 
-)
-	COLLATE = utf8_general_ci
-	ENGINE = MyISAM;
 
 /**
  * unidimensional_observation
  * Unidimensional data point measurement
  */
+DROP TABLE IF EXISTS ontology_entity;
 CREATE TABLE ontology_entity (
-
 	id                      INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	ontology_observation_id INT(10) UNSIGNED NOT NULL,
 	term                    VARCHAR(255)     NULL,
 	term_value              VARCHAR(255)     NULL,
 	PRIMARY KEY (id),
 	KEY `idx_ontology_entity_ontology_observation_id` (`ontology_observation_id`)
-)
-	COLLATE = utf8_general_ci
-	ENGINE = MyISAM;
+)	COLLATE = utf8_general_ci	ENGINE = MyISAM;
+
 
 /**
  * multidimensional_observation
@@ -772,8 +746,8 @@ CREATE TABLE ontology_entity (
  * dimension: dimension definition (x, y, z, t, etc.). It can also be used to
  * store multiple series of observations if needed.
  */
+DROP TABLE IF EXISTS multidimensional_observation;
 CREATE TABLE multidimensional_observation (
-
 	id                        INT(10) UNSIGNED NOT NULL,
 	data_point                FLOAT NOT NULL,
 	order_index               INT(10) NOT NULL,
@@ -785,13 +759,14 @@ CREATE TABLE multidimensional_observation (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * time_series_observation
  * A time series is a sequence of observations which are ordered in time
  * (or space).
  */
+DROP TABLE IF EXISTS time_series_observation;
 CREATE TABLE time_series_observation (
-
 	id                        INT(10) UNSIGNED NOT NULL,
 	data_point                FLOAT NOT NULL,
 	time_point                TIMESTAMP,
@@ -802,13 +777,14 @@ CREATE TABLE time_series_observation (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /**
  * datetime_observation
  * A datetime observation is a point in time observation
  * (or space).
  */
+DROP TABLE IF EXISTS datetime_observation;
 CREATE TABLE datetime_observation (
-
 	id                        INT(10) UNSIGNED NOT NULL,
 	datetime_point            datetime,
 
@@ -824,8 +800,8 @@ CREATE TABLE datetime_observation (
  * This table stores the meta information associated to the observation
  * as value property
  */
+DROP TABLE IF EXISTS metadata_observation;
 CREATE TABLE metadata_observation (
-
 	id                         INT(10) UNSIGNED NOT NULL,
 	property_value             VARCHAR(100) NOT NULL,
 
@@ -838,9 +814,8 @@ CREATE TABLE metadata_observation (
 /*
  * Phenotype to genotype association when analyzed without weight
  */
-
+DROP TABLE IF EXISTS phenotype_call_summary;
 CREATE TABLE phenotype_call_summary (
-
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	external_id               VARCHAR(20) NULL,
 	external_db_id            INT(10),
@@ -858,8 +833,6 @@ CREATE TABLE phenotype_call_summary (
 	parameter_id              INT(10) UNSIGNED NOT NULL,
 	procedure_id              INT(10) UNSIGNED NOT NULL,
 	pipeline_id               INT(10) UNSIGNED NOT NULL,
-
-
 
 	mp_acc                    VARCHAR(20) NOT NULL,
 	mp_db_id                  INT(10) NOT NULL,
@@ -883,7 +856,6 @@ CREATE TABLE phenotype_call_summary (
  */
 DROP TABLE IF EXISTS phenotype_call_summary_withWeight;
 CREATE TABLE phenotype_call_summary_withWeight (
-
   id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   external_id               VARCHAR(20) NULL,
   external_db_id            INT(10),
@@ -919,8 +891,8 @@ CREATE TABLE phenotype_call_summary_withWeight (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
+DROP TABLE IF EXISTS anatomy_call_summary;
 CREATE TABLE anatomy_call_summary (
-
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	external_id               VARCHAR(20) NULL,
 	external_db_id            INT(10),
@@ -954,9 +926,11 @@ CREATE TABLE anatomy_call_summary (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+
 /*
  * Tables below are for the storage of media/image information
  */
+DROP TABLE IF EXISTS image_record_observation;
 CREATE TABLE `image_record_observation` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sample_id` int(11) DEFAULT NULL,
@@ -979,8 +953,8 @@ CREATE TABLE `image_record_observation` (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
+DROP TABLE IF EXISTS dimension;
 CREATE TABLE dimension (
-
 	dim_id                     INT(11) NOT NULL AUTO_INCREMENT,
 	parameter_association_id   INT(11) NOT NULL,
 	id                         VARCHAR(45) NOT NULL,
@@ -993,8 +967,8 @@ CREATE TABLE dimension (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
+DROP TABLE IF EXISTS parameter_association;
 CREATE TABLE parameter_association (
-
 	id                         INT(11) NOT NULL AUTO_INCREMENT,
 	observation_id             VARCHAR(45) NOT NULL,
 	parameter_id               VARCHAR(45) NOT NULL,
@@ -1007,8 +981,8 @@ CREATE TABLE parameter_association (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
+DROP TABLE IF EXISTS procedure_meta_data;
 CREATE TABLE procedure_meta_data (
-
 	id                         INT(11) NOT NULL AUTO_INCREMENT,
 	parameter_id               VARCHAR(45) NOT NULL,
 	sequence_id                VARCHAR(45) DEFAULT NULL,
@@ -1025,24 +999,23 @@ CREATE TABLE procedure_meta_data (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
+DROP TABLE IF EXISTS genes_secondary_project;
 CREATE TABLE genes_secondary_project (
-
 	acc                        VARCHAR(30) NOT NULL,
   secondary_project_id       VARCHAR(20) NOT NULL
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
+DROP TABLE IF EXISTS phenotyped_colony;
 CREATE TABLE phenotyped_colony (
 	id                                          INT(11)     NOT NULL AUTO_INCREMENT,
 	colony_name                                 VARCHAR(64) NOT NULL,
 	es_cell_name                                VARCHAR(64),
 	gf_acc                                      VARCHAR(20) NOT NULL,
 	gf_db_id                                    INT(11)     NOT NULL,
-	allele_acc                                  VARCHAR(20) NOT NULL,
-	allele_db_id                                INT(11)     NOT NULL,
-	strain_acc                                  VARCHAR(20) NOT NULL,
-	strain_db_id                                INT(11)     NOT NULL,
+	allele_symbol                               VARCHAR(64) NOT NULL,
+	background_strain_name                      VARCHAR(64) NOT NULL,
 	production_centre_organisation_id           INT(11)     NOT NULL,
 	production_consortium_project_id            INT(11)     NOT NULL,
 	phenotyping_centre_organisation_id          INT(11)     NOT NULL,
@@ -1050,10 +1023,11 @@ CREATE TABLE phenotyped_colony (
 	cohort_production_centre_organisation_id    INT(11)     NOT NULL,
 
 	PRIMARY KEY (id),
+	UNIQUE KEY (colony_name),
 	KEY colony_name_idx (colony_name),
 	KEY phenotypedColony_genomicFeature_idx (gf_acc, gf_db_id),
-	KEY phenotypedColony_Allele_idx (allele_acc, allele_db_id),
-	KEY phenotypedColony_Strain_idx (strain_acc, strain_db_id),
+	KEY phenotypedColony_AlleleSymbol_idx (allele_symbol),
+	KEY phenotypedColony_BackgroundStrainName_idx (background_strain_name),
 	KEY production_centre_organisation_id_idx(production_centre_organisation_id),
 	KEY production_consortium_project_id_idx(production_consortium_project_id),
 	KEY phenotyping_centre_organisation_id_idx(phenotyping_centre_organisation_id),
@@ -1071,7 +1045,6 @@ CREATE TABLE phenotyped_colony (
  */
 DROP TABLE IF EXISTS stats_categorical_results;
 CREATE TABLE stats_categorical_results (
-
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	control_id                 INT(10) UNSIGNED,
 	control_sex                ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both', 'no_data'),
@@ -1114,12 +1087,12 @@ CREATE TABLE stats_categorical_results (
 
 ) COLLATE =utf8_general_ci ENGINE =MyISAM;
 
+
 /*
  * store the result of a PhenStat calculation
  */
 DROP TABLE IF EXISTS stats_unidimensional_results;
 CREATE TABLE stats_unidimensional_results (
-
 	id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	control_id                       INT(10) UNSIGNED,
 	experimental_id                  INT(10) UNSIGNED,
@@ -1197,7 +1170,6 @@ CREATE TABLE stats_unidimensional_results (
  */
 DROP TABLE IF EXISTS stats_unidimensional_results_withWeight;
 CREATE TABLE stats_unidimensional_results_withWeight (
-
   id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   control_id                       INT(10) UNSIGNED,
   experimental_id                  INT(10) UNSIGNED,
@@ -1267,9 +1239,7 @@ CREATE TABLE stats_unidimensional_results_withWeight (
   KEY pipeline_idx (pipeline_id),
   KEY parameter_idx (parameter_id)
 
-)
-  COLLATE =utf8_general_ci
-  ENGINE =MyISAM;
+)  COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 /*
@@ -1277,7 +1247,6 @@ CREATE TABLE stats_unidimensional_results_withWeight (
  */
 DROP TABLE IF EXISTS stats_rrplus_results;
 CREATE TABLE stats_rrplus_results (
-
   id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   control_id                       INT(10) UNSIGNED,
   experimental_id                  INT(10) UNSIGNED,
@@ -1347,9 +1316,7 @@ CREATE TABLE stats_rrplus_results (
   KEY pipeline_idx (pipeline_id),
   KEY parameter_idx (parameter_id)
 
-)
-  COLLATE =utf8_general_ci
-  ENGINE =MyISAM;
+)  COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 /*
@@ -1359,7 +1326,6 @@ CREATE TABLE stats_rrplus_results (
  */
 DROP TABLE IF EXISTS stat_result_phenotype_call_summary;
 CREATE TABLE stat_result_phenotype_call_summary (
-
 	categorical_result_id     INT(10) UNSIGNED DEFAULT NULL,
 	unidimensional_result_id  INT(10) UNSIGNED DEFAULT NULL,
   rrplus_result_id          INT(10) UNSIGNED DEFAULT NULL,
@@ -1370,18 +1336,14 @@ CREATE TABLE stat_result_phenotype_call_summary (
 	INDEX srpcs_unidimensional_result_id_idx (unidimensional_result_id),
 	INDEX srpcs_rrplus_result_id_idx (rrplus_result_id)
 
-)
-	COLLATE =utf8_general_ci
-	ENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 --
 -- Discrete statistical result schema
 --
-
 DROP TABLE IF EXISTS statistical_result;
 CREATE TABLE statistical_result (
-
 	id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	control_id                       INT(10) UNSIGNED,
 	experimental_id                  INT(10) UNSIGNED,
@@ -1427,14 +1389,11 @@ CREATE TABLE statistical_result (
 	KEY pipeline_idx (pipeline_id),
 	KEY parameter_idx (parameter_id)
 
-)
-	COLLATE =utf8_general_ci
-	ENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
 CREATE TABLE statistical_result_phenotype_call_summary (
-
   phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
   result_id                 INT(10) UNSIGNED,
 
@@ -1445,6 +1404,7 @@ CREATE TABLE statistical_result_phenotype_call_summary (
   COLLATE =utf8_general_ci
   ENGINE =MyISAM;
 
+
 DROP TABLE IF EXISTS statistical_result_additional;
 CREATE TABLE statistical_result_additional (
 	id                         INT(10) UNSIGNED NOT NULL,
@@ -1454,14 +1414,11 @@ CREATE TABLE statistical_result_additional (
 	PRIMARY KEY (id),
 	FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
 
-)
-	COLLATE =utf8_general_ci
-	ENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_phenstat;
 CREATE TABLE statistical_result_phenstat (
-
 	id                               INT(10) UNSIGNED NOT NULL,
 	batch_significance               BOOLEAN,
 	interaction_significance         BOOLEAN,
@@ -1496,15 +1453,11 @@ CREATE TABLE statistical_result_phenstat (
 
 	PRIMARY KEY (id),
 	FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
-
-)
-	COLLATE =utf8_general_ci
-	ENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_fisher_exact;
 CREATE TABLE statistical_result_fisher_exact (
-
 	id         INT(10) UNSIGNED NOT NULL,
 	category_a TEXT,
 	category_b TEXT,
@@ -1512,23 +1465,18 @@ CREATE TABLE statistical_result_fisher_exact (
 	PRIMARY KEY (id),
 	FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
 
-)
-	COLLATE =utf8_general_ci
-	ENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_manual;
 CREATE TABLE statistical_result_manual (
-
 	id     INT(10) UNSIGNED NOT NULL,
 	method VARCHAR(200),
 
 	PRIMARY KEY (id),
 	FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
 
-)
-	COLLATE =utf8_general_ci
-	ENGINE =MyISAM;
+)	COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 --
@@ -1665,6 +1613,7 @@ CREATE TABLE IMA_DCF_IMAGE_VW (
   KEY EXPERIMENT_ID (EXPERIMENT_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
+
 DROP TABLE IF EXISTS IMA_EXPERIMENT_DICT;
 CREATE TABLE IMA_EXPERIMENT_DICT (
   ID          INT(11) NOT NULL,
@@ -1674,6 +1623,7 @@ CREATE TABLE IMA_EXPERIMENT_DICT (
   ACTIVE      TINYINT(4)    DEFAULT NULL,
   PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+
 
 DROP TABLE IF EXISTS IMA_IMAGE_RECORD;
 CREATE TABLE IMA_IMAGE_RECORD (
@@ -1701,6 +1651,7 @@ CREATE TABLE IMA_IMAGE_RECORD (
   KEY organisation (organisation)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
+
 DROP TABLE IF EXISTS IMA_IMAGE_TAG;
 CREATE TABLE IMA_IMAGE_TAG (
   ID              INT(11)       DEFAULT NULL,
@@ -1719,6 +1670,7 @@ CREATE TABLE IMA_IMAGE_TAG (
   Y_END           FLOAT         DEFAULT NULL,
   KEY IMAGE_RECORD_ID (IMAGE_RECORD_ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+
 
 DROP TABLE IF EXISTS IMA_IMAGE_TAG_TYPE;
 CREATE TABLE IMA_IMAGE_TAG_TYPE (
@@ -1747,6 +1699,7 @@ CREATE TABLE IMA_IMPORT_LOG (
   PRIMARY KEY (ID)
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
+
 DROP TABLE IF EXISTS IMA_PREDEFINED_TAG;
 CREATE TABLE IMA_PREDEFINED_TAG (
   ID                 INT(11)      DEFAULT NULL,
@@ -1766,6 +1719,7 @@ CREATE TABLE IMA_PREDEFINED_TAG_VALUE (
   TAG_VALUE         VARCHAR(4000) DEFAULT NULL,
   ORDER_BY          INT(11)       DEFAULT NULL
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
+
 
 DROP TABLE IF EXISTS IMA_PUBLISHED_DICT;
 CREATE TABLE IMA_PUBLISHED_DICT (
@@ -1855,9 +1809,19 @@ CREATE TABLE mts_mouse_allele_mv (
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
+DROP TABLE IF EXISTS higher_level_annotation;
 CREATE TABLE higher_level_annotation (
   term_id varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY    (term_id)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS ontology_term_correction;
+CREATE TABLE ontology_term_correction (
+  original_acc       VARCHAR(128) NOT NULL,
+  replacement_acc    VARCHAR(128) NOT NULL,
+  reason             VARCHAR(128),
+  PRIMARY KEY    (original_acc)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
@@ -1920,6 +1884,7 @@ INSERT INTO project(id, name, fullname, description) VALUES(20, 'EMBL Monteroton
 INSERT INTO project(id, name, fullname, description) VALUES(21, 'Infrafrontier-I3', 'Infrafrontier-I3 Consortium', 'Infrafrontier-I3 Consortium');
 INSERT INTO project(id, name, fullname, description) VALUES(22, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea Mouse Phenotyping Center');
 INSERT INTO project(id, name, fullname, description) VALUES(23, 'UC Davis', 'University of California at Davis School of Veterinary Medicine', 'UC Davis Veterinary Medicine');
+INSERT INTO project(id, name, fullname, description) VALUES(24, 'NARLabs', 'National Applied Research Laboratories', 'National Applied Research Laboratories');
 
 
 /**
@@ -1963,6 +1928,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(32, 'CRL', 'Charles
 INSERT INTO organisation(id, name, fullname, country) VALUES(33, 'INFRAFRONTIER-VETMEDUNI', 'University of Veterinary Medicine Vienna', 'Austria');
 INSERT INTO organisation(id, name, fullname, country) VALUES(34, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea');
 INSERT INTO organisation(id, name, fullname, country) VALUES(35, 'MARC', 'Model Animal Research Center', 'Japan');
+INSERT INTO organisation(id, name, fullname, country) VALUES(36, 'NARLabs', 'National Applied Research Laboratories', 'Taiwan');
 
 
 /**

@@ -139,7 +139,7 @@ public class SearchController {
 		Boolean legacyOnly = false;
 		String evidRank = "";
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
-//		System.out.println("SearchController solrParamStr: "+ solrParamStr);
+		//System.out.println("SearchController solrParamStr: "+ dataType + " -- " + solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 //		System.out.println("CONTENT: " + content);
 
