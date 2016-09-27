@@ -50,16 +50,16 @@
             span.dtype a {
                 color: #184A89;
             }
-            li {
+            div#overview li {
                 list-style-type: square;
                 margin-left: 20px;
             }​
-            li#liImg {
+            div#overview li#liImg {
                 display: block;
                 height: 100px;
                 line-height: 100px;
             }
-            li#liImg img, li#liImg span {
+            div#overview li#liImg img, li#liImg span {
                 vertical-align: middle;
             }
             div#overview {
@@ -222,7 +222,6 @@
             $(document).ready(function() {
                 'use strict';
 
-                console.log("${coreData.mp.mp_definition}");
                 $('span.coreCount').each(function(){
                     var count = $(this).text().replace(/\(|\)/g, "");
                     if ( count == 0 ){
@@ -252,6 +251,7 @@
                 });
 
             });
+
 
 
 

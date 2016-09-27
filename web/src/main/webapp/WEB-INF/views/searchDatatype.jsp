@@ -676,7 +676,31 @@
                                 });
                     }
             );
-        }
+
+			$('.iFrameVector').click(function()
+					{
+						$.fancybox.open([
+									{
+										href : $(this).attr('data-url'),
+										title : 'Vector map'
+									}
+								],
+								{
+									'maxWidth'          : 1000,
+									'maxHeight'         : 500,
+									'fitToView'         : false,
+									'width'             : '100%',
+									'height'            : '40%',
+									'autoSize'          : false,
+									'transitionIn'      : 'none',
+									'transitionOut'     : 'none',
+									'type'              : 'iframe',
+									scrolling           : 'auto'
+								});
+					}
+			);
+
+		}
 
 
 
