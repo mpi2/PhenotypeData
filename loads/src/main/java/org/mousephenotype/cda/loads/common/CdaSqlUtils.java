@@ -953,11 +953,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         final String synonymInsert = "INSERT INTO synonym (acc, db_id, symbol) " +
                                      "VALUES (:acc, :db_id, :symbol)";
 
-        final String alternateIdInsert = "INSERT INTO alternate_id (ontology_term_acc, acc) " +
-                                         "VALUES (:ontology_term_acc, :acc)";
+        final String alternateIdInsert = "INSERT INTO alternate_id (ontology_term_acc, alternate_id_acc) " +
+                                         "VALUES (:ontology_term_acc, :alternate_id_acc)";
 
-        final String considerIdInsert = "INSERT INTO consider_id (ontology_term_acc, acc) " +
-                                        "VALUES (:ontology_term_acc, :acc)";
+        final String considerIdInsert = "INSERT INTO consider_id (ontology_term_acc, consider_id_acc) " +
+                                        "VALUES (:ontology_term_acc, :consider_id_acc)";
 
         for (OntologyTerm term : terms) {
             try {
@@ -1006,7 +1006,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 try {
                     Map<String, Object> parameterMap = new HashMap<>();
                     parameterMap.put("ontology_term_acc", term.getId().getAccession());
-                    parameterMap.put("acc", alternateId.getAlternateAccessionId());
+                    parameterMap.put("alternate_id_acc", alternateId.getAlternateAccessionId());
 
                     count = jdbcCda.update(alternateIdInsert, parameterMap);
                     countsMap.put("alternateIds", countsMap.get("alternateIds") + count);
@@ -1022,7 +1022,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 try {
                     Map<String, Object> parameterMap = new HashMap<>();
                     parameterMap.put("ontology_term_acc", term.getId().getAccession());
-                    parameterMap.put("acc", considerId.getConsiderAccessionId());
+                    parameterMap.put("consider_id_acc", considerId.getConsiderAccessionId());
 
                     count = jdbcCda.update(considerIdInsert, parameterMap);
                     countsMap.put("considerIds", countsMap.get("considerIds") + count);
@@ -1537,7 +1537,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             AlternateId alternateId = new AlternateId();
 
             alternateId.setOntologyTermAccessionId(rs.getString("ontology_term_acc"));
-            alternateId.setAlternateAccessionId(rs.getString("acc"));
+            alternateId.setAlternateAccessionId(rs.getString("alternate_id_acc"));
 
             return alternateId;
         }
@@ -1561,7 +1561,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             ConsiderId considerId = new ConsiderId();
 
             considerId.setOntologyTermAccessionId(rs.getString("ontology_term_acc"));
-            considerId.setConsiderAccessionId(rs.getString("acc"));
+            considerId.setConsiderAccessionId(rs.getString("consider_id_acc"));
 
             return considerId;
         }
