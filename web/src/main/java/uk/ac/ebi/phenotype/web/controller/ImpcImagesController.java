@@ -147,7 +147,7 @@ public class ImpcImagesController {
 		String newQueryString = "";
 		String qStr = null;
 		String fqStr = null;
-		Enumeration keys = request.getParameterNames();
+		Enumeration<String> keys = request.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
 			// System.out.println("key=" + key);
@@ -164,13 +164,7 @@ public class ImpcImagesController {
 															// the :
 				}
 				newQueryString += "&" + key + "=" + value;
-				//System.out.println("CHK: " + key + " vs " + value );
-				// If the same key has multiple values (check boxes)
-				String[] valueArray = request.getParameterValues(key);
-
-//				for (int i = 0; i > valueArray.length; i++) {
-//					System.out.println("VALUE ARRAY" + valueArray[i]);
-//				}
+				
 			}
 			if (key.equals("q")) {
 
