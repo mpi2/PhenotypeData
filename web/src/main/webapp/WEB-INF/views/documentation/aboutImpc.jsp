@@ -92,6 +92,10 @@
             list-style-type: square;
             margin-left: 50px;
         }
+        img#cmap {
+            display: block;
+            margin: 5px auto;
+        }
       </style>
 
 	</jsp:attribute>
@@ -154,21 +158,14 @@
           </div>
           <div id="tabs">
               <ul>
-                  <li><a href="#tabs-1">Velocigene null allele design</a></li>
-                  <li><a href="#tabs-2">Knockout-first</a></li>
+
+                  <li><a href="#tabs-1">Knockout-first</a></li>
+                  <li><a href="#tabs-2">Velocigene null allele design</a></li>
                   <li><a href="#tabs-3">Cas9 CRISPR allele</a></li>
               </ul>
 
-              <div id="tabs-1">
 
-                  <img src="${baseUrl}/img/velocigene.jpg" />
-                  <div>In most cases this design will result in complete null alleles that delete the entire protein coding sequence of the target gene.
-                      This allele design can be applied to any gene transcribed by RNA polymerase II regardless of its size, intron-exon structure, RNA splicing pattern, or protein-coding capacity
-                      (<a href="http://europepmc.org/abstract/MED/12730667">Valenzuela et al., 2003</a>).</div>
-                  <br>
-                  <div>VelociGene lines available: <span id="velocigene"></span></div>
-              </div>
-              <div id="tabs-2">
+              <div id="tabs-1">
                   <br>
                   <div>This strategy relies on the identification of a 'critical' exon common to all transcript variants that, when deleted, creates a frame-shift mutation.
                       The Knockout first allele is flexible and can produce reporter knockouts, conditional knockouts, and null alleles following exposure to site-specific recombinases Cre and Flp.
@@ -196,6 +193,15 @@
                           <li>tm1.2: Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette): <span id="tm12">0</span></li>
                       </ul>
                   </div>
+              </div>
+              <div id="tabs-2">
+
+                  <img src="${baseUrl}/img/velocigene.jpg" />
+                  <div>In most cases this design will result in complete null alleles that delete the entire protein coding sequence of the target gene.
+                      This allele design can be applied to any gene transcribed by RNA polymerase II regardless of its size, intron-exon structure, RNA splicing pattern, or protein-coding capacity
+                      (<a href="http://europepmc.org/abstract/MED/12730667">Valenzuela et al., 2003</a>).</div>
+                  <br>
+                  <div>VelociGene lines available: <span id="velocigene"></span></div>
               </div>
               <div id="tabs-3">
                     <br>
@@ -225,7 +231,22 @@
       </div>
     </div>
     <div ><span class="work">Coordinated production</span>
-      <div class="hideme"></div>
+      <div class="hideme">
+          <h3>Coordination</h3>
+
+          <p>The IMPC is a confederation of international mouse phenotyping projects working towards the agreed goals of the consortium:
+              To undertake the phenotyping of 20,000 mouse mutants over a ten year period, providing the first functional annotation of a mammalian genome.</p>
+
+          <p>The IMPC Steering Committee provides the governance for the overall consortium. Participants are tasked with making key strategic decisions including
+              selection of participating organizations, approving and coordinating key operational decisions such as phenotyping platforms and pipeline used,
+              quality assurance and operating standards, and IT organization. Membership provides stakeholders with an opportunity to influence key activities as they develop.</p>
+          <p></p>
+
+          <img alt="" src="${baseUrl}/documentation/img/impc-coordination.png" usemap="#Map" id="cmap" />
+
+          <map id="Map" name="Map"><area coords="269,17,418,151" href="/about-impc/impc-members" shape="rect"> <area coords="20,24,174,149" href="/about-impc/coordination/panel-scientific-consultants" shape="rect"> <area coords="20,242,186,341" href="/about-impc/coordination/phenotyping-steering-group" shape="rect"> <area coords="33,380,178,487" href="/about-impc/coordination/mta-and-line-exchange" shape="rect"> <area coords="396,208,578,279" href="/about-impc/coordination/production-steering-group" shape="rect"> <area coords="267,381,412,486" href="/about-impc/coordination/imits-steering-group" shape="rect"> <area coords="516,17,664,149" href="/about-impc/coordination/finance-committee" shape="rect"> <area coords="483,240,662,344" href="/about-impc/coordination/data-analysis-advisory-committee" shape="rect"> <area coords="499,380,646,488" href="/about-impc/coordination/statistics-technical-group" shape="rect"> <area coords="5,179,674,215" href="/about-impc/coordination/communications-working-group" shape="rect"></map>
+
+      </div>
     </div>
     <div ><span class="work">Embryo and Adult Mouse phenotyping protocols</span>
       <div class="hideme" id="impress">

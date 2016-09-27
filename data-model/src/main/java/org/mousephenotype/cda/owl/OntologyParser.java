@@ -155,6 +155,26 @@ public class OntologyParser {
     /**
      *
      * @param cls
+     * @return Set of alternative ids for the given class OR empty set when none available
+     */
+    private Set<String> getAltIds(OWLClass cls){
+
+        Set<String> altIds = new HashSet<>();
+        Collection<OWLAnnotation> annotations = EntitySearcher.getAnnotations(cls, ontology, ALT_ID);
+        if (annotations != null && !annotations.isEmpty()){
+            for (OWLAnnotation ann: annotations) {
+                OWLLiteral altId = ((OWLLiteral)ann.getValue());
+                altIds.add(altId.getLiteral());
+            }
+        }
+        return altIds;
+
+    }
+
+
+    /**
+     *
+     * @param cls
      * @return term name (class label)
      */
     private String getLabel (OWLClass cls){
@@ -219,14 +239,19 @@ public class OntologyParser {
         term.setObsolete(isObsolete(cls));
         term.setCls(cls);
         if (term.isObsolete()){
-            if((getReplacementId(cls) != null)){
-                term.setReplacementAccessionId(getReplacementId(cls));
+            String replacementId = getReplacementId(cls);
+            if((replacementId != null)){
+                term.setReplacementAccessionId(replacementId);
             }
-            if(getConsiderIds(cls) != null && getConsiderIds(cls).size() > 0){
-                term.setConsiderIds(getConsiderIds(cls));
+            Set<String> considerIds = getConsiderIds(cls);
+            if(considerIds != null && considerIds.size() > 0){
+                term.setConsiderIds(considerIds);
             }
         }
-
+        Set<String> altIds = getAltIds(cls);
+        if ( altIds!= null && altIds.size() > 0){
+            term.setAlternateIds(altIds);
+        }
         return term;
     }
 
