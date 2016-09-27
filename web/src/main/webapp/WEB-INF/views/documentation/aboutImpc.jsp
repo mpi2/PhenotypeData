@@ -158,21 +158,14 @@
           </div>
           <div id="tabs">
               <ul>
-                  <li><a href="#tabs-1">Velocigene null allele design</a></li>
-                  <li><a href="#tabs-2">Knockout-first</a></li>
+
+                  <li><a href="#tabs-1">Knockout-first</a></li>
+                  <li><a href="#tabs-2">Velocigene null allele design</a></li>
                   <li><a href="#tabs-3">Cas9 CRISPR allele</a></li>
               </ul>
 
-              <div id="tabs-1">
 
-                  <img src="${baseUrl}/img/velocigene.jpg" />
-                  <div>In most cases this design will result in complete null alleles that delete the entire protein coding sequence of the target gene.
-                      This allele design can be applied to any gene transcribed by RNA polymerase II regardless of its size, intron-exon structure, RNA splicing pattern, or protein-coding capacity
-                      (<a href="http://europepmc.org/abstract/MED/12730667">Valenzuela et al., 2003</a>).</div>
-                  <br>
-                  <div>VelociGene lines available: <span id="velocigene"></span></div>
-              </div>
-              <div id="tabs-2">
+              <div id="tabs-1">
                   <br>
                   <div>This strategy relies on the identification of a 'critical' exon common to all transcript variants that, when deleted, creates a frame-shift mutation.
                       The Knockout first allele is flexible and can produce reporter knockouts, conditional knockouts, and null alleles following exposure to site-specific recombinases Cre and Flp.
@@ -200,6 +193,15 @@
                           <li>tm1.2: Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette): <span id="tm12">0</span></li>
                       </ul>
                   </div>
+              </div>
+              <div id="tabs-2">
+
+                  <img src="${baseUrl}/img/velocigene.jpg" />
+                  <div>In most cases this design will result in complete null alleles that delete the entire protein coding sequence of the target gene.
+                      This allele design can be applied to any gene transcribed by RNA polymerase II regardless of its size, intron-exon structure, RNA splicing pattern, or protein-coding capacity
+                      (<a href="http://europepmc.org/abstract/MED/12730667">Valenzuela et al., 2003</a>).</div>
+                  <br>
+                  <div>VelociGene lines available: <span id="velocigene"></span></div>
               </div>
               <div id="tabs-3">
                     <br>
