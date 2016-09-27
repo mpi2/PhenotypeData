@@ -122,4 +122,22 @@ public class OntologyTermDTO {
         this.definition = definition;
     }
 
+    @Override
+    public String toString() {
+        return "OntologyTermDTO{" +
+                "accessonId='" + accessonId + '\'' +
+                ", name='" + name + '\'' +
+                ", synonyms=" + synonyms +
+                ", narrowSynonyms=" + narrowSynonyms +
+                ", equivalentClasses=" + equivalentClasses +
+                ", alternateIds=" + alternateIds +
+                ", considerIds=" + considerIds +
+                ", broadSynonyms=" + broadSynonyms +
+                ", replacementAccessionId='" + replacementAccessionId + '\'' +
+                ", definition='" + definition + '\'' +
+                ", isObsolete=" + isObsolete +
+                ", cls=" + cls +
+                '}';
+    }
+
 }
