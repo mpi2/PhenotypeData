@@ -26,9 +26,10 @@ public class GrossPathService {
 
 	private Map<String, SolrDocument> downloadToImgMap;
 
-	public GrossPathService(ObservationService observationService) {
+	public GrossPathService(ObservationService observationService, ImageService imageService) {
 		super();
 		this.observationService = observationService;
+		this.imageService=imageService;
 	}
 
 	public GrossPathService() {

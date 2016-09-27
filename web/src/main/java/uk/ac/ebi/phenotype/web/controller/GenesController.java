@@ -667,6 +667,7 @@ public class GenesController {
 				 if(colonyIds.contains(row.getColonyId())){
 					 EvidenceLink imageLink=new EvidenceLink();
 					 imageLink.setDisplay(true);
+					 System.out.println("Bingo image found for phenotype!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 					 imageLink.setIconType(EvidenceLink.IconType.IMAGE);
 					 String url=request.getAttribute("baseUrl").toString()+"/imageComparator?acc="+row.getGene().getAccessionId()+"&mp_id="+row.getPhenotypeTerm().getId()+"&colony_id="+row.getColonyId();
 					 imageLink.setUrl(url);
