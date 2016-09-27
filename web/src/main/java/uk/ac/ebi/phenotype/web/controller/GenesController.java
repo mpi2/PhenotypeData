@@ -381,7 +381,6 @@ public class GenesController {
 
 		//for cre products link at bottom of table
 		model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
-		
 	}
 
 	/**

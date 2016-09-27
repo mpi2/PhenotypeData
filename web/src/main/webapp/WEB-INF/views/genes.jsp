@@ -5,11 +5,9 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">Gene details for ${gene.markerName}</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search">Search overview &raquo; </a><a
-			href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
-
 	</jsp:attribute>
 	<jsp:attribute name="addToFooter">
             <!--  start of floating menu for genes page -->
