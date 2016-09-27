@@ -621,8 +621,7 @@ public class DataTableController {
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
-
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+        JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 
 		j.put("iTotalRecords", totalDocs);
@@ -641,7 +640,8 @@ public class DataTableController {
             String alleleName = doc.getString("allele_name");
             String markerAcc = doc.getString("mgi_accession_id");
 			String markerSymbol = doc.getString("marker_symbol");
-			String mutationType = doc.getString("mutation_type");
+			String mutationType = doc.getString("mutation_type") + "; " + doc.getString("allele_description");
+			String vectorMap = "<br><a class='iFrameVector' data-url='" + doc.getString("allele_simple_image") + "'>See Vector map</a>";
 
 			List<String> orders = new ArrayList<>();
             String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
@@ -658,7 +658,7 @@ public class DataTableController {
 			String order = StringUtils.join(orders, "<br>");
 
 			rowData.add(markerSymbol + "<sup>" + alleleName + "</sup>");
-			rowData.add(mutationType);
+			rowData.add(mutationType + vectorMap);
 			rowData.add(order);
 
 			j.getJSONArray("aaData").add(rowData);
@@ -751,7 +751,9 @@ public class DataTableController {
 		j.put("iDisplayStart", request.getAttribute("displayStart"));
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
-        for (int i = 0; i < docs.size(); i ++) {
+		String baseUrl = request.getAttribute("baseUrl").toString();
+
+		for (int i = 0; i < docs.size(); i ++) {
 
             List<String> rowData = new ArrayList<String>();
 
@@ -761,7 +763,9 @@ public class DataTableController {
 
             // phenotyping status
             String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
-            String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
+            String geneSymbol = doc.getString(GeneDTO.MARKER_SYMBOL);
+            String geneLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
+
 
             // ES cell/mice production status
             boolean toExport = false;

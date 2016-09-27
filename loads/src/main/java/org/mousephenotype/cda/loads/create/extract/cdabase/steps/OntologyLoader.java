@@ -16,12 +16,9 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
-import org.mousephenotype.cda.db.pojo.ConsiderId;
-import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.Synonym;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.CdabaseSqlUtils;
-import org.mousephenotype.cda.loads.exceptions.DataImportException;
+import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -47,7 +44,7 @@ import java.util.stream.Collectors;
  */
 public class OntologyLoader implements Step, Tasklet, InitializingBean {
 
-    private CdabaseSqlUtils      cdabaseSqlUtils;
+    private CdaSqlUtils cdaSqlUtils;
     private CommonUtils          commonUtils = new CommonUtils();
     private int                  dbId;
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
@@ -57,12 +54,12 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
     private Map<String, Integer> written     = new HashMap<>();
 
 
-    public OntologyLoader(String sourceFilename, int dbId, String prefix, StepBuilderFactory stepBuilderFactory, CdabaseSqlUtils cdabaseSqlUtils) throws DataImportException {
+    public OntologyLoader(String sourceFilename, int dbId, String prefix, StepBuilderFactory stepBuilderFactory, CdaSqlUtils cdaSqlUtils) throws DataLoadException {
         this.sourceFilename = sourceFilename;
         this.dbId = dbId;
         this.prefix = prefix;
         this.stepBuilderFactory = stepBuilderFactory;
-        this.cdabaseSqlUtils = cdabaseSqlUtils;
+        this.cdaSqlUtils = cdaSqlUtils;
 
         written.put("terms", 0);
         written.put("synonyms", 0);
@@ -75,7 +72,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
   	    Assert.notNull(sourceFilename, "sourceFilename must be set");
         Assert.notNull(prefix, "prefix must be set");
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
-        Assert.notNull(cdabaseSqlUtils, "cdabaseSqlUtils must be set");
+        Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
     }
 
     /**
@@ -137,10 +134,10 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
 
         } catch (OWLOntologyCreationException e) {
 
-            throw new DataImportException(e);
+            throw new DataLoadException(e);
         }
 
-        Map<String, Integer> counts = cdabaseSqlUtils.insertOntologyTerm(terms);
+        Map<String, Integer> counts = cdaSqlUtils.insertOntologyTerm(terms);
         written.put("terms", written.get("terms") + counts.get("terms"));
         written.put("synonyms", written.get("synonyms") + counts.get("synonyms"));
         written.put("considerIds", written.get("considerIds") + counts.get("considerIds"));
@@ -159,13 +156,18 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
             OntologyTerm term = new OntologyTerm();
 
             term.setId(new DatasourceEntityId(dtoTerm.getAccessonId(), dbId));
-            List<ConsiderId> considerIds = new ArrayList<>();
-            if ((dtoTerm.getConsiderIds() == null) || (dtoTerm.getConsiderIds().isEmpty())) {
-                term.setConsiderIds(considerIds);
-            } else {
-                considerIds = dtoTerm.getConsiderIds().stream().map(considerIdString -> new ConsiderId(dtoTerm.getAccessonId(), considerIdString)).collect(Collectors.toList());
-                term.setConsiderIds(considerIds);
+
+            Set<AlternateId> alternateIds = new HashSet<>();
+            if ((dtoTerm.getAlternateIds() != null) && ( ! dtoTerm.getAlternateIds().isEmpty())) {
+                alternateIds = dtoTerm.getAlternateIds().stream().map(alternateIdString -> new AlternateId(dtoTerm.getAccessonId(), alternateIdString)).collect(Collectors.toSet());
             }
+            term.setAlternateIds(alternateIds);
+
+            Set<ConsiderId> considerIds = new HashSet<>();
+            if ((dtoTerm.getConsiderIds() != null) && ( ! dtoTerm.getConsiderIds().isEmpty())) {
+                considerIds = dtoTerm.getConsiderIds().stream().map(considerIdString -> new ConsiderId(dtoTerm.getAccessonId(), considerIdString)).collect(Collectors.toSet());
+            }
+            term.setConsiderIds(considerIds);
 
             term.setDescription(dtoTerm.getDefinition());
             term.setIsObsolete(dtoTerm.isObsolete());

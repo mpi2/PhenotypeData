@@ -126,6 +126,13 @@ public class ImageComparatorController {
 		return "comparator";//js viewport used to view images in this view.
 	}
 	
+	@RequestMapping("/overlap")
+	public String overlap(@RequestParam String acc,@RequestParam String id1, @RequestParam String id2, Model model) throws SolrServerException, IOException{
+		
+		this.addGeneToPage(acc, model);
+		return "overlap";
+	}
+	
 	@RequestMapping("/imageComparatorTest")
 	public String imageCompBrowser(){
 		return "comparatorBasicTest";

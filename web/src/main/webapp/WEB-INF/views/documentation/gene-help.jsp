@@ -74,7 +74,7 @@ Press the "All Adult Data" button.<br />
 
 <p class="intraSectBr">
 
-<h4>(2) See all embryo images:</h4>Press the "Embryo Viewer" button.<br>
+<h4>(2) See all embryo images:</h4>Press the "3D Imaging" button.<br>
 <p>You will be taken to a new page with an interactive graphical interface with which you could view the embryos</p>
 <br/><img src="img/embryo-viewer.png" /><br><br>
 

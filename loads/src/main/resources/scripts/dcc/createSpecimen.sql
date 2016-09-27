@@ -47,10 +47,11 @@ CREATE TABLE chromosome (
 DROP TABLE IF EXISTS relatedSpecimen;
 CREATE TABLE relatedSpecimen (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  centerId VARCHAR(255) NOT NULL,
+  specimenIdPk INT UNSIGNED NOT NULL,
+  specimenId VARCHAR(255) NOT NULL,
   relationship VARCHAR(255) NOT NULL,
-  specimenIdMine VARCHAR(255) NOT NULL,
-  specimen_mine_pk INT UNSIGNED DEFAULT NULL,
-  specimen_theirs_pk INT UNSIGNED NOT NULL
+  relatedSpecimenId VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS specimen;
@@ -124,10 +125,6 @@ ADD CONSTRAINT mouse_specimen_pk FOREIGN KEY (specimen_pk) REFERENCES specimen (
 ALTER TABLE center_specimen
 ADD CONSTRAINT center_specimen_center_pk FOREIGN KEY (center_pk) REFERENCES center (pk),
 ADD CONSTRAINT center_specimen_specimen_pk FOREIGN KEY (specimen_pk) REFERENCES specimen (pk);
-
-ALTER TABLE relatedSpecimen
-ADD CONSTRAINT relatedSpecimen_specimen_mine_pk FOREIGN KEY (specimen_mine_pk) REFERENCES specimen (pk),
-ADD CONSTRAINT relatedSpecimen_specimen_theirs_pk FOREIGN KEY (specimen_theirs_pk) REFERENCES specimen (pk);
 
 ALTER TABLE specimen
 ADD CONSTRAINT specimen_statuscode_pk FOREIGN KEY (statuscode_pk) REFERENCES statuscode (pk);

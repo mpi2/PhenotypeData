@@ -15,17 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
@@ -35,6 +24,7 @@ import org.mousephenotype.cda.enumerations.SignificantType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.AlleleService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PhenodigmService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.slf4j.Logger;
@@ -48,9 +38,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class ReleaseController {
@@ -65,6 +59,9 @@ public class ReleaseController {
 
 	@Autowired
 	private PostQcService gpService;
+
+	@Autowired
+	PhenodigmService phenodigmService;
 
 	@Autowired
 	private AlleleService as;
@@ -101,6 +98,14 @@ public class ReleaseController {
 
 		if (metaInfo == null || Math.random() < CACHE_REFRESH_PERCENT) {
 			metaInfo = analyticsDAO.getMetaData();
+
+			// The front end will check for the key "unique_mouse_model_disease_associations" in the map,
+			// If not there, do not display the count
+			final Integer diseaseAssociationCount = phenodigmService.getDiseaseAssociationCount();
+			if (diseaseAssociationCount != null) {
+				metaInfo.put("unique_mouse_model_disease_associations", diseaseAssociationCount.toString());
+			}
+
 			synchronized (this) {
 				cachedMetaInfo = metaInfo;
 			}

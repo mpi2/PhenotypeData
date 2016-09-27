@@ -254,8 +254,8 @@
        	            '<option value="10">10</option>'+
        	            '<option value="30">30</option>'+
        	            '<option value="50">50</option>'+
-       	            '</select> allele records',
-       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ alleles records",
+       	            '</select> publications',
+       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ publications",
        	         	"sSearch": "Filter: "
    	        	},
    	        	"aoColumns": [{ "bSearchable": false, "bSortable": true },

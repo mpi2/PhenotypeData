@@ -215,6 +215,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + bean.getMaId() + "\"");
 		solrQuery.setFields(AnatomyDTO.UBERON_ID, AnatomyDTO.ALL_AE_MAPPED_UBERON_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
+
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 

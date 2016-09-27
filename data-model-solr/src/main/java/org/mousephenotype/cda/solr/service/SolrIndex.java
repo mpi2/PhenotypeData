@@ -385,7 +385,7 @@ public class SolrIndex {
 		else if ( mode.equals("allele2Grid")){
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
-			//System.out.println("ALLELE2 PARAMS: " + url);
+//			System.out.println("ALLELE2 PARAMS: " + url);
 		}
 		else if (mode.equals("all") || mode.equals("page") || mode.equals("")) { // download search page result
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows=" + iDisplayLength;
@@ -486,7 +486,7 @@ public class SolrIndex {
                 String smallThumbNailPath = thumbnailPath + "/";
                 img = "<img src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
-                	img="<img style='width: 200px' src='" + pdfThumbnailUrl + "'/>";
+                	img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
                 	//link = "<a href='" + downloadUrl +"'>" + img + "</a>";
                 }else{
                 	//link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";

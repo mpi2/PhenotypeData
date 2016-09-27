@@ -35,7 +35,7 @@
         
           
             <c:set var="href" scope="page"
-                   value="${baseUrl}/imageComparator?acc=${acc}&parameter_stable_id=${entry.name}"></c:set>
+                   value="${baseUrl}/imageComparator?acc=${acc}&parameter_stable_id=${doc.parameter_stable_id}"></c:set>
             <a href="${href}">
               <t:impcimgdisplay2
                       img="${doc}"

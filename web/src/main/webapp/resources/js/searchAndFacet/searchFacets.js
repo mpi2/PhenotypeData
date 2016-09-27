@@ -278,7 +278,7 @@ console.log(json)
 
 			// subfacet: Embryo image viewer
 			var embryoViewerSect = $("<li class='fcatsection embryo_viewer'></li>");
-			embryoViewerSect.append($('<span></span>').attr({'class':'flabel'}).text('Embryo Image Viewer'));
+			embryoViewerSect.append($('<span></span>').attr({'class':'flabel'}).text('3D Imaging'));
 
 			var embview_facets = json.facet_fields['embryo_data_available'];
 			foundMatch.embryo_viewer = embview_facets.length;
@@ -840,7 +840,7 @@ console.log(json)
 			// Subfacets: availability for es cells, mouse, targeting vector
 			//var thisUlContainer = $("<ul></ul>");
 
-			var oSubFacets = {'targeting_vector_available':'Targeting Vector Available', 'es_cell_available':'ES Cell Availale', 'mouse_available':'Mouse Available'};
+			var oSubFacets = {'targeting_vector_available':'Targeting Vector Available', 'es_cell_available':'ES Cell Available', 'mouse_available':'Mouse Available'};
 			for ( var fq in oSubFacets ){
 
 				var aData = json.facet_fields[fq];
@@ -872,6 +872,7 @@ console.log(json)
 				}
 			}
 
+			var defaultLen = 25;
 
 			// Subfacets: mutation_tyoe / allele category / allele feature
 			var oSubFacets1 = {'mutation_type_str':'Mutation Type', 'allele_category_str':'Allele Category', 'allele_features_str':'Allele Feature'};

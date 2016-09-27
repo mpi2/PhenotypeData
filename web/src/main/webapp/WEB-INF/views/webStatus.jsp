@@ -14,9 +14,9 @@ Cores Services Statuses:
     </c:forEach>
 </ol>
 
-Imits statuses:
+Non Essential Statuses:
 <ol>
-    <c:forEach var="status" items="${imitsWebStatusModels}">
+    <c:forEach var="status" items="${nonEssentialWebStatusModels}">
         <li<c:if test="${status.number==0}"> style="color:red;"</c:if>>${status.name} : ${status.number}</li>
     </c:forEach>
 </ol>
