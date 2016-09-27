@@ -127,7 +127,7 @@ public class ExtractCdabase implements CommandLineRunner {
         }
 
         Job[] jobs = new Job[]{
-                downloaderJob(),
+//                downloaderJob(),
                 dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");

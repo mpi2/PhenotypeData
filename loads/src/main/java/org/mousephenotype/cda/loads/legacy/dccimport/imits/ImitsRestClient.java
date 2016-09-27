@@ -40,7 +40,7 @@ import static javax.ws.rs.client.ClientBuilder.newBuilder;
 public class ImitsRestClient implements ImitsClient {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ImitsRestClient.class);
-	private static final String IMITS_URL = "http://www.i-dcc.org/imits/";
+	private static final String IMITS_URL = "https://www.i-dcc.org/imits/";
 	private static final int IMITS_TRIES = 6;
 
 	private static Map<String, List<MicroInjectionAttemptBean>> miAttemptByEsCellCache = new ConcurrentHashMap<>();
