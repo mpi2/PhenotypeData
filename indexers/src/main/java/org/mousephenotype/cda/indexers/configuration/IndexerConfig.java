@@ -97,6 +97,16 @@ public class IndexerConfig {
     }
 
     @Bean
+    SolrClient allele2Indexing() {
+        return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/allele2", QUEUE_SIZE, THREAD_COUNT);
+    }
+
+    @Bean
+    SolrClient productIndexing() {
+        return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/product", QUEUE_SIZE, THREAD_COUNT);
+    }
+
+    @Bean
     SolrClient diseaseIndexing() {
         return new ConcurrentUpdateSolrServer(writeSolrBaseUrl + "/disease", QUEUE_SIZE, THREAD_COUNT);
     }

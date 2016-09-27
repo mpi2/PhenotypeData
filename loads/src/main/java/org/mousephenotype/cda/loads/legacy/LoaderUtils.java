@@ -38,6 +38,7 @@ public class LoaderUtils {
         put("harwell",           "MRC Harwell");
         put("mgp legacy",        "MGP");
         put("monterotondo",      "EMBL Monterotondo");
+        put("narlabs",           "NARLabs");
         put("riken brc",         "RBRC");
         put("ucd",               "UC Davis");
         put("ucd-komp",          "UC Davis");

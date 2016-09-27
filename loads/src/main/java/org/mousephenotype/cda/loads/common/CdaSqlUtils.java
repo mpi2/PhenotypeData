@@ -41,7 +41,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CdaSqlUtils {
 
-    private Map<String, List<ConsiderId>> considerIds;      // keyed by ontology term accession id
+    private Map<String, Set<AlternateId>> alternateIds;     // keyed by ontology term accession id
+    private Map<String, Set<ConsiderId>>  considerIds;      // keyed by ontology term accession id
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
     private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strain id (int)
     private Map<String, Strain>           strains;          // keyed by accession id
@@ -216,7 +217,7 @@ public class CdaSqlUtils {
     public BiologicalModel getBiologicalModel(String allelicComposition, String backgroundStrainName) {
         BiologicalModel bm = null;
         String query =
-                "SELECT * FROM cda_5_0.biological_model\n" +
+                "SELECT * FROM biological_model\n" +
                 "WHERE allelic_composition = :allelic_composition AND genetic_background = :genetic_background\n";
 
         Map<String, Object> parameterMap = new HashMap<>();
@@ -235,10 +236,42 @@ public class CdaSqlUtils {
 
 
     /**
-     * Returns the list of all consider accession ids, keyed by ontology term accession id
-     * @return the list of all consider accession ids, keyed by ontology term accession id
+     * @return the set of all alternate accession ids
      */
-    public Map<String, List<ConsiderId>> getConsiderIds() {
+    public Map<String, Set<AlternateId>> getAlternateIds() {
+        if (alternateIds == null) {
+            alternateIds = new ConcurrentHashMap<>();
+
+            List<AlternateId> alternateIdList = jdbcCda.query("SELECT * FROM alternate_id", new AlternateIdRowMapper());
+
+            for (AlternateId alternateId : alternateIdList) {
+                if ( ! alternateIds.containsKey(alternateId.getOntologyTermAccessionId())) {
+                    alternateIds.put(alternateId.getOntologyTermAccessionId(), new HashSet<>());
+                }
+                alternateIds.get(alternateId.getOntologyTermAccessionId()).add(alternateId);
+            }
+        }
+
+        return alternateIds;
+    }
+
+    /**
+     * Return the list of alternate accession ids matching the given {@code ontologyTermAccessionId}
+     *
+     * @param ontologyTermAccessionId the desired ontology term's accession id
+     *
+     * @return the list of alternate ids matching the given {@code ontologyTermAccessionId}, if found; an empty list otherwise
+     */
+    public Set<AlternateId> getAlternateIds(String ontologyTermAccessionId) {
+        return getAlternateIds().get(ontologyTermAccessionId);
+    }
+    
+    
+    
+    /**
+     * @return the set of all consider accession ids
+     */
+    public Map<String, Set<ConsiderId>> getConsiderIds() {
         if (considerIds == null) {
             considerIds = new ConcurrentHashMap<>();
 
@@ -246,7 +279,7 @@ public class CdaSqlUtils {
 
             for (ConsiderId considerId : considerIdList) {
                 if ( ! considerIds.containsKey(considerId.getOntologyTermAccessionId())) {
-                    considerIds.put(considerId.getOntologyTermAccessionId(), new ArrayList<>());
+                    considerIds.put(considerId.getOntologyTermAccessionId(), new HashSet<>());
                 }
                 considerIds.get(considerId.getOntologyTermAccessionId()).add(considerId);
             }
@@ -262,7 +295,7 @@ public class CdaSqlUtils {
      *
      * @return the list of consider ids matching the given {@code ontologyTermAccessionId}, if found; an empty list otherwise
      */
-    public List<ConsiderId> getConsiderIds(String ontologyTermAccessionId) {
+    public Set<ConsiderId> getConsiderIds(String ontologyTermAccessionId) {
         return getConsiderIds().get(ontologyTermAccessionId);
     }
 
@@ -848,6 +881,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             for (Map.Entry<String, OntologyTerm> entrySet : getOntologyTerms().entrySet()) {
                 OntologyTerm term = entrySet.getValue();
                 if (term.getId().getDatabaseId() == dbId) {
+                    term.setAlternateIds(getAlternateIds(term.getId().getAccession()));
                     term.setConsiderIds(getConsiderIds(term.getId().getAccession()));
                     term.setSynonyms(getSynonyms(term.getId().getAccession()));
                     ontologyTerms.put(term.getName(), term);
@@ -910,6 +944,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         Map<String, Integer> countsMap = new HashMap<String, Integer>();
         countsMap.put("terms", 0);
         countsMap.put("synonyms", 0);
+        countsMap.put("alternateIds", 0);
         countsMap.put("considerIds", 0);
 
         final String ontologyTermInsert = "INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) " +
@@ -918,8 +953,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         final String synonymInsert = "INSERT INTO synonym (acc, db_id, symbol) " +
                                      "VALUES (:acc, :db_id, :symbol)";
 
-        final String considerIdInsert = "INSERT INTO consider_id (ontology_term_acc, acc) " +
-                                        "VALUES (:ontology_term_acc, :acc)";
+        final String alternateIdInsert = "INSERT INTO alternate_id (ontology_term_acc, alternate_id_acc) " +
+                                         "VALUES (:ontology_term_acc, :alternate_id_acc)";
+
+        final String considerIdInsert = "INSERT INTO consider_id (ontology_term_acc, consider_id_acc) " +
+                                        "VALUES (:ontology_term_acc, :consider_id_acc)";
 
         for (OntologyTerm term : terms) {
             try {
@@ -962,13 +1000,29 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 }
             }
 
+            // Try to insert alternateIds. Ignore DuplicateKeyExceptions.
+
+            for (AlternateId alternateId : term.getAlternateIds()) {
+                try {
+                    Map<String, Object> parameterMap = new HashMap<>();
+                    parameterMap.put("ontology_term_acc", term.getId().getAccession());
+                    parameterMap.put("alternate_id_acc", alternateId.getAlternateAccessionId());
+
+                    count = jdbcCda.update(alternateIdInsert, parameterMap);
+                    countsMap.put("alternateIds", countsMap.get("alternateIds") + count);
+
+                } catch (DuplicateKeyException dke) {
+
+                }
+            }
+
             // Try to insert considerIds. Ignore DuplicateKeyExceptions.
 
             for (ConsiderId considerId : term.getConsiderIds()) {
                 try {
                     Map<String, Object> parameterMap = new HashMap<>();
                     parameterMap.put("ontology_term_acc", term.getId().getAccession());
-                    parameterMap.put("acc", considerId.getConsiderAccessionId());
+                    parameterMap.put("consider_id_acc", considerId.getConsiderAccessionId());
 
                     count = jdbcCda.update(considerIdInsert, parameterMap);
                     countsMap.put("considerIds", countsMap.get("considerIds") + count);
@@ -1465,6 +1519,30 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
     }
 
+    public class AlternateIdRowMapper implements RowMapper<AlternateId> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public AlternateId mapRow(ResultSet rs, int rowNum) throws SQLException {
+            AlternateId alternateId = new AlternateId();
+
+            alternateId.setOntologyTermAccessionId(rs.getString("ontology_term_acc"));
+            alternateId.setAlternateAccessionId(rs.getString("alternate_id_acc"));
+
+            return alternateId;
+        }
+    }
+
     public class ConsiderIdRowMapper implements RowMapper<ConsiderId> {
 
         /**
@@ -1483,7 +1561,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             ConsiderId considerId = new ConsiderId();
 
             considerId.setOntologyTermAccessionId(rs.getString("ontology_term_acc"));
-            considerId.setConsiderAccessionId(rs.getString("acc"));
+            considerId.setConsiderAccessionId(rs.getString("consider_id_acc"));
 
             return considerId;
         }
