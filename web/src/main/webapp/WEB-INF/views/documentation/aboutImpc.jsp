@@ -92,6 +92,10 @@
             list-style-type: square;
             margin-left: 50px;
         }
+        img#cmap {
+            display: block;
+            margin: 5px auto;
+        }
       </style>
 
 	</jsp:attribute>
@@ -225,7 +229,22 @@
       </div>
     </div>
     <div ><span class="work">Coordinated production</span>
-      <div class="hideme"></div>
+      <div class="hideme">
+          <h3>Coordination</h3>
+
+          <p>The IMPC is a confederation of international mouse phenotyping projects working towards the agreed goals of the consortium:
+              To undertake the phenotyping of 20,000 mouse mutants over a ten year period, providing the first functional annotation of a mammalian genome.</p>
+
+          <p>The IMPC Steering Committee provides the governance for the overall consortium. Participants are tasked with making key strategic decisions including
+              selection of participating organizations, approving and coordinating key operational decisions such as phenotyping platforms and pipeline used,
+              quality assurance and operating standards, and IT organization. Membership provides stakeholders with an opportunity to influence key activities as they develop.</p>
+          <p></p>
+
+          <img alt="" src="${baseUrl}/documentation/img/impc-coordination.png" usemap="#Map" id="cmap" />
+
+          <map id="Map" name="Map"><area coords="269,17,418,151" href="/about-impc/impc-members" shape="rect"> <area coords="20,24,174,149" href="/about-impc/coordination/panel-scientific-consultants" shape="rect"> <area coords="20,242,186,341" href="/about-impc/coordination/phenotyping-steering-group" shape="rect"> <area coords="33,380,178,487" href="/about-impc/coordination/mta-and-line-exchange" shape="rect"> <area coords="396,208,578,279" href="/about-impc/coordination/production-steering-group" shape="rect"> <area coords="267,381,412,486" href="/about-impc/coordination/imits-steering-group" shape="rect"> <area coords="516,17,664,149" href="/about-impc/coordination/finance-committee" shape="rect"> <area coords="483,240,662,344" href="/about-impc/coordination/data-analysis-advisory-committee" shape="rect"> <area coords="499,380,646,488" href="/about-impc/coordination/statistics-technical-group" shape="rect"> <area coords="5,179,674,215" href="/about-impc/coordination/communications-working-group" shape="rect"></map>
+
+      </div>
     </div>
     <div ><span class="work">Embryo and Adult Mouse phenotyping protocols</span>
       <div class="hideme" id="impress">
