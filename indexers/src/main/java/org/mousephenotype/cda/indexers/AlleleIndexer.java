@@ -152,7 +152,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     DataSource pfamDataSource;
 
 	@Autowired
-	@Qualifier("phenodigmIndexing")
+	@Qualifier("phenodigmCore")
 	private SolrClient phenodigmCore;
 
 	@Autowired
