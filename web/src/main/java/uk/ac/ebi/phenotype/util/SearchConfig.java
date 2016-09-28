@@ -76,6 +76,7 @@ public class SearchConfig {
         for ( String facetField : getFacetFields(coreName) ){
             solrStr += "&facet.field=" + facetField;
         }
+        //return "&facet=on&facet.limit=-1&facet.mincount=1&facet.sort=" + facetSortMap.get(coreName) + solrStr;
         return "&facet=on&facet.limit=-1&facet.sort=" + facetSortMap.get(coreName) + solrStr;
     }
 

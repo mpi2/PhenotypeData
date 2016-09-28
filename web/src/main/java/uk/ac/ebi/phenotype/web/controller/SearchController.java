@@ -187,6 +187,10 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
+		if ( query.equals("*") ){
+			query = "*:*";
+		}
+
 		return processDataTypeSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
 	}
 
@@ -199,7 +203,7 @@ public class SearchController {
 		String debug = request.getParameter("debug");
 
 		String paramString = request.getQueryString();
-		//System.out.println("paramString " + paramString);
+//		System.out.println("paramString " + paramString);
 		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 
 		model.addAttribute("facetCount", facetCountJsonResponse);
@@ -212,7 +216,6 @@ public class SearchController {
 
 		return "searchDatatype";
 	}
-
 
     private SolrDocument highlightMatches(SolrDocument doc, String query, String coreName){
         String lcQuery = query.toLowerCase().replaceAll("\"", "");
@@ -384,7 +387,7 @@ public class SearchController {
 		String evidRank = "";
         Boolean doFacet = true;
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType, doFacet);
-//		System.out.println("SearchController solrParamStr: "+ solrParamStr);
+		System.out.println("SearchController solrParamStr: "+ solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 //		System.out.println("CONTENT: " + content);
 
@@ -405,7 +408,7 @@ public class SearchController {
 		//System.out.println("SearchController solrParamStr: " + solrParamStr);
 		String mode = dataType + "Grid";
 		JSONObject json = solrIndex.getQueryJson(query, dataType, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-		System.out.println("SearchController JSON: " + json.toString());
+		//System.out.println("SearchController JSON: " + json.toString());
 		return json;
 	}
 
@@ -454,9 +457,9 @@ public class SearchController {
 
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
-            if ( dataType.equals("impc_images")){
-                solrParamStr += "AND (biological_sample_group:experimental)";
-            }
+//            if ( dataType.equals("impc_images")){
+//                solrParamStr += "AND (biological_sample_group:experimental)";
+//            }
 		}
 		else {
 			solrParamStr += "&fq=" + searchConfig.getFqStr(dataType);
@@ -505,9 +508,9 @@ public class SearchController {
 		}
 
 		// test
-//		for ( String core : cores ){
-//			System.out.println("SearchController facetcount - " + core + " : " + qryBrokerJson.get(core));
-//		}
+		for ( String core : cores ){
+			System.out.println("SearchController facetcount - " + core + " : " + qryBrokerJson.get(core));
+		}
 
 		String subfacet = null;
 		return queryBrokerController.createJsonResponse(subfacet, qryBrokerJson, request);

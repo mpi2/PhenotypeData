@@ -713,8 +713,6 @@ console.log(json)
 					var label = displayLabel[facetName];
 					foundMatch[label]++;
 
-
-
 					var isGrayout = count == 0 ? 'grayout' : '';
 					liContainer.removeClass('grayout').addClass(isGrayout);
 

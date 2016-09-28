@@ -524,7 +524,6 @@
 
 					var fqStr = fqs.length != 0 ? "&fq=" + fqs.join(" AND ") : "";
 
-					//document.location.href = baseUrl + '/search/' + query + '/' + coreName + fqStr;
 					document.location.href = baseUrl + '/search/' + coreName + "?kw=" + queryOri + fqStr;
 				});
 			}

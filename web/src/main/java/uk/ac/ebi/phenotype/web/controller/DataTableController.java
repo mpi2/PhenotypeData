@@ -554,7 +554,7 @@ public class DataTableController {
             showImgView = jParams.getBoolean("showImgView");
         }
 
-		//System.out.println("GOT SOLRPARAMS: " + solrParamStr);
+		System.out.println("DataTableController SOLRPARAMS: " + solrParamStr);
 		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
@@ -1180,7 +1180,9 @@ public class DataTableController {
         String mediaBaseUrl = baseUrl + "/impcImages/images?";
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
 
-		if (showImgView) {
+        System.out.println("fq: "+fqOri);
+        System.out.println("total: "+json.getJSONObject("response").getInt("numFound"));
+        if (showImgView) {
 
             // image view: one image per row
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -1296,11 +1298,10 @@ public class DataTableController {
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			j.put("facet_fields", facetFields);
 
-			return j.toString();
+            return j.toString();
         } else {
 
             // annotation view: images group by annotationTerm per row
-            String fqStr = fqOri;
 
             String defaultQStr = "observation_type:image_record&qf=imgQf&defType=edismax";
 
@@ -1310,15 +1311,15 @@ public class DataTableController {
                 defaultQStr = "q=" + defaultQStr;
             }
 
-            String defaultFqStr = "fq=(biological_sample_group:experimental)";
-
-            if ( ! fqOri.contains("fq=*:*")) {
-                fqStr = fqStr.replace("fq=", "");
-                defaultFqStr = defaultFqStr + " AND " + fqStr;
-            }
+//            if ( ! fqOri.contains("fq=*:*")) {
+//                defaultFqStr = defaultFqStr.replace("fq=", "");
+//            }
 
             List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(query, json, baseUrl);
+
             int numAnnots = annots.size();
+            System.out.println("annots: "+ numAnnots);
+
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
 			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
@@ -1352,7 +1353,7 @@ public class DataTableController {
 				//String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
 
                 String fqVal = annot.id != null ? annot.getId() : annot.getVal();
-				String thisFqStr = defaultFqStr + " AND " + annot.getFq() + ":\"" + fqVal + "\"";
+				String thisFqStr = fqOri + " AND " + annot.getFq() + ":\"" + fqVal + "\"";
 
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
 				String imgSubSetLink = null;
@@ -1368,11 +1369,11 @@ public class DataTableController {
 
 					String currFqStr = null;
 					if (displayAnnotName.equals("Gene")) {
-						currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
+						currFqStr = fqOri + " AND gene_symbol:\"" + annotVal + "\"";
 					} else if (displayAnnotName.equals("Procedure")) {
-						currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+						currFqStr = fqOri  + " AND procedure_name:\"" + annotVal + "\"";
 					} else if (displayAnnotName.equals("Anatomy")) {
-						currFqStr = defaultFqStr + " AND anatomy_id:\"" + annotId + "\"";
+						currFqStr = fqOri + " AND anatomy_id:\"" + annotId + "\"";
 					}
 
 					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
