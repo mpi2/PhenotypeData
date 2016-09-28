@@ -104,8 +104,8 @@
 
         <field name="feature_chromosome" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="feature_strand" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="feature_coord_start" type="tlong" indexed="true" stored="true" multiValued="false"/>
-        <field name="feature_coord_end" type="tlong" indexed="true" stored="true" multiValued="false"/>
+        <field name="feature_coord_start" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="feature_coord_end" type="int" indexed="true" stored="true" multiValued="false"/>
 
         <field name="es_cell_status" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>
