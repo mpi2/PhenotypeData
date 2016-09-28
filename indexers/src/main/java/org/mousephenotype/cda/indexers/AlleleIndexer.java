@@ -945,12 +945,12 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 		        dto.setChrStrand(bean.getChrStrand());
 	        }
 
-            if (bean.getChrStart() != null && bean.getChrStart().matches("^\\d*$")) {
-                dto.setChrStart(Integer.parseInt(bean.getChrStart()));
+            if (bean.getChrStart() != null) {
+                dto.setChrStart(bean.getChrStart());
             }
 
-            if (bean.getChrEnd() != null && bean.getChrEnd().matches("^\\d*$")) {
-                dto.setChrEnd(Integer.parseInt(bean.getChrEnd()));
+            if (bean.getChrEnd() != null) {
+                dto.setChrEnd(bean.getChrEnd());
             }
 
 
