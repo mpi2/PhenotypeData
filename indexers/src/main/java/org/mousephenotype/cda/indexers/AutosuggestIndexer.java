@@ -29,7 +29,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
-import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -55,7 +54,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
     @Autowired
     @Qualifier("autosuggestIndexing")
-    private SolrClient autosuggestCore;
+    private SolrClient autosuggestIndexing;
 
     @Autowired
     @Qualifier("allele2Core")
@@ -84,7 +83,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 	@Autowired
    	private GwasDAO gwasDao;
 
-    private SolrClient sangerAlleleCore;
 
     public static final long MIN_EXPECTED_ROWS = 218000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
@@ -153,7 +151,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(autosuggestCore);
+        return super.validateBuild(autosuggestIndexing);
     }
 
 
@@ -165,7 +163,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
         try {
 
-            autosuggestCore.deleteByQuery("*:*");
+            autosuggestIndexing.deleteByQuery("*:*");
 
             populateGeneAutosuggestTerms();
             populateMpAutosuggestTerms();
@@ -176,7 +174,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             populateGwasAutosuggestTerms();
 
             // Final commit
-            autosuggestCore.commit();
+            autosuggestIndexing.commit();
 
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
@@ -270,7 +268,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestCore.addBeans(beans, 60000);
+                autosuggestIndexing.addBeans(beans, 60000);
             }
 
         }
@@ -896,7 +894,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                 .setFields(StringUtils.join(productFields, ","))
                 .setRows(Integer.MAX_VALUE);
 
-        QueryResponse response = sangerAlleleCore.query(query);
+        QueryResponse response = allele2Core.query(query);
         List<AlleleDTO> alleles = response.getBeans(AlleleDTO.class);
 
         String docType = "allele2";
