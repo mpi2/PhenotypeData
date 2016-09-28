@@ -146,7 +146,7 @@ public class IndexerConfig {
 
     // Indexers for reading
     @Bean
-    SolrClient observationCore() {
+    SolrClient experimentCore() {
         return new HttpSolrClient(readSolrBaseUrl + "/experiment");
     }
     @Bean
