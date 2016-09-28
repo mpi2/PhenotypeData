@@ -78,8 +78,8 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setEsCellAvailable(getBooleanValueFor(Allele2DTO.ES_CELL_AVAILABLE,array, columns, runStatus));
             doc.setFeatureChromosome(getValueFor(Allele2DTO.FEATURE_CHROMOSOME,array, columns, runStatus));
             doc.setFeatureStrand(getValueFor(Allele2DTO.FEATURE_STRAND,array, columns, runStatus));
-            doc.setFeatureCoordEnd(getLongValueFor(Allele2DTO.FEATURE_COORD_END,array, columns, runStatus));
-            doc.setFeatureCoordStart(getLongValueFor(Allele2DTO.FEAURE_COORD_START,array, columns, runStatus));
+            doc.setFeatureCoordEnd(getIntValueFor(Allele2DTO.FEATURE_COORD_END,array, columns, runStatus));
+            doc.setFeatureCoordStart(getIntValueFor(Allele2DTO.FEAURE_COORD_START,array, columns, runStatus));
             doc.setFeatureType(getValueFor(Allele2DTO.FEATURE_TYPE,array, columns, runStatus));
             doc.setGenbankFile(getValueFor(Allele2DTO.GENBANK_FILE,array, columns, runStatus));
             doc.setGeneModelIds(getListValueFor(Allele2DTO.GENE_MODEL_IDS,array, columns, runStatus));
