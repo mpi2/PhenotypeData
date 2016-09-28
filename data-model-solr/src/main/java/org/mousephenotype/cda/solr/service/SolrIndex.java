@@ -456,11 +456,12 @@ public class SolrIndex {
         final int maxNum = 4; // max num of images to display in grid column
 
 		String qryBaseUrl = SolrUtils.getBaseURL(getSolrServer("impc_images")) + "/select?qf=imgQf&defType=edismax&wt=json&q=" + query
-				+ "&" + fqStr + "&rows=";
+				+ "&fq=" + fqStr + "&rows=";
 
         String queryUrl = qryBaseUrl + maxNum;
         String queryUrlCount = qryBaseUrl + "0";
 
+		//System.out.println("SolrIndex: " + queryUrl);
 		List<String> imgs = new ArrayList<String>();
 		//List<String> imgPath = new ArrayList<String>();
 
@@ -486,7 +487,8 @@ public class SolrIndex {
                 String smallThumbNailPath = thumbnailPath + "/";
                 img = "<img src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
-                	img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
+                	//img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
+					img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
                 	//link = "<a href='" + downloadUrl +"'>" + img + "</a>";
                 }else{
                 	//link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
@@ -657,14 +659,13 @@ public class SolrIndex {
 	    query = query.replaceAll("\"", "");
         JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
-
 		List<AnnotNameValCount> annots = new ArrayList<>();
 
 		Map<String, String> hm = new HashMap<>();
 		hm.put("symbol_gene", "Gene");
         hm.put("marker_synonym_symbol_gene", "Gene");
 		hm.put("procedure_name", "Procedure");
-        hm.put("parameter_association_name_procedure_name", "Procedure");
+      //  hm.put("parameter_association_name_procedure_name", "Procedure");
 		hm.put("anatomy_id_term", "Anatomy");
         hm.put("anatomy_term_synonym_anatomy_id_term", "Anatomy");
         hm.put("selected_top_level_anatomy_id_anatomy_id_term", "Anatomy");
@@ -683,113 +684,115 @@ public class SolrIndex {
         String separator = "___";
 
         for( String fieldName : ffList){
-
+			//System.out.println(fieldName);
             try {
                 JSONArray arr = facetFields.getJSONArray(fieldName);
 
                 for (int i = 0; i < arr.size(); i = i + 2) {
+					if (! arr.get(i+1).toString().equals("0")) {
+						Object facetValue = arr.get(i);
 
-                    Object facetValue = arr.get(i);
+						if (facetValue instanceof String) {
+							String fv = facetValue.toString();
 
-                    if (facetValue instanceof String) {
-                        String fv = facetValue.toString();
-                        if (fv.toLowerCase().contains(query.toLowerCase()) || query.equals("*:*")) {
+							if (fv.toLowerCase().contains(query.toLowerCase()) || query.equals("*:*")) {
 
-                            AnnotNameValCount annotNameValCount = new AnnotNameValCount();
-                            annotNameValCount.setImgCount(Integer.parseInt(arr.get(i + 1).toString()));
-                            annotNameValCount.setName(hm.get(fieldName));
+								AnnotNameValCount annotNameValCount = new AnnotNameValCount();
+								annotNameValCount.setImgCount(Integer.parseInt(arr.get(i + 1).toString()));
+								annotNameValCount.setName(hm.get(fieldName));
 
-                            if (fieldName.equals("symbol_gene")) {
-                                String fqName = "gene_accession_id";
-                                annotNameValCount.setFq(fqName);
-                                String[] fields = fv.split("_");
-                                annotNameValCount.setVal(fields[0]);
-                                annotNameValCount.setId(fields[1]);
-                                annotNameValCount.setLink(baseUrl + "/genes/" + annotNameValCount.getId());
-                                seenGenes.add(annotNameValCount.getId());
+								if (fieldName.equals("symbol_gene")) {
+									String fqName = "gene_accession_id";
+									annotNameValCount.setFq(fqName);
+									String[] fields = fv.split("_");
+									annotNameValCount.setVal(fields[0]);
+									annotNameValCount.setId(fields[1]);
+									annotNameValCount.setLink(baseUrl + "/genes/" + annotNameValCount.getId());
+									seenGenes.add(annotNameValCount.getId());
 
-                            } else if (fieldName.equals("marker_synonym_symbol_gene")) {
-                                String fqName = "gene_accession_id";
-                                annotNameValCount.setFq(fqName);
-                                String[] fieldConcat = fv.split(separator);
-                                String markerSynonym = fieldConcat[0];
-                                String[] vals = fieldConcat[1].split("_");
-                                String markerSymbol = vals[0];
-                                String markerAcc = vals[1];
-                                if (seenGenes.contains(markerAcc)) {
-                                    continue;
-                                } else {
-                                    annotNameValCount.setVal(markerSymbol);
-                                    annotNameValCount.setId(markerAcc);
-                                    annotNameValCount.setLink(baseUrl + "/genes/" + annotNameValCount.getId());
-                                    annotNameValCount.setMarkerSynonym(markerSynonym);
-                                    seenGenes.add(annotNameValCount.getId());
+								} else if (fieldName.equals("marker_synonym_symbol_gene")) {
+									String fqName = "gene_accession_id";
+									annotNameValCount.setFq(fqName);
+									String[] fieldConcat = fv.split(separator);
+									String markerSynonym = fieldConcat[0];
+									String[] vals = fieldConcat[1].split("_");
+									String markerSymbol = vals[0];
+									String markerAcc = vals[1];
+									if (seenGenes.contains(markerAcc)) {
+										continue;
+									} else {
+										annotNameValCount.setVal(markerSymbol);
+										annotNameValCount.setId(markerAcc);
+										annotNameValCount.setLink(baseUrl + "/genes/" + annotNameValCount.getId());
+										annotNameValCount.setMarkerSynonym(markerSynonym);
+										seenGenes.add(annotNameValCount.getId());
 
-                                }
-                            } else if (fieldName.equals("procedure_name")) {
-                                annotNameValCount.setFq(fieldName);
-                                annotNameValCount.setVal(fv);
-                                seenProcedures.add(fv);
+									}
+								} else if (fieldName.equals("procedure_name")) {
+									annotNameValCount.setFq(fieldName);
+									annotNameValCount.setVal(fv);
+									seenProcedures.add(fv);
 
-                            } else if (fieldName.equals("parameter_association_name_procedure_name")) {
-                                annotNameValCount.setFq("procedure_name");
-                                String[] fieldConcat = fv.split(separator);
-                                String paramAssocName = fieldConcat[0];
-                                String procName = fieldConcat[1];
+								} else if (fieldName.equals("parameter_association_name_procedure_name")) {
+									annotNameValCount.setFq("procedure_name");
+									String[] fieldConcat = fv.split(separator);
+									String paramAssocName = fieldConcat[0];
+									String procName = fieldConcat[1];
 
-                                if (seenProcedures.contains(paramAssocName)) {
-                                    continue;
-                                } else {
-                                    annotNameValCount.setVal(procName);
-                                    annotNameValCount.setParamAssociationName(paramAssocName);
-                                    seenProcedures.add(procName);
+									if (seenProcedures.contains(paramAssocName)) {
+										continue;
+									} else {
+										annotNameValCount.setVal(procName);
+										annotNameValCount.setParamAssociationName(paramAssocName);
+										seenProcedures.add(procName);
 
-                                }
-                            } else if (fieldName.equals("anatomy_id_term")) {
-                                String[] fields = fv.split("_");
-                                annotNameValCount.setFq("anatomy_id");
-                                annotNameValCount.setVal(fields[1]);
-                                annotNameValCount.setId(fields[0]);
-                                annotNameValCount.setLink(baseUrl + "/anatomy/" + annotNameValCount.getId());
-                                seenAnatomy.add(annotNameValCount.getId());
+									}
+								} else if (fieldName.equals("anatomy_id_term")) {
+									String[] fields = fv.split("_");
+									annotNameValCount.setFq("anatomy_id");
+									annotNameValCount.setVal(fields[1]);
+									annotNameValCount.setId(fields[0]);
+									annotNameValCount.setLink(baseUrl + "/anatomy/" + annotNameValCount.getId());
+									seenAnatomy.add(annotNameValCount.getId());
 
-                            } else if (fieldName.equals("anatomy_term_synonym_anatomy_id_term")
-                                    || fieldName.equals("selected_top_level_anatomy_id_anatomy_id_term")
-                                    || fieldName.equals("selected_top_level_anatomy_term_anatomy_id_term")
-                                    || fieldName.equals("selected_top_level_anatomy_term_synonym_anatomy_id_term")
-                                    || fieldName.equals("intermediate_anatomy_id_anatomy_id_term")
-                                    || fieldName.equals("intermediate_anatomy_term_anatomy_id_term")
-                                    || fieldName.equals("intermediate_anatomy_term_synonym_anatomy_id_term")
-                                    ) {
-                                annotNameValCount.setFq("anatomy_id");
-                                String[] fieldConcat = fv.split(separator);
-                                String relatedTerm = fieldConcat[0];
-                                String[] vals = fieldConcat[1].split("__");
-                                String anatomyId = vals[0];
-                                String anatomyTerm = vals[1];
+								} else if (fieldName.equals("anatomy_term_synonym_anatomy_id_term")
+										|| fieldName.equals("selected_top_level_anatomy_id_anatomy_id_term")
+										|| fieldName.equals("selected_top_level_anatomy_term_anatomy_id_term")
+										|| fieldName.equals("selected_top_level_anatomy_term_synonym_anatomy_id_term")
+										|| fieldName.equals("intermediate_anatomy_id_anatomy_id_term")
+										|| fieldName.equals("intermediate_anatomy_term_anatomy_id_term")
+										|| fieldName.equals("intermediate_anatomy_term_synonym_anatomy_id_term")
+										) {
+									annotNameValCount.setFq("anatomy_id");
+									String[] fieldConcat = fv.split(separator);
+									String relatedTerm = fieldConcat[0];
+									String[] vals = fieldConcat[1].split("__");
+									String anatomyId = vals[0];
+									String anatomyTerm = vals[1];
 
-                                if (seenAnatomy.contains(anatomyId)) {
-                                    continue;
-                                } else {
-                                    annotNameValCount.setVal(anatomyTerm);
-                                    annotNameValCount.setId(anatomyId);
-                                    annotNameValCount.setLink(baseUrl + "/anatomy/" + annotNameValCount.getId());
-                                    annotNameValCount.setRelatedSynonym(relatedTerm);
-                                    seenAnatomy.add(annotNameValCount.getId());
+									if (seenAnatomy.contains(anatomyId)) {
+										continue;
+									} else {
+										annotNameValCount.setVal(anatomyTerm);
+										annotNameValCount.setId(anatomyId);
+										annotNameValCount.setLink(baseUrl + "/anatomy/" + annotNameValCount.getId());
+										annotNameValCount.setRelatedSynonym(relatedTerm);
+										seenAnatomy.add(annotNameValCount.getId());
 
-                                }
-                            }
+									}
+								}
 
-                            if (hm.containsKey(fieldName)) {
-                                annots.add(annotNameValCount);
+								if (hm.containsKey(fieldName)) {
+									annots.add(annotNameValCount);
 //                                System.out.println("ANNOT: "+annotNameValCount.toString());
-                            }
-                        }
-                    }
+								}
+							}
+						}
+					}
                 }
             }
             catch (Exception e){
-				System.out.println("Stack trace: "+ Arrays.toString(e.getStackTrace()));
+				System.out.println("warning: "+ e);
 			}
         }
 
