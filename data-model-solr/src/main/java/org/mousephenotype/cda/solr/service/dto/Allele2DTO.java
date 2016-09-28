@@ -71,7 +71,7 @@ public class Allele2DTO {
 	@Field(WITHOUT_ALLELE_FEATURES)
 	private List<String> withoutAlleleFeatures;
 	@Field(FEATURE_COORD_END)
-	private Long featureCoordEnd;
+	private Integer featureCoordEnd;
 	@Field(PHENOTYPE_STATUS)
 	private String phenotypeStatus;
 	@Field(LATEST_ES_CELL_STATUS)
@@ -83,7 +83,7 @@ public class Allele2DTO {
 	@Field(FEATURE_STRAND)
 	private String featureStrand;
 	@Field(FEAURE_COORD_START)
-	private Long featureCoordStart;
+	private Integer featureCoordStart;
 	@Field(AUTO_SUGGEST)
 	private List<String> autoSuggest;
 	@Field(SYNONYM)
@@ -359,11 +359,11 @@ public class Allele2DTO {
 		this.withoutAlleleFeatures = withoutAlleleFeatures;
 	}
 
-	public Long getFeatureCoordEnd() {
+	public Integer getFeatureCoordEnd() {
 		return featureCoordEnd;
 	}
 
-	public void setFeatureCoordEnd(Long featureCoordEnd) {
+	public void setFeatureCoordEnd(Integer featureCoordEnd) {
 		this.featureCoordEnd = featureCoordEnd;
 	}
 
@@ -407,11 +407,11 @@ public class Allele2DTO {
 		this.featureStrand = featureStrand;
 	}
 
-	public Long getFeatureCoordStart() {
+	public Integer getFeatureCoordStart() {
 		return featureCoordStart;
 	}
 
-	public void setFeatureCoordStart(Long featureCoordStart) {
+	public void setFeatureCoordStart(Integer featureCoordStart) {
 		this.featureCoordStart = featureCoordStart;
 	}
 
