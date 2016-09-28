@@ -5,6 +5,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,9 @@ import java.util.Map;
 
 @EnableAutoConfiguration
 public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunner {
+
+    private final Logger logger = LoggerFactory.getLogger(Allele2Indexer.class);
+
 
     @NotNull
     @Value("${allele2File}")
@@ -115,16 +120,14 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
             line = in.readLine();
 
-            allele2Core.addBean(doc);
-            if (index % 1000 == 0) {
-                allele2Core.commit();
-//                System.out.println("committed " + index);
-            }
+            allele2Core.addBean(doc, 30000);
+
         }
 
         allele2Core.commit();
         alleleDocCount = index;
         System.out.println("Indexing took " + (System.currentTimeMillis() - time));
+        logger.info("Added {} documents", alleleDocCount);
         return runStatus;
 
     }
