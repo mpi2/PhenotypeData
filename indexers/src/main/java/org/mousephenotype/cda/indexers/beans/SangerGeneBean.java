@@ -85,10 +85,10 @@ public class SangerGeneBean {
 	private String chrName;
 
 	@Field(CHR_START)
-	private String chrStart;
+	private Integer chrStart;
 
 	@Field(CHR_END)
-	private String chrEnd;
+	private Integer chrEnd;
 
 	@Field(CHR_STRAND)
 	private String chrStrand;
@@ -311,28 +311,28 @@ public class SangerGeneBean {
 	/**
 	 * @return the chr start
 	 */
-	public String getChrStart() {
+	public Integer getChrStart() {
 		return chrStart;
 	}
 
 	/**
 	 * set the chr start
 	 */
-	public void setChrStart(String chrStart) {
+	public void setChrStart(Integer chrStart) {
 		this.chrStart = chrStart;
 	}
 
 	/**
 	 * @return the chr end
 	 */
-	public String getChrEnd() {
+	public Integer getChrEnd() {
 		return chrEnd;
 	}
 
 	/**
 	 * set the chr end
 	 */
-	public void setChrEnd(String chrEnd) {
+	public void setChrEnd(Integer chrEnd) {
 		this.chrEnd = chrEnd;
 	}
 
