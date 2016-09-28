@@ -5,7 +5,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.solr.SolrServerConfig;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
  * @author Jeremy Mason
  *
  */
-@Import(value = {StatisticalDatasetGeneratorConfig.class, SolrServerConfig.class})
+@Import(value = {StatisticalDatasetGeneratorConfig.class})
 public class StatisticalDatasetGenerator extends BasicService implements CommandLineRunner {
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
