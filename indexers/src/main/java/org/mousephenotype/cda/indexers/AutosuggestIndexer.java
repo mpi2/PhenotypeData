@@ -57,9 +57,9 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     @Qualifier("autosuggestIndexing")
     private SolrClient autosuggestCore;
 
-    @NotNull
-    @Value("${imits.solr.host}")
-    private String imitsSolrHost;
+    @Autowired
+    @Qualifier("allele2Core")
+    private SolrClient allele2Core;
 
     @Autowired
     @Qualifier("geneCore")
@@ -156,27 +156,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         return super.validateBuild(autosuggestCore);
     }
 
-    private void initializeSolrCores() {
-
-        final String SANGER_ALLELE_URL = imitsSolrHost +"/allele2";
-
-        // Use system proxy if set for external solr servers
-        if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
-
-            String PROXY_HOST = System.getProperty("externalProxyHost");
-            Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
-
-            HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
-
-            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
-
-            this.sangerAlleleCore = new HttpSolrClient(SANGER_ALLELE_URL, client);
-        } else {
-            this.sangerAlleleCore = new HttpSolrClient(SANGER_ALLELE_URL);
-        }
-    }
 
 
     @Override
@@ -185,7 +164,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
         long start = System.currentTimeMillis();
 
         try {
-            initializeSolrCores();
 
             autosuggestCore.deleteByQuery("*:*");
 

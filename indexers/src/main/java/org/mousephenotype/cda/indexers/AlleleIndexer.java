@@ -64,9 +64,10 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
 	private final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
 
-	@NotNull
-    @Value("${imits.solr.host}")
-    private String imitsSolrHost;
+
+    @Autowired
+    @Qualifier("allele2Core")
+    private SolrClient allele2Core;
 
     @NotNull
     @Value("${human2mouseFilename}")
@@ -133,8 +134,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
     }
 
-    private SolrClient sangerAlleleCore;
-
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -181,8 +180,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         try {
             connection = komp2DataSource.getConnection();
 
-            initializeSolrCores();
-
             //SolrQuery query = new SolrQuery("mgi_accession_id:MGI* OR mgi_accession_id:CGI*");
             //query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
 
@@ -225,7 +222,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
             while (count <= rows) {
                 query.setStart(count);
-                QueryResponse response = sangerAlleleCore.query(query);
+                QueryResponse response = allele2Core.query(query);
                 rows = response.getResults().getNumFound();
                 List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
 
@@ -273,31 +270,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
-    }
-
-    private void initializeSolrCores() {
-
-        final String SANGER_ALLELE_URL = imitsSolrHost +"/allele2";
-
-        // Use system proxy if set for external solr servers
-        if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
-
-            String PROXY_HOST = System.getProperty("externalProxyHost");
-            Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
-
-            HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
-
-            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
-
-            this.sangerAlleleCore = new HttpSolrClient(SANGER_ALLELE_URL, client);
-
-        } else {
-
-            this.sangerAlleleCore = new HttpSolrClient(SANGER_ALLELE_URL);
-
-        }
     }
 
     Map<String, List<String>> populateMgiGeneId2EnsemblGeneId() {
@@ -818,7 +790,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         query.setRows(Integer.MAX_VALUE);
         query.addFilterQuery("type:allele");
 
-        QueryResponse response = sangerAlleleCore.query(query);
+        QueryResponse response = allele2Core.query(query);
         List<SangerAlleleBean> sangerAlleles = response.getBeans(SangerAlleleBean.class);
         for (SangerAlleleBean allele : sangerAlleles) {
             if ( ! statusLookup.containsKey(allele.getMgiAccessionId())) {
