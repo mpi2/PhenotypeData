@@ -69,7 +69,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	@Autowired
 	@Qualifier("experimentCore")
-	SolrClient observationCore;
+	SolrClient experimentCore;
 
 	@Autowired
 	@Qualifier("impcImagesIndexing")
@@ -185,7 +185,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 
-			List<ImageDTO> imageList = observationCore.query(query).getBeans(ImageDTO.class);
+			List<ImageDTO> imageList = experimentCore.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
 
 				String downloadFilePath = imageDTO.getDownloadFilePath();
