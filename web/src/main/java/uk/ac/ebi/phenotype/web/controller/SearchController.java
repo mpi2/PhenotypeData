@@ -115,14 +115,13 @@ public class SearchController {
 
 	private String processSearchOverview(String dataType, String query, String fqStr, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 
-		System.out.println("query: " + query);
 		if ( query.equals("*") ){
 			query = "*:*";
 		}
 
 
 		String paramString = request.getQueryString();
-		System.out.println("paramString " + paramString);
+		//System.out.println("paramString " + paramString);
 //        JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 //        System.out.println(facetCountJsonResponse.toString());
 //        model.addAttribute("facetCount", facetCountJsonResponse);

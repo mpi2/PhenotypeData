@@ -456,7 +456,7 @@ public class SolrIndex {
         final int maxNum = 4; // max num of images to display in grid column
 
 		String qryBaseUrl = SolrUtils.getBaseURL(getSolrServer("impc_images")) + "/select?qf=imgQf&defType=edismax&wt=json&q=" + query
-				+ "&" + fqStr + "&rows=";
+				+ "&fq=" + fqStr + "&rows=";
 
         String queryUrl = qryBaseUrl + maxNum;
         String queryUrlCount = qryBaseUrl + "0";
@@ -487,7 +487,8 @@ public class SolrIndex {
                 String smallThumbNailPath = thumbnailPath + "/";
                 img = "<img src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
-                	img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
+                	//img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
+					img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
                 	//link = "<a href='" + downloadUrl +"'>" + img + "</a>";
                 }else{
                 	//link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
@@ -664,7 +665,7 @@ public class SolrIndex {
 		hm.put("symbol_gene", "Gene");
         hm.put("marker_synonym_symbol_gene", "Gene");
 		hm.put("procedure_name", "Procedure");
-        hm.put("parameter_association_name_procedure_name", "Procedure");
+      //  hm.put("parameter_association_name_procedure_name", "Procedure");
 		hm.put("anatomy_id_term", "Anatomy");
         hm.put("anatomy_term_synonym_anatomy_id_term", "Anatomy");
         hm.put("selected_top_level_anatomy_id_anatomy_id_term", "Anatomy");
@@ -683,7 +684,7 @@ public class SolrIndex {
         String separator = "___";
 
         for( String fieldName : ffList){
-			System.out.println(fieldName);
+			//System.out.println(fieldName);
             try {
                 JSONArray arr = facetFields.getJSONArray(fieldName);
 
@@ -791,7 +792,7 @@ public class SolrIndex {
                 }
             }
             catch (Exception e){
-				System.out.println("Stack trace: "+ Arrays.toString(e.getStackTrace()));
+				System.out.println("warning: "+ e);
 			}
         }
 
