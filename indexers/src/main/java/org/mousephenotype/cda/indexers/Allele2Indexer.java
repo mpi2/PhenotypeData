@@ -39,7 +39,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
     @Autowired
     @Qualifier("allele2Indexing")
-    private SolrClient allele2Core;
+    private SolrClient allele2Indexing;
 
     Integer alleleDocCount;
     Map<String, Integer> columns = new HashMap<>();
@@ -49,8 +49,8 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
         RunStatus runStatus = new RunStatus();
 
-        allele2Core.deleteByQuery("*:*");
-        allele2Core.commit();
+        allele2Indexing.deleteByQuery("*:*");
+        allele2Indexing.commit();
 
         long time = System.currentTimeMillis();
         BufferedReader in = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
@@ -120,11 +120,11 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
             line = in.readLine();
 
-            allele2Core.addBean(doc, 30000);
+            allele2Indexing.addBean(doc, 30000);
 
         }
 
-        allele2Core.commit();
+        allele2Indexing.commit();
         alleleDocCount = index;
         System.out.println("Indexing took " + (System.currentTimeMillis() - time));
         logger.info("Added {} documents", alleleDocCount);
@@ -137,7 +137,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
     public RunStatus validateBuild() throws IndexerException {
 
         RunStatus runStatus = new RunStatus();
-        Long actualSolrDocumentCount = getDocumentCount(allele2Core);
+        Long actualSolrDocumentCount = getDocumentCount(allele2Indexing);
 
         if (actualSolrDocumentCount < alleleDocCount) {
            runStatus.addError("Expected " + alleleDocCount + " documents. Actual count: " + actualSolrDocumentCount + ".");
