@@ -236,7 +236,7 @@ public class CdaSqlUtils {
 
 
     /**
-     * @return the set of all alternate accession ids
+     * @return the set of all alternate accession ids in a {@link Map} keyed by alternate accession id
      */
     public Map<String, Set<AlternateId>> getAlternateIds() {
         if (alternateIds == null) {
@@ -783,6 +783,62 @@ public class CdaSqlUtils {
         return (accessionId == null ? null : getOntologyTerms().get(accessionId));
     }
 
+    /**
+     * This method checks the original ontology term against the database of loaded terms and adjusts it if necessary
+     * according to the following rules:
+     * <pre>
+     *     If the term exists
+     *          if it is marked obsolete
+     *              if there is a replacement_acc, return it instead
+     *              else
+     *                  if there is a consider id term, return it instead
+     *                  else this term is obsolete and there is no replacement/alternative. Log an error and return null.
+     *          else
+     *              return the original term
+     *      else
+     *          if there is an alternate id, use it instead
+     *          else
+     *              this is an unknown ontolgy term. Log an error and return null.
+     * </pre>
+     * @param originalTerm
+     * @return
+     */
+    public OntologyTerm getLatestOntologyTerm(OntologyTerm originalTerm) {
+        OntologyTerm term = null;
+
+        Map<String, OntologyTerm> terms = getOntologyTerms();
+        term = terms.get(originalTerm.getId().getAccession());
+        if (term != null) {
+            term.setConsiderIds(getConsiderIds(term.getId().getAccession()));
+            if (term.getIsObsolete()) {
+                if (term.getReplacementAcc() != null) {
+                    term = terms.get(term.getReplacementAcc());
+                } else {
+                    if ((term.getConsiderIds() != null) && ( ! term.getConsiderIds().isEmpty())) {
+                        term = terms.get(term.getConsiderIds().iterator().next().getConsiderAccessionId());
+                    } else {
+                        logger.error("Term {} is obsolete and there is no replacement/alternative term.", originalTerm);
+                        return null;
+                    }
+                }
+            } else {
+                term = originalTerm;
+            }
+        } else {
+            Map<String, Set<AlternateId>> altIds = getAlternateIds();
+            if (altIds.containsKey(originalTerm.getId().getAccession())) {
+                Set<AlternateId> altIdSet = altIds.get(originalTerm.getId().getAccession());
+                term = terms.get(altIdSet.iterator().next());
+            }
+        }
+
+        if (term == null) {
+            logger.error("Unknown ontology term {} ", originalTerm);
+        }
+
+        return term;
+    }
+
    /** Return the <code>OntologyTerm</code> matching the given {@code dbId} and {@code term} after first looking up
     * and possibly transforming the given term to a standardised term.
     *
@@ -867,7 +923,7 @@ public class CdaSqlUtils {
 
 private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new ConcurrentHashMap<>();       // keyed by dbId
     /**
-     * Return a CASE-INSENSITIVE {@link TreeMap} of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by ontology term
+     * Return a CASE-INSENSITIVE {@link TreeMap} of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by dbId
      * NOTE: maps are cached by dbId.
      *
      * @param dbId the dbId of the desired terms

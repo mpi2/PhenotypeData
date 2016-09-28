@@ -5,6 +5,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,9 @@ import java.util.Map;
 
 @EnableAutoConfiguration
 public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunner {
+
+    private final Logger logger = LoggerFactory.getLogger(Allele2Indexer.class);
+
 
     @NotNull
     @Value("${allele2File}")
@@ -78,8 +83,8 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setEsCellAvailable(getBooleanValueFor(Allele2DTO.ES_CELL_AVAILABLE,array, columns, runStatus));
             doc.setFeatureChromosome(getValueFor(Allele2DTO.FEATURE_CHROMOSOME,array, columns, runStatus));
             doc.setFeatureStrand(getValueFor(Allele2DTO.FEATURE_STRAND,array, columns, runStatus));
-            doc.setFeatureCoordEnd(getLongValueFor(Allele2DTO.FEATURE_COORD_END,array, columns, runStatus));
-            doc.setFeatureCoordStart(getLongValueFor(Allele2DTO.FEAURE_COORD_START,array, columns, runStatus));
+            doc.setFeatureCoordEnd(getIntValueFor(Allele2DTO.FEATURE_COORD_END,array, columns, runStatus));
+            doc.setFeatureCoordStart(getIntValueFor(Allele2DTO.FEAURE_COORD_START,array, columns, runStatus));
             doc.setFeatureType(getValueFor(Allele2DTO.FEATURE_TYPE,array, columns, runStatus));
             doc.setGenbankFile(getValueFor(Allele2DTO.GENBANK_FILE,array, columns, runStatus));
             doc.setGeneModelIds(getListValueFor(Allele2DTO.GENE_MODEL_IDS,array, columns, runStatus));
@@ -115,16 +120,14 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
             line = in.readLine();
 
-            allele2Core.addBean(doc);
-            if (index % 1000 == 0) {
-                allele2Core.commit();
-//                System.out.println("committed " + index);
-            }
+            allele2Core.addBean(doc, 30000);
+
         }
 
         allele2Core.commit();
         alleleDocCount = index;
         System.out.println("Indexing took " + (System.currentTimeMillis() - time));
+        logger.info("Added {} documents", alleleDocCount);
         return runStatus;
 
     }

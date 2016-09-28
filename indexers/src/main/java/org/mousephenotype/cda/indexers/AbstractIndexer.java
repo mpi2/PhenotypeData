@@ -187,14 +187,14 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     }
 
     // Method for allele2 and product core indexins. Helper methods to parte the tsv file.
-    protected Long getLongValueFor (String field, String[] array, Map<String, Integer> columns, RunStatus runStatus){
+    protected Integer getIntValueFor (String field, String[] array, Map<String, Integer> columns, RunStatus runStatus){
 
         if (columns.containsKey(field)) {
             String el = array[columns.get(field)];
             if(el.isEmpty()){
                 return null;
             }
-            return new Long(el);
+            return new Integer(el);
         } else {
             System.out.println("Field not found " + field);
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );
