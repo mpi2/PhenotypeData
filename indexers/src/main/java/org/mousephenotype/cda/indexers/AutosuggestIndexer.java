@@ -17,14 +17,9 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
@@ -36,12 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -546,7 +539,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestCore.addBeans(beans, 60000);
+                autosuggestIndexing.addBeans(beans, 60000);
             }
 
         }
@@ -603,7 +596,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestCore.addBeans(beans, 60000);
+                autosuggestIndexing.addBeans(beans, 60000);
             }
 
         }
@@ -880,7 +873,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestCore.addBeans(beans, 60000);
+                autosuggestIndexing.addBeans(beans, 60000);
             }
         }
     }
@@ -972,7 +965,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestCore.addBeans(beans, 60000);
+                autosuggestIndexing.addBeans(beans, 60000);
             }
 
         }
