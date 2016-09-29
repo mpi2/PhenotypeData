@@ -20,9 +20,14 @@ DROP TABLE IF EXISTS consider_id;
 CREATE TABLE consider_id (
 	ontology_term_acc          VARCHAR(30) NOT NULL,
 	consider_id_acc            VARCHAR(30) NOT NULL
-
 );
 
+DROP TABLE IF EXISTS ontology_term_lookup;
+CREATE TABLE ontology_term_lookup (
+  original_acc       VARCHAR(128) NOT NULL,
+  replacement_acc    VARCHAR(128),
+  reason             VARCHAR(128)
+);
 
 
 INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0001', 1, 'MP:0010', 'exists-isObsolete-hasReplacement');               										-- use replacement:   MP:0010
@@ -35,8 +40,11 @@ INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:00
 INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0011', 0, null,      'exists-notObsolete-hasConsiderId2');                                  -- use original term: MP:0011
 INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0012', 0, null,      'exists-notObsolete-hasAlternateId');                                  -- use original term: MP:0012
 INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0013', 0, null,      'exists-notObsolete-hasAlternateId2');                                 -- use original term: MP:0013
-INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0014', 0, null,      'exists-notObsolete-hasReplacement-hasConsiderId-hasAlternateId');     -- use original term: MP:0014
-INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0015', 0, null,      'exists-notObsolete-hasReplacement-hasConsiderId-hasAlternateId2');    -- use original term: MP:0015
+INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0014', 0, 'MP:0011', 'exists-notObsolete-hasReplacement-hasConsiderId-hasAlternateId');     -- use original term: MP:0014
+INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0015', 0, 'MP:0012', 'exists-notObsolete-hasReplacement-hasConsiderId-hasAlternateId2');    -- use original term: MP:0015
+INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0016', 1, 'MP:0001', 'replacement-isObsolete');                                             -- Error: Obsolete term has obsolete replacement term
+INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0017', 1, null,      'replacement-hasObsoleteConsiderId');                                  -- Error: Obsolete term has obsolete consider id
+INSERT INTO ontology_term(acc, is_obsolete, replacement_acc, name) VALUES('MP:0018', 1, null,      'replacement-multipleConsiderIds');                                    -- Error: Obsolete term has multiple consider ids
 
 
 INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0002', 'MP:0011');
@@ -44,6 +52,9 @@ INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0300', '
 INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0011', 'MP:0300');
 INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0400', 'MP:0014');
 INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0015', 'MP:0300');
+INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0017', 'MP:0002');
+INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0018', 'MP:0001');
+INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0018', 'MP:0002');
 
 
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0012', 'MP:9999');
@@ -51,3 +62,6 @@ INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0400',
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0013', 'MP:0400');
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0500', 'MP:0014');
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0015', 'MP:0400');
+INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0001', 'MP:7777');
+INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:5555', 'MP:6666');
+INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:4444', 'MP:6666');
