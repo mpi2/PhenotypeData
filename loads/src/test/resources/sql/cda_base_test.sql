@@ -46,7 +46,7 @@ INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0400', '
 INSERT INTO consider_id(ontology_term_acc, consider_id_acc) VALUES ('MP:0015', 'MP:0300');
 
 
-INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:9999', 'MP:0012');
+INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0012', 'MP:9999');
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0400', 'MP:0012');
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0013', 'MP:0400');
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0500', 'MP:0014');

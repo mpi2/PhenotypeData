@@ -677,7 +677,7 @@ CREATE TABLE alternate_id (
 	ontology_term_acc          VARCHAR(30) NOT NULL,
 	alternate_id_acc           VARCHAR(30) NOT NULL,
 
-  KEY alternate_id_acc_idx(alternate_id_acc)
+  UNIQUE KEY alternate_id_acc_idx(ontology_term_acc, alternate_id_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -688,7 +688,9 @@ CREATE TABLE alternate_id (
 DROP TABLE IF EXISTS consider_id;
 CREATE TABLE consider_id (
 	ontology_term_acc          VARCHAR(30) NOT NULL,
-	consider_id_acc            VARCHAR(30) NOT NULL
+	consider_id_acc            VARCHAR(30) NOT NULL,
+
+	UNIQUE KEY ontology_term_acc_idx(ontology_term_acc, consider_id_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 

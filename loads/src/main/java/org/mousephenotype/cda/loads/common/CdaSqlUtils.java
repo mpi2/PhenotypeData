@@ -245,10 +245,11 @@ public class CdaSqlUtils {
             List<AlternateId> alternateIdList = jdbcCda.query("SELECT * FROM alternate_id", new AlternateIdRowMapper());
 
             for (AlternateId alternateId : alternateIdList) {
-                if ( ! alternateIds.containsKey(alternateId.getOntologyTermAccessionId())) {
-                    alternateIds.put(alternateId.getOntologyTermAccessionId(), new HashSet<>());
+                if ( ! alternateIds.containsKey(alternateId.getAlternateAccessionId())) {
+                    alternateIds.put(alternateId.getAlternateAccessionId(), new HashSet<>());
                 }
-                alternateIds.get(alternateId.getOntologyTermAccessionId()).add(alternateId);
+
+                alternateIds.get(alternateId.getAlternateAccessionId()).add(alternateId);
             }
         }
 
@@ -256,14 +257,18 @@ public class CdaSqlUtils {
     }
 
     /**
-     * Return the list of alternate accession ids matching the given {@code ontologyTermAccessionId}
+     * Return the {@link Set} of ontology accession ids matching the given {@code alternateAccessionId}, if found;
+     * an empty set otherwise
      *
-     * @param ontologyTermAccessionId the desired ontology term's accession id
+     * @param alternateAccessionId the accession id to check
      *
-     * @return the list of alternate ids matching the given {@code ontologyTermAccessionId}, if found; an empty list otherwise
+     * @return the ontology term accession id associated with the given alternate accession id, if found; an empty
+     * set otherwise
      */
-    public Set<AlternateId> getAlternateIds(String ontologyTermAccessionId) {
-        return getAlternateIds().get(ontologyTermAccessionId);
+    public Set<AlternateId> getAlternateIds(String alternateAccessionId) {
+        Set<AlternateId> alternateIds = getAlternateIds().get(alternateAccessionId);
+
+        return (alternateIds == null ? new HashSet<>() : alternateIds);
     }
     
     
@@ -825,10 +830,10 @@ public class CdaSqlUtils {
                 term = originalTerm;
             }
         } else {
-            Map<String, Set<AlternateId>> altIds = getAlternateIds();
-            if (altIds.containsKey(originalTerm.getId().getAccession())) {
-                Set<AlternateId> altIdSet = altIds.get(originalTerm.getId().getAccession());
-                term = terms.get(altIdSet.iterator().next());
+            Set<AlternateId> alternateIds = getAlternateIds(originalTerm.getId().getAccession());
+            if ( ! alternateIds.isEmpty()) {
+                String ontologyAccessionId = alternateIds.iterator().next().getOntologyTermAccessionId();
+                term = terms.get(ontologyAccessionId);
             }
         }
 
