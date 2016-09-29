@@ -5,6 +5,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +30,16 @@ import java.util.Map;
 @EnableAutoConfiguration
 public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunner {
 
+    private final Logger logger = LoggerFactory.getLogger(Allele2Indexer.class);
+
+
     @NotNull
     @Value("${allele2File}")
     private String pathToAlleleFile;
 
     @Autowired
     @Qualifier("allele2Indexing")
-    private SolrClient allele2Core;
+    private SolrClient allele2Indexing;
 
     Integer alleleDocCount;
     Map<String, Integer> columns = new HashMap<>();
@@ -44,8 +49,8 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
         RunStatus runStatus = new RunStatus();
 
-        allele2Core.deleteByQuery("*:*");
-        allele2Core.commit();
+        allele2Indexing.deleteByQuery("*:*");
+        allele2Indexing.commit();
 
         long time = System.currentTimeMillis();
         BufferedReader in = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
@@ -78,8 +83,8 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setEsCellAvailable(getBooleanValueFor(Allele2DTO.ES_CELL_AVAILABLE,array, columns, runStatus));
             doc.setFeatureChromosome(getValueFor(Allele2DTO.FEATURE_CHROMOSOME,array, columns, runStatus));
             doc.setFeatureStrand(getValueFor(Allele2DTO.FEATURE_STRAND,array, columns, runStatus));
-            doc.setFeatureCoordEnd(getLongValueFor(Allele2DTO.FEATURE_COORD_END,array, columns, runStatus));
-            doc.setFeatureCoordStart(getLongValueFor(Allele2DTO.FEAURE_COORD_START,array, columns, runStatus));
+            doc.setFeatureCoordEnd(getIntValueFor(Allele2DTO.FEATURE_COORD_END,array, columns, runStatus));
+            doc.setFeatureCoordStart(getIntValueFor(Allele2DTO.FEAURE_COORD_START,array, columns, runStatus));
             doc.setFeatureType(getValueFor(Allele2DTO.FEATURE_TYPE,array, columns, runStatus));
             doc.setGenbankFile(getValueFor(Allele2DTO.GENBANK_FILE,array, columns, runStatus));
             doc.setGeneModelIds(getListValueFor(Allele2DTO.GENE_MODEL_IDS,array, columns, runStatus));
@@ -115,16 +120,14 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
             line = in.readLine();
 
-            allele2Core.addBean(doc);
-            if (index % 1000 == 0) {
-                allele2Core.commit();
-//                System.out.println("committed " + index);
-            }
+            allele2Indexing.addBean(doc, 30000);
+
         }
 
-        allele2Core.commit();
+        allele2Indexing.commit();
         alleleDocCount = index;
         System.out.println("Indexing took " + (System.currentTimeMillis() - time));
+        logger.info("Added {} documents", alleleDocCount);
         return runStatus;
 
     }
@@ -134,7 +137,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
     public RunStatus validateBuild() throws IndexerException {
 
         RunStatus runStatus = new RunStatus();
-        Long actualSolrDocumentCount = getDocumentCount(allele2Core);
+        Long actualSolrDocumentCount = getDocumentCount(allele2Indexing);
 
         if (actualSolrDocumentCount < alleleDocCount) {
            runStatus.addError("Expected " + alleleDocCount + " documents. Actual count: " + actualSolrDocumentCount + ".");

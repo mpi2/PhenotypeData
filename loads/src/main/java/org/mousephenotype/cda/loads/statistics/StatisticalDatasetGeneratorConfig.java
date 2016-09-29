@@ -16,11 +16,16 @@
 
 package org.mousephenotype.cda.loads.statistics;
 
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+
+import javax.validation.constraints.NotNull;
 
 @Configuration
 @ComponentScan("org.mousephenotype.cda.loads.statistics")
@@ -29,5 +34,22 @@ import org.springframework.context.annotation.PropertySource;
 public class StatisticalDatasetGeneratorConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @NotNull
+    @Value("${solr.host}")
+    private String solrBaseUrl;
+
+    @Bean(name = "experimentCore")
+    HttpSolrClient getExperimentCore() {
+        return new HttpSolrClient(solrBaseUrl + "/experiment");
+    }
+
+    //Pipeline
+    @Bean(name = "pipelineCore")
+    HttpSolrClient getPipelineCore() {
+        return new HttpSolrClient(solrBaseUrl + "/pipeline");
+    }
+
+
 
 }
