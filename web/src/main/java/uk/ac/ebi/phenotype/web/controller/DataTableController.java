@@ -554,7 +554,7 @@ public class DataTableController {
             showImgView = jParams.getBoolean("showImgView");
         }
 
-		//System.out.println("GOT SOLRPARAMS: " + solrParamStr);
+		System.out.println("DataTableController SOLRPARAMS: " + solrParamStr);
 		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
@@ -1173,14 +1173,14 @@ public class DataTableController {
         int start = (int) request.getAttribute("displayStart");
 		int length = (int) request.getAttribute("displayLength");
 
-		fqOri = fqOri == null ? "fq=*:*" : fqOri;
+		fqOri = fqOri == null ? "*:*" : fqOri;
 
         String baseUrl = (String) request.getAttribute("baseUrl");
         //String mediaBaseUrl = config.get("mediaBaseUrl");
         String mediaBaseUrl = baseUrl + "/impcImages/images?";
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
 
-		if (showImgView) {
+        if (showImgView) {
 
             // image view: one image per row
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -1296,11 +1296,10 @@ public class DataTableController {
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			j.put("facet_fields", facetFields);
 
-			return j.toString();
+            return j.toString();
         } else {
 
             // annotation view: images group by annotationTerm per row
-            String fqStr = fqOri;
 
             String defaultQStr = "observation_type:image_record&qf=imgQf&defType=edismax";
 
@@ -1310,15 +1309,10 @@ public class DataTableController {
                 defaultQStr = "q=" + defaultQStr;
             }
 
-            String defaultFqStr = "fq=(biological_sample_group:experimental)";
-
-            if ( ! fqOri.contains("fq=*:*")) {
-                fqStr = fqStr.replace("fq=", "");
-                defaultFqStr = defaultFqStr + " AND " + fqStr;
-            }
-
             List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(query, json, baseUrl);
+
             int numAnnots = annots.size();
+
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
 			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
@@ -1352,8 +1346,16 @@ public class DataTableController {
 				//String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
 
                 String fqVal = annot.id != null ? annot.getId() : annot.getVal();
-				String thisFqStr = defaultFqStr + " AND " + annot.getFq() + ":\"" + fqVal + "\"";
-
+				String thisFqStr = null;
+				String annotFilter = annot.getFq() + ":\"" + fqVal + "\"";
+				String fqOri2 = fqOri.replaceAll("\\(|\\)", "");
+				if ( fqOri2.equals(annotFilter)){
+					thisFqStr = fqOri;
+				}
+				else {
+					thisFqStr = fqOri + " AND " + annotFilter;
+				}
+				//System.out.println("this fq str: "+thisFqStr);
 				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
 				String imgSubSetLink = null;
 				String thisImgUrl = null;
@@ -1368,15 +1370,15 @@ public class DataTableController {
 
 					String currFqStr = null;
 					if (displayAnnotName.equals("Gene")) {
-						currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
+						currFqStr = fqOri + " AND gene_symbol:\"" + annotVal + "\"";
 					} else if (displayAnnotName.equals("Procedure")) {
-						currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+						currFqStr = fqOri;//  + " AND procedure_name:\"" + annotVal + "\"";
 					} else if (displayAnnotName.equals("Anatomy")) {
-						currFqStr = defaultFqStr + " AND anatomy_id:\"" + annotId + "\"";
+						currFqStr = fqOri + " AND anatomy_id:\"" + annotId + "\"";
 					}
 
 					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-					thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
+					thisImgUrl = mediaBaseUrl + defaultQStr + "&fq=" + currFqStr;
 
 					imgSubSetLink = "<a rel='nofollow' href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 
