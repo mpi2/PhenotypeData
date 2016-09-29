@@ -94,6 +94,9 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setLatestMouseStatus(getValueFor(Allele2DTO.LATEST_MOUSE_STATUS,array, columns, runStatus));
             doc.setLatestPhenotypeComplete(getValueFor(Allele2DTO.LATEST_PHENOTYPE_COMPLETE,array, columns, runStatus));
             doc.setLatestPhenotypeStarted(getValueFor(Allele2DTO.LATEST_PHENOTYPE_STARTED,array, columns, runStatus));
+            doc.setLatestProductionCentre(getValueFor(Allele2DTO.LATEST_PRODUCTION_CENTRE,array, columns, runStatus));
+            doc.setLatestPhenotypingCentre(getValueFor(Allele2DTO.LATEST_PHENOTYPING_CENTRE,array, columns, runStatus));
+            doc.setLatestPhenotypeStatus(getValueFor(Allele2DTO.LATEST_PHENOTYPE_STATUS,array, columns, runStatus));
             doc.setLatestProjectStatus(getValueFor(Allele2DTO.LATEST_PROJECT_STATUS,array, columns, runStatus));
             doc.setLatestProjectStatusLegacy(getValueFor(Allele2DTO.LATEST_PROJECT_STATUS_LEGACY,array, columns, runStatus));
             doc.setLinks(getListValueFor(Allele2DTO.LINKS,array, columns, runStatus));
