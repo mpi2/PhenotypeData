@@ -13,6 +13,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -93,7 +94,7 @@ public class CdaSqlUtilsTest {
         isObsolete = false;
         replacementAcc = null;
         considerId = null;
-        alternateId = new AlternateId("MP:9999", "MP:0012");
+        alternateId = new AlternateId("MP:0012", "MP:9999");
         originalTerm = createOntologyTerm("MP:9999", isObsolete, replacementAcc, considerId, alternateId);
         latestTerm = cdaSqlUtils.getLatestOntologyTerm(originalTerm);
         Assert.assertTrue(latestTerm.getId().getAccession().equals("MP:0012"));
@@ -104,7 +105,7 @@ public class CdaSqlUtilsTest {
         replacementAcc = null;
         considerId = null;
         alternateId = null;
-        originalTerm = createOntologyTerm("MP:7777", isObsolete, replacementAcc, considerId, alternateId);
+        originalTerm = createOntologyTerm("MP:8888", isObsolete, replacementAcc, considerId, alternateId);
         latestTerm = cdaSqlUtils.getLatestOntologyTerm(originalTerm);
         Assert.assertNull(latestTerm);
         System.out.println("PASS\n");
@@ -169,6 +170,63 @@ public class CdaSqlUtilsTest {
         latestTerm = cdaSqlUtils.getLatestOntologyTerm(originalTerm);
         Assert.assertTrue(latestTerm.getId().getAccession().equals("MP:0015"));
         System.out.println("PASS\n");
+
+        System.out.println("replacement-isObsolete");
+        isObsolete = true;
+        replacementAcc = "MP:0001";
+        considerId = null;
+        alternateId = null;
+        originalTerm = createOntologyTerm("MP:0016", isObsolete, replacementAcc, considerId, alternateId);
+        latestTerm = cdaSqlUtils.getLatestOntologyTerm(originalTerm);
+        Assert.assertNull(latestTerm);
+        System.out.println("PASS\n");
+
+        System.out.println("replacement-hasObsoleteConsiderId");
+        isObsolete = true;
+        replacementAcc = null;
+        considerId = new ConsiderId("MP:0017", "MP:0002");
+        alternateId = new AlternateId("MP:0004", "MP:0017");
+        originalTerm = createOntologyTerm("MP:0017", isObsolete, replacementAcc, considerId, alternateId);
+        latestTerm = cdaSqlUtils.getLatestOntologyTerm(originalTerm);
+        Assert.assertNull(latestTerm);
+        System.out.println("PASS\n");
+
+        System.out.println("replacement-multipleConsiderIds");
+        isObsolete = true;
+        replacementAcc = null;
+        considerId = new ConsiderId("MP:0018", "MP:0001");
+        alternateId = null;
+        originalTerm = createOntologyTerm("MP:0018", isObsolete, replacementAcc, considerId, alternateId);
+        originalTerm.getConsiderIds().add(new ConsiderId("MP:0018", "MP:0002"));
+        latestTerm = cdaSqlUtils.getLatestOntologyTerm(originalTerm);
+        Assert.assertNull(latestTerm);
+        System.out.println("PASS\n");
+
+        System.out.println("notExists-hasObsoleteAlternateId");
+        isObsolete = false;
+        replacementAcc = null;
+        considerId = new ConsiderId("MP:0018", "MP:0001");
+        alternateId = new AlternateId("MP:0001", "MP:7777");
+        originalTerm = createOntologyTerm("MP:7777", isObsolete, replacementAcc, considerId, alternateId);
+        latestTerm = cdaSqlUtils.getLatestOntologyTerm(originalTerm);
+        Assert.assertNull(latestTerm);
+        System.out.println("PASS\n");
+
+        System.out.println("notExists-multipleAlternateIds");
+        isObsolete = false;
+        replacementAcc = null;
+        considerId = new ConsiderId("MP:0018", "MP:0001");
+        alternateId = new AlternateId("MP:5555", "MP:6666");
+        originalTerm = createOntologyTerm("MP:6666", isObsolete, replacementAcc, considerId, alternateId);
+        originalTerm.getAlternateIds().add(new AlternateId("MP:4444", "MP:6666"));
+        latestTerm = cdaSqlUtils.getLatestOntologyTerm(originalTerm);
+        Assert.assertNull(latestTerm);
+        System.out.println("PASS\n");
+
+        List<List<String>> ontologyTermCorrections = cdaSqlUtils.getOntologyTermLookups();
+        for (List<String> row : ontologyTermCorrections) {
+            System.out.println(String.format("%-20.20s%-20.20s%-50s", row.get(0), row.get(1), row.get(2)));
+        }
     }
 
     private OntologyTerm createOntologyTerm(String acc, boolean isObsolete, String replacementAcc, ConsiderId considerId, AlternateId alternateId) {
