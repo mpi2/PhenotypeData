@@ -61,7 +61,6 @@ public class Allele2DTO {
 	public static final String ALLELE_FEATURES = "allele_features";
 	public static final String WITHOUT_ALLELE_FEATURES = "without_allele_features";
 
-
 	@Field(MUTATION_TYPE)
 	private String mutationType;
 	@Field(ALLELE_CATEGORY)
@@ -102,6 +101,16 @@ public class Allele2DTO {
 	private List<String> geneticMapLinks;
 	@Field(PHENOTYPING_CENTRES)
 	private List<String> phenotypingCentres;
+
+	@Field(LATEST_PRODUCTION_CENTRE)
+	private String latestProductionCentre;
+
+	@Field(LATEST_PHENOTYPING_CENTRE)
+	private String latestPhenotypingCentre;
+
+	@Field(LATEST_PHENOTYPE_STATUS)
+	private String latestPhenotypeStatus;
+
 	@Field(LATEST_PROJECT_STATUS_LEGACY)
 	private String latestProjectStatusLegacy;
 	@Field(LATEST_PROJECT_STATUS)
@@ -179,153 +188,6 @@ public class Allele2DTO {
 
 	@Field(VECTOR_GENBANK_LINK)
 	private String vectorGenbankLink;
-	
-	public String getVectorGenbankLink() {
-		return vectorGenbankLink;
-	}
-	public void setVectorGenbankLink(String vectorGenbankLink) {
-		this.vectorGenbankLink = vectorGenbankLink;
-	}
-	public String getVectorAlleleImage() {
-		return vectorAlleleImage;
-	}
-	public void setVectorAlleleImage(String vectorAlleleImage) {
-		this.vectorAlleleImage = vectorAlleleImage;
-	}
-	public Boolean getMouseAvailable() {
-		return mouseAvailable;
-	}
-	public void setMouseAvailable(Boolean mouseAvailable) {
-		this.mouseAvailable = mouseAvailable;
-	}
-	public Boolean getEsCellAvailable() {
-		return esCellAvailable;
-	}
-	public void setEsCellAvailable(Boolean esCellAvailable) {
-		this.esCellAvailable = esCellAvailable;
-	}
-	public Boolean getTargetingVectorAvailable() {
-		return targetingVectorAvailable;
-	}
-	public void setTargetingVectorAvailable(Boolean targetingVectorAvailable) {
-		this.targetingVectorAvailable = targetingVectorAvailable;
-	}
-	public String getMarkerSymbol() {
-		return markerSymbol;
-	}
-	public void setMarkerSymbol(String markerSymbol) {
-		this.markerSymbol = markerSymbol;
-	}
-	public String getMgiAccessionId() {
-		return mgiAccessionId;
-	}
-	public void setMgiAccessionId(String mgiAccessionId) {
-		this.mgiAccessionId = mgiAccessionId;
-	}
-	public String getAlleleMgiAccessionId() {
-		return alleleMgiAccessionId;
-	}
-	public void setAlleleMgiAccessionId(String alleleMgiAccessionId) {
-		this.alleleMgiAccessionId = alleleMgiAccessionId;
-	}
-	public String getAlleleName() {
-		return alleleName;
-	}
-	public void setAlleleName(String alleleName) {
-		this.alleleName = alleleName;
-	}
-	public String getAlleleType() {
-		return alleleType;
-	}
-	public void setAlleleType(String alleleType) {
-		this.alleleType = alleleType;
-	}
-	public String getAlleleDescription() {
-		return alleleDescription;
-	}
-	public void setAlleleDescription(String alleleDescription) {
-		this.alleleDescription = alleleDescription;
-	}
-	public String getGenbankFile() {
-		return genbankFile;
-	}
-	public void setGenbankFile(String genbankFile) {
-		this.genbankFile = genbankFile;
-	}
-	public String getAlleleImage() {
-		return alleleImage;
-	}
-	public void setAlleleImage(String alleleImage) {
-		this.alleleImage = alleleImage;
-	}
-	public String getAlleleSimpleImage() {
-		return alleleSimpleImage;
-	}
-	public void setAlleleSimpleImage(String alleleSimpleImage) {
-		this.alleleSimpleImage = alleleSimpleImage;
-	}
-	public String getDesignId() {
-		return designId;
-	}
-	public void setDesignId(String designId) {
-		this.designId = designId;
-	}
-	public String getCassette() {
-		return cassette;
-	}
-	public void setCassette(String cassette) {
-		this.cassette = cassette;
-	}
-	public String getMouseStatus() {
-		return mouseStatus;
-	}
-	public void setMouseStatus(String mouseStatus) {
-		this.mouseStatus = mouseStatus;
-	}
-	public String getEsCellStatus() {
-		return esCellStatus;
-	}
-	public void setEsCellStatus(String esCellStatus) {
-		this.esCellStatus = esCellStatus;
-	}
-	public String getProductionCentre() {
-		return productionCentre;
-	}
-	public void setProductionCentre(String productionCentre) {
-		this.productionCentre = productionCentre;
-	}
-	public String getType() {
-		return type;
-	}
-	public void setType(String type) {
-		this.type = type;
-	}
-	public List<String> getIkmcProject() {
-		return ikmcProject;
-	}
-	public void setIkmcProject(List<String> ikmcProject) {
-		this.ikmcProject = ikmcProject;
-	}
-	public List<String> getPipeline() {
-		return pipeline;
-	}
-	public void setPipeline(List<String> pipeline) {
-		this.pipeline = pipeline;
-	}
-	public List<String> getLinks() {
-		return links;
-	}
-	public void setLinks(List<String> links) {
-		this.links = links;
-	}
-
-	public List<String> getAlleleSymbol() {
-		return alleleSymbol;
-	}
-
-	public void setAlleleSymbol(List<String> alleleSymbol) {
-		this.alleleSymbol = alleleSymbol;
-	}
 
 	public String getMutationType() {
 		return mutationType;
@@ -423,14 +285,6 @@ public class Allele2DTO {
 		this.autoSuggest = autoSuggest;
 	}
 
-	public String getMarkerName() {
-		return markerName;
-	}
-
-	public void setMarkerName(String markerName) {
-		this.markerName = markerName;
-	}
-
 	public List<String> getSynonym() {
 		return synonym;
 	}
@@ -495,6 +349,30 @@ public class Allele2DTO {
 		this.phenotypingCentres = phenotypingCentres;
 	}
 
+	public String getLatestProductionCentre() {
+		return latestProductionCentre;
+	}
+
+	public void setLatestProductionCentre(String latestProductionCentre) {
+		this.latestProductionCentre = latestProductionCentre;
+	}
+
+	public String getLatestPhenotypingCentre() {
+		return latestPhenotypingCentre;
+	}
+
+	public void setLatestPhenotypingCentre(String latestPhenotypingCentre) {
+		this.latestPhenotypingCentre = latestPhenotypingCentre;
+	}
+
+	public String getLatestPhenotypeStatus() {
+		return latestPhenotypeStatus;
+	}
+
+	public void setLatestPhenotypeStatus(String latestPhenotypeStatus) {
+		this.latestPhenotypeStatus = latestPhenotypeStatus;
+	}
+
 	public String getLatestProjectStatusLegacy() {
 		return latestProjectStatusLegacy;
 	}
@@ -535,6 +413,358 @@ public class Allele2DTO {
 		this.markerType = markerType;
 	}
 
+	public String getMgiAccessionId() {
+		return mgiAccessionId;
+	}
+
+	public void setMgiAccessionId(String mgiAccessionId) {
+		this.mgiAccessionId = mgiAccessionId;
+	}
+
+	public String getMarkerSymbol() {
+		return markerSymbol;
+	}
+
+	public void setMarkerSymbol(String markerSymbol) {
+		this.markerSymbol = markerSymbol;
+	}
+
+	public String getMarkerName() {
+		return markerName;
+	}
+
+	public void setMarkerName(String markerName) {
+		this.markerName = markerName;
+	}
+
+	public String getAlleleMgiAccessionId() {
+		return alleleMgiAccessionId;
+	}
+
+	public void setAlleleMgiAccessionId(String alleleMgiAccessionId) {
+		this.alleleMgiAccessionId = alleleMgiAccessionId;
+	}
+
+	public String getAlleleName() {
+		return alleleName;
+	}
+
+	public void setAlleleName(String alleleName) {
+		this.alleleName = alleleName;
+	}
+
+	public String getAlleleType() {
+		return alleleType;
+	}
+
+	public void setAlleleType(String alleleType) {
+		this.alleleType = alleleType;
+	}
+
+	public String getAlleleDescription() {
+		return alleleDescription;
+	}
+
+	public void setAlleleDescription(String alleleDescription) {
+		this.alleleDescription = alleleDescription;
+	}
+
+	public String getGenbankFile() {
+		return genbankFile;
+	}
+
+	public void setGenbankFile(String genbankFile) {
+		this.genbankFile = genbankFile;
+	}
+
+	public String getAlleleImage() {
+		return alleleImage;
+	}
+
+	public void setAlleleImage(String alleleImage) {
+		this.alleleImage = alleleImage;
+	}
+
+	public List<String> getAlleleSymbol() {
+		return alleleSymbol;
+	}
+
+	public void setAlleleSymbol(List<String> alleleSymbol) {
+		this.alleleSymbol = alleleSymbol;
+	}
+
+	public String getAlleleSimpleImage() {
+		return alleleSimpleImage;
+	}
+
+	public void setAlleleSimpleImage(String alleleSimpleImage) {
+		this.alleleSimpleImage = alleleSimpleImage;
+	}
+
+	public String getDesignId() {
+		return designId;
+	}
+
+	public void setDesignId(String designId) {
+		this.designId = designId;
+	}
+
+	public String getCassette() {
+		return cassette;
+	}
+
+	public void setCassette(String cassette) {
+		this.cassette = cassette;
+	}
+
+	public String getMouseStatus() {
+		return mouseStatus;
+	}
+
+	public void setMouseStatus(String mouseStatus) {
+		this.mouseStatus = mouseStatus;
+	}
+
+	public String getEsCellStatus() {
+		return esCellStatus;
+	}
+
+	public void setEsCellStatus(String esCellStatus) {
+		this.esCellStatus = esCellStatus;
+	}
+
+	public String getProductionCentre() {
+		return productionCentre;
+	}
+
+	public void setProductionCentre(String productionCentre) {
+		this.productionCentre = productionCentre;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public List<String> getIkmcProject() {
+		return ikmcProject;
+	}
+
+	public void setIkmcProject(List<String> ikmcProject) {
+		this.ikmcProject = ikmcProject;
+	}
+
+	public List<String> getPipeline() {
+		return pipeline;
+	}
+
+	public void setPipeline(List<String> pipeline) {
+		this.pipeline = pipeline;
+	}
+
+	public List<String> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<String> links) {
+		this.links = links;
+	}
+
+	public Boolean getTargetingVectorAvailable() {
+		return targetingVectorAvailable;
+	}
+
+	public void setTargetingVectorAvailable(Boolean targetingVectorAvailable) {
+		this.targetingVectorAvailable = targetingVectorAvailable;
+	}
+
+	public Boolean getEsCellAvailable() {
+		return esCellAvailable;
+	}
+
+	public void setEsCellAvailable(Boolean esCellAvailable) {
+		this.esCellAvailable = esCellAvailable;
+	}
+
+	public Boolean getMouseAvailable() {
+		return mouseAvailable;
+	}
+
+	public void setMouseAvailable(Boolean mouseAvailable) {
+		this.mouseAvailable = mouseAvailable;
+	}
+
+	public String getVectorAlleleImage() {
+		return vectorAlleleImage;
+	}
+
+	public void setVectorAlleleImage(String vectorAlleleImage) {
+		this.vectorAlleleImage = vectorAlleleImage;
+	}
+
+	public String getVectorGenbankLink() {
+		return vectorGenbankLink;
+	}
+
+	public void setVectorGenbankLink(String vectorGenbankLink) {
+		this.vectorGenbankLink = vectorGenbankLink;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Allele2DTO that = (Allele2DTO) o;
+
+		if (mutationType != null ? !mutationType.equals(that.mutationType) : that.mutationType != null) return false;
+		if (alleleCategory != null ? !alleleCategory.equals(that.alleleCategory) : that.alleleCategory != null)
+			return false;
+		if (alleleFeatures != null ? !alleleFeatures.equals(that.alleleFeatures) : that.alleleFeatures != null)
+			return false;
+		if (withoutAlleleFeatures != null ? !withoutAlleleFeatures.equals(that.withoutAlleleFeatures) : that.withoutAlleleFeatures != null)
+			return false;
+		if (featureCoordEnd != null ? !featureCoordEnd.equals(that.featureCoordEnd) : that.featureCoordEnd != null)
+			return false;
+		if (phenotypeStatus != null ? !phenotypeStatus.equals(that.phenotypeStatus) : that.phenotypeStatus != null)
+			return false;
+		if (latestEsCellStatus != null ? !latestEsCellStatus.equals(that.latestEsCellStatus) : that.latestEsCellStatus != null)
+			return false;
+		if (latestMouseStatus != null ? !latestMouseStatus.equals(that.latestMouseStatus) : that.latestMouseStatus != null)
+			return false;
+		if (featureChromosome != null ? !featureChromosome.equals(that.featureChromosome) : that.featureChromosome != null)
+			return false;
+		if (featureStrand != null ? !featureStrand.equals(that.featureStrand) : that.featureStrand != null)
+			return false;
+		if (featureCoordStart != null ? !featureCoordStart.equals(that.featureCoordStart) : that.featureCoordStart != null)
+			return false;
+		if (autoSuggest != null ? !autoSuggest.equals(that.autoSuggest) : that.autoSuggest != null) return false;
+		if (synonym != null ? !synonym.equals(that.synonym) : that.synonym != null) return false;
+		if (featureType != null ? !featureType.equals(that.featureType) : that.featureType != null) return false;
+		if (sequenceMapLinks != null ? !sequenceMapLinks.equals(that.sequenceMapLinks) : that.sequenceMapLinks != null)
+			return false;
+		if (geneModelIds != null ? !geneModelIds.equals(that.geneModelIds) : that.geneModelIds != null) return false;
+		if (latestPhenotypeStarted != null ? !latestPhenotypeStarted.equals(that.latestPhenotypeStarted) : that.latestPhenotypeStarted != null)
+			return false;
+		if (latestPhenotypeComplete != null ? !latestPhenotypeComplete.equals(that.latestPhenotypeComplete) : that.latestPhenotypeComplete != null)
+			return false;
+		if (geneticMapLinks != null ? !geneticMapLinks.equals(that.geneticMapLinks) : that.geneticMapLinks != null)
+			return false;
+		if (phenotypingCentres != null ? !phenotypingCentres.equals(that.phenotypingCentres) : that.phenotypingCentres != null)
+			return false;
+		if (latestProductionCentre != null ? !latestProductionCentre.equals(that.latestProductionCentre) : that.latestProductionCentre != null)
+			return false;
+		if (latestPhenotypingCentre != null ? !latestPhenotypingCentre.equals(that.latestPhenotypingCentre) : that.latestPhenotypingCentre != null)
+			return false;
+		if (latestPhenotypeStatus != null ? !latestPhenotypeStatus.equals(that.latestPhenotypeStatus) : that.latestPhenotypeStatus != null)
+			return false;
+		if (latestProjectStatusLegacy != null ? !latestProjectStatusLegacy.equals(that.latestProjectStatusLegacy) : that.latestProjectStatusLegacy != null)
+			return false;
+		if (latestProjectStatus != null ? !latestProjectStatus.equals(that.latestProjectStatus) : that.latestProjectStatus != null)
+			return false;
+		if (phenotypingCentre != null ? !phenotypingCentre.equals(that.phenotypingCentre) : that.phenotypingCentre != null)
+			return false;
+		if (productionCentres != null ? !productionCentres.equals(that.productionCentres) : that.productionCentres != null)
+			return false;
+		if (markerType != null ? !markerType.equals(that.markerType) : that.markerType != null) return false;
+		if (mgiAccessionId != null ? !mgiAccessionId.equals(that.mgiAccessionId) : that.mgiAccessionId != null)
+			return false;
+		if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
+		if (markerName != null ? !markerName.equals(that.markerName) : that.markerName != null) return false;
+		if (alleleMgiAccessionId != null ? !alleleMgiAccessionId.equals(that.alleleMgiAccessionId) : that.alleleMgiAccessionId != null)
+			return false;
+		if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) return false;
+		if (alleleType != null ? !alleleType.equals(that.alleleType) : that.alleleType != null) return false;
+		if (alleleDescription != null ? !alleleDescription.equals(that.alleleDescription) : that.alleleDescription != null)
+			return false;
+		if (genbankFile != null ? !genbankFile.equals(that.genbankFile) : that.genbankFile != null) return false;
+		if (alleleImage != null ? !alleleImage.equals(that.alleleImage) : that.alleleImage != null) return false;
+		if (alleleSymbol != null ? !alleleSymbol.equals(that.alleleSymbol) : that.alleleSymbol != null) return false;
+		if (alleleSimpleImage != null ? !alleleSimpleImage.equals(that.alleleSimpleImage) : that.alleleSimpleImage != null)
+			return false;
+		if (designId != null ? !designId.equals(that.designId) : that.designId != null) return false;
+		if (cassette != null ? !cassette.equals(that.cassette) : that.cassette != null) return false;
+		if (mouseStatus != null ? !mouseStatus.equals(that.mouseStatus) : that.mouseStatus != null) return false;
+		if (esCellStatus != null ? !esCellStatus.equals(that.esCellStatus) : that.esCellStatus != null) return false;
+		if (productionCentre != null ? !productionCentre.equals(that.productionCentre) : that.productionCentre != null)
+			return false;
+		if (type != null ? !type.equals(that.type) : that.type != null) return false;
+		if (ikmcProject != null ? !ikmcProject.equals(that.ikmcProject) : that.ikmcProject != null) return false;
+		if (pipeline != null ? !pipeline.equals(that.pipeline) : that.pipeline != null) return false;
+		if (links != null ? !links.equals(that.links) : that.links != null) return false;
+		if (targetingVectorAvailable != null ? !targetingVectorAvailable.equals(that.targetingVectorAvailable) : that.targetingVectorAvailable != null)
+			return false;
+		if (esCellAvailable != null ? !esCellAvailable.equals(that.esCellAvailable) : that.esCellAvailable != null)
+			return false;
+		if (mouseAvailable != null ? !mouseAvailable.equals(that.mouseAvailable) : that.mouseAvailable != null)
+			return false;
+		if (vectorAlleleImage != null ? !vectorAlleleImage.equals(that.vectorAlleleImage) : that.vectorAlleleImage != null)
+			return false;
+		return vectorGenbankLink != null ? vectorGenbankLink.equals(that.vectorGenbankLink) : that.vectorGenbankLink == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mutationType != null ? mutationType.hashCode() : 0;
+		result = 31 * result + (alleleCategory != null ? alleleCategory.hashCode() : 0);
+		result = 31 * result + (alleleFeatures != null ? alleleFeatures.hashCode() : 0);
+		result = 31 * result + (withoutAlleleFeatures != null ? withoutAlleleFeatures.hashCode() : 0);
+		result = 31 * result + (featureCoordEnd != null ? featureCoordEnd.hashCode() : 0);
+		result = 31 * result + (phenotypeStatus != null ? phenotypeStatus.hashCode() : 0);
+		result = 31 * result + (latestEsCellStatus != null ? latestEsCellStatus.hashCode() : 0);
+		result = 31 * result + (latestMouseStatus != null ? latestMouseStatus.hashCode() : 0);
+		result = 31 * result + (featureChromosome != null ? featureChromosome.hashCode() : 0);
+		result = 31 * result + (featureStrand != null ? featureStrand.hashCode() : 0);
+		result = 31 * result + (featureCoordStart != null ? featureCoordStart.hashCode() : 0);
+		result = 31 * result + (autoSuggest != null ? autoSuggest.hashCode() : 0);
+		result = 31 * result + (synonym != null ? synonym.hashCode() : 0);
+		result = 31 * result + (featureType != null ? featureType.hashCode() : 0);
+		result = 31 * result + (sequenceMapLinks != null ? sequenceMapLinks.hashCode() : 0);
+		result = 31 * result + (geneModelIds != null ? geneModelIds.hashCode() : 0);
+		result = 31 * result + (latestPhenotypeStarted != null ? latestPhenotypeStarted.hashCode() : 0);
+		result = 31 * result + (latestPhenotypeComplete != null ? latestPhenotypeComplete.hashCode() : 0);
+		result = 31 * result + (geneticMapLinks != null ? geneticMapLinks.hashCode() : 0);
+		result = 31 * result + (phenotypingCentres != null ? phenotypingCentres.hashCode() : 0);
+		result = 31 * result + (latestProductionCentre != null ? latestProductionCentre.hashCode() : 0);
+		result = 31 * result + (latestPhenotypingCentre != null ? latestPhenotypingCentre.hashCode() : 0);
+		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (latestProjectStatusLegacy != null ? latestProjectStatusLegacy.hashCode() : 0);
+		result = 31 * result + (latestProjectStatus != null ? latestProjectStatus.hashCode() : 0);
+		result = 31 * result + (phenotypingCentre != null ? phenotypingCentre.hashCode() : 0);
+		result = 31 * result + (productionCentres != null ? productionCentres.hashCode() : 0);
+		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
+		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
+		result = 31 * result + (alleleMgiAccessionId != null ? alleleMgiAccessionId.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (alleleType != null ? alleleType.hashCode() : 0);
+		result = 31 * result + (alleleDescription != null ? alleleDescription.hashCode() : 0);
+		result = 31 * result + (genbankFile != null ? genbankFile.hashCode() : 0);
+		result = 31 * result + (alleleImage != null ? alleleImage.hashCode() : 0);
+		result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
+		result = 31 * result + (alleleSimpleImage != null ? alleleSimpleImage.hashCode() : 0);
+		result = 31 * result + (designId != null ? designId.hashCode() : 0);
+		result = 31 * result + (cassette != null ? cassette.hashCode() : 0);
+		result = 31 * result + (mouseStatus != null ? mouseStatus.hashCode() : 0);
+		result = 31 * result + (esCellStatus != null ? esCellStatus.hashCode() : 0);
+		result = 31 * result + (productionCentre != null ? productionCentre.hashCode() : 0);
+		result = 31 * result + (type != null ? type.hashCode() : 0);
+		result = 31 * result + (ikmcProject != null ? ikmcProject.hashCode() : 0);
+		result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
+		result = 31 * result + (links != null ? links.hashCode() : 0);
+		result = 31 * result + (targetingVectorAvailable != null ? targetingVectorAvailable.hashCode() : 0);
+		result = 31 * result + (esCellAvailable != null ? esCellAvailable.hashCode() : 0);
+		result = 31 * result + (mouseAvailable != null ? mouseAvailable.hashCode() : 0);
+		result = 31 * result + (vectorAlleleImage != null ? vectorAlleleImage.hashCode() : 0);
+		result = 31 * result + (vectorGenbankLink != null ? vectorGenbankLink.hashCode() : 0);
+		return result;
+	}
+
 	@Override
 	public String toString() {
 		return "Allele2DTO{" +
@@ -558,6 +788,9 @@ public class Allele2DTO {
 				", latestPhenotypeComplete='" + latestPhenotypeComplete + '\'' +
 				", geneticMapLinks=" + geneticMapLinks +
 				", phenotypingCentres=" + phenotypingCentres +
+				", latestProductionCentre='" + latestProductionCentre + '\'' +
+				", latestPhenotypingCentre='" + latestPhenotypingCentre + '\'' +
+				", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
 				", latestProjectStatusLegacy='" + latestProjectStatusLegacy + '\'' +
 				", latestProjectStatus='" + latestProjectStatus + '\'' +
 				", phenotypingCentre='" + phenotypingCentre + '\'' +
@@ -572,6 +805,7 @@ public class Allele2DTO {
 				", alleleDescription='" + alleleDescription + '\'' +
 				", genbankFile='" + genbankFile + '\'' +
 				", alleleImage='" + alleleImage + '\'' +
+				", alleleSymbol=" + alleleSymbol +
 				", alleleSimpleImage='" + alleleSimpleImage + '\'' +
 				", designId='" + designId + '\'' +
 				", cassette='" + cassette + '\'' +
