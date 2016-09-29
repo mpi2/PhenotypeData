@@ -24,7 +24,7 @@ import java.util.concurrent.*;
 @Controller
 public class WebStatusController {
 
-	public static final Integer TIMEOUT_INTERVAL = 2;
+	public static final Integer TIMEOUT_INTERVAL = 1;
 
 	@Autowired
 	ObservationService observationService;
