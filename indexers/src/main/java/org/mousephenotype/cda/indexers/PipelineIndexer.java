@@ -107,6 +107,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		addAbnormalMaOntology();
 		addAbnormalEmapOntology();
 		mpIdToMp = populateMpIdToMp();
+		logger.info("Populated {} mp terms to map", mpIdToMp.size());
 	}
 
 
