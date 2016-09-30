@@ -203,20 +203,32 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						if (param.getAbnormalMpId() != null){
 							doc.setAbnormalMpId(new ArrayList<String>(param.getAbnormalMpId()));
 							for (String mpId: param.getAbnormalMpId()){
-								doc.addAbnormalMpTerm(mpIdToMp.get(mpId).getMpTerm());
+								try {
+									doc.addAbnormalMpTerm(mpIdToMp.get(mpId).getMpTerm());
+								} catch (NullPointerException e) {
+									logger.error("Cannot get information from mpIdToMp map for id {}", mpId);
+								}
 							}
 						}
 						if (param.getIncreasedMpId() != null){
 							doc.setIncreasedMpId(new ArrayList<String>(param.getIncreasedMpId()));
 							for(String mpId: param.getIncreasedMpId()){
-								doc.addIncreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+								try {
+									doc.addIncreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+								} catch (NullPointerException e) {
+									logger.error("Cannot get information from mpIdToMp map for id {}", mpId);
+								}
 							}
 						}
 						if (param.getDecreasedMpId()!= null){
 							doc.setDecreasedMpId(new ArrayList<String>(param.getDecreasedMpId()));
 							for(String mpId: param.getDecreasedMpId()){
 								if (mpIdToMp.get(mpId)!=null) {
-									doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+									try {
+										doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+									} catch (NullPointerException e) {
+										logger.error("Cannot get information from mpIdToMp map for id {}", mpId);
+									}
 								} else {
 									logger.warn("Cannot find MP term for MP ID {}", mpId);
 								}
