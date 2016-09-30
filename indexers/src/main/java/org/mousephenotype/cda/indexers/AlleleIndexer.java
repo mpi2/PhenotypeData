@@ -788,7 +788,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
         SolrQuery query = new SolrQuery("*:*");
         query.setRows(Integer.MAX_VALUE);
-        query.addFilterQuery("type:allele");
+        query.addFilterQuery("type:Allele");
 
         QueryResponse response = allele2Core.query(query);
         List<SangerAlleleBean> sangerAlleles = response.getBeans(SangerAlleleBean.class);
