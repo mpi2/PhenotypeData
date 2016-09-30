@@ -206,7 +206,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								try {
 									doc.addAbnormalMpTerm(mpIdToMp.get(mpId).getMpTerm());
 								} catch (NullPointerException e) {
-									logger.error("Cannot get information from mpIdToMp map for id {}", mpId);
+									logger.warn("Cannot get information from mpIdToMp map for id {}", mpId);
 								}
 							}
 						}
@@ -216,7 +216,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								try {
 									doc.addIncreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
 								} catch (NullPointerException e) {
-									logger.error("Cannot get information from mpIdToMp map for id {}", mpId);
+									logger.warn("Cannot get information from mpIdToMp map for id {}", mpId);
 								}
 							}
 						}
@@ -227,7 +227,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 									try {
 										doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
 									} catch (NullPointerException e) {
-										logger.error("Cannot get information from mpIdToMp map for id {}", mpId);
+										logger.warn("Cannot get information from mpIdToMp map for id {}", mpId);
 									}
 								} else {
 									logger.warn("Cannot find MP term for MP ID {}", mpId);
