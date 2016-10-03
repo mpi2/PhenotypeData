@@ -39,6 +39,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -63,6 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -127,6 +129,8 @@ public class DataTableController {
     @Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
+
+
 
     /**
      <p>
@@ -1178,6 +1182,7 @@ public class DataTableController {
         String baseUrl = (String) request.getAttribute("baseUrl");
         //String mediaBaseUrl = config.get("mediaBaseUrl");
         String mediaBaseUrl = baseUrl + "/impcImages/images?";
+        String pdfThumbnailUrl=(String) request.getAttribute("pdfThumbnailUrl");
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
 
         if (showImgView) {
@@ -1213,7 +1218,7 @@ public class DataTableController {
                     String largeThumbNailPath = fullSizePath.replace("render_image", "render_thumbnail") + "/800/";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
                     if(doc.getString("download_url").contains("annotation")){
-                    	imgLink = "<a rel='nofollow' href='" + doc.getString("download_url") + "'>" + img + "</a>";
+                    	imgLink = "<a rel='nofollow' href='" + doc.getString("download_url") + "'>" + "<img src='" + "../"+pdfThumbnailUrl + "'/>" + "</a>";
                     }else{
                     	imgLink = "<a rel='nofollow' class='fancybox' fullres='" + fullSizePath +  "' href='" + largeThumbNailPath + "'>" + img + "</a>";
                     }
