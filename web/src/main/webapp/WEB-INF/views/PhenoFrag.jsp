@@ -89,16 +89,7 @@
             <td title="${phenotype.zygosity}">${phenotype.zygosity.getShortName()}</td>
             <td>
                 <c:set var="count" value="0" scope="page"/>
-                <c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/>
-            		<c:if test="${sex == 'both'}"> <span class="bothSexes"> <img alt="Female" src="${baseUrl}/img/female.jpg"/> <img alt="Male" src="${baseUrl}/img/male.jpg"/> </span></c:if>
-                    <c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/>
-                        <img alt="Female" src="${baseUrl}/img/female.jpg"/>
-                    </c:if>
-                    <c:if test="${sex == 'male'}">
-                        <c:if test="${count != 2}"><img data-placement="top" src="${baseUrl}/img/empty.jpg"/></c:if>
-                        <c:set var="europhenome_gender" value="Male"/><img alt="Male" src="${baseUrl}/img/male.jpg"/>
-                    </c:if>
-                </c:forEach>
+                <t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes>
             </td>
             <td>${phenotype.lifeStageName} <%-- length= ${phenotype.phenotypeCallUniquePropertyBeans} --%></td>
 
