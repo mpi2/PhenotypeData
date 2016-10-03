@@ -1207,10 +1207,10 @@ public class DataTableController {
                 if (doc.containsKey("jpeg_url")) {
 
                     String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-
-					String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
-                    String smallThumbNailPath = thumbnailPath + "/200/";  //width in pixel
-                    String largeThumbNailPath = thumbnailPath + "/800/";  //width in pixel
+                    
+					String thumbnailPath = fullSizePath.replace("render_image", "render_birds_eye_view");
+                    String smallThumbNailPath = thumbnailPath ;  //width in pixel
+                    String largeThumbNailPath = fullSizePath.replace("render_image", "render_thumbnail") + "/800/";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
                     if(doc.getString("download_url").contains("annotation")){
                     	imgLink = "<a rel='nofollow' href='" + doc.getString("download_url") + "'>" + img + "</a>";
@@ -1429,7 +1429,7 @@ public class DataTableController {
                 JSONObject doc = docs.getJSONObject(i);
 
 				String annots = "";
-
+				System.out.println("doc.getString( largeThumbnailFilePath"+ doc.getString("largeThumbnailFilePath"));
                 String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
                 String img = "<img src='" + imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";
                 String fullSizePath = largeThumbNailPath.replace("tn_large", "full");
