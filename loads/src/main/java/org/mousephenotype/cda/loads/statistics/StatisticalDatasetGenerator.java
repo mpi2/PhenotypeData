@@ -85,7 +85,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             for (Map<String, String> result : results) {
 
                 if (parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP)) == null) {
-                    logger.info("  Skipping procedure {} -- not in parameters map (no parameters to annotate)", result.get(ObservationDTO.PROCEDURE_GROUP));
+                    logger.info("  Skipping procedure {} -- not in parameters map (no parameters to annotate)", result.get(ObservationDTO.PROCEDURE_STABLE_ID));
                     continue;
                 }
 
