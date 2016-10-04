@@ -229,8 +229,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 if ( mp.getChildMpId() != null ) {
                     // get the children of MP not in our slim (narrow synonyms)
                     int levelForNarrowSynonyms = 2;
+			if (mpTerm!=null) {
                     Set<String> narrowSynonyms = mpHpParser.getNarrowSynonyms(mpTerm, levelForNarrowSynonyms);
                     mp.setMpNarrowSynonym(new ArrayList(narrowSynonyms));
+			}
                 }
 
                 mp.setOntologySubset(ontologySubsets.get(termId));
