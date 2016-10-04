@@ -819,7 +819,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	void populateParameterAssociationMap() throws SQLException {
 
 		Map<String, String> stableIdToNameMap = this.getAllParameters();
-		String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id, parameter_association_value FROM parameter_association";
+		String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id, parameter_association_value FROM parameter_association  where parameter_association_value is not  null";
 
 		try (PreparedStatement p = connection.prepareStatement(query)) {
 
