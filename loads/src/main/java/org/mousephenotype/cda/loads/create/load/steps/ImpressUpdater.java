@@ -113,13 +113,16 @@ public class ImpressUpdater implements Step, Tasklet, InitializingBean {
         List<String> ontologyAccessionIds = jdbcImpress.queryForList(query, new HashMap<>(), String.class);
         Set<OntologyTermAnomaly> anomalies = cdaSqlUtils.checkAndUpdateOntologyTerms(jdbcImpress, ontologyAccessionIds, "phenotype_parameter_ontology_association", "ontology_acc");
 
-        List<String> anomalyReasons = new ArrayList<>();
-        for (OntologyTermAnomaly anomaly  : anomalies) {
-            anomalyReasons.add(anomaly.getReason());
-        }
-        Collections.sort(anomalyReasons);
-        for (String anomalyReason : anomalyReasons) {
-            System.out.println(anomalyReason);
+        if ( ! anomalies.isEmpty()) {
+            System.out.println("\nanomalies:");
+            List<String> anomalyReasons = new ArrayList<>();
+            for (OntologyTermAnomaly anomaly : anomalies) {
+                anomalyReasons.add(anomaly.getReason());
+            }
+            Collections.sort(anomalyReasons);
+            for (String anomalyReason : anomalyReasons) {
+                System.out.println("\t" + anomalyReason);
+            }
         }
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
