@@ -25,6 +25,7 @@ import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.legacy.LoaderUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -803,20 +804,30 @@ public class CdaSqlUtils {
                         "SET " + ontologyAccColumnName + " = :newOntologyAcc WHERE " + ontologyAccColumnName + " = :originalOntologyAcc;";
 
         Set<OntologyTermAnomaly> anomalies = new HashSet<>();
-        for (String ontologyAccessionId : ontologyAccessionIds) {
-            OntologyTerm originalTerm = getOntologyTerm(ontologyAccessionId);
+        for (String originalAcc : ontologyAccessionIds) {
+            OntologyTerm originalTerm = getOntologyTerm(originalAcc);
             if ((originalTerm != null) && ( ! originalTerm.getIsObsolete())) {
                 continue;
             }
 
-            // NOTE: getLatestOntologyTerm() does not need, use, or provide: dbName, tableName, and ontologyTermColumnName.
-            //       However, they are needed for writing to the database. They are added below.
-            OntologyTerm newTerm = getLatestOntologyTerm(ontologyAccessionId, anomalies);
-            if (newTerm != null) {
+            RunStatus status = new RunStatus();
+            OntologyTerm replacementOntologyTerm = getLatestOntologyTerm(originalAcc, status);
+            String replacementAcc = null;
+
+            if (replacementOntologyTerm != null) {
+                replacementAcc = replacementOntologyTerm.getId().getAccession();
                 Map<String, Object> parameterMap = new HashMap<>();
-                parameterMap.put("originalOntologyAcc", ontologyAccessionId);
-                parameterMap.put("newOntologyAcc", newTerm.getId().getAccession());
+                parameterMap.put("originalOntologyAcc", originalAcc);
+                parameterMap.put("newOntologyAcc", replacementOntologyTerm.getId().getAccession());
                 jdbc.update(update, parameterMap);
+            }
+
+            // Log the anomalies
+            for (String reason : status.getErrorMessages()) {
+                anomalies.add(new OntologyTermAnomaly(dbName, tableName, ontologyAccColumnName, originalAcc, replacementAcc, reason));
+            }
+            for (String reason : status.getWarningMessages()) {
+                anomalies.add(new OntologyTermAnomaly(dbName, tableName, ontologyAccColumnName, originalAcc, replacementAcc, reason));
             }
         }
 
@@ -827,28 +838,6 @@ public class CdaSqlUtils {
             anomaly.setTableName(tableName);
             anomaly.setOntologyAccColumnName(ontologyAccColumnName);
 
-            // INFO
-            switch (anomaly.getReason()) {
-                case NOT_FOUND_HAS_ALTERNATE_ID:
-                case OBSOLETE_HAS_CONSIDER_ID:
-                case OBSOLETE_HAS_REPLACEMENT:
-                    logger.info(anomaly.getReason().toString());
-
-                break;
-
-                // ERRORS
-                case NOT_FOUND_HAS_MULTIPLE_ALTERNATE_IDS:
-                case NOT_FOUND_INVALID_ALTERNATE_ID:
-                case NOT_FOUND_NO_OTHER_ID:
-                case OBSOLETE_INVALID_CONSIDER_ID:
-                case OBSOLETE_HAS_MULTIPLE_CONSIDER_IDS:
-                case OBSOLETE_HAS_INVALID_REPLACEMENT:
-                case OBSOLETE_NO_OTHER_ID:
-                    logger.error(anomaly.getReason().toString());
-                    break;
-            }
-
-            // Write anomalies to ontology_term_anomaly and update last_modified.
             insertOntologyTermAnomaly(anomaly);
 
         }
@@ -886,16 +875,18 @@ public class CdaSqlUtils {
      *          else
      *              this is an unknown ontolgy term accession id. Return null.
      * </pre>
-     * @param originalAccessionId the original ontology term accession id
-     * @param ontologyTermAnomalies the list of {@link OntologyTermAnomaly} instances that failed or needed translation
+     * @param originalAcc the original ontology term accession id
+     * @param status the status of the call. Successfully replaced terms are described by status warnings. Terms that
+     *               failed to be replaced are described by status errors. Terms that are found and are not obsolete
+     *               are not added to the status object.
      * @return the ontology term, if found; null otherwise
      */
-    public OntologyTerm getLatestOntologyTerm(String originalAccessionId, Set<OntologyTermAnomaly> ontologyTermAnomalies) {
+    public OntologyTerm getLatestOntologyTerm(String originalAcc, RunStatus status) {
 
         OntologyTerm term;
 
         Map<String, OntologyTerm> terms = getOntologyTerms();
-        term = terms.get(originalAccessionId);
+        term = terms.get(originalAcc);
         if (term != null) {
             term.setConsiderIds(getConsiderIds(term.getId().getAccession()));
             if (term.getIsObsolete()) {
@@ -903,31 +894,31 @@ public class CdaSqlUtils {
                     String replacementAcc = term.getReplacementAcc();
                     term = terms.get(term.getReplacementAcc());
                     if ((term == null) || (term.getIsObsolete())) {
-                        ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, replacementAcc, OntologyTermAnomalyReason.OBSOLETE_HAS_INVALID_REPLACEMENT));
+                        status.addError("Term " + originalAcc + " has invalid replacement term " + replacementAcc + ".");
                         return null;
                     }
 
-                    ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, replacementAcc, OntologyTermAnomalyReason.OBSOLETE_HAS_REPLACEMENT));
+                    status.addWarning("Term " + originalAcc + " is obsolete and was replaced by replacement id " + replacementAcc + ".");
                     return term;
 
                 } else if ((term.getConsiderIds() != null) && (!term.getConsiderIds().isEmpty())) {
                     if (term.getConsiderIds().size() > 1) {
-                        ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, null, OntologyTermAnomalyReason.OBSOLETE_HAS_MULTIPLE_CONSIDER_IDS));
+                        status.addError("Term " + originalAcc + " is obsolete and has multiple consider ids.");
                         return null;
                     }
 
-                    String considerAccessionId = term.getConsiderIds().iterator().next().getConsiderAccessionId();
-                    term = terms.get(considerAccessionId);
+                    String considerAcc = term.getConsiderIds().iterator().next().getConsiderAccessionId();
+                    term = terms.get(considerAcc);
                     if ((term == null) || (term.getIsObsolete())) {
-                        ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, considerAccessionId, OntologyTermAnomalyReason.OBSOLETE_INVALID_CONSIDER_ID));
+                        status.addError("Term " + originalAcc + " is obsolete and has invalid consider id " + considerAcc + ".");
                         return null;
                     }
 
-                    ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, considerAccessionId, OntologyTermAnomalyReason.OBSOLETE_HAS_CONSIDER_ID));
+                    status.addWarning("Term " + originalAcc + " is obsolete and was replaced by consider id " + considerAcc + ".");
                     return term;
 
                 } else {
-                    ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, null, OntologyTermAnomalyReason.OBSOLETE_NO_OTHER_ID));
+                    status.addError("Term " + originalAcc + " is obsolete and has no replacement/consider id term.");
                     return null;
                 }
             } else {
@@ -936,21 +927,21 @@ public class CdaSqlUtils {
             }
         } else {
             // Load any alternative ids. If there are none, an empty set is returned.
-            Set<AlternateId> alternateIds = getAlternateIds(originalAccessionId);
+            Set<AlternateId> alternateIds = getAlternateIds(originalAcc);
             if ( ! alternateIds.isEmpty()) {
                 if (alternateIds.size() > 1) {
-                    ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, null, OntologyTermAnomalyReason.NOT_FOUND_HAS_MULTIPLE_ALTERNATE_IDS));
+                    status.addError("Term " + originalAcc + " is missing and has multiple alternate ids.");
                     return null;
                 }
 
-                String ontologyAccessionId = alternateIds.iterator().next().getOntologyTermAccessionId();
-                term = terms.get(ontologyAccessionId);
+                String ontologyAcc = alternateIds.iterator().next().getOntologyTermAccessionId();
+                term = terms.get(ontologyAcc);
                 if ((term == null) || (term.getIsObsolete())) {
-                    ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, ontologyAccessionId, OntologyTermAnomalyReason.NOT_FOUND_INVALID_ALTERNATE_ID));
+                    status.addError("Term " + originalAcc + " is missing and has invalid alternate id " + ontologyAcc + ".");
                     return null;
                 }
 
-                ontologyTermAnomalies.add(new OntologyTermAnomaly(originalAccessionId, ontologyAccessionId, OntologyTermAnomalyReason.NOT_FOUND_HAS_ALTERNATE_ID));
+                status.addWarning("Term " + originalAcc + " is missing but is an alternate id for " + ontologyAcc + ".");
                 return term;
             }
         }
@@ -982,7 +973,7 @@ public class CdaSqlUtils {
         parameterMap.put("column_name", anomaly.getOntologyAccColumnName());
         parameterMap.put("original_acc", anomaly.getOriginalAcc());
         parameterMap.put("replacement_acc", anomaly.getReplacementAcc());
-        parameterMap.put("reason", anomaly.getReason().getDescription());
+        parameterMap.put("reason", anomaly.getReason());
         parameterMap.put("last_modified", now);
 
         KeyHolder keyholder = new GeneratedKeyHolder();
@@ -1939,14 +1930,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
          */
         @Override
         public OntologyTermAnomaly mapRow(ResultSet rs, int rowNum) throws SQLException {
-            OntologyTermAnomalyReason reason = OntologyTermAnomalyReason.getValueByDescription(rs.getString("reason"));
             OntologyTermAnomaly term = new OntologyTermAnomaly(
                 rs.getString("db_name"),
                 rs.getString("table_name"),
                 rs.getString("column_name"),
                 rs.getString("original_acc"),
                 rs.getString("replacement_acc"),
-                reason);
+                rs.getString("reason"));
 
             term.setId(rs.getInt("id"));
             term.setLast_modified(new Date(rs.getTimestamp("last_modified").getTime()));
