@@ -203,6 +203,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
+		    if (mpTerm==null) {
+			    logger.error("MP term not found using mpHpParser.getOntologyTerm(termId); where termId={}", termId);
+		    } else {
                 Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
                 for ( OntologyTermDTO hpTerm : hpTerms ){
 
@@ -221,12 +224,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                         mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
                     }
                 }
+		    }
 
                 if ( mp.getChildMpId() != null ) {
                     // get the children of MP not in our slim (narrow synonyms)
                     int levelForNarrowSynonyms = 2;
+			if (mpTerm!=null) {
                     Set<String> narrowSynonyms = mpHpParser.getNarrowSynonyms(mpTerm, levelForNarrowSynonyms);
                     mp.setMpNarrowSynonym(new ArrayList(narrowSynonyms));
+			}
                 }
 
                 mp.setOntologySubset(ontologySubsets.get(termId));
