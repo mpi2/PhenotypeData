@@ -170,6 +170,13 @@ public class OntologyParserTest {
         Assert.assertFalse("Narrow synonyms list is empty!", narrowSynonyms.isEmpty());
         Assert.assertTrue("Narrow synonyms list does not contain a label!", narrowSynonyms.contains("conductive hearing impairment"));
         Assert.assertTrue("Narrow synonyms list does not contain an exact synonym!", narrowSynonyms.contains("complete hearing loss"));
+
+        // Test both HP and MP terms are considered.
+        // Abnormal glucose homeostasis MP:0002078 is equivalent to HP:0011014
+        term = ontologyParser.getOntologyTerm("MP:0002078");
+
+        Assert.assertTrue("HP synonym not found, was looking for Abnormal C-peptide level ." , ontologyParser.getNarrowSynonyms(term,2).contains("Abnormal C-peptide level"));
+
     }
 
 
