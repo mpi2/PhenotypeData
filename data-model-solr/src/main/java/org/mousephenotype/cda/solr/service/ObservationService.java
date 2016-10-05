@@ -2191,7 +2191,7 @@ public class ObservationService extends BasicService implements WebStatus {
 		SolrQuery q = new SolrQuery()
                 .setQuery("*:*")
                 .setRows(10000)
-                //.setFields(ObservationDTO.PROCEDURE_NAME, ObservationDTO.DATE_OF_EXPERIMENT)
+                //.setFields(fields)
                 .addFilterQuery(ObservationDTO.PROCEDURE_NAME +":\""+ procedureName+"\"")
 				.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID +":\""+geneAccession+"\"");
 

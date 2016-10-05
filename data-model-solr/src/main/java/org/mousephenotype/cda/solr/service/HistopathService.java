@@ -65,16 +65,23 @@ public class HistopathService {
 			for (String anatomyName : anatomyNames) {
 
 				System.out.println("anatomyName=" + anatomyName);
-				HistopathPageTableRow row = new HistopathPageTableRow();
-				row.setAnatomyName(anatomyName);
-				row.setSampleId(sampleId);
+	
+				System.out.println("sample id ="+sampleId);
 				Set<String> parameterNames = new TreeSet<>();
-
-				for (ObservationDTO obs : sampleToObservations.get(sampleId)) {
-					// a row is a unique sampleId and anatomy combination
+				
+				Map<Integer, List<ObservationDTO>> uniqueSequenceIdsToObservations=this.getSequenceIds(sampleToObservations.get(sampleId));
+				for(Integer sequenceId: uniqueSequenceIdsToObservations.keySet()){
+					HistopathPageTableRow row = new HistopathPageTableRow();// a row is a unique sampleId and anatomy and sequence id combination
+					row.setAnatomyName(anatomyName);
+					row.setSampleId(sampleId);
+					System.out.println("uniqueSequenceId="+sequenceId);
+				for (ObservationDTO obs : uniqueSequenceIdsToObservations.get(sequenceId)) {
+					
+					String sequenceString="";
 					if (obs.getSequenceId() != null) {
-						// System.out.println("sequenceId="+obs.getSequenceId());
+						System.out.println("sequenceId in observation="+obs.getSequenceId());
 						row.setSequenceId(obs.getSequenceId());
+						sequenceString=Integer.toString(obs.getSequenceId());
 					} else {
 						System.out.println("sequence_id is null");
 					}
@@ -158,12 +165,14 @@ public class HistopathService {
 					}
 
 				}
-
 				if (parameterNames.size() != 0) {
 					row.setParameterNames(parameterNames);
 					//System.out.println("adding row=" + row);
 					rows.add(row);
 				}
+			}//end of sequenceId loop
+
+			
 				
 			}
 		}
@@ -172,6 +181,23 @@ public class HistopathService {
 	}
 
 	
+
+	private Map<Integer, List<ObservationDTO>> getSequenceIds(List<ObservationDTO> list) {
+		Map<Integer, List<ObservationDTO>>seqIdToObservations=new HashMap<>();
+		for(ObservationDTO ob: list){
+			if(seqIdToObservations.containsKey(ob.getSequenceId())){
+				//if(ob.getSequenceId()==0)System.out.println("sequenceid == 0 need to change the way we handle nulls on sequenceId");
+				seqIdToObservations.get(ob.getSequenceId()).add(ob);
+			}else{
+				//haven't seen a 0 sequenceId so assigning nulls to zero??
+				List<ObservationDTO> obsForSeqId=new ArrayList<ObservationDTO>();
+				obsForSeqId.add(ob);
+				seqIdToObservations.put(ob.getSequenceId(), obsForSeqId);
+			}
+			
+		}
+		return seqIdToObservations;
+	}
 
 	public Map<String, List<ObservationDTO>> getSampleToObservationMap(List<ObservationDTO> observations) {
 		Map<String, List<ObservationDTO>> map = new HashMap<>();
@@ -220,7 +246,8 @@ public class HistopathService {
 
 		List<ObservationDTO> filteredObservations = new ArrayList<>();
 		for (ObservationDTO obs : observations) {
-			String externalSampeId = obs.getExternalSampleId();
+			Integer sequenceId = obs.getSequenceId();
+			System.out.println("sequenceId="+sequenceId);
 
 			boolean addObservation = true;
 			if (obs.getObservationType().equalsIgnoreCase("categorical")) {

@@ -196,7 +196,7 @@ public class ObservationDTO extends ObservationDTOBase {
 
     @Override
     public String toString() {
-        return "id=" + id
+        return super.toString()+" id=" + id
 	        + ", procedure=" + procedureGroup
                 + ", parameterId=" + parameterId
                 + ", phenotypingCenterId=" + phenotypingCenterId
