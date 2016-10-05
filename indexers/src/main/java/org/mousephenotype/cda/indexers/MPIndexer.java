@@ -278,7 +278,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         boolean hasCallForChildren = false;
         for (String childId: mp.getChildMpId()){
-            if (mpOntologyService.getChildren(childId).size() > 0) {
+            if (sumPhenotypingCalls(childId) > 0) {
                 hasCallForChildren = true;
                 break;
             }
