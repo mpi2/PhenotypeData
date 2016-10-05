@@ -23,26 +23,20 @@ import java.util.Date;
  */
 
 public class OntologyTermAnomaly {
-    private int                       id;
-    private String                    dbName;
-    private String                    tableName;
-    private String                    ontologyAccColumnName;
-    private String                    originalAcc;
-    private String                    replacementAcc;
-    private OntologyTermAnomalyReason reason;
-    private Date                      last_modified;
+    private int    id;
+    private String dbName;
+    private String tableName;
+    private String ontologyAccColumnName;
+    private String originalAcc;
+    private String replacementAcc;
+    private String reason;
+    private Date   last_modified;
 
     public OntologyTermAnomaly() {
 
     }
 
-    public OntologyTermAnomaly(String originalAcc, String replacementAcc, OntologyTermAnomalyReason reason) {
-        this.originalAcc = originalAcc;
-        this.replacementAcc = replacementAcc;
-        this.reason = reason;
-    }
-
-    public OntologyTermAnomaly(String dbName, String tableName, String ontologyAccColumnName, String originalAcc, String replacementAcc, OntologyTermAnomalyReason reason) {
+    public OntologyTermAnomaly(String dbName, String tableName, String ontologyAccColumnName, String originalAcc, String replacementAcc, String reason) {
         this.dbName = dbName;
         this.tableName = tableName;
         this.ontologyAccColumnName = ontologyAccColumnName;
@@ -99,11 +93,11 @@ public class OntologyTermAnomaly {
         this.replacementAcc = replacementAcc;
     }
 
-    public OntologyTermAnomalyReason getReason() {
+    public String getReason() {
         return reason;
     }
 
-    public void setReason(OntologyTermAnomalyReason reason) {
+    public void setReason(String reason) {
         this.reason = reason;
     }
 
@@ -117,54 +111,9 @@ public class OntologyTermAnomaly {
 
     @Override
     public String toString() {
-        String result;
-
-        switch (reason) {
-            case NOT_FOUND_HAS_ALTERNATE_ID:
-                result = "Term " + originalAcc + " is missing but is an alternate id for " + replacementAcc + ".";
-                break;
-
-            case NOT_FOUND_HAS_MULTIPLE_ALTERNATE_IDS:
-                result = "Term " + originalAcc + " is missing and has multiple alternate ids.";
-                break;
-
-            case NOT_FOUND_INVALID_ALTERNATE_ID:
-                result = "Term " + originalAcc + " is missing and has invalid alternate id " + replacementAcc + ".";
-                break;
-
-            case NOT_FOUND_NO_OTHER_ID:
-                result = "Term " + originalAcc + " is missing and there is no replacement/alternative term.";
-                break;
-
-            case OBSOLETE_HAS_CONSIDER_ID:
-                result = "Term " + originalAcc + " is obsolete and was replaced by consider id " + replacementAcc + ".";
-                break;
-
-            case OBSOLETE_INVALID_CONSIDER_ID:
-                result = "Term " + originalAcc + " is obsolete and has invalid consider id " + replacementAcc + ".";
-                break;
-
-            case OBSOLETE_HAS_MULTIPLE_CONSIDER_IDS:
-                result = "Term " + originalAcc + " is obsolete and has multiple consider ids.";
-                break;
-
-            case OBSOLETE_HAS_REPLACEMENT:
-                result = "Term " + originalAcc + " is obsolete and was replaced by replacement id " + replacementAcc + ".";
-                break;
-
-            case OBSOLETE_HAS_INVALID_REPLACEMENT:
-                result = "Term " + originalAcc + " has invalid replacement term " + replacementAcc + ".";
-                break;
-
-            case OBSOLETE_NO_OTHER_ID:
-                result = "Term " + originalAcc + " is obsolete and has no replacement/consider id term.";
-                break;
-
-            default:
-                result = "ERROR: Undefined reason '" + reason.toString() + ".";
-        }
-
-        return result;
+        return "OntologyTermAnomaly{" +
+                "reason='" + reason + '\'' +
+                '}';
     }
 
     @Override
@@ -174,16 +123,23 @@ public class OntologyTermAnomaly {
 
         OntologyTermAnomaly that = (OntologyTermAnomaly) o;
 
+        if (dbName != null ? !dbName.equals(that.dbName) : that.dbName != null) return false;
+        if (tableName != null ? !tableName.equals(that.tableName) : that.tableName != null) return false;
+        if (ontologyAccColumnName != null ? !ontologyAccColumnName.equals(that.ontologyAccColumnName) : that.ontologyAccColumnName != null)
+            return false;
         if (originalAcc != null ? !originalAcc.equals(that.originalAcc) : that.originalAcc != null) return false;
         if (replacementAcc != null ? !replacementAcc.equals(that.replacementAcc) : that.replacementAcc != null)
             return false;
-        return reason == that.reason;
+        return reason != null ? reason.equals(that.reason) : that.reason == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = originalAcc != null ? originalAcc.hashCode() : 0;
+        int result = dbName != null ? dbName.hashCode() : 0;
+        result = 31 * result + (tableName != null ? tableName.hashCode() : 0);
+        result = 31 * result + (ontologyAccColumnName != null ? ontologyAccColumnName.hashCode() : 0);
+        result = 31 * result + (originalAcc != null ? originalAcc.hashCode() : 0);
         result = 31 * result + (replacementAcc != null ? replacementAcc.hashCode() : 0);
         result = 31 * result + (reason != null ? reason.hashCode() : 0);
         return result;
