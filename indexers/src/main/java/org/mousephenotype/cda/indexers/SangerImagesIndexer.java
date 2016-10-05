@@ -384,7 +384,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 									}
 
 									// need to get top level stuff here
-                                    String mp_id = annotation.mp_id;
+                                    String mp_id = annotation.mp_id.toUpperCase();
                                     String alt_mp_id = OntologyUtils.getMpId(ontoDbConnection, mp_id);
 									if (mpNode2termTopLevel.containsKey(mp_id)) {
                                         TopLevelBean topLevelBean = mpNode2termTopLevel.get(mp_id);
@@ -435,11 +435,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
                                             }
                                         }
 									} else {
-                                        noTopLevelSet.add(annotation.mp_id);
+                                        noTopLevelSet.add(mp_id);
 									}
 
-									if (mpSynMap.containsKey(annotation.mp_id)) {
-										o.setMpSyns(mpSynMap.get(annotation.mp_id));
+									if (mpSynMap.containsKey(mp_id)) {
+										o.setMpSyns(mpSynMap.get(mp_id));
 									}
 								}
 							}
