@@ -324,14 +324,14 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 								if (annotation.ma_id != null) {
 									//System.out.println("ma id not null");
 									//System.out.println("uptodatemap result=" + uptoDateMaMap.get(annotation.ma_id));
-									annotationTermNames.add(uptoDateMaMap.get(annotation.ma_id));
-									ma_ids.add(annotation.ma_id);
+									annotationTermNames.add(uptoDateMaMap.get(annotation.ma_id).toUpperCase());
+									ma_ids.add(annotation.ma_id.toUpperCase());
 									ma_terms.add(annotation.ma_term);
 
 									// ArrayList<String> maTopLevelSynonyms=new
 									// ArrayList<>();
-									if (maNode2TermMap.containsKey(annotation.ma_id)) {
-										for (Integer nodeId : maNode2TermMap.get(annotation.ma_id)) {
+									if (maNode2TermMap.containsKey(annotation.ma_id.toUpperCase())) {
+										for (Integer nodeId : maNode2TermMap.get(annotation.ma_id.toUpperCase())) {
 
 											if (maNodeToTopLevel.containsKey(nodeId)) {
 												TopLevelBean maTopLevelBean = maNodeToTopLevel.get(nodeId);
@@ -355,12 +355,12 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 								}
 								if (annotation.mp_id != null) {
 									annotationTermNames.add(annotation.mp_term);
-									mp_ids.add(annotation.mp_id);
+									mp_ids.add(annotation.mp_id.toUpperCase().trim());
 									mp_terms.add(annotation.mp_term);
 
 									if (mpToHpMap.containsKey(annotation.mp_id)) {
 
-										List<Map<String, String>> hpMap = mpToHpMap.get(annotation.mp_id);
+										List<Map<String, String>> hpMap = mpToHpMap.get(annotation.mp_id.toUpperCase().trim());
 										List<String> hpIds = new ArrayList<>();
 										List<String> hpTerms = new ArrayList<>();
 
@@ -384,7 +384,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 									}
 
 									// need to get top level stuff here
-                                    String mp_id = annotation.mp_id.toUpperCase();
+                                    String mp_id = annotation.mp_id.toUpperCase().trim();
                                     String alt_mp_id = OntologyUtils.getMpId(ontoDbConnection, mp_id);
 									if (mpNode2termTopLevel.containsKey(mp_id)) {
                                         TopLevelBean topLevelBean = mpNode2termTopLevel.get(mp_id);
