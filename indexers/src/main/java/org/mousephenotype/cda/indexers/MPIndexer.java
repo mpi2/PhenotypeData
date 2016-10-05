@@ -61,7 +61,7 @@ import java.util.*;
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
-
+    private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
 
 	@Autowired
 	@Qualifier("phenodigmCore")
@@ -100,7 +100,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Autowired
     MpOntologyDAO mpOntologyService;
-
 
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
@@ -203,38 +202,28 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
-		    if (mpTerm==null) {
-			    logger.error("MP term not found using mpHpParser.getOntologyTerm(termId); where termId={}", termId);
-		    } else {
-                Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
-                for ( OntologyTermDTO hpTerm : hpTerms ){
-
-
-                    Set<String> hpIds = new HashSet<>();
-                    hpIds.add(hpTerm.getAccessonId());
-                    mp.setHpId(new ArrayList(hpIds));
-
-                    if ( hpTerm.getName() != null ){
-                        Set<String> hpNames = new HashSet<>();
-                        hpNames.add(hpTerm.getName());
-                        mp.setHpTerm(new ArrayList(hpNames));
+		        if (mpTerm==null) {
+			        logger.error("MP term not found using mpHpParser.getOntologyTerm(termId); where termId={}", termId);
+		        } else {
+                    Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
+                    for ( OntologyTermDTO hpTerm : hpTerms ){
+                        Set<String> hpIds = new HashSet<>();
+                        hpIds.add(hpTerm.getAccessonId());
+                        mp.setHpId(new ArrayList(hpIds));
+                        if ( hpTerm.getName() != null ){
+                            Set<String> hpNames = new HashSet<>();
+                            hpNames.add(hpTerm.getName());
+                            mp.setHpTerm(new ArrayList(hpNames));
+                        }
+                        if ( hpTerm.getSynonyms() != null ){
+                            mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
+                        }
                     }
-
-                    if ( hpTerm.getSynonyms() != null ){
-                        mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
+                    if ( isOKForNarrowSynonyms(mp)){
+                        // get the children of MP not in our slim (narrow synonyms)
+                        mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     }
                 }
-		    }
-
-                if ( mp.getChildMpId() != null ) {
-                    // get the children of MP not in our slim (narrow synonyms)
-                    int levelForNarrowSynonyms = 2;
-			if (mpTerm!=null) {
-                    Set<String> narrowSynonyms = mpHpParser.getNarrowSynonyms(mpTerm, levelForNarrowSynonyms);
-                    mp.setMpNarrowSynonym(new ArrayList(narrowSynonyms));
-			}
-                }
-
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
                 mp.setGoId(goIds.get(termId));
@@ -277,6 +266,30 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
+    }
+
+
+    private boolean isOKForNarrowSynonyms(MpDTO mp) throws IOException, SolrServerException {
+
+        int calls = sumPhenotypingCalls(mp.getMpId());
+        if (calls > 0 &&  mp.getChildMpId().size() == 0 ){ // leaf node and we have calls
+            return true;
+        }
+
+        boolean hasCallForChildren = false;
+        for (String childId: mp.getChildMpId()){
+            if (mpOntologyService.getChildren(childId).size() > 0) {
+                hasCallForChildren = true;
+                break;
+            }
+        }
+
+        if (calls > 0 && !hasCallForChildren){
+            return true;
+        }
+
+        return false;
+
     }
 
 

@@ -111,7 +111,7 @@ public class OntologyParser {
     public Set<String> getNarrowSynonyms(OntologyTermDTO cls, int maxLevels){
 
         Set<OWLClass> descendents = new HashSet<>();
-        Set<String> res = new HashSet<>();
+        TreeSet<String> res = new TreeSet<String>();
         descendents = getDescendentsPartOf(cls.getCls(), 1, 0, descendents);
 
         for (OWLClass desc : descendents){
