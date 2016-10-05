@@ -30,10 +30,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Updates the impress ontology terms with the latest terms.
@@ -116,14 +113,13 @@ public class ImpressUpdater implements Step, Tasklet, InitializingBean {
         List<String> ontologyAccessionIds = jdbcImpress.queryForList(query, new HashMap<>(), String.class);
         Set<OntologyTermAnomaly> anomalies = cdaSqlUtils.checkAndUpdateOntologyTerms(jdbcImpress, ontologyAccessionIds, "phenotype_parameter_ontology_association", "ontology_acc");
 
-        for (int i = 0; i < anomalies.size(); i++) {
-            OntologyTermAnomaly anomaly = anomalies.iterator().next();
-            String message = "[" + i + "]: " + anomaly.getReason().toString();
-            if (anomaly.getReplacementAcc() == null) {
-                logger.error(message);
-            } else {
-                logger.info(message);
-            }
+        List<String> anomalyReasons = new ArrayList<>();
+        for (OntologyTermAnomaly anomaly  : anomalies) {
+            anomalyReasons.add(anomaly.getReason());
+        }
+        Collections.sort(anomalyReasons);
+        for (String anomalyReason : anomalyReasons) {
+            System.out.println(anomalyReason);
         }
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
