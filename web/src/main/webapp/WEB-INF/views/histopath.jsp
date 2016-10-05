@@ -64,6 +64,12 @@
 							Histopathology
 							</th>
 							<th>
+							SampleId
+							</th>
+							<th>
+							SeqId
+							</th>
+							<th>
 							Severity
 							</th>
 							<th>
@@ -129,6 +135,12 @@
 										
 										
 										
+									</td>
+									<td>
+									${histRow.sampleId}
+									</td>
+									<td>
+									${histRow.sequenceId}
 									</td>
 									
 									<td>
