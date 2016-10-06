@@ -1055,9 +1055,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             List<String> maTopLevelTermIds = new ArrayList<>();
             List<String> maTopLevelTerms = new ArrayList<>();
             Set<String> maTopLevelSynonyms = new HashSet<>();
-            List<String> maChildLevelTermIds = new ArrayList<>();
-            List<String> maChildLevelTerms = new ArrayList<>();
-            Set<String> maChildLevelSynonyms = new HashSet<>();
 
             for (MPTermNodeBean maNode : maTermNodes.get(termId)) {
                 String maNodeTermId = maNode.getTermId();
@@ -1075,16 +1072,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     }
                     maTopLevelSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
                 }
-
-                // Look up the child level mappings
-                if (maChildLevelNodes.containsKey(maNodeTermId)) {
-                    for (MPTermNodeBean childNode : maChildLevelNodes.get(maNodeTermId)) {
-                        maChildLevelTermIds.add(childNode.getTermId());
-                        maChildLevelTerms.add(childNode.getName());
-
-                        maChildLevelSynonyms.addAll(lookupMaSynonyms(childNode.getTermId()));
-                    }
-                }
             }
 
             mp.setInferredMaTermId(maInferredIds);
@@ -1093,9 +1080,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.setInferredSelectedTopLevelMaId(maTopLevelTermIds);
             mp.setInferredSelectedTopLevelMaTerm(maTopLevelTerms);
             mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(maTopLevelSynonyms));
-            mp.setInferredChildMaId(maChildLevelTermIds);
-            mp.setInferredChildMaTerm(maChildLevelTerms);
-            mp.setInferredChildMaTermSynonym(new ArrayList<>(maChildLevelSynonyms));
         }
     }
 

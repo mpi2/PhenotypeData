@@ -377,10 +377,6 @@
     <copyField source="inferred_selected_top_level_ma_term" dest="auto_suggest" />
     <copyField source="inferred_selected_top_level_ma_term_synonym" dest="auto_suggest" />
 
-    <copyField source="inferred_child_ma_id" dest="auto_suggest" />
-    <copyField source="inferred_child_ma_term" dest="auto_suggest" />
-    <copyField source="inferred_child_ma_term_synonym" dest="auto_suggest" />
-
     <copyField source="inferred_ma_id" dest="ma_id" />
     <copyField source="inferred_ma_term" dest="ma_term" />
     <copyField source="inferred_ma_term_synonym" dest="ma_term_synonym" />
@@ -389,10 +385,6 @@
     <copyField source="inferred_selected_top_level_ma_term" dest="selected_top_level_ma_term" />
     <copyField source="inferred_selected_top_level_ma_term_synonym" dest="selected_top_level_ma_term_synonym" />
     <copyField source="inferred_selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />
-
-    <copyField source="inferred_child_ma_id" dest="child_ma_id" />
-    <copyField source="inferred_child_ma_term" dest="child_ma_term" />
-    <copyField source="inferred_child_ma_term_synonym" dest="child_ma_term_synonym" />
 
     <copyField source="ma_id" dest="auto_suggest" />
     <copyField source="ma_term" dest="auto_suggest" />
