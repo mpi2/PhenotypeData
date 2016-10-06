@@ -13,7 +13,8 @@ public class OntologyTermDTO {
     String               name;
     Set<String>          synonyms;
     Set<String>          narrowSynonyms;
-    Set<OntologyTermDTO> equivalentClasses; // from equivalent classes, return the
+    Set<OntologyTermDTO> equivalentClasses; // from equivalent classes
+    Set<String>          childIds;
     Set<String>          alternateIds;
     Set<String>          considerIds;
     Set<String>          broadSynonyms;
@@ -54,7 +55,7 @@ public class OntologyTermDTO {
         isObsolete = obsolete;
     }
 
-    public String getAccessonId() {
+    public String getAccessionId() {
         return accessonId;
     }
 
@@ -76,10 +77,6 @@ public class OntologyTermDTO {
 
     public void setSynonyms(Set<String> synonyms) {
         this.synonyms = synonyms;
-    }
-
-    public void addSynonym(String synonym){
-
     }
 
     public Set<String> getConsiderIds() {
@@ -120,6 +117,18 @@ public class OntologyTermDTO {
 
     public void setDefinition(String definition) {
         this.definition = definition;
+    }
+
+    public String getAccessonId() {
+        return accessonId;
+    }
+
+    public Set<String> getChildIds() {
+        return childIds;
+    }
+
+    public void setChildIds(Set<String> childClasses) {
+        this.childIds = childClasses;
     }
 
     @Override
