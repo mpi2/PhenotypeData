@@ -340,7 +340,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                         mpCalls.put(facet.getName(), new Long(0));
                     }
                     mpCalls.put(facet.getName(), facet.getCount() + mpCalls.get(facet.getName()));
-                    System.out.println(facet.getCount() + facet.getName());
                 }
             }
 
