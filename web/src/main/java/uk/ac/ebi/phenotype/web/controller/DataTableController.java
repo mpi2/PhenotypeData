@@ -58,6 +58,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -947,28 +948,20 @@ public class DataTableController {
             }
 
             // some MP do not have definition
-            String mpDef = "No definition data available";
-            try {
-				int defaultLen = 30;
-				mpDef = doc.getString("mp_definition");
+            String mpDef = doc.containsKey(MpDTO.MP_DEFINITION) ? doc.getString(MpDTO.MP_DEFINITION): "No definition data available";
 
-				if (mpDef.length() > defaultLen) {
+			int defaultLen = 30;
+			if (mpDef != null && mpDef.length() > defaultLen) {
+				String trimmedDef = mpDef.substring(0, defaultLen);
+			   	// retrim if in the middle of a word
+				trimmedDef = trimmedDef.substring(0, Math.min(trimmedDef.length(), trimmedDef.lastIndexOf(" ")));
+				String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(qryStr, trimmedDef, "span", "subMatch") + " ...</div>";
+				mpDef = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(qryStr, mpDef, "span", "subMatch") + "</div>";
+				rowData.add(partMpDef + mpDef + "<div class='moreLess'>Show more</div>");
+			} else {
+				rowData.add(mpDef);
+			}
 
-				    String trimmedDef = mpDef.substring(0, defaultLen);
-                    // retrim if in the middle of a word
-                    trimmedDef = trimmedDef.substring(0, Math.min(trimmedDef.length(), trimmedDef.lastIndexOf(" ")));
-
-					String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(qryStr, trimmedDef, "span", "subMatch") + " ...</div>";
-					mpDef = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(qryStr, mpDef, "span", "subMatch") + "</div>";
-					rowData.add(partMpDef + mpDef + "<div class='moreLess'>Show more</div>");
-				}
-				else {
-					rowData.add(mpDef);
-				}
-
-            } catch (Exception e) {
-                //e.printStackTrace();
-            }
 
 
             // number of postqc phenotyping calls of this MP
