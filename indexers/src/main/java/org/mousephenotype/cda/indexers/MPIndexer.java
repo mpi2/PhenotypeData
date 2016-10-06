@@ -332,6 +332,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             query.addFacetField(GenotypePhenotypeDTO.MP_TERM_ID);
             query.addFacetField(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
             query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+            query.setFacetLimit(-1);
 
             for (FacetField facetGroup: solrSvr.query(query).getFacetFields()){
                 for (FacetField.Count facet: facetGroup.getValues()){
