@@ -155,17 +155,17 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
         for (OntologyTermDTO dtoTerm : dtoTerms) {
             OntologyTerm term = new OntologyTerm();
 
-            term.setId(new DatasourceEntityId(dtoTerm.getAccessonId(), dbId));
+            term.setId(new DatasourceEntityId(dtoTerm.getAccessionId(), dbId));
 
             Set<AlternateId> alternateIds = new HashSet<>();
             if ((dtoTerm.getAlternateIds() != null) && ( ! dtoTerm.getAlternateIds().isEmpty())) {
-                alternateIds = dtoTerm.getAlternateIds().stream().map(alternateIdString -> new AlternateId(dtoTerm.getAccessonId(), alternateIdString)).collect(Collectors.toSet());
+                alternateIds = dtoTerm.getAlternateIds().stream().map(alternateIdString -> new AlternateId(dtoTerm.getAccessionId(), alternateIdString)).collect(Collectors.toSet());
             }
             term.setAlternateIds(alternateIds);
 
             Set<ConsiderId> considerIds = new HashSet<>();
             if ((dtoTerm.getConsiderIds() != null) && ( ! dtoTerm.getConsiderIds().isEmpty())) {
-                considerIds = dtoTerm.getConsiderIds().stream().map(considerIdString -> new ConsiderId(dtoTerm.getAccessonId(), considerIdString)).collect(Collectors.toSet());
+                considerIds = dtoTerm.getConsiderIds().stream().map(considerIdString -> new ConsiderId(dtoTerm.getAccessionId(), considerIdString)).collect(Collectors.toSet());
             }
             term.setConsiderIds(considerIds);
 
@@ -179,7 +179,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
             } else {
                 synonyms = dtoTerm.getSynonyms().stream().map(synonymString -> {
                     Synonym synonym = new Synonym();
-                    synonym.setAccessionId(dtoTerm.getAccessonId());
+                    synonym.setAccessionId(dtoTerm.getAccessionId());
                     synonym.setDbId(dbId);
                     synonym.setSymbol(synonymString);
                     return synonym;

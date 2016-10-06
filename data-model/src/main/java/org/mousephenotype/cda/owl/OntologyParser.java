@@ -41,7 +41,7 @@ public class OntologyParser {
                 OntologyTermDTO term = getDTO(cls);
                 term.setEquivalentClasses(getEquivaletClasses(cls, prefix));
                 terms.add(term);
-                termMap.put(term.getAccessonId(), term);
+                termMap.put(term.getAccessionId(), term);
             }
         }
 
@@ -252,6 +252,7 @@ public class OntologyParser {
         if ( altIds!= null && altIds.size() > 0){
             term.setAlternateIds(altIds);
         }
+        term.setChildIds(getChildIds(cls));
         return term;
     }
 
@@ -267,6 +268,18 @@ public class OntologyParser {
         for (OWLClassExpression classExpression : EntitySearcher.getEquivalentClasses(cls, ontology)){
             if (classExpression.isClassExpressionLiteral() && !getIdentifierShortForm(classExpression.asOWLClass()).startsWith(prefix + ":")){
                 eqClasses.add(getDTO(classExpression.asOWLClass()));
+            }
+        }
+        return  eqClasses;
+    }
+
+
+    private Set<String> getChildIds(OWLClass cls){
+
+        Set<String> eqClasses = new HashSet<>();
+        for (OWLClassExpression classExpression : EntitySearcher.getSubClasses(cls, ontology)){
+            if (classExpression.isClassExpressionLiteral()){
+                eqClasses.add(getIdentifierShortForm(classExpression.asOWLClass()));
             }
         }
         return  eqClasses;
