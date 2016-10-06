@@ -272,13 +272,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private boolean isOKForNarrowSynonyms(MpDTO mp) throws IOException, SolrServerException {
 
         int calls = sumPhenotypingCalls(mp.getMpId());
-        if (calls > 0 &&  mp.getChildMpId().size() == 0 ){ // leaf node and we have calls
+        if (calls > 0 && mp.getChildMpId().size() == 0 ){ // leaf node and we have calls
             return true;
         }
 
         boolean hasCallForChildren = false;
         for (String childId: mp.getChildMpId()){
-            if (sumPhenotypingCalls(childId) > 0) {
+            int sum = sumPhenotypingCalls(childId);
+            if (sum > 0) {
                 hasCallForChildren = true;
                 break;
             }
