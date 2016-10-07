@@ -222,7 +222,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                         // get the children of MP not in our slim (narrow synonyms)
                         mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     } else  {
-                        mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, mp)));
+                        mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     }
                 }
                 mp.setOntologySubset(ontologySubsets.get(termId));
@@ -269,7 +269,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
 
-    private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology, MpDTO mpFromSlim) throws IOException, SolrServerException {// Won't work with mp from slim!!
+    private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {// Won't work with mp from slim!!
 
         TreeSet<String> synonyms = new TreeSet<String>();
         long calls = sumPhenotypingCalls(mpFromFullOntology.getAccessionId());
@@ -280,34 +280,48 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             for (String childId : mpFromFullOntology.getChildIds()){
 //                System.out.println("CHILD ID " + childId);
 
-                if (!mpFromSlim.getChildMpId().contains(childId)) {// not in slim
+                if (!termNodeIds.containsKey(childId)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
-                        synonyms.addAll(mpHpParser.getNarrowSynonyms(child, LEVELS_FOR_NARROW_SYNONYMS));
+                        synonyms.addAll(mpHpParser.getNarrowSynonyms(child, levels));
                         synonyms.add(child.getName());
                         synonyms.addAll(child.getSynonyms());
                     }
-                } else if (mpFromSlim.getChildMpId().contains(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
+                } else if (termNodeIds.containsKey(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
-                        synonyms.addAll(mpHpParser.getNarrowSynonyms(child, LEVELS_FOR_NARROW_SYNONYMS));
+                        synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels-1, synonyms));
                     }
                 }
             }
         }
-//        System.out.println("Restricted narrow syn for " + mpFromSlim.getMpId() + " " + synonyms);
+
+//        System.out.println("Restricted narrow syn for " + mpFromFullOntology.getAccessionId() + " " + synonyms);
         return  synonyms;
+
     }
 
-//    private List<String> getNarrowSynonymsOutsideSlim(String mpId, int levels){
-//
-//        int remainingLevels = levels;
-//        while (levels > 0 && ){
-//
-//        }
-//
-//    }
 
+    private TreeSet<String> getNarrowSynonymsOutsideSlim(OntologyTermDTO mpFromFullOntology,  int levels, TreeSet<String> synonyms){
+
+//        System.out.println("-- outside NS " + mpFromFullOntology.getAccessionId());
+        if (mpFromFullOntology != null &&  levels > 0) {
+            if (!termNodeIds.containsKey(mpFromFullOntology.getAccessionId())) { // not in slim
+                synonyms.addAll(mpHpParser.getNarrowSynonyms(mpFromFullOntology, levels - 1));
+                synonyms.add(mpFromFullOntology.getName());
+                synonyms.addAll(mpFromFullOntology.getSynonyms());
+            } else {
+                for (String childId : mpFromFullOntology.getChildIds()) {
+                    if (!termNodeIds.containsKey(childId) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
+                        getNarrowSynonymsOutsideSlim(mpHpParser.getOntologyTerm(childId), levels - 1, synonyms);
+                    }
+                }
+            }
+        }
+
+        return synonyms;
+
+    }
 
     private boolean isOKForNarrowSynonyms(MpDTO mp) throws IOException, SolrServerException {
 
