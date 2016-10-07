@@ -278,7 +278,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (calls > 0 && mpFromFullOntology.getChildIds().size() > 0){
 
             for (String childId : mpFromFullOntology.getChildIds()){
-                System.out.println("CHILD ID " + childId);
+//                System.out.println("CHILD ID " + childId);
 
                 if (!mpFromSlim.getChildMpId().contains(childId)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
@@ -286,11 +286,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                         synonyms.addAll(mpHpParser.getNarrowSynonyms(child, LEVELS_FOR_NARROW_SYNONYMS));
                         synonyms.add(child.getName());
                         synonyms.addAll(child.getSynonyms());
-                    } else {
-                        System.out.println("NULL child for id  " + childId);
                     }
                 } else if (mpFromSlim.getChildMpId().contains(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
-
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
                         synonyms.addAll(mpHpParser.getNarrowSynonyms(child, LEVELS_FOR_NARROW_SYNONYMS));
@@ -298,7 +295,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
             }
         }
-        System.out.println("Restricted narrow syn for " + mpFromSlim.getMpId() + " " + synonyms);
+//        System.out.println("Restricted narrow syn for " + mpFromSlim.getMpId() + " " + synonyms);
         return  synonyms;
     }
 
