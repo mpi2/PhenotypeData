@@ -18,7 +18,7 @@ package org.mousephenotype.cda.loads.create.load;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.loads.create.load.config.LoadConfigBeans;
-import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
+import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -46,18 +46,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Loads the cda database from the dcc database.
- * Created by mrelac on 31/08/2016.
+ * Loads the cda database from the impress database.
+ * Created by mrelac on 30/09/2016.
  */
 @EnableBatchProcessing
 @Import( {LoadConfigBeans.class })
-public class LoadFromDcc implements CommandLineRunner {
+public class UpdateImpressTables implements CommandLineRunner {
 
     /**
      * This class is intended to be a command-line callable java main program that loads the cda database.
      */
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(LoadFromDcc.class);
+        SpringApplication app = new SpringApplication(UpdateImpressTables.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);
@@ -74,7 +74,7 @@ public class LoadFromDcc implements CommandLineRunner {
     public JobRepository jobRepository;
 
     @Autowired
-    public SampleLoader sampleLoader;
+    public ImpressUpdater impressUpdater;
 
     @Autowired
     @Qualifier("cdaDataSource")
@@ -104,7 +104,7 @@ public class LoadFromDcc implements CommandLineRunner {
         }
 
         Job[] jobs = new Job[] {
-                  fromDcc()
+                updateImpress()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -124,12 +124,11 @@ public class LoadFromDcc implements CommandLineRunner {
         return jobs;
     }
 
-    public Job fromDcc() throws DataLoadException {
+    public Job updateImpress() throws DataLoadException {
 
-        // Specimens to Samples
-        Flow samplesFlow = new FlowBuilder<Flow>("samplesFlow").from(sampleLoader).end();
+        Flow samplesFlow = new FlowBuilder<Flow>("impressFlow").from(impressUpdater).end();
 
-        return jobBuilderFactory.get("samplesJob")
+        return jobBuilderFactory.get("impressJob")
                 .incrementer(new RunIdIncrementer())
                 .start(samplesFlow)
                 .end()

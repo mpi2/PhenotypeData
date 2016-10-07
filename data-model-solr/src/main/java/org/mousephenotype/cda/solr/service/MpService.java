@@ -171,7 +171,6 @@ public class MpService extends BasicService implements WebStatus{
 	/**
 	 * @author ilinca
 	 * @since 2016/04/05
-	 * @param mpTermId
 	 * @return JSON in jstree format for ontology browser
 	 * @throws SolrServerException, IOException
 	 */

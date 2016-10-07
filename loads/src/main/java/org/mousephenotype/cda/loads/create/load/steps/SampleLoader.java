@@ -230,9 +230,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             String colonyId = specimen.getColonyID();
             int lastUnderscoreIndex = colonyId.lastIndexOf("_");
             if (lastUnderscoreIndex >= 0) {
-System.out.println("colonyId before: " + colonyId);
                 String truncatedColonyId = specimen.getColonyID().substring(0, lastUnderscoreIndex);
-System.out.println("colonyId before: " + truncatedColonyId);
                 colony = cdaSqlUtils.getPhenotypedColony(truncatedColonyId);
                 if (colony == null) {
                     missingColonyIds.add(truncatedColonyId);
