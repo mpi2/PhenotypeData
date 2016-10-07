@@ -1609,6 +1609,15 @@ public class DccSqlUtils {
         return (experiments.isEmpty() ? null : experiments.get(0));
     }
 
+    public List<Experiment> getExperiments() {
+
+        final String query = "SELECT * FROM experiment";
+
+        List<Experiment> experiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentRowMapper());
+
+        return (experiments.isEmpty() ? new ArrayList<>() : experiments);
+    }
+
     /**
      * Given a parameterId value, attempts to fetch the matching <code>ParameterAssociation</code> instance. If there is
      * none, the parameterId and sequenceId are first inserted. The <code>ParameterAssociation</code> instance is then
