@@ -411,6 +411,7 @@
     <!--  qf bucket list -->
 
     <copyField source="mp_id" dest="mixSynQf" />
+    <copyField source="mp_term" dest="mixSynQf" />
     <copyField source="mp_term_synonym" dest="mixSynQf" />
     <copyField source="mp_narrow_synonym" dest="mixSynQf" />
     <copyField source="hp_id" dest="mixSynQf" />
