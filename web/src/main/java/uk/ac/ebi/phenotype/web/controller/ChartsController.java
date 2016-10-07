@@ -404,7 +404,7 @@ public class ChartsController {
                 throw new GenomicFeatureNotFoundException("Gene " + geneId + " can't be found.", geneId);
             }
 
-            log.info(gene.toString());
+            log.debug(gene.toString());
 
             model.addAttribute("gene", gene);
 
