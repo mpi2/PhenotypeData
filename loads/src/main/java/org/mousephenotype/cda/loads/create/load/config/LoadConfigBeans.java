@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.load.config;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,14 @@ public class LoadConfigBeans {
         SampleLoader sampleLoader = new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), externalDbShortName);
 
         return sampleLoader;
+    }
+
+    @Bean
+    public ImpressUpdater impressUpdater() {
+
+        ImpressUpdater impressUpdater = new ImpressUpdater(jdbcCda, stepBuilderFactory, cdaSqlUtils());
+
+        return impressUpdater;
     }
 
     @Bean

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
@@ -170,6 +171,20 @@ public class SqlUtils {
         }
 
         return results;
+    }
+
+    /**
+     *
+     * @param jdbc valid {@link NamedParameterJdbcTemplate} instance
+     *
+     * @return the database name
+     */
+    public String getDatabaseName(NamedParameterJdbcTemplate jdbc) {
+        String query = "SELECT DATABASE()";
+
+        String dbName = jdbc.queryForObject(query, new HashMap<>(), String.class);
+
+        return dbName;
     }
 
     /**

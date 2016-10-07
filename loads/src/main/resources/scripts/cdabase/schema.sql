@@ -495,7 +495,8 @@ CREATE TABLE biological_sample (
 	sample_type_db_id         INT(10) NOT NULL,
 	sample_group              VARCHAR(100) NOT NULL,
 	organisation_id           INT(10) UNSIGNED NOT NULL,
-  production_center_id      INT(10) UNSIGNED NULL,
+	production_center_id      INT(10) UNSIGNED NULL,
+	litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY external_id_idx(external_id),
@@ -522,7 +523,7 @@ CREATE TABLE live_sample (
 	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data', 'both'),
 	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
 	date_of_birth             TIMESTAMP NULL,
-  litter_id                 VARCHAR(200) NULL,
+	litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY colony_idx (colony_id),
@@ -1818,11 +1819,17 @@ CREATE TABLE higher_level_annotation (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-DROP TABLE IF EXISTS ontology_term_lookup;
-CREATE TABLE ontology_term_lookup (
+DROP TABLE IF EXISTS ontology_term_anomaly;
+CREATE TABLE ontology_term_anomaly (
+  id                 INT(11)      NOT NULL AUTO_INCREMENT,
+  db_name            VARCHAR(128) NOT NULL,
+  table_name         VARCHAR(128) NOT NULL,
+  column_name        VARCHAR(128) NOT NULL,
   original_acc       VARCHAR(128) NOT NULL,
   replacement_acc    VARCHAR(128),
-  reason             VARCHAR(128)
+  reason             VARCHAR(128) NOT NULL,
+  last_modified      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
