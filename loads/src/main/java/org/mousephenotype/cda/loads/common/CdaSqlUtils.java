@@ -1110,13 +1110,33 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return organisations;
     }
 
-    public PhenotypedColony getPhenotypedColony(String colony_name) {
+    /**
+     * Return a {@link PhenotypedColony} given a colony name (aka colony id). This method is built to correctly work
+     * for that set of EuroPhenome colonies that have duplicated work on a cell line by truncating the characters
+     * from the trailing underscore (inclusive) and re-trying.
+     * @param originalColonyId the colony name/colony id
+     * @return a {@link PhenotypedColony} instance, if found; null otherwise
+     */
+    public PhenotypedColony getPhenotypedColony(String originalColonyId) {
         String query = "SELECT * FROM phenotyped_colony WHERE colony_name = :colony_name";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("colony_name", colony_name);
+        parameterMap.put("colony_name", originalColonyId);
 
         List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, parameterMap, new PhenotypedColonyRowMapper());
+
+        if (phenotypedColonies.isEmpty()) {
+            // NOTE: A certain set of EuroPhenome colonies that have duplicated work on a cell line must have their colony
+            //       ids filtered in order to match the iMits colony to which they belong.
+            // Try looking up the colony id after removing the characters after the trailing underscore.
+            int lastUnderscoreIndex = originalColonyId.lastIndexOf("_");
+            if (lastUnderscoreIndex >= 0) {
+                String truncatedColonyId = originalColonyId.substring(0, lastUnderscoreIndex);
+                parameterMap.put("colony_name", truncatedColonyId);
+
+                phenotypedColonies = jdbcCda.query(query, parameterMap, new PhenotypedColonyRowMapper());
+            }
+        }
 
         return (phenotypedColonies.isEmpty() ? null : phenotypedColonies.get(0));
     }

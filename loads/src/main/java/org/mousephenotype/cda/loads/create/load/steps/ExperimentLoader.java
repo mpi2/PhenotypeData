@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.create.load.steps;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -46,12 +45,12 @@ import org.springframework.util.Assert;
 import java.util.*;
 
 /**
- * Loads the specimens from a database with a dcc schema into the cda database.
+ * Loads the experiments from a database with a dcc schema into the cda database.
  *
  * Created by mrelac on 31/08/2016.
  *
  */
-public class SampleLoader implements Step, Tasklet, InitializingBean {
+public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     private Map<String, Allele>     allelesBySymbol         = new HashMap<>();
     private CommonUtils             commonUtils             = new CommonUtils();
@@ -78,8 +77,8 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private int efoDbId;
 
 
-    public SampleLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
-                        CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils, String externalDbShortName) {
+    public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
+                            CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils, String externalDbShortName) {
         this.jdbcCda = jdbcCda;
         this.stepBuilderFactory = stepBuilderFactory;
         this.cdaSqlUtils = cdaSqlUtils;
@@ -121,7 +120,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
      */
     @Override
     public String getName() {
-        return "specimenLoaderStep";
+        return "experimentLoaderStep";
     }
 
     /**
@@ -152,7 +151,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
      */
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
-        stepBuilderFactory.get("specimenLoaderStep")
+        stepBuilderFactory.get("experimentLoaderStep")
                 .tasklet(this)
                 .build()
                 .execute(stepExecution);
@@ -160,6 +159,64 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+
+        long startStep = new Date().getTime();
+
+        List<org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment> dccExperiments = dccSqlUtils.getExperiments();
+        Map<String, Integer> counts;
+
+        for (org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment : dccExperiments) {
+            counts = insertExperiment(dccExperiment);
+
+
+
+
+
+
+//            String sampleGroup = (experiment.isIsBaseline()) ? "control" : "experimental";
+//            boolean isControl = (sampleGroup.equals("control"));
+//
+//            if (isControl) {
+//                counts = insertSampleControlSpecimen(experiment);
+//                written.put("controlSample", written.get("controlSample") + 1);
+//            } else {
+//                counts = insertSampleExperimentalSpecimen(experiment);
+//                written.put("experimentalSample", written.get("experimentalSample") + 1);
+//            }
+//
+//            written.put("biologicalModel", written.get("biologicalModel") + counts.get("biologicalModel"));
+//            written.put("biologicalSample", written.get("biologicalSample") + counts.get("biologicalSample"));
+//            written.put("liveSample", written.get("liveSample") + counts.get("liveSample"));
+        }
+
+        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
+        while (missingColonyIdsIt.hasNext()) {
+            String colonyId = missingColonyIdsIt.next();
+            logger.error("Missing phenotyped_colony information for dcc-supplied colony " + colonyId + ". Skipping...");
+        }
+
+//        Iterator<String> unexpectedStageIt = unexpectedStage.iterator();
+//        while (unexpectedStageIt.hasNext()) {
+//            String stage = unexpectedStageIt.next();
+//            logger.info("Unexpected value for embryonic DCP stage: " + stage);
+//        }
+//
+//        logger.info("Wrote {} new biological models", written.get("biologicalModel"));
+//        logger.info("Wrote {} new biological samples", written.get("biologicalSample"));
+//        logger.info("Wrote {} new live samples", written.get("liveSample"));
+//        logger.info("Processed {} experimental samples", written.get("experimentalSample"));
+//        logger.info("Processed {} control samples", written.get("controlSample"));
+//        logger.info("Processed {} total samples", written.get("experimentalSample") + written.get("controlSample"));
+
+        logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        contribution.setExitStatus(ExitStatus.COMPLETED);
+        chunkContext.setComplete();
+
+        return RepeatStatus.FINISHED;
+    }
+
+
+    public RepeatStatus execute2(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         long startStep = new Date().getTime();
 
@@ -210,6 +267,33 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     }
 
     @Transactional
+    private Map<String, Integer> insertExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment) {
+        Map<String, Integer> results = new HashMap<>();
+
+        Experiment experiment = createExperiment(dccExperiment);
+
+        return results;
+    }
+
+    private Experiment createExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment) {
+        Experiment experiment = new Experiment();
+
+//        String originalColonyId = dcc.get
+//        cdaSqlUtils.getPhenotypedColony(dccExperiment)
+//        experiment.setColonyId(dccExperiment.);
+//
+//
+//
+//        dccSqlUtils.getSpecimens().iterator().next().
+////        dccExperiment.
+//        PhenotypedColony colony = cdaSqlUtils.getPhenotypedColony(dccExperiment.)
+//
+//        experiment.setColonyId(cdaSqlUtils.getCol);experiment.set
+
+        return experiment;
+    }
+
+    @Transactional
     private Map<String, Integer> insertSampleExperimentalSpecimen(Specimen specimen) throws DataLoadException {
         Map<String, Integer> counts = new HashMap<>();
         counts.put("biologicalModel", 0);
@@ -222,9 +306,21 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Strain backgroundStrain;
 
         // Query iMits first for specimen information. iMits is more up-to-date than the dcc.
+        // NOTE: A certain set of EuroPhenome colonies that have duplicated work on a cell line must have their colony
+        //       ids filtered in order to match the iMits colony to which they belong.
         PhenotypedColony colony = cdaSqlUtils.getPhenotypedColony(specimen.getColonyID());
         if (colony == null) {
-            missingColonyIds.add(specimen.getColonyID());
+            // Try looking up the colony id after removing the characters after the trailing underscore.
+            String colonyId = specimen.getColonyID();
+            int lastUnderscoreIndex = colonyId.lastIndexOf("_");
+            if (lastUnderscoreIndex >= 0) {
+                String truncatedColonyId = specimen.getColonyID().substring(0, lastUnderscoreIndex);
+                colony = cdaSqlUtils.getPhenotypedColony(truncatedColonyId);
+                if (colony == null) {
+                    missingColonyIds.add(truncatedColonyId);
+                }
+            }
+
             return counts;
         }
 
@@ -287,12 +383,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             dateOfBirth = null;
             String stage = ((Embryo) specimen).getStage().replaceAll("E", "");
             StageUnit stageUnit = ((Embryo) specimen).getStageUnit();
-            developmentalStage = selectOrInsertStageTerm(stage, stageUnit);
-            if (developmentalStage == null) {
-                message = "Specimen ID '" + specimen.getSpecimenID() + "', colony ID '" + specimen.getColonyID() + "': Unknown developmental stage '" + stage + "'. Skipping...";
-                logger.error(message);
-                throw new DataLoadException(message);
-            }
+//            developmentalStage = selectOrInsertStageTerm(stage, stageUnit);
+//            if (developmentalStage == null) {
+//                message = "Specimen ID '" + specimen.getSpecimenID() + "', colony ID '" + specimen.getColonyID() + "': Unknown developmental stage '" + stage + "'. Skipping...";
+//                logger.error(message);
+//                throw new DataLoadException(message);
+//            }
             sampleType = sampleTypeMouseEmbryoStage;
 
         } else {
@@ -373,10 +469,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         int biologicalSampleId = results.get("biologicalSampleId");
 
         // live_sample
-        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, colonyId, dateOfBirth, developmentalStage, litterId, sex, zygosity);
-        if (liveSampleId > 0) {
-            counts.put("liveSample", counts.get("liveSample") + 1);
-        }
+//        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, colonyId, dateOfBirth, developmentalStage, litterId, sex, zygosity);
+//        if (liveSampleId > 0) {
+//            counts.put("liveSample", counts.get("liveSample") + 1);
+//        }
 
         // biological_model_sample
         int biologicalModelSampleId = cdaSqlUtils.insertBiologicalModelSample(biologicalModelId, biologicalSampleId);
@@ -496,12 +592,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             dateOfBirth = null;
             String stage = ((Embryo) specimen).getStage().replaceAll("E", "");
             StageUnit stageUnit = ((Embryo) specimen).getStageUnit();
-            developmentalStage = selectOrInsertStageTerm(stage, stageUnit);
-            if (developmentalStage == null) {
-                message = "Specimen ID '" + specimen.getSpecimenID() + "', colony ID '" + specimen.getColonyID() + "': Unknown developmental stage '" + stage + "'. Skipping...";
-                logger.error(message);
-                throw new DataLoadException(message);
-            }
+//            developmentalStage = selectOrInsertStageTerm(stage, stageUnit);
+//            if (developmentalStage == null) {
+//                message = "Specimen ID '" + specimen.getSpecimenID() + "', colony ID '" + specimen.getColonyID() + "': Unknown developmental stage '" + stage + "'. Skipping...";
+//                logger.error(message);
+//                throw new DataLoadException(message);
+//            }
         } else {
             message = "Specimen ID '" + specimen.getSpecimenID() + "', colony ID '" + specimen.getColonyID() + "': Expected specimen sample class 'Mouse' or 'Embryo' but found '" + specimen.getClass().getCanonicalName() + "'. Skipping...";
             logger.error(message);
@@ -554,10 +650,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         biologicalSampleId = results.get("biologicalSampleId");
 
         // live_sample
-        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, colonyId, dateOfBirth, developmentalStage, litterId, sex, zygosity);
-        if (liveSampleId > 0) {
-            counts.put("liveSample", counts.get("liveSample") + 1);
-        }
+//        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, colonyId, dateOfBirth, developmentalStage, litterId, sex, zygosity);
+//        if (liveSampleId > 0) {
+//            counts.put("liveSample", counts.get("liveSample") + 1);
+//        }
 
         // biological_model_sample
         int biologicalModelSampleId = cdaSqlUtils.insertBiologicalModelSample(biologicalModelId, biologicalSampleId);
@@ -578,90 +674,5 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     // PRIVATE METHODS
 
 
-    /**
-     * Returns the {@link OntologyTerm} associated with the given stage and stageUnit, creating it first if it does
-     * not yet exist in the database.
-   	 *
-   	 * @param stage the stage from impress
-   	 * @param stageUnit the stage unit applicable to stage
-   	 * @return the term associated with the correct stage
-     * @throws DataLoadException if {@code stage} is not a floating point number
-   	 */
-   	public OntologyTerm selectOrInsertStageTerm(String stage, StageUnit stageUnit) throws DataLoadException {
-   		String termName = null;
-   		OntologyTerm term;
 
-        final Set<String> expectedDpc = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("9.5", "12.5", "13.5", "14.5", "15.5", "18.5")));
-
-
-   		switch (stageUnit) {
-
-   			case DPC:
-                Double dStage = commonUtils.tryParseDouble(stage);
-                if (dStage == null) {
-                    throw new DataLoadException("Stage '" + stage + "' is not a floating point number");
-                }
-
-   				// Mouse gestation is between 0 and 20 days, so plus 4 to be safe, else reject
-                if (dStage < 0) {
-                    throw new DataLoadException("Stage '" + stage + "' is less than 0");
-                } else if (dStage > 24) {
-                    throw new DataLoadException("Stage '" + stage + "' is greater than the maximum Mouse gestation of 24 days");
-   				}
-
-   				termName = String.format("embryonic day %s", stage);
-
-   				if( ! expectedDpc.contains(stage)) {
-   					unexpectedStage.add(stage);
-   				}
-   				break;
-
-   			case THEILER:
-                Integer iStage = commonUtils.tryParseInt(stage);
-                if (iStage == null) {
-                    throw new DataLoadException("Stage '" + stage + "' is not an integer");
-                }
-
-   				// Only allow a stage term that makes sense
-                if (iStage < 0) {
-                    throw new DataLoadException("Stage '" + stage + "' is less than 0");
-                } else if (iStage > 28) {
-                    throw new DataLoadException("Stage '" + stage + "' is greater than the maximum value of 28");
-   				}
-
-   	            termName = String.format("TS%s,embryo", stage);
-   				break;
-
-   			default:
-   				throw new DataLoadException("Unknown stageUnit '" + stageUnit.value() + "'");
-   		}
-
-        if ((termName == null) || (termName.trim().isEmpty())) {
-            throw new DataLoadException("termName is null or empty");
-        }
-
-        try {
-            term = cdaSqlUtils.getOntologyTermByName(termName);
-        } catch (Exception e) {
-            term = null;
-        }
-
-        if (term == null) {
-            String termAcc = "NULL-" + DigestUtils.md5Hex(termName).substring(0, 9).toUpperCase();
-            term = new OntologyTerm();
-            term.setId(new DatasourceEntityId(termAcc, efoDbId));
-            term.setDescription(termName);
-            term.setName(termName);
-            List<OntologyTerm> terms = new ArrayList<>();
-            terms.add(term);
-            Map<String, Integer> counts = cdaSqlUtils.insertOntologyTerm(terms);
-            if (counts.get("terms") == 0) {
-                logger.error("Tried to create new embryonic stage term '" + term.getName() + "' but database save failed");
-            } else {
-                logger.info("Created new embryonic stage term '" + term.getName() + "'");
-            }
-        }
-
-   		return term;
-   	}
 }

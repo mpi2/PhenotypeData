@@ -143,6 +143,8 @@ public class ExtractDccExperiments implements CommandLineRunner {
     private void run() throws DataLoadException {
         int                   totalExperiments       = 0;
         int                   totalExperimentsFailed = 0;
+        int                   totalLines             = 0;
+        int                   totalLinesFailed       = 0;
         List<CentreProcedure> centerProcedures;
 
         try {
@@ -161,6 +163,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         for (CentreProcedure centerProcedure : centerProcedures) {
             logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID());
 
+            // Load experiment info.
             for (Experiment experiment : centerProcedure.getExperiment()) {
 
                 try {
@@ -179,12 +182,38 @@ public class ExtractDccExperiments implements CommandLineRunner {
                     totalExperimentsFailed++;
                 }
             }
+
+            // Load line info.
+            for (Line line : centerProcedure.getLine()) {
+
+                try {
+                    // Get centerPk
+                    long centerPk = dccSqlUtils.getCenterPk(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+                    if (centerPk < 1) {
+                        logger.warn("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
+                                            + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
+                        centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+                    }
+
+                    insertLine(line, centerProcedure, centerPk);
+                    totalLines++;
+                } catch (Exception e) {
+                    logger.error("ERROR IMPORTING LINE. CENTER: {}. LINE: {}. EXPERIMENT SKIPPED. ERROR:\n{}" , centerProcedure.getCentreID(), line, e.getLocalizedMessage());
+                    totalLinesFailed++;
+                }
+            }
         }
 
         if (totalExperimentsFailed > 0) {
             logger.warn("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
         } else {
             logger.debug("Inserted {} experiments ({} failed).", totalExperiments, totalExperimentsFailed);
+        }
+
+        if (totalLinesFailed > 0) {
+            logger.warn("Inserted {} lines ({} failed).", totalLines, totalLinesFailed);
+        } else {
+            logger.debug("Inserted {} lines ({} failed).", totalLines, totalLinesFailed);
         }
     }
 
@@ -225,38 +254,6 @@ processExperiment:      // Used by skipProcedure to skip experiments with proced
             // housing
             if (centerProcedure.getHousing() != null) {
                 dccSqlUtils.insertHousing(centerProcedure.getHousing(), center_procedurePk);
-            }
-
-            // line
-            if (centerProcedure.getLine() != null) {
-                for (Line line : centerProcedure.getLine()) {
-
-                    final Procedure             impressProcedure = line.getProcedure();
-                    final List<SimpleParameter> parameters       = impressProcedure.getSimpleParameter();
-                    final String                procedureName    = impressProcedure.getProcedureID();
-                    final String                colonyId         = line.getColonyID();
-
-                    // Skip any experiments whose procedure group has been marked to be skipped.
-                    String procedureGroup = getProcedureGroup(procedureName);
-                    if (skipProcedures.contains(procedureGroup)) {
-                        String experimentID = String.format("%s-%s", line.getProcedure().getProcedureID(), colonyId);
-                        logger.info("Skipped Experiment ID {} as it contains excluded procedure ID {}", experimentID , line.getProcedure().getProcedureID());
-                        continue processExperiment;     // Continue with the next experiment.
-                    }
-
-                    long linePk = dccSqlUtils.getLinePk(line.getColonyID(), center_procedurePk);
-                    if (linePk == 0) {
-                        linePk = dccSqlUtils.insertLine(line, center_procedurePk);
-                    }
-
-                    if (line.getStatusCode() != null) {
-                        // line_statuscode
-                        for (StatusCode statuscode : line.getStatusCode()) {
-                            statuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
-                            dccSqlUtils.insertLine_statuscode(linePk, statuscode.getHjid());
-                        }
-                    }
-                }
             }
 
             // experiment
@@ -390,6 +387,192 @@ processExperiment:      // Used by skipProcedure to skip experiments with proced
                                     long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
                                     dccSqlUtils.insertSeriesMediaParameterValue_procedureMetadata(seriesMediaParameterValuePk, procedureMetadataPk);
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Transactional
+    private void insertLine(Line line, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
+
+        Long specimenPk, procedurePk, center_procedurePk;
+
+        // procedure
+        Procedure procedure = dccSqlUtils.getProcedure(line.getProcedure().getProcedureID());
+        if (procedure == null) {
+            procedure = dccSqlUtils.insertProcedure(line.getProcedure().getProcedureID());
+
+            if (line.getProcedure().getProcedureMetadata() != null) {
+                for (ProcedureMetadata procedureMetadata : line.getProcedure().getProcedureMetadata()) {
+                    long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                    dccSqlUtils.insertProcedure_procedureMetadata(procedure.getHjid(), procedureMetadataPk);
+                }
+            }
+        }
+        procedurePk = procedure.getHjid();
+
+        // center_procedure
+        center_procedurePk = dccSqlUtils.selectOrInsertCenter_procedure(centerPk, procedurePk);
+
+        // housing
+        if (centerProcedure.getHousing() != null) {
+            dccSqlUtils.insertHousing(centerProcedure.getHousing(), center_procedurePk);
+        }
+
+        // line
+        final Procedure             impressProcedure = line.getProcedure();
+        final List<SimpleParameter> parameters       = impressProcedure.getSimpleParameter();
+        final String                procedureName    = impressProcedure.getProcedureID();
+        final String                colonyId         = line.getColonyID();
+
+        // Skip any lines whose procedure group has been marked to be skipped.
+        String procedureGroup = getProcedureGroup(procedureName);
+        if (skipProcedures.contains(procedureGroup)) {
+            String lineID = String.format("%s-%s", line.getProcedure().getProcedureID(), colonyId);
+            logger.info("Skipped Line ID {} as it contains excluded procedure ID {}", lineID , line.getProcedure().getProcedureID());
+            return;
+        }
+
+        long linePk = dccSqlUtils.getLinePk(line.getColonyID(), center_procedurePk);
+        if (linePk == 0) {
+            linePk = dccSqlUtils.insertLine(line, center_procedurePk);
+        }
+
+        if (line.getStatusCode() != null) {
+            // line_statuscode
+            for (StatusCode statuscode : line.getStatusCode()) {
+                statuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
+                dccSqlUtils.insertLine_statuscode(linePk, statuscode.getHjid());
+            }
+        }
+
+        // line_statuscode
+        if (line.getStatusCode() != null) {
+            for (StatusCode statuscode : line.getStatusCode()) {
+                statuscode = dccSqlUtils.selectOrInsertStatuscode(statuscode);
+                dccSqlUtils.insertLine_statuscode(linePk, statuscode.getHjid());
+            }
+        }
+        // simpleParameter
+        if (line.getProcedure().getSimpleParameter() != null) {
+            for (SimpleParameter simpleParameter : line.getProcedure().getSimpleParameter()) {
+                dccSqlUtils.insertSimpleParameter(simpleParameter, procedurePk);
+            }
+        }
+
+        // ontologyParameter and ontologyParameterTerm
+        if (line.getProcedure().getOntologyParameter() != null) {
+            for (OntologyParameter ontologyParameter : line.getProcedure().getOntologyParameter()) {
+                ontologyParameter = dccSqlUtils.insertOntologyParameter(ontologyParameter, procedurePk);
+                for (String term : ontologyParameter.getTerm()) {
+                    dccSqlUtils.insertOntologyParameterTerm(term, ontologyParameter.getHjid());
+                }
+            }
+        }
+
+        // seriesParameter
+        if (line.getProcedure().getSeriesParameter() != null) {
+            for (SeriesParameter seriesParameter : line.getProcedure().getSeriesParameter()) {
+                seriesParameter = dccSqlUtils.insertSeriesParameter(seriesParameter, procedurePk);
+
+                // seriesParameterValue
+                for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
+                    dccSqlUtils.insertSeriesParameterValue(seriesParameterValue, seriesParameter.getHjid());
+                }
+            }
+        }
+        // mediaParameter
+        if (line.getProcedure().getMediaParameter() != null) {
+            for (MediaParameter mediaParameter : line.getProcedure().getMediaParameter()) {
+                mediaParameter = dccSqlUtils.insertMediaParameter(mediaParameter, procedurePk);
+
+                // mediaParameter_parameterAssociation
+                if (mediaParameter.getParameterAssociation() != null) {
+                    for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
+                        long parameterAssociationPk = dccSqlUtils.selectOrInsertParameterAssociation(parameterAssociation).getHjid();
+                        dccSqlUtils.insertMediaParameter_parameterAssociation(mediaParameter.getHjid(), parameterAssociationPk);
+                    }
+
+                    // mediaParameter_procedureMetadata
+                    if (mediaParameter.getProcedureMetadata() != null) {
+                        for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
+                            long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                            dccSqlUtils.insertMediaParameter_procedureMetadata(mediaParameter.getHjid(), procedureMetadataPk);
+                        }
+                    }
+                }
+            }
+
+            // mediaSampleParameter
+            if (line.getProcedure().getMediaSampleParameter() != null) {
+                for (MediaSampleParameter mediaSampleParameter : line.getProcedure().getMediaSampleParameter()) {
+                    mediaSampleParameter = dccSqlUtils.insertMediaSampleParameter(mediaSampleParameter, procedurePk);
+                    long mediaSampleParameterPk = mediaSampleParameter.getHjid();
+
+                    // mediaSample
+                    for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
+                        mediaSample = dccSqlUtils.insertMediaSample(mediaSample, mediaSampleParameterPk);
+                        long mediaSamplePk = mediaSample.getHjid();
+
+                        // mediaSection
+                        for (MediaSection mediaSection : mediaSample.getMediaSection()) {
+                            mediaSection = dccSqlUtils.insertMediaSection(mediaSection, mediaSamplePk);
+                            long mediaSectionPk = mediaSection.getHjid();
+
+                            // mediaFile
+                            for (MediaFile mediaFile : mediaSection.getMediaFile()) {
+                                mediaFile = dccSqlUtils.insertMediaFile(mediaFile, mediaSectionPk);
+                                long mediaFilePk = mediaFile.getHjid();
+
+                                // mediaFile_parameterAssociation
+                                if (mediaFile.getParameterAssociation() != null) {
+                                    for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
+                                        long parameterAssociationPk = dccSqlUtils.selectOrInsertParameterAssociation(parameterAssociation).getHjid();
+                                        dccSqlUtils.insertMediaFile_parameterAssociation(mediaFilePk, parameterAssociationPk);
+                                    }
+                                }
+
+                                // mediaFile_procedureMetadata
+                                if (mediaFile.getProcedureMetadata() != null) {
+                                    for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
+                                        long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                        dccSqlUtils.insertMediaFile_procedureMetadata(mediaFilePk, procedureMetadataPk);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // seriesMediaParameter
+            if (line.getProcedure().getSeriesMediaParameter() != null) {
+                for (SeriesMediaParameter seriesMediaParameter : line.getProcedure().getSeriesMediaParameter()) {
+                    seriesMediaParameter = dccSqlUtils.insertSeriesMediaParameter(seriesMediaParameter, procedurePk);
+                    long seriesMediaParameterPk = seriesMediaParameter.getHjid();
+
+                    // seriesMediaParameterValue
+                    for (SeriesMediaParameterValue seriesMediaParameterValue : seriesMediaParameter.getValue()) {
+                        seriesMediaParameterValue = dccSqlUtils.insertSeriesMediaParameterValue(seriesMediaParameterValue, seriesMediaParameterPk);
+                        ;
+                        long seriesMediaParameterValuePk = seriesMediaParameterValue.getHjid();
+
+                        // seriesMediaParameterValue_parameterAssociation
+                        if ((seriesMediaParameterValue.getParameterAssociation() != null) && (!seriesMediaParameterValue.getParameterAssociation().isEmpty())) {
+                            for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                                long parameterAssociationPk = dccSqlUtils.selectOrInsertParameterAssociation(parameterAssociation).getHjid();
+                                dccSqlUtils.insertSeriesMediaParameterValue_parameterAssociation(seriesMediaParameterValuePk, parameterAssociationPk);
+                            }
+                        }
+
+                        // seriesMediaParameterValue_procedureMetadata
+                        if ((seriesMediaParameterValue.getProcedureMetadata() != null) && (!seriesMediaParameterValue.getProcedureMetadata().isEmpty())) {
+                            for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
+                                long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                dccSqlUtils.insertSeriesMediaParameterValue_procedureMetadata(seriesMediaParameterValuePk, procedureMetadataPk);
                             }
                         }
                     }
