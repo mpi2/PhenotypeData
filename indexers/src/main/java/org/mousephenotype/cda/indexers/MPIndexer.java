@@ -273,10 +273,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         TreeSet<String> synonyms = new TreeSet<String>();
         long calls = sumPhenotypingCalls(mpFromFullOntology.getAccessionId());
+
         // get narrow synonyms from all children not in slim.
         if (calls > 0 && mpFromFullOntology.getChildIds().size() > 0){
+
             for (String childId : mpFromFullOntology.getChildIds()){
                 System.out.println("CHILD ID " + childId);
+
                 if (!mpFromSlim.getChildMpId().contains(childId)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
