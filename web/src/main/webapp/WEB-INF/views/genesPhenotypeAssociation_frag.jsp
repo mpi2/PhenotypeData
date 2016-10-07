@@ -57,7 +57,7 @@
             <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a>
         </c:if>
         <c:if test="${phenotypeStarted}">
-            <a id="heatmap_link" class="btn">Toggle Preliminary Data/QC'd Data</a>
+            <a id="heatmap_link" class="btn">Heatmap / Table</a>
         </c:if>
         
         
