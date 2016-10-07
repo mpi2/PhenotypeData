@@ -276,6 +276,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         // get narrow synonyms from all children not in slim.
         if (calls > 0 && mpFromFullOntology.getChildIds().size() > 0){
             for (String childId : mpFromFullOntology.getChildIds()){
+                System.out.println("CHILD ID " + childId);
                 if (!mpFromSlim.getChildMpId().contains(childId)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
@@ -288,6 +289,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
             }
         }
+        System.out.println("Restricted narrow syn for ");
         return  synonyms;
     }
 
