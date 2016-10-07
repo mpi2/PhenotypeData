@@ -4,6 +4,8 @@ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.web.WebStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +25,8 @@ import java.util.concurrent.*;
  */
 @Controller
 public class WebStatusController {
+
+	private final Logger logger = LoggerFactory.getLogger(WebStatusController.class);
 
 	public static final Integer TIMEOUT_INTERVAL = 1;
 
@@ -191,6 +195,7 @@ public class WebStatusController {
 
 				// Do not change the website status for an unavailable non-critical resource
 				nonEssentialOk=false;
+				logger.error("Non essential service {} is not available", name);
 				e.printStackTrace();
 			}
 			WebStatusModel wModel = new WebStatusModel(name, number);
