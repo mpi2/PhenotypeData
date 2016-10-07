@@ -251,10 +251,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 documentCount++;
                 mpIndexing.addBean(mp, 60000);
-
-                if (documentCount % 100 == 0){
-                	mpIndexing.commit();
-                }
+//
+//                if (documentCount % 100 == 0){
+//                	mpIndexing.commit();
+//                }
             }
 
             // Send a final commit
@@ -289,12 +289,27 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     } else {
                         System.out.println("NULL child for id  " + childId);
                     }
+                } else if (mpFromSlim.getChildMpId().contains(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
+
+                    OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
+                    if (child != null) {
+                        synonyms.addAll(mpHpParser.getNarrowSynonyms(child, LEVELS_FOR_NARROW_SYNONYMS));
+                    }
                 }
             }
         }
-        System.out.println("Restricted narrow syn for ");
+        System.out.println("Restricted narrow syn for " + mpFromSlim.getMpId() + " " + synonyms);
         return  synonyms;
     }
+
+//    private List<String> getNarrowSynonymsOutsideSlim(String mpId, int levels){
+//
+//        int remainingLevels = levels;
+//        while (levels > 0 && ){
+//
+//        }
+//
+//    }
 
 
     private boolean isOKForNarrowSynonyms(MpDTO mp) throws IOException, SolrServerException {
