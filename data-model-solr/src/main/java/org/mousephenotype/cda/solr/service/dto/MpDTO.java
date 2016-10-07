@@ -18,7 +18,6 @@ package org.mousephenotype.cda.solr.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -62,18 +61,18 @@ public class MpDTO {
 	public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "selected_top_level_ma_term_synonym";
-	public static final String CHILD_MA_ID = "child_ma_id";
-	public static final String CHILD_MA_TERM = "child_ma_term";
-	public static final String CHILD_MA_TERM_SYNONYM = "child_ma_term_synonym";
+//	public static final String CHILD_MA_ID = "child_ma_id";
+//	public static final String CHILD_MA_TERM = "child_ma_term";
+//	public static final String CHILD_MA_TERM_SYNONYM = "child_ma_term_synonym";
 	public static final String INFERRED_MA_ID = "inferred_ma_id";
 	public static final String INFERRED_MA_TERM = "inferred_ma_term";
 	public static final String INFERRED_MA_TERM_SYNONYM = "inferred_ma_term_synonym";
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = "inferred_selected_top_level_ma_id";
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = "inferred_selected_top_level_ma_term";
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "inferred_selected_top_level_ma_term_synonym";
-	public static final String INFERRED_CHILD_MA_ID = "inferred_child_ma_id";
-	public static final String INFERRED_CHILD_MA_TERM = "inferred_child_ma_term";
-	public static final String INFERRED_CHILD_MA_TERM_SYNONYM = "inferred_child_ma_term_synonym";
+//	public static final String INFERRED_CHILD_MA_ID = "inferred_child_ma_id";
+//	public static final String INFERRED_CHILD_MA_TERM = "inferred_child_ma_term";
+//	public static final String INFERRED_CHILD_MA_TERM_SYNONYM = "inferred_child_ma_term_synonym";
 	public static final String GO_ID = "go_id";
 	public static final String SIBLING_MP_ID = "sibling_mp_id";
 	public static final String SIBLING_MP_TERM = "sibling_mp_term";
@@ -268,15 +267,15 @@ public class MpDTO {
 
 	@Field(SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String> selectedTopLevelMaTermSynonym;
-
-	@Field(CHILD_MA_ID)
-	private List<String> childMaId;
-
-	@Field(CHILD_MA_TERM)
-	private List<String> childMaTerm;
-
-	@Field(CHILD_MA_TERM_SYNONYM)
-	private List<String> childMaTermSynonym;
+//
+//	@Field(CHILD_MA_ID)
+//	private List<String> childMaId;
+//
+//	@Field(CHILD_MA_TERM)
+//	private List<String> childMaTerm;
+//
+//	@Field(CHILD_MA_TERM_SYNONYM)
+//	private List<String> childMaTermSynonym;
 
 	@Field(INFERRED_MA_ID)
 	private List<String> inferredMaId;
@@ -296,14 +295,14 @@ public class MpDTO {
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String> inferredSelectedTopLevelMaTermSynonym;
 
-	@Field(INFERRED_CHILD_MA_ID)
-	private List<String> inferredChildMaId;
-
-	@Field(INFERRED_CHILD_MA_TERM)
-	private List<String> inferredChildMaTerm;
-
-	@Field(INFERRED_CHILD_MA_TERM_SYNONYM)
-	private List<String> inferredChildMaTermSynonym;
+//	@Field(INFERRED_CHILD_MA_ID)
+//	private List<String> inferredChildMaId;
+//
+//	@Field(INFERRED_CHILD_MA_TERM)
+//	private List<String> inferredChildMaTerm;
+//
+//	@Field(INFERRED_CHILD_MA_TERM_SYNONYM)
+//	private List<String> inferredChildMaTermSynonym;
 
 	@Field(GO_ID)
 	private List<String> goId;
@@ -324,7 +323,7 @@ public class MpDTO {
 	private List<String> mgiAccessionId;
 
 	@Field(PHENO_CALLS)
-	private Integer phenoCalls;
+	private Long phenoCalls;
 	
 	@Field(MARKER_SYMBOL)
 	private List<String> markerSymbol;
@@ -981,40 +980,40 @@ public class MpDTO {
 	}
 
 
-	public List<String> getChildMaId() {
-
-		return childMaId;
-	}
-
-
-	public void setChildMaId(List<String> childMaId) {
-
-		this.childMaId = childMaId;
-	}
-
-
-	public List<String> getChildMaTerm() {
-
-		return childMaTerm;
-	}
-
-
-	public void setChildMaTerm(List<String> childMaTerm) {
-
-		this.childMaTerm = childMaTerm;
-	}
-
-
-	public List<String> getChildMaTermSynonym() {
-
-		return childMaTermSynonym;
-	}
+//	public List<String> getChildMaId() {
+//
+//		return childMaId;
+//	}
+//
+//
+//	public void setChildMaId(List<String> childMaId) {
+//
+//		this.childMaId = childMaId;
+//	}
+//
+//
+//	public List<String> getChildMaTerm() {
+//
+//		return childMaTerm;
+//	}
+//
+//
+//	public void setChildMaTerm(List<String> childMaTerm) {
+//
+//		this.childMaTerm = childMaTerm;
+//	}
 
 
-	public void setChildMaTermSynonym(List<String> childMaTermSynonym) {
-
-		this.childMaTermSynonym = childMaTermSynonym;
-	}
+//	public List<String> getChildMaTermSynonym() {
+//
+//		return childMaTermSynonym;
+//	}
+//
+//
+//	public void setChildMaTermSynonym(List<String> childMaTermSynonym) {
+//
+//		this.childMaTermSynonym = childMaTermSynonym;
+//	}
 
 
 	public List<String> getInferredMaId() {
@@ -1089,40 +1088,40 @@ public class MpDTO {
 	}
 
 
-	public List<String> getInferredChildMaId() {
-
-		return inferredChildMaId;
-	}
-
-
-	public void setInferredChildMaId(List<String> inferredChildMaId) {
-
-		this.inferredChildMaId = inferredChildMaId;
-	}
-
-
-	public List<String> getInferredChildMaTerm() {
-
-		return inferredChildMaTerm;
-	}
-
-
-	public void setInferredChildMaTerm(List<String> inferredChildMaTerm) {
-
-		this.inferredChildMaTerm = inferredChildMaTerm;
-	}
-
-
-	public List<String> getInferredChildMaTermSynonym() {
-
-		return inferredChildMaTermSynonym;
-	}
+//	public List<String> getInferredChildMaId() {
+//
+//		return inferredChildMaId;
+//	}
+//
+//
+//	public void setInferredChildMaId(List<String> inferredChildMaId) {
+//
+//		this.inferredChildMaId = inferredChildMaId;
+//	}
+//
+//
+//	public List<String> getInferredChildMaTerm() {
+//
+//		return inferredChildMaTerm;
+//	}
+//
+//
+//	public void setInferredChildMaTerm(List<String> inferredChildMaTerm) {
+//
+//		this.inferredChildMaTerm = inferredChildMaTerm;
+//	}
 
 
-	public void setInferredChildMaTermSynonym(List<String> inferredChildMaTermSynonym) {
-
-		this.inferredChildMaTermSynonym = inferredChildMaTermSynonym;
-	}
+//	public List<String> getInferredChildMaTermSynonym() {
+//
+//		return inferredChildMaTermSynonym;
+//	}
+//
+//
+//	public void setInferredChildMaTermSynonym(List<String> inferredChildMaTermSynonym) {
+//
+//		this.inferredChildMaTermSynonym = inferredChildMaTermSynonym;
+//	}
 
 
 	public List<String> getGoId() {
@@ -1196,12 +1195,12 @@ public class MpDTO {
 		this.mgiAccessionId = mgiAccessionId;
 	}
 
-	public Integer getPhenoCalls() {
+	public Long getPhenoCalls() {
 
 		return phenoCalls;
 	}
 	
-	public void setPhenoCalls(Integer mpCalls) {
+	public void setPhenoCalls(Long mpCalls) {
 		
 		this.phenoCalls = mpCalls;
 	}
@@ -2089,11 +2088,7 @@ public class MpDTO {
             return false;
         if (selectedTopLevelMaTermSynonym != null ? !selectedTopLevelMaTermSynonym.equals(mpDTO.selectedTopLevelMaTermSynonym) : mpDTO.selectedTopLevelMaTermSynonym != null)
             return false;
-        if (childMaId != null ? !childMaId.equals(mpDTO.childMaId) : mpDTO.childMaId != null) return false;
-        if (childMaTerm != null ? !childMaTerm.equals(mpDTO.childMaTerm) : mpDTO.childMaTerm != null) return false;
-        if (childMaTermSynonym != null ? !childMaTermSynonym.equals(mpDTO.childMaTermSynonym) : mpDTO.childMaTermSynonym != null)
-            return false;
-        if (inferredMaId != null ? !inferredMaId.equals(mpDTO.inferredMaId) : mpDTO.inferredMaId != null) return false;
+           if (inferredMaId != null ? !inferredMaId.equals(mpDTO.inferredMaId) : mpDTO.inferredMaId != null) return false;
         if (inferredMaTerm != null ? !inferredMaTerm.equals(mpDTO.inferredMaTerm) : mpDTO.inferredMaTerm != null)
             return false;
         if (inferredMaTermSynonym != null ? !inferredMaTermSynonym.equals(mpDTO.inferredMaTermSynonym) : mpDTO.inferredMaTermSynonym != null)
@@ -2103,12 +2098,6 @@ public class MpDTO {
         if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(mpDTO.inferredSelectedTopLevelMaTerm) : mpDTO.inferredSelectedTopLevelMaTerm != null)
             return false;
         if (inferredSelectedTopLevelMaTermSynonym != null ? !inferredSelectedTopLevelMaTermSynonym.equals(mpDTO.inferredSelectedTopLevelMaTermSynonym) : mpDTO.inferredSelectedTopLevelMaTermSynonym != null)
-            return false;
-        if (inferredChildMaId != null ? !inferredChildMaId.equals(mpDTO.inferredChildMaId) : mpDTO.inferredChildMaId != null)
-            return false;
-        if (inferredChildMaTerm != null ? !inferredChildMaTerm.equals(mpDTO.inferredChildMaTerm) : mpDTO.inferredChildMaTerm != null)
-            return false;
-        if (inferredChildMaTermSynonym != null ? !inferredChildMaTermSynonym.equals(mpDTO.inferredChildMaTermSynonym) : mpDTO.inferredChildMaTermSynonym != null)
             return false;
         if (goId != null ? !goId.equals(mpDTO.goId) : mpDTO.goId != null) return false;
         if (siblingMpId != null ? !siblingMpId.equals(mpDTO.siblingMpId) : mpDTO.siblingMpId != null) return false;
@@ -2267,18 +2256,12 @@ public class MpDTO {
         result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
         result = 31 * result + (selectedTopLevelMaTerm != null ? selectedTopLevelMaTerm.hashCode() : 0);
         result = 31 * result + (selectedTopLevelMaTermSynonym != null ? selectedTopLevelMaTermSynonym.hashCode() : 0);
-        result = 31 * result + (childMaId != null ? childMaId.hashCode() : 0);
-        result = 31 * result + (childMaTerm != null ? childMaTerm.hashCode() : 0);
-        result = 31 * result + (childMaTermSynonym != null ? childMaTermSynonym.hashCode() : 0);
         result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
         result = 31 * result + (inferredMaTerm != null ? inferredMaTerm.hashCode() : 0);
         result = 31 * result + (inferredMaTermSynonym != null ? inferredMaTermSynonym.hashCode() : 0);
         result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
         result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
         result = 31 * result + (inferredSelectedTopLevelMaTermSynonym != null ? inferredSelectedTopLevelMaTermSynonym.hashCode() : 0);
-        result = 31 * result + (inferredChildMaId != null ? inferredChildMaId.hashCode() : 0);
-        result = 31 * result + (inferredChildMaTerm != null ? inferredChildMaTerm.hashCode() : 0);
-        result = 31 * result + (inferredChildMaTermSynonym != null ? inferredChildMaTermSynonym.hashCode() : 0);
         result = 31 * result + (goId != null ? goId.hashCode() : 0);
         result = 31 * result + (siblingMpId != null ? siblingMpId.hashCode() : 0);
         result = 31 * result + (siblingMpTerm != null ? siblingMpTerm.hashCode() : 0);
@@ -2397,18 +2380,12 @@ public class MpDTO {
 				", selectedTopLevelMaId=" + selectedTopLevelMaId +
 				", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm +
 				", selectedTopLevelMaTermSynonym=" + selectedTopLevelMaTermSynonym +
-				", childMaId=" + childMaId +
-				", childMaTerm=" + childMaTerm +
-				", childMaTermSynonym=" + childMaTermSynonym +
 				", inferredMaId=" + inferredMaId +
 				", inferredMaTerm=" + inferredMaTerm +
 				", inferredMaTermSynonym=" + inferredMaTermSynonym +
 				", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId +
 				", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm +
 				", inferredSelectedTopLevelMaTermSynonym=" + inferredSelectedTopLevelMaTermSynonym +
-				", inferredChildMaId=" + inferredChildMaId +
-				", inferredChildMaTerm=" + inferredChildMaTerm +
-				", inferredChildMaTermSynonym=" + inferredChildMaTermSynonym +
 				", goId=" + goId +
 				", siblingMpId=" + siblingMpId +
 				", siblingMpTerm=" + siblingMpTerm +

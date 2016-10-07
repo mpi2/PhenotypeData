@@ -170,6 +170,13 @@ public class OntologyParserTest {
         Assert.assertFalse("Narrow synonyms list is empty!", narrowSynonyms.isEmpty());
         Assert.assertTrue("Narrow synonyms list does not contain a label!", narrowSynonyms.contains("conductive hearing impairment"));
         Assert.assertTrue("Narrow synonyms list does not contain an exact synonym!", narrowSynonyms.contains("complete hearing loss"));
+
+        // Test both HP and MP terms are considered.
+        // Abnormal glucose homeostasis MP:0002078 is equivalent to HP:0011014
+        term = ontologyParser.getOntologyTerm("MP:0002078");
+
+        Assert.assertTrue("HP synonym not found, was looking for Abnormal C-peptide level ." , ontologyParser.getNarrowSynonyms(term,2).contains("Abnormal C-peptide level"));
+
     }
 
 
@@ -187,10 +194,10 @@ public class OntologyParserTest {
         Set<OntologyTermDTO> termSet = mp0000572.getEquivalentClasses();
         List<OntologyTermDTO> eqTerms =
                 termSet.stream()
-                .filter(term -> term.getAccessonId().equals("HP:0005922"))
+                .filter(term -> term.getAccessionId().equals("HP:0005922"))
                 .collect(Collectors.toList());
         Assert.assertFalse("Expected equivalent class HP:0005922 but list is empty.", eqTerms.isEmpty());
-        Assert.assertTrue("Expected equivalent class HP:0005922. Not found.", eqTerms.get(0).getAccessonId().equals("HP:0005922"));
+        Assert.assertTrue("Expected equivalent class HP:0005922. Not found.", eqTerms.get(0).getAccessionId().equals("HP:0005922"));
     }
 
 
@@ -202,8 +209,8 @@ public class OntologyParserTest {
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
                 termList.stream()
-                .filter(term -> term.getAccessonId().equals("MP:0006374") || term.getAccessonId().equals("MP:0002977") || term.getAccessonId().equals("MP:0000003"))
-                .collect(Collectors.toMap(OntologyTermDTO::getAccessonId, ontologyTermDTO -> ontologyTermDTO));
+                .filter(term -> term.getAccessionId().equals("MP:0006374") || term.getAccessionId().equals("MP:0002977") || term.getAccessionId().equals("MP:0000003"))
+                .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
 
         /* Test alternative ids are found for MP_0000003 (should be MP:0000011). */
 

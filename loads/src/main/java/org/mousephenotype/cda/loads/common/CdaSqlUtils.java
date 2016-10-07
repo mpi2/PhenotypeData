@@ -20,15 +20,21 @@ import com.google.inject.Inject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.legacy.LoaderUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
@@ -45,6 +51,7 @@ public class CdaSqlUtils {
     private Map<String, Set<ConsiderId>>  considerIds;      // keyed by ontology term accession id
     private Map<String, OntologyTerm>     ontologyTerms;    // keyed by ontology term accession id
     private Map<String, SequenceRegion>   sequenceRegions;  // keyed by strain id (int)
+    private SqlUtils                      sqlUtils = new SqlUtils();
     private Map<String, Strain>           strains;          // keyed by accession id
     private Map<String, Strain>           strainsByName;    // keyed by strain name
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
@@ -777,6 +784,68 @@ public class CdaSqlUtils {
     }
 
     /**
+     * This method generically replaces any obsolete/missing ontology terms, identified by {@code ontologyAccessionIds},
+     * walking {@code ontologyAccessionIds}, calling {@code }getLatestOntologyTerm()} to replace any obsolete/missing
+     * ontology terms.
+     *
+     * @param ontologyAccessionIds
+     * @param jdbc a {@link NamedParameterJdbcTemplate} instance pointing to the database to be updated
+     * @param ontologyAccessionIds the list of ontology accession ids to be checked and, if obsolete or missing, replaced
+     * @param tableName the name of the table to be updated
+     * @param ontologyAccColumnName the name of the ontology accesion id column whose value will be replaced if obsolete
+     *                              or missing
+     *
+     * @return a {@link Set<OntologyTermAnomaly>} a list of the anomalies
+     */
+    public Set<OntologyTermAnomaly> checkAndUpdateOntologyTerms(NamedParameterJdbcTemplate jdbc, List<String> ontologyAccessionIds, String tableName, String ontologyAccColumnName) {
+
+        String dbName = sqlUtils.getDatabaseName(jdbc);
+        String update = "UPDATE " + tableName + "\n" +
+                        "SET " + ontologyAccColumnName + " = :newOntologyAcc WHERE " + ontologyAccColumnName + " = :originalOntologyAcc;";
+
+        Set<OntologyTermAnomaly> anomalies = new HashSet<>();
+        for (String originalAcc : ontologyAccessionIds) {
+            OntologyTerm originalTerm = getOntologyTerm(originalAcc);
+            if ((originalTerm != null) && ( ! originalTerm.getIsObsolete())) {
+                continue;
+            }
+
+            RunStatus status = new RunStatus();
+            OntologyTerm replacementOntologyTerm = getLatestOntologyTerm(originalAcc, status);
+            String replacementAcc = null;
+
+            if (replacementOntologyTerm != null) {
+                replacementAcc = replacementOntologyTerm.getId().getAccession();
+                Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("originalOntologyAcc", originalAcc);
+                parameterMap.put("newOntologyAcc", replacementOntologyTerm.getId().getAccession());
+                jdbc.update(update, parameterMap);
+            }
+
+            // Log the anomalies
+            for (String reason : status.getErrorMessages()) {
+                anomalies.add(new OntologyTermAnomaly(dbName, tableName, ontologyAccColumnName, originalAcc, replacementAcc, reason));
+            }
+            for (String reason : status.getWarningMessages()) {
+                anomalies.add(new OntologyTermAnomaly(dbName, tableName, ontologyAccColumnName, originalAcc, replacementAcc, reason));
+            }
+        }
+
+        for (OntologyTermAnomaly anomaly : anomalies) {
+
+            // Log the anomalies
+            anomaly.setDbName(dbName);
+            anomaly.setTableName(tableName);
+            anomaly.setOntologyAccColumnName(ontologyAccColumnName);
+
+            insertOntologyTermAnomaly(anomaly);
+
+        }
+
+        return anomalies;
+    }
+
+    /**
      * Return the <code>OntologyTerm</code> matching the given {@code accesionId}.
      * <i>NOTE: Ontology terms are unique by accession id.</i>
      *
@@ -790,162 +859,128 @@ public class CdaSqlUtils {
     }
 
     /**
-     * This method checks the original ontology term against the database of loaded terms and adjusts it if necessary
-     * according to the following rules:
+     * This method checks the original ontology tern accession id against the database of loaded terms and adjusts it
+     * if necessary according to the following rules:
      * <pre>
-     *     If the term exists
+     *     Look up the term in the ontology_term table using the original accession id. If the term exists
      *          if it is marked obsolete
      *              if there is a replacement_acc, return it instead
      *              else
      *                  if there is a consider id term, return it instead
-     *                  else this term is obsolete and there is no replacement/alternative. Log an error and return null.
+     *                  else this term is obsolete and there is no replacement/alternative. Return null.
      *          else
-     *              return the original term
+     *              return the original ontology term
      *      else
      *          if there is an alternate id, use it instead
      *          else
-     *              this is an unknown ontolgy term. Log an error and return null.
+     *              this is an unknown ontolgy term accession id. Return null.
      * </pre>
-     * @param originalTerm
-     * @return
+     * @param originalAcc the original ontology term accession id
+     * @param status the status of the call. Successfully replaced terms are described by status warnings. Terms that
+     *               failed to be replaced are described by status errors. Terms that are found and are not obsolete
+     *               are not added to the status object.
+     * @return the ontology term, if found; null otherwise
      */
-    public OntologyTerm getLatestOntologyTerm(OntologyTerm originalTerm) {
+    public OntologyTerm getLatestOntologyTerm(String originalAcc, RunStatus status) {
+
         OntologyTerm term;
 
         Map<String, OntologyTerm> terms = getOntologyTerms();
-        term = terms.get(originalTerm.getId().getAccession());
+        term = terms.get(originalAcc);
         if (term != null) {
             term.setConsiderIds(getConsiderIds(term.getId().getAccession()));
             if (term.getIsObsolete()) {
                 if (term.getReplacementAcc() != null) {
+                    String replacementAcc = term.getReplacementAcc();
                     term = terms.get(term.getReplacementAcc());
-                    if (term == null) {
-                        logger.error("Term {} has a replacement id {} that is not a valid term. Term skipped.", originalTerm.getId().getAccession(), originalTerm.getReplacementAcc());
-                        insertOntologyTermLookup(originalTerm.getId().getAccession(), originalTerm.getReplacementAcc(), OntologyTermLookupReason.NOT_FOUND_NO_OTHER_ID);
+                    if ((term == null) || (term.getIsObsolete())) {
+                        status.addError("Term " + originalAcc + " has invalid replacement term " + replacementAcc + ".");
                         return null;
                     }
-                    insertOntologyTermLookup(originalTerm.getId().getAccession(), term.getId().getAccession(), OntologyTermLookupReason.OBSOLETE_HAS_REPLACEMENT);
-                } else {
-                    if ((term.getConsiderIds() != null) && ( ! term.getConsiderIds().isEmpty())) {
-                        if (term.getConsiderIds().size() > 1) {
-                            logger.error("Term {} is obsolete and has multiple consider ids. Term skipped.", originalTerm.getId().getAccession());
-                            insertOntologyTermLookup(originalTerm.getId().getAccession(), null, OntologyTermLookupReason.OBSOLETE_HAS_MULTIPLE_CONSIDER_IDS);
-                            return null;
-                        }
 
-                        String considerAccessionId = term.getConsiderIds().iterator().next().getConsiderAccessionId();
-                        term = terms.get(considerAccessionId);
-                        if (term == null) {
-                            logger.error("Term {} has a consider id {} that is not a valid term. Term skipped.", originalTerm.getId().getAccession(), considerAccessionId);
-                            insertOntologyTermLookup(originalTerm.getId().getAccession(), null, OntologyTermLookupReason.NOT_FOUND_NO_OTHER_ID);
-                            return null;
-                        }
-                        insertOntologyTermLookup(originalTerm.getId().getAccession(), term.getId().getAccession(), OntologyTermLookupReason.OBSOLETE_HAS_CONSIDER_ID);
-                    } else {
-                        term = null;
+                    status.addWarning("Term " + originalAcc + " is obsolete and was replaced by replacement id " + replacementAcc + ".");
+                    return term;
+
+                } else if ((term.getConsiderIds() != null) && (!term.getConsiderIds().isEmpty())) {
+                    if (term.getConsiderIds().size() > 1) {
+                        status.addError("Term " + originalAcc + " is obsolete and has multiple consider ids.");
+                        return null;
                     }
-                }
 
-                if (term == null) {
-                    logger.error("Term {} is obsolete and there is no replacement/alternative term. Term skipped.", originalTerm.getId().getAccession());
-                    insertOntologyTermLookup(originalTerm.getId().getAccession(), null, OntologyTermLookupReason.NOT_FOUND_NO_OTHER_ID);
+                    String considerAcc = term.getConsiderIds().iterator().next().getConsiderAccessionId();
+                    term = terms.get(considerAcc);
+                    if ((term == null) || (term.getIsObsolete())) {
+                        status.addError("Term " + originalAcc + " is obsolete and has invalid consider id " + considerAcc + ".");
+                        return null;
+                    }
+
+                    status.addWarning("Term " + originalAcc + " is obsolete and was replaced by consider id " + considerAcc + ".");
+                    return term;
+
+                } else {
+                    status.addError("Term " + originalAcc + " is obsolete and has no replacement/consider id term.");
                     return null;
                 }
             } else {
-                term = originalTerm;
+
+                return term;
             }
         } else {
             // Load any alternative ids. If there are none, an empty set is returned.
-            Set<AlternateId> alternateIds = getAlternateIds(originalTerm.getId().getAccession());
+            Set<AlternateId> alternateIds = getAlternateIds(originalAcc);
             if ( ! alternateIds.isEmpty()) {
                 if (alternateIds.size() > 1) {
-                    logger.error("Term {} is missing and has multiple alternate ids. Term skipped.", originalTerm.getId().getAccession());
-                    insertOntologyTermLookup(originalTerm.getId().getAccession(), null, OntologyTermLookupReason.NOT_FOUND_HAS_MULTIPLE_ALTERNATE_IDS);
+                    status.addError("Term " + originalAcc + " is missing and has multiple alternate ids.");
                     return null;
                 }
 
-                String ontologyAccessionId = alternateIds.iterator().next().getOntologyTermAccessionId();
-                term = terms.get(ontologyAccessionId);
-                insertOntologyTermLookup(originalTerm.getId().getAccession(), term.getId().getAccession(), OntologyTermLookupReason.NOT_FOUND_HAS_ALTERNATE_ID);
-            }
+                String ontologyAcc = alternateIds.iterator().next().getOntologyTermAccessionId();
+                term = terms.get(ontologyAcc);
+                if ((term == null) || (term.getIsObsolete())) {
+                    status.addError("Term " + originalAcc + " is missing and has invalid alternate id " + ontologyAcc + ".");
+                    return null;
+                }
 
-            if (term == null) {
-                logger.error("Term {} is missing and has no replacement/alternative term. Term skipped.", originalTerm.getId().getAccession());
-                insertOntologyTermLookup(originalTerm.getId().getAccession(), null, OntologyTermLookupReason.NOT_FOUND_NO_OTHER_ID);
-                return null;
+                status.addWarning("Term " + originalAcc + " is missing but is an alternate id for " + ontologyAcc + ".");
+                return term;
             }
-        }
-
-        if (term == null) {
-            logger.error("Term {} is missing and has no replacement/alternative term. Term skipped.", originalTerm.getId().getAccession());
-            insertOntologyTermLookup(originalTerm.getId().getAccession(), null, OntologyTermLookupReason.NOT_FOUND_NO_OTHER_ID);
-        }
-        if (term.getIsObsolete()) {
-            logger.error("Term {} has a replacement term {} that is obsolete. Term skipped.", originalTerm.getId().getAccession(), term.getId().getAccession());
-            insertOntologyTermLookup(originalTerm.getId().getAccession(), term.getId().getAccession(), OntologyTermLookupReason.REPLACEMENT_TERM_IS_OBSOLETE);
-            return null;
         }
 
         return term;
     }
 
     /**
-     * @return the contents of the ontology_term_lookup table, or an empty list.
+     * @return the contents of the ontology_term_anomaly table, or an empty list.
      */
-    public List<List<String>> getOntologyTermLookups() {
-        List<List<String>> results = new ArrayList<>();
+    public Set<OntologyTermAnomaly> getOntologyTermAnomalies() {
+        List<OntologyTermAnomaly> anomalyList = jdbcCda.query("SELECT * FROM ontology_term_anomaly", new OntologyTermAnomalyRowMapper());
 
-        List<OntologyTermLookup> ontologyTermLookupList = jdbcCda.query("SELECT * FROM ontology_term_lookup", new OntologyTermLookupRowMapper());
+        Set<OntologyTermAnomaly> anomalySet = new HashSet<>();
+        anomalySet.addAll(anomalyList);
 
-        // Add the headings.
-        List<String> row = new ArrayList<>();
-        row.add("original_acc");
-        row.add("replacement_acc");
-        row.add("reason");
-        results.add(row);
-
-        for (OntologyTermLookup ontologyTermLookup : ontologyTermLookupList) {
-            row = new ArrayList<>();
-            row.add(ontologyTermLookup.getOriginalAcc());
-            row.add(ontologyTermLookup.getReplacementAcc());
-            row.add(ontologyTermLookup.getReason());
-            results.add(row);
-        }
-
-        return results;
+        return anomalySet;
     }
 
-    public enum OntologyTermLookupReason {
-        OBSOLETE_HAS_REPLACEMENT("Obsolete. Has replacement."),
-        OBSOLETE_HAS_CONSIDER_ID("Obsolete. Has consider id."),
-        OBSOLETE_HAS_MULTIPLE_CONSIDER_IDS("Obsolete. Has multiple consider ids."),
-        OBSOLETE_NO_OTHER_ID("Obsolete. No other replacement, consider, or alternate id found."),
-        NOT_FOUND_HAS_ALTERNATE_ID("Term not found. Has alternate id."),
-        NOT_FOUND_HAS_MULTIPLE_ALTERNATE_IDS("Term not found. Has multiple alternate ids."),
-        NOT_FOUND_NO_OTHER_ID("Term not found. No other replacement, consider, or alternate id found."),
-        REPLACEMENT_TERM_IS_OBSOLETE("The term was replaced but the replacement term is obsolete.")
-        ;
+    public int insertOntologyTermAnomaly(OntologyTermAnomaly anomaly) {
+        Date now = new Date();
 
-        private String description;
-        OntologyTermLookupReason(String description) {
-            this.description = description;
-        }
-        public String getDescription() {
-            return description;
-        }
-    }
-
-    public int insertOntologyTermLookup(String originalAccessionId, String replacementAccessionId, OntologyTermLookupReason reason) {
-        int count = 0;
-        final String ontologyTermInsert = "INSERT INTO ontology_term_lookup (original_acc, replacement_acc, reason) " +
-                                          "VALUES (:original_acc, :replacement_acc, :reason)";
+        final String ontologyTermInsert = "INSERT INTO ontology_term_anomaly (db_name, table_name, column_name, original_acc, replacement_acc, reason, last_modified) " +
+                                          "VALUES (:db_name, :table_name, :column_name, :original_acc, :replacement_acc, :reason, :last_modified)";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("original_acc", originalAccessionId);
-        parameterMap.put("replacement_acc", replacementAccessionId);
-        parameterMap.put("reason", reason.getDescription());
+        parameterMap.put("db_name", anomaly.getDbName());
+        parameterMap.put("table_name", anomaly.getTableName());
+        parameterMap.put("column_name", anomaly.getOntologyAccColumnName());
+        parameterMap.put("original_acc", anomaly.getOriginalAcc());
+        parameterMap.put("replacement_acc", anomaly.getReplacementAcc());
+        parameterMap.put("reason", anomaly.getReason());
+        parameterMap.put("last_modified", now);
 
-        count = jdbcCda.update(ontologyTermInsert, parameterMap);
+        KeyHolder keyholder = new GeneratedKeyHolder();
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+        int count = jdbcCda.update(ontologyTermInsert, parameterSource, keyholder);
+        anomaly.setId(keyholder.getKey().intValue());
+        anomaly.setLast_modified(now);
 
         return count;
     }
@@ -1880,46 +1915,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         }
     }
 
-    public class OntologyTermLookup {
-        private String originalAcc;
-        private String replacementAcc;
-        private String reason;
-
-        public OntologyTermLookup() {
-
-        }
-
-        public OntologyTermLookup(String originalAcc, String replacementAcc, String reason) {
-            this.originalAcc = originalAcc;
-            this.replacementAcc = replacementAcc;
-            this.reason = reason;
-        }
-
-        public String getOriginalAcc() {
-            return originalAcc;
-        }
-
-        public void setOriginalAcc(String originalAcc) {
-            this.originalAcc = originalAcc;
-        }
-
-        public String getReplacementAcc() {
-            return replacementAcc;
-        }
-
-        public void setReplacementAcc(String replacementAcc) {
-            this.replacementAcc = replacementAcc;
-        }
-
-        public String getReason() {
-            return reason;
-        }
-
-        public void setReason(String reason) {
-            this.reason = reason;
-        }
-    }
-    public class OntologyTermLookupRowMapper implements RowMapper<OntologyTermLookup> {
+    public class OntologyTermAnomalyRowMapper implements RowMapper<OntologyTermAnomaly> {
 
         /**
          * Implementations must implement this method to map each row of data
@@ -1933,12 +1929,17 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
          *                      column values (that is, there's no need to catch SQLException)
          */
         @Override
-        public OntologyTermLookup mapRow(ResultSet rs, int rowNum) throws SQLException {
-            OntologyTermLookup term = new OntologyTermLookup(
+        public OntologyTermAnomaly mapRow(ResultSet rs, int rowNum) throws SQLException {
+            OntologyTermAnomaly term = new OntologyTermAnomaly(
+                rs.getString("db_name"),
+                rs.getString("table_name"),
+                rs.getString("column_name"),
                 rs.getString("original_acc"),
                 rs.getString("replacement_acc"),
-                rs.getString("reason")
-            );
+                rs.getString("reason"));
+
+            term.setId(rs.getInt("id"));
+            term.setLast_modified(new Date(rs.getTimestamp("last_modified").getTime()));
 
             return term;
         }
