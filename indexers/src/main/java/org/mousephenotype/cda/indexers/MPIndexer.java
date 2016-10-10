@@ -278,7 +278,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (calls > 0 && mpFromFullOntology.getChildIds().size() > 0){
 
             for (String childId : mpFromFullOntology.getChildIds()){
-                System.out.println("CHILD ID " + childId);
+//                System.out.println("CHILD ID " + childId);
 
                 if (!termNodeIds.containsKey(childId)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
@@ -290,7 +290,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 } else if (termNodeIds.containsKey(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
-                        synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels-1, synonyms));
+                        synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels, synonyms));
                     }
                 }
             }
