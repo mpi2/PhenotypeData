@@ -326,7 +326,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					}
 					if (thisTermId.startsWith("MP:")){
 						level = 1;
-						System.out.println("starts with MP="+thisTermId);
+//						System.out.println("starts with MP="+thisTermId);
 					}
 
 					termIds.add(thisTermId);
@@ -584,7 +584,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			if (ontologyDAO instanceof MpOntologyDAO) {
 				//System.out.println("instance of mp ontology DAO");
 				if (!termIds.isEmpty()) {
-					System.out.println("setting mp term ids="+termIds);
+//					System.out.println("setting mp term ids="+termIds);
 					imageDTO.setMpTermId(termIds);
 
 					ArrayList<String> mpIdTerms = new ArrayList<>();
