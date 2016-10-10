@@ -278,7 +278,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (calls > 0 && mpFromFullOntology.getChildIds().size() > 0){
 
             for (String childId : mpFromFullOntology.getChildIds()){
-//                System.out.println("CHILD ID " + childId);
+                System.out.println("CHILD ID " + childId);
 
                 if (!termNodeIds.containsKey(childId)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
@@ -296,7 +296,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
         }
 
-//        System.out.println("Restricted narrow syn for " + mpFromFullOntology.getAccessionId() + " " + synonyms);
+        System.out.println("Restricted narrow syn for " + mpFromFullOntology.getAccessionId() + " " + synonyms);
         return  synonyms;
 
     }
