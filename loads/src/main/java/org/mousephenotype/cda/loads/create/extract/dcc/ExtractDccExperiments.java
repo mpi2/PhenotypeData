@@ -58,8 +58,8 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
     private Map<String, Long> specimenIdPhenotypingCenterMap = new HashMap<>();         // key = specimenId_phenotypingCenter. Value = specimenPk.
 
-    // Do not load the 3i procedures when loading the IMPC data
-   	// 3i data is loaded using the ImpcThreeIXmlFormatExperimentLoader class
+    // These procedures are always meant to be skipped. Additional skipped parameters passed in on the command line are
+    // appended to these.
    	private Set<String> skipProcedures = new HashSet<>(Arrays.asList(
    		"SLM_SLM", "SLM_AGS", "TRC_TRC", "DSS_DSS", "MGP_ANA", "MGP_BCI", "MGP_BMI", "MGP_EEI", "MGP_MLN", "MGP_PBI", "MGP_IMM"));
 
@@ -68,7 +68,6 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
     @NotNull
     @Autowired
-
     private DataSource dcc;
 
     @NotNull
@@ -223,8 +222,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         Long procedurePk, center_procedurePk;
 
         // procedure
-        Procedure procedure = dccSqlUtils.getProcedure(experiment.getProcedure().getProcedureID());
-        final String procedureName = procedure.getProcedureID();
+        String procedureName = experiment.getProcedure().getProcedureID();
 
         // Skip any lines whose procedure group has been marked to be skipped.
         String procedureGroup = getProcedureGroup(procedureName);
@@ -233,17 +231,18 @@ public class ExtractDccExperiments implements CommandLineRunner {
             return;
         }
 
+        Procedure procedure = dccSqlUtils.getProcedure(experiment.getProcedure().getProcedureID());
         if (procedure == null) {
             procedure = dccSqlUtils.insertProcedure(experiment.getProcedure().getProcedureID());
-
-            if (experiment.getProcedure().getProcedureMetadata() != null) {
-                for (ProcedureMetadata procedureMetadata : experiment.getProcedure().getProcedureMetadata()) {
-                    long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
-                    dccSqlUtils.insertProcedure_procedureMetadata(procedure.getHjid(), procedureMetadataPk);
-                }
-            }
         }
         procedurePk = procedure.getHjid();
+
+        if (experiment.getProcedure().getProcedureMetadata() != null) {
+            for (ProcedureMetadata procedureMetadata : experiment.getProcedure().getProcedureMetadata()) {
+                long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
+                dccSqlUtils.insertProcedure_procedureMetadata(procedure.getHjid(), procedureMetadataPk);
+            }
+        }
 
         // center_procedure
         center_procedurePk = dccSqlUtils.selectOrInsertCenter_procedure(centerPk, procedurePk);
@@ -251,6 +250,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         // experiment
         long experimentPk = dccSqlUtils.selectOrInsertExperiment(experiment, center_procedurePk).getHjid();
 
+        // specimens
         for (String specimenId : experiment.getSpecimenID()) {
             Long specimenPk;
 
@@ -321,7 +321,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                     // mediaParameter_procedureMetadata
                     if (mediaParameter.getProcedureMetadata() != null) {
                         for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
-                            long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                            long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
                             dccSqlUtils.insertMediaParameter_procedureMetadata(mediaParameter.getHjid(), procedureMetadataPk);
                         }
                     }
@@ -360,7 +360,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                                 // mediaFile_procedureMetadata
                                 if (mediaFile.getProcedureMetadata() != null) {
                                     for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                                        long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                        long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
                                         dccSqlUtils.insertMediaFile_procedureMetadata(mediaFilePk, procedureMetadataPk);
                                     }
                                 }
@@ -393,7 +393,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                         // seriesMediaParameterValue_procedureMetadata
                         if ((seriesMediaParameterValue.getProcedureMetadata() != null) && (!seriesMediaParameterValue.getProcedureMetadata().isEmpty())) {
                             for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
-                                long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
                                 dccSqlUtils.insertSeriesMediaParameterValue_procedureMetadata(seriesMediaParameterValuePk, procedureMetadataPk);
                             }
                         }
@@ -408,10 +408,10 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         Long procedurePk, center_procedurePk;
 
+        final String colonyId = line.getColonyID();
+
         // procedure
         String procedureName = line.getProcedure().getProcedureID();
-        Procedure procedure = dccSqlUtils.getProcedure(procedureName);
-        final String                colonyId         = line.getColonyID();
 
         // Skip any lines whose procedure group has been marked to be skipped.
         String procedureGroup = getProcedureGroup(procedureName);
@@ -421,17 +421,19 @@ public class ExtractDccExperiments implements CommandLineRunner {
             return;
         }
 
+        Procedure procedure = dccSqlUtils.getProcedure(procedureName);
         if (procedure == null) {
             procedure = dccSqlUtils.insertProcedure(line.getProcedure().getProcedureID());
 
-            if (line.getProcedure().getProcedureMetadata() != null) {
-                for (ProcedureMetadata procedureMetadata : line.getProcedure().getProcedureMetadata()) {
-                    long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
-                    dccSqlUtils.insertProcedure_procedureMetadata(procedure.getHjid(), procedureMetadataPk);
-                }
-            }
         }
         procedurePk = procedure.getHjid();
+
+        if (line.getProcedure().getProcedureMetadata() != null) {
+            for (ProcedureMetadata procedureMetadata : line.getProcedure().getProcedureMetadata()) {
+                long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
+                dccSqlUtils.insertProcedure_procedureMetadata(procedure.getHjid(), procedureMetadataPk);
+            }
+        }
 
         // center_procedure
         center_procedurePk = dccSqlUtils.selectOrInsertCenter_procedure(centerPk, procedurePk);
@@ -504,7 +506,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                     // mediaParameter_procedureMetadata
                     if (mediaParameter.getProcedureMetadata() != null) {
                         for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
-                            long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                            long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
                             dccSqlUtils.insertMediaParameter_procedureMetadata(mediaParameter.getHjid(), procedureMetadataPk);
                         }
                     }
@@ -543,7 +545,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                                 // mediaFile_procedureMetadata
                                 if (mediaFile.getProcedureMetadata() != null) {
                                     for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
-                                        long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                        long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
                                         dccSqlUtils.insertMediaFile_procedureMetadata(mediaFilePk, procedureMetadataPk);
                                     }
                                 }
@@ -576,7 +578,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                         // seriesMediaParameterValue_procedureMetadata
                         if ((seriesMediaParameterValue.getProcedureMetadata() != null) && (!seriesMediaParameterValue.getProcedureMetadata().isEmpty())) {
                             for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
-                                long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata.getParameterID(), null).getHjid();
+                                long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
                                 dccSqlUtils.insertSeriesMediaParameterValue_procedureMetadata(seriesMediaParameterValuePk, procedureMetadataPk);
                             }
                         }
