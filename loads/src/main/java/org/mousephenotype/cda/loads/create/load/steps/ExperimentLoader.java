@@ -19,7 +19,6 @@ package org.mousephenotype.cda.loads.create.load.steps;
 import org.mousephenotype.cda.db.pojo.Experiment;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
@@ -55,7 +54,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private NamedParameterJdbcTemplate jdbcCda;
     private NamedParameterJdbcTemplate jdbcDcc;
     private NamedParameterJdbcTemplate jdbcDccEurophenomeFinal;
-    private LoadUtils                  loadUtils = new LoadUtils();
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
     private StepBuilderFactory   stepBuilderFactory;

@@ -401,7 +401,7 @@ public class DccSqlUtils {
      * <p/>
      * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
      */
-    public ProcedureMetadata getProcedureMetadata(String parameterId, Integer sequenceId) {
+    public ProcedureMetadata getProcedureMetadata(String parameterId, BigInteger sequenceId) {
         ProcedureMetadata procedureMetadata = null;
 
         if (parameterId == null)
@@ -1672,38 +1672,39 @@ public class DccSqlUtils {
     }
 
     /**
-     * Given a parameterId value, attempts to fetch the matching <code>ProcedureMetadata</code> instance. If there is
-     * none, the parameterId and sequenceId are first inserted. The <code>ProcedureMetadata</code> instance is then
-     * returned.
+     * Returns a complete {@link ProcedureMetadata} instance by searching by parameterId and, if not null, sequenceId.
+     * If an instance is found, it is returned. If it is not found, an instance is first created and inserted, then
+     * that instance is returned.
      *
-     * <i>NOTE: if <code>parameterId</code> is null, a null <code>ProcedureMetadata</code> is returned.</i>
-     *
-     * @param parameterId the parameterId to search for
-     * @param sequenceId the sequence id to search for (may be null)
+     * @param procedureMetadata the {@link ProcedureMetadata} instance to search for/insert. Only the parameterId and,
+     *                          if not null, sequenceId are used to search for the instance.
      *
      * @return The <code>ProcedureMetadata</code> instance matching <code>parameterId</code> (and <code>sequenceId</code>,
      * if specified), inserted first if necessary.
      */
-    public ProcedureMetadata selectOrInsertProcedureMetadata(String parameterId, Integer sequenceId) {
-        ProcedureMetadata procedureMetadata = getProcedureMetadata(parameterId, sequenceId);
+    public ProcedureMetadata selectOrInsertProcedureMetadata(ProcedureMetadata procedureMetadata) {
+        ProcedureMetadata retVal = getProcedureMetadata(procedureMetadata.getParameterID(), procedureMetadata.getSequenceID());
 
-        if (procedureMetadata == null) {
-            String insert = "INSERT INTO procedureMetadata (parameterId, sequenceId) VALUES (:parameterId, :sequenceId)";
+        if (retVal == null) {
+            String insert = "INSERT INTO procedureMetadata (parameterId, parameterStatus, sequenceId, value)\n" +
+                           " VALUES (:parameterId, :parameterStatus, :sequenceId, :value)";
             try {
                 Map<String, Object> parameterMap = new HashMap<>();
-                parameterMap.put("parameterId", parameterId);
-                parameterMap.put("sequenceId", sequenceId);
+                parameterMap.put("parameterId", procedureMetadata.getParameterID());
+                parameterMap.put("parameterStatus", procedureMetadata.getParameterStatus());
+                parameterMap.put("sequenceId", procedureMetadata.getSequenceID());
+                parameterMap.put("value", procedureMetadata.getValue());
 
                 npJdbcTemplate.update(insert, parameterMap);
-                procedureMetadata = getProcedureMetadata(parameterId, sequenceId);
+                retVal = getProcedureMetadata(procedureMetadata.getParameterID(), procedureMetadata.getSequenceID());
 
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException("INSERT of parameterAssociation(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
+                throw new RuntimeException("INSERT of parameterAssociation(" + procedureMetadata.getParameterID() + ", " + procedureMetadata.getSequenceID() + " FAILED: " + e.getLocalizedMessage());
             }
         }
 
-        return procedureMetadata;
+        return retVal;
     }
 
     /**
@@ -1811,7 +1812,8 @@ public class DccSqlUtils {
             procedureMetadata.setHjid(rs.getLong("pk"));
             procedureMetadata.setParameterID(rs.getString("parameterId"));
             procedureMetadata.setParameterStatus(rs.getString("parameterStatus"));
-            procedureMetadata.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
+            BigInteger sequenceId = (rs.wasNull() ? null : BigInteger.valueOf(rs.getLong("sequenceId")));
+            procedureMetadata.setSequenceID(sequenceId);
             procedureMetadata.setValue(rs.getString("value"));
 
             return procedureMetadata;
