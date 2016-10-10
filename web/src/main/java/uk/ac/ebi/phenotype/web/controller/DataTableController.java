@@ -769,13 +769,14 @@ public class DataTableController {
             // phenotyping status
             String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
             String geneSymbol = doc.getString(GeneDTO.MARKER_SYMBOL);
-            String geneLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
+            String productLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
+			String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
 
 
             // ES cell/mice production status
             boolean toExport = false;
 
-            String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, geneLink);
+            String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, productLink);
             rowData.add(prodStatus);
             
 
