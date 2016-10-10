@@ -186,7 +186,6 @@ public class QueryBrokerController {
 			String core  = (String) cores.next();
 
 			String param = jParams.getString(core);
-			//System.out.println(core + " -- " + param);
 
 			String url =  SolrUtils.getBaseURL(solrIndex.getSolrServer(core)) + "/select?" + param;
 			//System.out.println("QueryBrokerController: "+url);

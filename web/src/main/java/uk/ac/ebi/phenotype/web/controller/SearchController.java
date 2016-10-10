@@ -117,7 +117,7 @@ public class SearchController {
 		String debug = request.getParameter("debug");
 
 		String paramString = request.getQueryString();
-//		System.out.println("paramString " + paramString);
+		//System.out.println("paramString " + paramString);
 		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 
 		model.addAttribute("facetCount", facetCountJsonResponse);
@@ -179,9 +179,9 @@ public class SearchController {
 
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
-            if ( dataType.equals("impc_images")){
-                solrParamStr += "AND (biological_sample_group:experimental)";
-            }
+//            if ( dataType.equals("impc_images")){
+//                solrParamStr += "AND (biological_sample_group:experimental)";
+//            }
 		}
 		else {
 			solrParamStr += "&fq=" + searchConfig.getFqStr(dataType);
