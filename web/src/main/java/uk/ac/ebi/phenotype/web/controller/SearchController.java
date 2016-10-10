@@ -179,9 +179,9 @@ public class SearchController {
 
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
-            if ( dataType.equals("impc_images")){
-                solrParamStr += "AND (biological_sample_group:experimental)";
-            }
+//            if ( dataType.equals("impc_images")){
+//                solrParamStr += "AND (biological_sample_group:experimental)";
+//            }
 		}
 		else {
 			solrParamStr += "&fq=" + searchConfig.getFqStr(dataType);
