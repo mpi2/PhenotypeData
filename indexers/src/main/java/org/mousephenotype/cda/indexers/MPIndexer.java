@@ -290,7 +290,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 } else if (termNodeIds.containsKey(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
-                        synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels-1, synonyms));
+                        synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels, synonyms));
                     }
                 }
             }
