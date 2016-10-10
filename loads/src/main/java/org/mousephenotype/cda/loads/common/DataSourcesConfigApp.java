@@ -60,9 +60,6 @@ public class DataSourcesConfigApp {
     @Value("${datasource.dcc.url}")
     String dccUrl;
 
-    @Value("${datasource.dccEurophenomeFinal.url}")
-    String dccEurophenomeFinalUrl;
-
     @Value("${datasource.cdabase.username}")
     String username;
 
