@@ -148,31 +148,4 @@ public class DataSourcesConfigApp {
     public NamedParameterJdbcTemplate jdbcDcc() {
         return new NamedParameterJdbcTemplate(dccDataSource());
     }
-
-
-
-    @Bean(name = "dccEurophenomeFinalDataSource", destroyMethod = "close")
-    public DataSource dccEurophenomeFinalDataSource() {
-
-        DataSource ds = DataSourceBuilder
-                .create()
-                .url(dccEurophenomeFinalUrl)
-                .username(username)
-                .password(password)
-                .type(BasicDataSource.class)
-                .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(1);
-
-        try {
-            logger.info("Using dccEurophenomeFinal database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
-
-        } catch (Exception e) { }
-
-        return ds;
-    }
-
-    @Bean(name = "jdbcDccEurophenomeFinal")
-    public NamedParameterJdbcTemplate jdbcDccEurophenomeFinal() {
-        return new NamedParameterJdbcTemplate(dccEurophenomeFinalDataSource());
-    }
 }
