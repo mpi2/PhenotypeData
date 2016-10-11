@@ -15,7 +15,7 @@
             <!--  start of floating menu for genes page -->
             <div class="region region-pinned">
 
-	            <div id="flyingnavi" class="block">
+	            <div id="flyingnavi" class="block smoothScroll">
 
 		            <a href="#top"><i class="fa fa-chevron-up"
 		                              title="scroll to top"></i></a>
@@ -73,7 +73,7 @@
 						
 						$("#exptabs").tabs({ active: expressionTab});
 						$("#diseasetabs").tabs({ active: 0 });
-
+						$("#tabs").tabs();
 						//$("#diseasetabs").find("td[class!='shown']").css('color','#666');
 
 						$('div#anatomo1').hide(); // by default

@@ -12,7 +12,7 @@ function initWindow() {
     
 function initScrolling() {
     /* smooth scrolling for anchor links */
-    $('a[href^="#"]').on('click',function (e) {
+    $('.smoothScroll a[href^="#"]').on('click',function (e) {
         e.preventDefault();
         var target = this.hash,
         $target = $(target);
