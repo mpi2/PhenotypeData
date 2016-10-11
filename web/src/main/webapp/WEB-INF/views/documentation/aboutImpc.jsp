@@ -341,8 +341,8 @@
           <p></p>
           <div>• <b>Categorical data analysis</b> was performed using a Fisher’s Exact test. Concerning continuous data, it has been shown that gender, weight, and environmental effects (batch) are a significant source of variation. See
               <ul>
-                  <li><a href="http://europepmc.org/abstract/MED/22829707">The fallacy of ratio correction to address confounding factors</a></li>
-                  <li><a href="http://europepmc.org/abstract/MED/25343444">Impact of temporal variation on design and analysis of mouse knockout phenotyping studies</a></li>
+                  <li><a href="http://europepmc.org/abstract/MED/22829707">Karp et al., 2012</a></li>
+                  <li><a href="http://europepmc.org/abstract/MED/25343444">Karp et al., 2014</a></li>
               </ul>
           </div>
           <p></p><p></p>

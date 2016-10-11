@@ -15,34 +15,21 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.solr.generic.util.Tools;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.phenotype.util.SearchConfig;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrClient;
-import org.mousephenotype.cda.solr.generic.util.Tools;
-import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import net.sf.json.JSONObject;
-import uk.ac.ebi.phenotype.util.SearchConfig;
-import uk.ac.ebi.phenotype.util.SolrUtils;
 
 
 @Controller
@@ -103,6 +90,10 @@ public class SearchController {
 //		System.out.println("path: /search/" + dataType);
 		if ( query.equals("*") ){
 			query = "*:*";
+		}
+
+		if (StringUtils.isEmpty(dataType)) {
+			dataType = "gene";
 		}
 
 		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
