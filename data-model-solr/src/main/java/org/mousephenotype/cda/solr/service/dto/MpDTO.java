@@ -18,7 +18,6 @@ package org.mousephenotype.cda.solr.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -324,7 +323,7 @@ public class MpDTO {
 	private List<String> mgiAccessionId;
 
 	@Field(PHENO_CALLS)
-	private Integer phenoCalls;
+	private Long phenoCalls;
 	
 	@Field(MARKER_SYMBOL)
 	private List<String> markerSymbol;
@@ -1196,12 +1195,12 @@ public class MpDTO {
 		this.mgiAccessionId = mgiAccessionId;
 	}
 
-	public Integer getPhenoCalls() {
+	public Long getPhenoCalls() {
 
 		return phenoCalls;
 	}
 	
-	public void setPhenoCalls(Integer mpCalls) {
+	public void setPhenoCalls(Long mpCalls) {
 		
 		this.phenoCalls = mpCalls;
 	}
