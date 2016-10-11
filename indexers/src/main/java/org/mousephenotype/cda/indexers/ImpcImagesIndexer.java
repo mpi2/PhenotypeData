@@ -145,7 +145,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			logger.info("Building parameter to abnormal mp map");
 			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
 			logger.info("Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
-			System.out.println("parameterStableIdToMpTermIdMap"+parameterStableIdToMpTermIdMap);
+			//System.out.println("parameterStableIdToMpTermIdMap"+parameterStableIdToMpTermIdMap);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -213,8 +213,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 																											// imageDTO.getPhenotypingCenter().equals("JAX")))
 																											// {
 						// Skip records that do not have an omero_id
-						System.out.println("skipping omeroId=" + omeroId + "param and center"
-								+ imageDTO.getParameterStableId() + imageDTO.getPhenotypingCenter());
+						//System.out.println("skipping omeroId=" + omeroId + "param and center"
+								//+ imageDTO.getParameterStableId() + imageDTO.getPhenotypingCenter());
 						// runStatus.addWarning(" Skipping record for image
 						// record " + fullResFilePath + " -- missing omero_id or
 						// excluded procedure");
@@ -822,7 +822,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			while (resultSet.next()) {
 				String parameterStableId = resultSet.getString("stable_id");
 				String mpAcc = resultSet.getString("ontology_acc");
-				System.out.println("parameterStableId="+parameterStableId+" mpAcc="+mpAcc);
+				//System.out.println("parameterStableId="+parameterStableId+" mpAcc="+mpAcc);
 				paramToMp.put(parameterStableId, mpAcc);
 			}
 		}

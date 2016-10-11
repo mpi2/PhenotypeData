@@ -155,7 +155,7 @@
 									<td>
 									
 									<c:if test="${fn:length(histRow.significance) ==0 }">
-									Normal
+									Not Annotated
 									</c:if>
 									<c:forEach var="parameter" items="${histRow.significance }">
 										<c:choose>
