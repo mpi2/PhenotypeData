@@ -380,8 +380,10 @@ public class DataTableController {
 						for( Object acc : accs ){
 							accStr = imgQryField + ":\"" + (String) acc + "\"";
 						}
-						imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
-					}
+						//imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+                        imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record" + "'>image url</a>";
+
+                    }
 					else {
 						imgLink = NA;
 					}
@@ -769,13 +771,13 @@ public class DataTableController {
             // phenotyping status
             String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
             String geneSymbol = doc.getString(GeneDTO.MARKER_SYMBOL);
-            String geneLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
-
+            String productLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
+			String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
 
             // ES cell/mice production status
             boolean toExport = false;
 
-            String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, geneLink);
+            String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, productLink);
             rowData.add(prodStatus);
             
 
@@ -1365,18 +1367,31 @@ public class DataTableController {
 				String unit = imgCount > 1 ? "images" : "image";
 
 				if (imgCount > 0) {
+                    String currFqStr = null;
+                    String subFqStr = null; //fqOri.equals("*:*") ? null : fqOri;
 
-					String currFqStr = null;
-					if (displayAnnotName.equals("Gene")) {
-						currFqStr = fqOri + " AND gene_symbol:\"" + annotVal + "\"";
-					} else if (displayAnnotName.equals("Procedure")) {
-						currFqStr = fqOri;//  + " AND procedure_name:\"" + annotVal + "\"";
-					} else if (displayAnnotName.equals("Anatomy")) {
-						currFqStr = fqOri + " AND anatomy_id:\"" + annotId + "\"";
-					}
+                    if (displayAnnotName.equals("Gene")) {
+                        subFqStr = "gene_symbol:\"" + annotVal + "\"";
+                    } else if (displayAnnotName.equals("Procedure")) {
+                        subFqStr = "procedure_name:\"" + annotVal + "\"";
+                    } else if (displayAnnotName.equals("Anatomy")) {
+                        subFqStr = "anatomy_id:\"" + annotId + "\"";
+                    }
+
+                    if ( fqOri.equals("*:*")) {
+                        currFqStr = subFqStr;
+                    }
+                    else {
+                        if (!fqOri.equals("("+ subFqStr+")")) {
+                            currFqStr = fqOri + " AND " + subFqStr;
+                        }
+                        else {
+                            currFqStr = fqOri;
+                        }
+                    }
 
 					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-					thisImgUrl = mediaBaseUrl + defaultQStr + "&fq=" + currFqStr;
+                    thisImgUrl = mediaBaseUrl + defaultQStr + "&fq=" + currFqStr;
 
 					imgSubSetLink = "<a rel='nofollow' href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 
