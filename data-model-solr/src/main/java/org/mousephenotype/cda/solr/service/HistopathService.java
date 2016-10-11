@@ -66,7 +66,7 @@ public class HistopathService {
 
 				System.out.println("anatomyName=" + anatomyName);
 	
-				System.out.println("sample id ="+sampleId);
+				//System.out.println("sample id ="+sampleId);
 				Set<String> parameterNames = new TreeSet<>();
 				
 				Map<Integer, List<ObservationDTO>> uniqueSequenceIdsToObservations=this.getSequenceIds(sampleToObservations.get(sampleId));
@@ -74,16 +74,16 @@ public class HistopathService {
 					HistopathPageTableRow row = new HistopathPageTableRow();// a row is a unique sampleId and anatomy and sequence id combination
 					row.setAnatomyName(anatomyName);
 					row.setSampleId(sampleId);
-					System.out.println("uniqueSequenceId="+sequenceId);
+					//System.out.println("uniqueSequenceId="+sequenceId);
 				for (ObservationDTO obs : uniqueSequenceIdsToObservations.get(sequenceId)) {
 					
 					String sequenceString="";
 					if (obs.getSequenceId() != null) {
-						System.out.println("sequenceId in observation="+obs.getSequenceId());
+						//System.out.println("sequenceId in observation="+obs.getSequenceId());
 						row.setSequenceId(obs.getSequenceId());
 						sequenceString=Integer.toString(obs.getSequenceId());
 					} else {
-						System.out.println("sequence_id is null");
+						//System.out.println("sequence_id is null");
 					}
 
 					if (this.getAnatomyStringFromObservation(obs) != null
@@ -106,8 +106,8 @@ public class HistopathService {
 
 							if (obs.getSubTermName() != null) {
 								for (int i = 0; i < obs.getSubTermId().size(); i++) {
-									System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
-											+ obs.getSubTermName().get(i));
+									//System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
+										//	+ obs.getSubTermName().get(i));
 
 									OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
 											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
@@ -148,7 +148,7 @@ public class HistopathService {
 								downloadToImgMap.put(obs.getDownloadFilePath(), image);
 							}
 
-							System.out.println("image omero id=" + image.get(ImageDTO.OMERO_ID));
+							//System.out.println("image omero id=" + image.get(ImageDTO.OMERO_ID));
 							parameterNames.add(obs.getParameterName());
 							//if (image.get(ImageDTO.INCREMENT_VALUE) == row.getSequenceId()) {
 								row.addImage(image);
@@ -229,7 +229,7 @@ public class HistopathService {
 			anatomyString = paramName.substring(0, paramName.indexOf(delimeter));
 			// System.out.println("anatomyString=" + anatomyString);
 		} else {
-			System.out.println("no delimeter found with =" + paramName);
+			//System.out.println("no delimeter found with =" + paramName);
 		}
 		return anatomyString;
 	}
@@ -301,7 +301,7 @@ public class HistopathService {
 				String text=sign.getTextValue();
 				//System.out.println("text="+text+"|");
 				if(text.equals("Significant")){
-					System.out.println("significant!!!!!!!!!!!!");
+					//System.out.println("significant!!!!!!!!!!!!");
 					anatomyRow.setSignificantCount(anatomyRow.getSignificantCount()+1);
 					significant=true;
 					//if significant then set the text and parameters of the row that is significant to the row we are collapsing so we display the most appropriate info
