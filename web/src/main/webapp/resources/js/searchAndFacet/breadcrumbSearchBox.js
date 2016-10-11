@@ -122,7 +122,6 @@ $(document).ready(function () {
 	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
     srchkw = srchkw.replace(/%22/g, '');
     srchkw = srchkw.replace('*', '');
-
 	$("input#s").val(decodeURI(srchkw));
 
 	$("input#s").click(function(){
@@ -385,13 +384,18 @@ $('input#s').keyup(function (e) {
 
 			// is on non-search page
 			// user typed something and hit ENTER: need to figure out default core to load on search page
-			$.ajax({
-				url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
-				type: 'get',
-				success: function (defaultCore) {
-					document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
-				}
-			});
+			if ( input == ""){
+				document.location.href = baseUrl + '/search/gene' + '?kw=*';
+			}
+			else {
+				$.ajax({
+					url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+					type: 'get',
+					success: function (defaultCore) {
+						document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+					}
+				});
+			}
 		}
 	}
 });
