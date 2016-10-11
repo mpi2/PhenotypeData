@@ -380,8 +380,10 @@ public class DataTableController {
 						for( Object acc : accs ){
 							accStr = imgQryField + ":\"" + (String) acc + "\"";
 						}
-						imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record" + "'>image url</a>";
-					}
+						//imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+                        imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record" + "'>image url</a>";
+
+                    }
 					else {
 						imgLink = NA;
 					}
@@ -771,7 +773,6 @@ public class DataTableController {
             String geneSymbol = doc.getString(GeneDTO.MARKER_SYMBOL);
             String productLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
 			String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
-
 
             // ES cell/mice production status
             boolean toExport = false;
