@@ -36,8 +36,11 @@
             .hideMe {
                 display: none;
             }
-            .showMe {
-                display: block;
+            /*.showMe {*/
+                /*display: block;*/
+            /*}*/
+            ul li.showMe {
+                list-style-type: solid circle !important;
             }
             .alleleToggle {
                 cursor: pointer;
