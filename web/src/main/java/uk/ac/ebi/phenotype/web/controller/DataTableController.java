@@ -2569,9 +2569,13 @@ public class DataTableController {
                 String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
                 String grantAgency = reference.getGrantAgencies().get(i);
                 if ( ! grantAgency.isEmpty()) {
-                    agencyList.add("<li " + cssClass + ">" + grantAgency + "</li>");
+                    String thisAgency = "<li " + cssClass + ">" + grantAgency + "</li>";
+                    if ( ! agencyList.contains(thisAgency)) {
+                        agencyList.add(thisAgency);
+                    }
                 }
             }
+
             rowData.add("<ul>" + StringUtils.join(agencyList, "") + "</ul>");
 
             int pmid = Integer.parseInt(reference.getPmid());
