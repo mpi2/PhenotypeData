@@ -139,7 +139,7 @@
     <fields>
 
         <field name="geneName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+        <field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="geneSynonyms"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 
         <!-- from observation (experiment)  schema as many fields are now the same with new image data -->
