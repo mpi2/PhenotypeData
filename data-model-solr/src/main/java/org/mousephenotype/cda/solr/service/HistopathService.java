@@ -246,9 +246,7 @@ public class HistopathService {
 
 		List<ObservationDTO> filteredObservations = new ArrayList<>();
 		for (ObservationDTO obs : observations) {
-			Integer sequenceId = obs.getSequenceId();
-			System.out.println("sequenceId="+sequenceId);
-
+	
 			boolean addObservation = true;
 			if (obs.getObservationType().equalsIgnoreCase("categorical")) {
 				if (obs.getCategory().equalsIgnoreCase("0")) {
