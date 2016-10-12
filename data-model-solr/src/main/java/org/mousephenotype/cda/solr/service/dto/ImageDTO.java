@@ -247,7 +247,7 @@ public class ImageDTO extends ObservationDTO {
 	private List<String> anatomyTermSynonymAnatomyIdTerm;
 	
 	@Field(AGE_IN_DAYS)
-	Long ageInDays;
+	private Long ageInDays;
 
 
 	public Long getAgeInDays() {
