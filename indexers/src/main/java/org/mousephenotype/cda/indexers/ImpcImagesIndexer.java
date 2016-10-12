@@ -42,7 +42,11 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,7 +192,16 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 			List<ImageDTO> imageList = experimentCore.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
-
+				
+				Date dateOfExperiment=imageDTO.getDateOfExperiment();
+				System.out.println("date of experiment="+dateOfExperiment);
+				Date dateOfBirth=imageDTO.getDateOfBirth();
+				Instant dob=dateOfBirth.toInstant();
+				System.out.println("date of birth="+dateOfBirth);
+				Instant expDate=dateOfExperiment.toInstant();
+				long ageInDays = Duration.between(dob, expDate).toDays();
+				imageDTO.setAgeInDays(ageInDays);
+				
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
 
