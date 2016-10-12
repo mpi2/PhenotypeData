@@ -237,7 +237,7 @@
         <field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />
         <field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />
         <field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <!-- latest mouse status -->
         <field name="status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
