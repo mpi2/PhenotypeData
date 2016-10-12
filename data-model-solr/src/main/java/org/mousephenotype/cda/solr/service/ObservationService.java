@@ -15,27 +15,9 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -74,9 +56,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
 @Service
@@ -266,7 +252,8 @@ public class ObservationService extends BasicService implements WebStatus {
     				lst.add(gene.getValue().toString());
     			}
     			dto.addParametersByProcedure(pivot.getValue().toString(), new ArrayList<>(lst));
-    		}
+    			dto.addProcedureNames(pivot.getValue().toString());
+            }
 
             SolrDocument doc = res.getResults().get(0);
             dto.setGeneSymbol(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
@@ -1607,7 +1594,6 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @param parameterId
      * @param strain
-     * @param organisationId
      * @param experimentDate date of experiment
      * @param sex if null, both sexes are returned
      * @param metadataGroup when metadataGroup is empty string, force solr to
@@ -1671,7 +1657,6 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @param parameterId
      * @param strain
-     * @param organisationId
      * @param experimentDate the date of interest
      * @param sex if null, both sexes are returned
      * @param metadataGroup when metadataGroup is empty string, force solr to

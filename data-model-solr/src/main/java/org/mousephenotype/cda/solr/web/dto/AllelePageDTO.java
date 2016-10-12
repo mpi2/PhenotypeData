@@ -33,6 +33,7 @@ public class AllelePageDTO {
 	List<String> escapedAlleleSymbols;
 	List<String> phenotypingCenters;
 	List<String> pipelineNames;
+	List<String> procedureNames;
 	List<String> mpTerms;
 	Map<String, List<String>> parametersByProcedure = new HashMap<>();
 
@@ -48,6 +49,21 @@ public class AllelePageDTO {
 	public void addParametersByProcedure(String key, List<String> parametersByProcedure) {
 		if (this.parametersByProcedure == null){ this.parametersByProcedure = new HashMap<>();}
 		this.parametersByProcedure.put(key, parametersByProcedure);
+	}
+
+	public List<String> getProcedureNames() {
+		return procedureNames;
+	}
+
+	public void setProcedureNames(List<String> procedureNames) {
+		this.procedureNames = procedureNames;
+	}
+
+	public void addProcedureNames(String procedureName) {
+		if (this.procedureNames == null) {
+			this.procedureNames = new ArrayList<>();
+		}
+		this.procedureNames.add(procedureName);
 	}
 
 	public String getGeneAccession() {
