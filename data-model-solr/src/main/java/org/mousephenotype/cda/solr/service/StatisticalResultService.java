@@ -15,28 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotNull;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -58,35 +36,32 @@ import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OrganisationDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
-import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.MarkerBean;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
-import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
-import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
-import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO.MeanBean;
-import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 /**
  * Latest version pulled in 2015/07/07
  * @author tudose
@@ -925,7 +900,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
 
-    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
     throws NumberFormatException, SolrServerException, IOException, UnsupportedEncodingException {
 
 		Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
@@ -967,6 +942,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if (procedureStableIds != null) {
 			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":("
 					+ StringUtils.join(procedureStableIds, " OR ") + ")");
+		}
+		if (procedureName != null) {
+			query.addFilterQuery( StatisticalResultDTO.PROCEDURE_NAME + ":(\"" + StringUtils.join(procedureName, "\" OR \"") + "\")");
 		}
 		if (resource != null) {
 			query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resource, " OR ") + ")");
