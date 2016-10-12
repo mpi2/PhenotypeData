@@ -39,7 +39,7 @@
 	<jsp:attribute name="addToFooter">
 			<div class="region region-pinned">
 
-        <div id="flyingnavi" class="block">
+        <div id="flyingnavi" class="block smoothScroll ">
 
             <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
 
