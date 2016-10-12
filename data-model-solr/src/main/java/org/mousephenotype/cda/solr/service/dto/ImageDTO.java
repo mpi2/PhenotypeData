@@ -133,6 +133,17 @@ public class ImageDTO extends ObservationDTO {
 	public static final String ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "anatomy_term_synonym_anatomy_id_term";
 	public static final String AGE_IN_DAYS="age_in_days";
 
+	@Field(PARAMETER_ASSOCIATION_VALUE)
+	private List<String>parameterAssociationValues;
+
+	public List<String> getParameterAssociationValues() {
+		return parameterAssociationValues;
+	}
+
+	public void setParameterAssociationValues(List<String> parameterAssociationValues) {
+		this.parameterAssociationValues = parameterAssociationValues;
+	}
+
 	@Field(MP_ID)
 	private List<String> mpTermIds;
 

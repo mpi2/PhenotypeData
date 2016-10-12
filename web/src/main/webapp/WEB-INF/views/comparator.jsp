@@ -121,8 +121,8 @@
 
 	            		<div class="thumbList">
 	            		<c:forEach var="img" items="${controls}" varStatus="controlLoop">
-	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
-	            				<c:set var="controlText" value="WT: ${img.zygosity} ${img.sex} ${img.age_in_days} days ${img.parameter_name}"/>
+	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameterName}"/>
+	            				<c:set var="controlText" value="WT: ${img.zygosity} ${img.sex} ${img.ageInDays} days ${img.parameterName}"/>
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
@@ -137,7 +137,7 @@
 	            			</c:choose>
 	            			">
 	            				
-	            						<img  id="${img.omero_id}" class="thumb" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+	            						<img  id="${img.omeroId}" class="thumb" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 	            					
 	            			</div> <!-- end of male female class -->
 	            			</c:forEach>
@@ -170,11 +170,11 @@
 					       
 					        <c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
 					        
-					        <c:forEach items="${img.parameter_association_name}" var="currentItem" varStatus="stat">
-  								<c:set var="paramAssValues" value="${stat.first ? '' : paramAssValues} ${currentItem}:${img.parameter_association_value[stat.index]}" />
+					        <c:forEach items="${img.parameterAssociationName}" var="currentItem" varStatus="stat">
+  								<c:set var="paramAssValues" value="${stat.first ? '' : paramAssValues} ${currentItem}:${img.parameterAssociationValue[stat.index]}" />
   								
 							</c:forEach> 
-	            			<c:set var="mutantText" value='Mutant: ${img.allele_symbol} ${img.zygosity} ${img.sex} ${img.age_in_days} days ${img.parameter_name} ${paramAssValues}'/>
+	            			<c:set var="mutantText" value='Mutant: ${img.alleleSymbol} ${img.zygosity} ${img.sex} ${img.ageInDays} days ${img.parameterName} ${paramAssValues}'/>
 	            			
 	            			<div class="
 	            			<c:choose>
@@ -191,7 +191,7 @@
 	            			">
 								
 									
-	            						<img class="thumb2" id="${img.omero_id}" data-id="${img.omero_id}" src="https:${jpegUrlThumbWithoutId}/${img.omero_id}/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	            						<img class="thumb2" id="${img.omeroId}" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 	 
 	            			
 	            			</div>
