@@ -83,8 +83,8 @@ public class ImageComparatorController {
 		SolrDocument imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			mutants=responseExperimental.getResults();
-//			List<ImageDTO> mutantDTOs=responseExperimental.getBeans(ImageDTO.class);
-//			System.out.println("mutants size="+mutants.size()+ " mutantDTOs size"+mutantDTOs.size());
+			List<ImageDTO> mutantDTOs=responseExperimental.getBeans(ImageDTO.class);
+			System.out.println("mutants size="+mutants.size()+ " mutantDTOs size"+mutantDTOs.size());
 			imgDoc = mutants.get(0);
 		}
 		
