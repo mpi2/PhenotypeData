@@ -89,7 +89,7 @@
 	            <div id="control_key" class="key-annotation">
 	            		<span class="clickbox_male">&nbsp;&nbsp;&nbsp;</span>male
 	            		<span class="clickbox_female">&nbsp;&nbsp;&nbsp;</span> female
-	            		</div>
+	            </div>
 	            <div id="filters">Filter Images by gender: 
 	            	${param.gender}
 	            	<select name="gender">
