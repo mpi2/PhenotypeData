@@ -195,10 +195,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				
 				if(imageDTO.getDateOfBirth()!=null && imageDTO.getDateOfExperiment() !=null ){
 				Date dateOfExperiment=imageDTO.getDateOfExperiment();
-				System.out.println("date of experiment="+dateOfExperiment);
 				Date dateOfBirth=imageDTO.getDateOfBirth();
 				Instant dob=dateOfBirth.toInstant();
-				System.out.println("date of birth="+dateOfBirth);
 				Instant expDate=dateOfExperiment.toInstant();
 				long ageInDays = Duration.between(dob, expDate).toDays();
 				imageDTO.setAgeInDays(ageInDays);
