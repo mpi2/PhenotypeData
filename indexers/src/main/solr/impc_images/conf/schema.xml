@@ -354,7 +354,7 @@
         <field name="developmental_stage_acc" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="developmental_stage_name" type="string" indexed="true" stored="true" multiValued="false"/>
 
-        <field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+        <field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="parameter_association_stable_id" type="string" indexed="true" stored="true" multiValued="true" />
         <field name="parameter_association_sequence_id" type="string" indexed="true" stored="true" multiValued="true" />
         <field name="parameter_association_dim_id" type="string" indexed="true" stored="true" multiValued="true" />
