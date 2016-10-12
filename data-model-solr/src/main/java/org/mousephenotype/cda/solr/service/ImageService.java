@@ -699,7 +699,7 @@ public class ImageService implements WebStatus{
 		}
 
 		List<Count> filteredCounts = new ArrayList<>();
-		Map<String, SolrDocumentList> facetToDocs = new HashMap<>();
+		Map<String, List<ImageDTO>> facetToDocs = new HashMap<>();
 
 		for (FacetField procedureFacet : procedures) {
 
@@ -754,19 +754,16 @@ public class ImageService implements WebStatus{
 	 *         control images
 	 * @throws SolrServerException, IOException
 	 */
-	public SolrDocumentList getControls(int numberOfControls, SexType sex,
-			SolrDocument imgDoc, String anatomy) throws SolrServerException, IOException {
-		SolrDocumentList list = new SolrDocumentList();
-		final String metadataGroup = (String) imgDoc
-				.get(ObservationDTO.METADATA_GROUP);
-		final String center = (String) imgDoc
-				.get(ObservationDTO.PHENOTYPING_CENTER);
-		final String strain = (String) imgDoc.get(ObservationDTO.STRAIN_NAME);
-		final String procedureName = (String) imgDoc
-				.get(ObservationDTO.PROCEDURE_NAME);
-		final String parameter = (String) imgDoc
-				.get(ObservationDTO.PARAMETER_STABLE_ID);
-		final Date date = (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT);
+	public List<ImageDTO> getControls(int numberOfControls, SexType sex,
+			ImageDTO imgDoc, String anatomy) throws SolrServerException, IOException {
+		List<ImageDTO> list = new ArrayList<>();
+		final String metadataGroup = imgDoc.getMetadataGroup();
+				
+		final String center = imgDoc.getPhenotypingCenter();
+		final String strain = imgDoc.getStrainName();
+		final String procedureName = imgDoc.getProcedureName();
+		final String parameter = imgDoc.getParameterStableId();
+		final Date date = (Date) imgDoc.getDateOfExperiment();
 
 
 		QueryResponse responseControl =null;
@@ -776,7 +773,7 @@ public class ImageService implements WebStatus{
 			responseControl=this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
 		}
 
-		list.addAll(responseControl.getResults());
+		list.addAll(responseControl.getBeans(ImageDTO.class));
 
 		return list;
 	}
@@ -806,7 +803,7 @@ public class ImageService implements WebStatus{
 			String procedureName, String parameterStableId,
 			int numberOfControls, int numberOfExperimental,
 			String excludedProcedureName, List<Count> filteredCounts,
-			Map<String, SolrDocumentList> facetToDocs, String anatomyId)
+			Map<String, List<ImageDTO>> facetToDocs, String anatomyId)
 			throws SolrServerException, IOException {
 
 		model.addAttribute("acc", acc);// forward the gene id along to the new
@@ -835,7 +832,7 @@ public class ImageService implements WebStatus{
 		for (FacetField facet : facets) {
 			if (facet.getValueCount() != 0) {
 				for (Count count : facet.getValues()) {
-					SolrDocumentList list = null;// list of
+					List<ImageDTO> list = null;// list of
 													// image
 													// docs to
 													// return to
@@ -852,19 +849,19 @@ public class ImageService implements WebStatus{
 										null, anatomyId, null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
 
-							SolrDocument imgDoc = responseExperimental
-									.getResults().get(0);
+							ImageDTO imgDoc = responseExperimental
+									.getBeans(ImageDTO.class).get(0);
 							QueryResponse responseExperimental2 = this
 									.getImagesForGeneByParameter(
-											acc, (String) imgDoc
-													.get(ObservationDTO.PARAMETER_STABLE_ID),
+											acc, imgDoc
+													.getParameterStableId(),
 											"experimental",
 											numberOfExperimental,
 											null,
-											(String) imgDoc
-													.get(ObservationDTO.METADATA_GROUP),
-											(String) imgDoc
-													.get(ObservationDTO.STRAIN_NAME),
+											imgDoc
+													.getMetadataGroup(),
+											imgDoc
+													.getStrainName(),
 											anatomyId,
 											null, null, null);
 
@@ -872,7 +869,7 @@ public class ImageService implements WebStatus{
 									null);
 
 							if (responseExperimental2 != null) {
-								list.addAll(responseExperimental2.getResults());
+								list.addAll(responseExperimental2.getBeans(ImageDTO.class));
 							}
 
 						}
