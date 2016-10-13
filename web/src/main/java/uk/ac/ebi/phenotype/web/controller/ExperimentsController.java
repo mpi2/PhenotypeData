@@ -83,12 +83,13 @@ public class ExperimentsController {
 			HttpServletRequest request)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
+		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		
 		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+
 		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
 			rows += list.size();
 		}
@@ -117,7 +118,7 @@ public class ExperimentsController {
 			HttpServletRequest request)
 	throws SolrServerException, IOException , URISyntaxException {
 		
-		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
+		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();

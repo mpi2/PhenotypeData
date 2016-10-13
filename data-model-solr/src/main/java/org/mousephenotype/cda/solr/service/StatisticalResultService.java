@@ -22,11 +22,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.GroupCommand;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
@@ -206,6 +203,73 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	}
 
+
+	/**
+	 *
+	 * @param geneAccessionId
+	 * @return Basic information for allele pages in an AllelePageDTO
+	 */
+	public AllelePageDTO getAllelesInfo(String geneAccessionId){
+
+		AllelePageDTO dto = new AllelePageDTO();
+		SolrQuery q = new SolrQuery();
+
+		q.setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccessionId +"\"");
+		q.addField(StatisticalResultDTO.MARKER_SYMBOL);
+		q.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
+		q.setFacet(true);
+		q.setFacetLimit(-1);
+		q.setFacetMinCount(1);
+		q.addFacetField(StatisticalResultDTO.PHENOTYPING_CENTER);
+		q.addFacetField(StatisticalResultDTO.PIPELINE_NAME);
+		q.addFacetField(StatisticalResultDTO.ALLELE_SYMBOL);
+		q.setRows(1);
+
+		String pivotFacet =  StatisticalResultDTO.PROCEDURE_NAME  + "," + StatisticalResultDTO.PARAMETER_STABLE_ID;
+		q.set("facet.pivot", pivotFacet);
+		q.set("facet.pivot.mincount", 1);
+
+		System.out.println(solr.getBaseURL() + "/select?" + q);
+
+		try {
+			QueryResponse res = solr.query(q);
+
+			FacetField phenotypingCenters = res.getFacetField(StatisticalResultDTO.PHENOTYPING_CENTER);
+
+			for (Count facet : phenotypingCenters.getValues()){
+				dto.addPhenotypingCenter(facet.getName());
+			}
+
+			FacetField alleles = solr.query(q).getFacetField(StatisticalResultDTO.ALLELE_SYMBOL);
+			for (Count facet : alleles.getValues()){
+				dto.addAlleleSymbol(facet.getName());
+			}
+
+			FacetField pipelines = solr.query(q).getFacetField(StatisticalResultDTO.PIPELINE_NAME);
+			for (Count facet : pipelines.getValues()){
+				dto.addPipelineName(facet.getName());
+			}
+
+			for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
+				List<String> lst = new ArrayList<>();
+				for (PivotField gene : pivot.getPivot()){
+					lst.add(gene.getValue().toString());
+				}
+				dto.addParametersByProcedure(pivot.getValue().toString(), new ArrayList<>(lst));
+				dto.addProcedureNames(pivot.getValue().toString());
+			}
+
+			SolrDocument doc = res.getResults().get(0);
+			dto.setGeneSymbol(doc.getFieldValue(StatisticalResultDTO.MARKER_ACCESSION_ID).toString());
+			dto.setGeneAccession(geneAccessionId);
+
+		} catch (SolrServerException | IOException e) {
+			e.printStackTrace();
+		}
+
+		return dto;
+
+	}
 
 	public List<String> getCenters(String pipelineStableId, String observationType, String resource, String status)
 	throws SolrServerException, IOException {
