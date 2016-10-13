@@ -42,7 +42,7 @@ public class ReferenceDTO {
     private List<String> mgiAlleleNames;
     private String title;
     private String journal;
-    private String pmid;
+    private Integer pmid;
     private String dateOfPublication;
     private String timestamp;
     private List<String> grantIds;
@@ -105,11 +105,9 @@ public class ReferenceDTO {
         this.journal = journal;
     }
 
-    public String getPmid() {
-        return pmid;
-    }
+    public Integer getPmid() { return pmid; }
 
-    public void setPmid(String pmid) {
+    public void setPmid(Integer pmid) {
         this.pmid = pmid;
     }
 
