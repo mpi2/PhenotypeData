@@ -76,18 +76,20 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
 			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
 			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
 			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
+		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		
-		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+
 		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
 			rows += list.size();
 		}
@@ -109,18 +111,19 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
 			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
 			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
 			@RequestParam(required = false, value = "mpTermId") List<String> mpTermIds,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request)
 	throws SolrServerException, IOException , URISyntaxException {
 		
-		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
+		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		
-		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, 
+		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName,
 					procedureStableId, resource, mpTermIds, graphBaseUrl));
 		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
 			rows += list.size();
@@ -155,6 +158,7 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
 			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
 			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
 			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			HttpServletRequest request,
@@ -164,7 +168,7 @@ public class ExperimentsController {
 		List<ExperimentsDataTableRow> experimentList = new ArrayList<>();
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
-		for (List<ExperimentsDataTableRow> list : srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl).values()){
+		for (List<ExperimentsDataTableRow> list : srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl).values()){
 			experimentList.addAll(list);
 		}
 
@@ -175,8 +179,6 @@ public class ExperimentsController {
 		}
 		
 		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
-
-		System.out.println("SsaTARTT  sdf fe ");
 
 	}
 	

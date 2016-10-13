@@ -64,6 +64,12 @@
 							Histopathology
 							</th>
 							<th>
+							SampleId
+							</th>
+							<th>
+							SeqId
+							</th>
+							<th>
 							Severity
 							</th>
 							<th>
@@ -130,6 +136,12 @@
 										
 										
 									</td>
+									<td>
+									${histRow.sampleId}
+									</td>
+									<td>
+									${histRow.sequenceId}
+									</td>
 									
 									<td>
 									<c:forEach var="parameter" items="${histRow.severity }">
@@ -143,7 +155,7 @@
 									<td>
 									
 									<c:if test="${fn:length(histRow.significance) ==0 }">
-									Normal
+									Not Annotated
 									</c:if>
 									<c:forEach var="parameter" items="${histRow.significance }">
 										<c:choose>
