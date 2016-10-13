@@ -5,7 +5,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.solr.SolrServerConfig;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
  * @author Jeremy Mason
  *
  */
-@Import(value = {StatisticalDatasetGeneratorConfig.class, SolrServerConfig.class})
+@Import(value = {StatisticalDatasetGeneratorConfig.class})
 public class StatisticalDatasetGenerator extends BasicService implements CommandLineRunner {
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
@@ -85,10 +84,14 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
             int i = 1;
             for (Map<String, String> result : results) {
 
+                if (parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP)) == null) {
+                    logger.info("  Skipping procedure {} -- not in parameters map (no parameters to annotate)", result.get(ObservationDTO.PROCEDURE_STABLE_ID));
+                    continue;
+                }
+
                 String filename = "tsvs/" + Stream.of(result.get(ObservationDTO.PHENOTYPING_CENTER).replace(" ",""), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID).replace(":","")).collect(Collectors.joining("-")) + ".tsv";
                 Path p = new File(filename).toPath();
                 logger.info("Writing file {} ({})", filename, p);
-
 
                 logger.info("Processing {} {} {} {} {}", i++, result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
 

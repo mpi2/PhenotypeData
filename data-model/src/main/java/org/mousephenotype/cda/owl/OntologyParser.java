@@ -41,7 +41,7 @@ public class OntologyParser {
                 OntologyTermDTO term = getDTO(cls);
                 term.setEquivalentClasses(getEquivaletClasses(cls, prefix));
                 terms.add(term);
-                termMap.put(term.getAccessonId(), term);
+                termMap.put(term.getAccessionId(), term);
             }
         }
 
@@ -111,7 +111,7 @@ public class OntologyParser {
     public Set<String> getNarrowSynonyms(OntologyTermDTO cls, int maxLevels){
 
         Set<OWLClass> descendents = new HashSet<>();
-        Set<String> res = new HashSet<>();
+        TreeSet<String> res = new TreeSet<String>();
         descendents = getDescendentsPartOf(cls.getCls(), 1, 0, descendents);
 
         for (OWLClass desc : descendents){
@@ -148,6 +148,26 @@ public class OntologyParser {
 
         String id = cls.getIRI().toString();
         return id.split("/|#")[id.split("/|#").length-1].replace("_", ":");
+
+    }
+
+
+    /**
+     *
+     * @param cls
+     * @return Set of alternative ids for the given class OR empty set when none available
+     */
+    private Set<String> getAltIds(OWLClass cls){
+
+        Set<String> altIds = new HashSet<>();
+        Collection<OWLAnnotation> annotations = EntitySearcher.getAnnotations(cls, ontology, ALT_ID);
+        if (annotations != null && !annotations.isEmpty()){
+            for (OWLAnnotation ann: annotations) {
+                OWLLiteral altId = ((OWLLiteral)ann.getValue());
+                altIds.add(altId.getLiteral());
+            }
+        }
+        return altIds;
 
     }
 
@@ -219,14 +239,20 @@ public class OntologyParser {
         term.setObsolete(isObsolete(cls));
         term.setCls(cls);
         if (term.isObsolete()){
-            if((getReplacementId(cls) != null)){
-                term.setReplacementAccessionId(getReplacementId(cls));
+            String replacementId = getReplacementId(cls);
+            if((replacementId != null)){
+                term.setReplacementAccessionId(replacementId);
             }
-            if(getConsiderIds(cls) != null && getConsiderIds(cls).size() > 0){
-                term.setConsiderIds(getConsiderIds(cls));
+            Set<String> considerIds = getConsiderIds(cls);
+            if(considerIds != null && considerIds.size() > 0){
+                term.setConsiderIds(considerIds);
             }
         }
-
+        Set<String> altIds = getAltIds(cls);
+        if ( altIds!= null && altIds.size() > 0){
+            term.setAlternateIds(altIds);
+        }
+        term.setChildIds(getChildIds(cls));
         return term;
     }
 
@@ -242,6 +268,18 @@ public class OntologyParser {
         for (OWLClassExpression classExpression : EntitySearcher.getEquivalentClasses(cls, ontology)){
             if (classExpression.isClassExpressionLiteral() && !getIdentifierShortForm(classExpression.asOWLClass()).startsWith(prefix + ":")){
                 eqClasses.add(getDTO(classExpression.asOWLClass()));
+            }
+        }
+        return  eqClasses;
+    }
+
+
+    private Set<String> getChildIds(OWLClass cls){
+
+        Set<String> eqClasses = new HashSet<>();
+        for (OWLClassExpression classExpression : EntitySearcher.getSubClasses(cls, ontology)){
+            if (classExpression.isClassExpressionLiteral()){
+                eqClasses.add(getIdentifierShortForm(classExpression.asOWLClass()));
             }
         }
         return  eqClasses;

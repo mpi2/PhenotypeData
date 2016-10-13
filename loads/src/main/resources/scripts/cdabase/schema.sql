@@ -495,7 +495,8 @@ CREATE TABLE biological_sample (
 	sample_type_db_id         INT(10) NOT NULL,
 	sample_group              VARCHAR(100) NOT NULL,
 	organisation_id           INT(10) UNSIGNED NOT NULL,
-  production_center_id      INT(10) UNSIGNED NULL,
+	production_center_id      INT(10) UNSIGNED NULL,
+	litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY external_id_idx(external_id),
@@ -522,7 +523,7 @@ CREATE TABLE live_sample (
 	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data', 'both'),
 	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
 	date_of_birth             TIMESTAMP NULL,
-  litter_id                 VARCHAR(200) NULL,
+	litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY colony_idx (colony_id),
@@ -670,14 +671,27 @@ CREATE TABLE categorical_observation (
 
 
 /**
+ * This table will store the ontology 'alternate id's.
+ */
+DROP TABLE IF EXISTS alternate_id;
+CREATE TABLE alternate_id (
+	ontology_term_acc          VARCHAR(30) NOT NULL,
+	alternate_id_acc           VARCHAR(30) NOT NULL,
+
+  UNIQUE KEY alternate_id_acc_idx(ontology_term_acc, alternate_id_acc)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+
+/**
  * This table will store the ontology 'consider id's.
  */
 DROP TABLE IF EXISTS consider_id;
 CREATE TABLE consider_id (
 	ontology_term_acc          VARCHAR(30) NOT NULL,
-	acc                        VARCHAR(30) NOT NULL,
+	consider_id_acc            VARCHAR(30) NOT NULL,
 
-  FOREIGN KEY ontology_term_acc_fk (ontology_term_acc) REFERENCES ontology_term (acc)
+	UNIQUE KEY ontology_term_acc_idx(ontology_term_acc, consider_id_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -1798,9 +1812,24 @@ CREATE TABLE mts_mouse_allele_mv (
 ) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
+DROP TABLE IF EXISTS higher_level_annotation;
 CREATE TABLE higher_level_annotation (
   term_id varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY    (term_id)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS ontology_term_anomaly;
+CREATE TABLE ontology_term_anomaly (
+  id                 INT(11)      NOT NULL AUTO_INCREMENT,
+  db_name            VARCHAR(128) NOT NULL,
+  table_name         VARCHAR(128) NOT NULL,
+  column_name        VARCHAR(128) NOT NULL,
+  original_acc       VARCHAR(128) NOT NULL,
+  replacement_acc    VARCHAR(128),
+  reason             VARCHAR(128) NOT NULL,
+  last_modified      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
@@ -1863,6 +1892,7 @@ INSERT INTO project(id, name, fullname, description) VALUES(20, 'EMBL Monteroton
 INSERT INTO project(id, name, fullname, description) VALUES(21, 'Infrafrontier-I3', 'Infrafrontier-I3 Consortium', 'Infrafrontier-I3 Consortium');
 INSERT INTO project(id, name, fullname, description) VALUES(22, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea Mouse Phenotyping Center');
 INSERT INTO project(id, name, fullname, description) VALUES(23, 'UC Davis', 'University of California at Davis School of Veterinary Medicine', 'UC Davis Veterinary Medicine');
+INSERT INTO project(id, name, fullname, description) VALUES(24, 'NARLabs', 'National Applied Research Laboratories', 'National Applied Research Laboratories');
 
 
 /**
@@ -1906,6 +1936,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(32, 'CRL', 'Charles
 INSERT INTO organisation(id, name, fullname, country) VALUES(33, 'INFRAFRONTIER-VETMEDUNI', 'University of Veterinary Medicine Vienna', 'Austria');
 INSERT INTO organisation(id, name, fullname, country) VALUES(34, 'KMPC', 'Korea Mouse Phenotyping Center', 'Korea');
 INSERT INTO organisation(id, name, fullname, country) VALUES(35, 'MARC', 'Model Animal Research Center', 'Japan');
+INSERT INTO organisation(id, name, fullname, country) VALUES(36, 'NARLabs', 'National Applied Research Laboratories', 'Taiwan');
 
 
 /**

@@ -146,6 +146,7 @@ public class OntologyParserTest {
         }
     }
 
+
     // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
     @Test
     public void testEFO()  throws Exception {
@@ -154,6 +155,7 @@ public class OntologyParserTest {
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Expected at least one term.", terms.isEmpty());
     }
+
 
     @Test
     public void testNarrowSynonyms() throws Exception {
@@ -168,7 +170,15 @@ public class OntologyParserTest {
         Assert.assertFalse("Narrow synonyms list is empty!", narrowSynonyms.isEmpty());
         Assert.assertTrue("Narrow synonyms list does not contain a label!", narrowSynonyms.contains("conductive hearing impairment"));
         Assert.assertTrue("Narrow synonyms list does not contain an exact synonym!", narrowSynonyms.contains("complete hearing loss"));
+
+        // Test both HP and MP terms are considered.
+        // Abnormal glucose homeostasis MP:0002078 is equivalent to HP:0011014
+        term = ontologyParser.getOntologyTerm("MP:0002078");
+
+        Assert.assertTrue("HP synonym not found, was looking for Abnormal C-peptide level ." , ontologyParser.getNarrowSynonyms(term,2).contains("Abnormal C-peptide level"));
+
     }
+
 
     @Test
     public void testEquivalent() throws Exception {
@@ -184,22 +194,28 @@ public class OntologyParserTest {
         Set<OntologyTermDTO> termSet = mp0000572.getEquivalentClasses();
         List<OntologyTermDTO> eqTerms =
                 termSet.stream()
-                .filter(term -> term.getAccessonId().equals("HP:0005922"))
+                .filter(term -> term.getAccessionId().equals("HP:0005922"))
                 .collect(Collectors.toList());
         Assert.assertFalse("Expected equivalent class HP:0005922 but list is empty.", eqTerms.isEmpty());
-        Assert.assertTrue("Expected equivalent class HP:0005922. Not found.", eqTerms.get(0).getAccessonId().equals("HP:0005922"));
+        Assert.assertTrue("Expected equivalent class HP:0005922. Not found.", eqTerms.get(0).getAccessionId().equals("HP:0005922"));
     }
 
+
     @Test
-    public void testDeprecated() throws Exception {
+    public void testReplacementOptions() throws Exception {
 
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name);
 
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
                 termList.stream()
-                .filter(term -> term.getAccessonId().equals("MP:0006374") || term.getAccessonId().equals("MP:0002977"))
-                .collect(Collectors.toMap(OntologyTermDTO::getAccessonId, ontologyTermDTO -> ontologyTermDTO));
+                .filter(term -> term.getAccessionId().equals("MP:0006374") || term.getAccessionId().equals("MP:0002977") || term.getAccessionId().equals("MP:0000003"))
+                .collect(Collectors.toMap(OntologyTermDTO::getAccessionId, ontologyTermDTO -> ontologyTermDTO));
+
+        /* Test alternative ids are found for MP_0000003 (should be MP:0000011). */
+
+        OntologyTermDTO withAltIds = terms.get("MP:0000003");
+        Assert.assertTrue("Expected MP:0000003 has MP:0000011 as alt id. ", (withAltIds.getAlternateIds() != null && withAltIds.getAlternateIds().contains("MP:0000011")));
 
         /*
          * Test for term MP:0006374 with replacement ID MP:0008996
@@ -219,5 +235,6 @@ public class OntologyParserTest {
         Assert.assertTrue("Expected at least two consider id terms: MP:0010241 and MP:0010464, but found " + withConsiderIds.getConsiderIds().size() + ".'", withConsiderIds.getConsiderIds().size() >= 2);
         Assert.assertTrue("Expected consider id MP:0010241. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010241"));
         Assert.assertTrue("Expected consider id MP:0010464. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010464"));
+
     }
 }

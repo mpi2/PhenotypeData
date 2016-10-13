@@ -30,9 +30,7 @@ import org.hibernate.annotations.*;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 
 @Entity
@@ -60,7 +58,10 @@ public class OntologyTerm {
 	private String replacementAcc;
 
 	@Transient
-	private List<ConsiderId> considerIds = new ArrayList<>();
+	private Set<AlternateId> alternateIds = new HashSet<>();
+
+	@Transient
+	private Set<ConsiderId> considerIds = new HashSet<>();
 
 	@ElementCollection
 	@CollectionTable(
@@ -84,12 +85,28 @@ public class OntologyTerm {
 		this.id.setDatabaseId(dbId);
 	}
 
-	public List<ConsiderId> getConsiderIds() {
+	public Set<ConsiderId> getConsiderIds() {
 		return considerIds;
 	}
 
-	public void setConsiderIds(List<ConsiderId> considerIds) {
+	public void setConsiderIds(Set<ConsiderId> considerIds) {
 		this.considerIds = considerIds;
+	}
+
+	public Boolean getObsolete() {
+		return isObsolete;
+	}
+
+	public void setObsolete(Boolean obsolete) {
+		isObsolete = obsolete;
+	}
+
+	public Set<AlternateId> getAlternateIds() {
+		return alternateIds;
+	}
+
+	public void setAlternateIds(Set<AlternateId> alternateIds) {
+		this.alternateIds = alternateIds;
 	}
 
 	/**

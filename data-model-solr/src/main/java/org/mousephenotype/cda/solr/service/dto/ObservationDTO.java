@@ -196,7 +196,7 @@ public class ObservationDTO extends ObservationDTOBase {
 
     @Override
     public String toString() {
-        return "id=" + id
+        return super.toString()+" id=" + id
 	        + ", procedure=" + procedureGroup
                 + ", parameterId=" + parameterId
                 + ", phenotypingCenterId=" + phenotypingCenterId
@@ -222,7 +222,9 @@ public class ObservationDTO extends ObservationDTOBase {
      */
     public Date getDateOfExperiment() {
 	    //        return dateOfExperiment;
-
+    	if(dateOfExperiment==null){
+    		return null;
+    	}
 	    ZonedDateTime zdt = ZonedDateTime.ofInstant(dateOfExperiment.toInstant(), ZoneId.of("UTC"));
 	    if(TimeZone.getDefault().inDaylightTime(dateOfExperiment)) {
 		    zdt = dateOfExperiment.toInstant().atZone(ZoneId.of(TimeZone.getDefault().getID()));
@@ -243,6 +245,9 @@ public class ObservationDTO extends ObservationDTOBase {
      */
     public Date getDateOfBirth() {
 //        return dateOfBirth;
+    	if(dateOfBirth==null){
+    		return null;
+    	}
 	    ZonedDateTime zdt = ZonedDateTime.ofInstant(dateOfBirth.toInstant(), ZoneId.of("UTC"));
 	    if(TimeZone.getDefault().inDaylightTime(dateOfBirth)) {
 		    zdt = dateOfBirth.toInstant().atZone(ZoneId.of(TimeZone.getDefault().getID()));
