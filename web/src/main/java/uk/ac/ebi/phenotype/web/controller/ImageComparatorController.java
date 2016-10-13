@@ -76,15 +76,15 @@ public class ImageComparatorController {
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
-		SolrDocumentList mutants = new SolrDocumentList();
+		List<ImageDTO> mutants=new ArrayList<>();
 		QueryResponse responseExperimental = imageService
 				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
 						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
-		SolrDocument imgDoc =null;
+		ImageDTO imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
-			mutants=responseExperimental.getResults();
-//			List<ImageDTO> mutantDTOs=responseExperimental.getBeans(ImageDTO.class);
-//			System.out.println("mutants size="+mutants.size()+ " mutantDTOs size"+mutantDTOs.size());
+			//mutants=responseExperimental.getResults();
+			mutants=responseExperimental.getBeans(ImageDTO.class);
+			
 			imgDoc = mutants.get(0);
 		}
 		
@@ -97,11 +97,11 @@ public class ImageComparatorController {
 		
 		
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
-		SolrDocumentList controls=null;
+		List<ImageDTO> controls=null;
 		if(imgDoc!=null){
 		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexType);
 		}
-		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexType);
+		List<ImageDTO> filteredMutants = filterMutantsBySex(mutants, imgDoc, sexType);
 		
 		List<ZygosityType> zygosityTypes=null;
 		if(zygosity!=null && !zygosity.equals("all")){
@@ -142,32 +142,32 @@ public class ImageComparatorController {
 	}
 	
 	
-	private SolrDocumentList filterImagesByZygosity(SolrDocumentList imageDocs, List<ZygosityType> zygosityTypes) {
-		SolrDocumentList filteredImages=new SolrDocumentList();
+	private List<ImageDTO> filterImagesByZygosity(List<ImageDTO> filteredMutants, List<ZygosityType> zygosityTypes) {
+		List<ImageDTO> filteredImages=new ArrayList<>();
 		if(zygosityTypes==null || (zygosityTypes.get(0).getName().equals("not_applicable"))){//just return don't filter if not applicable default is found
-			return imageDocs;
+			return filteredMutants;
 		}
 		for(ZygosityType zygosityType:zygosityTypes){
-			for(SolrDocument control:imageDocs){
-				if(control.get(ImageDTO.ZYGOSITY).equals(zygosityType.getName())){
-					filteredImages.add(control);
+			for(ImageDTO image:filteredMutants){
+				if(image.getZygosity().equals(zygosityType.getName())){
+					filteredImages.add(image);
 				}
 			}
 		}
 		return filteredImages;
 	}
 
-	private SolrDocumentList filterMutantsBySex(SolrDocumentList mutants, SolrDocument imgDoc, SexType sexType) {
+	private List filterMutantsBySex(List<ImageDTO> mutants, ImageDTO imgDoc, SexType sexType) {
 		if(sexType==null){
 			return mutants;
 		}
 		
-		SolrDocumentList filteredMutants = new SolrDocumentList();
+		List<ImageDTO> filteredMutants = new ArrayList<>();
 		
 		if (imgDoc != null) {
 			
-				for(SolrDocument mutant:mutants){
-					if(mutant.get("sex").equals(sexType.getName())){
+				for(ImageDTO mutant:mutants){
+					if(mutant.getSex().equals(sexType.getName())){
 						filteredMutants.add(mutant);
 					}
 				}
@@ -177,16 +177,16 @@ public class ImageComparatorController {
 		return filteredMutants;
 	}
 
-	private SolrDocumentList filterControlsBySexAndOthers(SolrDocument imgDoc, int numberOfControlsPerSex,
+	private List<ImageDTO> filterControlsBySexAndOthers(ImageDTO imgDoc, int numberOfControlsPerSex,
 			SexType sex) throws SolrServerException, IOException {
 		if(sex==null){
 			return imageService.getControls(numberOfControlsPerSex, null, imgDoc, null);
 		}
-		SolrDocumentList controls = new SolrDocumentList();
-		Set<SolrDocument> uniqueControls=new HashSet<>();
+		List<ImageDTO> controls = new ArrayList<>();
+		Set<ImageDTO> uniqueControls=new HashSet<>();
 		if (imgDoc != null) {
 			
-				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
+				List<ImageDTO> controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 				uniqueControls.addAll(controlsTemp);
 			
 		}

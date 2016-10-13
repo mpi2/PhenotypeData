@@ -38,8 +38,26 @@
 	            <div id="comparator" class="section">
 	            <c:if test="${mediaType !=null }">
 	            <input type="hidden" name="mediaType" value="${mediaType}">
-	            
+	            <c:if test="${gene !=null }">
+	            	<input type="hidden" name="acc" value="${gene.mgiAccessionId}">
 	            </c:if>
+	            <c:if test="${param.parameter_stable_id!=null}">
+	            	<input type="hidden" name="parameter_stable_id" value="${param.parameter_stable_id}">
+	            </c:if>
+	            <c:if test="${param.parameter_association_value!=null}">
+	            	<input type="hidden" name="parameter_association_value" value="${param.parameter_association_value}">
+	            </c:if>
+	            <c:if test="${param.anatomy_id!=null}">
+	            	<input type="hidden" name="anatomy_id" value="${param.anatomy_id}">
+	            </c:if>
+	             <c:if test="${param.mp_id!=null}">
+	            	<input type="hidden" name="mp_id" value="${param.mp_id}">
+	            </c:if>
+	            </c:if>
+	             <div id="control_key" class="key-annotation">
+	            		<span class="clickbox_male">&nbsp;&nbsp;&nbsp;</span>male
+	            		<span class="clickbox_female">&nbsp;&nbsp;&nbsp;</span> female
+	            		</div>
 	            	<div id="filters">Filter Images by gender: 
 	            	<%-- ${param.gender} --%>
 	            	<select name="gender">
@@ -62,11 +80,11 @@
 			            		<c:choose>
 			            			<c:when test="${mediaType eq 'pdf' }">		            			
 			            				<iframe id="control_frame"
-											src="//docs.google.com/gview?url=${pdfWithoutId}/${controls[0].omero_id}&embedded=true"></iframe>
+											src="//docs.google.com/gview?url=${pdfWithoutId}/${controls[0].omeroId}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
 			            				<iframe id="control_frame"
-												src="${jpegUrlDetailWithoutId}/${controls[0].omero_id }"></iframe>
+												src="${jpegUrlDetailWithoutId}/${controls[0].omeroId }"></iframe>
 			            			</c:otherwise>
 			            		</c:choose>
 			            		
@@ -77,11 +95,11 @@
 						</c:choose>
 	            
 	            		<div id="control_annotation" class="annotation">
-	            			WT: ${controls[0].sex}, ${controls[0].parameter_name }
+	            			WT: ${controls[0].sex}, ${controls[0].parameterName }
 	            		</div>
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${controls}" varStatus="controlLoop">
-	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
+	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameterName}"/>
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
@@ -97,10 +115,10 @@
 	            			">
 	            				<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+										<img id="${img.omeroId}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            				</div>
@@ -117,11 +135,11 @@
 			            			
 			            			<c:when test="${mediaType eq 'pdf' }">		            			
 			            			<iframe id="mutant_frame"
-										src="//docs.google.com/gview?url=${pdfWithoutId}/${mutants[0].omero_id}&embedded=true"></iframe>
+										src="//docs.google.com/gview?url=${pdfWithoutId}/${mutants[0].omeroId}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
 			            			<iframe id="mutant_frame"
-										src="${jpegUrlDetailWithoutId}/${mutants[0].omero_id }"></iframe>
+										src="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"></iframe>
 			            			</c:otherwise>
 			            			</c:choose>
 								
@@ -131,11 +149,11 @@
 							</c:otherwise>
 					</c:choose>
 	            		<div id="mutant_annotation" class="annotation">
-	            		Mutant:<t:formatAllele>${mutants[0].allele_symbol}</t:formatAllele>, ${mutants[0].zygosity}, ${mutants[0].sex}, ${mutants[0].parameter_name }
+	            		Mutant:<t:formatAllele>${mutants[0].alleleSymbol}</t:formatAllele>, ${mutants[0].zygosity}, ${mutants[0].sex}, ${mutants[0].parameterName }
 	            		</div>
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
-	            			<c:set var="mutantText" value="Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
+	            			<c:set var="mutantText" value="Mutant: ${img.alleleSymbol}, ${img.zygosity}, ${img.sex}, ${img.parameterName}"/>
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
@@ -151,10 +169,10 @@
 	            			">
 								<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+										<img id="${img.omeroId}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            			</div>
