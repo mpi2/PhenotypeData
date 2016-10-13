@@ -176,7 +176,6 @@ public class DrupalHttpProxy extends HttpProxy {
 			if (StringUtils.isEmpty(content)) {
 				throw new Exception("Cannot retreive DCC drupal menu");
 			}
-
 		} catch (Exception e) {
 
 			// If we can't get the menu, default to the logged out menu
