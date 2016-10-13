@@ -49,13 +49,19 @@
 		                                    </c:forEach>
 		                                </select>
 		                                
-										<select id="pipelinesFilter" class="impcdropdown"  multiple="multiple" title="Filter on allele symbol">
-		                                	<c:forEach var="pipeline" items="${allelePageDTO.getPipelineNames()}">
-		                                        <option value="${pipeline}">${pipeline}</option>
-		                                    </c:forEach>
-		                                </select> 
-		                                
-		                                <select id="phenotypingCenterFilter"  class="impcdropdown"  multiple="multiple" title="Filter on allele symbol">
+										<%--<select id="pipelinesFilter" class="impcdropdown"  multiple="multiple" title="Filter on allele symbol">--%>
+		                                	<%--<c:forEach var="pipeline" items="${allelePageDTO.getPipelineNames()}">--%>
+		                                        <%--<option value="${pipeline}">${pipeline}</option>--%>
+		                                    <%--</c:forEach>--%>
+		                                <%--</select>--%>
+
+										<select id="proceduresFilter" class="impcdropdown"  multiple="multiple" title="Filter on procedure">
+											<c:forEach var="procedure" items="${allelePageDTO.getProcedureNames()}">
+												<option value="${procedure}">${procedure}</option>
+											</c:forEach>
+										</select>
+
+										<select id="phenotypingCenterFilter"  class="impcdropdown"  multiple="multiple" title="Filter on allele symbol">
 		                                	<c:forEach var="pCenter" items="${allelePageDTO.getPhenotypingCenters()}">
 		                                        <option value="${pCenter}">${pCenter}</option>
 		                                    </c:forEach>

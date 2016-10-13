@@ -30,7 +30,8 @@
                                 <br/>
                                 <p> The scale of IMPC provides a unique opportunity to explore the role of sex on a phenotype. To this end, we have been developing and
                                 validating a bespoke set of analysis pipelines to assess the role of sex.  This has been run as a standalone analysis
-                                on <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-4.2">IMPC dataset version 4.2</a>.  </p>
+                                on <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-4.2">IMPC dataset version 4.2</a>. Supporting data and analysis are available on
+                                <a href="https://zenodo.org/record/154087">zenodo</a>. </p>
                                 <ul class="pad10px">
                                     <li>Raw input data</li>
                                     <li>Manuscript</li>
