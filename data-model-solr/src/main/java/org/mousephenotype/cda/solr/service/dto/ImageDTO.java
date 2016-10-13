@@ -131,6 +131,18 @@ public class ImageDTO extends ObservationDTO {
     public static final String INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM = "intermediate_anatomy_term_anatomy_id_term";
     public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "intermediate_anatomy_term_synonym_anatomy_id_term";
 	public static final String ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "anatomy_term_synonym_anatomy_id_term";
+	public static final String AGE_IN_DAYS="age_in_days";
+
+	@Field(PARAMETER_ASSOCIATION_VALUE)
+	private List<String>parameterAssociationValues;
+
+	public List<String> getParameterAssociationValues() {
+		return parameterAssociationValues;
+	}
+
+	public void setParameterAssociationValues(List<String> parameterAssociationValues) {
+		this.parameterAssociationValues = parameterAssociationValues;
+	}
 
 	@Field(MP_ID)
 	private List<String> mpTermIds;
@@ -244,7 +256,18 @@ public class ImageDTO extends ObservationDTO {
 	private List<String> intermediateAnatomyTermSynonymAnatomyIdTerm;
 	@Field(ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM)
 	private List<String> anatomyTermSynonymAnatomyIdTerm;
+	
+	@Field(AGE_IN_DAYS)
+	private Long ageInDays;
 
+
+	public Long getAgeInDays() {
+		return ageInDays;
+	}
+
+	public void setAgeInDays(Long ageInDays) {
+		this.ageInDays = ageInDays;
+	}
 
 	public List<String> getMarkerSynonymSymbolGene() {
 		return markerSynonymSymbolGene;

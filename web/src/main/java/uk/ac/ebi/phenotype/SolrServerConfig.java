@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.solr;
+package uk.ac.ebi.phenotype;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -56,10 +56,12 @@ public class SolrServerConfig {
 	// Required for spring-data-solr repositories
 
 
-
 	@Bean(name = "allele2Core")
 	HttpSolrClient getAllele2Core() {
-		return new HttpSolrClient(imitsSolrBaseUrl + "/allele2");
+
+		//return new HttpSolrClient("http://localhost:8086/solr-example/allele");
+		return new HttpSolrClient(solrBaseUrl + "/allele2");
+
 	}
 
 	@Bean(name = "eucommCreProductsCore")
@@ -69,7 +71,10 @@ public class SolrServerConfig {
 
 	@Bean(name = "productCore")
 	HttpSolrClient getProductCore() {
+
 		return new HttpSolrClient(imitsSolrBaseUrl + "/product");
+		//return new HttpSolrClient("http://localhost:8086/solr-example/product");
+
 	}
 
 	@Bean(name = "eucommToolsCreAllele2Core")
@@ -126,6 +131,13 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
 	}
 
+	//DELETEME
+//	//GenotypePhenotype
+//	@Bean(name = "genotypePhenotypeCore")
+//	HttpSolrClient getGenotypePhenotypeCore() {
+//		return new HttpSolrClient("http://ves-hx-d1:8090/mi/impc/beta/solr/genotype-phenotype");
+//	}
+
 	// Impc images core
 	@Bean(name = "impcImagesCore")
 	HttpSolrClient getImpcImagesCore() {
@@ -169,12 +181,17 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/pipeline");
 	}
 
-
 	//Preqc
 	@Bean(name = "preqcCore")
 	HttpSolrClient getPreqcCore() {
 		return new HttpSolrClient(solrBaseUrl + "/preqc");
 	}
+
+
+//	@Bean(name = "preqcCore") //DELETEME
+//	HttpSolrClient getPreqcCore() {
+//		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
+//	}
 
 	//StatisticalResult
 	@Bean(name = "statisticalResultCore")

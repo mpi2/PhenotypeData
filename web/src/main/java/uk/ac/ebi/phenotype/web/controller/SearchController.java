@@ -15,34 +15,21 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.solr.generic.util.Tools;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.phenotype.util.SearchConfig;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrClient;
-import org.mousephenotype.cda.solr.generic.util.Tools;
-import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import net.sf.json.JSONObject;
-import uk.ac.ebi.phenotype.util.SearchConfig;
-import uk.ac.ebi.phenotype.util.SolrUtils;
 
 
 @Controller
@@ -105,6 +92,10 @@ public class SearchController {
 			query = "*:*";
 		}
 
+		if (StringUtils.isEmpty(dataType)) {
+			dataType = "gene";
+		}
+
 		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
 	}
 
@@ -117,7 +108,7 @@ public class SearchController {
 		String debug = request.getParameter("debug");
 
 		String paramString = request.getQueryString();
-//		System.out.println("paramString " + paramString);
+		//System.out.println("paramString " + paramString);
 		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 
 		model.addAttribute("facetCount", facetCountJsonResponse);
@@ -139,7 +130,7 @@ public class SearchController {
 		Boolean legacyOnly = false;
 		String evidRank = "";
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
-//		System.out.println("SearchController solrParamStr: "+ solrParamStr);
+		//System.out.println("SearchController solrParamStr: "+ dataType + " -- " + solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 //		System.out.println("CONTENT: " + content);
 
@@ -179,9 +170,9 @@ public class SearchController {
 
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
-            if ( dataType.equals("impc_images")){
-                solrParamStr += "AND (biological_sample_group:experimental)";
-            }
+//            if ( dataType.equals("impc_images")){
+//                solrParamStr += "AND (biological_sample_group:experimental)";
+//            }
 		}
 		else {
 			solrParamStr += "&fq=" + searchConfig.getFqStr(dataType);

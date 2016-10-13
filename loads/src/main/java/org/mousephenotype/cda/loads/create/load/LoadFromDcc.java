@@ -85,6 +85,7 @@ public class LoadFromDcc implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
         runJobs();
     }
 

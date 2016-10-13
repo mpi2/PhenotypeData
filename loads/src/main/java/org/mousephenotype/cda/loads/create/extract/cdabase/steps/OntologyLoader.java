@@ -16,10 +16,7 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
-import org.mousephenotype.cda.db.pojo.ConsiderId;
-import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.Synonym;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.owl.OntologyParser;
@@ -158,14 +155,19 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
         for (OntologyTermDTO dtoTerm : dtoTerms) {
             OntologyTerm term = new OntologyTerm();
 
-            term.setId(new DatasourceEntityId(dtoTerm.getAccessonId(), dbId));
-            List<ConsiderId> considerIds = new ArrayList<>();
-            if ((dtoTerm.getConsiderIds() == null) || (dtoTerm.getConsiderIds().isEmpty())) {
-                term.setConsiderIds(considerIds);
-            } else {
-                considerIds = dtoTerm.getConsiderIds().stream().map(considerIdString -> new ConsiderId(dtoTerm.getAccessonId(), considerIdString)).collect(Collectors.toList());
-                term.setConsiderIds(considerIds);
+            term.setId(new DatasourceEntityId(dtoTerm.getAccessionId(), dbId));
+
+            Set<AlternateId> alternateIds = new HashSet<>();
+            if ((dtoTerm.getAlternateIds() != null) && ( ! dtoTerm.getAlternateIds().isEmpty())) {
+                alternateIds = dtoTerm.getAlternateIds().stream().map(alternateIdString -> new AlternateId(dtoTerm.getAccessionId(), alternateIdString)).collect(Collectors.toSet());
             }
+            term.setAlternateIds(alternateIds);
+
+            Set<ConsiderId> considerIds = new HashSet<>();
+            if ((dtoTerm.getConsiderIds() != null) && ( ! dtoTerm.getConsiderIds().isEmpty())) {
+                considerIds = dtoTerm.getConsiderIds().stream().map(considerIdString -> new ConsiderId(dtoTerm.getAccessionId(), considerIdString)).collect(Collectors.toSet());
+            }
+            term.setConsiderIds(considerIds);
 
             term.setDescription(dtoTerm.getDefinition());
             term.setIsObsolete(dtoTerm.isObsolete());
@@ -177,7 +179,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
             } else {
                 synonyms = dtoTerm.getSynonyms().stream().map(synonymString -> {
                     Synonym synonym = new Synonym();
-                    synonym.setAccessionId(dtoTerm.getAccessonId());
+                    synonym.setAccessionId(dtoTerm.getAccessionId());
                     synonym.setDbId(dbId);
                     synonym.setSymbol(synonymString);
                     return synonym;

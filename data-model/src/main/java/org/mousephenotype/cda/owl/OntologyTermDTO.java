@@ -13,7 +13,9 @@ public class OntologyTermDTO {
     String               name;
     Set<String>          synonyms;
     Set<String>          narrowSynonyms;
-    Set<OntologyTermDTO> equivalentClasses; // from equivalent classes, return the
+    Set<OntologyTermDTO> equivalentClasses; // from equivalent classes
+    Set<String>          childIds;
+    Set<String>          alternateIds;
     Set<String>          considerIds;
     Set<String>          broadSynonyms;
     String               replacementAccessionId;
@@ -53,7 +55,7 @@ public class OntologyTermDTO {
         isObsolete = obsolete;
     }
 
-    public String getAccessonId() {
+    public String getAccessionId() {
         return accessonId;
     }
 
@@ -77,12 +79,24 @@ public class OntologyTermDTO {
         this.synonyms = synonyms;
     }
 
-    public void addSynonym(String synonym){
-
-    }
-
     public Set<String> getConsiderIds() {
         return considerIds;
+    }
+
+    public Set<String> getNarrowSynonyms() {
+        return narrowSynonyms;
+    }
+
+    public void setNarrowSynonyms(Set<String> narrowSynonyms) {
+        this.narrowSynonyms = narrowSynonyms;
+    }
+
+    public Set<String> getAlternateIds() {
+        return alternateIds;
+    }
+
+    public void setAlternateIds(Set<String> alternateIds) {
+        this.alternateIds = alternateIds;
     }
 
     public void setConsiderIds(Set<String> considerIds) {
@@ -103,6 +117,36 @@ public class OntologyTermDTO {
 
     public void setDefinition(String definition) {
         this.definition = definition;
+    }
+
+    public String getAccessonId() {
+        return accessonId;
+    }
+
+    public Set<String> getChildIds() {
+        return childIds;
+    }
+
+    public void setChildIds(Set<String> childClasses) {
+        this.childIds = childClasses;
+    }
+
+    @Override
+    public String toString() {
+        return "OntologyTermDTO{" +
+                "accessonId='" + accessonId + '\'' +
+                ", name='" + name + '\'' +
+                ", synonyms=" + synonyms +
+                ", narrowSynonyms=" + narrowSynonyms +
+                ", equivalentClasses=" + equivalentClasses +
+                ", alternateIds=" + alternateIds +
+                ", considerIds=" + considerIds +
+                ", broadSynonyms=" + broadSynonyms +
+                ", replacementAccessionId='" + replacementAccessionId + '\'' +
+                ", definition='" + definition + '\'' +
+                ", isObsolete=" + isObsolete +
+                ", cls=" + cls +
+                '}';
     }
 
 }

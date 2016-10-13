@@ -4,6 +4,8 @@ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.web.WebStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +26,9 @@ import java.util.concurrent.*;
 @Controller
 public class WebStatusController {
 
-	public static final Integer TIMEOUT_INTERVAL = 2;
+	private final Logger logger = LoggerFactory.getLogger(WebStatusController.class);
+
+	public static final Integer TIMEOUT_INTERVAL = 1;
 
 	@Autowired
 	ObservationService observationService;
@@ -82,15 +86,9 @@ public class WebStatusController {
 	Allele2Service allele2;
 
 	@Autowired
-	EucommCreProductService eucommCreProductService;
-
-	@Autowired
 	ProductService productService;
 
-	@Autowired
-	EucommToolsCreAllele2Service eucommToolsCreAllele2Service;
-
-	List<WebStatus> imitsWebStatusObjects;
+	List<WebStatus> nonEssentialWebStatusObjects;
 
 	@PostConstruct
 	public void initialise() {
@@ -114,13 +112,11 @@ public class WebStatusController {
 		webStatusObjects.add(autoSuggestService);
 		webStatusObjects.add(ppDAO);
 		webStatusObjects.add(phenodigmService);
-		//webStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second!
-
-		imitsWebStatusObjects = new ArrayList<>();
-		imitsWebStatusObjects.add(allele2);
-		imitsWebStatusObjects.add(eucommCreProductService);
-		imitsWebStatusObjects.add(productService);
-		imitsWebStatusObjects.add(eucommToolsCreAllele2Service);
+		
+		nonEssentialWebStatusObjects = new ArrayList<>();
+		nonEssentialWebStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second - put back in as render_birds_eye_view should be cached by omero!
+		nonEssentialWebStatusObjects.add(allele2);
+		nonEssentialWebStatusObjects.add(productService);
 	}
 
 	@RequestMapping("/webstatus")
@@ -166,8 +162,9 @@ public class WebStatusController {
 		model.addAttribute("webStatusModels", webStatusModels);
 
 		// check the imits services
-		List<WebStatusModel> imitsWebStatusModels = new ArrayList<>();
-		for (WebStatus status : imitsWebStatusObjects) {
+		List<WebStatusModel> nonEssentialWebStatusModels = new ArrayList<>();
+		boolean nonEssentialOk=true;
+		for (WebStatus status : nonEssentialWebStatusObjects) {
 
 			Future<Long> future = null;
 			String name = status.getServiceName();
@@ -189,19 +186,22 @@ public class WebStatusController {
 				if (future!=null) {future.cancel(true);}
 
 				// Do not change the website status for an unavailable non-critical resource
+				nonEssentialOk=false;
+				logger.error("Non essential service {} is not available", name);
 				e.printStackTrace();
 			}
 			WebStatusModel wModel = new WebStatusModel(name, number);
-			imitsWebStatusModels.add(wModel);
+			nonEssentialWebStatusModels.add(wModel);
 		}
 
-		model.addAttribute("imitsWebStatusModels", imitsWebStatusModels);
+		model.addAttribute("nonEssentialWebStatusModels", nonEssentialWebStatusModels);
 		if (ok) {
 			response.setStatus(HttpServletResponse.SC_OK);
 		} else {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		model.addAttribute("ok", ok);
+		model.addAttribute("nonEssentialOk",nonEssentialOk);
 		return "webStatus";
 	}
 

@@ -65,18 +65,25 @@ public class HistopathService {
 			for (String anatomyName : anatomyNames) {
 
 				System.out.println("anatomyName=" + anatomyName);
-				HistopathPageTableRow row = new HistopathPageTableRow();
-				row.setAnatomyName(anatomyName);
-				row.setSampleId(sampleId);
+	
+				//System.out.println("sample id ="+sampleId);
 				Set<String> parameterNames = new TreeSet<>();
-
-				for (ObservationDTO obs : sampleToObservations.get(sampleId)) {
-					// a row is a unique sampleId and anatomy combination
+				
+				Map<Integer, List<ObservationDTO>> uniqueSequenceIdsToObservations=this.getSequenceIds(sampleToObservations.get(sampleId));
+				for(Integer sequenceId: uniqueSequenceIdsToObservations.keySet()){
+					HistopathPageTableRow row = new HistopathPageTableRow();// a row is a unique sampleId and anatomy and sequence id combination
+					row.setAnatomyName(anatomyName);
+					row.setSampleId(sampleId);
+					//System.out.println("uniqueSequenceId="+sequenceId);
+				for (ObservationDTO obs : uniqueSequenceIdsToObservations.get(sequenceId)) {
+					
+					String sequenceString="";
 					if (obs.getSequenceId() != null) {
-						// System.out.println("sequenceId="+obs.getSequenceId());
+						//System.out.println("sequenceId in observation="+obs.getSequenceId());
 						row.setSequenceId(obs.getSequenceId());
+						sequenceString=Integer.toString(obs.getSequenceId());
 					} else {
-						System.out.println("sequence_id is null");
+						//System.out.println("sequence_id is null");
 					}
 
 					if (this.getAnatomyStringFromObservation(obs) != null
@@ -99,8 +106,8 @@ public class HistopathService {
 
 							if (obs.getSubTermName() != null) {
 								for (int i = 0; i < obs.getSubTermId().size(); i++) {
-									System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
-											+ obs.getSubTermName().get(i));
+									//System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
+										//	+ obs.getSubTermName().get(i));
 
 									OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
 											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
@@ -141,7 +148,7 @@ public class HistopathService {
 								downloadToImgMap.put(obs.getDownloadFilePath(), image);
 							}
 
-							System.out.println("image omero id=" + image.get(ImageDTO.OMERO_ID));
+							//System.out.println("image omero id=" + image.get(ImageDTO.OMERO_ID));
 							parameterNames.add(obs.getParameterName());
 							//if (image.get(ImageDTO.INCREMENT_VALUE) == row.getSequenceId()) {
 								row.addImage(image);
@@ -158,12 +165,14 @@ public class HistopathService {
 					}
 
 				}
-
 				if (parameterNames.size() != 0) {
 					row.setParameterNames(parameterNames);
 					//System.out.println("adding row=" + row);
 					rows.add(row);
 				}
+			}//end of sequenceId loop
+
+			
 				
 			}
 		}
@@ -172,6 +181,23 @@ public class HistopathService {
 	}
 
 	
+
+	private Map<Integer, List<ObservationDTO>> getSequenceIds(List<ObservationDTO> list) {
+		Map<Integer, List<ObservationDTO>>seqIdToObservations=new HashMap<>();
+		for(ObservationDTO ob: list){
+			if(seqIdToObservations.containsKey(ob.getSequenceId())){
+				//if(ob.getSequenceId()==0)System.out.println("sequenceid == 0 need to change the way we handle nulls on sequenceId");
+				seqIdToObservations.get(ob.getSequenceId()).add(ob);
+			}else{
+				//haven't seen a 0 sequenceId so assigning nulls to zero??
+				List<ObservationDTO> obsForSeqId=new ArrayList<ObservationDTO>();
+				obsForSeqId.add(ob);
+				seqIdToObservations.put(ob.getSequenceId(), obsForSeqId);
+			}
+			
+		}
+		return seqIdToObservations;
+	}
 
 	public Map<String, List<ObservationDTO>> getSampleToObservationMap(List<ObservationDTO> observations) {
 		Map<String, List<ObservationDTO>> map = new HashMap<>();
@@ -203,7 +229,7 @@ public class HistopathService {
 			anatomyString = paramName.substring(0, paramName.indexOf(delimeter));
 			// System.out.println("anatomyString=" + anatomyString);
 		} else {
-			System.out.println("no delimeter found with =" + paramName);
+			//System.out.println("no delimeter found with =" + paramName);
 		}
 		return anatomyString;
 	}
@@ -220,8 +246,7 @@ public class HistopathService {
 
 		List<ObservationDTO> filteredObservations = new ArrayList<>();
 		for (ObservationDTO obs : observations) {
-			String externalSampeId = obs.getExternalSampleId();
-
+	
 			boolean addObservation = true;
 			if (obs.getObservationType().equalsIgnoreCase("categorical")) {
 				if (obs.getCategory().equalsIgnoreCase("0")) {
@@ -274,7 +299,7 @@ public class HistopathService {
 				String text=sign.getTextValue();
 				//System.out.println("text="+text+"|");
 				if(text.equals("Significant")){
-					System.out.println("significant!!!!!!!!!!!!");
+					//System.out.println("significant!!!!!!!!!!!!");
 					anatomyRow.setSignificantCount(anatomyRow.getSignificantCount()+1);
 					significant=true;
 					//if significant then set the text and parameters of the row that is significant to the row we are collapsing so we display the most appropriate info

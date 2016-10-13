@@ -19,6 +19,7 @@ import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
@@ -31,6 +32,7 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -61,7 +63,7 @@ import java.util.*;
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
-
+    private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
 
 	@Autowired
 	@Qualifier("phenodigmCore")
@@ -101,7 +103,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
-
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
 
@@ -135,8 +136,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     Map<Integer, String> lookupTableByNodeId = new HashMap<>(); // <nodeId, mpOntologyId>
 
-    // number of postqc calls of an MP
-    Map<String, Integer> mpCalls = new HashMap<>();
+    Map<String, Long> mpCalls = new HashMap<>();
 
     private OntologyParser mpHpParser;
 
@@ -164,9 +164,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try {
 
-            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP");
+            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", null);
         	// maps MP to number of phenotyping calls
-        	//populateGene2MpCalls();
+        	populateMpCallMap();
 
             // Delete the documents in the core if there are any.
             mpIndexing.deleteByQuery("*:*");
@@ -199,36 +199,32 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 addChildLevelNodes(mp);
                 addParentLevelNodes(mp, mpOntologyService);
 
-                //addMpHpTerms(mp, mphpBeans.get(termId)); // old way of adding mp-hp mapping using phenodigm data
-
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
-                Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
-                for ( OntologyTermDTO hpTerm : hpTerms ){
-
-
-                    Set<String> hpIds = new HashSet<>();
-                    hpIds.add(hpTerm.getAccessonId());
-                    mp.setHpId(new ArrayList(hpIds));
-
-                    if ( hpTerm.getName() != null ){
-                        Set<String> hpNames = new HashSet<>();
-                        hpNames.add(hpTerm.getName());
-                        mp.setHpTerm(new ArrayList(hpNames));
+		        if (mpTerm==null) {
+			        logger.error("MP term not found using mpHpParser.getOntologyTerm(termId); where termId={}", termId);
+		        } else {
+                    Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
+                    for ( OntologyTermDTO hpTerm : hpTerms ){
+                        Set<String> hpIds = new HashSet<>();
+                        hpIds.add(hpTerm.getAccessionId());
+                        mp.setHpId(new ArrayList(hpIds));
+                        if ( hpTerm.getName() != null ){
+                            Set<String> hpNames = new HashSet<>();
+                            hpNames.add(hpTerm.getName());
+                            mp.setHpTerm(new ArrayList(hpNames));
+                        }
+                        if ( hpTerm.getSynonyms() != null ){
+                            mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
+                        }
                     }
-
-                    if ( hpTerm.getSynonyms() != null ){
-                        mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
+                    if ( isOKForNarrowSynonyms(mp)){
+                        // get the children of MP not in our slim (narrow synonyms)
+                        mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
+                    } else  {
+                        mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     }
                 }
-
-                if ( mp.getChildMpId() != null ) {
-                    // get the children of MP not in our slim (narrow synonyms)
-                    int levelForNarrowSynonyms = 2;
-                    Set<String> narrowSynonyms = mpHpParser.getNarrowSynonyms(mpTerm, levelForNarrowSynonyms);
-                    mp.setMpNarrowSynonym(new ArrayList(narrowSynonyms));
-                }
-
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
                 mp.setGoId(goIds.get(termId));
@@ -237,7 +233,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 // this sets the number of postqc/preqc phenotyping calls of this MP
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
-                //mp.setPhenoCalls(mpCalls.get(termId));
                 addPhenotype2(mp);
 
                 // Ontology browser stuff
@@ -256,10 +251,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 documentCount++;
                 mpIndexing.addBean(mp, 60000);
-
-                if (documentCount % 100 == 0){
-                	mpIndexing.commit();
-                }
+//
+//                if (documentCount % 100 == 0){
+//                	mpIndexing.commit();
+//                }
             }
 
             // Send a final commit
@@ -274,47 +269,123 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
 
-    private int sumPhenotypingCalls(String mpId)
-    throws SolrServerException, IOException {
+    private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {// Won't work with mp from slim!!
 
-    	List<SolrClient> ss = new ArrayList<>();
-    	ss.add(preqcCore);
-    	ss.add(genotypePhenotypeCore);
+        TreeSet<String> synonyms = new TreeSet<String>();
+        long calls = sumPhenotypingCalls(mpFromFullOntology.getAccessionId());
 
-    	int calls = 0;
-    	for ( int i=0; i<ss.size(); i++ ){
+        // get narrow synonyms from all children not in slim.
+        if (calls > 0 && mpFromFullOntology.getChildIds().size() > 0){
 
-    		SolrClient solrSvr = ss.get(i);
+            for (String childId : mpFromFullOntology.getChildIds()){
+//                System.out.println("CHILD ID " + childId);
 
-	    	SolrQuery query = new SolrQuery();
-
-            query.setQuery("mp_term_id:\"" + mpId + "\" OR intermediate_mp_term_id:\"" + mpId + "\" OR top_level_mp_term_id:\"" + mpId + "\"");
-			query.setRows(0);
-
-			QueryResponse response = solrSvr.query(query);
-
-            calls += response.getResults().getNumFound();
-
+                if (!termNodeIds.containsKey(childId)) {// not in slim
+                    OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
+                    if (child != null) {
+                        synonyms.addAll(mpHpParser.getNarrowSynonyms(child, levels));
+                        synonyms.add(child.getName());
+                        synonyms.addAll(child.getSynonyms());
+                    }
+                } else if (termNodeIds.containsKey(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
+                    OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
+                    if (child != null) {
+                        synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels, synonyms));
+                    }
+                }
+            }
         }
 
-        return calls;
+//        System.out.println("Restricted narrow syn for " + mpFromFullOntology.getAccessionId() + " " + synonyms);
+        return  synonyms;
+
     }
 
-    private void populateGene2MpCalls()
-    throws SQLException {
 
-    	String qry = "select mp_acc, count(*) as calls from phenotype_call_summary where p_value < 0.0001 group by mp_acc";
+    private TreeSet<String> getNarrowSynonymsOutsideSlim(OntologyTermDTO mpFromFullOntology,  int levels, TreeSet<String> synonyms){
 
-    	PreparedStatement ps = komp2DbConnection.prepareStatement(qry);
-    	ResultSet rs = ps.executeQuery();
+//        System.out.println("-- outside NS " + mpFromFullOntology.getAccessionId());
+        if (mpFromFullOntology != null &&  levels > 0) {
+            if (!termNodeIds.containsKey(mpFromFullOntology.getAccessionId())) { // not in slim
+                synonyms.addAll(mpHpParser.getNarrowSynonyms(mpFromFullOntology, levels - 1));
+                synonyms.add(mpFromFullOntology.getName());
+                synonyms.addAll(mpFromFullOntology.getSynonyms());
+            } else {
+                for (String childId : mpFromFullOntology.getChildIds()) {
+                    if (!termNodeIds.containsKey(childId) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
+                        getNarrowSynonymsOutsideSlim(mpHpParser.getOntologyTerm(childId), levels - 1, synonyms);
+                    }
+                }
+            }
+        }
 
-    	while (rs.next()) {
-    		String mpAcc = rs.getString("mp_acc");
-    		int calls = rs.getInt("calls");
+        return synonyms;
 
-    		mpCalls.put(mpAcc, calls);
-    	}
     }
+
+    private boolean isOKForNarrowSynonyms(MpDTO mp) throws IOException, SolrServerException {
+
+        long calls = sumPhenotypingCalls(mp.getMpId());
+        if (calls > 0 && mp.getChildMpId().size() == 0 ){ // leaf node and we have calls
+            return true;
+        }
+
+        boolean hasCallForChildren = false;
+        for (String childId: mp.getChildMpId()){
+            long sum = sumPhenotypingCalls(childId);
+            if (sum > 0) {
+                hasCallForChildren = true;
+                break;
+            }
+        }
+
+        if (calls > 0 && !hasCallForChildren){
+            return true;
+        }
+
+        return false;
+
+    }
+
+    private void populateMpCallMap() throws IOException, SolrServerException {
+
+        List<SolrClient> ss = new ArrayList<>();
+        ss.add(preqcCore);
+        ss.add(genotypePhenotypeCore);
+
+        for (int i = 0; i < ss.size(); i++){
+
+            SolrClient solrSvr = ss.get(i);
+            SolrQuery query = new SolrQuery();
+            query.setQuery("*:*");
+            query.setFacet(true);
+            query.setRows(0);
+            query.addFacetField(GenotypePhenotypeDTO.MP_TERM_ID);
+            query.addFacetField(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
+            query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+            query.setFacetLimit(-1);
+
+            for (FacetField facetGroup: solrSvr.query(query).getFacetFields()){
+                for (FacetField.Count facet: facetGroup.getValues()){
+                    if (!mpCalls.containsKey(facet.getName())){
+                        mpCalls.put(facet.getName(), new Long(0));
+                    }
+                    mpCalls.put(facet.getName(), facet.getCount() + mpCalls.get(facet.getName()));
+                }
+            }
+
+        }
+        //System.out.println("FINISHED");
+    }
+
+
+    private long sumPhenotypingCalls(String mpId)
+    throws SolrServerException, IOException {
+
+    	return mpCalls.containsKey(mpId) ? mpCalls.get(mpId) : new Long(0);
+
+    }
+
 
     /**
      * Initialize the database connections required
@@ -1015,9 +1086,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             List<String> maTopLevelTermIds = new ArrayList<>();
             List<String> maTopLevelTerms = new ArrayList<>();
             Set<String> maTopLevelSynonyms = new HashSet<>();
-            List<String> maChildLevelTermIds = new ArrayList<>();
-            List<String> maChildLevelTerms = new ArrayList<>();
-            Set<String> maChildLevelSynonyms = new HashSet<>();
 
             for (MPTermNodeBean maNode : maTermNodes.get(termId)) {
                 String maNodeTermId = maNode.getTermId();
@@ -1035,16 +1103,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     }
                     maTopLevelSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
                 }
-
-                // Look up the child level mappings
-                if (maChildLevelNodes.containsKey(maNodeTermId)) {
-                    for (MPTermNodeBean childNode : maChildLevelNodes.get(maNodeTermId)) {
-                        maChildLevelTermIds.add(childNode.getTermId());
-                        maChildLevelTerms.add(childNode.getName());
-
-                        maChildLevelSynonyms.addAll(lookupMaSynonyms(childNode.getTermId()));
-                    }
-                }
             }
 
             mp.setInferredMaTermId(maInferredIds);
@@ -1053,9 +1111,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.setInferredSelectedTopLevelMaId(maTopLevelTermIds);
             mp.setInferredSelectedTopLevelMaTerm(maTopLevelTerms);
             mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(maTopLevelSynonyms));
-            mp.setInferredChildMaId(maChildLevelTermIds);
-            mp.setInferredChildMaTerm(maChildLevelTerms);
-            mp.setInferredChildMaTermSynonym(new ArrayList<>(maChildLevelSynonyms));
         }
     }
 

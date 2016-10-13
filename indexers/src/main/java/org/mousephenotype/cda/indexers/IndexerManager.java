@@ -57,6 +57,8 @@ public class IndexerManager  {
 	static final String PHENODIGM_CORE = "phenodigm";
 
     //      These are built daily.
+    static final String PRODUCT_CORE = "product";
+    static final String ALLELE2_CORE = "allele2";
     static final String PREQC_CORE = "preqc";
     static final String ALLELE_CORE = "allele";
     static final String IMAGES_CORE = "images";
@@ -105,6 +107,8 @@ public class IndexerManager  {
 	    , PHENODIGM_CORE
 
           // These are built daily.
+        , ALLELE2_CORE
+        , PRODUCT_CORE
         , PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
@@ -120,7 +124,9 @@ public class IndexerManager  {
 
     static final String[] allDailyCoresArray = new String[] {
           // In dependency order. These are built daily.
-        PREQC_CORE
+            ALLELE2_CORE
+        , PRODUCT_CORE
+        , PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
@@ -150,7 +156,9 @@ public class IndexerManager  {
 	private Class pipelineClass = PipelineIndexer.class;
 	private Class geneClass = GeneIndexer.class;
 	private Class diseaseClass = DiseaseIndexer.class;
-	private Class autosuggestClass = AutosuggestIndexer.class;
+    private Class autosuggestClass = AutosuggestIndexer.class;
+    private Class allele2Class = Allele2Indexer.class;
+    private Class productClass = ProductIndexer.class;
 
     private static final String ALL_ARG = "all";
     private static final String CORES_ARG = "cores";
@@ -369,6 +377,8 @@ public class IndexerManager  {
 			    case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeClass));              break;
 			    case PHENODIGM_CORE:            indexerItemList.add(new IndexerItem(PHENODIGM_CORE, phenodigmClass));                     break;
 
+                case ALLELE2_CORE:              indexerItemList.add(new IndexerItem(ALLELE2_CORE, allele2Class));                         break;
+                case PRODUCT_CORE:              indexerItemList.add(new IndexerItem(PRODUCT_CORE, productClass));                         break;
 			    case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcClass));                             break;
 			    case ALLELE_CORE:               indexerItemList.add(new IndexerItem(ALLELE_CORE, alleleClass));                           break;
 			    case IMAGES_CORE:               indexerItemList.add(new IndexerItem(IMAGES_CORE, imagesClass));                           break;
@@ -722,6 +732,8 @@ public class IndexerManager  {
 	                "   statistical-result\n" +
 	                "   mgi-phenotype\n" +
 	                "   phenodigm\n" +
+                    "   allele2\n" +
+                    "   product\n" +
                     "   preqc\n" +
                     "   allele\n" +
                     "   images\n" +

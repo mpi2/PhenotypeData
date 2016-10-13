@@ -15,27 +15,9 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -75,9 +57,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
 @Service
@@ -217,70 +203,6 @@ public class ObservationService extends BasicService implements WebStatus {
 
         return result;
 	}
-
-    /**
-     * @author tudose
-     * @since 2015/07/14
-     * @param geneAccessionId
-     * @return Basic information for allele pages in an AllelePageDTO
-     */
-    public AllelePageDTO getAllelesInfo(String geneAccessionId){
-
-    	AllelePageDTO dto = new AllelePageDTO();
-    	SolrQuery q = new SolrQuery();
-
-    	q.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + geneAccessionId +"\"");
-    	q.addField(ObservationDTO.GENE_SYMBOL);
-        q.setFacet(true);
-        q.setFacetLimit(-1);
-        q.setFacetMinCount(1);
-        q.addFacetField(ObservationDTO.PHENOTYPING_CENTER);
-        q.addFacetField(ObservationDTO.PIPELINE_NAME);
-        q.addFacetField(ObservationDTO.ALLELE_SYMBOL);
-        q.setRows(1);
-
-        String pivotFacet =  StatisticalResultDTO.PROCEDURE_NAME  + "," + StatisticalResultDTO.PARAMETER_STABLE_ID;
-		q.set("facet.pivot", pivotFacet);
-
-        try {
-        	QueryResponse res = solr.query(q);
-
-        	FacetField phenotypingCenters = res.getFacetField(ObservationDTO.PHENOTYPING_CENTER);
-
-        	for (Count facet : phenotypingCenters.getValues()){
-        		dto.addPhenotypingCenter(facet.getName());
-        	}
-
-        	FacetField alleles = solr.query(q).getFacetField(ObservationDTO.ALLELE_SYMBOL);
-        	for (Count facet : alleles.getValues()){
-        		dto.addAlleleSymbol(facet.getName());
-        	}
-
-        	FacetField pipelines = solr.query(q).getFacetField(ObservationDTO.PIPELINE_NAME);
-        	for (Count facet : pipelines.getValues()){
-        		dto.addPipelineName(facet.getName());
-        	}
-
-        	for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
-                List<String> lst = new ArrayList<>();
-    			for (PivotField gene : pivot.getPivot()){
-    				lst.add(gene.getValue().toString());
-    			}
-    			dto.addParametersByProcedure(pivot.getValue().toString(), new ArrayList<>(lst));
-    		}
-
-            SolrDocument doc = res.getResults().get(0);
-            dto.setGeneSymbol(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
-            dto.setGeneAccession(geneAccessionId);
-
-        } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
-        }
-
-        return dto;
-
-    }
-
 
 	public List<String> getGenesWithMoreProcedures(int n, List<String> resourceName)
     throws SolrServerException, IOException , InterruptedException, ExecutionException {
@@ -1608,7 +1530,6 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @param parameterId
      * @param strain
-     * @param organisationId
      * @param experimentDate date of experiment
      * @param sex if null, both sexes are returned
      * @param metadataGroup when metadataGroup is empty string, force solr to
@@ -1672,7 +1593,6 @@ public class ObservationService extends BasicService implements WebStatus {
      *
      * @param parameterId
      * @param strain
-     * @param organisationId
      * @param experimentDate the date of interest
      * @param sex if null, both sexes are returned
      * @param metadataGroup when metadataGroup is empty string, force solr to
@@ -2192,7 +2112,7 @@ public class ObservationService extends BasicService implements WebStatus {
 		SolrQuery q = new SolrQuery()
                 .setQuery("*:*")
                 .setRows(10000)
-                //.setFields(ObservationDTO.PROCEDURE_NAME, ObservationDTO.DATE_OF_EXPERIMENT)
+                //.setFields(fields)
                 .addFilterQuery(ObservationDTO.PROCEDURE_NAME +":\""+ procedureName+"\"")
 				.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID +":\""+geneAccession+"\"");
 

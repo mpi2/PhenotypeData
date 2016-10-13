@@ -21,8 +21,6 @@ package org.mousephenotype.cda.db.pojo;
  * @author Mike Relac
  *
  */
-
-
 public class ConsiderId {
 
 	private String ontologyTermAccessionId;
