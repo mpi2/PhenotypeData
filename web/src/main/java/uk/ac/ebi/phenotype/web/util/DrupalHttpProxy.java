@@ -16,17 +16,17 @@
 package uk.ac.ebi.phenotype.web.util;
 
 
+import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.utilities.HttpProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Random;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
-import org.mousephenotype.cda.utilities.HttpProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DrupalHttpProxy extends HttpProxy {
 
@@ -172,6 +172,11 @@ public class DrupalHttpProxy extends HttpProxy {
 					content = publicMenu;
 				}
 			}
+
+			if (StringUtils.isEmpty(content)) {
+				throw new Exception("Cannot retreive DCC drupal menu");
+			}
+
 		} catch (Exception e) {
 
 			// If we can't get the menu, default to the logged out menu
