@@ -25,13 +25,15 @@ public class FileExportUtils {
 	private static final Logger log = LoggerFactory.getLogger(FileExportUtils.class.getCanonicalName());
 	
 	
-	public static void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName) 
+	public static void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName)
 	throws IOException, URISyntaxException {
 
 		Workbook wb;
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Expires", "0");
-		String outfile = escapeCharsFileName(fileName) + "." + fileType;
+
+        String ext = fileType.equalsIgnoreCase("tsv") ? "tsv" : "xlsx";
+		String outfile = escapeCharsFileName(fileName) + "." + ext;
 
 		if (fileType.equals("tsv")) {
 
@@ -65,20 +67,19 @@ public class FileExportUtils {
 			response.setContentType("application/vnd.ms-excel");
 			response.setHeader("Content-disposition", "attachment;filename=" + outfile);
 			
-			String[] titles = null;
-			String[][] tableData = new String[0][0];
 			ServletOutputStream output = response.getOutputStream();
-			
-			if (!dataRows.isEmpty()) {
-				titles = dataRows.get(0).split("\t");
-				tableData = Tools.composeXlsTableData(dataRows);
-			}
 
-			wb = new ExcelWorkBook(titles, tableData, fileName).fetchWorkBook();
-			wb.write(output);
-			output.close();			
+            List<String> noTitleRows = null;
+            if (! dataRows.isEmpty()) {
+                noTitleRows = dataRows.subList(1,dataRows.size());
+            }
+            String[] titles = dataRows.get(0).split("\t");
 
-		}
+            wb = new ExcelWorkBook(titles, noTitleRows, fileName).fetchWorkBook();
+            wb.write(output);
+            output.close();
+            System.out.println(outfile + " written successfully");
+        }
 		
 	}
 	
