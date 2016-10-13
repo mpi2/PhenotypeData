@@ -83,7 +83,7 @@ public class ExperimentsController {
 			HttpServletRequest request)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession);
+		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
@@ -93,7 +93,6 @@ public class ExperimentsController {
 		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
 			rows += list.size();
 		}
-		System.out.println("EXPERIMENTS CONTROOLER");
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 
 		model.addAttribute("chart", chart);
@@ -118,7 +117,7 @@ public class ExperimentsController {
 			HttpServletRequest request)
 	throws SolrServerException, IOException , URISyntaxException {
 		
-		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession);
+		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
