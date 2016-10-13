@@ -42,7 +42,11 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,6 +149,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			logger.info("Building parameter to abnormal mp map");
 			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
 			logger.info("Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
+			//System.out.println("parameterStableIdToMpTermIdMap"+parameterStableIdToMpTermIdMap);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -187,7 +192,16 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 			List<ImageDTO> imageList = experimentCore.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
-
+				
+				if(imageDTO.getDateOfBirth()!=null && imageDTO.getDateOfExperiment() !=null ){
+				Date dateOfExperiment=imageDTO.getDateOfExperiment();
+				Date dateOfBirth=imageDTO.getDateOfBirth();
+				Instant dob=dateOfBirth.toInstant();
+				Instant expDate=dateOfExperiment.toInstant();
+				long ageInDays = Duration.between(dob, expDate).toDays();
+				imageDTO.setAgeInDays(ageInDays);
+				}
+				
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
 
@@ -212,8 +226,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 																											// imageDTO.getPhenotypingCenter().equals("JAX")))
 																											// {
 						// Skip records that do not have an omero_id
-						System.out.println("skipping omeroId=" + omeroId + "param and center"
-								+ imageDTO.getParameterStableId() + imageDTO.getPhenotypingCenter());
+						//System.out.println("skipping omeroId=" + omeroId + "param and center"
+								//+ imageDTO.getParameterStableId() + imageDTO.getPhenotypingCenter());
 						// runStatus.addWarning(" Skipping record for image
 						// record " + fullResFilePath + " -- missing omero_id or
 						// excluded procedure");
@@ -313,10 +327,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			ArrayList<String> intermediateLevelIds = new ArrayList<>();
 			ArrayList<String> intermediateLevelTerms = new ArrayList<>();
 			ArrayList<String> intermediateLevelTermSynonyms = new ArrayList<>();
-
 			for (String paramString : imageDTO.getParameterAssociationStableId()) {
+				//System.out.println("paramString"+paramString);
 				if (stableIdToTermIdMap.containsKey(paramString)) {
 					String thisTermId = stableIdToTermIdMap.get(paramString);
+					//System.out.println("thisTermId="+thisTermId);
 
 					int level = 0; // use to determine top level and selected top levels: differs from ontology to ontology
 					if ( thisTermId.startsWith("MA:") || thisTermId.startsWith("EMAPA:") ){
@@ -324,12 +339,14 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					}
 					if (thisTermId.startsWith("MP:")){
 						level = 1;
+//						System.out.println("starts with MP="+thisTermId);
 					}
 
 					termIds.add(thisTermId);
 
 
 					OntologyTermBean termBean = ontologyDAO.getTerm(thisTermId);
+					//System.out.println("termbean="+termBean);
 					if (termBean != null) {
 
 						terms.add(termBean.getName());
@@ -578,9 +595,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			}
 
 			if (ontologyDAO instanceof MpOntologyDAO) {
-//				System.out.println("instance of mp ontology DAO");
+				//System.out.println("instance of mp ontology DAO");
 				if (!termIds.isEmpty()) {
-					//System.out.println("setting mp term ids="+termIds);
+//					System.out.println("setting mp term ids="+termIds);
 					imageDTO.setMpTermId(termIds);
 
 					ArrayList<String> mpIdTerms = new ArrayList<>();
@@ -593,6 +610,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 						} catch (Exception e) {
 							runStatus.addWarning(" Could not find term when indexing MP " + mpId + ". Exception: "
 									+ e.getLocalizedMessage());
+							e.printStackTrace();
 						}
 					}
 					imageDTO.setMpIdTerm(mpIdTerms);
@@ -816,9 +834,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 			while (resultSet.next()) {
 				String parameterStableId = resultSet.getString("stable_id");
-				String maAcc = resultSet.getString("ontology_acc");
-				//System.out.println("parameterStableId="+parameterStableId+" maAcc="+maAcc);
-				paramToMp.put(parameterStableId, maAcc);
+				String mpAcc = resultSet.getString("ontology_acc");
+				//System.out.println("parameterStableId="+parameterStableId+" mpAcc="+mpAcc);
+				paramToMp.put(parameterStableId, mpAcc);
 			}
 		}
 		logger.debug(" paramToMp size = " + paramToMp.size());

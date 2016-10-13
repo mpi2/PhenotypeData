@@ -488,7 +488,7 @@ public class SolrIndex {
                 img = "<img src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
                 	//img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
-					img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
+					img="<img style='width: 96px' src='../" + pdfThumbnailUrl + "'/>";
                 	//link = "<a href='" + downloadUrl +"'>" + img + "</a>";
                 }else{
                 	//link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";

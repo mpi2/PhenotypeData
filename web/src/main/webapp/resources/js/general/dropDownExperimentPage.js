@@ -6,8 +6,8 @@ $(document).ready(function(){
 	
 	var dropdownsList = new Array();	
 	var allDropdowns = new Array();
-	allDropdowns[0] = $('#pipelinesFilter');
-	createDropdown(allDropdowns[0],"Pipeline: All", allDropdowns);
+	allDropdowns[0] = $('#proceduresFilter');
+	createDropdown(allDropdowns[0],"Procedure: All", allDropdowns);
 	allDropdowns[1] = $('#alleleFilter');
 	createDropdown(allDropdowns[1],"Allele: All", allDropdowns);
 	allDropdowns[2] = $('#phenotypingCenterFilter');
@@ -47,7 +47,7 @@ $(document).ready(function(){
 					reloadChartAndTable(geneId, values, allDropdowns[1].val(), allDropdowns[0].val(), allDropdowns[3].val());
 				} else if (selector.id === "alleleFilter") {
 					reloadChartAndTable(geneId, allDropdowns[2].val(), values, allDropdowns[0].val(), allDropdowns[3].val());
-				} else if (selector.id === "pipelinesFilter") {
+				} else if (selector.id === "proceduresFilter") {
 					reloadChartAndTable(geneId, allDropdowns[2].val(), allDropdowns[1].val(), values, allDropdowns[3].val());
 				} else if (selector.id === "phenotypes") {
 					reloadChartAndTable(geneId, allDropdowns[2].val(), allDropdowns[1].val(), allDropdowns[0].val(), values);
@@ -112,13 +112,13 @@ $(document).ready(function(){
 		$("option:selected").removeAttr("selected");
 	};
 	
-	function reloadChartAndTable(geneAccession, phenotypingCenter, allele, pipeline, phenotypes){
+	function reloadChartAndTable(geneAccession, phenotypingCenter, allele, procedure, phenotypes){
 		
 	 	$( '#spinner-experiments-page' ).show();
 		var tableUrl = base_url + "/experimentsFrag?geneAccession=" + geneAccession;
 		tableUrl += getParametersForUrl(phenotypingCenter, "phenotypingCenter");
 		tableUrl += getParametersForUrl(allele, "alleleSymbol");
-		tableUrl += getParametersForUrl(pipeline, "pipelineName");
+		tableUrl += getParametersForUrl(procedure, "procedureName");
 		tableUrl += getParametersForUrl(phenotypes, "mpTermId");
 		
 		$.ajax({

@@ -39,6 +39,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,11 +59,13 @@ import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -127,6 +130,8 @@ public class DataTableController {
     @Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
+
+
 
     /**
      <p>
@@ -375,8 +380,10 @@ public class DataTableController {
 						for( Object acc : accs ){
 							accStr = imgQryField + ":\"" + (String) acc + "\"";
 						}
-						imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
-					}
+						//imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+                        imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record" + "'>image url</a>";
+
+                    }
 					else {
 						imgLink = NA;
 					}
@@ -764,13 +771,13 @@ public class DataTableController {
             // phenotyping status
             String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
             String geneSymbol = doc.getString(GeneDTO.MARKER_SYMBOL);
-            String geneLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
-
+            String productLink = request.getAttribute("mappedHostname").toString() + baseUrl + "/search/allele2?kw=\"" + geneSymbol + "\"";
+			String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
 
             // ES cell/mice production status
             boolean toExport = false;
 
-            String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, geneLink);
+            String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, productLink);
             rowData.add(prodStatus);
             
 
@@ -947,28 +954,20 @@ public class DataTableController {
             }
 
             // some MP do not have definition
-            String mpDef = "No definition data available";
-            try {
-				int defaultLen = 30;
-				mpDef = doc.getString("mp_definition");
+            String mpDef = doc.containsKey(MpDTO.MP_DEFINITION) ? doc.getString(MpDTO.MP_DEFINITION): "No definition data available";
 
-				if (mpDef.length() > defaultLen) {
+			int defaultLen = 30;
+			if (mpDef != null && mpDef.length() > defaultLen) {
+				String trimmedDef = mpDef.substring(0, defaultLen);
+			   	// retrim if in the middle of a word
+				trimmedDef = trimmedDef.substring(0, Math.min(trimmedDef.length(), trimmedDef.lastIndexOf(" ")));
+				String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(qryStr, trimmedDef, "span", "subMatch") + " ...</div>";
+				mpDef = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(qryStr, mpDef, "span", "subMatch") + "</div>";
+				rowData.add(partMpDef + mpDef + "<div class='moreLess'>Show more</div>");
+			} else {
+				rowData.add(mpDef);
+			}
 
-				    String trimmedDef = mpDef.substring(0, defaultLen);
-                    // retrim if in the middle of a word
-                    trimmedDef = trimmedDef.substring(0, Math.min(trimmedDef.length(), trimmedDef.lastIndexOf(" ")));
-
-					String partMpDef = "<div class='partDef'>" + Tools.highlightMatchedStrIfFound(qryStr, trimmedDef, "span", "subMatch") + " ...</div>";
-					mpDef = "<div class='fullDef'>" + Tools.highlightMatchedStrIfFound(qryStr, mpDef, "span", "subMatch") + "</div>";
-					rowData.add(partMpDef + mpDef + "<div class='moreLess'>Show more</div>");
-				}
-				else {
-					rowData.add(mpDef);
-				}
-
-            } catch (Exception e) {
-                //e.printStackTrace();
-            }
 
 
             // number of postqc phenotyping calls of this MP
@@ -1178,6 +1177,7 @@ public class DataTableController {
         String baseUrl = (String) request.getAttribute("baseUrl");
         //String mediaBaseUrl = config.get("mediaBaseUrl");
         String mediaBaseUrl = baseUrl + "/impcImages/images?";
+        String pdfThumbnailUrl=(String) request.getAttribute("pdfThumbnailUrl");
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
 
         if (showImgView) {
@@ -1207,13 +1207,13 @@ public class DataTableController {
                 if (doc.containsKey("jpeg_url")) {
 
                     String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-
-					String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
-                    String smallThumbNailPath = thumbnailPath + "/200/";  //width in pixel
-                    String largeThumbNailPath = thumbnailPath + "/800/";  //width in pixel
+                    
+					String thumbnailPath = fullSizePath.replace("render_image", "render_birds_eye_view");
+                    String smallThumbNailPath = thumbnailPath ;  //width in pixel
+                    String largeThumbNailPath = fullSizePath.replace("render_image", "render_thumbnail") + "/800/";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
                     if(doc.getString("download_url").contains("annotation")){
-                    	imgLink = "<a rel='nofollow' href='" + doc.getString("download_url") + "'>" + img + "</a>";
+                    	imgLink = "<a rel='nofollow' href='" + doc.getString("download_url") + "'>" + "<img src='" + "../"+pdfThumbnailUrl + "'/>" + "</a>";
                     }else{
                     	imgLink = "<a rel='nofollow' class='fancybox' fullres='" + fullSizePath +  "' href='" + largeThumbNailPath + "'>" + img + "</a>";
                     }
@@ -1367,18 +1367,31 @@ public class DataTableController {
 				String unit = imgCount > 1 ? "images" : "image";
 
 				if (imgCount > 0) {
+                    String currFqStr = null;
+                    String subFqStr = null; //fqOri.equals("*:*") ? null : fqOri;
 
-					String currFqStr = null;
-					if (displayAnnotName.equals("Gene")) {
-						currFqStr = fqOri + " AND gene_symbol:\"" + annotVal + "\"";
-					} else if (displayAnnotName.equals("Procedure")) {
-						currFqStr = fqOri;//  + " AND procedure_name:\"" + annotVal + "\"";
-					} else if (displayAnnotName.equals("Anatomy")) {
-						currFqStr = fqOri + " AND anatomy_id:\"" + annotId + "\"";
-					}
+                    if (displayAnnotName.equals("Gene")) {
+                        subFqStr = "gene_symbol:\"" + annotVal + "\"";
+                    } else if (displayAnnotName.equals("Procedure")) {
+                        subFqStr = "procedure_name:\"" + annotVal + "\"";
+                    } else if (displayAnnotName.equals("Anatomy")) {
+                        subFqStr = "anatomy_id:\"" + annotId + "\"";
+                    }
+
+                    if ( fqOri.equals("*:*")) {
+                        currFqStr = subFqStr;
+                    }
+                    else {
+                        if (!fqOri.equals("("+ subFqStr+")")) {
+                            currFqStr = fqOri + " AND " + subFqStr;
+                        }
+                        else {
+                            currFqStr = fqOri;
+                        }
+                    }
 
 					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-					thisImgUrl = mediaBaseUrl + defaultQStr + "&fq=" + currFqStr;
+                    thisImgUrl = mediaBaseUrl + defaultQStr + "&fq=" + currFqStr;
 
 					imgSubSetLink = "<a rel='nofollow' href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 
@@ -1429,7 +1442,7 @@ public class DataTableController {
                 JSONObject doc = docs.getJSONObject(i);
 
 				String annots = "";
-
+				System.out.println("doc.getString( largeThumbnailFilePath"+ doc.getString("largeThumbnailFilePath"));
                 String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
                 String img = "<img src='" + imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";
                 String fullSizePath = largeThumbNailPath.replace("tn_large", "full");
