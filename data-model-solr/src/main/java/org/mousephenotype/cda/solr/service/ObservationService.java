@@ -15,27 +15,9 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -74,9 +56,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
 @Service
@@ -607,6 +593,8 @@ public class ObservationService extends BasicService implements WebStatus {
 
         }
 
+        System.out.println("URLLL " + solr.getBaseURL() + "/select?" + query);
+
         QueryResponse response = solr.query(query);
         logger.debug("experiment key query=" + query);
         List<FacetField> fflist = response.getFacetFields();
@@ -1011,18 +999,18 @@ public class ObservationService extends BasicService implements WebStatus {
 
     }
 
-    public List<ObservationDTO> getExperimentObservationsBy(Integer parameterId, Integer pipelineId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
+    public List<ObservationDTO> getExperimentObservationsBy(String parameterStableId, String pipelineStableId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
     throws SolrServerException, IOException  {
 
     	  List<ObservationDTO> resultsDTO;
         SolrQuery query = new SolrQuery()
                 .setQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + gene.replace(":", "\\:"))
-                .addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId)
+                .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
                 .setStart(0)
                 .setRows(10000);
 
-        if (pipelineId != null) {
-            query.addFilterQuery(ObservationDTO.PIPELINE_ID + ":" + pipelineId);
+        if (pipelineStableId != null) {
+            query.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
         }
 
         if (zygosities != null && zygosities.size() > 0 && zygosities.size() != 3) {
@@ -1050,6 +1038,8 @@ public class ObservationService extends BasicService implements WebStatus {
             query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
         }
 
+
+        System.out.println("URL for observation  " + solr.getBaseURL() + "/select?" + query);
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
 
@@ -1057,7 +1047,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
-    public List<ObservationDTO> getViabilityData(String parameterStableId, Integer pipelineId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
+    public List<ObservationDTO> getViabilityData(String parameterStableId, String pipelineStableId, String gene, List<String> zygosities, String phenotypingCenter, String strain, SexType sex, String metaDataGroup, String alleleAccession)
     throws SolrServerException, IOException  {
 
         List<ObservationDTO> resultsDTO;
@@ -1067,8 +1057,8 @@ public class ObservationService extends BasicService implements WebStatus {
                 .setStart(0)
                 .setRows(10000);
 
-        if (pipelineId != null) {
-            query.addFilterQuery(ObservationDTO.PIPELINE_ID + ":" + pipelineId);
+        if (pipelineStableId != null) {
+            query.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
         }
 
         if (zygosities != null && zygosities.size() > 0 && zygosities.size() != 3) {
@@ -1605,9 +1595,7 @@ public class ObservationService extends BasicService implements WebStatus {
      * Get all controls for a specified set of center, strain, parameter,
      * (optional) sex, and metadata group.
      *
-     * @param parameterId
      * @param strain
-     * @param organisationId
      * @param experimentDate date of experiment
      * @param sex if null, both sexes are returned
      * @param metadataGroup when metadataGroup is empty string, force solr to
@@ -1616,14 +1604,15 @@ public class ObservationService extends BasicService implements WebStatus {
      * criteria
      * @throws SolrServerException, IOException
      */
-    public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, String phenotypingCenter, Date experimentDate, String sex, String metadataGroup)
+    public List<ObservationDTO> getAllControlsBySex(String parameterStableId, String strain, String phenotypingCenter, Date experimentDate, String sex, String metadataGroup)
     throws SolrServerException, IOException  {
 
         List<ObservationDTO> results;
 
         QueryResponse response = new QueryResponse();
 
-        SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId).addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:")).setStart(0).setRows(5000);
+        SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control")
+            .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:")).setStart(0).setRows(5000);
         if (phenotypingCenter != null) {
             query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
         }
@@ -1669,9 +1658,7 @@ public class ObservationService extends BasicService implements WebStatus {
      * (optional) sex, and metadata group that occur on the same day as passed
      * in (or in WTSI case, the same week).
      *
-     * @param parameterId
      * @param strain
-     * @param organisationId
      * @param experimentDate the date of interest
      * @param sex if null, both sexes are returned
      * @param metadataGroup when metadataGroup is empty string, force solr to
@@ -1680,7 +1667,7 @@ public class ObservationService extends BasicService implements WebStatus {
      * criteria
      * @throws SolrServerException, IOException
      */
-    public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, String phenotypingCenter, Date experimentDate, String sex, String metadataGroup)
+    public List<ObservationDTO> getConcurrentControlsBySex(String parameterStableId, String strain, String phenotypingCenter, Date experimentDate, String sex, String metadataGroup)
     throws SolrServerException, IOException  {
 
         List<ObservationDTO> results;
@@ -1708,7 +1695,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
         SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control")
         		.addFilterQuery(ObservationDTO.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]")
-        		.addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId)
+        		.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
         		.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
         		.addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:"))
         		.addFilterQuery(ObservationDTO.SEX + ":" + sex).setStart(0).setRows(5000);
