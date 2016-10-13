@@ -104,7 +104,9 @@ public class AnatomyController {
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-
+		int numberExpressionImagesFound=maAssociatedExpressionImagesResponse.getJSONObject("response").getInt("numFound");
+		System.out.println("numberExpressionImagesFound"+ numberExpressionImagesFound);
+		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);
 		List<AnatomyPageTableRow> anatomyTable = expressionService.getLacZDataForAnatomy(anatomy,null, null, null, null, request.getAttribute("baseUrl").toString());
 		List<AnatomyPageTableRow> anatomyRowsFromImages = is.getImagesForAnatomy(anatomy, null, null, null, null, request.getAttribute("baseUrl").toString());
 		//now collapse the rows from both the categorical and image data sources
