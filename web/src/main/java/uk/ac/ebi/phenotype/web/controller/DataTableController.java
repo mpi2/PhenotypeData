@@ -2434,7 +2434,7 @@ public class DataTableController {
 
                 //rowData.add(resultSet.getString("name"));
                 //String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
-				String pmid = "<span class='pmid' id=" + dbidStr + ">" + resultSet.getString("pmid") + "</span>";
+				String pmid = "<span class='pmid' id=" + dbidStr + ">" + resultSet.getInt("pmid") + "</span>";
                 rowData.add(pmid);
 
                 rowData.add(resultSet.getString("date_of_publication"));
@@ -2541,7 +2541,7 @@ public class DataTableController {
             rowData.add(StringUtils.join(alLinks, ""));
 
             rowData.add(reference.getTitle());
-			rowData.add(reference.getPmid());
+			rowData.add(Integer.toString(reference.getPmid()));
             rowData.add(reference.getJournal());
 
             String oriPubDate = reference.getDateOfPublication();
@@ -2578,7 +2578,7 @@ public class DataTableController {
 
             rowData.add("<ul>" + StringUtils.join(agencyList, "") + "</ul>");
 
-            int pmid = Integer.parseInt(reference.getPmid());
+            int pmid = reference.getPmid();
             List<String> paperLinks = new ArrayList<>();
             List<String> paperLinksOther = new ArrayList<>();
             List<String> paperLinksPubmed = new ArrayList<>();
