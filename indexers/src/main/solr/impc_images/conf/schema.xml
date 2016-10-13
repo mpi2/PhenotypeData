@@ -139,7 +139,7 @@
     <fields>
 
         <field name="geneName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+        <field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="geneSynonyms"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 
         <!-- from observation (experiment)  schema as many fields are now the same with new image data -->
@@ -226,7 +226,7 @@
         <field name="omero_id"     type="int"    indexed="true" stored="true" multiValued="false" />
         <field name="download_url"     type="string"    indexed="true" stored="true" multiValued="false" />
         <field name="jpeg_url"     type="string"    indexed="true" stored="true" multiValued="false" />
-        <field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+        <field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="marker_synonym_symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <!-- end of experiment data fields -->
 
@@ -237,7 +237,7 @@
         <field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />
         <field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />
+        <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />
         <field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <!-- latest mouse status -->
         <field name="status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -354,7 +354,7 @@
         <field name="developmental_stage_acc" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="developmental_stage_name" type="string" indexed="true" stored="true" multiValued="false"/>
 
-        <field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+        <field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="parameter_association_stable_id" type="string" indexed="true" stored="true" multiValued="true" />
         <field name="parameter_association_sequence_id" type="string" indexed="true" stored="true" multiValued="true" />
         <field name="parameter_association_dim_id" type="string" indexed="true" stored="true" multiValued="true" />
@@ -370,6 +370,7 @@
         <field name="imgQf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
         <field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/>
+        <field name="age_in_days" type="long" indexed="true" stored="true"/>
 
 
     </fields>
