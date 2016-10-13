@@ -1207,20 +1207,21 @@ public class FileExportController {
 	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode) throws SQLException {
 		List<String> rowData = new ArrayList<>();
 		rowData.add(referenceDAO.heading);
-		List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
+
+        List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
 		for (ReferenceDTO reference : references) {
 			List<String> row = new ArrayList<>();
-			row.add(StringUtils.join(reference.getAlleleSymbols(), "|"));
-			row.add(StringUtils.join(reference.getAlleleAccessionIds(), "|"));
-			row.add(StringUtils.join(reference.getImpcGeneLinks(), "|"));
-			row.add(StringUtils.join(reference.getMgiAlleleNames(), "|"));
-			row.add(reference.getTitle());
-			row.add(reference.getJournal());
-			row.add(reference.getPmid());
-			row.add(reference.getDateOfPublication());
-			row.add(StringUtils.join(reference.getGrantIds(), "|"));
-			row.add(StringUtils.join(reference.getGrantAgencies(), "|"));
-			row.add(StringUtils.join(reference.getPaperUrls(), "|"));
+			row.add(StringUtils.join(reference.getAlleleSymbols(), "|")); //1
+			row.add(StringUtils.join(reference.getAlleleAccessionIds(), "|")); //2
+			row.add(StringUtils.join(reference.getImpcGeneLinks(), "|")); //3
+			row.add(StringUtils.join(reference.getMgiAlleleNames(), "|")); //4
+			row.add(reference.getTitle()); //5
+			row.add(reference.getJournal()); //6
+			row.add(Integer.toString(reference.getPmid())); //7
+			row.add(reference.getDateOfPublication());  //8
+			row.add(StringUtils.join(reference.getGrantIds(), "|")); //9
+			row.add(StringUtils.join(reference.getGrantAgencies(), "|"));  //10
+			row.add(StringUtils.join(reference.getPaperUrls(), "|")); //11
 
 			rowData.add(StringUtils.join(row, "\t"));
 		}

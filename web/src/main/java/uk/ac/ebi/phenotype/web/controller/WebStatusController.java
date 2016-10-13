@@ -86,13 +86,7 @@ public class WebStatusController {
 	Allele2Service allele2;
 
 	@Autowired
-	EucommCreProductService eucommCreProductService;
-
-	@Autowired
 	ProductService productService;
-
-	@Autowired
-	EucommToolsCreAllele2Service eucommToolsCreAllele2Service;
 
 	List<WebStatus> nonEssentialWebStatusObjects;
 
@@ -122,9 +116,7 @@ public class WebStatusController {
 		nonEssentialWebStatusObjects = new ArrayList<>();
 		nonEssentialWebStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second - put back in as render_birds_eye_view should be cached by omero!
 		nonEssentialWebStatusObjects.add(allele2);
-		nonEssentialWebStatusObjects.add(eucommCreProductService);
 		nonEssentialWebStatusObjects.add(productService);
-		nonEssentialWebStatusObjects.add(eucommToolsCreAllele2Service);
 	}
 
 	@RequestMapping("/webstatus")

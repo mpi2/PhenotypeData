@@ -15,18 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
@@ -44,9 +35,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 @Controller
@@ -98,7 +92,7 @@ public class QueryBrokerController {
 		}
 
 		// priority order of facet to be opened based on search result
-		String defaultCore = "";
+		String defaultCore = "gene";
 		if ( dc.containsKey("gene") ) {
 			defaultCore = "gene";
 		} else if ( dc.containsKey("mp") ) {
@@ -113,9 +107,7 @@ public class QueryBrokerController {
 //		else if ( dc.containsKey("images") ) {
 //			defaultCore = "images";
 //		}
-		else {
-			defaultCore = ""; // nothing found
-		}
+
 		//System.out.println("default core: " + defaultCore);
 		return defaultCore;
 	}
