@@ -249,7 +249,7 @@ public class ChartsController {
 //        }
 
         experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
-        
+
         if (parameterStableId.startsWith("IMPC_VIA_")) {
 			// Its a viability outcome param which means its a line level query
             // so we don't use the normal experiment query in experiment service
@@ -348,6 +348,8 @@ public class ChartsController {
             model.addAttribute("phenotypingCenter", phenotypingCenter);
             model.addAttribute("experimentNumber", experimentNumber);
             model.addAttribute("statsError", statsError);
+            model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
+            model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
 
         } else {
             System.out.println("empty experiment");

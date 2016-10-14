@@ -59,6 +59,8 @@ public class ExperimentService{
     @Autowired
     private StatisticalResultService statisticalResultService;
 
+    @Autowired
+    private PostQcService gpService;
 
     /**
      *
@@ -523,8 +525,30 @@ public class ExperimentService{
         if (experimentList.size() > 1) {
             throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
-                
-        return experimentList.get(0);
+
+        ExperimentDTO experiment = experimentList.get(0);
+        experiment = setUrls(experiment, parameterStableId, pipelineStableId, acc, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession);
+
+        return experiment;
+
+    }
+
+    private ExperimentDTO setUrls(ExperimentDTO experiment, String parameterStableId, String pipelineStableId, String acc, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession){
+
+        List<String> phenotypingCenters = new ArrayList<>();
+        phenotypingCenters.add(phenotypingCenter);
+
+        experiment.setStatisticalResultUrl(statisticalResultService.getHttpSolrClient().getBaseURL() + "/select?" + statisticalResultService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
+            null, zyList, strain, parameterStableId, pipelineStableId, metadataGroup, alleleAccession));
+
+        experiment.setGenotypePhenotypeUrl(gpService.getHttpSolrClient().getBaseURL() + "/select?" + gpService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
+                null, zyList, strain, parameterStableId, pipelineStableId, null, alleleAccession));
+
+//        experiment.setDataPhenStatFormatUrl();
+
+        return experiment;
+
+
     }
 
 

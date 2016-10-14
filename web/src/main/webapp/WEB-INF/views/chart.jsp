@@ -30,8 +30,10 @@
 				Metadata Group - ${metadata}
 			</c:if>
 		</p>
-  		
-		
+
+		<a style="display:none;" href='${srUrl}'>Statistical result URL</a>
+		<a style="display:none;" href='${gpUrl}'>Genotype-phenotype URL</a>
+
 		<br/> <br/>			
 			
 		<c:choose>
