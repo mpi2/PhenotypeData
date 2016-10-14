@@ -296,7 +296,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
         }
 
-//        System.out.println("Restricted narrow syn for " + mpFromFullOntology.getAccessionId() + " " + synonyms);
+        System.out.println("Restricted narrow syn for " + mpFromFullOntology.getAccessionId() + " " + synonyms);
         return  synonyms;
 
     }

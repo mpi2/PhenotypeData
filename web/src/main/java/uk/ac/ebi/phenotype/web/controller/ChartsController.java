@@ -248,12 +248,12 @@ public class ChartsController {
 //            return "chart";
 //        }
 
-        experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+        experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
         
         if (parameterStableId.startsWith("IMPC_VIA_")) {
 			// Its a viability outcome param which means its a line level query
             // so we don't use the normal experiment query in experiment service
-            ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+            ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
             ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
             model.addAttribute("viabilityDTO", viabilityDTO);
             setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
@@ -306,7 +306,7 @@ public class ChartsController {
                         case UNIDIMENSIONAL_ABR_PLOT:
 
                             // get experiments for other parameters too
-                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber));
+                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber));
                             break;
 
 	                    case UNIDIMENSIONAL_BOX_PLOT:

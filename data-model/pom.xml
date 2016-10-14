@@ -31,16 +31,30 @@
             <scope>test</scope>
         </dependency>
 
-		<dependency>
+		<!--<dependency>-->
+            <!--<groupId>org.apache.poi</groupId>-->
+            <!--<artifactId>poi-ooxml</artifactId>-->
+            <!--<version>3.8</version>-->
+            <!--<exclusions>-->
+                <!--&lt;!&ndash; Exclude xml-apis as it's provided by tomcat &ndash;&gt;-->
+                <!--<exclusion>-->
+                    <!--<groupId>xml-apis</groupId>-->
+                    <!--<artifactId>xml-apis</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
+
+        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+        <dependency>
             <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>3.8</version>
+            <artifactId>poi-ooxml</artifactId> <!-- poi-ooxml is for Excel 2007 format, poi is for 2003 format only -->
+            <version>3.15</version>
             <exclusions>
-                <!-- Exclude xml-apis as it's provided by tomcat -->
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
+            <!-- Exclude xml-apis as it's provided by tomcat -->
+            <exclusion>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            </exclusion>
             </exclusions>
         </dependency>
 
