@@ -39,7 +39,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -65,7 +64,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -130,8 +128,6 @@ public class DataTableController {
     @Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
-
-
 
     /**
      <p>
@@ -1177,7 +1173,6 @@ public class DataTableController {
         String baseUrl = (String) request.getAttribute("baseUrl");
         //String mediaBaseUrl = config.get("mediaBaseUrl");
         String mediaBaseUrl = baseUrl + "/impcImages/images?";
-        String pdfThumbnailUrl=(String) request.getAttribute("pdfThumbnailUrl");
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
 
         if (showImgView) {
@@ -1207,13 +1202,13 @@ public class DataTableController {
                 if (doc.containsKey("jpeg_url")) {
 
                     String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-                    
-					String thumbnailPath = fullSizePath.replace("render_image", "render_birds_eye_view");
-                    String smallThumbNailPath = thumbnailPath ;  //width in pixel
-                    String largeThumbNailPath = fullSizePath.replace("render_image", "render_thumbnail") + "/800/";  //width in pixel
+
+					String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
+                    String smallThumbNailPath = thumbnailPath + "/200/";  //width in pixel
+                    String largeThumbNailPath = thumbnailPath + "/800/";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
                     if(doc.getString("download_url").contains("annotation")){
-                    	imgLink = "<a rel='nofollow' href='" + doc.getString("download_url") + "'>" + "<img src='" + "../"+pdfThumbnailUrl + "'/>" + "</a>";
+                    	imgLink = "<a rel='nofollow' href='" + doc.getString("download_url") + "'>" + img + "</a>";
                     }else{
                     	imgLink = "<a rel='nofollow' class='fancybox' fullres='" + fullSizePath +  "' href='" + largeThumbNailPath + "'>" + img + "</a>";
                     }
@@ -1442,7 +1437,7 @@ public class DataTableController {
                 JSONObject doc = docs.getJSONObject(i);
 
 				String annots = "";
-				System.out.println("doc.getString( largeThumbnailFilePath"+ doc.getString("largeThumbnailFilePath"));
+
                 String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
                 String img = "<img src='" + imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";
                 String fullSizePath = largeThumbNailPath.replace("tn_large", "full");
@@ -2438,7 +2433,7 @@ public class DataTableController {
 
                 //rowData.add(resultSet.getString("name"));
                 //String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
-				String pmid = "<span class='pmid' id=" + dbidStr + ">" + resultSet.getString("pmid") + "</span>";
+				String pmid = "<span class='pmid' id=" + dbidStr + ">" + resultSet.getInt("pmid") + "</span>";
                 rowData.add(pmid);
 
                 rowData.add(resultSet.getString("date_of_publication"));
@@ -2545,7 +2540,7 @@ public class DataTableController {
             rowData.add(StringUtils.join(alLinks, ""));
 
             rowData.add(reference.getTitle());
-			rowData.add(reference.getPmid());
+			rowData.add(Integer.toString(reference.getPmid()));
             rowData.add(reference.getJournal());
 
             String oriPubDate = reference.getDateOfPublication();
@@ -2573,12 +2568,16 @@ public class DataTableController {
                 String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
                 String grantAgency = reference.getGrantAgencies().get(i);
                 if ( ! grantAgency.isEmpty()) {
-                    agencyList.add("<li " + cssClass + ">" + grantAgency + "</li>");
+                    String thisAgency = "<li " + cssClass + ">" + grantAgency + "</li>";
+                    if ( ! agencyList.contains(thisAgency)) {
+                        agencyList.add(thisAgency);
+                    }
                 }
             }
+
             rowData.add("<ul>" + StringUtils.join(agencyList, "") + "</ul>");
 
-            int pmid = Integer.parseInt(reference.getPmid());
+            int pmid = reference.getPmid();
             List<String> paperLinks = new ArrayList<>();
             List<String> paperLinksOther = new ArrayList<>();
             List<String> paperLinksPubmed = new ArrayList<>();

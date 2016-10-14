@@ -36,7 +36,7 @@ public class GenotypePhenotypeDTO {
     public static final String ASSERTION_TYPE = "assertion_type";
     public static final String ASSERTION_TYPE_ID = "assertion_type_id";
     public static final String COLONY_ID = "colony_id";
-    public static final String EFFECT_SIZE = "effect_ize";
+    public static final String EFFECT_SIZE = "effect_size";
     public static final String EXTERNAL_ID = "external_id";
     public static final String GENETIC_BACKGROUND = "genetic_background";
     public static final String GID = "preqc_gid"; // preqc only
@@ -81,7 +81,7 @@ public class GenotypePhenotypeDTO {
     public static final String ZYGOSITY = "zygosity";
 
 
-	@Id
+    @Id
     @Field(ID)
     Integer id;
 
@@ -105,13 +105,13 @@ public class GenotypePhenotypeDTO {
 
     @Field(ANATOMY_TERM_NAME)
     List<String> anatomyTermName;
-    
+
     @Field(INTERMEDIATE_ANATOMY_TERM_ID)
     List<String> intermediateAnatomyTermId;
 
     @Field(INTERMEDIATE_ANATOMY_TERM_NAME)
     List<String> intermediateAnatomyTermName;
-    
+
     @Field(TOP_LEVEL_ANATOMY_TERM_ID)
     List<String> topLevelAnatomyTermId;
 
@@ -249,170 +249,170 @@ public class GenotypePhenotypeDTO {
     }
 
     public Integer getOntologyDbId() {
-		return ontologyDbId;
-	}
+        return ontologyDbId;
+    }
 
-	public void setOntologyDbId(Integer ontologyDbId) {
-		this.ontologyDbId = ontologyDbId;
-	}
+    public void setOntologyDbId(Integer ontologyDbId) {
+        this.ontologyDbId = ontologyDbId;
+    }
 
-	public String getAssertionType() {
-		return assertionType;
-	}
+    public String getAssertionType() {
+        return assertionType;
+    }
 
-	public void setAssertionType(String assertionType) {
-		this.assertionType = assertionType;
-	}
+    public void setAssertionType(String assertionType) {
+        this.assertionType = assertionType;
+    }
 
-	public String getAssertionTypeId() {
-		return assertionTypeId;
-	}
+    public String getAssertionTypeId() {
+        return assertionTypeId;
+    }
 
-	public void setAssertionTypeId(String assertionTypeId) {
-		this.assertionTypeId = assertionTypeId;
-	}
+    public void setAssertionTypeId(String assertionTypeId) {
+        this.assertionTypeId = assertionTypeId;
+    }
 
-	public List<String> getAnatomyTermId() {
-		return anatomyTermId;
-	}
-	
-	public void addAnatomyTermId(String anatomyTermId){
-		if (this.anatomyTermId == null){
-			this.anatomyTermId = new ArrayList<>();
-		}
-		this.anatomyTermId.add(anatomyTermId);
-	}
+    public List<String> getAnatomyTermId() {
+        return anatomyTermId;
+    }
 
-	public void setAnatomyTermId(List<String> anatomyTermId) {
-		this.anatomyTermId = anatomyTermId;
-	}
+    public void addAnatomyTermId(String anatomyTermId){
+        if (this.anatomyTermId == null){
+            this.anatomyTermId = new ArrayList<>();
+        }
+        this.anatomyTermId.add(anatomyTermId);
+    }
 
-	public List<String> getAnatomyTermName() {
-		return anatomyTermName;
-	}
+    public void setAnatomyTermId(List<String> anatomyTermId) {
+        this.anatomyTermId = anatomyTermId;
+    }
 
-	public void setAnatomyTermName(List<String> anatomyTermName) {
-		this.anatomyTermName = anatomyTermName;
-	}
+    public List<String> getAnatomyTermName() {
+        return anatomyTermName;
+    }
 
-	public void addAnatomyTermName(String anatomyTermName){
-		if (this.anatomyTermName == null){
-			this.anatomyTermName = new ArrayList<>();
-		}
-		this.anatomyTermName.add(anatomyTermName);
-	}
-	
-	public List<String> getIntermediateAnatomyTermId() {
-		return intermediateAnatomyTermId;
-	}
+    public void setAnatomyTermName(List<String> anatomyTermName) {
+        this.anatomyTermName = anatomyTermName;
+    }
 
-	public void setIntermediateAnatomyTermId(List<String> intermediateAnatomyTermId) {
-		this.intermediateAnatomyTermId = intermediateAnatomyTermId;
-	}
+    public void addAnatomyTermName(String anatomyTermName){
+        if (this.anatomyTermName == null){
+            this.anatomyTermName = new ArrayList<>();
+        }
+        this.anatomyTermName.add(anatomyTermName);
+    }
 
-	public void addIntermediateAnatomyTermId(String intermediateAnatomyTermId){
-		if (this.intermediateAnatomyTermId == null){
-			this.intermediateAnatomyTermId = new ArrayList<>();
-		}
-		this.intermediateAnatomyTermId.add(intermediateAnatomyTermId);
-	}
-	
-	public void addIntermediateAnatomyTermId(Collection<String> intermediateAnatomyTermIds){
-		if (this.intermediateAnatomyTermId == null){
-			this.intermediateAnatomyTermId = new ArrayList<>();
-		}
-		for (String term : intermediateAnatomyTermIds){
-			if (!this.intermediateAnatomyTermId.contains(term)){
-				this.intermediateAnatomyTermId.add(term);
-			}
-		}
-	}
-	
-	public List<String> getIntermediateAnatomyTermName() {
-		return intermediateAnatomyTermName;
-	}
+    public List<String> getIntermediateAnatomyTermId() {
+        return intermediateAnatomyTermId;
+    }
 
-	public void setIntermediateAnatomyTermName(List<String> intermediateAnatomyTermName) {
-		this.intermediateAnatomyTermName = intermediateAnatomyTermName;
-	}
+    public void setIntermediateAnatomyTermId(List<String> intermediateAnatomyTermId) {
+        this.intermediateAnatomyTermId = intermediateAnatomyTermId;
+    }
 
-	public void addIntermediateAnatomyTermName(String intermediateAnatomyTermName){
-		if (this.intermediateAnatomyTermName == null){
-			this.intermediateAnatomyTermName = new ArrayList<>();
-		}
-		this.intermediateAnatomyTermName.add(intermediateAnatomyTermName);
-	}
-	
-	public void addIntermediateAnatomyTermName(Collection<String> intermediateAnatomyTermName){
-		if (this.intermediateAnatomyTermName == null){
-			this.intermediateAnatomyTermName = new ArrayList<>();
-		}
-		for (String term : intermediateAnatomyTermName){
-			if (!this.intermediateAnatomyTermName.contains(term)){
-				this.intermediateAnatomyTermName.add(term);
-			}
-		}
-	}
-	
-	public List<String> getTopLevelAnatomyTermId() {
-		return topLevelAnatomyTermId;
-	}
+    public void addIntermediateAnatomyTermId(String intermediateAnatomyTermId){
+        if (this.intermediateAnatomyTermId == null){
+            this.intermediateAnatomyTermId = new ArrayList<>();
+        }
+        this.intermediateAnatomyTermId.add(intermediateAnatomyTermId);
+    }
 
-	public void setTopLevelAnatomyTermId(List<String> topLevelAnatomyTermId) {
-		this.topLevelAnatomyTermId = topLevelAnatomyTermId;
-	}
-	
-	public void addTopLevelAnatomyTermId(String topLevelAnatomyTermId){
-		if (this.topLevelAnatomyTermId == null){
-			this.topLevelAnatomyTermId = new ArrayList<>();
-		}
-		this.topLevelAnatomyTermId.add(topLevelAnatomyTermId);
-	}
-	
-	public void addTopLevelAnatomyTermId(Collection<String> topLevelAnatomyTermId){
-		if (this.topLevelAnatomyTermId == null){
-			this.topLevelAnatomyTermId = new ArrayList<>();
-		}
-		for (String term : topLevelAnatomyTermId){
-			if (!this.topLevelAnatomyTermId.contains(term)){
-				this.topLevelAnatomyTermId.add(term);
-			}
-		}
-	}
+    public void addIntermediateAnatomyTermId(Collection<String> intermediateAnatomyTermIds){
+        if (this.intermediateAnatomyTermId == null){
+            this.intermediateAnatomyTermId = new ArrayList<>();
+        }
+        for (String term : intermediateAnatomyTermIds){
+            if (!this.intermediateAnatomyTermId.contains(term)){
+                this.intermediateAnatomyTermId.add(term);
+            }
+        }
+    }
 
-	public List<String> getTopLevelAnatomyTermName() {
-		return topLevelAnatomyTermName;
-	}
+    public List<String> getIntermediateAnatomyTermName() {
+        return intermediateAnatomyTermName;
+    }
 
-	public void setTopLevelAnatomyTermName(List<String> topLevelAnatomyTermName) {
-		this.topLevelAnatomyTermName = topLevelAnatomyTermName;
-	}
+    public void setIntermediateAnatomyTermName(List<String> intermediateAnatomyTermName) {
+        this.intermediateAnatomyTermName = intermediateAnatomyTermName;
+    }
 
-	public void addTopLevelAnatomyTermName(String topLevelAnatomyTermName){
-		if (this.topLevelAnatomyTermName == null){
-			this.topLevelAnatomyTermName = new ArrayList<>();
-		}
-		this.topLevelAnatomyTermName.add(topLevelAnatomyTermName);
-	}
-	
-	public void addTopLevelAnatomyTermName(Collection<String> topLevelAnatomyTermName){
-		if (this.topLevelAnatomyTermName == null){
-			this.topLevelAnatomyTermName = new ArrayList<>();
-		}
-		for (String term : topLevelAnatomyTermName){
-			if (!this.topLevelAnatomyTermName.contains(term)){
-				this.topLevelAnatomyTermName.add(term);
-			}
-		}
-	}
+    public void addIntermediateAnatomyTermName(String intermediateAnatomyTermName){
+        if (this.intermediateAnatomyTermName == null){
+            this.intermediateAnatomyTermName = new ArrayList<>();
+        }
+        this.intermediateAnatomyTermName.add(intermediateAnatomyTermName);
+    }
 
-	public String getLifeStageAcc() {
-		return lifeStageAcc;
-	}
+    public void addIntermediateAnatomyTermName(Collection<String> intermediateAnatomyTermName){
+        if (this.intermediateAnatomyTermName == null){
+            this.intermediateAnatomyTermName = new ArrayList<>();
+        }
+        for (String term : intermediateAnatomyTermName){
+            if (!this.intermediateAnatomyTermName.contains(term)){
+                this.intermediateAnatomyTermName.add(term);
+            }
+        }
+    }
 
-	public String getLifeStageName() {
-		return lifeStageName;
-	}
+    public List<String> getTopLevelAnatomyTermId() {
+        return topLevelAnatomyTermId;
+    }
+
+    public void setTopLevelAnatomyTermId(List<String> topLevelAnatomyTermId) {
+        this.topLevelAnatomyTermId = topLevelAnatomyTermId;
+    }
+
+    public void addTopLevelAnatomyTermId(String topLevelAnatomyTermId){
+        if (this.topLevelAnatomyTermId == null){
+            this.topLevelAnatomyTermId = new ArrayList<>();
+        }
+        this.topLevelAnatomyTermId.add(topLevelAnatomyTermId);
+    }
+
+    public void addTopLevelAnatomyTermId(Collection<String> topLevelAnatomyTermId){
+        if (this.topLevelAnatomyTermId == null){
+            this.topLevelAnatomyTermId = new ArrayList<>();
+        }
+        for (String term : topLevelAnatomyTermId){
+            if (!this.topLevelAnatomyTermId.contains(term)){
+                this.topLevelAnatomyTermId.add(term);
+            }
+        }
+    }
+
+    public List<String> getTopLevelAnatomyTermName() {
+        return topLevelAnatomyTermName;
+    }
+
+    public void setTopLevelAnatomyTermName(List<String> topLevelAnatomyTermName) {
+        this.topLevelAnatomyTermName = topLevelAnatomyTermName;
+    }
+
+    public void addTopLevelAnatomyTermName(String topLevelAnatomyTermName){
+        if (this.topLevelAnatomyTermName == null){
+            this.topLevelAnatomyTermName = new ArrayList<>();
+        }
+        this.topLevelAnatomyTermName.add(topLevelAnatomyTermName);
+    }
+
+    public void addTopLevelAnatomyTermName(Collection<String> topLevelAnatomyTermName){
+        if (this.topLevelAnatomyTermName == null){
+            this.topLevelAnatomyTermName = new ArrayList<>();
+        }
+        for (String term : topLevelAnatomyTermName){
+            if (!this.topLevelAnatomyTermName.contains(term)){
+                this.topLevelAnatomyTermName.add(term);
+            }
+        }
+    }
+
+    public String getLifeStageAcc() {
+        return lifeStageAcc;
+    }
+
+    public String getLifeStageName() {
+        return lifeStageName;
+    }
 
     public String getAssertionTypeID() {
 
@@ -489,7 +489,7 @@ public class GenotypePhenotypeDTO {
         this.topLevelMpTermName = topLevelMpTermName;
     }
 
-    
+
     public List<String> getIntermediateMpTermId() {
 
         return intermediateMpTermId;
@@ -861,7 +861,7 @@ public class GenotypePhenotypeDTO {
             return false;
         if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null)
             return false;
-   
+
         if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null)
             return false;
         if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null)
