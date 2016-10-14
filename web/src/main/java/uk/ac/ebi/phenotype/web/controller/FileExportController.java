@@ -682,6 +682,7 @@ public class FileExportController {
 			Integer iDisplayLength, boolean showImgView, String fqStrOri, HttpServletRequest request)
 					throws IOException, URISyntaxException {
 
+		//System.out.println("***JSON: "+json.toString());
 		// currently just use the solr field value
 		// String mediaBaseUrl = config.get("impcMediaBaseUrl").replace("https:", "http:");
 		List<String> rowData = new ArrayList<>();
@@ -698,28 +699,26 @@ public class FileExportController {
 			// rowData.add("Annotation term\tAnnotation id\tAnnotation id
 			// link\tProcedure\tGene symbol\tGene symbol link\tImage link"); //
 			// column names
-			rowData.add("Procedure\tGene symbol\tGene symbol link\tMA term\tMA term link\tImage link"); // column
-																										// names
+			rowData.add("Procedure\tGene symbol\tGene symbol link\tAnatomy term\tAnatomy term link\tImage link"); // column names
 
 			for (int i = 0; i < docs.size(); i++) {
 				List<String> data = new ArrayList<>();
 				JSONObject doc = docs.getJSONObject(i);
-
 				// String[] fields = {"annotationTermName", "annotationTermId",
 				// "expName", "symbol_gene"};
-				String[] fields = { "procedure_name", "gene_symbol", "ma_term" };
+				String[] fields = { "procedure_name", "gene_symbol", "anatomy_term" };
+
 				for (String fld : fields) {
 					if (doc.has(fld)) {
 						if (fld.equals("gene_symbol")) {
-
 							data.add(doc.getString("gene_symbol"));
 							data.add(hostName + geneBaseUrl + doc.getString("gene_accession_id"));
-
-						} else if (fld.equals("procedure_name")) {
+						}
+						else if (fld.equals("procedure_name")) {
 							data.add(doc.getString("procedure_name"));
-						} else if (fld.equals("ma_term")) {
-							JSONArray maTerms = doc.getJSONArray("ma_term");
-							JSONArray maIds = doc.getJSONArray("ma_id");
+						} else if (fld.equals("anatomy_term")) {
+							JSONArray maTerms = doc.getJSONArray("anatomy_term");
+							JSONArray maIds = doc.getJSONArray("anatomy_id");
 							List<String> ma_Terms = new ArrayList<>();
 							List<String> ma_links = new ArrayList<>();
 							for (int m = 0; m < maTerms.size(); m++) {
@@ -729,8 +728,8 @@ public class FileExportController {
 
 							data.add(StringUtils.join(ma_Terms, "|"));
 							data.add(StringUtils.join(ma_links, "|"));
-
 						}
+
 					} else {
 						/*
 						 * if ( fld.equals("annotationTermId") ){
@@ -743,7 +742,7 @@ public class FileExportController {
 							data.add(NO_INFO_MSG);
 						} else if (fld.equals("procedure_name")) {
 							data.add(NO_INFO_MSG);
-						} else if (fld.equals("ma_term")) {
+						} else if (fld.equals("anatomy_term")) {
 							data.add(NO_INFO_MSG);
 							data.add(NO_INFO_MSG);
 						}
@@ -766,7 +765,7 @@ public class FileExportController {
 			rowData.add(
 					"Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column
 																																// name
-			String defaultQStr = "observation_type:image_record&qf=auto_suggest&defType=edismax";
+			String defaultQStr = "observation_type:image_record&qf=imgQf&defType=edismax";
 
 			if (query != "") {
 				defaultQStr = "q=" + query + " AND " + defaultQStr;
@@ -774,7 +773,7 @@ public class FileExportController {
 				defaultQStr = "q=" + defaultQStr;
 			}
 
-			String defaultFqStr = "fq=(biological_sample_group:experimental)";
+			//String defaultFqStr = "fq=(biological_sample_group:experimental)";
 			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(query, json, baseUrl2);
 
 			int numFacets = annots.size();
@@ -790,11 +789,16 @@ public class FileExportController {
 				AnnotNameValCount annot = annots.get(i);
 
 				String displayAnnotName = annot.getName();
+
 				data.add(displayAnnotName);
 
+
 				String annotVal = annot.getVal();
+				String annotId= annot.getId();
+				String annotFq = annot.getFq();
 				data.add(annotVal);
 
+//				System.out.println(displayAnnotName + " : " + annotVal);
 				if (annot.getId() != null) {
 					data.add(annot.getId());
 					data.add(annot.getLink());
@@ -804,7 +808,10 @@ public class FileExportController {
 				}
 
 
-				String thisFqStr = defaultFqStr + " AND " + annot.getFq() + ":\"" + annotVal + "\"";
+				//String thisFqStr = defaultFqStr + " AND " + annot.getFq() + ":\"" + annotVal + "\"";
+				String qVal = annotFq.equals("gene_accession_id") || annotFq.equals("anatomy_id") ? annotId : annotVal;
+				String thisFqStr = annotFq + ":\"" + qVal + "\"";
+				//System.out.println("***fq: "+thisFqStr);
 
 				List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
 
