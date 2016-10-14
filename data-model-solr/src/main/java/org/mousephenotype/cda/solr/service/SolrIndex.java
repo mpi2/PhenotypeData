@@ -657,8 +657,7 @@ public class SolrIndex {
 
 
 	    query = query.replaceAll("\"", "");
-        JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 		List<AnnotNameValCount> annots = new ArrayList<>();
 
 		Map<String, String> hm = new HashMap<>();
@@ -684,7 +683,7 @@ public class SolrIndex {
         String separator = "___";
 
         for( String fieldName : ffList){
-			//System.out.println(fieldName);
+			//System.out.println("facet field: "+ fieldName);
             try {
                 JSONArray arr = facetFields.getJSONArray(fieldName);
 
@@ -694,8 +693,9 @@ public class SolrIndex {
 
 						if (facetValue instanceof String) {
 							String fv = facetValue.toString();
+							//System.out.println(fieldName + " -- " + fv);
 
-							if (fv.toLowerCase().contains(query.toLowerCase()) || query.equals("*:*")) {
+							if (fv.toLowerCase().contains(query.toLowerCase()) || query.equals("*:*") || query.equals("*")) {
 
 								AnnotNameValCount annotNameValCount = new AnnotNameValCount();
 								annotNameValCount.setImgCount(Integer.parseInt(arr.get(i + 1).toString()));
@@ -784,7 +784,7 @@ public class SolrIndex {
 
 								if (hm.containsKey(fieldName)) {
 									annots.add(annotNameValCount);
-//                                System.out.println("ANNOT: "+annotNameValCount.toString());
+                                	//System.out.println("ANNOT: "+annotNameValCount.toString());
 								}
 							}
 						}
@@ -792,7 +792,7 @@ public class SolrIndex {
                 }
             }
             catch (Exception e){
-				System.out.println("warning: "+ e);
+				System.out.println("mergeImpcFacets warning: "+ e);
 			}
         }
 
