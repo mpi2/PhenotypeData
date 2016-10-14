@@ -11,6 +11,12 @@
 	  <p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
 	  
 		<div id="toggle_timetable${experimentNumber}">
+			<p>
+				<a href="${srUrl}"> Statistical result raw XML </a> &nbsp;&nbsp;
+				<a href="${gpUrl}"> Genotype phenotype raw XML </a>&nbsp;&nbsp;
+				<a href="${baseUrl}${phenStatDataUrl}"> Phenstat-ready raw experiment data</a>
+			</p>
+
 			<table id="timeTable">
 				<tr>
 					<th>Time</th>
