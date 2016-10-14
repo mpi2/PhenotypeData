@@ -15,19 +15,14 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+
+import java.sql.SQLException;
+import java.util.*;
 
 public class ExperimentDTO {
 
@@ -59,6 +54,10 @@ public class ExperimentDTO {
     private Set<ObservationDTO> maleControls;
     private Set<ObservationDTO> femaleControls;
     private String alleleAccession;
+
+    String statisticalResultUrl;
+    String genotypePhenotypeUrl;
+    String DataPhenStatFormatUrl;
 
     public List<String> getTabbedToString() throws SQLException {
         List<String> rows = new ArrayList<String>();
@@ -287,8 +286,31 @@ public class ExperimentDTO {
 		this.procedureName = procedureName;
 	}
 
+    public String getStatisticalResultUrl() {
+        return statisticalResultUrl;
+    }
 
-	/**
+    public void setStatisticalResultUrl(String statisticalResultUrl) {
+        this.statisticalResultUrl = statisticalResultUrl;
+    }
+
+    public String getGenotypePhenotypeUrl() {
+        return genotypePhenotypeUrl;
+    }
+
+    public void setGenotypePhenotypeUrl(String genotypePhenotypeUrl) {
+        this.genotypePhenotypeUrl = genotypePhenotypeUrl;
+    }
+
+    public String getDataPhenStatFormatUrl() {
+        return DataPhenStatFormatUrl;
+    }
+
+    public void setDataPhenStatFormatUrl(String dataPhenStatFormatUrl) {
+        DataPhenStatFormatUrl = dataPhenStatFormatUrl;
+    }
+
+    /**
      * @param parameterStableId the parameterStableId to set
      */
     public void setParameterStableId(String parameterStableId) {
@@ -344,9 +366,7 @@ public class ExperimentDTO {
         return zygosities;
     }
 
-    /**
-     * @param zygosity the zygosity to set
-     */
+
     public void setZygosities(Set<ZygosityType> zygosities) {
         this.zygosities = zygosities;
     }
@@ -372,9 +392,7 @@ public class ExperimentDTO {
         return results;
     }
 
-    /**
-     * @param result the result to set
-     */
+
     public void setResults(List<? extends StatisticalResult> results) {
         this.results = results;
     }
