@@ -544,8 +544,19 @@ public class ExperimentService{
         experiment.setGenotypePhenotypeUrl(gpService.getHttpSolrClient().getBaseURL() + "/select?" + gpService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
                 null, zyList, strain, parameterStableId, pipelineStableId, null, alleleAccession));
 
-//        experiment.setDataPhenStatFormatUrl();
+        String experimentRawDataUrl = "/exportraw?";
+        if (phenotypingCenter != null ) { experimentRawDataUrl += "phenotyping_center=" + phenotypingCenter + "&";}
+        if (parameterStableId != null) {experimentRawDataUrl += "parameter_stable_id=" + parameterStableId + "&";}
+        if (alleleAccession != null) {experimentRawDataUrl += "allele_accession_id=" + alleleAccession + "&";}
+        if (strain != null) {experimentRawDataUrl += "strain=" + strain + "&";}
+        if (pipelineStableId != null) {experimentRawDataUrl += "pipeline_stable_id=" + pipelineStableId + "&";}
+        if (zyList != null) {
+            for (String zyg : zyList){
+                experimentRawDataUrl += "&zygosity=" + zyg + "&";
+            }
+        }
 
+        experiment.setDataPhenStatFormatUrl(experimentRawDataUrl);
         return experiment;
 
 

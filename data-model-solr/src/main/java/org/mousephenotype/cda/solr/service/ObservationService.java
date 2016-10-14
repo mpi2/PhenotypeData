@@ -983,7 +983,6 @@ public class ObservationService extends BasicService implements WebStatus {
         List<ObservationDTO> resultsDTO;
         SolrQuery query = buildQuery(parameterStableId, pipelineStableId, gene, zygosities, phenotypingCenter, strain, sex, metaDataGroup, alleleAccession);
 
-        System.out.println("URL for observation  " + solr.getBaseURL() + "/select?" + query);
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
 

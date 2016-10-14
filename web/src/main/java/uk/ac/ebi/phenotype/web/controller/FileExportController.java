@@ -134,7 +134,7 @@ public class FileExportController {
 	public String getExperimentalData(
 			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter,
 			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId,
-			@RequestParam(value = "procedure_stable_id", required = true) String procedureStableId,
+			@RequestParam(value = "procedure_stable_id", required = false) String procedureStableId,
 			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId,
 			@RequestParam(value = "allele_accession_id", required = false) String alleleAccessionId,
 			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
@@ -143,8 +143,6 @@ public class FileExportController {
 			@RequestParam(value = "strain", required = false) String strainParameter)
 					throws SolrServerException, IOException , URISyntaxException {
 
-		ImpressBaseDTO pipeline = impressService.getPipeline(pipelineStableId);
-		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
 		}

@@ -350,6 +350,7 @@ public class ChartsController {
             model.addAttribute("statsError", statsError);
             model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
             model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
+            model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
 
         } else {
             System.out.println("empty experiment");
