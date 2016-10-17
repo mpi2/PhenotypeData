@@ -60,6 +60,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -230,6 +231,8 @@ public class FileExportController {
 		String solrFilters = "q=" + query + "&fq=" + fqStr;
 		List<String> dataRows = new ArrayList<>();
 
+		Boolean export = true;
+
 		if ( dataType.equals("alleleRef") ){
 			// query is * by default
 			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode);
@@ -243,14 +246,14 @@ public class FileExportController {
 				int rows = 1000;
 				int cycles = (int) Math.ceil(iDisplayLength / 1000.0); // do 1000 per cycle
 
-				for (int i = 0; i < cycles; i++) {
+					for (int i = 0; i < cycles; i++) {
 
 					iDisplayStart = i * rows;
 					if (cycles - 1 == i) {
 						rows = iDisplayLength - (i * rows);
 					}
 
-					JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
+					JSONObject json = searchController.fetchSearchResultJson(export, query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
 
 					List<String> dr = new ArrayList<>();
 
@@ -265,7 +268,7 @@ public class FileExportController {
 					dataRows.addAll(dr);
 				}
 			} else {
-				JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+				JSONObject json = searchController.fetchSearchResultJson(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
 				dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
 						solrFilters, request, legacyOnly, fqStr);
 
@@ -680,6 +683,7 @@ public class FileExportController {
 			Integer iDisplayLength, boolean showImgView, String fqStrOri, HttpServletRequest request)
 					throws IOException, URISyntaxException {
 
+		//System.out.println("***JSON: "+json.toString());
 		// currently just use the solr field value
 		// String mediaBaseUrl = config.get("impcMediaBaseUrl").replace("https:", "http:");
 		List<String> rowData = new ArrayList<>();
@@ -696,28 +700,26 @@ public class FileExportController {
 			// rowData.add("Annotation term\tAnnotation id\tAnnotation id
 			// link\tProcedure\tGene symbol\tGene symbol link\tImage link"); //
 			// column names
-			rowData.add("Procedure\tGene symbol\tGene symbol link\tMA term\tMA term link\tImage link"); // column
-																										// names
+			rowData.add("Procedure\tGene symbol\tGene symbol link\tAnatomy term\tAnatomy term link\tImage link"); // column names
 
 			for (int i = 0; i < docs.size(); i++) {
 				List<String> data = new ArrayList<>();
 				JSONObject doc = docs.getJSONObject(i);
-
 				// String[] fields = {"annotationTermName", "annotationTermId",
 				// "expName", "symbol_gene"};
-				String[] fields = { "procedure_name", "gene_symbol", "ma_term" };
+				String[] fields = { "procedure_name", "gene_symbol", "anatomy_term" };
+
 				for (String fld : fields) {
 					if (doc.has(fld)) {
 						if (fld.equals("gene_symbol")) {
-
 							data.add(doc.getString("gene_symbol"));
 							data.add(hostName + geneBaseUrl + doc.getString("gene_accession_id"));
-
-						} else if (fld.equals("procedure_name")) {
+						}
+						else if (fld.equals("procedure_name")) {
 							data.add(doc.getString("procedure_name"));
-						} else if (fld.equals("ma_term")) {
-							JSONArray maTerms = doc.getJSONArray("ma_term");
-							JSONArray maIds = doc.getJSONArray("ma_id");
+						} else if (fld.equals("anatomy_term")) {
+							JSONArray maTerms = doc.getJSONArray("anatomy_term");
+							JSONArray maIds = doc.getJSONArray("anatomy_id");
 							List<String> ma_Terms = new ArrayList<>();
 							List<String> ma_links = new ArrayList<>();
 							for (int m = 0; m < maTerms.size(); m++) {
@@ -727,8 +729,8 @@ public class FileExportController {
 
 							data.add(StringUtils.join(ma_Terms, "|"));
 							data.add(StringUtils.join(ma_links, "|"));
-
 						}
+
 					} else {
 						/*
 						 * if ( fld.equals("annotationTermId") ){
@@ -741,7 +743,7 @@ public class FileExportController {
 							data.add(NO_INFO_MSG);
 						} else if (fld.equals("procedure_name")) {
 							data.add(NO_INFO_MSG);
-						} else if (fld.equals("ma_term")) {
+						} else if (fld.equals("anatomy_term")) {
 							data.add(NO_INFO_MSG);
 							data.add(NO_INFO_MSG);
 						}
@@ -764,7 +766,7 @@ public class FileExportController {
 			rowData.add(
 					"Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column
 																																// name
-			String defaultQStr = "observation_type:image_record&qf=auto_suggest&defType=edismax";
+			String defaultQStr = "observation_type:image_record&qf=imgQf&defType=edismax";
 
 			if (query != "") {
 				defaultQStr = "q=" + query + " AND " + defaultQStr;
@@ -772,7 +774,7 @@ public class FileExportController {
 				defaultQStr = "q=" + defaultQStr;
 			}
 
-			String defaultFqStr = "fq=(biological_sample_group:experimental)";
+			//String defaultFqStr = "fq=(biological_sample_group:experimental)";
 			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(query, json, baseUrl2);
 
 			int numFacets = annots.size();
@@ -788,11 +790,16 @@ public class FileExportController {
 				AnnotNameValCount annot = annots.get(i);
 
 				String displayAnnotName = annot.getName();
+
 				data.add(displayAnnotName);
 
+
 				String annotVal = annot.getVal();
+				String annotId= annot.getId();
+				String annotFq = annot.getFq();
 				data.add(annotVal);
 
+//				System.out.println(displayAnnotName + " : " + annotVal);
 				if (annot.getId() != null) {
 					data.add(annot.getId());
 					data.add(annot.getLink());
@@ -802,7 +809,10 @@ public class FileExportController {
 				}
 
 
-				String thisFqStr = defaultFqStr + " AND " + annot.getFq() + ":\"" + annotVal + "\"";
+				//String thisFqStr = defaultFqStr + " AND " + annot.getFq() + ":\"" + annotVal + "\"";
+				String qVal = annotFq.equals("gene_accession_id") || annotFq.equals("anatomy_id") ? annotId : annotVal;
+				String thisFqStr = annotFq + ":\"" + qVal + "\"";
+				//System.out.println("***fq: "+thisFqStr);
 
 				List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
 
@@ -831,7 +841,6 @@ public class FileExportController {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
 
-		System.out.println("baseUrl: " + baseUrl);
 		List<String> rowData = new ArrayList<>();
 		rowData.add(
 				"Mammalian phenotype term" +
@@ -955,24 +964,61 @@ public class FileExportController {
 	}
 
 	private List<String> composeProductDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, URISyntaxException {
+		//System.out.println("JSON: "+ json.toString());
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
+		String baseUrl = request.getAttribute("baseUrl").toString();
 		List<String> rowData = new ArrayList<>();
-		rowData.add(
-				"Marker Symbol" +
-						"\tAllele Name" +
-						"\tMutation Type"); // column
+		rowData.add( // columns
+				"Allele name"
+				+ "\tMutation Type"
+				+ "\tVector map"
+				+ "\tOrder Targeting vector"
+				+ "\tOrder ES cell"
+				+ "\tOrder Mouse"
+		);
 
-			for (int i = 0; i < docs.size(); i++) {
+//		System.out.println("No. docs: "+docs.size());
+		for (int i = 0; i < docs.size(); i++) {
 			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
-			data.add(doc.getString("marker_symbol"));
-			data.add(doc.getString("allele_name"));
-			data.add(doc.getString("mutation_type"));
+			//String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
+			//String alleleName = "<span class='allelename'>"+ doc.getString("allele_name")+ "</span>";
+			String alleleName = URLEncoder.encode(doc.getString("allele_name"), "UTF-8");
+			String markerAcc = doc.getString("mgi_accession_id");
+			String markerSymbol = doc.getString("marker_symbol");
+			String mutationType = doc.getString("mutation_type") + "; " + doc.getString("allele_description");
+			String vectorMap = doc.getString("allele_simple_image").replace("https", "http");
 
+			String hostname = request.getAttribute("mappedHostname").toString().replace("https", "http");
+			String dataUrl = hostname + baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
+
+			String orderTagetingVector = NO_INFO_MSG;
+			String orderEScell = NO_INFO_MSG;
+			String orderMouse = NO_INFO_MSG;
+
+			if ( doc.containsKey("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
+				orderTagetingVector = dataUrl + "&type=targeting_vector";
+			}
+			if ( doc.containsKey("es_cell_available") && doc.getBoolean("es_cell_available")){
+				orderEScell = dataUrl + "&type=es_cell";
+			}
+			if ( doc.containsKey("mouse_available") && doc.getBoolean("mouse_available")){
+				orderMouse = dataUrl + "&type=mouse";
+			}
+
+			data.add(markerSymbol + "<" + alleleName + ">");
+			data.add(mutationType);
+			data.add(vectorMap);
+			data.add(orderTagetingVector);
+			data.add(orderEScell);
+			data.add(orderMouse);
+
+			//System.out.println(StringUtils.join(data, "\t"));
 			rowData.add(StringUtils.join(data, "\t"));
 		}
+
 		return rowData;
 	}
 
