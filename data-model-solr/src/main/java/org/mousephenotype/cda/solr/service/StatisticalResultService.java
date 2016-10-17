@@ -211,7 +211,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		List<String> pipelineName, List<String> procedureStableId, List<String> procedureName, List<String> mpTermIds, ArrayList<String> resource){
 
 		AllelePageDTO dto = new AllelePageDTO();
-		SolrQuery q = buildQuery(geneAccessionId, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermIds, null, null);
+		SolrQuery q = buildQuery(geneAccessionId, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermIds, null, null, null, null, null, null, null, null);
 
 		q.addField(StatisticalResultDTO.MARKER_SYMBOL);
 		q.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
@@ -949,65 +949,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	return res;
     }
 
-	private SolrQuery buildQuery(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl, Integer rows){
-
-		SolrQuery query = new SolrQuery();
-
-		query.setQuery("*:*");
-		query.setRows(rows != null? rows : Integer.MAX_VALUE);
-		query.set("sort", StatisticalResultDTO.P_VALUE + " asc");
-
-		if (geneAccession != null) {
-			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
-		}
-		if (phenotypingCenter != null) {
-			query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\""
-					+ StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
-		}
-		if (mpTermId != null) {
-			query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-					+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-					+ "\") OR " + StatisticalResultDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + StatisticalResultDTO.MALE_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\")");
-		}
-		if (pipelineName != null) {
-			query.addFilterQuery(
-					StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");
-		}
-		if (alleleSymbol != null) {
-			query.addFilterQuery(
-					StatisticalResultDTO.ALLELE_SYMBOL + ":(\"" + StringUtils.join(alleleSymbol, "\" OR \"") + "\")");
-		}
-		if (procedureStableIds != null) {
-			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":("
-					+ StringUtils.join(procedureStableIds, " OR ") + ")");
-		}
-		if (procedureName != null) {
-			query.addFilterQuery( StatisticalResultDTO.PROCEDURE_NAME + ":(\"" + StringUtils.join(procedureName, "\" OR \"") + "\")");
-		}
-		if (resource != null) {
-			query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resource, " OR ") + ")");
-		}
-
-		return query;
-
-	}
 
     public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
     throws NumberFormatException, SolrServerException, IOException, UnsupportedEncodingException {
 
 		Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
 
-		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, graphBaseUrl, null);
+		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
 		List<StatisticalResultDTO> solrResults = solr.query(query).getBeans(StatisticalResultDTO.class);
 
 		for (StatisticalResultDTO statResult : solrResults) {

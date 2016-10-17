@@ -248,6 +248,11 @@
 
                 <div id="toggle_table${experimentNumber}">
 
+                    <p>
+                        <a href="${srUrl}"> Statistical result raw XML </a> &nbsp;&nbsp;
+                        <a href="${gpUrl}"> Genotype phenotype raw XML </a>&nbsp;&nbsp;
+                        <a href="${baseUrl}${phenStatDataUrl}"> Phenstat-ready raw experiment data</a>
+                    </p>
                     <c:if test="${data.result.colonyId!=null}"><!-- Colony Id: ${data.result.colonyId } --></c:if>
                         <table>
                             <tr>

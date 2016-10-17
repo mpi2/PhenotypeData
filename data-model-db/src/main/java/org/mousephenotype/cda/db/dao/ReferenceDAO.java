@@ -76,10 +76,10 @@ public class ReferenceDAO {
      *
      * @throws SQLException
      */
-    public ReferenceDTO getReferenceByPmid(List<ReferenceDTO> references, String pubMedId
+    public ReferenceDTO getReferenceByPmid(List<ReferenceDTO> references, Integer pubMedId
     ) throws SQLException {
         for (ReferenceDTO reference : references) {
-            if (reference.getPmid().equals(pubMedId)) {
+            if (reference.getPmid() == pubMedId) {
                 return reference;
             }
         }
@@ -206,7 +206,7 @@ public class ReferenceDAO {
                 referenceRow.setMgiAlleleNames(Arrays.asList(resultSet.getString("alleleNames").split(delimeter)));
                 referenceRow.setTitle(resultSet.getString("title"));
                 referenceRow.setJournal(resultSet.getString("journal"));
-                referenceRow.setPmid(resultSet.getString("pmid"));
+                referenceRow.setPmid(resultSet.getInt("pmid"));
                 referenceRow.setDateOfPublication(resultSet.getString("date_of_publication"));
                 referenceRow.setGrantIds(Arrays.asList(resultSet.getString("grantIds").split(delimeter)));
                 referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
@@ -251,7 +251,7 @@ public class ReferenceDAO {
                 if (retVal.length() > 0) {
                     retVal.append(", ");
                 }
-                retVal.append("'").append(rs.getString("pmid")).append("'");
+                retVal.append("'").append(rs.getInt("pmid")).append("'");
             }
             rs.close();
             ps.close();

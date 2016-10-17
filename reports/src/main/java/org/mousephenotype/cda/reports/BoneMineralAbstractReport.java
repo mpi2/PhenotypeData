@@ -185,8 +185,8 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
             for (String sex : sexes){
                 List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
-                        (Integer) Integer.parseInt(doc.getFieldValue(ObservationDTO.PARAMETER_ID).toString()),
-                        (Integer) Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),
+                        doc.getFieldValue(ObservationDTO.PARAMETER_STABLE_ID).toString(),
+                        doc.getFieldValue(ObservationDTO.PIPELINE_STABLE_ID).toString(),
                         doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),
                         SexType.valueOf(sex),
                         doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString(),
