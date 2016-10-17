@@ -988,8 +988,9 @@ public class FileExportController {
 			String alleleName = URLEncoder.encode(doc.getString("allele_name"), "UTF-8");
 			String markerAcc = doc.getString("mgi_accession_id");
 			String markerSymbol = doc.getString("marker_symbol");
-			String mutationType = doc.getString("mutation_type") + "; " + doc.getString("allele_description");
-			String vectorMap = doc.getString("allele_simple_image").replace("https", "http");
+			String mutationType = (doc.containsKey("mutation_type")) ? doc.getString("mutation_type") + "; " : "";
+			mutationType += doc.containsKey("allele_description") ? doc.getString("allele_description") : "" ;
+			String vectorMap = doc.containsKey("allele_simple_image") ? doc.getString("allele_simple_image").replace("https", "http") : "";
 
 			String hostname = request.getAttribute("mappedHostname").toString().replace("https", "http");
 			String dataUrl = hostname + baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
