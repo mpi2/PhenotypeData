@@ -45,13 +45,35 @@ $(document).ready(function(){
 		$("option:selected").removeAttr("selected");
 	};
 	
+	// AJAX calls for the baseline charts
+	$('.baselineChart').each(function(i, obj) {
+		console.log('calling baselineChart function');
+		$( '#spinner-baseline-charts' ).show();
+		var mp = $(this).attr('mp');
+		var id = $(this).attr('parameter');
+		var chartUrl = document.URL.split("/phenotypes/")[0];
+		chartUrl += "/baselineCharts/" + mp + "?parameter_id=" + id;
+		console.log('baselineChartUrl='+chartUrl);
+		$.ajax({
+		  url: chartUrl,
+		  cache: false
+		})
+		.done(function( html ) {
+			$( '#spinner-baseline-charts' ).hide();
+			$( '#baseline-chart-div' ).html( html );		
+			$( '#baseline-chart-div' ).attr("parameter", id);
+		});
+	});	 
+	
 	// AJAX calls for the overview charts
 	$('.oChart').each(function(i, obj) {
+		console.log('calling ochart function');
 		$( '#spinner-overview-charts' ).show();
 		var mp = $(this).attr('mp');
 		var id = $(this).attr('parameter');
 		var chartUrl = document.URL.split("/phenotypes/")[0];
 		chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + id;
+		console.log('overviewChartUrl='+chartUrl);
 		$.ajax({
 		  url: chartUrl,
 		  cache: false
@@ -207,8 +229,8 @@ $(document).ready(function(){
 	
 });
 
-
 function ajaxToBe(phenotype, parameter){
+	console.log('calling ajaxToBe');
 	$( '#spinner-overview-charts' ).show();
 	var chartUrl = document.URL.split("/phenotypes/")[0];
 	chartUrl += "/overviewCharts/" + phenotype + "?parameter_id=" + parameter;
@@ -220,6 +242,20 @@ function ajaxToBe(phenotype, parameter){
 		$( '#spinner-overview-charts' ).hide();
 		$( '#single-chart-div' ).html( html );
 		$( '#single-chart-div' ).attr("parameter", parameter);
+	});
+	
+	$( '#spinner-baseline-charts' ).show();
+	var chartUrl = document.URL.split("/phenotypes/")[0];
+	chartUrl += "/baselineCharts/" + phenotype + "?parameter_id=" + parameter;
+	console.log('calling ajaxToBeBaseline');
+	$.ajax({
+	  url: chartUrl,
+	  cache: false
+	})
+	.done(function( html ) {
+		$( '#spinner-baseline-charts' ).hide();
+		$( '#baseline-chart-div' ).html( html );
+		$( '#baseline-chart-div' ).attr("parameter", parameter);
 	});
 	
 }
