@@ -924,7 +924,6 @@ public class SolrIndex {
 			URISyntaxException {
 
 		log.debug("GETTING CONTENT FROM: " + url);
-
 		HttpProxy proxy = new HttpProxy();
 
 		try {

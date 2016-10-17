@@ -88,8 +88,6 @@ public class SearchConfig {
         String solrStr = "";
         List<String> fls = new ArrayList<>();
         for ( String fl : getFieldList(coreName) ){
-
-
             fls.add(fl);
         }
         return "&fl=" + StringUtils.join(fls, ",");
