@@ -83,13 +83,118 @@ public class BaselineChartsController {
 		HttpServletRequest request,
 		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, SQLException{
 		System.out.println("calling baselineCharts");
+
+		//Map<String, List<Float>> centerToPointsMapForParameter= os.getCenterToPointsMapForParameter(parameterStableId);
 		List<FieldStatsInfo> baselinesForParameter = os.getStatisticsForParameterFromCenter(parameterStableId, null);
-		String baseLineChart=this.generateBaselineChart(parameterStableId,baselinesForParameter);
+		String baseLineChart=this.generateBaselineChartBoxStyle(parameterStableId,baselinesForParameter);
+		//List<FieldStatsInfo> baselinesForParameter = os.getStatisticsForParameterFromCenter(parameterStableId, null);
+		//String baselineBarChart=this.generateBaselineChartBarStyle(parameterStableId, baselinesForParameter);
 		model.addAttribute("baselineChart", baseLineChart);
 		return "baselineChart";
 	}
+	
+	private String generateBaselineChartBoxStyle(String parameterStableId, List<FieldStatsInfo> baselinesForParameter) throws SolrServerException, IOException {
+		ParameterDTO parameter=impressService.getParameterByStableId(parameterStableId);
+		//String procedureName = parameter.getProcedures().iterator().next().getName();
+		System.out.println("procedure names="+parameter.getProcedureNames());
+		
+		String yAxisTitle=parameter.getUnitX();
+		List<String> xAxisLabels=new ArrayList<>();
+		List<List<String>> boxColumns=new ArrayList<>();
+		//get the number of decimal places to display
+		int decimalPlaces = getDecimalPlacesToDisplay(baselinesForParameter);
+		System.out.println("decimalPlaces="+decimalPlaces);
+		
+		
+		Double yMin=new Double(0);
+		Double yMax=new Double(0);
+		
+		for(FieldStatsInfo baseLine:baselinesForParameter){
+			List<String> boxColumn=new ArrayList<String>();
+			xAxisLabels.add("'"+baseLine.getName()+"'");
+			if((Double)baseLine.getMin()<yMin){
+				yMin=(Double)baseLine.getMin();
+			}
+			if((Double)baseLine.getMax()>yMax){
+				yMax=(Double)baseLine.getMax();
+			}
+			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMin(), decimalPlaces)));
+			double lower = (double)baseLine.getMean()-(double)baseLine.getStddev();
+			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)lower, decimalPlaces)));
+			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMean(), decimalPlaces)));
+			double upper = (double)baseLine.getMean()+(double)baseLine.getStddev();
+			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)upper, decimalPlaces)));
+			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMax(), decimalPlaces)));
+			//System.out.println(baseLine.getMin()+ " " +baseLine.getMean()+" "+baseLine.getMax());
+			boxColumns.add(boxColumn);
+			//System.out.println("boxColumn="+boxColumn);
+		}
+		
+		
+		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
+		
+		 String seriesData="{"
+			 		+ " name: 'Observations',"
+			 		+ " data:"
+			 		+ boxColumns 
+//			 		+ " ["
+//			 		+ " [760, 801, 848, 895, 965],"
+//			 		+ " [733, 853, 939, 980, 1080],"
+//			 		+ " [714, 762, 817, 870, 918],"
+//			 		+ " [834, 836, 864, 882, 910] ]"
+			 		+ ","
+			 		+ " tooltip: {"
+			 		+ " headerFormat: '<em>Experiment No {point.key}</em><br/>'"
+			 		+ " }"
+			 		+ " }";
+			 
+			 
+				String chartString = "$('#baseline-chart-div').highcharts({" + " colors:" + colors
+					+ ", chart: { type: 'boxplot'},  "
+					+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
+					+ "{ return '<b>Observation</b><br/>' + this.point.y; } "
+					+ "else { return '<b>Center: ' + this.key + '</b>"
+					+ "<br/>Max: ' + this.point.options.high + '"
+					+ "<br/>Mean + SD: ' + this.point.options.q3 + '"
+					+ "<br/>Mean: ' + this.point.options.median + '"
+					+ "<br/>Mean - SD: ' + this.point.options.q1 +'"
+					+ "<br/>Min: ' + this.point.options.low"
+					+ "; } } }    ,"
+					+ " title: {  text: '"+parameter.getName()+" WT Variation By Center', useHTML:true } ,  subtitle: {  text: '"+parameter.getProcedureNames().get(0)+"' }, "
+					+ " credits: { enabled: false },  "
+					+ " legend: { enabled: false }, "
+					+ " xAxis: { categories:  " + xAxisLabels + ","
+					+ " labels: { "
+					+ "           rotation: -45, "
+					+ "           align: 'right', "
+					+ "           style: { "
+					+ "              fontSize: '15px',"
+					+ "              fontFamily: 'Verdana, sans-serif'"
+					+ "         } "
+					+ "     }, "
+					+ " }, \n"
+					+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "},"
+					+ " yAxis: {  " + "max: " + yMax + ",  min: " + yMin + "," + " labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, "
+					+ "\n series: [" + seriesData + "] });";
 
-	private String generateBaselineChart(String parameterStableId, List<FieldStatsInfo> baselinesForParameter) throws SolrServerException, IOException {
+				return chartString;
+				
+	
+	}
+
+	private int getDecimalPlacesToDisplay(List<FieldStatsInfo> baselinesForParameter) {
+		List<String> minAndMaxStrings=new ArrayList<>();
+		for(FieldStatsInfo baseLine:baselinesForParameter){
+			String min=Double.toString((Double)baseLine.getMin());
+			String max=Double.toString((Double)baseLine.getMax());
+			minAndMaxStrings.add(min);
+			minAndMaxStrings.add(max);
+		}
+		int decimalPlaces=ChartUtils.getDecimalPlacesFromStrings(minAndMaxStrings);
+		return decimalPlaces;
+	}
+
+	private String generateBaselineChartBarStyle(String parameterStableId, List<FieldStatsInfo> baselinesForParameter) throws SolrServerException, IOException {
 		ParameterDTO parameter=impressService.getParameterByStableId(parameterStableId);
 		//String procedureName = parameter.getProcedures().iterator().next().getName();
 		System.out.println("procedure names="+parameter.getProcedureNames());
