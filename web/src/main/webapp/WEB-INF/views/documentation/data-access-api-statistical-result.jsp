@@ -542,7 +542,7 @@ curl <span class="se">\</span>
 </div>
 
 <p>More examples of how to use Solr to query and filter are available on the
-    <a href="${baseUrl}/documentation/genotype-phenotype-api-help">genotype-phenotype API</a> documentation page.</p>
+    <a href="${baseUrl}/documentation/data-access-api-genotype-phenotype">genotype-phenotype API</a> documentation page.</p>
 
 <h3>URL examples</h3>
 
