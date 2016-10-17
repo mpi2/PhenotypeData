@@ -8,13 +8,16 @@
     <br/> <br/>
 		<div id="timechart${experimentNumber}"> </div>		
 		    
-	  <p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
-	  
-		<div id="toggle_timetable${experimentNumber}">
+	  <div>
+		<p>
+			<a class="toggle-button btn"> <i class="fa fa-caret-right"> </i> More Statistics </a>
+		</p>
+
+		<div class="toggle-div hidden">
 			<p>
 				<a href="${srUrl}"> Statistical result raw XML </a> &nbsp;&nbsp;
 				<a href="${gpUrl}"> Genotype phenotype raw XML </a>&nbsp;&nbsp;
-				<a href="${baseUrl}${phenStatDataUrl}"> Phenstat-ready raw experiment data</a>
+				<a href="${baseUrl}${phenStatDataUrl}"> PhenStat-ready raw experiment data</a>
 			</p>
 
 			<table id="timeTable">
@@ -45,6 +48,8 @@
 				</tr>
 			</table>
 		</div>
+		</div>
+
 	
 	<script type="text/javascript">
 		
@@ -52,20 +57,6 @@
 
 		$(document).ready(
 				function() {
-					//set up the toggle on the table
-					$("#toggle_timetable${experimentNumber}").hide();//hide on load
-					$("#toggle_table_button${experimentNumber}").toggleClass(
-							'fa-caret-right');//toggle the arrow on the link to point right as should be closed on init
-					$("#toggle_table_button${experimentNumber}").click(
-							function() {
-								console.log("click fired");
-								$("#toggle_timetable${experimentNumber}")
-										.toggle('slow');
-								$("#toggle_table_button${experimentNumber}")
-										.toggleClass('fa-caret-right')
-										.toggleClass('fa-caret-down');//remove right and put down or vica versa
-							});
-
 					// bubble popup for brief panel documentation - added here as in stats page it doesn't work
 					$.fn.qTip({
 						'pageName' : 'stats',

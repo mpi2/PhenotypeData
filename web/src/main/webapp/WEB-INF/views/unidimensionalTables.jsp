@@ -242,16 +242,17 @@
 
             <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
 
+                <div>
                 <p>
-                    <a><i class="fa" id="toggle_table_button${experimentNumber}"> More Statistics</i></a>
+                    <a class="toggle-button btn"> <i class="fa fa-caret-right"> </i> More Statistics </a>
                 </p>
 
-                <div id="toggle_table${experimentNumber}">
+                <div class="toggle-div hidden">
 
                     <p>
                         <a href="${srUrl}"> Statistical result raw XML </a> &nbsp;&nbsp;
                         <a href="${gpUrl}"> Genotype phenotype raw XML </a>&nbsp;&nbsp;
-                        <a href="${baseUrl}${phenStatDataUrl}"> Phenstat-ready raw experiment data</a>
+                        <a href="${baseUrl}${phenStatDataUrl}"> PhenStat-ready raw experiment data</a>
                     </p>
                     <c:if test="${data.result.colonyId!=null}"><!-- Colony Id: ${data.result.colonyId } --></c:if>
                         <table>
@@ -406,7 +407,7 @@
                         <%-- <c:if test="${data.result.genderFemaleKoEstimate!=null}"><tr><td>Gender Female KO Estimate </td><td>${data.result.genderFemaleKoEstimate }</td></tr></c:if> --%>
                         <%-- <c:if test="${data.result.genderMaleKoEstimate!=null}"><tr><td>Gender Male KO Estimate </td><td>${data.result.genderMaleKoEstimate }</td></tr></c:if> --%>
                     </table>
-
+                    </div>
                 </div>
             </c:if>
         </c:if>
@@ -417,18 +418,6 @@
     <script>
         $(document).ready(
                     function() {
-
-                    $("#toggle_table${experimentNumber}").hide();//hide on load
-                        //toggle the arrow on the link to point right as should be closed on in it
-                        $("#toggle_table_button${experimentNumber}").toggleClass('fa-caret-right');
-                    $("#toggle_table_button${experimentNumber}").click(
-                                function() {
-                                    $("#toggle_table${experimentNumber}").toggle('slow');
-                                $("#toggle_table_button${experimentNumber}")
-                                        .toggleClass('fa-caret-right')
-                                        .toggleClass('fa-caret-down');//remove right and put down or vica versa
-                            });
-
                     // bubble popup for brief panel documentation - added here as in stats page it doesn't work
                     $.fn.qTip({
                         'pageName': 'stats',
