@@ -15,25 +15,32 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.PivotField;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Matt Pearce
@@ -42,6 +49,20 @@ import java.util.Map;
 @SpringBootApplication
 @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 public abstract class AbstractIndexer implements CommandLineRunner {
+
+
+    @Autowired
+    OntologyTermDAO ontologyTermDAO;
+
+    @Autowired
+    @Qualifier("komp2DataSource")
+    DataSource komp2DataSource;
+
+    private static Connection connection;
+
+    protected Integer EFO_DB_ID = 15; // default as of 2016-05-06
+
+    Map<String, BasicBean> liveStageMap = new HashMap<>();
 
 	private final Logger logger = LoggerFactory.getLogger(AbstractIndexer.class);
 
@@ -202,5 +223,112 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         }
     }
 
+    protected void doLiveStageLookup(RunStatus runStatus) throws SQLException {
+
+
+        connection = komp2DataSource.getConnection();
+
+        String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
+                + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
+                + "FROM observation o, experiment_observation eo, experiment e "
+                + "WHERE o.id=eo.observation_id "
+                + "AND eo.experiment_id=e.id )";
+
+        String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
+                + "FROM observations2 o, live_sample ls, ontology_term ot "
+                + "WHERE ot.acc=ls.developmental_stage_acc "
+                + "AND ls.id=o.biological_sample_id" ;
+
+        try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            p1.executeUpdate();
+
+//            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
+
+            PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+
+                List<String> fields = new ArrayList<String>();
+                fields.add(r.getString("colony_id"));
+                fields.add(r.getString("pipeline_stable_id"));
+                fields.add(r.getString("procedure_stable_id"));
+
+                BasicBean stage = new BasicBean(
+                        r.getString("developmental_stage_acc"),
+                        r.getString("developmental_stage_name"));
+
+                String key = StringUtils.join(fields, "_");
+                if (!liveStageMap.containsKey(key)){
+
+                    liveStageMap.put(key, stage);
+                }
+            }
+        } catch (Exception e) {
+            runStatus.addError(" Error populating live stage lookup map: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
+    protected BasicBean getDevelopmentalStage(String pipelineStableId, String procedureStableId, String colonyId, RunStatus runStatus) throws SQLException {
+
+        if (liveStageMap  == null){
+            doLiveStageLookup(runStatus);
+        }
+
+        BasicBean stage = null;
+
+        Map<String, BasicBean> stages = new HashMap<>();
+
+        Arrays.asList("postnatal", "embryonic day 9.5", "embryonic day 12.5", "embryonic day 14.5", "embryonic day 18.5" ).forEach( x -> {
+            OntologyTerm t = ontologyTermDAO.getOntologyTermByNameAndDatabaseId(x, EFO_DB_ID);
+            stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
+        });
+
+        // set life stage by looking up a combination key of
+        // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
+        // The value is cooresponding developmental stage object
+        String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
+
+        if ( liveStageMap.containsKey(key) ) {
+
+            stage = liveStageMap.get(key);
+
+        }
+
+        // Procedure prefix is the first two strings of the parameter after splitting on underscore
+        // i.e. IMPC_BWT_001_001 => IMPC_BWT
+        String procedurePrefix = StringUtils.join(Arrays.asList(procedureStableId.split("_")).subList(0, 2), "_");
+
+        BasicBean stg = null;
+        switch (procedurePrefix) {
+            case "IMPC_VIA":
+                stage = new BasicBean("n/a", "n/a");
+                break;
+            case "IMPC_FER":
+                stg = stages.get("postnatal");
+                stage = new BasicBean(stg.getId(), stg.getName());
+                break;
+            case "IMPC_EVL":
+                stg = stages.get("embryonic day 9.5");
+                stage = new BasicBean(stg.getId(), stg.getName());
+                break;
+            case "IMPC_EVM":
+                stg = stages.get("embryonic day 12.5");
+                stage = new BasicBean(stg.getId(), stg.getName());
+                break;
+            case "IMPC_EVO":
+                stg = stages.get("embryonic day 14.5");
+                stage = new BasicBean(stg.getId(), stg.getName());
+                break;
+            case "IMPC_EVP":
+                stg = stages.get("embryonic day 18.5");
+                stage = new BasicBean(stg.getId(), stg.getName());
+                break;
+        }
+
+        return stage;
+    }
 
 }
