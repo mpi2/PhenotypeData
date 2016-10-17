@@ -2,7 +2,6 @@
 
     $(document).on("click", '.toggle-button', function (event) {
 
-        console.log("CALLED TOGGLE");
         $(this).children('.fa').toggleClass('fa-caret-right')
             .toggleClass('fa-caret-down');//remove right and put down or vica versa
         $(this).parent().parent().children('.toggle-div').toggleClass("hidden");
