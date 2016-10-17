@@ -16,25 +16,8 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -42,28 +25,15 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.db.dao.AlleleDAO;
-import org.mousephenotype.cda.db.dao.GwasDAO;
-import org.mousephenotype.cda.db.dao.GwasDTO;
-import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import org.mousephenotype.cda.db.dao.StrainDAO;
+import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
-import org.mousephenotype.cda.solr.service.ExperimentService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
@@ -76,14 +46,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class FileExportController {
@@ -139,7 +117,6 @@ public class FileExportController {
 	/**
 	 * Return a TSV formatted response which contains all datapoints
 	 *
-	 * @param phenotypingCenterParameter
 	 * @param pipelineStableId
 	 * @param procedureStableId
 	 * @param parameterStableId
@@ -157,7 +134,7 @@ public class FileExportController {
 	public String getExperimentalData(
 			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter,
 			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId,
-			@RequestParam(value = "procedure_stable_id", required = true) String procedureStableId,
+			@RequestParam(value = "procedure_stable_id", required = false) String procedureStableId,
 			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId,
 			@RequestParam(value = "allele_accession_id", required = false) String alleleAccessionId,
 			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
@@ -166,8 +143,6 @@ public class FileExportController {
 			@RequestParam(value = "strain", required = false) String strainParameter)
 					throws SolrServerException, IOException , URISyntaxException {
 
-		ImpressBaseDTO pipeline = impressService.getPipeline(pipelineStableId);
-		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
 		}
@@ -185,7 +160,7 @@ public class FileExportController {
 			}
 		}
 
-		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getStableId(), pipeline.getId(),
+		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameterStableId, pipelineStableId,
 				geneAcc, sex, phenotypingCenter, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
 
 		List<String> rows = new ArrayList<>();
@@ -450,21 +425,20 @@ public class FileExportController {
 			allele = new String[1];
 			allele[0] = null;
 		}
-		List<Integer> pipelineIds = new ArrayList<>();
+		List<String> pipelineStableIds = new ArrayList<>();
 		if (pipelines != null) {
 			for (String pipe : pipelines) {
-				pipelineIds.add(impressService.getPipeline(pipe).getId());
+				pipelineStableIds.add(pipe);
 			}
-		}
-		if (pipelineIds.isEmpty()) {
-			pipelineIds.add(null);
+		} else {
+			pipelineStableIds.add(null);
 		}
 
 		List<ExperimentDTO> experimentList;
 		for (int k = 0; k < parameterStableId.length; k++) {
 			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++) {
 				for (String pCenter : phenotypingCenters) {
-					for (Integer pipelineId : pipelineIds) {
+					for (String pipelineId : pipelineStableIds) {
 						for (int strainI = 0; strainI < strain.length; strainI++) {
 							for (int alleleI = 0; alleleI < allele.length; alleleI++) {
 								experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId, geneAccession[mgiI], sex,
@@ -1231,20 +1205,21 @@ public class FileExportController {
 	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode) throws SQLException {
 		List<String> rowData = new ArrayList<>();
 		rowData.add(referenceDAO.heading);
-		List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
+
+        List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
 		for (ReferenceDTO reference : references) {
 			List<String> row = new ArrayList<>();
-			row.add(StringUtils.join(reference.getAlleleSymbols(), "|"));
-			row.add(StringUtils.join(reference.getAlleleAccessionIds(), "|"));
-			row.add(StringUtils.join(reference.getImpcGeneLinks(), "|"));
-			row.add(StringUtils.join(reference.getMgiAlleleNames(), "|"));
-			row.add(reference.getTitle());
-			row.add(reference.getJournal());
-			row.add(reference.getPmid());
-			row.add(reference.getDateOfPublication());
-			row.add(StringUtils.join(reference.getGrantIds(), "|"));
-			row.add(StringUtils.join(reference.getGrantAgencies(), "|"));
-			row.add(StringUtils.join(reference.getPaperUrls(), "|"));
+			row.add(StringUtils.join(reference.getAlleleSymbols(), "|")); //1
+			row.add(StringUtils.join(reference.getAlleleAccessionIds(), "|")); //2
+			row.add(StringUtils.join(reference.getImpcGeneLinks(), "|")); //3
+			row.add(StringUtils.join(reference.getMgiAlleleNames(), "|")); //4
+			row.add(reference.getTitle()); //5
+			row.add(reference.getJournal()); //6
+			row.add(Integer.toString(reference.getPmid())); //7
+			row.add(reference.getDateOfPublication());  //8
+			row.add(StringUtils.join(reference.getGrantIds(), "|")); //9
+			row.add(StringUtils.join(reference.getGrantAgencies(), "|"));  //10
+			row.add(StringUtils.join(reference.getPaperUrls(), "|")); //11
 
 			rowData.add(StringUtils.join(row, "\t"));
 		}

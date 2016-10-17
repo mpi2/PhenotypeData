@@ -95,7 +95,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
 
                 logger.info("Processing {} {} {} {} {}", i++, result.get(ObservationDTO.PHENOTYPING_CENTER), result.get(ObservationDTO.PIPELINE_STABLE_ID), result.get(ObservationDTO.PROCEDURE_GROUP), result.get(ObservationDTO.STRAIN_ACCESSION_ID));
 
-                String fields = "date_of_experiment,external_sample_id,strain_name,allele_accession_id,gene_accession_id,gene_symbol,sex,zygosity,biological_sample_group,colony_id,metadata_group,parameter_stable_id,parameter_name,data_point,category,observation_type";
+                String fields = "date_of_experiment,external_sample_id,strain_name,allele_accession_id,gene_accession_id,gene_symbol,weight,sex,zygosity,biological_sample_group,colony_id,metadata_group,parameter_stable_id,parameter_name,data_point,category,observation_type";
 
                 query = new SolrQuery();
                 query.setQuery("*:*")
@@ -121,12 +121,13 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     String geneAccessionId = observationDTO.getGroup().equals(BiologicalSampleType.control.getName()) ? "" : observationDTO.getGeneAccession();
                     String specimenId = observationDTO.getExternalSampleId();
                     String dateOfExperiment = observationDTO.getDateOfExperimentString();
+                    String weight = observationDTO.getWeight()!=null ? observationDTO.getWeight().toString() : "";
                     String sex = observationDTO.getSex();
                     String biologicalSampleGroup = observationDTO.getGroup();
                     String strainName = observationDTO.getStrainName();
                     String metadataGroup = observationDTO.getMetadataGroup();
 
-                    String key = Stream.of(specimenId, biologicalSampleGroup, strainName, colonyId, geneAccessionId, alleleAccessionId, dateOfExperiment, metadataGroup, zygosity, sex).collect(Collectors.joining("\t"));
+                    String key = Stream.of(specimenId, biologicalSampleGroup, strainName, colonyId, geneAccessionId, alleleAccessionId, dateOfExperiment, metadataGroup, zygosity, weight, sex).collect(Collectors.joining("\t"));
 
                     if ( ! specimenParameterMap.containsKey(key)) {
                         specimenParameterMap.put(key, new HashMap<>());
@@ -156,7 +157,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     continue;
                 }
 
-                List<String> headers = new ArrayList<>(Arrays.asList("specimen_id", "group", "background_strain_name", "colony_id", "marker_accession_id", "allele_accession_id", "batch", "metadata_group", "zygosity", "sex", "::"));
+                List<String> headers = new ArrayList<>(Arrays.asList("specimen_id", "group", "background_strain_name", "colony_id", "marker_accession_id", "allele_accession_id", "batch", "metadata_group", "zygosity", "weight", "sex", "::"));
 
                 final SortedSet<String> sortedParameters = parameters.get(result.get(ObservationDTO.PROCEDURE_GROUP));
                 headers.addAll(sortedParameters);

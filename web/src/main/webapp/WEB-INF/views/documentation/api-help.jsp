@@ -30,13 +30,13 @@
                            <p>The IMPC offers the following RESTful APIs for consuming data:
 
                             <h4 id="genetype-phenotype">Genotype-Phenotype API</h4>
-                            <p>Please see the <a href="genotype-phenotype-api-help">Genotype-Phenotype API documentation</a> </p>
+                            <p>Please see the <a href="data-access-api-genotype-phenotype">Genotype-Phenotype API documentation</a> </p>
 
                             <h4 id="experiment">Experimental observation API</h4>
-                            <p>Please see the <a href="experimental-api-help">Experimental observation API documentation</a> </p>
+                            <p>Please see the <a href="data-access-api-observation">Experimental observation API documentation</a> </p>
 
                             <h4 id="statistical-results">Statistical results API</h4>
-                            <p>Please see the <a href="statistical-results-api-help">Statistical results API documentation</a> </p>
+                            <p>Please see the <a href="data-access-api-statistical-result">Statistical results API documentation</a> </p>
                             
                              <h4 id="impc-images">IMPC images API</h4>
                             <p>Please see the <a href="impc-images-api-help">IMPC images API documentation</a> </p>

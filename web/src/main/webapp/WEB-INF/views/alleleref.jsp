@@ -11,7 +11,6 @@
         <link href="${baseUrl}/css/default.css" rel="stylesheet" />
         
         <style type="text/css">
-
             div#alleleRef_filter {
             	float: left;
             	clear: right;
@@ -23,6 +22,7 @@
             }
             table#alleleRef {
             	clear: left;
+                margin-top: 20px;
             }
             table#alleleRef th:first-child, table#alleleRef th:nth-child(2) {
                 width: 150px !important;
@@ -36,8 +36,11 @@
             .hideMe {
                 display: none;
             }
-            .showMe {
-                display: block;
+            /*.showMe {*/
+                /*display: block;*/
+            /*}*/
+            ul li.showMe {
+                list-style-type: solid circle !important;
             }
             .alleleToggle {
                 cursor: pointer;
@@ -45,7 +48,7 @@
                 font-weight: bold;
             }
             div.saveTable {
-                bottom: 50px;
+                margin-bottom: 30px;
                 float: right;
                 margin-right: 30px;
             }

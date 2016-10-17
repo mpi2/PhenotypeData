@@ -15,31 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.DatasourceDAO;
-import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDAO;
-import org.mousephenotype.cda.db.dao.OntologyDetail;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -55,6 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Populate the Genotype-Phenotype core
@@ -280,7 +267,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
 	            d = r.getDouble("effect_size");
 	            if ( ! r.wasNull()) {
-		            doc.setEffect_size(r.getDouble("effect_size"));
+		            doc.setEffectSize(r.getDouble("effect_size"));
 	            }
 
                 doc.setMarkerAccessionId(r.getString("marker_accession_id"));
@@ -346,8 +333,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    // mp-anatomy mappings (all MA at the moment)
-                    if (mpOntologyService.getAnatomyMappings(mpId) != null){
+                    // mp-ma mappings, only add to adult (MmusDv:0000092) as mapping if to MA
+                    if (doc.getLifeStageAcc().equalsIgnoreCase("MmusDv:0000092") && mpOntologyService.getAnatomyMappings(mpId) != null){
                     	List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
                     	for (String id: anatomyIds){
                     		OntologyDAO currentOntologyService = null;
