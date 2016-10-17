@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -87,9 +88,16 @@ public class ChartUtils {
      * @return decimal places as an int.
      */
     public static int getDecimalPlaces(ExperimentDTO experiment) {
-        int numberOfDecimalPlaces = 0;
+ 
+        Set<ObservationDTO> observations=experiment.getControls();
+        
+        return getDecimalPlacesFromObservations(observations);
+    }
+
+	public static int getDecimalPlacesFromObservations(Set<ObservationDTO> observations) {
+		int numberOfDecimalPlaces = 0;
         int i = 0;
-        for (ObservationDTO control : experiment.getControls()) {
+        for (ObservationDTO control : observations) {
             Float dataPoint = control.getDataPoint();
             String dString = dataPoint.toString();
             int pointIndex = dString.indexOf(".");
@@ -104,7 +112,7 @@ public class ChartUtils {
             }
         }
         return numberOfDecimalPlaces;
-    }
+	}
 
 
     /**
@@ -229,5 +237,25 @@ public class ChartUtils {
 
         return null;
     }
+
+	public static int getDecimalPlacesFromStrings(List<String> means) {
+		int numberOfDecimalPlaces = 0;
+        int i = 0;
+        for (String numberString  : means) {
+            Float dataPoint = new Float(numberString);
+            String dString = dataPoint.toString();
+            int pointIndex = dString.indexOf(".");
+            int length = dString.length();
+            int tempNumber = length - (pointIndex + 1);
+            if (tempNumber > numberOfDecimalPlaces) {
+                numberOfDecimalPlaces = tempNumber;
+            }
+            i ++;
+            if (i > 100) {
+                break;//only sample the first 100 hopefully representative
+            }
+        }
+        return numberOfDecimalPlaces;
+	}
 
 }

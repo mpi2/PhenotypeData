@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -2095,6 +2096,49 @@ public class ObservationService extends BasicService implements WebStatus {
 
         return solr.query(q).getBeans(ObservationDTO.class);
 
+	}
+	
+	/**
+	 * Get stats for the baseline graphs on the phenotype pages for each parameter/center
+	 * if phenotypingCenter is null just return all stats for the center otherwise filter on that center
+	 * @throws IOException 
+	 * @throws SolrServerException 
+	 */
+	public List<FieldStatsInfo> getStatisticsForParameterFromCenter(String parameterStableId, String phenotypingCenter) throws SolrServerException, IOException{
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&stats=true&stats.field=data_point&stats.facet=parameter_stable_id&rows=0&indent=true&fq=phenotyping_center:HMGU&fq=parameter_stable_id:IMPC_CBC_010_001
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&stats=true&stats.field=data_point&stats.facet=phenotyping_center&rows=0&indent=true&fq=parameter_stable_id:IMPC_CBC_010_001
+		System.out.println("calling getStats for baseline");
+		SolrQuery query = new SolrQuery()
+				.setQuery("*:*");
+		query.setGetFieldStatistics(true);
+		query.setGetFieldStatistics(ObservationDTO.DATA_POINT);
+		query.setParam("stats.facet", ObservationDTO.PHENOTYPING_CENTER); 
+		query.setFacetLimit(-1);
+		query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
+		if (parameterStableId != null) {
+			query.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":"+  parameterStableId);
+		}
+
+		if (phenotypingCenter != null) {
+			query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+		}
+
+			query.setRows(0);
+			
+	        logger.info("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
+
+	        QueryResponse response = solr.query(query);
+	        FieldStatsInfo statsInfo=response.getFieldStatsInfo().get(ObservationDTO.DATA_POINT);
+	        Map<String, List<FieldStatsInfo>> facetToStatsMap = statsInfo.getFacets();
+	       
+	        List<FieldStatsInfo> centerStatsList=null;
+			//just get the first result as we only expect 1
+	        for(String facet: facetToStatsMap.keySet()){
+	        	centerStatsList=facetToStatsMap.get(facet);
+	        }
+	        
+	        return centerStatsList;
+	
 	}
 	
 }
