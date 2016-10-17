@@ -211,7 +211,43 @@
 						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsSection' class="fa fa-question-circle pull-right"></a></span> </h2>
 						<div class="inner">
 							<!-- Phenotype Assoc. summary -->
+							
 
+							<c:if test="${parametersAssociated.size() == 0}">
+								
+									<c:if test="${genePercentage.getTotalGenesTested() > 0}">
+										<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
+										(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
+									</c:if>
+									<p>
+									<c:if test="${genePercentage.getFemaleGenesTested() > 0}">
+										<span class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </span>
+									</c:if>
+									<c:if test="${genePercentage.getMaleGenesTested() > 0}">
+										<span class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span>
+									</c:if>
+									</p>
+								
+								
+							</c:if>
+							<c:if test="${parametersAssociated.size() > 0}">
+								
+									<c:if test="${genePercentage.getTotalGenesTested() > 0}">
+										<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
+										(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
+									</c:if>
+									<p>
+									<c:if test="${genePercentage.getFemaleGenesTested() > 0}">
+										<span class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </span>
+									</c:if>
+									<c:if test="${genePercentage.getMaleGenesTested() > 0}">									
+										<span class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span>
+									</c:if>
+									</p>
+									
+								
+								
+							</c:if>
 							
 							
 							<!-- baseline charts -->
