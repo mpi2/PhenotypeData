@@ -17,7 +17,7 @@
                                 <ul>
                                     <li type="circle" style="padding-left: 15px"><a href="data-access-api-genotype-phenotype">Genotype-Phenotype API</a></li>
                                     <li type="circle" style="padding-left: 15px"><a href="data-access-api-observation">Experimental Observation API</a></li>
-                                    <li type="circle" style="padding-left: 15px"><a href="data-access-api-statistical-results">Statistical Results API</a></li>
+                                    <li type="circle" style="padding-left: 15px"><a href="data-access-api-statistical-result">Statistical Results API</a></li>
                                     <li type="circle" style="padding-left: 15px"><a href="impc-images-api-help">IMPC Images API</a></li>
                                 </ul>
                                 </li>
