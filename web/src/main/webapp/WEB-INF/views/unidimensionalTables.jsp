@@ -250,9 +250,9 @@
                 <div class="toggle-div hidden">
 
                     <p>
-                        <a href="${srUrl}"> Statistical result raw XML </a> &nbsp;&nbsp;
-                        <a href="${gpUrl}"> Genotype phenotype raw XML </a>&nbsp;&nbsp;
-                        <a href="${baseUrl}${phenStatDataUrl}"> PhenStat-ready raw experiment data</a>
+                        <a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;
+                        <a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
+                        <a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
                     </p>
                     <c:if test="${data.result.colonyId!=null}"><!-- Colony Id: ${data.result.colonyId } --></c:if>
                         <table>
