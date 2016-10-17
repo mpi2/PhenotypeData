@@ -36,7 +36,7 @@
                             <p>Please see the <a href="data-access-api-observation">Experimental observation API documentation</a> </p>
 
                             <h4 id="statistical-results">Statistical results API</h4>
-                            <p>Please see the <a href="data-access-api-statistical-results">Statistical results API documentation</a> </p>
+                            <p>Please see the <a href="data-access-api-statistical-result">Statistical results API documentation</a> </p>
                             
                              <h4 id="impc-images">IMPC images API</h4>
                             <p>Please see the <a href="impc-images-api-help">IMPC images API documentation</a> </p>
