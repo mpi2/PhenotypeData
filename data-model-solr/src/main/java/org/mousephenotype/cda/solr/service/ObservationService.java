@@ -531,8 +531,6 @@ public class ObservationService extends BasicService implements WebStatus {
 
         }
 
-        System.out.println("URLLL " + solr.getBaseURL() + "/select?" + query);
-
         QueryResponse response = solr.query(query);
         logger.debug("experiment key query=" + query);
         List<FacetField> fflist = response.getFacetFields();
