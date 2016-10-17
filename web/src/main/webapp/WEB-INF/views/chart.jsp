@@ -35,11 +35,6 @@
             </c:if>
         </p>
 
-
-        <a href="${srUrl}" class="hidden"> Statistical result URL</a>
-        <a href="${gpUrl}" class="hidden"> Genotype phenotype URL</a>
-        <a href="${baseUrl}${phenStatDataUrl}" class="hidden"> Phenstat-ready URL</a>
-
         <br/> <br/>
 
         <c:choose>
