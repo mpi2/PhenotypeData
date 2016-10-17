@@ -106,17 +106,17 @@ public class BaselineChartsController {
 		System.out.println("decimalPlaces="+decimalPlaces);
 		
 		
-		Double minMin=new Double(0);
-		Double maxMax=new Double(0);
+		Double yMin=new Double(0);
+		Double yMax=new Double(0);
 		
 		for(FieldStatsInfo baseLine:baselinesForParameter){
 			List<String> boxColumn=new ArrayList<String>();
 			xAxisLabels.add("'"+baseLine.getName()+"'");
-			if((Double)baseLine.getMin()<minMin){
-				minMin=(Double)baseLine.getMin();
+			if((Double)baseLine.getMin()<yMin){
+				yMin=(Double)baseLine.getMin();
 			}
-			if((Double)baseLine.getMax()>maxMax){
-				maxMax=(Double)baseLine.getMax();
+			if((Double)baseLine.getMax()>yMax){
+				yMax=(Double)baseLine.getMax();
 			}
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMin(), decimalPlaces)));
 			double lower = (double)baseLine.getMean()-(double)baseLine.getStddev();
@@ -153,14 +153,14 @@ public class BaselineChartsController {
 					+ ", chart: { type: 'boxplot'},  "
 					+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
 					+ "{ return '<b>Observation</b><br/>' + this.point.y; } "
-					+ "else { return '<b>Genotype: ' + this.key + '</b>"
-					+ "<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '"
-					+ "<br/>Upper Quartile: ' + this.point.options.q3 + '"
-					+ "<br/>Median: ' + this.point.options.median + '"
-					+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
-					+ "<br/>LQ - 1.5 * IQR: ' + this.point.options.low"
+					+ "else { return '<b>Center: ' + this.key + '</b>"
+					+ "<br/>Max: ' + this.point.options.high + '"
+					+ "<br/>Mean + SD: ' + this.point.options.q3 + '"
+					+ "<br/>Mean: ' + this.point.options.median + '"
+					+ "<br/>Mean - SD: ' + this.point.options.q1 +'"
+					+ "<br/>Min: ' + this.point.options.low"
 					+ "; } } }    ,"
-					+ " title: {  text: '"+parameter.getName()+" WT Variation By Center', useHTML:true } , "
+					+ " title: {  text: '"+parameter.getName()+" WT Variation By Center', useHTML:true } ,  subtitle: {  text: '"+parameter.getProcedureNames().get(0)+"' }, "
 					+ " credits: { enabled: false },  "
 					+ " legend: { enabled: false }, "
 					+ " xAxis: { categories:  " + xAxisLabels + ","
@@ -174,7 +174,7 @@ public class BaselineChartsController {
 					+ "     }, "
 					+ " }, \n"
 					+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "},"
-					+ " yAxis: { labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, "
+					+ " yAxis: {  " + "max: " + yMax + ",  min: " + yMin + "," + " labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, "
 					+ "\n series: [" + seriesData + "] });";
 
 				return chartString;
