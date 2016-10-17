@@ -135,6 +135,27 @@ public class ChartUtils {
         Float decFloat = new Float(decimalAdjustedMean);
         return decFloat;
     }
+    
+    /**
+     * Return <code>number</code> to specified number of decimals.
+     *
+     * @param number
+     * @param numberOfDecimals
+     *
+     * @return <code>number</code> to specified number of decimals.
+     */
+    public static Double getDecimalAdjustedDouble(Double number, int numberOfDecimals) {
+        //1 decimal #.#
+        String decimalFormatString = "#.";
+        for (int i = 0; i < numberOfDecimals; i ++) {
+            decimalFormatString += "#";
+        }
+
+        DecimalFormat df = new DecimalFormat(decimalFormatString);
+        String decimalAdjustedMean = df.format(number);
+        Double decFloat = new Double(decimalAdjustedMean);
+        return decFloat;
+    }
 
 
     public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
