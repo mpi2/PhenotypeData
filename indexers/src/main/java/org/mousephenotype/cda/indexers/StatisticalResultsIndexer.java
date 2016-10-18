@@ -326,7 +326,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			doc.setLifeStageAcc(stage.getId());
 			doc.setLifeStageName(stage.getName());
 		} else {
-			System.out.println("Stage is NULL");
+			logger.info("Stage is NULL for doc id" + doc.getDocId());
 		}
 
 		// Biological details
