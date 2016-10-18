@@ -16,8 +16,6 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
@@ -682,7 +680,7 @@ public class StatisticalResultDTO {
         this.topLevelMpTermName = topLevelMpTermName;
     }
 
-    public String LifeStageAcc() {
+    public String getLifeStageAcc() {
 
         return lifeStageAcc;
     }
@@ -692,7 +690,7 @@ public class StatisticalResultDTO {
         this.lifeStageAcc = life_stage_acc;
     }
 
-    public String LifeStageName() {
+    public String setLifeStageName() {
 
         return lifeStageName;
     }

@@ -23,6 +23,7 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
@@ -320,6 +321,14 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		addImpressData(r, doc);
 
+		BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), doc.getProcedureStableId(), doc.getColonyId());
+		if (stage != null) {
+			doc.setLifeStageAcc(stage.getId());
+			doc.setLifeStageName(stage.getName());
+		} else {
+			System.out.println("Stage is NULL");
+		}
+
 		// Biological details
 		addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
@@ -503,54 +512,45 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
 
 				 // mp-anatomy mappings (all MA at the moment)
-                if (mpOntologyService.getAnatomyMappings(mpId) != null){
-                	List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
-                	for (String id: anatomyIds){
-                		OntologyDAO currentOntologyService = null;
-                		if (id.startsWith("EMAPA")){
-                			currentOntologyService = emapaOntologyService;
-                		} else  if (id.startsWith("MA")){
-                			currentOntologyService = maOntologyService;
-                		}
-                		if (currentOntologyService != null){
-	                		doc.addAnatomyTermId(id);
-	                		doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
-	                		OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
-	                		doc.setIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
-	                		doc.setIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
-	                		OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
-	                		doc.setTopLevelAnatomyTermId(anatomyTopLevels.getIds());
-	                		doc.setTopLevelAnatomyTermName(anatomyTopLevels.getNames());
-                		}
-                	}
-                }
-                // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
-                Set<String> anatomyIdsForAncestors = new HashSet<>();
-                for (String mpAncestorId: mpOntologyService.getAncestorsDetail(mpId).getIds()){
-                	if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null){
-                		anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
-                	}
-                }
+                if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase("MmusDv:0000092")) {
+					if (mpOntologyService.getAnatomyMappings(mpId) != null) {
+						List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
+						for (String id : anatomyIds) {
+							OntologyDAO currentOntologyService = maOntologyService;
+							if (currentOntologyService != null) {
+								doc.addAnatomyTermId(id);
+								doc.addAnatomyTermName(currentOntologyService.getTerm(id).getName());
+								OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
+								doc.setIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
+								doc.setIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
+								OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
+								doc.setTopLevelAnatomyTermId(anatomyTopLevels.getIds());
+								doc.setTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+							}
+						}
+					}
+					// Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
+					Set<String> anatomyIdsForAncestors = new HashSet<>();
+					for (String mpAncestorId : mpOntologyService.getAncestorsDetail(mpId).getIds()) {
+						if (mpOntologyService.getAnatomyMappings(mpAncestorId) != null) {
+							anatomyIdsForAncestors.addAll(mpOntologyService.getAnatomyMappings(mpAncestorId));
+						}
+					}
 
-                for (String id: anatomyIdsForAncestors){
-                	OntologyDAO currentOntologyService = null;
-                	if (id.startsWith("EMAPA")){
-                		currentOntologyService = emapaOntologyService;
-                	} else  if (id.startsWith("MA")){
-                		currentOntologyService = maOntologyService;
-                	}
-                	if(currentOntologyService != null){
-                   		doc.addIntermediateAnatomyTermId(id);
-                   		doc.addIntermediateAnatomyTermName(currentOntologyService.getTerm(id).getName());
-                   		OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
-                   		doc.addIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
-                   		doc.addIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
-                   		OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
-                   		doc.addTopLevelAnatomyTermId(anatomyTopLevels.getIds());
-                   		doc.addTopLevelAnatomyTermName(anatomyTopLevels.getNames());
-                	}
-                }
-
+					for (String id : anatomyIdsForAncestors) {
+						OntologyDAO currentOntologyService = maOntologyService;
+						if (currentOntologyService != null) {
+							doc.addIntermediateAnatomyTermId(id);
+							doc.addIntermediateAnatomyTermName(currentOntologyService.getTerm(id).getName());
+							OntologyDetail anatomyIntermediateTerms = currentOntologyService.getIntermediatesDetail(id);
+							doc.addIntermediateAnatomyTermId(anatomyIntermediateTerms.getIds());
+							doc.addIntermediateAnatomyTermName(anatomyIntermediateTerms.getNames());
+							OntologyDetail anatomyTopLevels = currentOntologyService.getSelectedTopLevelDetails(id);
+							doc.addTopLevelAnatomyTermId(anatomyTopLevels.getIds());
+							doc.addTopLevelAnatomyTermName(anatomyTopLevels.getNames());
+						}
+					}
+				}
 			}
 		}
 	}
