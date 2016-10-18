@@ -223,7 +223,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    protected void doLiveStageLookup(RunStatus runStatus) throws SQLException {
+    protected void doLiveStageLookup() throws SQLException {
 
 
         connection = komp2DataSource.getConnection();
@@ -237,44 +237,40 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
                 + "FROM observations2 o, live_sample ls, ontology_term ot "
                 + "WHERE ot.acc=ls.developmental_stage_acc "
-                + "AND ls.id=o.biological_sample_id" ;
+                + "AND ls.id=o.biological_sample_id";
 
-        try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-            p1.executeUpdate();
+        PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        p1.executeUpdate();
 
 //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
-            PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
-            ResultSet r = p.executeQuery();
-            while (r.next()) {
+        ResultSet r = p.executeQuery();
+        while (r.next()) {
 
-                List<String> fields = new ArrayList<String>();
-                fields.add(r.getString("colony_id"));
-                fields.add(r.getString("pipeline_stable_id"));
-                fields.add(r.getString("procedure_stable_id"));
+            List<String> fields = new ArrayList<String>();
+            fields.add(r.getString("colony_id"));
+            fields.add(r.getString("pipeline_stable_id"));
+            fields.add(r.getString("procedure_stable_id"));
 
-                BasicBean stage = new BasicBean(
-                        r.getString("developmental_stage_acc"),
-                        r.getString("developmental_stage_name"));
+            BasicBean stage = new BasicBean(
+                    r.getString("developmental_stage_acc"),
+                    r.getString("developmental_stage_name"));
 
-                String key = StringUtils.join(fields, "_");
-                if (!liveStageMap.containsKey(key)){
+            String key = StringUtils.join(fields, "_");
+            if (!liveStageMap.containsKey(key)) {
 
-                    liveStageMap.put(key, stage);
-                }
+                liveStageMap.put(key, stage);
             }
-        } catch (Exception e) {
-            runStatus.addError(" Error populating live stage lookup map: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
 
-    protected BasicBean getDevelopmentalStage(String pipelineStableId, String procedureStableId, String colonyId, RunStatus runStatus) throws SQLException {
+    protected BasicBean getDevelopmentalStage(String pipelineStableId, String procedureStableId, String colonyId) throws SQLException {
 
         if (liveStageMap  == null){
-            doLiveStageLookup(runStatus);
+            doLiveStageLookup();
         }
 
         BasicBean stage = null;
