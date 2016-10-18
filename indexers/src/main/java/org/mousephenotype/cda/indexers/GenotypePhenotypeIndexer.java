@@ -279,6 +279,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
 	                }
 
+                    BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
+                    if (stage != null) {
+                        doc.setLifeStageAcc(stage.getId());
+                        doc.setLifeStageName(stage.getName());
+                    }
+
+
                     String mpId = r.getString("ontology_term_id");
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
@@ -360,13 +367,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 else {
                     runStatus.addError(" Found unknown ontology term: " + r.getString("ontology_term_id"));
                 }
-
-
-	            BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
-	            if (stage != null) {
-		            doc.setLifeStageAcc(stage.getId());
-		            doc.setLifeStageName(stage.getName());
-	            }
 
                 documentCount++;
                 genotypePhenotypeIndexing.addBean(doc, 30000);

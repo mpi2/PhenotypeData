@@ -225,6 +225,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
     protected void doLiveStageLookup() throws SQLException {
 
+        System.out.println("Filling up LIVE STAGE LOOKUP");
 
         connection = komp2DataSource.getConnection();
 
@@ -242,11 +243,14 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         p1.executeUpdate();
 
+        System.out.println("Finished first query");
+
 //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
         PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
         ResultSet r = p.executeQuery();
+        System.out.println("Finished second query");
         while (r.next()) {
 
             List<String> fields = new ArrayList<String>();
@@ -269,7 +273,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
     protected BasicBean getDevelopmentalStage(String pipelineStableId, String procedureStableId, String colonyId) throws SQLException {
 
-        if (liveStageMap  == null){
+        if (liveStageMap  == null || liveStageMap.size() == 0){
             doLiveStageLookup();
         }
 
