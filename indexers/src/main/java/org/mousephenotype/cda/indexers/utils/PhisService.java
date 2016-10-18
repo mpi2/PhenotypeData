@@ -11,12 +11,12 @@ import org.mousephenotype.cda.indexers.beans.PImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 
 public class PhisService {
-
-	public List<ImageDTO> getPhenoImageShareImageDTOs() throws SolrServerException, IOException{
-		
-	List<ImageDTO> phisImageDTOs=new ArrayList<>();
-	//http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.3/images/select?q=host_name:WTSI&rows=200
+	
 	HttpSolrClient phisSolr=new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.3/images/");
+	
+	public List<ImageDTO> getPhenoImageShareImageDTOs() throws SolrServerException, IOException{
+	//http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.3/images/select?q=host_name:WTSI&rows=200
+	
 	SolrQuery q = new SolrQuery();
 	q.setQuery(PImageDTO.HOST_NAME+":WTSI").setRows(200);//Integer.MAX_VALUE);
 	
