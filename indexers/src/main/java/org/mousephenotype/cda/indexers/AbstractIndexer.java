@@ -225,6 +225,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
     protected void doLiveStageLookup() throws SQLException {
 
+        long time = System.currentTimeMillis();
         System.out.println("Filling up LIVE STAGE LOOKUP");
 
         connection = komp2DataSource.getConnection();
@@ -235,6 +236,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                 + "WHERE o.id=eo.observation_id "
                 + "AND eo.experiment_id=e.id )";
 
+
         String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
                 + "FROM observations2 o, live_sample ls, ontology_term ot "
                 + "WHERE ot.acc=ls.developmental_stage_acc "
@@ -243,14 +245,19 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         p1.executeUpdate();
 
-        System.out.println("Finished first query");
+        System.out.println("First query took  "  + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
+
 
 //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
         PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-
         ResultSet r = p.executeQuery();
-        System.out.println("Finished second query");
+
+
+        System.out.println("Second query took  "  + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
+
         while (r.next()) {
 
             List<String> fields = new ArrayList<String>();
@@ -264,10 +271,11 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
             String key = StringUtils.join(fields, "_");
             if (!liveStageMap.containsKey(key)) {
-
                 liveStageMap.put(key, stage);
             }
         }
+
+        System.out.println("Remaining took "  + (System.currentTimeMillis() - time));
     }
 
 
