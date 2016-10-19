@@ -216,7 +216,8 @@
         <field name="male_ko_parameter_estimate" type="double" indexed="true" stored="true" multiValued="false"/>
         <field name="classification_tag" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="phenotype_sex" type="string" indexed="true" stored="true" multiValued="true"/> <!-- Sex for which the call will be made. One of [male], [female], [female,male], [] -->
-
+        <field name="life_stage_acc" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="life_stage_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
         <field name="significant" type="boolean" indexed="true" stored="true" multiValued="false"/>
 
         <!-- for copyfield -->
