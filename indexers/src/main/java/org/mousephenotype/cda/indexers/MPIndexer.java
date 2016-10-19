@@ -31,9 +31,12 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
+import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
@@ -48,6 +51,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -103,6 +107,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
+    @Autowired
+    private PhenotypeCallSummarySolr phenotypeSummaryHelper;
+
+
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
 
@@ -154,7 +162,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Override
     public RunStatus run ()
-    throws IndexerException, SQLException, IOException, SolrServerException {
+            throws IndexerException, SQLException, IOException, SolrServerException, URISyntaxException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -245,6 +253,29 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setScrollNode(scrollNodeId);
                 List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
+
+                PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(termId,  null, null, null);
+                PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(termId,  null, null, null);
+
+                List<DataTableRow> uniqGenes = phenotypeSummaryHelper.getPhenotypeRows(phenoResult, preQcResult, "");
+                mp.setGeneVariantCount(uniqGenes.size());
+
+                int maleCount = 0;
+                int femaleCount = 0;
+                for(DataTableRow r : uniqGenes){
+                    for (String s : r.getSexes()){
+                        if (s.equals("female")){
+                            femaleCount++;
+                        }
+                        else if (s.equals("male")){
+                            maleCount++;
+                        }
+                    }
+                }
+
+                mp.setGeneVariantFemaleCount(femaleCount);
+                mp.setGeneVariantMaleCount(maleCount);
+
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;

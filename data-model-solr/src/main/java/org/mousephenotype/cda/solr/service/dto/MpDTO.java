@@ -153,6 +153,10 @@ public class MpDTO {
 	public static final String SEARCH_TERM_JSON = "search_term_json";
 	public static final String CHILDREN_JSON = "children_json";
 	public static final String SCROLL_NODE = "scroll_node";
+	public static final String GENE_VARIANT_COUNT = "gene_variant_count";
+	public static final String GENE_VARIANT_MALE_COUNT = "gene_variant_male_count";
+	public static final String GENE_VARIANT_FEMALE_COUNT = "gene_variant_female_count";
+
 
 	@Field(MP_ID)
 	private String mpId;
@@ -180,6 +184,15 @@ public class MpDTO {
 	
 	@Field(SCROLL_NODE)
 	private String scrollNode;
+
+	@Field(GENE_VARIANT_COUNT)
+	private Integer geneVariantCount;
+
+	@Field(GENE_VARIANT_MALE_COUNT)
+	private Integer geneVariantMaleCount;
+
+	@Field(GENE_VARIANT_FEMALE_COUNT)
+	private Integer geneVariantFemaleCount;
 
 	@Field(ALT_MP_ID)
 	private List<String> altMpId;
@@ -563,6 +576,30 @@ public class MpDTO {
 		this.scrollNode = scrollNode;
 	}
 
+
+	public Integer getGeneVariantCount() {
+		return geneVariantCount;
+	}
+
+	public void setGeneVariantCount(Integer geneVariantCount) {
+		this.geneVariantCount = geneVariantCount;
+	}
+
+	public Integer getGeneVariantMaleCount() {
+		return geneVariantMaleCount;
+	}
+
+	public void setGeneVariantMaleCount(Integer geneVariantMaleCount) {
+		this.geneVariantMaleCount = geneVariantMaleCount;
+	}
+
+	public Integer getGeneVariantFemaleCount() {
+		return geneVariantFemaleCount;
+	}
+
+	public void setGeneVariantFemaleCount(Integer geneVariantFemaleCount) {
+		this.geneVariantFemaleCount = geneVariantFemaleCount;
+	}
 
 	public String getMpDefinition() {
 
@@ -2022,335 +2059,348 @@ public class MpDTO {
 		this.parameterStableKey = parameterStableKey;
 	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-        MpDTO mpDTO = (MpDTO) o;
+		MpDTO mpDTO = (MpDTO) o;
 
-        if (mpId != null ? !mpId.equals(mpDTO.mpId) : mpDTO.mpId != null) return false;
-        if (mpTerm != null ? !mpTerm.equals(mpDTO.mpTerm) : mpDTO.mpTerm != null) return false;
-        if (mpDefinition != null ? !mpDefinition.equals(mpDTO.mpDefinition) : mpDTO.mpDefinition != null) return false;
-        if (mpTermSynonym != null ? !mpTermSynonym.equals(mpDTO.mpTermSynonym) : mpDTO.mpTermSynonym != null)
-            return false;
-        if (mpNarrowSynonym != null ? !mpNarrowSynonym.equals(mpDTO.mpNarrowSynonym) : mpDTO.mpNarrowSynonym != null)
-            return false;
-        if (mpNodeId != null ? !mpNodeId.equals(mpDTO.mpNodeId) : mpDTO.mpNodeId != null) return false;
-        if (searchTermJson != null ? !searchTermJson.equals(mpDTO.searchTermJson) : mpDTO.searchTermJson != null)
-            return false;
-        if (childrenJson != null ? !childrenJson.equals(mpDTO.childrenJson) : mpDTO.childrenJson != null) return false;
-        if (scrollNode != null ? !scrollNode.equals(mpDTO.scrollNode) : mpDTO.scrollNode != null) return false;
-        if (altMpId != null ? !altMpId.equals(mpDTO.altMpId) : mpDTO.altMpId != null) return false;
-        if (childMpId != null ? !childMpId.equals(mpDTO.childMpId) : mpDTO.childMpId != null) return false;
-        if (childMpTerm != null ? !childMpTerm.equals(mpDTO.childMpTerm) : mpDTO.childMpTerm != null) return false;
-        if (childMpDefinition != null ? !childMpDefinition.equals(mpDTO.childMpDefinition) : mpDTO.childMpDefinition != null)
-            return false;
-        if (childMpTermSynonym != null ? !childMpTermSynonym.equals(mpDTO.childMpTermSynonym) : mpDTO.childMpTermSynonym != null)
-            return false;
-        if (parentMpId != null ? !parentMpId.equals(mpDTO.parentMpId) : mpDTO.parentMpId != null) return false;
-        if (parentMpTerm != null ? !parentMpTerm.equals(mpDTO.parentMpTerm) : mpDTO.parentMpTerm != null) return false;
-        if (parentMpDefinition != null ? !parentMpDefinition.equals(mpDTO.parentMpDefinition) : mpDTO.parentMpDefinition != null)
-            return false;
-        if (parentMpTermSynonym != null ? !parentMpTermSynonym.equals(mpDTO.parentMpTermSynonym) : mpDTO.parentMpTermSynonym != null)
-            return false;
-        if (intermediateMpId != null ? !intermediateMpId.equals(mpDTO.intermediateMpId) : mpDTO.intermediateMpId != null)
-            return false;
-        if (intermediateMpTerm != null ? !intermediateMpTerm.equals(mpDTO.intermediateMpTerm) : mpDTO.intermediateMpTerm != null)
-            return false;
-        if (intermediateMpDefinition != null ? !intermediateMpDefinition.equals(mpDTO.intermediateMpDefinition) : mpDTO.intermediateMpDefinition != null)
-            return false;
-        if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(mpDTO.intermediateMpTermSynonym) : mpDTO.intermediateMpTermSynonym != null)
-            return false;
-        if (topLevelMpId != null ? !topLevelMpId.equals(mpDTO.topLevelMpId) : mpDTO.topLevelMpId != null) return false;
-        if (topLevelMpTerm != null ? !topLevelMpTerm.equals(mpDTO.topLevelMpTerm) : mpDTO.topLevelMpTerm != null)
-            return false;
-        if (topLevelMpDefinition != null ? !topLevelMpDefinition.equals(mpDTO.topLevelMpDefinition) : mpDTO.topLevelMpDefinition != null)
-            return false;
-        if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(mpDTO.topLevelMpTermSynonym) : mpDTO.topLevelMpTermSynonym != null)
-            return false;
-        if (topLevelMpTermId != null ? !topLevelMpTermId.equals(mpDTO.topLevelMpTermId) : mpDTO.topLevelMpTermId != null)
-            return false;
-        if (hpId != null ? !hpId.equals(mpDTO.hpId) : mpDTO.hpId != null) return false;
-        if (hpTerm != null ? !hpTerm.equals(mpDTO.hpTerm) : mpDTO.hpTerm != null) return false;
-        if (hpTermSynonym != null ? !hpTermSynonym.equals(mpDTO.hpTermSynonym) : mpDTO.hpTermSynonym != null)
-            return false;
-        if (dataType != null ? !dataType.equals(mpDTO.dataType) : mpDTO.dataType != null) return false;
-        if (ontologySubset != null ? !ontologySubset.equals(mpDTO.ontologySubset) : mpDTO.ontologySubset != null)
-            return false;
-        if (maId != null ? !maId.equals(mpDTO.maId) : mpDTO.maId != null) return false;
-        if (maTerm != null ? !maTerm.equals(mpDTO.maTerm) : mpDTO.maTerm != null) return false;
-        if (maTermSynonym != null ? !maTermSynonym.equals(mpDTO.maTermSynonym) : mpDTO.maTermSynonym != null)
-            return false;
-        if (selectedTopLevelMaId != null ? !selectedTopLevelMaId.equals(mpDTO.selectedTopLevelMaId) : mpDTO.selectedTopLevelMaId != null)
-            return false;
-        if (selectedTopLevelMaTerm != null ? !selectedTopLevelMaTerm.equals(mpDTO.selectedTopLevelMaTerm) : mpDTO.selectedTopLevelMaTerm != null)
-            return false;
-        if (selectedTopLevelMaTermSynonym != null ? !selectedTopLevelMaTermSynonym.equals(mpDTO.selectedTopLevelMaTermSynonym) : mpDTO.selectedTopLevelMaTermSynonym != null)
-            return false;
-           if (inferredMaId != null ? !inferredMaId.equals(mpDTO.inferredMaId) : mpDTO.inferredMaId != null) return false;
-        if (inferredMaTerm != null ? !inferredMaTerm.equals(mpDTO.inferredMaTerm) : mpDTO.inferredMaTerm != null)
-            return false;
-        if (inferredMaTermSynonym != null ? !inferredMaTermSynonym.equals(mpDTO.inferredMaTermSynonym) : mpDTO.inferredMaTermSynonym != null)
-            return false;
-        if (inferredSelectedTopLevelMaId != null ? !inferredSelectedTopLevelMaId.equals(mpDTO.inferredSelectedTopLevelMaId) : mpDTO.inferredSelectedTopLevelMaId != null)
-            return false;
-        if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(mpDTO.inferredSelectedTopLevelMaTerm) : mpDTO.inferredSelectedTopLevelMaTerm != null)
-            return false;
-        if (inferredSelectedTopLevelMaTermSynonym != null ? !inferredSelectedTopLevelMaTermSynonym.equals(mpDTO.inferredSelectedTopLevelMaTermSynonym) : mpDTO.inferredSelectedTopLevelMaTermSynonym != null)
-            return false;
-        if (goId != null ? !goId.equals(mpDTO.goId) : mpDTO.goId != null) return false;
-        if (siblingMpId != null ? !siblingMpId.equals(mpDTO.siblingMpId) : mpDTO.siblingMpId != null) return false;
-        if (siblingMpTerm != null ? !siblingMpTerm.equals(mpDTO.siblingMpTerm) : mpDTO.siblingMpTerm != null)
-            return false;
-        if (siblingMpDefinition != null ? !siblingMpDefinition.equals(mpDTO.siblingMpDefinition) : mpDTO.siblingMpDefinition != null)
-            return false;
-        if (pValue != null ? !pValue.equals(mpDTO.pValue) : mpDTO.pValue != null) return false;
-        if (mgiAccessionId != null ? !mgiAccessionId.equals(mpDTO.mgiAccessionId) : mpDTO.mgiAccessionId != null)
-            return false;
-        if (phenoCalls != null ? !phenoCalls.equals(mpDTO.phenoCalls) : mpDTO.phenoCalls != null) return false;
-        if (markerSymbol != null ? !markerSymbol.equals(mpDTO.markerSymbol) : mpDTO.markerSymbol != null) return false;
-        if (markerAccessionId != null ? !markerAccessionId.equals(mpDTO.markerAccessionId) : mpDTO.markerAccessionId != null)
-            return false;
-        if (preqcGeneId != null ? !preqcGeneId.equals(mpDTO.preqcGeneId) : mpDTO.preqcGeneId != null) return false;
-        if (markerName != null ? !markerName.equals(mpDTO.markerName) : mpDTO.markerName != null) return false;
-        if (markerSynonym != null ? !markerSynonym.equals(mpDTO.markerSynonym) : mpDTO.markerSynonym != null)
-            return false;
-        if (markerType != null ? !markerType.equals(mpDTO.markerType) : mpDTO.markerType != null) return false;
-        if (humanGeneSymbol != null ? !humanGeneSymbol.equals(mpDTO.humanGeneSymbol) : mpDTO.humanGeneSymbol != null)
-            return false;
-        if (status != null ? !status.equals(mpDTO.status) : mpDTO.status != null) return false;
-        if (imitsPhenotypeStarted != null ? !imitsPhenotypeStarted.equals(mpDTO.imitsPhenotypeStarted) : mpDTO.imitsPhenotypeStarted != null)
-            return false;
-        if (imitsPhenotypeComplete != null ? !imitsPhenotypeComplete.equals(mpDTO.imitsPhenotypeComplete) : mpDTO.imitsPhenotypeComplete != null)
-            return false;
-        if (imitsPhenotypeStatus != null ? !imitsPhenotypeStatus.equals(mpDTO.imitsPhenotypeStatus) : mpDTO.imitsPhenotypeStatus != null)
-            return false;
-        if (latestProductionCentre != null ? !latestProductionCentre.equals(mpDTO.latestProductionCentre) : mpDTO.latestProductionCentre != null)
-            return false;
-        if (latestPhenotypingCentre != null ? !latestPhenotypingCentre.equals(mpDTO.latestPhenotypingCentre) : mpDTO.latestPhenotypingCentre != null)
-            return false;
-        if (latestPhenotypeStatus != null ? !latestPhenotypeStatus.equals(mpDTO.latestPhenotypeStatus) : mpDTO.latestPhenotypeStatus != null)
-            return false;
-        if (legacyPhenotypeStatus != null ? !legacyPhenotypeStatus.equals(mpDTO.legacyPhenotypeStatus) : mpDTO.legacyPhenotypeStatus != null)
-            return false;
-        if (type != null ? !type.equals(mpDTO.type) : mpDTO.type != null) return false;
-        if (diseaseId != null ? !diseaseId.equals(mpDTO.diseaseId) : mpDTO.diseaseId != null) return false;
-        if (diseaseSource != null ? !diseaseSource.equals(mpDTO.diseaseSource) : mpDTO.diseaseSource != null)
-            return false;
-        if (diseaseTerm != null ? !diseaseTerm.equals(mpDTO.diseaseTerm) : mpDTO.diseaseTerm != null) return false;
-        if (diseaseAlts != null ? !diseaseAlts.equals(mpDTO.diseaseAlts) : mpDTO.diseaseAlts != null) return false;
-        if (diseaseClasses != null ? !diseaseClasses.equals(mpDTO.diseaseClasses) : mpDTO.diseaseClasses != null)
-            return false;
-        if (humanCurated != null ? !humanCurated.equals(mpDTO.humanCurated) : mpDTO.humanCurated != null) return false;
-        if (mouseCurated != null ? !mouseCurated.equals(mpDTO.mouseCurated) : mpDTO.mouseCurated != null) return false;
-        if (mgiPredicted != null ? !mgiPredicted.equals(mpDTO.mgiPredicted) : mpDTO.mgiPredicted != null) return false;
-        if (impcPredicted != null ? !impcPredicted.equals(mpDTO.impcPredicted) : mpDTO.impcPredicted != null)
-            return false;
-        if (mgiPredictedKnownGene != null ? !mgiPredictedKnownGene.equals(mpDTO.mgiPredictedKnownGene) : mpDTO.mgiPredictedKnownGene != null)
-            return false;
-        if (impcPredictedKnownGene != null ? !impcPredictedKnownGene.equals(mpDTO.impcPredictedKnownGene) : mpDTO.impcPredictedKnownGene != null)
-            return false;
-        if (mgiNovelPredictedInLocus != null ? !mgiNovelPredictedInLocus.equals(mpDTO.mgiNovelPredictedInLocus) : mpDTO.mgiNovelPredictedInLocus != null)
-            return false;
-        if (impcNovelPredictedInLocus != null ? !impcNovelPredictedInLocus.equals(mpDTO.impcNovelPredictedInLocus) : mpDTO.impcNovelPredictedInLocus != null)
-            return false;
-        if (annotationTermId != null ? !annotationTermId.equals(mpDTO.annotationTermId) : mpDTO.annotationTermId != null)
-            return false;
-        if (annotationTermName != null ? !annotationTermName.equals(mpDTO.annotationTermName) : mpDTO.annotationTermName != null)
-            return false;
-        if (name != null ? !name.equals(mpDTO.name) : mpDTO.name != null) return false;
-        if (accession != null ? !accession.equals(mpDTO.accession) : mpDTO.accession != null) return false;
-        if (expName != null ? !expName.equals(mpDTO.expName) : mpDTO.expName != null) return false;
-        if (largeThumbnailFilePath != null ? !largeThumbnailFilePath.equals(mpDTO.largeThumbnailFilePath) : mpDTO.largeThumbnailFilePath != null)
-            return false;
-        if (smallThumbnailFilePath != null ? !smallThumbnailFilePath.equals(mpDTO.smallThumbnailFilePath) : mpDTO.smallThumbnailFilePath != null)
-            return false;
-        if (inferredMaTermId != null ? !inferredMaTermId.equals(mpDTO.inferredMaTermId) : mpDTO.inferredMaTermId != null)
-            return false;
-        if (inferredMaTermName != null ? !inferredMaTermName.equals(mpDTO.inferredMaTermName) : mpDTO.inferredMaTermName != null)
-            return false;
-        if (annotatedHigherLevelMaTermId != null ? !annotatedHigherLevelMaTermId.equals(mpDTO.annotatedHigherLevelMaTermId) : mpDTO.annotatedHigherLevelMaTermId != null)
-            return false;
-        if (annotatedHigherLevelMaTermName != null ? !annotatedHigherLevelMaTermName.equals(mpDTO.annotatedHigherLevelMaTermName) : mpDTO.annotatedHigherLevelMaTermName != null)
-            return false;
-        if (annotatedHigherLevelMpTermId != null ? !annotatedHigherLevelMpTermId.equals(mpDTO.annotatedHigherLevelMpTermId) : mpDTO.annotatedHigherLevelMpTermId != null)
-            return false;
-        if (annotatedHigherLevelMpTermName != null ? !annotatedHigherLevelMpTermName.equals(mpDTO.annotatedHigherLevelMpTermName) : mpDTO.annotatedHigherLevelMpTermName != null)
-            return false;
-        if (annotatedOrInferredHigherLevelMaTermName != null ? !annotatedOrInferredHigherLevelMaTermName.equals(mpDTO.annotatedOrInferredHigherLevelMaTermName) : mpDTO.annotatedOrInferredHigherLevelMaTermName != null)
-            return false;
-        if (annotatedOrInferredHigherLevelMaTermId != null ? !annotatedOrInferredHigherLevelMaTermId.equals(mpDTO.annotatedOrInferredHigherLevelMaTermId) : mpDTO.annotatedOrInferredHigherLevelMaTermId != null)
-            return false;
-        if (symbol != null ? !symbol.equals(mpDTO.symbol) : mpDTO.symbol != null) return false;
-        if (sangerSymbol != null ? !sangerSymbol.equals(mpDTO.sangerSymbol) : mpDTO.sangerSymbol != null) return false;
-        if (geneName != null ? !geneName.equals(mpDTO.geneName) : mpDTO.geneName != null) return false;
-        if (subtype != null ? !subtype.equals(mpDTO.subtype) : mpDTO.subtype != null) return false;
-        if (geneSynonyms != null ? !geneSynonyms.equals(mpDTO.geneSynonyms) : mpDTO.geneSynonyms != null) return false;
-        if (alleleName != null ? !alleleName.equals(mpDTO.alleleName) : mpDTO.alleleName != null) return false;
-        if (maTermId != null ? !maTermId.equals(mpDTO.maTermId) : mpDTO.maTermId != null) return false;
-        if (maTermName != null ? !maTermName.equals(mpDTO.maTermName) : mpDTO.maTermName != null) return false;
-        if (expNameExp != null ? !expNameExp.equals(mpDTO.expNameExp) : mpDTO.expNameExp != null) return false;
-        if (symbolGene != null ? !symbolGene.equals(mpDTO.symbolGene) : mpDTO.symbolGene != null) return false;
-        if (topLevel != null ? !topLevel.equals(mpDTO.topLevel) : mpDTO.topLevel != null) return false;
-        if (alleleSymbol != null ? !alleleSymbol.equals(mpDTO.alleleSymbol) : mpDTO.alleleSymbol != null) return false;
-        if (alleleId != null ? !alleleId.equals(mpDTO.alleleId) : mpDTO.alleleId != null) return false;
-        if (strainName != null ? !strainName.equals(mpDTO.strainName) : mpDTO.strainName != null) return false;
-        if (strainId != null ? !strainId.equals(mpDTO.strainId) : mpDTO.strainId != null) return false;
-        if (pipelineName != null ? !pipelineName.equals(mpDTO.pipelineName) : mpDTO.pipelineName != null) return false;
-        if (pipelineStableId != null ? !pipelineStableId.equals(mpDTO.pipelineStableId) : mpDTO.pipelineStableId != null)
-            return false;
-        if (pipelineStableKey != null ? !pipelineStableKey.equals(mpDTO.pipelineStableKey) : mpDTO.pipelineStableKey != null)
-            return false;
-        if (procedureName != null ? !procedureName.equals(mpDTO.procedureName) : mpDTO.procedureName != null)
-            return false;
-        if (procedureStableId != null ? !procedureStableId.equals(mpDTO.procedureStableId) : mpDTO.procedureStableId != null)
-            return false;
-        if (procedureStableKey != null ? !procedureStableKey.equals(mpDTO.procedureStableKey) : mpDTO.procedureStableKey != null)
-            return false;
-        if (parameterName != null ? !parameterName.equals(mpDTO.parameterName) : mpDTO.parameterName != null)
-            return false;
-        if (parameterStableId != null ? !parameterStableId.equals(mpDTO.parameterStableId) : mpDTO.parameterStableId != null)
-            return false;
-        return parameterStableKey != null ? parameterStableKey.equals(mpDTO.parameterStableKey) : mpDTO.parameterStableKey == null;
+		if (mpId != null ? !mpId.equals(mpDTO.mpId) : mpDTO.mpId != null) return false;
+		if (mpTerm != null ? !mpTerm.equals(mpDTO.mpTerm) : mpDTO.mpTerm != null) return false;
+		if (mpDefinition != null ? !mpDefinition.equals(mpDTO.mpDefinition) : mpDTO.mpDefinition != null) return false;
+		if (mpTermSynonym != null ? !mpTermSynonym.equals(mpDTO.mpTermSynonym) : mpDTO.mpTermSynonym != null)
+			return false;
+		if (mpNarrowSynonym != null ? !mpNarrowSynonym.equals(mpDTO.mpNarrowSynonym) : mpDTO.mpNarrowSynonym != null)
+			return false;
+		if (mpNodeId != null ? !mpNodeId.equals(mpDTO.mpNodeId) : mpDTO.mpNodeId != null) return false;
+		if (searchTermJson != null ? !searchTermJson.equals(mpDTO.searchTermJson) : mpDTO.searchTermJson != null)
+			return false;
+		if (childrenJson != null ? !childrenJson.equals(mpDTO.childrenJson) : mpDTO.childrenJson != null) return false;
+		if (scrollNode != null ? !scrollNode.equals(mpDTO.scrollNode) : mpDTO.scrollNode != null) return false;
+		if (geneVariantCount != null ? !geneVariantCount.equals(mpDTO.geneVariantCount) : mpDTO.geneVariantCount != null)
+			return false;
+		if (geneVariantMaleCount != null ? !geneVariantMaleCount.equals(mpDTO.geneVariantMaleCount) : mpDTO.geneVariantMaleCount != null)
+			return false;
+		if (geneVariantFemaleCount != null ? !geneVariantFemaleCount.equals(mpDTO.geneVariantFemaleCount) : mpDTO.geneVariantFemaleCount != null)
+			return false;
+		if (altMpId != null ? !altMpId.equals(mpDTO.altMpId) : mpDTO.altMpId != null) return false;
+		if (childMpId != null ? !childMpId.equals(mpDTO.childMpId) : mpDTO.childMpId != null) return false;
+		if (childMpTerm != null ? !childMpTerm.equals(mpDTO.childMpTerm) : mpDTO.childMpTerm != null) return false;
+		if (childMpDefinition != null ? !childMpDefinition.equals(mpDTO.childMpDefinition) : mpDTO.childMpDefinition != null)
+			return false;
+		if (childMpTermSynonym != null ? !childMpTermSynonym.equals(mpDTO.childMpTermSynonym) : mpDTO.childMpTermSynonym != null)
+			return false;
+		if (parentMpId != null ? !parentMpId.equals(mpDTO.parentMpId) : mpDTO.parentMpId != null) return false;
+		if (parentMpTerm != null ? !parentMpTerm.equals(mpDTO.parentMpTerm) : mpDTO.parentMpTerm != null) return false;
+		if (parentMpDefinition != null ? !parentMpDefinition.equals(mpDTO.parentMpDefinition) : mpDTO.parentMpDefinition != null)
+			return false;
+		if (parentMpTermSynonym != null ? !parentMpTermSynonym.equals(mpDTO.parentMpTermSynonym) : mpDTO.parentMpTermSynonym != null)
+			return false;
+		if (intermediateMpId != null ? !intermediateMpId.equals(mpDTO.intermediateMpId) : mpDTO.intermediateMpId != null)
+			return false;
+		if (intermediateMpTerm != null ? !intermediateMpTerm.equals(mpDTO.intermediateMpTerm) : mpDTO.intermediateMpTerm != null)
+			return false;
+		if (intermediateMpDefinition != null ? !intermediateMpDefinition.equals(mpDTO.intermediateMpDefinition) : mpDTO.intermediateMpDefinition != null)
+			return false;
+		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(mpDTO.intermediateMpTermSynonym) : mpDTO.intermediateMpTermSynonym != null)
+			return false;
+		if (topLevelMpId != null ? !topLevelMpId.equals(mpDTO.topLevelMpId) : mpDTO.topLevelMpId != null) return false;
+		if (topLevelMpTerm != null ? !topLevelMpTerm.equals(mpDTO.topLevelMpTerm) : mpDTO.topLevelMpTerm != null)
+			return false;
+		if (topLevelMpDefinition != null ? !topLevelMpDefinition.equals(mpDTO.topLevelMpDefinition) : mpDTO.topLevelMpDefinition != null)
+			return false;
+		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(mpDTO.topLevelMpTermSynonym) : mpDTO.topLevelMpTermSynonym != null)
+			return false;
+		if (topLevelMpTermId != null ? !topLevelMpTermId.equals(mpDTO.topLevelMpTermId) : mpDTO.topLevelMpTermId != null)
+			return false;
+		if (hpId != null ? !hpId.equals(mpDTO.hpId) : mpDTO.hpId != null) return false;
+		if (hpTerm != null ? !hpTerm.equals(mpDTO.hpTerm) : mpDTO.hpTerm != null) return false;
+		if (hpTermSynonym != null ? !hpTermSynonym.equals(mpDTO.hpTermSynonym) : mpDTO.hpTermSynonym != null)
+			return false;
+		if (dataType != null ? !dataType.equals(mpDTO.dataType) : mpDTO.dataType != null) return false;
+		if (ontologySubset != null ? !ontologySubset.equals(mpDTO.ontologySubset) : mpDTO.ontologySubset != null)
+			return false;
+		if (maId != null ? !maId.equals(mpDTO.maId) : mpDTO.maId != null) return false;
+		if (maTerm != null ? !maTerm.equals(mpDTO.maTerm) : mpDTO.maTerm != null) return false;
+		if (maTermSynonym != null ? !maTermSynonym.equals(mpDTO.maTermSynonym) : mpDTO.maTermSynonym != null)
+			return false;
+		if (selectedTopLevelMaId != null ? !selectedTopLevelMaId.equals(mpDTO.selectedTopLevelMaId) : mpDTO.selectedTopLevelMaId != null)
+			return false;
+		if (selectedTopLevelMaTerm != null ? !selectedTopLevelMaTerm.equals(mpDTO.selectedTopLevelMaTerm) : mpDTO.selectedTopLevelMaTerm != null)
+			return false;
+		if (selectedTopLevelMaTermSynonym != null ? !selectedTopLevelMaTermSynonym.equals(mpDTO.selectedTopLevelMaTermSynonym) : mpDTO.selectedTopLevelMaTermSynonym != null)
+			return false;
+		if (inferredMaId != null ? !inferredMaId.equals(mpDTO.inferredMaId) : mpDTO.inferredMaId != null) return false;
+		if (inferredMaTerm != null ? !inferredMaTerm.equals(mpDTO.inferredMaTerm) : mpDTO.inferredMaTerm != null)
+			return false;
+		if (inferredMaTermSynonym != null ? !inferredMaTermSynonym.equals(mpDTO.inferredMaTermSynonym) : mpDTO.inferredMaTermSynonym != null)
+			return false;
+		if (inferredSelectedTopLevelMaId != null ? !inferredSelectedTopLevelMaId.equals(mpDTO.inferredSelectedTopLevelMaId) : mpDTO.inferredSelectedTopLevelMaId != null)
+			return false;
+		if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(mpDTO.inferredSelectedTopLevelMaTerm) : mpDTO.inferredSelectedTopLevelMaTerm != null)
+			return false;
+		if (inferredSelectedTopLevelMaTermSynonym != null ? !inferredSelectedTopLevelMaTermSynonym.equals(mpDTO.inferredSelectedTopLevelMaTermSynonym) : mpDTO.inferredSelectedTopLevelMaTermSynonym != null)
+			return false;
+		if (goId != null ? !goId.equals(mpDTO.goId) : mpDTO.goId != null) return false;
+		if (siblingMpId != null ? !siblingMpId.equals(mpDTO.siblingMpId) : mpDTO.siblingMpId != null) return false;
+		if (siblingMpTerm != null ? !siblingMpTerm.equals(mpDTO.siblingMpTerm) : mpDTO.siblingMpTerm != null)
+			return false;
+		if (siblingMpDefinition != null ? !siblingMpDefinition.equals(mpDTO.siblingMpDefinition) : mpDTO.siblingMpDefinition != null)
+			return false;
+		if (pValue != null ? !pValue.equals(mpDTO.pValue) : mpDTO.pValue != null) return false;
+		if (mgiAccessionId != null ? !mgiAccessionId.equals(mpDTO.mgiAccessionId) : mpDTO.mgiAccessionId != null)
+			return false;
+		if (phenoCalls != null ? !phenoCalls.equals(mpDTO.phenoCalls) : mpDTO.phenoCalls != null) return false;
+		if (markerSymbol != null ? !markerSymbol.equals(mpDTO.markerSymbol) : mpDTO.markerSymbol != null) return false;
+		if (markerAccessionId != null ? !markerAccessionId.equals(mpDTO.markerAccessionId) : mpDTO.markerAccessionId != null)
+			return false;
+		if (preqcGeneId != null ? !preqcGeneId.equals(mpDTO.preqcGeneId) : mpDTO.preqcGeneId != null) return false;
+		if (markerName != null ? !markerName.equals(mpDTO.markerName) : mpDTO.markerName != null) return false;
+		if (markerSynonym != null ? !markerSynonym.equals(mpDTO.markerSynonym) : mpDTO.markerSynonym != null)
+			return false;
+		if (markerType != null ? !markerType.equals(mpDTO.markerType) : mpDTO.markerType != null) return false;
+		if (humanGeneSymbol != null ? !humanGeneSymbol.equals(mpDTO.humanGeneSymbol) : mpDTO.humanGeneSymbol != null)
+			return false;
+		if (status != null ? !status.equals(mpDTO.status) : mpDTO.status != null) return false;
+		if (imitsPhenotypeStarted != null ? !imitsPhenotypeStarted.equals(mpDTO.imitsPhenotypeStarted) : mpDTO.imitsPhenotypeStarted != null)
+			return false;
+		if (imitsPhenotypeComplete != null ? !imitsPhenotypeComplete.equals(mpDTO.imitsPhenotypeComplete) : mpDTO.imitsPhenotypeComplete != null)
+			return false;
+		if (imitsPhenotypeStatus != null ? !imitsPhenotypeStatus.equals(mpDTO.imitsPhenotypeStatus) : mpDTO.imitsPhenotypeStatus != null)
+			return false;
+		if (latestProductionCentre != null ? !latestProductionCentre.equals(mpDTO.latestProductionCentre) : mpDTO.latestProductionCentre != null)
+			return false;
+		if (latestPhenotypingCentre != null ? !latestPhenotypingCentre.equals(mpDTO.latestPhenotypingCentre) : mpDTO.latestPhenotypingCentre != null)
+			return false;
+		if (latestPhenotypeStatus != null ? !latestPhenotypeStatus.equals(mpDTO.latestPhenotypeStatus) : mpDTO.latestPhenotypeStatus != null)
+			return false;
+		if (legacyPhenotypeStatus != null ? !legacyPhenotypeStatus.equals(mpDTO.legacyPhenotypeStatus) : mpDTO.legacyPhenotypeStatus != null)
+			return false;
+		if (type != null ? !type.equals(mpDTO.type) : mpDTO.type != null) return false;
+		if (diseaseId != null ? !diseaseId.equals(mpDTO.diseaseId) : mpDTO.diseaseId != null) return false;
+		if (diseaseSource != null ? !diseaseSource.equals(mpDTO.diseaseSource) : mpDTO.diseaseSource != null)
+			return false;
+		if (diseaseTerm != null ? !diseaseTerm.equals(mpDTO.diseaseTerm) : mpDTO.diseaseTerm != null) return false;
+		if (diseaseAlts != null ? !diseaseAlts.equals(mpDTO.diseaseAlts) : mpDTO.diseaseAlts != null) return false;
+		if (diseaseClasses != null ? !diseaseClasses.equals(mpDTO.diseaseClasses) : mpDTO.diseaseClasses != null)
+			return false;
+		if (humanCurated != null ? !humanCurated.equals(mpDTO.humanCurated) : mpDTO.humanCurated != null) return false;
+		if (mouseCurated != null ? !mouseCurated.equals(mpDTO.mouseCurated) : mpDTO.mouseCurated != null) return false;
+		if (mgiPredicted != null ? !mgiPredicted.equals(mpDTO.mgiPredicted) : mpDTO.mgiPredicted != null) return false;
+		if (impcPredicted != null ? !impcPredicted.equals(mpDTO.impcPredicted) : mpDTO.impcPredicted != null)
+			return false;
+		if (mgiPredictedKnownGene != null ? !mgiPredictedKnownGene.equals(mpDTO.mgiPredictedKnownGene) : mpDTO.mgiPredictedKnownGene != null)
+			return false;
+		if (impcPredictedKnownGene != null ? !impcPredictedKnownGene.equals(mpDTO.impcPredictedKnownGene) : mpDTO.impcPredictedKnownGene != null)
+			return false;
+		if (mgiNovelPredictedInLocus != null ? !mgiNovelPredictedInLocus.equals(mpDTO.mgiNovelPredictedInLocus) : mpDTO.mgiNovelPredictedInLocus != null)
+			return false;
+		if (impcNovelPredictedInLocus != null ? !impcNovelPredictedInLocus.equals(mpDTO.impcNovelPredictedInLocus) : mpDTO.impcNovelPredictedInLocus != null)
+			return false;
+		if (annotationTermId != null ? !annotationTermId.equals(mpDTO.annotationTermId) : mpDTO.annotationTermId != null)
+			return false;
+		if (annotationTermName != null ? !annotationTermName.equals(mpDTO.annotationTermName) : mpDTO.annotationTermName != null)
+			return false;
+		if (name != null ? !name.equals(mpDTO.name) : mpDTO.name != null) return false;
+		if (accession != null ? !accession.equals(mpDTO.accession) : mpDTO.accession != null) return false;
+		if (expName != null ? !expName.equals(mpDTO.expName) : mpDTO.expName != null) return false;
+		if (largeThumbnailFilePath != null ? !largeThumbnailFilePath.equals(mpDTO.largeThumbnailFilePath) : mpDTO.largeThumbnailFilePath != null)
+			return false;
+		if (smallThumbnailFilePath != null ? !smallThumbnailFilePath.equals(mpDTO.smallThumbnailFilePath) : mpDTO.smallThumbnailFilePath != null)
+			return false;
+		if (inferredMaTermId != null ? !inferredMaTermId.equals(mpDTO.inferredMaTermId) : mpDTO.inferredMaTermId != null)
+			return false;
+		if (inferredMaTermName != null ? !inferredMaTermName.equals(mpDTO.inferredMaTermName) : mpDTO.inferredMaTermName != null)
+			return false;
+		if (annotatedHigherLevelMaTermId != null ? !annotatedHigherLevelMaTermId.equals(mpDTO.annotatedHigherLevelMaTermId) : mpDTO.annotatedHigherLevelMaTermId != null)
+			return false;
+		if (annotatedHigherLevelMaTermName != null ? !annotatedHigherLevelMaTermName.equals(mpDTO.annotatedHigherLevelMaTermName) : mpDTO.annotatedHigherLevelMaTermName != null)
+			return false;
+		if (annotatedHigherLevelMpTermId != null ? !annotatedHigherLevelMpTermId.equals(mpDTO.annotatedHigherLevelMpTermId) : mpDTO.annotatedHigherLevelMpTermId != null)
+			return false;
+		if (annotatedHigherLevelMpTermName != null ? !annotatedHigherLevelMpTermName.equals(mpDTO.annotatedHigherLevelMpTermName) : mpDTO.annotatedHigherLevelMpTermName != null)
+			return false;
+		if (annotatedOrInferredHigherLevelMaTermName != null ? !annotatedOrInferredHigherLevelMaTermName.equals(mpDTO.annotatedOrInferredHigherLevelMaTermName) : mpDTO.annotatedOrInferredHigherLevelMaTermName != null)
+			return false;
+		if (annotatedOrInferredHigherLevelMaTermId != null ? !annotatedOrInferredHigherLevelMaTermId.equals(mpDTO.annotatedOrInferredHigherLevelMaTermId) : mpDTO.annotatedOrInferredHigherLevelMaTermId != null)
+			return false;
+		if (symbol != null ? !symbol.equals(mpDTO.symbol) : mpDTO.symbol != null) return false;
+		if (sangerSymbol != null ? !sangerSymbol.equals(mpDTO.sangerSymbol) : mpDTO.sangerSymbol != null) return false;
+		if (geneName != null ? !geneName.equals(mpDTO.geneName) : mpDTO.geneName != null) return false;
+		if (subtype != null ? !subtype.equals(mpDTO.subtype) : mpDTO.subtype != null) return false;
+		if (geneSynonyms != null ? !geneSynonyms.equals(mpDTO.geneSynonyms) : mpDTO.geneSynonyms != null) return false;
+		if (alleleName != null ? !alleleName.equals(mpDTO.alleleName) : mpDTO.alleleName != null) return false;
+		if (maTermId != null ? !maTermId.equals(mpDTO.maTermId) : mpDTO.maTermId != null) return false;
+		if (maTermName != null ? !maTermName.equals(mpDTO.maTermName) : mpDTO.maTermName != null) return false;
+		if (expNameExp != null ? !expNameExp.equals(mpDTO.expNameExp) : mpDTO.expNameExp != null) return false;
+		if (symbolGene != null ? !symbolGene.equals(mpDTO.symbolGene) : mpDTO.symbolGene != null) return false;
+		if (topLevel != null ? !topLevel.equals(mpDTO.topLevel) : mpDTO.topLevel != null) return false;
+		if (alleleSymbol != null ? !alleleSymbol.equals(mpDTO.alleleSymbol) : mpDTO.alleleSymbol != null) return false;
+		if (alleleId != null ? !alleleId.equals(mpDTO.alleleId) : mpDTO.alleleId != null) return false;
+		if (strainName != null ? !strainName.equals(mpDTO.strainName) : mpDTO.strainName != null) return false;
+		if (strainId != null ? !strainId.equals(mpDTO.strainId) : mpDTO.strainId != null) return false;
+		if (pipelineName != null ? !pipelineName.equals(mpDTO.pipelineName) : mpDTO.pipelineName != null) return false;
+		if (pipelineStableId != null ? !pipelineStableId.equals(mpDTO.pipelineStableId) : mpDTO.pipelineStableId != null)
+			return false;
+		if (pipelineStableKey != null ? !pipelineStableKey.equals(mpDTO.pipelineStableKey) : mpDTO.pipelineStableKey != null)
+			return false;
+		if (procedureName != null ? !procedureName.equals(mpDTO.procedureName) : mpDTO.procedureName != null)
+			return false;
+		if (procedureStableId != null ? !procedureStableId.equals(mpDTO.procedureStableId) : mpDTO.procedureStableId != null)
+			return false;
+		if (procedureStableKey != null ? !procedureStableKey.equals(mpDTO.procedureStableKey) : mpDTO.procedureStableKey != null)
+			return false;
+		if (parameterName != null ? !parameterName.equals(mpDTO.parameterName) : mpDTO.parameterName != null)
+			return false;
+		if (parameterStableId != null ? !parameterStableId.equals(mpDTO.parameterStableId) : mpDTO.parameterStableId != null)
+			return false;
+		return parameterStableKey != null ? parameterStableKey.equals(mpDTO.parameterStableKey) : mpDTO.parameterStableKey == null;
 
-    }
+	}
 
-    @Override
-    public int hashCode() {
-        int result = mpId != null ? mpId.hashCode() : 0;
-        result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
-        result = 31 * result + (mpDefinition != null ? mpDefinition.hashCode() : 0);
-        result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
-        result = 31 * result + (mpNarrowSynonym != null ? mpNarrowSynonym.hashCode() : 0);
-        result = 31 * result + (mpNodeId != null ? mpNodeId.hashCode() : 0);
-        result = 31 * result + (searchTermJson != null ? searchTermJson.hashCode() : 0);
-        result = 31 * result + (childrenJson != null ? childrenJson.hashCode() : 0);
-        result = 31 * result + (scrollNode != null ? scrollNode.hashCode() : 0);
-        result = 31 * result + (altMpId != null ? altMpId.hashCode() : 0);
-        result = 31 * result + (childMpId != null ? childMpId.hashCode() : 0);
-        result = 31 * result + (childMpTerm != null ? childMpTerm.hashCode() : 0);
-        result = 31 * result + (childMpDefinition != null ? childMpDefinition.hashCode() : 0);
-        result = 31 * result + (childMpTermSynonym != null ? childMpTermSynonym.hashCode() : 0);
-        result = 31 * result + (parentMpId != null ? parentMpId.hashCode() : 0);
-        result = 31 * result + (parentMpTerm != null ? parentMpTerm.hashCode() : 0);
-        result = 31 * result + (parentMpDefinition != null ? parentMpDefinition.hashCode() : 0);
-        result = 31 * result + (parentMpTermSynonym != null ? parentMpTermSynonym.hashCode() : 0);
-        result = 31 * result + (intermediateMpId != null ? intermediateMpId.hashCode() : 0);
-        result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
-        result = 31 * result + (intermediateMpDefinition != null ? intermediateMpDefinition.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
-        result = 31 * result + (topLevelMpId != null ? topLevelMpId.hashCode() : 0);
-        result = 31 * result + (topLevelMpTerm != null ? topLevelMpTerm.hashCode() : 0);
-        result = 31 * result + (topLevelMpDefinition != null ? topLevelMpDefinition.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
-        result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
-        result = 31 * result + (hpTermSynonym != null ? hpTermSynonym.hashCode() : 0);
-        result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
-        result = 31 * result + (ontologySubset != null ? ontologySubset.hashCode() : 0);
-        result = 31 * result + (maId != null ? maId.hashCode() : 0);
-        result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
-        result = 31 * result + (maTermSynonym != null ? maTermSynonym.hashCode() : 0);
-        result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
-        result = 31 * result + (selectedTopLevelMaTerm != null ? selectedTopLevelMaTerm.hashCode() : 0);
-        result = 31 * result + (selectedTopLevelMaTermSynonym != null ? selectedTopLevelMaTermSynonym.hashCode() : 0);
-        result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
-        result = 31 * result + (inferredMaTerm != null ? inferredMaTerm.hashCode() : 0);
-        result = 31 * result + (inferredMaTermSynonym != null ? inferredMaTermSynonym.hashCode() : 0);
-        result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
-        result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
-        result = 31 * result + (inferredSelectedTopLevelMaTermSynonym != null ? inferredSelectedTopLevelMaTermSynonym.hashCode() : 0);
-        result = 31 * result + (goId != null ? goId.hashCode() : 0);
-        result = 31 * result + (siblingMpId != null ? siblingMpId.hashCode() : 0);
-        result = 31 * result + (siblingMpTerm != null ? siblingMpTerm.hashCode() : 0);
-        result = 31 * result + (siblingMpDefinition != null ? siblingMpDefinition.hashCode() : 0);
-        result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
-        result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
-        result = 31 * result + (phenoCalls != null ? phenoCalls.hashCode() : 0);
-        result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
-        result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
-        result = 31 * result + (preqcGeneId != null ? preqcGeneId.hashCode() : 0);
-        result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
-        result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
-        result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
-        result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
-        result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
-        result = 31 * result + (imitsPhenotypeStatus != null ? imitsPhenotypeStatus.hashCode() : 0);
-        result = 31 * result + (latestProductionCentre != null ? latestProductionCentre.hashCode() : 0);
-        result = 31 * result + (latestPhenotypingCentre != null ? latestPhenotypingCentre.hashCode() : 0);
-        result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
-        result = 31 * result + (legacyPhenotypeStatus != null ? legacyPhenotypeStatus.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (diseaseId != null ? diseaseId.hashCode() : 0);
-        result = 31 * result + (diseaseSource != null ? diseaseSource.hashCode() : 0);
-        result = 31 * result + (diseaseTerm != null ? diseaseTerm.hashCode() : 0);
-        result = 31 * result + (diseaseAlts != null ? diseaseAlts.hashCode() : 0);
-        result = 31 * result + (diseaseClasses != null ? diseaseClasses.hashCode() : 0);
-        result = 31 * result + (humanCurated != null ? humanCurated.hashCode() : 0);
-        result = 31 * result + (mouseCurated != null ? mouseCurated.hashCode() : 0);
-        result = 31 * result + (mgiPredicted != null ? mgiPredicted.hashCode() : 0);
-        result = 31 * result + (impcPredicted != null ? impcPredicted.hashCode() : 0);
-        result = 31 * result + (mgiPredictedKnownGene != null ? mgiPredictedKnownGene.hashCode() : 0);
-        result = 31 * result + (impcPredictedKnownGene != null ? impcPredictedKnownGene.hashCode() : 0);
-        result = 31 * result + (mgiNovelPredictedInLocus != null ? mgiNovelPredictedInLocus.hashCode() : 0);
-        result = 31 * result + (impcNovelPredictedInLocus != null ? impcNovelPredictedInLocus.hashCode() : 0);
-        result = 31 * result + (annotationTermId != null ? annotationTermId.hashCode() : 0);
-        result = 31 * result + (annotationTermName != null ? annotationTermName.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (accession != null ? accession.hashCode() : 0);
-        result = 31 * result + (expName != null ? expName.hashCode() : 0);
-        result = 31 * result + (largeThumbnailFilePath != null ? largeThumbnailFilePath.hashCode() : 0);
-        result = 31 * result + (smallThumbnailFilePath != null ? smallThumbnailFilePath.hashCode() : 0);
-        result = 31 * result + (inferredMaTermId != null ? inferredMaTermId.hashCode() : 0);
-        result = 31 * result + (inferredMaTermName != null ? inferredMaTermName.hashCode() : 0);
-        result = 31 * result + (annotatedHigherLevelMaTermId != null ? annotatedHigherLevelMaTermId.hashCode() : 0);
-        result = 31 * result + (annotatedHigherLevelMaTermName != null ? annotatedHigherLevelMaTermName.hashCode() : 0);
-        result = 31 * result + (annotatedHigherLevelMpTermId != null ? annotatedHigherLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (annotatedHigherLevelMpTermName != null ? annotatedHigherLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (annotatedOrInferredHigherLevelMaTermName != null ? annotatedOrInferredHigherLevelMaTermName.hashCode() : 0);
-        result = 31 * result + (annotatedOrInferredHigherLevelMaTermId != null ? annotatedOrInferredHigherLevelMaTermId.hashCode() : 0);
-        result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
-        result = 31 * result + (sangerSymbol != null ? sangerSymbol.hashCode() : 0);
-        result = 31 * result + (geneName != null ? geneName.hashCode() : 0);
-        result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
-        result = 31 * result + (geneSynonyms != null ? geneSynonyms.hashCode() : 0);
-        result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
-        result = 31 * result + (maTermId != null ? maTermId.hashCode() : 0);
-        result = 31 * result + (maTermName != null ? maTermName.hashCode() : 0);
-        result = 31 * result + (expNameExp != null ? expNameExp.hashCode() : 0);
-        result = 31 * result + (symbolGene != null ? symbolGene.hashCode() : 0);
-        result = 31 * result + (topLevel != null ? topLevel.hashCode() : 0);
-        result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
-        result = 31 * result + (alleleId != null ? alleleId.hashCode() : 0);
-        result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
-        result = 31 * result + (strainId != null ? strainId.hashCode() : 0);
-        result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
-        result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
-        result = 31 * result + (pipelineStableKey != null ? pipelineStableKey.hashCode() : 0);
-        result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
-        result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
-        result = 31 * result + (procedureStableKey != null ? procedureStableKey.hashCode() : 0);
-        result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
-        result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
-        result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = mpId != null ? mpId.hashCode() : 0;
+		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
+		result = 31 * result + (mpDefinition != null ? mpDefinition.hashCode() : 0);
+		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
+		result = 31 * result + (mpNarrowSynonym != null ? mpNarrowSynonym.hashCode() : 0);
+		result = 31 * result + (mpNodeId != null ? mpNodeId.hashCode() : 0);
+		result = 31 * result + (searchTermJson != null ? searchTermJson.hashCode() : 0);
+		result = 31 * result + (childrenJson != null ? childrenJson.hashCode() : 0);
+		result = 31 * result + (scrollNode != null ? scrollNode.hashCode() : 0);
+		result = 31 * result + (geneVariantCount != null ? geneVariantCount.hashCode() : 0);
+		result = 31 * result + (geneVariantMaleCount != null ? geneVariantMaleCount.hashCode() : 0);
+		result = 31 * result + (geneVariantFemaleCount != null ? geneVariantFemaleCount.hashCode() : 0);
+		result = 31 * result + (altMpId != null ? altMpId.hashCode() : 0);
+		result = 31 * result + (childMpId != null ? childMpId.hashCode() : 0);
+		result = 31 * result + (childMpTerm != null ? childMpTerm.hashCode() : 0);
+		result = 31 * result + (childMpDefinition != null ? childMpDefinition.hashCode() : 0);
+		result = 31 * result + (childMpTermSynonym != null ? childMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (parentMpId != null ? parentMpId.hashCode() : 0);
+		result = 31 * result + (parentMpTerm != null ? parentMpTerm.hashCode() : 0);
+		result = 31 * result + (parentMpDefinition != null ? parentMpDefinition.hashCode() : 0);
+		result = 31 * result + (parentMpTermSynonym != null ? parentMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (intermediateMpId != null ? intermediateMpId.hashCode() : 0);
+		result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
+		result = 31 * result + (intermediateMpDefinition != null ? intermediateMpDefinition.hashCode() : 0);
+		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (topLevelMpId != null ? topLevelMpId.hashCode() : 0);
+		result = 31 * result + (topLevelMpTerm != null ? topLevelMpTerm.hashCode() : 0);
+		result = 31 * result + (topLevelMpDefinition != null ? topLevelMpDefinition.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
+		result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
+		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
+		result = 31 * result + (hpTermSynonym != null ? hpTermSynonym.hashCode() : 0);
+		result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
+		result = 31 * result + (ontologySubset != null ? ontologySubset.hashCode() : 0);
+		result = 31 * result + (maId != null ? maId.hashCode() : 0);
+		result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
+		result = 31 * result + (maTermSynonym != null ? maTermSynonym.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelMaTerm != null ? selectedTopLevelMaTerm.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelMaTermSynonym != null ? selectedTopLevelMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
+		result = 31 * result + (inferredMaTerm != null ? inferredMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredMaTermSynonym != null ? inferredMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaTermSynonym != null ? inferredSelectedTopLevelMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (goId != null ? goId.hashCode() : 0);
+		result = 31 * result + (siblingMpId != null ? siblingMpId.hashCode() : 0);
+		result = 31 * result + (siblingMpTerm != null ? siblingMpTerm.hashCode() : 0);
+		result = 31 * result + (siblingMpDefinition != null ? siblingMpDefinition.hashCode() : 0);
+		result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
+		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
+		result = 31 * result + (phenoCalls != null ? phenoCalls.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
+		result = 31 * result + (preqcGeneId != null ? preqcGeneId.hashCode() : 0);
+		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
+		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
+		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
+		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
+		result = 31 * result + (status != null ? status.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeStatus != null ? imitsPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (latestProductionCentre != null ? latestProductionCentre.hashCode() : 0);
+		result = 31 * result + (latestPhenotypingCentre != null ? latestPhenotypingCentre.hashCode() : 0);
+		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (legacyPhenotypeStatus != null ? legacyPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (type != null ? type.hashCode() : 0);
+		result = 31 * result + (diseaseId != null ? diseaseId.hashCode() : 0);
+		result = 31 * result + (diseaseSource != null ? diseaseSource.hashCode() : 0);
+		result = 31 * result + (diseaseTerm != null ? diseaseTerm.hashCode() : 0);
+		result = 31 * result + (diseaseAlts != null ? diseaseAlts.hashCode() : 0);
+		result = 31 * result + (diseaseClasses != null ? diseaseClasses.hashCode() : 0);
+		result = 31 * result + (humanCurated != null ? humanCurated.hashCode() : 0);
+		result = 31 * result + (mouseCurated != null ? mouseCurated.hashCode() : 0);
+		result = 31 * result + (mgiPredicted != null ? mgiPredicted.hashCode() : 0);
+		result = 31 * result + (impcPredicted != null ? impcPredicted.hashCode() : 0);
+		result = 31 * result + (mgiPredictedKnownGene != null ? mgiPredictedKnownGene.hashCode() : 0);
+		result = 31 * result + (impcPredictedKnownGene != null ? impcPredictedKnownGene.hashCode() : 0);
+		result = 31 * result + (mgiNovelPredictedInLocus != null ? mgiNovelPredictedInLocus.hashCode() : 0);
+		result = 31 * result + (impcNovelPredictedInLocus != null ? impcNovelPredictedInLocus.hashCode() : 0);
+		result = 31 * result + (annotationTermId != null ? annotationTermId.hashCode() : 0);
+		result = 31 * result + (annotationTermName != null ? annotationTermName.hashCode() : 0);
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (accession != null ? accession.hashCode() : 0);
+		result = 31 * result + (expName != null ? expName.hashCode() : 0);
+		result = 31 * result + (largeThumbnailFilePath != null ? largeThumbnailFilePath.hashCode() : 0);
+		result = 31 * result + (smallThumbnailFilePath != null ? smallThumbnailFilePath.hashCode() : 0);
+		result = 31 * result + (inferredMaTermId != null ? inferredMaTermId.hashCode() : 0);
+		result = 31 * result + (inferredMaTermName != null ? inferredMaTermName.hashCode() : 0);
+		result = 31 * result + (annotatedHigherLevelMaTermId != null ? annotatedHigherLevelMaTermId.hashCode() : 0);
+		result = 31 * result + (annotatedHigherLevelMaTermName != null ? annotatedHigherLevelMaTermName.hashCode() : 0);
+		result = 31 * result + (annotatedHigherLevelMpTermId != null ? annotatedHigherLevelMpTermId.hashCode() : 0);
+		result = 31 * result + (annotatedHigherLevelMpTermName != null ? annotatedHigherLevelMpTermName.hashCode() : 0);
+		result = 31 * result + (annotatedOrInferredHigherLevelMaTermName != null ? annotatedOrInferredHigherLevelMaTermName.hashCode() : 0);
+		result = 31 * result + (annotatedOrInferredHigherLevelMaTermId != null ? annotatedOrInferredHigherLevelMaTermId.hashCode() : 0);
+		result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
+		result = 31 * result + (sangerSymbol != null ? sangerSymbol.hashCode() : 0);
+		result = 31 * result + (geneName != null ? geneName.hashCode() : 0);
+		result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
+		result = 31 * result + (geneSynonyms != null ? geneSynonyms.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (maTermId != null ? maTermId.hashCode() : 0);
+		result = 31 * result + (maTermName != null ? maTermName.hashCode() : 0);
+		result = 31 * result + (expNameExp != null ? expNameExp.hashCode() : 0);
+		result = 31 * result + (symbolGene != null ? symbolGene.hashCode() : 0);
+		result = 31 * result + (topLevel != null ? topLevel.hashCode() : 0);
+		result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
+		result = 31 * result + (alleleId != null ? alleleId.hashCode() : 0);
+		result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
+		result = 31 * result + (strainId != null ? strainId.hashCode() : 0);
+		result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
+		result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
+		result = 31 * result + (pipelineStableKey != null ? pipelineStableKey.hashCode() : 0);
+		result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
+		result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
+		result = 31 * result + (procedureStableKey != null ? procedureStableKey.hashCode() : 0);
+		result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
+		result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
+		result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
+		return result;
+	}
 
-    @Override
+	@Override
 	public String toString() {
 		return "MpDTO{" +
 				"mpId='" + mpId + '\'' +
 				", mpTerm='" + mpTerm + '\'' +
 				", mpDefinition='" + mpDefinition + '\'' +
 				", mpTermSynonym=" + mpTermSynonym +
+				", mpNarrowSynonym=" + mpNarrowSynonym +
 				", mpNodeId=" + mpNodeId +
 				", searchTermJson='" + searchTermJson + '\'' +
 				", childrenJson='" + childrenJson + '\'' +
 				", scrollNode='" + scrollNode + '\'' +
+				", geneVariantCount=" + geneVariantCount +
+				", geneVariantMaleCount=" + geneVariantMaleCount +
+				", geneVariantFemaleCount=" + geneVariantFemaleCount +
 				", altMpId=" + altMpId +
 				", childMpId=" + childMpId +
 				", childMpTerm=" + childMpTerm +

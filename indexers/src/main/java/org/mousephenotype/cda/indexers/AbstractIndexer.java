@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +60,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 		run();
 	}
 
-	public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException;
+	public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException;
 
     public abstract RunStatus validateBuild() throws IndexerException;
 
