@@ -126,10 +126,10 @@
         <field name="allele_mgi_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_description" type="text" indexed="true" stored="true" multiValued="false"/>
         <field name="genbank_file" type="string" indexed="false" stored="true" multiValued="false"/>
-        <field name="allele_image" type="string" indexed="false" stored="true" multiValued="false"/>
-        <field name="allele_simple_image" type="string" indexed="false" stored="true" multiValued="false"/>
+        <field name="allele_image" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="allele_simple_image" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="vector_genbank_file" type="string" indexed="false" stored="true" multiValued="false"/>
-        <field name="vector_allele_image" type="string" indexed="false" stored="true" multiValued="false"/>
+        <field name="vector_allele_image" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="type" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="design_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="cassette" type="string" indexed="true" stored="true" multiValued="false"/>
