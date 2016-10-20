@@ -55,7 +55,6 @@ import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.ChartColors;
 import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
 
