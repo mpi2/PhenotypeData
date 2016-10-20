@@ -23,6 +23,7 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
@@ -99,6 +100,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	@Autowired
 	MpOntologyDAO mpService;
+	
+	PhisService phisService=new PhisService();
 
 	@Value("classpath:uberonEfoMa_mappings.txt")
 	org.springframework.core.io.Resource anatomogramResource;
@@ -108,13 +111,13 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	String excludeProcedureStableId = "";
 
 	private Map<String, String> parameterStableIdToMaTermIdMap;
-	private Map<String, String> parameterStableIdToEmapaTermIdMap = new HashMap(); // key: EMAPA id;
+	private Map<String, String> parameterStableIdToEmapaTermIdMap = new HashMap<>(); // key: EMAPA id;
 	private Map<String, String> parameterStableIdToMpTermIdMap;
 	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
 
 	private String impcAnnotationBaseUrl;
 
-	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap(); // key: MA id
+	private Map<String, Map<String, List<String>>> maUberonEfoMap = new HashMap<>(); // key: MA id
 
 	private final String fieldSeparator = "___";
 
@@ -138,7 +141,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
-
+		
 		try {
 			parameterStableIdToMaTermIdMap = this.populateParameterStableIdToMaIdMap();
 		} catch (SQLException e) {
@@ -185,6 +188,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		try {
+			
+			//populate image DTOs from phis solr dto objects
+			List<ImageDTO> phisImages=phisService.getPhenoImageShareImageDTOs();
+			
 			logger.info("Starting indexing.....");
 			impcImagesIndexing.deleteByQuery("*:*");
 
