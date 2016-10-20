@@ -198,6 +198,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 
 			List<ImageDTO> imageList = experimentCore.query(query).getBeans(ImageDTO.class);
+			imageList.addAll(phisImages);
 			for (ImageDTO imageDTO : imageList) {
 				
 				if(imageDTO.getDateOfBirth()!=null && imageDTO.getDateOfExperiment() !=null ){
