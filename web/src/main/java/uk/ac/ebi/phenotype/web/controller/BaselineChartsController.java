@@ -55,7 +55,6 @@ import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.ChartColors;
 import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
 
@@ -106,18 +105,18 @@ public class BaselineChartsController {
 		System.out.println("decimalPlaces="+decimalPlaces);
 		
 		
-//		Double yMin=new Double(Double.MAX_VALUE);
-//		Double yMax=new Double(0);
+		Double yMin=new Double(0);
+		Double yMax=new Double(0);
 		
 		for(FieldStatsInfo baseLine:baselinesForParameter){
 			List<String> boxColumn=new ArrayList<String>();
 			xAxisLabels.add("'"+baseLine.getName()+"'");
-//			if((Double)baseLine.getMin()<yMin){
-//				yMin=(Double)baseLine.getMin();
-//			}
-//			if((Double)baseLine.getMax()>yMax){
-//				yMax=(Double)baseLine.getMax();
-//			}
+			if((Double)baseLine.getMin()<yMin){
+				yMin=(Double)baseLine.getMin();
+			}
+			if((Double)baseLine.getMax()>yMax){
+				yMax=(Double)baseLine.getMax();
+			}
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMin(), decimalPlaces)));
 			double lower = (double)baseLine.getMean()-(double)baseLine.getStddev();
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)lower, decimalPlaces)));
@@ -129,8 +128,6 @@ public class BaselineChartsController {
 			boxColumns.add(boxColumn);
 			//System.out.println("boxColumn="+boxColumn);
 		}
-		
-		//adjust height of yAxis slightly so the boxes don't get lost at the side of the chart
 		
 		
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
@@ -176,9 +173,7 @@ public class BaselineChartsController {
 					+ "     }, "
 					+ " }, \n"
 					+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "},"
-					+ " yAxis: {  " 
-					//+ " max: " + yMax + ",  min: " + yMin + ","
-					+ " labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, "
+					+ " yAxis: {  " + "max: " + yMax + ",  min: " + yMin + "," + " labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, "
 					+ "\n series: [" + seriesData + "] });";
 
 				return chartString;

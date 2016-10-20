@@ -36,6 +36,7 @@ import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -80,7 +81,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 		run();
 	}
 
-	public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException;
+	public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException;
 
     public abstract RunStatus validateBuild() throws IndexerException;
 
@@ -223,8 +224,10 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    protected void doLiveStageLookup(RunStatus runStatus) throws SQLException {
+    protected void doLiveStageLookup() throws SQLException {
 
+        long time = System.currentTimeMillis();
+        System.out.println("Filling up LIVE STAGE LOOKUP");
 
         connection = komp2DataSource.getConnection();
 
@@ -234,47 +237,53 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                 + "WHERE o.id=eo.observation_id "
                 + "AND eo.experiment_id=e.id )";
 
+
         String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
                 + "FROM observations2 o, live_sample ls, ontology_term ot "
                 + "WHERE ot.acc=ls.developmental_stage_acc "
-                + "AND ls.id=o.biological_sample_id" ;
+                + "AND ls.id=o.biological_sample_id";
 
-        try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-            p1.executeUpdate();
+        PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        p1.executeUpdate();
+
+        System.out.println("First query took  "  + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
+
 
 //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
-            PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        ResultSet r = p.executeQuery();
 
-            ResultSet r = p.executeQuery();
-            while (r.next()) {
 
-                List<String> fields = new ArrayList<String>();
-                fields.add(r.getString("colony_id"));
-                fields.add(r.getString("pipeline_stable_id"));
-                fields.add(r.getString("procedure_stable_id"));
+        System.out.println("Second query took  "  + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
 
-                BasicBean stage = new BasicBean(
-                        r.getString("developmental_stage_acc"),
-                        r.getString("developmental_stage_name"));
+        while (r.next()) {
 
-                String key = StringUtils.join(fields, "_");
-                if (!liveStageMap.containsKey(key)){
+            List<String> fields = new ArrayList<String>();
+            fields.add(r.getString("colony_id"));
+            fields.add(r.getString("pipeline_stable_id"));
+            fields.add(r.getString("procedure_stable_id"));
 
-                    liveStageMap.put(key, stage);
-                }
+            BasicBean stage = new BasicBean(
+                    r.getString("developmental_stage_acc"),
+                    r.getString("developmental_stage_name"));
+
+            String key = StringUtils.join(fields, "_");
+            if (!liveStageMap.containsKey(key)) {
+                liveStageMap.put(key, stage);
             }
-        } catch (Exception e) {
-            runStatus.addError(" Error populating live stage lookup map: " + e.getMessage());
-            e.printStackTrace();
         }
+
+        System.out.println("Remaining took "  + (System.currentTimeMillis() - time));
     }
 
 
-    protected BasicBean getDevelopmentalStage(String pipelineStableId, String procedureStableId, String colonyId, RunStatus runStatus) throws SQLException {
+    protected BasicBean getDevelopmentalStage(String pipelineStableId, String procedureStableId, String colonyId) throws SQLException {
 
-        if (liveStageMap  == null){
-            doLiveStageLookup(runStatus);
+        if (liveStageMap  == null || liveStageMap.size() == 0){
+            doLiveStageLookup();
         }
 
         BasicBean stage = null;
