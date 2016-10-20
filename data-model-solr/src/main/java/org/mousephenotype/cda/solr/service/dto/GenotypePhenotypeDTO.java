@@ -818,19 +818,9 @@ public class GenotypePhenotypeDTO {
         this.externalId = externalId;
     }
 
-    public String LifeStageAcc() {
-
-        return lifeStageAcc;
-    }
-
     public void setLifeStageAcc(String life_stage_acc) {
 
         this.lifeStageAcc = life_stage_acc;
-    }
-
-    public String LifeStageName() {
-
-        return lifeStageName;
     }
 
     public void setLifeStageName(String life_stage_name) {
@@ -1002,6 +992,7 @@ public class GenotypePhenotypeDTO {
                 ", resourceName='" + resourceName + '\'' +
                 ", resourceFullname='" + resourceFullname + '\'' +
                 ", sex='" + sex + '\'' +
+                ", zygosity='" + zygosity + '\'' +
                 ", zygosity='" + zygosity + '\'' +
                 ", pipelineName='" + pipelineName + '\'' +
                 ", pipelineStableId='" + pipelineStableId + '\'' +

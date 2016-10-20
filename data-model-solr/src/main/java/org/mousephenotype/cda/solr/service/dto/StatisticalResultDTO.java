@@ -16,8 +16,6 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
@@ -127,6 +125,9 @@ public class StatisticalResultDTO {
 	public final static String MALE_PVALUE_LOW_NORMAL_VS_HIGH = "male_pvalue_low_normal_vs_high";
 	public final static String MALE_EFFECT_SIZE_LOW_VS_NORMAL_HIGH = "male_effect_size_low_vs_normal_high";
 	public final static String MALE_EFFECT_SIZE_LOW_NORMAL_VS_HIGH = "male_effect_size_low_normal_vs_high";
+
+    public static final String LIFE_STAGE_ACC = "life_stage_acc";
+    public static final String LIFE_STAGE_NAME = "life_stage_name";
 
 	public final static String CATEGORIES = "categories";
     public final static String CATEGORICAL_P_VALUE = "categorical_p_value";
@@ -277,6 +278,12 @@ public class StatisticalResultDTO {
     @Field(FEMALE_INTERMEDIATE_MP_TERM_NAME)
     private List<String> femaleIntermediateMpTermName;
 
+
+    @Field(LIFE_STAGE_ACC)
+    String lifeStageAcc;
+
+    @Field(LIFE_STAGE_NAME)
+    String lifeStageName;
 
 
     @Field(RESOURCE_NAME)
@@ -668,12 +675,30 @@ public class StatisticalResultDTO {
         return topLevelMpTermName;
     }
 
-
     public void setTopLevelMpTermName(List<String> topLevelMpTermName) {
 
         this.topLevelMpTermName = topLevelMpTermName;
     }
 
+    public String getLifeStageAcc() {
+
+        return lifeStageAcc;
+    }
+
+    public void setLifeStageAcc(String life_stage_acc) {
+
+        this.lifeStageAcc = life_stage_acc;
+    }
+
+    public String setLifeStageName() {
+
+        return lifeStageName;
+    }
+
+    public void setLifeStageName(String life_stage_name) {
+
+        this.lifeStageName = life_stage_name;
+    }
 
     public List<String> getIntermediateMpTermId() {
 
@@ -2354,6 +2379,10 @@ public class StatisticalResultDTO {
 			return false;
 		if (getProjectId() != null ? !getProjectId().equals(that.getProjectId()) : that.getProjectId() != null)
 			return false;
+        if (lifeStageAcc != null ? !lifeStageAcc.equals(that.lifeStageAcc) : that.lifeStageAcc != null)
+            return false;
+        if (lifeStageName != null ? !lifeStageName.equals(that.lifeStageName) : that.lifeStageName != null)
+            return false;
 		return getSignificant() != null ? getSignificant().equals(that.getSignificant()) : that.getSignificant() == null;
 
 	}
@@ -2489,6 +2518,8 @@ public class StatisticalResultDTO {
 		result = 31 * result + (getPhenotypingCenterId() != null ? getPhenotypingCenterId().hashCode() : 0);
 		result = 31 * result + (getProjectId() != null ? getProjectId().hashCode() : 0);
 		result = 31 * result + (getSignificant() != null ? getSignificant().hashCode() : 0);
+        result = 31 * result + (lifeStageAcc != null ? lifeStageAcc.hashCode() : 0);
+        result = 31 * result + (lifeStageName != null ? lifeStageName.hashCode() : 0);
 		return result;
 	}
 
@@ -2624,6 +2655,8 @@ public class StatisticalResultDTO {
 			", phenotypingCenterId=" + phenotypingCenterId +
 			", projectId=" + projectId +
 			", significant=" + significant +
+            ", lifeStageAcc='" + lifeStageAcc + '\'' +
+            ", lifeStageName='" + lifeStageName + '\'' +
 			'}';
 	}
 }
