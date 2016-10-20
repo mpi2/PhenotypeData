@@ -81,7 +81,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 		run();
 	}
 
-	public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException;
+	public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException;
 
     public abstract RunStatus validateBuild() throws IndexerException;
 
