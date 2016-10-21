@@ -50,6 +50,8 @@ public class MpDTO {
 	public static final String TOP_LEVEL_MP_DEFINITION = "top_level_mp_definition";
 	public static final String TOP_LEVEL_MP_TERM_SYNONYM = "top_level_mp_term_synonym";
 	public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
+	public static final String TOP_LEVEL_MP_TERM_INCLUSIVE = "top_level_mp_term_inclusive";
+
 	public static final String HP_ID = "hp_id";
 	public static final String HP_TERM = "hp_term";
 	public static final String HP_TERM_SYNONYM = "hp_term_synonym";
@@ -247,6 +249,9 @@ public class MpDTO {
 
 	@Field(TOP_LEVEL_MP_TERM_ID)
 	private List<String> topLevelMpTermId;
+
+	@Field(TOP_LEVEL_MP_TERM_INCLUSIVE)
+	private List<String> topLevelMpTermInclusive;
 
 	@Field(HP_ID)
 	private List<String> hpId;
@@ -843,6 +848,13 @@ public class MpDTO {
 		this.topLevelMpTerm = topLevelMpTerm;
 	}
 
+	public List<String> getTopLevelMpTermInclusive() {
+		return topLevelMpTermInclusive;
+	}
+
+	public void setTopLevelMpTermInclusive(List<String> topLevelMpTermInclusive) {
+		this.topLevelMpTermInclusive = topLevelMpTermInclusive;
+	}
 
 	public List<String> getTopLevelMpDefinition() {
 
@@ -2114,6 +2126,8 @@ public class MpDTO {
 			return false;
 		if (topLevelMpTermId != null ? !topLevelMpTermId.equals(mpDTO.topLevelMpTermId) : mpDTO.topLevelMpTermId != null)
 			return false;
+		if (topLevelMpTermInclusive != null ? !topLevelMpTermInclusive.equals(mpDTO.topLevelMpTermInclusive) : mpDTO.topLevelMpTermInclusive != null)
+			return false;
 		if (hpId != null ? !hpId.equals(mpDTO.hpId) : mpDTO.hpId != null) return false;
 		if (hpTerm != null ? !hpTerm.equals(mpDTO.hpTerm) : mpDTO.hpTerm != null) return false;
 		if (hpTermSynonym != null ? !hpTermSynonym.equals(mpDTO.hpTermSynonym) : mpDTO.hpTermSynonym != null)
@@ -2291,6 +2305,7 @@ public class MpDTO {
 		result = 31 * result + (topLevelMpDefinition != null ? topLevelMpDefinition.hashCode() : 0);
 		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
+		result = 31 * result + (topLevelMpTermInclusive != null ? topLevelMpTermInclusive.hashCode() : 0);
 		result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
 		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
 		result = 31 * result + (hpTermSynonym != null ? hpTermSynonym.hashCode() : 0);
@@ -2419,6 +2434,7 @@ public class MpDTO {
 				", topLevelMpDefinition=" + topLevelMpDefinition +
 				", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
 				", topLevelMpTermId=" + topLevelMpTermId +
+				", topLevelMpTermInclusive=" + topLevelMpTermInclusive +
 				", hpId=" + hpId +
 				", hpTerm=" + hpTerm +
 				", hpTermSynonym=" + hpTermSynonym +
