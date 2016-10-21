@@ -172,6 +172,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
         initializeDatabaseConnections();
+        System.out.println("Started supporting beans");
         initialiseSupportingBeans();
 
         try {
@@ -1089,7 +1090,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
       	List<String> nameId = new ArrayList<>();
       	Set<String> synonyms = new HashSet<>();
 
-      	for (OntologyTermBean term : mpOntologyService.getTopLevel(mp.getMpId())) {
+        for (OntologyTermBean term : mpOntologyService.getTopLevel(mp.getMpId())) {
 			ids.add(term.getId());
 			names.add(term.getName());
 			synonyms.addAll(term.getSynonyms());
@@ -1101,7 +1102,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.setTopLevelMpTerm(names);
             mp.setTopLevelMpTermId(nameId);
             mp.setTopLevelMpTermSynonym(new ArrayList<>(synonyms));
+            mp.setTopLevelMpTermInclusive(names);
         }
+        else {
+            // add self as top level
+            List<String> terms = new ArrayList<>();
+            terms.add(mp.getMpTerm());
+            mp.setTopLevelMpTermInclusive(terms);
+        }
+
     }
 
     protected static void addIntermediateLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
