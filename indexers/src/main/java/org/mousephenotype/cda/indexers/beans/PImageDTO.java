@@ -150,6 +150,7 @@ public class PImageDTO {
 
 	public final static String PHENOTYPE_DEFAULT_ONTOLOGIES = "phenotype_default_ontologies";
 	public final static String ANATOMY_DEFAULT_ONTOLOGIES = "anatomy_default_ontologies";
+	public final static String EXPERIMENT_GROUP = "experiment_group";
 
 	@Field(ID)
 	private String id;
@@ -487,7 +488,18 @@ public class PImageDTO {
 
 	@Field("*_group")
 	private Map<String, Object> dynamicGroups;
+	
+	@Field(EXPERIMENT_GROUP)
+	private String experimentGroup;
 
+
+	public String getExperimentGroup() {
+		return experimentGroup;
+	}
+
+	public void setExperimentGroup(String experimentGroup) {
+		this.experimentGroup = experimentGroup;
+	}
 
 	public List<String> getGenericSearch() {
 

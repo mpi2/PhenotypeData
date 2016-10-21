@@ -36,6 +36,7 @@ import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -80,7 +81,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 		run();
 	}
 
-	public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException;
+	public abstract RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException;
 
     public abstract RunStatus validateBuild() throws IndexerException;
 

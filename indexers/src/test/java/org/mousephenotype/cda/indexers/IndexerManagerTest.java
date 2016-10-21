@@ -39,6 +39,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -100,7 +101,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticNoArgs() throws IOException, SolrServerException, SQLException {
+    public void testStaticNoArgs() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticNoArgs";
         System.out.println("-------------------" + testName + "-------------------");
         System.out.println("Command line = ");
@@ -152,7 +153,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-     public void testStaticNoCoresNodeps() throws IOException, SolrServerException, SQLException {
+     public void testStaticNoCoresNodeps() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String args[] = { "--nodeps" };
@@ -203,7 +204,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-     public void testStaticInvalidCoreName() throws IOException, SolrServerException, SQLException {
+     public void testStaticInvalidCoreName() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
         String args[] = { "--cores=junk" };
@@ -394,7 +395,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticAllAndCores() throws IOException, SolrServerException, SQLException {
+    public void testStaticAllAndCores() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticAllAndCores";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--all", "--cores=ma" };
@@ -418,7 +419,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticAllAndNodeps() throws IOException, SolrServerException, SQLException {
+    public void testStaticAllAndNodeps() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticAllAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--all", "--nodeps" };
@@ -442,7 +443,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticDailyAndNodeps() throws IOException, SolrServerException, SQLException {
+    public void testStaticDailyAndNodeps() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticDailyAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--daily", "--nodeps" };
@@ -466,7 +467,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticDailyAndCores() throws IOException, SolrServerException, SQLException {
+    public void testStaticDailyAndCores() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticDailyAndCores";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--daily", "--cores=ma" };
@@ -490,7 +491,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticAllAndDaily() throws IOException, SolrServerException, SQLException {
+    public void testStaticAllAndDaily() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticAllAndDaily";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--all", "--daily" };
@@ -514,7 +515,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticAllAndDailyAndNodeps() throws IOException, SolrServerException, SQLException {
+    public void testStaticAllAndDailyAndNodeps() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticAllAndDailyAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--all", "--daily", "--nodeps" };
@@ -839,7 +840,7 @@ public class IndexerManagerTest {
       */
      @Test
 	@Ignore
-    public void testStaticBuildAndDeploy() throws IOException, SolrServerException, SQLException {
+    public void testStaticBuildAndDeploy() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticBuildAndDeploy";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--cores=ma", "--nodeps" };
@@ -871,7 +872,7 @@ public class IndexerManagerTest {
       */
 	@Ignore
      @Test
-     public void testStaticBuildSingleCoreNodeps() throws IOException, SolrServerException, SQLException {
+     public void testStaticBuildSingleCoreNodeps() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--cores=anatomy", "--nodeps" };
@@ -896,7 +897,7 @@ public class IndexerManagerTest {
       */
 	@Ignore
      @Test
-     public void testInstanceBuildSingleCoreNodeps() throws SQLException, IOException, SolrServerException {
+     public void testInstanceBuildSingleCoreNodeps() throws SQLException, IOException, SolrServerException, URISyntaxException {
         String testName = "testInstanceBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--cores=anatomy", "--nodeps" };
@@ -929,7 +930,7 @@ public class IndexerManagerTest {
       */
 	@Ignore
      @Test
-     public void testStaticBuildMultipleCoresNodeps() throws IOException, SolrServerException, SQLException {
+     public void testStaticBuildMultipleCoresNodeps() throws IOException, SolrServerException, SQLException, URISyntaxException {
         String testName = "testStaticBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--cores=anatomy,anatomy", "--nodeps" };
@@ -955,7 +956,7 @@ public class IndexerManagerTest {
       */
 	@Ignore
      @Test
-     public void testInstanceBuildMultipleCoresNodeps() throws SQLException, IOException, SolrServerException {
+     public void testInstanceBuildMultipleCoresNodeps() throws SQLException, IOException, SolrServerException, URISyntaxException {
         String testName = "testInstanceBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--cores=anatomy,anatomy", "--nodeps" };
