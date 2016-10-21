@@ -26,6 +26,7 @@ import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,7 +200,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			impcImagesIndexing.deleteByQuery("*:*");
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 			List<ImageDTO> imagePrimaryList = experimentCore.query(query).getBeans(ImageDTO.class);
+			imageList.addAll(secondaryProjectImageList);
 			imageList.addAll(imagePrimaryList);
+		
 			
 			for (ImageDTO imageDTO : imageList) {
 				int omeroId=0;
@@ -287,6 +290,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					impcImagesIndexing.addBean(imageDTO);
 
 					documentCount++;
+					if(documentCount%100==0){
+						System.out.println(documentCount);
+					}
 				}
 			
 
@@ -317,9 +323,26 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		//observation_ids are stored as solr id field and so we need to make sure no conflict
 		//need to query the experiment core to make sure we allocate numbers over what we already have
 		//this could have other issues if we have assumed id is observation id elsewhere -but I think it's in loading the db and not after indexing??
-		
-		
-		return populatePhisImages();
+		int highestObserationId=this.getHighestObservationId();
+		//currently just getting brain histopath
+		List<ImageDTO> brainHistoImageDtos = populatePhisImages();
+		int id=highestObserationId;
+		for(ImageDTO image:brainHistoImageDtos){
+			id++;//do here so one higher than highest obs id
+			image.setId(id);//add a generated id that we know hasn't been used before	
+		}
+		return brainHistoImageDtos;
+	}
+
+	private int getHighestObservationId() throws SolrServerException, IOException {
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&rows=1&sort=id%20desc&rows=1&fl=id
+		 SolrQuery query = new SolrQuery().setQuery("observation_type:image_record")
+		.addFilterQuery(
+				"(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":"
+						+ "*mousephenotype.org*)");
+		int highestObsId= (int)experimentCore.query(query).getResults().get(0).get("id");
+		logger.info("highest observation_id="+highestObsId);
+		return highestObsId;
 	}
 
 	private void addOntology(RunStatus runStatus, ImageDTO imageDTO, Map<String, String> stableIdToTermIdMap,
