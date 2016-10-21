@@ -174,7 +174,7 @@ public class PhenotypesController {
         PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  null, null, null);       
         model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult, preQcResult));
         model.addAttribute("errorMessage", getErrorMessage(phenoResult, preQcResult));   
-        model.addAttribute("phenotypes", phenotypeSummaryHelper.getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
+        model.addAttribute("phenotypes", getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
         
         return "phenotypes";
         
@@ -224,57 +224,57 @@ public class PhenotypesController {
     }
     
 
-//    /**
-//     *
-//     * @param phenotypeId
-//     * @param filter
-//     * @param model
-//     * @param request
-//     * @throws IOException
-//     * @throws URISyntaxException
-//     * @throws SolrServerException, IOException
-//     */
-//    private List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl)
-//    throws IOException, URISyntaxException, SolrServerException {
-//
-//
-//    	List<PhenotypeCallSummaryDTO> phenotypeList;
-//        phenotypeList = phenoResult.getPhenotypeCallSummaries();
-//        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-//
-//        // This is a map because we need to support lookups
-//        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
-//
-//        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-//
-//            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-//            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, config, false);
-//
-//	        // Collapse rows on sex
-//            if (phenotypes.containsKey(pr.hashCode())) {
-//
-//                pr = phenotypes.get(pr.hashCode());
-//                // Use a tree set to maintain an alphabetical order (Female, Male)
-//                TreeSet<String> sexes = new TreeSet<String>();
-//                for (String s : pr.getSexes()) {
-//                    sexes.add(s);
-//                }
-//                sexes.add(pcs.getSex().toString());
-//
-//                pr.setSexes(new ArrayList<String>(sexes));
-//            }
-//
-//            if (pr.getParameter() != null && pr.getProcedure() != null) {
-//                phenotypes.put(pr.hashCode(), pr);
-//            }
-//        }
-//
-//        List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.values());
-//        Collections.sort(list);
-//
-//        return list;
-//
-//    }
+    /**
+     *
+     * @param phenotypeId
+     * @param filter
+     * @param model
+     * @param request
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws SolrServerException, IOException
+     */
+    private List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl)
+    throws IOException, URISyntaxException, SolrServerException {
+
+
+    	List<PhenotypeCallSummaryDTO> phenotypeList;
+        phenotypeList = phenoResult.getPhenotypeCallSummaries();
+        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+
+        // This is a map because we need to support lookups
+        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
+
+        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+
+            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
+            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, config, false);
+
+	        // Collapse rows on sex
+            if (phenotypes.containsKey(pr.hashCode())) {
+
+                pr = phenotypes.get(pr.hashCode());
+                // Use a tree set to maintain an alphabetical order (Female, Male)
+                TreeSet<String> sexes = new TreeSet<String>();
+                for (String s : pr.getSexes()) {
+                    sexes.add(s);
+                }
+                sexes.add(pcs.getSex().toString());
+
+                pr.setSexes(new ArrayList<String>(sexes));
+            }
+
+            if (pr.getParameter() != null && pr.getProcedure() != null) {
+                phenotypes.put(pr.hashCode(), pr);
+            }
+        }
+
+        List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.values());
+        Collections.sort(list);
+
+        return list;
+
+    }
 
     @ExceptionHandler(OntologyTermNotFoundException.class)
     public ModelAndView handleOntologyTermNotFoundException(OntologyTermNotFoundException exception) {
