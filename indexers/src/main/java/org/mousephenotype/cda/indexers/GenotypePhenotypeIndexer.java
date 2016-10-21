@@ -127,6 +127,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             count = populateGenotypePhenotypeSolrCore(runStatus);
 
         } catch (SQLException | IOException | SolrServerException ex) {
+        	ex.printStackTrace();
             throw new IndexerException(ex);
         }
 
