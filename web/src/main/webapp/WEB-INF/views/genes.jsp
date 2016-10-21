@@ -917,7 +917,7 @@
                         $.fancybox.open([
                               {
                                  href : $(this).attr('data-url'),
-                                 title : 'Order Products'
+                                 
                               }
                               ],
                                {
