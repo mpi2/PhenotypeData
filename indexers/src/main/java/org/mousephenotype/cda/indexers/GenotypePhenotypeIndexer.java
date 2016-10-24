@@ -52,13 +52,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     private final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
 
     public final static Set<String> source3iProcedurePrefixes = new HashSet<>(Arrays.asList(
-        "MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
+            "MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
     ));
 
-	// Do not process parameters from these procecures
-	public final static Set<String> skipProcedures = new HashSet<>(Arrays.asList(
-		"IMPC_ELZ", "IMPC_EOL", "IMPC_EMO", "IMPC_MAA", "IMPC_EMA"
-	));
+    // Do not process parameters from these procecures
+    public final static Set<String> skipProcedures = new HashSet<>(Arrays.asList(
+            "IMPC_ELZ", "IMPC_EOL", "IMPC_EMO", "IMPC_MAA", "IMPC_EMA"
+    ));
 
     private static Connection connection;
 
@@ -84,14 +84,14 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     EmapaOntologyDAO emapaOntologyService;
 
 
-	@Autowired
-	DatasourceDAO dsDAO;
+    @Autowired
+    DatasourceDAO dsDAO;
 
-	Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
 
-	public GenotypePhenotypeIndexer() {
+    public GenotypePhenotypeIndexer() {
     }
 
     @Override
@@ -104,7 +104,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
 
-	@Override
+    @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
@@ -112,14 +112,14 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         try {
 
-	        connection = komp2DataSource.getConnection();
+            connection = komp2DataSource.getConnection();
 
-	        pipelineMap = IndexerMap.getImpressPipelines(connection);
-	        procedureMap = IndexerMap.getImpressProcedures(connection);
-	        parameterMap = IndexerMap.getImpressParameters(connection);
+            pipelineMap = IndexerMap.getImpressPipelines(connection);
+            procedureMap = IndexerMap.getImpressProcedures(connection);
+            parameterMap = IndexerMap.getImpressParameters(connection);
 
-	        // Override the EFO db_id with the current term from the database
-	        EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
+            // Override the EFO db_id with the current term from the database
+            EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
 
             // prepare a live stage lookup
             doLiveStageLookup();
@@ -151,29 +151,29 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
 
         String query = "SELECT s.id AS id, CASE WHEN sur.statistical_method IS NOT NULL THEN sur.statistical_method WHEN scr.statistical_method IS NOT NULL THEN scr.statistical_method ELSE 'Unknown' END AS statistical_method, " +
-            "  sur.genotype_percentage_change, o.name AS phenotyping_center, s.external_id, s.parameter_id AS parameter_id, s.procedure_id AS procedure_id, s.pipeline_id AS pipeline_id, s.gf_acc AS marker_accession_id, " +
-            "  gf.symbol AS marker_symbol, s.allele_acc AS allele_accession_id, al.name AS allele_name, al.symbol AS allele_symbol, s.strain_acc AS strain_accession_id, st.name AS strain_name, " +
-            "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS ontology_term_id, ot.name AS ontology_term_name, " +
-            "  CASE WHEN s.p_value IS NOT NULL THEN s.p_value WHEN s.sex='female' THEN sur.gender_female_ko_pvalue WHEN s.sex='male' THEN sur.gender_male_ko_pvalue END AS p_value, " +
-            "  s.effect_size AS effect_size, " +
-            "  s.colony_id, db.name AS resource_fullname, db.short_name AS resource_name " +
-            "FROM phenotype_call_summary s " +
-            "  LEFT OUTER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id " +
-            "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id " +
-            "  LEFT OUTER JOIN stats_categorical_results scr ON scr.id = srpcs.categorical_result_id " +
-	        "  LEFT OUTER JOIN stats_rrplus_results srr ON srr.id = srpcs.rrplus_result_id " +
-            "  INNER JOIN organisation o ON s.organisation_id = o.id " +
-            "  INNER JOIN project p ON s.project_id = p.id " +
-            "  INNER JOIN ontology_term ot ON ot.acc = s.mp_acc " +
-            "  INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc " +
-            "  LEFT OUTER JOIN strain st ON s.strain_acc = st.acc " +
-            "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc " +
-            "  INNER JOIN external_db db ON s.external_db_id = db.id " +
-            "WHERE (0.0001 >= s.p_value " +
-            "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
-            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001)) " +
-            "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%')) " +
-            "OR s.p_value IS NULL " ;
+                "  sur.genotype_percentage_change, o.name AS phenotyping_center, s.external_id, s.parameter_id AS parameter_id, s.procedure_id AS procedure_id, s.pipeline_id AS pipeline_id, s.gf_acc AS marker_accession_id, " +
+                "  gf.symbol AS marker_symbol, s.allele_acc AS allele_accession_id, al.name AS allele_name, al.symbol AS allele_symbol, s.strain_acc AS strain_accession_id, st.name AS strain_name, " +
+                "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS ontology_term_id, ot.name AS ontology_term_name, " +
+                "  CASE WHEN s.p_value IS NOT NULL THEN s.p_value WHEN s.sex='female' THEN sur.gender_female_ko_pvalue WHEN s.sex='male' THEN sur.gender_male_ko_pvalue END AS p_value, " +
+                "  s.effect_size AS effect_size, " +
+                "  s.colony_id, db.name AS resource_fullname, db.short_name AS resource_name " +
+                "FROM phenotype_call_summary s " +
+                "  LEFT OUTER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id " +
+                "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id " +
+                "  LEFT OUTER JOIN stats_categorical_results scr ON scr.id = srpcs.categorical_result_id " +
+                "  LEFT OUTER JOIN stats_rrplus_results srr ON srr.id = srpcs.rrplus_result_id " +
+                "  INNER JOIN organisation o ON s.organisation_id = o.id " +
+                "  INNER JOIN project p ON s.project_id = p.id " +
+                "  INNER JOIN ontology_term ot ON ot.acc = s.mp_acc " +
+                "  INNER JOIN genomic_feature gf ON s.gf_acc = gf.acc " +
+                "  LEFT OUTER JOIN strain st ON s.strain_acc = st.acc " +
+                "  LEFT OUTER JOIN allele al ON s.allele_acc = al.acc " +
+                "  INNER JOIN external_db db ON s.external_db_id = db.id " +
+                "WHERE (0.0001 >= s.p_value " +
+                "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
+                "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001)) " +
+                "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%')) " +
+                "OR s.p_value IS NULL ";
 
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
@@ -193,7 +193,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setProjectFullname(r.getString("project_fullname"));
 
                 String percentageChangeDb = r.getString("genotype_percentage_change");
-                if ( ! r.wasNull()) {
+                if (!r.wasNull()) {
 
                     // Default female, override if male
                     Double percentageChange = StatisticalResultService.getFemalePercentageChange(percentageChangeDb);
@@ -210,16 +210,16 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                 doc.setStatisticalMethod(r.getString("statistical_method"));
 
-	            // Only set the p_value and effect size if they are not null in the phenotype call summary table
-	            Double d = r.getDouble("p_value");
-	            if ( ! r.wasNull()) {
-		            doc.setP_value(r.getDouble("p_value"));
-	            }
+                // Only set the p_value and effect size if they are not null in the phenotype call summary table
+                Double d = r.getDouble("p_value");
+                if (!r.wasNull()) {
+                    doc.setP_value(r.getDouble("p_value"));
+                }
 
-	            d = r.getDouble("effect_size");
-	            if ( ! r.wasNull()) {
-		            doc.setEffectSize(r.getDouble("effect_size"));
-	            }
+                d = r.getDouble("effect_size");
+                if (!r.wasNull()) {
+                    doc.setEffectSize(r.getDouble("effect_size"));
+                }
 
                 doc.setMarkerAccessionId(r.getString("marker_accession_id"));
                 doc.setMarkerSymbol(r.getString("marker_symbol"));
@@ -255,11 +255,11 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
                 doc.setProcedureStableId(procedureStableId);
 
-	            if (skipProcedures.contains(procedurePrefix)) {
-		            // Do not store phenotype associations for these parameters
-		            // if somehow they make it into the database
-		            continue;
-	            }
+                if (skipProcedures.contains(procedurePrefix)) {
+                    // Do not store phenotype associations for these parameters
+                    // if somehow they make it into the database
+                    continue;
+                }
 
                 doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
                 doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
@@ -267,18 +267,18 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
 
                 // MP association
-                if ( r.getString("ontology_term_id").startsWith("MP:") ) {
+                if (r.getString("ontology_term_id").startsWith("MP:")) {
                     // some hard-coded stuff
                     doc.setOntologyDbId(5);
 
-	                if (doc.getP_value()!= null) {
-		                doc.setAssertionType("automatic");
-		                doc.setAssertionTypeId("ECO:0000203");
-	                } else {
-		                doc.setAssertionType("manual");
-		                doc.setAssertionTypeId("ECO:0000218");
+                    if (doc.getP_value() != null) {
+                        doc.setAssertionType("automatic");
+                        doc.setAssertionTypeId("ECO:0000203");
+                    } else {
+                        doc.setAssertionType("manual");
+                        doc.setAssertionTypeId("ECO:0000218");
 
-	                }
+                    }
 
                     BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
                     if (stage != null) {
@@ -345,7 +345,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
                 }
                 // MPATH association
-                else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){
+                else if (r.getString("ontology_term_id").startsWith("MPATH:")) {
                     // some hard-coded stuff
                     doc.setOntologyDbId(24);
                     doc.setAssertionType("manual");
@@ -356,7 +356,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 }
 
                 // EMAP association
-                else if ( r.getString("ontology_term_id").startsWith("EMAP:") ){
+                else if (r.getString("ontology_term_id").startsWith("EMAP:")) {
                     // some hard-coded stuff
                     doc.setOntologyDbId(14);
                     doc.setAssertionType("manual");
@@ -364,15 +364,14 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                     doc.setMpathTermId(r.getString("ontology_term_id"));
                     doc.setMpathTermName(r.getString("ontology_term_name"));
-                }
-                else {
+                } else {
                     runStatus.addError(" Found unknown ontology term: " + r.getString("ontology_term_id"));
                 }
 
                 documentCount++;
                 genotypePhenotypeIndexing.addBean(doc, 30000);
 
-                count ++;
+                count++;
             }
 
             // Final commit to save the rest of the docs

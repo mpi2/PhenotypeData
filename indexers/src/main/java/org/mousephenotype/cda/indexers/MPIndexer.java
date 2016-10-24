@@ -1314,7 +1314,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 if (allele.getMgiNovelPredictedInLocus() != null) {
                     mp.getMgiNovelPredictedInLocus().addAll(allele.getMgiNovelPredictedInLocus());
-                    mp.setMgiNovelPredictedInLocus(new ArrayList<>(new HashSet<>(mp.getMgiNovelPredictedInLocus())));
+                    mp.setMgiNovelPredictedInLocus(new ArrayList<Boolean>(new HashSet<>(mp.getMgiNovelPredictedInLocus())));
                 }
                 if (allele.getImpcNovelPredictedInLocus() != null) {
                     mp.getImpcNovelPredictedInLocus().addAll(allele.getImpcNovelPredictedInLocus());
