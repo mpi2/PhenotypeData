@@ -1103,12 +1103,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.setTopLevelMpTermId(nameId);
             mp.setTopLevelMpTermSynonym(new ArrayList<>(synonyms));
             mp.setTopLevelMpTermInclusive(names);
+            mp.setTopLevelMpIdInclusive(ids);
+
         }
         else {
             // add self as top level
-            List<String> terms = new ArrayList<>();
-            terms.add(mp.getMpTerm());
-            mp.setTopLevelMpTermInclusive(terms);
+            names.add(mp.getMpTerm());
+            ids.add(mp.getMpId());
+            mp.setTopLevelMpTermInclusive(names);
+            mp.setTopLevelMpIdInclusive(ids);
         }
 
     }
