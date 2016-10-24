@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,7 +10,6 @@ import uk.ac.ebi.phenotype.bean.LandingPageDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,8 +28,7 @@ public class LandingPageController {
             Model model,
             HttpServletRequest request) throws IOException {
 
-        BufferedReader in;
-        in = new BufferedReader(new FileReader( new File("/Users/ilinca/IdeaProjects/PhenotypeData/web/src/main/resources/landingPages.json")));
+        BufferedReader in = new BufferedReader( new FileReader(new ClassPathResource("landingPages.json").getFile()));
         if (in != null) {
             String json = in.lines().collect(Collectors.joining(" "));
             ObjectMapper mapper = new ObjectMapper();
