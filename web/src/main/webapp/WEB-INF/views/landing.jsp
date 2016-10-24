@@ -58,7 +58,7 @@
                                         <p> <a href="${link}">More</a></p>
                                     </div>
                                     <div class="half">
-                                        <img src="${page.image}" height="85" width="130">
+                                        <img src="${baseUrl}/${page.image}" width="80%">
                                     </div>
 
                                     <div class="clear both"> </div>
