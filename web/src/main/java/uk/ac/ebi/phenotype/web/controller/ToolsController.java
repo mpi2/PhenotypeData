@@ -15,6 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +28,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,17 +42,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ToolsController {
 
+	private static final Logger logger = LoggerFactory.getLogger(ToolsController.class);
 
 	/**
 	 * tools page
 	 *
 	 */
 
+	@Value("classpath:tools.txt")
+	Resource toolsResource;
+
+
 	@RequestMapping(value="/tools", method=RequestMethod.GET)
 	public String loadToolsPage(
-			@RequestParam(value = "core", required = false) String core,
 			HttpServletRequest request,
-			Model model) {
+			Model model) throws IOException {
 
 		String toolsHtml = composeToolBoxes(request);
 		model.addAttribute("tools", toolsHtml);
@@ -52,60 +64,53 @@ public class ToolsController {
 		return "tools";
 	}
 
-
-	private String composeToolBoxes(HttpServletRequest request){
+	private String composeToolBoxes(HttpServletRequest request) throws IOException {
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl") .toString();
 
-		List<String> toolBoxes = new ArrayList<>();
-
-		Map<String, String> toolSet = new HashMap<>();
-		toolSet.put("alleleref", "IMPC/IKMC publications browser");
-		toolSet.put("reports/gene2go", "GO annotations to phenotyped IMPC genes");
-
-		Map<String, String> toolLabel = new HashMap<>();
-		toolLabel.put("alleleref", "IMPC/IKMC publications browser");
-		toolLabel.put("reports/gene2go", "GO annotations to phenotyped IMPC genes");
-
-		Map<String, String> toolImg = new HashMap<>();
-		toolImg.put("alleleref", baseUrl + "/img/pubmed_logo.jpg");
-		toolImg.put("reports/gene2go", baseUrl + "/img/go_logo.png");
-
-		Map<String, String> toolDesc = new HashMap<>();
-		toolDesc.put("alleleref", "This is a table of IMPC/IKMC related publications. "
-				+ "The interface contains a filter where users can type in keywords to search for related papers. "
-				+ "The keyword is searched against allele symbol, paper title, Journal title, date of publication and grant agency."
-				);
-		toolDesc.put("reports/gene2go", "This is a tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms "
-				+"(automated electronic, curated computational and experimental). "
-				+"It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. "
-				+"Users can also export the dataset as TSV or Excel format.");
+		System.out.println("baseurl: "+baseUrl);
+		List<String> toolBlocks = new ArrayList<>();
+		InputStreamReader in = new InputStreamReader(toolsResource.getInputStream());
 
 
-		Iterator it = toolSet.entrySet().iterator();
-	    while (it.hasNext()) {
+		try (BufferedReader bin = new BufferedReader(in)) {
 
-	        Map.Entry pair = (Map.Entry)it.next();
-	        String toolLink = (String) pair.getKey();
-	        String toolName = (String) pair.getValue();
-	        String toolAbout = "Info about this tool";
+			String line;
+			while ((line = bin.readLine()) != null) {
+				System.out.println("line: "+ line);
+				// cols: urlpath    label   imagepath   description
 
-	        String infoImgLink = toolImg.get(toolLink);
+				if (line.startsWith("urlPath")){
+					continue;
+				}
+				String[] kv = line.split("\\t");
 
-	        String trs = "";
-	        trs += "<tr><td colspan=2 class='toolName'><a href='"+ hostName + baseUrl + "/" + toolLink+"'>"+toolName+"</a></td></tr>";
-	        trs += "<tr><td><img class='toolImg' src='"+infoImgLink+"'></img></td>";
-	       // trs += "<td><a href='"+ hostName + baseUrl + "/" + toolLink+"'>References using IKMC and IMPC resources</a></td></tr>";
-	        trs += "<td class='toolDesc'>" + toolDesc.get(toolLink) + "</td></tr>";
+				String urlPath = kv[0];
+				String toolName = kv[1];
+				String imagePath = kv[2];
+				String toolDesc = kv[3];
+				System.out.println("urlpath: " + urlPath);
+				System.out.println("name: "+ toolName);
+				System.out.println("imgpath: " + imagePath);
+				System.out.println("desc: "+ toolDesc);
 
-	        toolBoxes.add("<table class='tools'>" + trs + "</table>");
+				String trs = "";
+				trs += "<tr><td colspan=2 class='toolName'><a href='"+ hostName + baseUrl + "/" + urlPath+"'>"+toolName+"</a></td></tr>";
+				trs += "<tr><td><img class='toolImg' src='" + baseUrl + imagePath + "'></img></td>";
+				trs += "<td class='toolDesc'>" + toolDesc + "</td></tr>";
 
-	        it.remove(); // avoids a ConcurrentModificationException
-	    }
+				System.out.println("tr: "+trs);
+				toolBlocks.add("<table class='tools'>" + trs + "</table>");
 
+			}
+		}
 
-		return StringUtils.join(toolBoxes, "");
+		logger.debug(" Fetched " + toolBlocks.size() + " tools");
+
+		return StringUtils.join(toolBlocks, "");
+
 	}
+
 
 }
