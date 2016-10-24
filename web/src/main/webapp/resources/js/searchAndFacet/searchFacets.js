@@ -359,7 +359,7 @@
 
 	function displayMpFacet(json) {
 
-		var facetField = "top_level_mp_term";
+		var facetField = "top_level_mp_term_inclusive";
 		var aTopLevelCount = json.facet_fields[facetField];
 		//var mpUlContainer = $("<ul></ul>");
 		var mpUlContainer = $("li#mp ul");

@@ -163,6 +163,13 @@ public class SearchController {
 		String facetStr = searchConfig.getFacetFieldsSolrStr(dataType);
 		String flStr = searchConfig.getFieldListSolrStr(dataType);
 		String bqStr = searchConfig.getBqStr(dataType, query);
+
+		if (fqStr != null && !fqStr.contains("AND") ){
+			String[] parts = fqStr.split(":");
+			String fqTerm = " "+ parts[1].replaceAll("\\)","");
+			bqStr += " mp_term:" + fqTerm + " ^200";
+		}
+
 		String sortStr = searchConfig.getSortingStr(dataType);
 
 		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
@@ -171,8 +178,7 @@ public class SearchController {
             solrParamStr += facetStr;
         }
 
-
-		if (fqStr != null) {
+        if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 //            if ( dataType.equals("impc_images")){
 //                solrParamStr += "AND (biological_sample_group:experimental)";
