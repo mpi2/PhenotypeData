@@ -73,40 +73,42 @@ public class ToolsController {
 		List<String> toolBlocks = new ArrayList<>();
 		InputStreamReader in = new InputStreamReader(toolsResource.getInputStream());
 
+        int lineCount = 0;
 
 		try (BufferedReader bin = new BufferedReader(in)) {
 
 			String line;
+
 			while ((line = bin.readLine()) != null) {
-				System.out.println("line: "+ line);
 				// cols: urlpath    label   imagepath   description
 
 				if (line.startsWith("urlPath")){
 					continue;
 				}
 				String[] kv = line.split("\\t");
+                lineCount++;
 
 				String urlPath = kv[0];
 				String toolName = kv[1];
 				String imagePath = kv[2];
 				String toolDesc = kv[3];
-				System.out.println("urlpath: " + urlPath);
-				System.out.println("name: "+ toolName);
-				System.out.println("imgpath: " + imagePath);
-				System.out.println("desc: "+ toolDesc);
+//				System.out.println("urlpath: " + urlPath);
+//				System.out.println("name: "+ toolName);
+//				System.out.println("imgpath: " + imagePath);
+//				System.out.println("desc: "+ toolDesc);
 
 				String trs = "";
 				trs += "<tr><td colspan=2 class='toolName'><a href='"+ hostName + baseUrl + "/" + urlPath+"'>"+toolName+"</a></td></tr>";
 				trs += "<tr><td><img class='toolImg' src='" + baseUrl + imagePath + "'></img></td>";
 				trs += "<td class='toolDesc'>" + toolDesc + "</td></tr>";
 
-				System.out.println("tr: "+trs);
+//				System.out.println("tr: "+trs);
 				toolBlocks.add("<table class='tools'>" + trs + "</table>");
 
 			}
 		}
 
-		logger.debug(" Fetched " + toolBlocks.size() + " tools");
+		logger.info("Number of tools fetched: " + toolBlocks.size() + ", expected: " + lineCount);
 
 		return StringUtils.join(toolBlocks, "");
 
