@@ -50,6 +50,22 @@ public class PhenomeChartProvider {
 		+ "     subtitle: {\n"
 		+ "        text: 'Parameter by parameter' \n"
 		+ "    },\n"
+		+ " yAxis: {\n"
+		+ "     categories: " + categories.toString() + ",\n"
+		+ "        title: {\n"
+		+ "           enabled: true,\n"
+		+ "           text: 'Parameters' \n"
+		+ "        }, \n"
+		+ "       labels: { \n"
+//		+ "           rotation: -90, \n"
+//		+ "           align: 'right', \n"
+		+ "           style: { \n"
+		+ "              fontSize: '11px', \n"
+		+ "              fontFamily: 'Verdana, sans-serif' \n"
+		+ "         } \n"
+		+ "     }, \n"
+		+ "      showLastLabel: true \n"
+		+ "  }, \n"
 		+ "    xAxis: { floor: 0, minRange: 6, ceiling: 22, \n"
 		+ "         title: { \n"
 		+ "             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)" + "' \n"
@@ -65,7 +81,7 @@ public class PhenomeChartProvider {
 		+ "      credits: { \n"
 		+ "         enabled: false \n"
 		+ "      }, \n"
-		+ "     legend: { layout: 'vertical', align: 'left',	verticalAlign: 'middle', borderWidth: 0	},"
+		+ "     legend: { layout: 'horizontal', align: 'center',	verticalAlign: 'bottom', borderWidth: 0	},"
 		+ "     tooltip: {\n"
 		+ "        headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',\n"
 		+ "        pointFormat: '" + pointFormat + "',\n"
@@ -123,6 +139,7 @@ public class PhenomeChartProvider {
 		+ "    }); \n"
 		+ ChartUtils.getSelectAllButtonJs("pvaluesOverviewChart", "checkAll", "uncheckAll")
 		+ "	}); \n";
+
 
 		return chartString;
 	}
@@ -500,6 +517,7 @@ public class PhenomeChartProvider {
 		String chartString = null;
 		JSONArray series = new JSONArray();
 		ArrayList<String> categories = new ArrayList<String>();
+		ArrayList<String> procedureLabels = new ArrayList<String>();
 
 		try {
 
@@ -558,6 +576,7 @@ public class PhenomeChartProvider {
 							if (!categories.contains(statsResult.getParameter().getName())) {
 								categories.add(statsResult.getParameter().getName());
 								dataArray.put(dataPoint);
+								procedureLabels.add(statsResult.getProcedure().getName());
 								resultIndex++;
 								index++;
 							}
@@ -570,7 +589,7 @@ public class PhenomeChartProvider {
 					series.put(scatterJsonObject);
 				}
 			}
-			chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(categories.toArray()));
+			chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(procedureLabels));
 
 		} catch (JSONException e) {
 			e.printStackTrace();
