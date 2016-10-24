@@ -53,7 +53,6 @@
                                     6. Morselli, Eugenia, et al. "Sex and Gender: Critical Variables in Pre-Clinical and Clinical Medical Research."  <i>Cell Metabolism</i> 24.2 (2016): 203-209.
 
 
-
                                 </p>
                             </div>
                         </div>	<!-- section -->
