@@ -52,10 +52,10 @@
                         <div class="section">
                             <div class=inner>
                                 <c:forEach var="page" items="${pages}">
-                                    <a href="${link}"><h2>${page.title}</h2></a>
+                                    <a href="${baseUrl}/${page.link}"><h2>${page.title}</h2></a>
                                     <div class="half">
                                         <p> ${page.description} </p>
-                                        <p> <a href="${link}">More</a></p>
+                                        <p> <a href="${baseUrl}/${page.link}">More</a></p>
                                     </div>
                                     <div class="half">
                                         <img src="${baseUrl}/${page.image}" width="80%">
