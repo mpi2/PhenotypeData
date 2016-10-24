@@ -164,11 +164,15 @@ public class SearchController {
 		String flStr = searchConfig.getFieldListSolrStr(dataType);
 		String bqStr = searchConfig.getBqStr(dataType, query);
 
-		if (fqStr != null && !fqStr.contains("AND") ){
-			String[] parts = fqStr.split(":");
-			String fqTerm = " "+ parts[1].replaceAll("\\)","");
-			bqStr += " mp_term:" + fqTerm + " ^200";
-		}
+        // extra bq for anatomy and mp with facet filter
+        if ( dataType.equals("mp") || dataType.equals("anatomy")) {
+            if (fqStr != null && !fqStr.contains("AND")) {
+                String[] parts = fqStr.split(":");
+                String fqTerm = " " + parts[1].replaceAll("\\)", "");
+                String field = dataType.equals("mp") ? "mp_term" : "anatomy_term";
+                bqStr += " " + field +  ":" + fqTerm + " ^200";
+            }
+        }
 
 		String sortStr = searchConfig.getSortingStr(dataType);
 
