@@ -1,0 +1,4 @@
+urlPath    toolName   imagePath   description
+parallel	Parallel coordinates		Gene KO effect comparator: how do parameters vary in relation to each other
+alleleref	IMPC/IKMC publications browser	/img/pubmed_logo.jpg	This is a table of IMPC/IKMC related publications. The interface contains a filter where users can type in keywords to search for related papers. The keyword is searched against allele symbol, paper title, Journal title, date of publication and grant agency.
+reports/gene2go	GO annotations to phenotyped IMPC genes	/img/go_logo.png	This is a tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms. It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. The dataset can be exported as TSV or Excel format.
