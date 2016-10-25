@@ -50,7 +50,7 @@ public class LandingPageController {
     }
 
     @RequestMapping(value="/landing/embryo", method = RequestMethod.GET)
-    public String loadPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
+    public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
@@ -65,6 +65,21 @@ public class LandingPageController {
         model.addAttribute("viabilityTable", viabilityTable);
 
         return "embryo";
+    }
+
+
+    @RequestMapping(value = "/embryo", method = RequestMethod.GET)
+    public String redirectEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
+            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+
+        return "redirect:/landing/embryo";
+    }
+
+    @RequestMapping(value = "/embryo/vignettes", method = RequestMethod.GET)
+    public String loadVignettes(Model model, HttpServletRequest request, RedirectAttributes attributes)
+            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+
+        return "embryoVignettes";
     }
 
 
