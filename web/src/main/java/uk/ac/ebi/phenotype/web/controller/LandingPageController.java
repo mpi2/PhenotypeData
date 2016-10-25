@@ -90,7 +90,7 @@ public class LandingPageController {
         model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
         model.addAttribute("pageTitle", "Deafness");
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
-
+        model.addAttribute("mpId", mpId);
         return "landing_deafness";
     }
 
