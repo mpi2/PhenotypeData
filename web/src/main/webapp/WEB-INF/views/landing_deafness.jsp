@@ -105,8 +105,8 @@
                         </div>
 
                         <div class="section">
+                            <h1>Approach</h1>
                             <div class="inner">
-                                <h1>Approach</h1>
                                 <p>In order to identify genes required for hearing function, the consortium uses an
                                     auditory brainstem response (ABR) test in the adult pipeline at week 14 that
                                     assesses hearing at five frequencies – 6kHz, 12kHz, 18kHz, 24kHz and 30kHz – as well
