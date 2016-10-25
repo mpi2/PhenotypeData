@@ -8,7 +8,7 @@
 
     <jsp:attribute name="title">IMPC Landing Pages </jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-            href="${baseUrl}/landing">Landing</a></jsp:attribute>
+            href="${baseUrl}/landing">Landing Pages</a></jsp:attribute>
     <jsp:attribute name="bodyTag">
 		<body class="chartpage no-sidebars small-header">
 
