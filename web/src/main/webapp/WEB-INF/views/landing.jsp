@@ -51,7 +51,10 @@
 
                         <div class="section">
                             <div class=inner>
-                                <c:forEach var="page" items="${pages}">
+                                <c:forEach var="page" items="${pages}"  varStatus="loop">
+
+                                    <div class="half">
+
                                     <a href="${baseUrl}/${page.link}"><h2>${page.title}</h2></a>
                                     <div class="half">
                                         <p> ${page.description} </p>
@@ -61,8 +64,12 @@
                                         <img src="${baseUrl}/${page.image}" width="80%">
                                     </div>
 
-                                    <div class="clear both"> </div>
-                                    <br/> <br/> <br/>
+                                    </div>
+
+                                    <c:if test="${loop.index%2==0 || loop.last}" >
+                                        <div class="clear both"> </div>
+                                        <br/> <br/> <br/>
+                                    </c:if>
 
                                 </c:forEach>
                             </div>
