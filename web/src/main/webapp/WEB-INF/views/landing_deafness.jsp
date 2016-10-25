@@ -90,7 +90,7 @@
                                             </tr>
                                             </c:forEach>
                                             <tr>
-                                                <td><a id="tsvDownload" href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}" target="_blank" class="button fa fa-download">TSV</a>
+                                                <td><a id="tsvDownload" href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}" target="_blank" class="button fa fa-download">Download</a>
                                                 </td>
                                                 <td></td>
                                             </tr>
