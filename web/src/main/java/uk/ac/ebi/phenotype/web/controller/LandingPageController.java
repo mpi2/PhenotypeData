@@ -4,6 +4,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
@@ -33,6 +35,13 @@ public class LandingPageController {
 
     @Autowired
     ObservationService os;
+
+    @Autowired
+    PostQcService gpService;
+
+    @Autowired
+    StatisticalResultService srService;
+
 
     @RequestMapping("/landing")
     public String getAlleles(
@@ -66,6 +75,18 @@ public class LandingPageController {
 
         return "embryo";
     }
+
+
+    @RequestMapping(value="/landing/deafness", method = RequestMethod.GET)
+    public String loadDeafnessPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
+            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+
+        String mpId = "MP:0001963";
+        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
+        model.addAttribute("pageTitle", "Deafness");
+        return "landing_deafness";
+    }
+
 
 
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)

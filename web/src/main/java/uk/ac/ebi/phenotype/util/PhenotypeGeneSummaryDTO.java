@@ -15,11 +15,32 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.util;
 
-import java.util.List;
-
 import uk.ac.ebi.phenotype.chart.ChartColors;
 
+import java.util.List;
+
 public class PhenotypeGeneSummaryDTO {
+
+
+	private String pieChartCode;
+	private boolean display;
+
+	private String malePercentage;
+	private String femalePercentage;
+	private String totalPercentage;
+
+	private int maleGenesTested;
+	private int femaleGenesTested;
+	private int totalGenesTested;
+
+	private int maleGenesAssociated;
+	private int femaleGenesAssociated;
+	private int totalGenesAssociated;
+
+	private int femaleOnlyNumber; // with phenotypeL
+	private int maleOnlyNumber;
+	private int bothNumber;
+
 
 	public String getMalePercentage() {
 		return malePercentage;
@@ -109,28 +130,6 @@ public class PhenotypeGeneSummaryDTO {
 	public void setBothNumber(int bothNumber) {
 		this.bothNumber = bothNumber;
 	}
-	
-
-	private String pieChartCode;
-	
-	private boolean display;
-	
-	private String malePercentage;
-	private String femalePercentage;
-	private String totalPercentage;
-	
-	private int maleGenesTested;
-	private int femaleGenesTested;
-	private int totalGenesTested;
-
-	private int maleGenesAssociated;
-	private int femaleGenesAssociated;
-	private int totalGenesAssociated;
-	
-	private int femaleOnlyNumber; // with phenotypeL
-	private int maleOnlyNumber;
-	private int bothNumber;
-	
 
 	protected String getPiechart(int maleOnly, int femaleOnly, int both, int total){
 	
