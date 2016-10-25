@@ -6,6 +6,7 @@ import org.codehaus.jackson.map.type.TypeFactory;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +70,7 @@ public class LandingPageController {
         Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources);
 
         Map<String, Long> viabilityMap = os.getViabilityCategories(viabilityRes);
-        List<ObservationService.EmbryoTableRow> viabilityTable = os.consolidateZygosities(viabilityRes);
+        List<CountTableRow> viabilityTable = os.consolidateZygosities(viabilityRes);
 
         model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long> (), viabilityMap, "", "viabilityChart"));
         model.addAttribute("viabilityTable", viabilityTable);
@@ -79,11 +81,16 @@ public class LandingPageController {
 
     @RequestMapping(value="/landing/deafness", method = RequestMethod.GET)
     public String loadDeafnessPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
-        String mpId = "MP:0001963";
+        String mpId = "MP:0005377";
+        List<String> resources = new ArrayList<>();
+        resources.add("IMPC");
+
         model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
         model.addAttribute("pageTitle", "Deafness");
+        model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
+
         return "landing_deafness";
     }
 
