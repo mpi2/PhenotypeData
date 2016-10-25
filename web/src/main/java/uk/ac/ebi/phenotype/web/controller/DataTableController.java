@@ -2477,22 +2477,22 @@ public class DataTableController {
         j.put("iTotalRecords", references.size());
         j.put("iTotalDisplayRecords", references.size());
 
-        // MMM to digit conversion
-        Map<String, String> m2d = new HashMap<>();
-        // the digit part is set as such to work with the default non-natural sort behavior so that
-        // 9 will not be sorted after 10
-        m2d.put("Jan","11");
-        m2d.put("Feb","12");
-        m2d.put("Mar","13");
-        m2d.put("Apr","14");
-        m2d.put("May","15");
-        m2d.put("Jun","16");
-        m2d.put("Jul","17");
-        m2d.put("Aug","18");
-        m2d.put("Sep","19");
-        m2d.put("Oct","20");
-        m2d.put("Nov","21");
-        m2d.put("Dec","22");
+//        // MMM to digit conversion
+//        Map<String, String> m2d = new HashMap<>();
+//        // the digit part is set as such to work with the default non-natural sort behavior so that
+//        // 9 will not be sorted after 10
+//        m2d.put("Jan","11");
+//        m2d.put("Feb","12");
+//        m2d.put("Mar","13");
+//        m2d.put("Apr","14");
+//        m2d.put("May","15");
+//        m2d.put("Jun","16");
+//        m2d.put("Jul","17");
+//        m2d.put("Aug","18");
+//        m2d.put("Sep","19");
+//        m2d.put("Oct","20");
+//        m2d.put("Nov","21");
+//        m2d.put("Dec","22");
 
         for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
 
@@ -2537,33 +2537,37 @@ public class DataTableController {
                 it.remove(); // avoids a ConcurrentModificationException
             }
 
+
+			rowData.add(reference.getTitle());
             rowData.add(StringUtils.join(alLinks, ""));
 
-            rowData.add(reference.getTitle());
-			rowData.add(Integer.toString(reference.getPmid()));
+
+			//rowData.add(Integer.toString(reference.getPmid()));
             rowData.add(reference.getJournal());
 
             String oriPubDate = reference.getDateOfPublication();
 
-            String altStr = null;
-            oriPubDate = oriPubDate.trim();
-            if ( oriPubDate.matches("^\\d+$") ){
-            	altStr = oriPubDate + "-23"; // so that YYYY will be sorted after YYYY MMM
-            }
-            else {
-            	String[] parts = oriPubDate.split(" ");
-            	altStr = parts[0] + "-" + m2d.get(parts[1]);
-            }
+//            String altStr = null;
+//            oriPubDate = oriPubDate.trim();
+//            if ( oriPubDate.matches("^\\d+$") ){
+//            	altStr = oriPubDate + "-23"; // so that YYYY will be sorted after YYYY MMM
+//            }
+//            else {
+//            	String[] parts = oriPubDate.split(" ");
+//            	altStr = parts[0] + "-" + m2d.get(parts[1]);
+//            }
 
             // alt is for alt-string sorting in dataTable for date_of_publication field
             // The format is either YYYY or YYYY Mmm (2012 Jul, eg)
             // I could not get sorting to work with this column using dataTable datetime-moment plugin (which supports self-defined format)
             // but I managed to get it to work with alt-string
-            rowData.add("<span alt='" + altStr + "'>" + oriPubDate + "</span>");
+            //rowData.add("<span alt='" + altStr + "'>" + oriPubDate + "</span>");
+			rowData.add("<span>" + oriPubDate + "</span>");
 
             List<String> agencyList = new ArrayList();
             int agencyCount = reference.getGrantAgencies().size();
 
+			// unique agency
             for (int i = 0; i < agencyCount; i++) {
                 String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
                 String grantAgency = reference.getGrantAgencies().get(i);
@@ -2620,12 +2624,28 @@ public class DataTableController {
             }
 
             // ordered
-            paperLinks.addAll(paperLinksEuroPubmed);
-            paperLinks.addAll(paperLinksPubmed);
-            paperLinks.addAll(paperLinksOther);
-            rowData.add(StringUtils.join(paperLinks, ""));
+//            paperLinks.addAll(paperLinksEuroPubmed);
+//            paperLinks.addAll(paperLinksPubmed);
+//            paperLinks.addAll(paperLinksOther);
+//            rowData.add(StringUtils.join(paperLinks, ""));
+			// for now show only one
+			if (paperLinksEuroPubmed.size()>0){
+				rowData.add(paperLinksEuroPubmed.get(0));
+			}
+			else if (paperLinksPubmed.size()>0){
+				rowData.add(paperLinksPubmed.get(0));
+			}
+			else {
+				rowData.add(paperLinksOther.get(0));
+			}
+
+            // mesh terms
+            String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
+            rowData.add(meshTerms);
+
 
             j.getJSONArray("aaData").add(rowData);
+
         }
 
         //System.out.println("Got " + rowCount + " rows");
