@@ -90,7 +90,8 @@
                                             </tr>
                                             </c:forEach>
                                             <tr>
-                                                <td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;" download> <i class="fa fa-download" alt="Download"> Download</i></a></td>
+                                                <td><a id="tsvDownload" href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}" target="_blank" class="button fa fa-download">TSV</a>
+                                                </td>
                                                 <td></td>
                                             </tr>
                                         </tbody>
