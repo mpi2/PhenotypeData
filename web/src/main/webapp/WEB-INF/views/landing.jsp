@@ -47,26 +47,27 @@
                 <div class="content">
                     <div class="node node-gene">
 
-                        <h1 class="title" id="top">Landing page index</h1>
+                        <h1 class="title" id="top">Landing pages</h1>
 
                         <div class="section">
                             <div class=inner>
                                 <c:forEach var="page" items="${pages}"  varStatus="loop">
 
-                                    <div class="half">
+                                    <div <c:if test="${page.image != null}">class="half"</c:if> >
 
                                     <a href="${baseUrl}/${page.link}"><h2>${page.title}</h2></a>
                                     <div class="half">
                                         <p> ${page.description} </p>
                                         <p> <a href="${baseUrl}/${page.link}">More</a></p>
                                     </div>
-                                    <div class="half">
-                                        <img src="${baseUrl}/${page.image}" width="80%">
+                                    <c:if test="${page.image != null}">
+                                        <div class="half">
+                                            <img src="${baseUrl}/${page.image}" width="80%">
+                                        </div>
+                                    </c:if>
                                     </div>
 
-                                    </div>
-
-                                    <c:if test="${loop.index%2==0 || loop.last}" >
+                                    <c:if test="${loop.index%2==1 || loop.last}" >
                                         <div class="clear both"> </div>
                                         <br/> <br/> <br/>
                                     </c:if>
