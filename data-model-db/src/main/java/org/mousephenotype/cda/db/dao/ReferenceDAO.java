@@ -51,7 +51,8 @@ public class ReferenceDAO {
         + "\tDate of publication"
         + "\tGrant id"
         + "\tGrant agency"
-        + "\tPaper link";
+        + "\tPaper link"
+        + "\tMesh terms";
 
 
     @Autowired
@@ -137,7 +138,8 @@ public class ReferenceDAO {
                 + " OR date_of_publication LIKE ?\n"
                 + " OR grant_id            LIKE ?\n"
                 + " OR agency              LIKE ?\n"
-                + " OR acronym             LIKE ?)\n";
+                + " OR acronym             LIKE ?\n"
+                + " OR mesh                LIKE ?)\n";
         }
 
         String whereClause =
@@ -168,12 +170,13 @@ public class ReferenceDAO {
               + ", grant_id AS grantIds\n"
               + ", agency AS grantAgencies\n"
               + ", paper_url AS paperUrls\n"
+              + ", mesh\n"
               + "FROM allele_ref AS ar\n"
               + whereClause
               //+ "GROUP BY pmid\n"
               + "ORDER BY date_of_publication DESC\n";
 
-        //System.out.println("alleleRef query: " + query);
+             //System.out.println("alleleRef query: " + query);
 
         List<ReferenceDTO> results = new ArrayList<>();
 
@@ -211,6 +214,7 @@ public class ReferenceDAO {
                 referenceRow.setGrantIds(Arrays.asList(resultSet.getString("grantIds").split(delimeter)));
                 referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
                 referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
+                referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
 
                 results.add(referenceRow);
             }
