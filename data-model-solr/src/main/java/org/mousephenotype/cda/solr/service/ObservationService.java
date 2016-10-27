@@ -26,12 +26,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.FieldStatsInfo;
-import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
@@ -44,6 +40,7 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
+import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
@@ -1958,10 +1955,10 @@ public class ObservationService extends BasicService implements WebStatus {
 	 * @param map <viability category, number of genes in category>
 	 * @return
 	 */
-	public List<EmbryoTableRow> consolidateZygosities(Map<String, Set<String>> map){
+	public List<CountTableRow> consolidateZygosities(Map<String, Set<String>> map){
 
 		Map<String, Set<String>> res = new LinkedHashMap<>();
-		List<EmbryoTableRow> result = new ArrayList<>();
+		List<CountTableRow> result = new ArrayList<>();
 
 		// Consolidate by zygosities so that we show "subviable" in the table, not "hom-subviable" and "het-subviable"
 		for (String key: map.keySet()){
@@ -1996,9 +1993,9 @@ public class ObservationService extends BasicService implements WebStatus {
 
 		// Fill list of EmbryoTableRows so that it's easiest to access from jsp.
 		for (String key: res.keySet()){
-			EmbryoTableRow row = new EmbryoTableRow();
+			CountTableRow row = new CountTableRow();
 			row.setCategory(key);
-			row.setCount( new Long(res.get(key).size()));
+			row.setCount(res.get(key).size());
 			if (key.equalsIgnoreCase("lethal")){
 				row.setMpId("MP:0011100");
 			} else  if (key.equalsIgnoreCase("subviable")){
@@ -2051,36 +2048,6 @@ public class ObservationService extends BasicService implements WebStatus {
 		}
 
 		return res;
-	}
-
-	public class EmbryoTableRow{
-
-		String category;
-		String mpId;
-		Long count;
-
-		public String getCategory() {
-			return category;
-		}
-		public void setCategory(String category) {
-			this.category = category;
-		}
-		public String getMpId() {
-			return mpId;
-		}
-		public void setMpId(String mpId) {
-			this.mpId = mpId;
-		}
-		public Long getCount() {
-			return count;
-		}
-		public void setCount(Long geneNo) {
-			this.count = geneNo;
-		}
-		@Override
-		public String toString() {
-			return "EmbryoTableRow [category=" + category + ", mpId=" + mpId + ", count=" + count + "]";
-		}
 	}
 
 
