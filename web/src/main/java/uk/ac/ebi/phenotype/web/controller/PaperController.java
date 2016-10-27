@@ -112,8 +112,8 @@ public class PaperController {
 
 		Connection conn = admintoolsDataSource.getConnection();
 		PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO allele_ref "
-				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
+				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)");
 
 		String status = "";
 		String failStatus = "";
@@ -121,6 +121,7 @@ public class PaperController {
 		String notFoundStatus = "";
 
 		Map<Integer, Pubmed> pubmeds = fetchEuropePubmedData(pmidQrys);
+
 		if (pubmeds.size() == 0) {
 			status = "Your paper ids are not found in pubmed database";
 		}
@@ -142,6 +143,7 @@ public class PaperController {
 				//System.out.println("found paper: "+pmidStr);
 
 				String msg = savePmidData(pub, insertStatement);
+
 				//System.out.println("insert status: "+msg);
 				if ( ! msg.equals("success") ){
 					//System.out.println("failed: "+ msg);
@@ -192,7 +194,7 @@ public class PaperController {
 
 		// (1.gacc, 2.acc, 3.symbol, 4.name, 5.pmid, 6.date_of_publication,
 		// 7.reviewed, 8.grant_id, 9.agency, 10.acronym, 11.title,
-		// 12.journal, 13.paper_url, 14.datasource, 15.timestamp, 16.falsepositive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
+		// 12.journal, 13.paper_url, 14.datasource, 15.timestamp, 16.falsepositive, 17.mesh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
 
 		final String delimiter = "|||";
 
@@ -241,8 +243,20 @@ public class PaperController {
 		insertStatement.setString(13, paper_urls.size() > 0 ? StringUtils.join(paper_urls, delimiter) : "");
 
 		insertStatement.setString(14, "europubmed");
-		insertStatement.setString(15, "00-00-00 00:00:00");
+		insertStatement.setTimestamp(15, new Timestamp(System.currentTimeMillis()));
 		insertStatement.setString(16, "no");
+
+		// fetch mesh terms: heading pulus mesh heading+mesh qualifier
+		List<String> mterms = new ArrayList<>();
+		for ( int k=0; k<pub.meshTerms.size(); k++ ) {
+			MeshTerm mt = pub.meshTerms.get(k);
+			mterms.add(mt.meshHeading);
+			for (String mq : mt.meshQualifiers) {
+				mterms.add(mt.meshHeading + " " + mq);
+			}
+		}
+		insertStatement.setString(17, mterms.size() > 0 ? StringUtils.join(mterms, delimiter) : "");
+
 
 		try {
 			int count = insertStatement.executeUpdate();
@@ -354,8 +368,44 @@ public class PaperController {
 				}
 
 				pub.setPaperurls(paperurls);
-			}
 
+				// mesh terms
+				List<MeshTerm> meshTerms = new ArrayList<>();
+
+				if ( r.containsKey("meshHeadingList") ){
+					JSONArray meshHeadings = r.getJSONObject("meshHeadingList").getJSONArray("meshHeading");
+					for ( int mh=0; mh<meshHeadings.size(); mh++ ){
+						JSONObject thisMeshHeading = (JSONObject) meshHeadings.get(mh);
+						MeshTerm mt  = new MeshTerm();
+						//System.out.println(thisMeshHeading.toString());
+
+						// mesh heading
+						mt.setMeshHeading("");
+						if ( thisMeshHeading.containsKey("descriptorName") ){
+							mt.setMeshHeading(thisMeshHeading.getString("descriptorName"));
+						}
+
+						// mesh subheading
+						mt.setMeshQualifiers(new ArrayList<>());
+						if ( thisMeshHeading.containsKey("meshQualifierList") ) {
+							JSONArray meshQualifiers= thisMeshHeading.getJSONObject("meshQualifierList").getJSONArray("meshQualifier");
+							for (int mq = 0; mq < meshQualifiers.size(); mq++) {
+								JSONObject thisMeshQualifier = (JSONObject) meshQualifiers.get(mq);
+								if ( thisMeshQualifier.containsKey("qualifierName") ){
+									String qf = thisMeshQualifier.getString("qualifierName");
+									if ( ! mt.getMeshQualifiers().contains(qf)) {
+										mt.getMeshQualifiers().add(qf);
+									}
+								}
+							}
+						}
+
+						meshTerms.add(mt);
+					}
+				}
+				pub.setMeshTerms(meshTerms);
+
+			}
 		}
 
 		System.out.println("PARSING EUROPE PUBMED:");
@@ -393,6 +443,7 @@ public class PaperController {
 		String dateOfPublication;
 		List<Grant> grants;
 		List<Paperurl> paperurls;
+		List<MeshTerm> meshTerms;
 
 		public Integer getPmid() {
 			return pmid;
@@ -440,6 +491,14 @@ public class PaperController {
 
 		public void setPaperurls(List<Paperurl> paperurls) {
 			this.paperurls = paperurls;
+		}
+
+		public List<MeshTerm> getMeshTerms() {
+			return meshTerms;
+		}
+
+		public void setMeshTerms(List<MeshTerm> meshTerms) {
+			this.meshTerms = meshTerms;
 		}
 
 		@Override
@@ -494,7 +553,26 @@ public class PaperController {
 			this.url = url;
 		}
 	}
+	public class MeshTerm {
+		public String meshHeading;
+		public List<String> meshQualifiers; // same as mes subheading
 
+		public String getMeshHeading() {
+			return meshHeading;
+		}
+
+		public void setMeshHeading(String meshHeading) {
+			this.meshHeading = meshHeading;
+		}
+
+		public List<String> getMeshQualifiers() {
+			return meshQualifiers;
+		}
+
+		public void setMeshQualifiers(List<String> meshQualifiers) {
+			this.meshQualifiers = meshQualifiers;
+		}
+	}
 
 	private HttpHeaders createResponseHeaders() {
 		HttpHeaders responseHeaders = new HttpHeaders();
