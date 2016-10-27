@@ -22,7 +22,7 @@
 			}
 			form#allele {
 				position: absolute;
-				top: 220px;
+				top: 240px;
 				width: auto;
 				font-size: 12px;
 				padding: 0 0 0 5px;
@@ -51,6 +51,9 @@
 			  background-color: yellow;
 			  font-weight: bold;
 			  color: black;
+			}
+			table.dataTable td {
+				border-bottom: 1px solid gray;
 			}
 			form#pmidbox{
 				/*padding: 0;*/
@@ -135,15 +138,15 @@
 						$('formBox span').text("");
 						$('form#allele').show();
 					}
-
 				}
 				else {
 					$(this).removeClass('edit').text('Edit');
 					$('#formBox span').text("You are now out of editing mode...");
 
 					$('form#pmidbox').hide();
-					var oTable = $('table#alleleRef').dataTable();
-        			oTable.fnStandingRedraw();
+//					var oTable = $('table#alleleRef').dataTable();
+//        			oTable.fnStandingRedraw();
+					document.location.href = baseUrl + '/allelerefedit';
 				}
         	});
 
@@ -278,7 +281,7 @@
    	        	"columnDefs": [                
    	        	              { "type": "alt-string", targets: 4 }   //5th col sorted using alt-string
    	        	              ],
-            	"aaSorting": [[ 4, "desc" ]],  // default sort column order
+            	"aaSorting": [[ 4, "desc" ]],  // default sort column order: 5th column
 //                 "aoColumns": [
 //                     {"bSearchable": false, "sType": "html", "bSortable": true},
 //                     {"bSearchable": false, "sType": "string", "bSortable": true},
@@ -308,72 +311,108 @@
 
    	            	$.fn.initDataTableDumpControl(oConf);
 
-   	            	if ( $('button').hasClass('edit')) {
+   	            	if ( $('button').hasClass('edit')) { // when logged in to edit cell
 
 	   	            	// POST
 	   	            	var thisTable = $(this);
 
-		                $(this).find('tr td:nth-child(1) input').bind('click', function(){
+						// edit 1st column (set false positive)
+						addJstoFalsePositiveColumn(thisTable);
 
-			                var thisTr = $(this).parent().parent();;
-			                var dbid = thisTr.find('td span.pmid').attr('id'); // this comes from concatenation, so is a string
+						// edit 3rd column (allele symbol)
+						//ajaxForm will send when the submit button is pressed. ajaxSubmit sends immediately.
+						$(this).find('tr td:nth-child(3) textarea').bind('click', function(){
 
-			                var fp = $(this).is(':checked') ? "yes" : "no"; // falsepositive is checked or not
+							var textarea = $(this);
+							if ( textarea.val() == "Needs hand curation" || textarea.val().indexOf("ERROR") != -1) {
+								textarea.val("");
+							}
+							var thisTr = textarea.parent().parent().parent();
+							var dbid = thisTr.find('td span.pmid').attr('id');
+							var pmid = thisTr.find('td span.pmid').text();
+							//console.log("row for " + dbid);
+							var form = textarea.parent();
 
-			                $.ajax({
-				                method: "get",
-				                url: baseUrl + "/dataTableAlleleRefSetFalsePositive?id="+dbid+"&value="+fp,
-				                success: function(response) {
-					                // boolean response
-					                var reviewed = fp;
-					                thisTr.find('td:nth-child(2)').html(reviewed);
-				                },
-				                error: function() {
-					                window.alert('AJAX error trying to set false positive value for this paper');
-				                }
-			                });
+							form.submit(function(){
+								var formVal = form.find('textarea').val();
 
-		                });
+								if (formVal=="Needs hand curation") {
+									alert("Sorry, data to submit is unchanged");
+								}
+								else {
+									$.ajax({
+										method: "post",
+										url: baseUrl + "/dataTableAlleleRefPost?id=" + dbid + "&value="+formVal +"&pmid=" + pmid,
+										success: function (jsonStr) {
+											//alert(jsonStr);
+											var j = JSON.parse(jsonStr);
+											var displayedSymbol = null;
+											if ( j.allAllelesNotFound ){
+												alert("Curation ignored as allele symbol(s)\n\n" + j.symbol + "\n\ncould not be mapped to an MGI allele(s)");
+												displayedSymbol = "Needs hand curation";
+											}
+											else if (j.hasOwnProperty("someAllelesNotFound")){
+												alert("Some curation ignored as allele symbol(s)\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
+												displayedSymbol = j.symbol;
+											}
+											else {
+												displayedSymbol = j.symbol;
+											}
+											textarea.val(displayedSymbol);
+											thisTr.find('td:first-child').html("<input type='checkbox'>");
+											thisTr.find('td:nth-child(2)').text(j.reviewed);
+											addJstoFalsePositiveColumn(thisTable);
 
-	   	            	//$(this).find('tr td:nth-child(4)').attr('id', dbid); //.css({'cursor':'pointer'}); // set id for the key in POST
-	   	            	$(this).find('tr td:nth-child(3)').editable(baseUrl + '/dataTableAlleleRef', {
-	   	                    "callback": function( jsonStr, y ) {
-	   	                		var j = JSON.parse(jsonStr);
-		                        var displayedSymbol = null;
-	   	                		if ( j.allAllelesNotFound ){
-	   	                			alert("Curation ignored as allele symbol(s)\n\n" + j.symbol + "\n\ncould not be mapped to an MGI allele(s)");
-				                    displayedSymbol = "";
-	   	                		}
-		                        else if (j.hasOwnProperty("someAllelesNotFound")){
-				                    alert("Some curation ignored as allele symbol(s)\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
-				                    displayedSymbol = j.symbol;
-			                    }
-		                        else {
-				                    displayedSymbol = j.symbol;
-			                    }
-	   	                     	$(this).text(displayedSymbol);
-	   	                  		$(this).parent().find('td:first-child').html("<input type='checkbox'>");
-		                        $(this).parent().find('td:nth-child(2)').text(j.reviewed);
-		                     },
-		                     "event": "click",
-		                     "height": "50px",
-		                     "width": "350px",
-				             "type": "textarea",
-				             "submit"  : "OK"
-	   	             	});
-	   	            	$(this).find('tr td:nth-child(3)').bind('click', function(){
-			                $(this).attr('id', $(this).parent().find('td span.pmid').attr('id'));
-	   	            		//console.log($(this).parent().find('td span.pmid').attr('id'));
-	   	            		// a form is created on the fly by jeditable
-	   	            		// change that value for user to save typing as this value 
-	   	            		// will be 'yes'
-	   	            		$(this).find('form').css('padding','2px');
-			               // $(this).find('form input[name=value]').val("");
-	   	            	}).mouseover(function(){
-	   	            		$(this).css({'border':'1px solid gray'});
-	   	            	}).mouseout(function(){
-	   	            		$(this).css({'border':'none'});
-	   	            	});
+										},
+										error: function () {
+											window.alert('AJAX error trying to add allele symbol to database');
+										}
+									});
+								}
+								return false; // do not refresh this page after form submit
+							});
+						});
+
+//	   	            	//$(this).find('tr td:nth-child(4)').attr('id', dbid); //.css({'cursor':'pointer'});
+//						// set id for the key in POST
+//	   	            	$(this).find('tr td:nth-child(3)').editable(baseUrl + '/dataTableAlleleRefPost', {
+//	   	                    "callback": function( jsonStr, y ) {
+//	   	                		var j = JSON.parse(jsonStr);
+//		                        var displayedSymbol = null;
+//	   	                		if ( j.allAllelesNotFound ){
+//	   	                			alert("Curation ignored as allele symbol(s)\n\n" + j.symbol + "\n\ncould not be mapped to an MGI allele(s)");
+//				                    displayedSymbol = "";
+//	   	                		}
+//		                        else if (j.hasOwnProperty("someAllelesNotFound")){
+//				                    alert("Some curation ignored as allele symbol(s)\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
+//				                    displayedSymbol = j.symbol;
+//			                    }
+//		                        else {
+//				                    displayedSymbol = j.symbol;
+//			                    }
+//	   	                     	$(this).text(displayedSymbol);
+//	   	                  		$(this).parent().find('td:first-child').html("<input type='checkbox'>");
+//		                        $(this).parent().find('td:nth-child(2)').text(j.reviewed);
+//		                     },
+//		                     "event": "click",
+//		                     "height": "50px",
+//		                     "width": "350px",
+//				             "type": "textarea",
+//				             "submit"  : "OK"
+//	   	             	});
+//	   	            	$(this).find('tr td:nth-child(3)').bind('click', function(){
+//			                $(this).attr('id', $(this).parent().find('td span.pmid').attr('id'));
+//	   	            		//console.log($(this).parent().find('td span.pmid').attr('id'));
+//	   	            		// a form is created on the fly by jeditable
+//	   	            		// change that value for user to save typing as this value
+//	   	            		// will be 'yes'
+//	   	            		$(this).find('form').css('padding','2px');
+//			               // $(this).find('form input[name=value]').val("");
+//	   	            	}).mouseover(function(){
+//	   	            		$(this).css({'border':'1px solid gray'});
+//	   	            	}).mouseout(function(){
+//	   	            		$(this).css({'border':'none'});
+//	   	            	});
    	            	}
    	            },
    	            "sAjaxSource": baseUrl + '/dataTableAlleleRefEdit',
@@ -386,6 +425,30 @@
    	                );
    	            }
    	        });
+
+			function addJstoFalsePositiveColumn(thisTable){
+				thisTable.find('tr td:nth-child(1) input').bind('click', function(){
+
+					var thisTr = $(this).parent().parent();
+					var dbid = thisTr.find('td span.pmid').attr('id'); // this comes from concatenation, so is a string
+
+					var fp = $(this).is(':checked') ? "yes" : "no"; // falsepositive is checked or not
+					$.ajax({
+						method: "post",
+						url: baseUrl + "/dataTableAlleleRefSetFalsePositive?id="+dbid+"&value="+fp,
+						success: function(response) {
+							// boolean response
+							var reviewed = fp;
+							thisTr.find('td:nth-child(2)').html(reviewed);
+						},
+						error: function() {
+							window.alert('AJAX error trying to set false positive value for this paper');
+						}
+					});
+
+				});
+
+			}
 
         }
 
