@@ -332,6 +332,7 @@
 							var pmid = thisTr.find('td span.pmid').text();
 							//console.log("row for " + dbid);
 							var form = textarea.parent();
+                            var alertCount = 0;
 
 							form.submit(function(){
 								var formVal = form.find('textarea').val();
@@ -348,11 +349,14 @@
 											var j = JSON.parse(jsonStr);
 											var displayedSymbol = null;
 											if ( j.allAllelesNotFound ){
-												alert("Curation ignored as allele symbol(s)\n\n" + j.symbol + "\n\ncould not be mapped to an MGI allele(s)");
-												displayedSymbol = "Needs hand curation";
+                                                alertCount++;
+                                                if ( alertCount == 1) {
+                                                    alert("Curation ignored:\n\n" + j.symbol);
+                                                    displayedSymbol = "Needs hand curation";
+                                                }
 											}
 											else if (j.hasOwnProperty("someAllelesNotFound")){
-												alert("Some curation ignored as allele symbol(s)\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
+												alert("Some curation ignored:\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
 												displayedSymbol = j.symbol;
 											}
 											else {
