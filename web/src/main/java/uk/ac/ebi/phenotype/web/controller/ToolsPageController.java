@@ -16,33 +16,33 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
-public class ToolsController {
+public class ToolsPageController {
 
-	private static final Logger logger = LoggerFactory.getLogger(ToolsController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ToolsPageController.class);
 
 	/**
 	 * tools page
@@ -67,40 +67,28 @@ public class ToolsController {
 	private String composeToolBoxes(HttpServletRequest request) throws IOException {
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-		String baseUrl = request.getAttribute("baseUrl") .toString();
+		String baseUrl = request.getAttribute("baseUrl").toString();
 
-		System.out.println("baseurl: "+baseUrl);
+		//System.out.println("baseurl: " + baseUrl);
 		List<String> toolBlocks = new ArrayList<>();
-		InputStreamReader in = new InputStreamReader(toolsResource.getInputStream());
 
-        int lineCount = 0;
-
-		try (BufferedReader bin = new BufferedReader(in)) {
-
-			String line;
-
-			while ((line = bin.readLine()) != null) {
-				// cols: urlpath    label   imagepath   description
-
-				if (line.startsWith("urlPath")){
-					continue;
-				}
-				String[] kv = line.split("\\t");
-                lineCount++;
-
-				String urlPath = kv[0];
-				String toolName = kv[1];
-				String imagePath = kv[2];
-				String toolDesc = kv[3];
-//				System.out.println("urlpath: " + urlPath);
-//				System.out.println("name: "+ toolName);
-//				System.out.println("imgpath: " + imagePath);
-//				System.out.println("desc: "+ toolDesc);
+		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("impcTools.json").getFile()));
+		if (in != null) {
+			String json = in.lines().collect(Collectors.joining(" "));
+			JSONArray tools = new JSONArray(json);
+			for (int i = 0; i < tools.length(); i++) {
+				JSONObject jsonObj = tools.getJSONObject(i);
+				String urlPath = jsonObj.getString("urlPath");
+				String toolName = jsonObj.getString("toolName");
+				String imagePath = jsonObj.getString("imagePath");
+				String description = jsonObj.getString("description");
+				String site = jsonObj.getString("site");
 
 				String trs = "";
-				trs += "<tr><td colspan=2 class='toolName'><a href='"+ hostName + baseUrl + "/" + urlPath+"'>"+toolName+"</a></td></tr>";
-				trs += "<tr><td><img class='toolImg' src='" + baseUrl + imagePath + "'></img></td>";
-				trs += "<td class='toolDesc'>" + toolDesc + "</td></tr>";
+				String link = site.equals("internal") ? hostName + baseUrl + "/" + urlPath : urlPath;
+				trs += "<tr><td colspan=2 class='toolName'><a href='" + link + "'>" + toolName + "</a></td></tr>";
+				trs += "<tr><td><a href='" +  link + "'><img class='toolImg' src='" + baseUrl + imagePath + "'></img></a></td>";
+				trs += "<td class='toolDesc'>" + description + "</td></tr>";
 
 //				System.out.println("tr: "+trs);
 				toolBlocks.add("<table class='tools'>" + trs + "</table>");
@@ -108,11 +96,7 @@ public class ToolsController {
 			}
 		}
 
-		logger.info("Number of tools fetched: " + toolBlocks.size() + ", expected: " + lineCount);
-
 		return StringUtils.join(toolBlocks, "");
-
 	}
-
 
 }
