@@ -2375,13 +2375,15 @@ public class DataTableController {
 					}
 				}
 				rowData.add(gIdsAgencies.size()>0 ? StringUtils.join(gIdsAgencies, ", ") : "No information available");
+
+
                 String[] urls = resultSet.getString("paper_url").split(delimeter);
                 List<String> links = new ArrayList<>();
 
 				// show multiple papers as the sources may not have the same format for the same paper
-				for (int p=1; p<urls.length; p++) {
-					if (p<4) {
-						String linkName = urls.length == 1 ? "Link" : "Link"+p;
+				for (int p=0; p<urls.length; p++) {
+					if (p<3) {
+						String linkName = urls.length == 1 ? "Link" : "Link"+ (p+1);
 						links.add("<a target='_blank' href='" + urls[p] + "'>" + linkName + "</a>");
 					}
 				}
