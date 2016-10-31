@@ -14,18 +14,18 @@
 
 	<!-- CSS Local Imports -->
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
-		
+
 		<script type="text/javascript">
 			var phenotypeId = '${phenotype.getMpId()}';
 			var drupalBaseUrl = '${drupalBaseUrl}';
 		</script>
-		
+
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js?v=${version}"></script>
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
        	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
-       	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>    	
-		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>		
-		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>	
+       	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
 
 	</jsp:attribute>
 
@@ -33,7 +33,7 @@
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
 	<jsp:attribute name="addToFooter">
-	
+
 		<script type="text/javascript">
 			// Stuff dor parent-child. Will be used in parentChildTree.js.
 			var ont_id = '${phenotype.getMpId()}';
@@ -42,13 +42,13 @@
 			var hasChildren = ${hasChildren};
 			var hasParents = ${hasParents};
 		</script>
-    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
-	
+    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>
+
 		<div class="region region-pinned">
 	        <div id="flyingnavi" class="block smoothScroll">
-		
+
 				<a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-		
+
 		        <ul>
 		 	        <li><a href="#top">Phenotype</a></li>
 		            <c:if test="${genePercentage.getDisplay()}">
@@ -61,9 +61,9 @@
 		                <li><a href="#imagesSection">Images</a></li>
 		            </c:if>
 		        </ul>
-		
+
 		        <div class="clear"></div>
-		
+
 	        </div>
 
 	</div>
@@ -152,8 +152,8 @@
 										<%--</ul>--%>
 									<%--</div>--%>
 								<%--</c:if>--%>
-		
-		
+
+
 								<c:if test="${not empty procedures}">
 									<div id="procedures" class="with-label"> <span class="label">Procedure</span>
 										<ul>
@@ -170,7 +170,7 @@
 										</ul>
 									</div>
 								</c:if>
-		
+
 								<p id="mpId" class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.getMpId()}">${phenotype.getMpId()}</a></p>
 								<c:if test="${!hasData}">
 									<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
@@ -200,7 +200,7 @@
 		                            	<div id="parentDiv"></div>
 									</c:if>
 							</div>
-								
+
 							<div class="clear"></div>
 						</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
 				</div>
@@ -211,10 +211,10 @@
 						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsSection' class="fa fa-question-circle pull-right"></a></span> </h2>
 						<div class="inner">
 							<!-- Phenotype Assoc. summary -->
-							
+
 
 							<c:if test="${parametersAssociated.size() == 0}">
-								
+
 									<c:if test="${genePercentage.getTotalGenesTested() > 0}">
 										<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
 										(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
@@ -227,11 +227,11 @@
 										<span class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span>
 									</c:if>
 									</p>
-								
-								
+
+
 							</c:if>
 							<c:if test="${parametersAssociated.size() > 0}">
-								
+
 									<c:if test="${genePercentage.getTotalGenesTested() > 0}">
 										<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
 										(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
@@ -240,16 +240,16 @@
 									<c:if test="${genePercentage.getFemaleGenesTested() > 0}">
 										<span class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </span>
 									</c:if>
-									<c:if test="${genePercentage.getMaleGenesTested() > 0}">									
+									<c:if test="${genePercentage.getMaleGenesTested() > 0}">
 										<span class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span>
 									</c:if>
 									</p>
-									
-								
-								
+
+
+
 							</c:if>
-							
-							
+
+
 							<!-- baseline charts -->
 							<c:if test="${parametersAssociated.size() > 0}">
 								<c:if test="${parametersAssociated.size() > 1}">
@@ -274,18 +274,18 @@
 													</p>
 												</c:if> --%>
 												<br/>
-			
+
 												<div id="baseline-chart-container">
 													<div id="baseline-chart-div" class="baselineChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.getMpId()}">
 													</div>
 													<div id="spinner-baseline-charts"><i class="fa fa-refresh fa-spin"></i></div>
 												</div>
-			
+
 												<div id='baseline-chartFilters'></div>
-			
+
 											</div>
 										</c:if>
-								
+
 
 
 
@@ -296,7 +296,7 @@
 								<!-- Overview Graphs -->
 								<c:if test="${parametersAssociated.size() > 0}">
 								<div id="chartsHalf" class="half">
-									
+
 									<br/>
 
 									<div id="chart-container">
@@ -323,11 +323,11 @@
 			    </h2>
 
 					<div class="inner">
-					
+
 						<c:if test="${errorMessage != null}">
 							<div class="alert alert-info"><p>${errorMessage}</p></div>
 						</c:if>
-					
+
 						<div id="phenotypesDiv">
 							<div class="container span12">
 								<c:forEach var="filterParameters" items="${paramValues.fq}">
@@ -345,14 +345,14 @@
 
 											<div class="clear"></div>
 									</form>
-									
+
 									<jsp:include page="geneVariantsWithPhenotypeTable.jsp"/>
-									
+
 									<br/>
 									<div id="export">
-										<p class="textright"> 
-											Download data as: 
-											<a id="tsvDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=tsv&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">TSV</a> 
+										<p class="textright">
+											Download data as:
+											<a id="tsvDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=tsv&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">TSV</a>
 											<a id="xlsDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=xls&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">XLS</a>
 										</p>
 									</div>
@@ -364,7 +364,7 @@
 						</div>
 					</div>
 				</div><!-- end of section -->
-				
+
 			</c:if>
 
 			<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->

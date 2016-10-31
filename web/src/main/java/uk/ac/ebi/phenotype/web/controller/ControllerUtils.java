@@ -15,15 +15,21 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import au.com.bytecode.opencsv.CSVWriter;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.Group;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 
 public class ControllerUtils {
@@ -67,6 +73,68 @@ public class ControllerUtils {
 	    }
 		writer.close();
 	}
+
+
+
+	/**
+	 *
+	 * @param phenotype_id
+	 * @return <sex, percentage>, to be used on overview pie chart
+	 * @throws SolrServerException, IOException
+	 */
+	public static PhenotypeGeneSummaryDTO getPercentages(String phenotype_id, StatisticalResultService srService, PostQcService gpService)
+			throws SolrServerException, IOException {
+
+		PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
+
+		int total = 0;
+		int nominator = 0;
+
+		nominator = gpService.getGenesBy(phenotype_id, null, false).size();
+		total = srService.getGenesBy(phenotype_id, null).size();
+		pgs.setTotalPercentage(100 * (float) nominator / (float) total);
+		pgs.setTotalGenesAssociated(nominator);
+		pgs.setTotalGenesTested(total);
+		boolean display = (total > 0);
+		pgs.setDisplay(display);
+
+		List<String> genesFemalePhenotype = new ArrayList<String>();
+		List<String> genesMalePhenotype = new ArrayList<String>();
+		List<String> genesBothPhenotype;
+
+		if (display) {
+			for (Group g : gpService.getGenesBy(phenotype_id, "female", false)) {
+				genesFemalePhenotype.add((String) g.getGroupValue());
+			}
+			nominator = genesFemalePhenotype.size();
+			total = srService.getGenesBy(phenotype_id, SexType.female).size();
+			pgs.setFemalePercentage(100 * (float) nominator / (float) total);
+			pgs.setFemaleGenesAssociated(nominator);
+			pgs.setFemaleGenesTested(total);
+
+			for (Group g : gpService.getGenesBy(phenotype_id, "male", false)) {
+				genesMalePhenotype.add(g.getGroupValue());
+			}
+			nominator = genesMalePhenotype.size();
+			total = srService.getGenesBy(phenotype_id, SexType.male).size();
+			pgs.setMalePercentage(100 * (float) nominator / (float) total);
+			pgs.setMaleGenesAssociated(nominator);
+			pgs.setMaleGenesTested(total);
+		}
+
+		genesBothPhenotype = new ArrayList<String>(genesFemalePhenotype);
+		genesBothPhenotype.retainAll(genesMalePhenotype);
+		genesFemalePhenotype.removeAll(genesBothPhenotype);
+		genesMalePhenotype.removeAll(genesBothPhenotype);
+		pgs.setBothNumber(genesBothPhenotype.size());
+		pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
+		pgs.setMaleOnlyNumber(genesMalePhenotype.size());
+		pgs.fillPieChartCode();
+
+		return pgs;
+	}
+
+
 
 
 }

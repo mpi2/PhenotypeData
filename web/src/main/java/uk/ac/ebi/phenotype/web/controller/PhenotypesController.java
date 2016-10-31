@@ -16,42 +16,16 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.OntologyBean;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -65,22 +39,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class PhenotypesController {
@@ -163,7 +138,7 @@ public class PhenotypesController {
 
 	    model.addAttribute("parametersAssociated", getParameters(phenotype_id));
 
-	    model.addAttribute("genePercentage", getPercentages(phenotype_id));
+	    model.addAttribute("genePercentage", ControllerUtils.getPercentages(phenotype_id, srService, gpService));
 
         // Stuff for parent-child display
         model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
@@ -174,7 +149,7 @@ public class PhenotypesController {
         PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  null, null, null);       
         model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult, preQcResult));
         model.addAttribute("errorMessage", getErrorMessage(phenoResult, preQcResult));   
-        model.addAttribute("phenotypes", phenotypeSummaryHelper.getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
+        model.addAttribute("phenotypes", getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
         
         return "phenotypes";
         
@@ -224,57 +199,52 @@ public class PhenotypesController {
     }
     
 
-//    /**
-//     *
-//     * @param phenotypeId
-//     * @param filter
-//     * @param model
-//     * @param request
-//     * @throws IOException
-//     * @throws URISyntaxException
-//     * @throws SolrServerException, IOException
-//     */
-//    private List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl)
-//    throws IOException, URISyntaxException, SolrServerException {
-//
-//
-//    	List<PhenotypeCallSummaryDTO> phenotypeList;
-//        phenotypeList = phenoResult.getPhenotypeCallSummaries();
-//        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-//
-//        // This is a map because we need to support lookups
-//        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
-//
-//        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-//
-//            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-//            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, config, false);
-//
-//	        // Collapse rows on sex
-//            if (phenotypes.containsKey(pr.hashCode())) {
-//
-//                pr = phenotypes.get(pr.hashCode());
-//                // Use a tree set to maintain an alphabetical order (Female, Male)
-//                TreeSet<String> sexes = new TreeSet<String>();
-//                for (String s : pr.getSexes()) {
-//                    sexes.add(s);
-//                }
-//                sexes.add(pcs.getSex().toString());
-//
-//                pr.setSexes(new ArrayList<String>(sexes));
-//            }
-//
-//            if (pr.getParameter() != null && pr.getProcedure() != null) {
-//                phenotypes.put(pr.hashCode(), pr);
-//            }
-//        }
-//
-//        List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.values());
-//        Collections.sort(list);
-//
-//        return list;
-//
-//    }
+    /**
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws SolrServerException, IOException
+     */
+    private List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl)
+    throws IOException, URISyntaxException, SolrServerException {
+
+
+    	List<PhenotypeCallSummaryDTO> phenotypeList;
+        phenotypeList = phenoResult.getPhenotypeCallSummaries();
+        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+
+        // This is a map because we need to support lookups
+        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
+
+        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+
+            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
+            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, config, false);
+
+	        // Collapse rows on sex
+            if (phenotypes.containsKey(pr.hashCode())) {
+
+                pr = phenotypes.get(pr.hashCode());
+                // Use a tree set to maintain an alphabetical order (Female, Male)
+                TreeSet<String> sexes = new TreeSet<String>();
+                for (String s : pr.getSexes()) {
+                    sexes.add(s);
+                }
+                sexes.add(pcs.getSex().toString());
+
+                pr.setSexes(new ArrayList<String>(sexes));
+            }
+
+            if (pr.getParameter() != null && pr.getProcedure() != null) {
+                phenotypes.put(pr.hashCode(), pr);
+            }
+        }
+
+        List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.values());
+        Collections.sort(list);
+
+        return list;
+
+    }
 
     @ExceptionHandler(OntologyTermNotFoundException.class)
     public ModelAndView handleOntologyTermNotFoundException(OntologyTermNotFoundException exception) {
@@ -424,63 +394,7 @@ public class PhenotypesController {
     }
     
     
-    /**
-     * 
-     * @param phenotype_id
-     * @return <sex, percentage>, to be used on overview pie chart
-     * @throws SolrServerException, IOException
-     */
-    public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) 
-    throws SolrServerException, IOException {
-    
-    	PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
 
-        int total = 0;
-        int nominator = 0;
-
-        nominator = gpService.getGenesBy(phenotype_id, null, false).size();
-        total = srService.getGenesBy(phenotype_id, null).size();
-        pgs.setTotalPercentage(100 * (float) nominator / (float) total);
-        pgs.setTotalGenesAssociated(nominator);
-        pgs.setTotalGenesTested(total);
-        boolean display = (total > 0);
-        pgs.setDisplay(display);
-
-        List<String> genesFemalePhenotype = new ArrayList<String>();
-        List<String> genesMalePhenotype = new ArrayList<String>();
-        List<String> genesBothPhenotype;
-
-        if (display) {
-            for (Group g : gpService.getGenesBy(phenotype_id, "female", false)) {
-                genesFemalePhenotype.add((String) g.getGroupValue());
-            }
-            nominator = genesFemalePhenotype.size();
-            total = srService.getGenesBy(phenotype_id, SexType.female).size();
-            pgs.setFemalePercentage(100 * (float) nominator / (float) total);
-            pgs.setFemaleGenesAssociated(nominator);
-            pgs.setFemaleGenesTested(total);
-
-            for (Group g : gpService.getGenesBy(phenotype_id, "male", false)) {
-                genesMalePhenotype.add(g.getGroupValue());
-            }
-            nominator = genesMalePhenotype.size();
-            total = srService.getGenesBy(phenotype_id, SexType.male).size();
-            pgs.setMalePercentage(100 * (float) nominator / (float) total);
-            pgs.setMaleGenesAssociated(nominator);
-            pgs.setMaleGenesTested(total);
-        }
-
-        genesBothPhenotype = new ArrayList<String>(genesFemalePhenotype);
-        genesBothPhenotype.retainAll(genesMalePhenotype);
-        genesFemalePhenotype.removeAll(genesBothPhenotype);
-        genesMalePhenotype.removeAll(genesBothPhenotype);
-        pgs.setBothNumber(genesBothPhenotype.size());
-        pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
-        pgs.setMaleOnlyNumber(genesMalePhenotype.size());
-        pgs.fillPieChartCode();
-
-        return pgs;
-    }
 
     /**
      *

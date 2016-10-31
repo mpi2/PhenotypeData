@@ -219,6 +219,39 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     }
 
+    public List<CountTableRow> getAssociationsCount(String mpId, List<String> resourceName) throws IOException, SolrServerException {
+
+        List<CountTableRow> list = new ArrayList<>();
+        SolrQuery q = new SolrQuery().setFacet(true).setRows(1);
+        q.set("facet.limit", -1);
+
+        if (resourceName != null){
+            q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
+        }else {
+            q.setQuery("*:*");
+        }
+
+        if (mpId != null){
+            q.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\"" );
+        }
+
+        String pivot = GenotypePhenotypeDTO.MP_TERM_ID + "," + GenotypePhenotypeDTO.MP_TERM_NAME;
+        q.add("facet.pivot", pivot);
+
+
+        logger.info("Solr url for getAssociationsCount " + solr.getBaseURL() + "/select?" + q);
+
+        QueryResponse response = solr.query(q);
+        for (PivotField p : response.getFacetPivot().get(pivot)){
+            String mpTermId = p.getValue().toString();
+            String mpName = p.getPivot().get(0).getValue().toString();
+            int count = p.getPivot().get(0).getCount();
+            list.add(new CountTableRow(mpName, mpId, count));
+        }
+
+        return list;
+    }
+
 
     public Map<String, List<String>> getMpTermByGeneMap(List<String> geneSymbols, String facetPivot, List<String> resourceName)
         throws SolrServerException, IOException , InterruptedException, ExecutionException {

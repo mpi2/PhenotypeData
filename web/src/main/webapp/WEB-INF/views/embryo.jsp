@@ -5,7 +5,8 @@
 <t:genericpage>
 
     <jsp:attribute name="title">IMPC Embryo Landing Page</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; Embryo</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/landing">Landing
+		Pages</a> &nbsp;&raquo; Embryo</jsp:attribute>
 			
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">

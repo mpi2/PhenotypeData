@@ -14,7 +14,14 @@
         	table.tools {
         		border: 1px solid #F0F0F0;
         		padding: 5px;
-        	} 
+        	}
+            tr:nth-child(2) td:nth-child(1) {
+                width: 40px;
+                text-align: center;
+                vertical-align: middle;
+                padding: 5px 5px 0 0;
+                margin: 0;
+            }
 			.toolName {
 				background: #F4F4F4;
 				padding: 5px;
@@ -28,8 +35,9 @@
 				padding: 8px 10px;
 			}
 			img.toolImg {
-				width: 100px;
+				max-width: 32px;
 			}
+
         </style>
         
         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  

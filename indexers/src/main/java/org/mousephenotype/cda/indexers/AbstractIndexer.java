@@ -233,49 +233,38 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
         String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
                 + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
-                + "FROM observation o, experiment_observation eo, experiment e "
-                + "WHERE o.id=eo.observation_id "
-                + "AND eo.experiment_id=e.id )";
+              + "FROM observation o, experiment_observation eo, experiment e "
+                 + "WHERE o.id=eo.observation_id "
+                 + "AND eo.experiment_id=e.id )";
 
+             String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
+                 + "FROM observations2 o, live_sample ls, ontology_term ot "
+                 + "WHERE ot.acc=ls.developmental_stage_acc "
+                 + "AND ls.id=o.biological_sample_id" ;
 
-        String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
-                + "FROM observations2 o, live_sample ls, ontology_term ot "
-                + "WHERE ot.acc=ls.developmental_stage_acc "
-                + "AND ls.id=o.biological_sample_id";
+             try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+             p1.executeUpdate();
+             //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
-        PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        p1.executeUpdate();
-
-        System.out.println("First query took  "  + (System.currentTimeMillis() - time));
-        time = System.currentTimeMillis();
-
-
-//            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
-
-        PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        ResultSet r = p.executeQuery();
-
-
-        System.out.println("Second query took  "  + (System.currentTimeMillis() - time));
-        time = System.currentTimeMillis();
-
-        while (r.next()) {
-
-            List<String> fields = new ArrayList<String>();
-            fields.add(r.getString("colony_id"));
-            fields.add(r.getString("pipeline_stable_id"));
-            fields.add(r.getString("procedure_stable_id"));
-
-            BasicBean stage = new BasicBean(
-                    r.getString("developmental_stage_acc"),
-                    r.getString("developmental_stage_name"));
-
-            String key = StringUtils.join(fields, "_");
-            if (!liveStageMap.containsKey(key)) {
-                liveStageMap.put(key, stage);
-            }
-        }
-
+             PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+             ResultSet r = p.executeQuery();
+             while (r.next()) {
+                 List<String> fields = new ArrayList<String>();
+                 fields.add(r.getString("colony_id"));
+                 fields.add(r.getString("pipeline_stable_id"));
+                 fields.add(r.getString("procedure_stable_id"));
+                 BasicBean stage = new BasicBean(
+                        		            r.getString("developmental_stage_acc"),
+                        		            r.getString("developmental_stage_name"));
+                     String key = StringUtils.join(fields, "_");
+                    if (!liveStageMap.containsKey(key)){
+                               liveStageMap.put(key, stage);
+                      }
+                 }
+         } catch (Exception e) {
+            System.out.println(" Error populating live stage lookup map: " + e.getMessage());
+            e.printStackTrace();
+         }
         System.out.println("Remaining took "  + (System.currentTimeMillis() - time));
     }
 
