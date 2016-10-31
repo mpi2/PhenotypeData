@@ -142,15 +142,16 @@ public class ParallelCoordinatesController {
 
 	private String getData(List<String> procedureIds, List<String> phenotypingCenter, HttpServletRequest request) throws IOException, SolrServerException, URISyntaxException {
 
-
-		if (!cache.containsKey(procedureIds.toString())){
+		String key =  procedureIds != null ? procedureIds.toString() : "" ;
+		key += phenotypingCenter != null ? phenotypingCenter.toString() : "";
+		if (!cache.containsKey(key)){
 			String mappedHostname = (String) request.getAttribute("mappedHostname") + (String) request.getAttribute("baseUrl");
 			List<ParameterDTO> parameters = impressService.getParametersByProcedure(procedureIds, "unidimensional");
 			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname), parameters);
-			cache.put(procedureIds.toString(), data);
+			cache.put(key, data);
 		}
 
-		return cache.get(procedureIds.toString());
+		return cache.get(key);
 	}
 
 
