@@ -61,6 +61,8 @@ public class PhisService {
 			//System.out.println("Phis id=" + id);
 			//System.out.println("thumbnail url=" + pImage.getThumbnailUrl());
 			image.setFullResolutionFilePath(pImage.getImageUrl());
+			image.setJpegUrl(pImage.getImageUrl());
+			image.setThumbnailUrl(pImage.getThumbnailUrl());
 			//thumbnail url what to do? probably need a new field in the ImageDTO?
 			
 			// need to loop over and creat mp_id_terms
