@@ -90,7 +90,9 @@ public class LandingPageController {
         model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
         model.addAttribute("pageTitle", "Deafness");
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
+        System.out.println("GOT --- " + gpService.getAssociationsCount(mpId, resources).size());
         model.addAttribute("mpId", mpId);
+        model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
         return "landing_deafness";
     }
 
