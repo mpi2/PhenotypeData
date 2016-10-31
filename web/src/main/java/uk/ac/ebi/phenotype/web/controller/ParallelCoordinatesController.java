@@ -16,17 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.servlet.http.HttpServletRequest;
-
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -37,12 +27,22 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 @Controller
@@ -56,60 +56,104 @@ public class ParallelCoordinatesController {
 
 	@Autowired
 	ImpressService impressService;
-	
-	
-	@RequestMapping(value="/parallel", method=RequestMethod.GET)
-	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
-	throws SolrServerException, IOException{
+
+	private static final Integer MAX_ENTRIES = 50;
+
+	@SuppressWarnings("unchecked") // synchronized map so it's thread safe
+	Map<String, String> cache = (Map<String, String>) Collections.synchronizedMap(new LinkedHashMap<String, String>(MAX_ENTRIES+1, .75F, true) {
+		private static final long serialVersionUID = 1L;
+
+		// This method is called just after a new entry has been added
+		public boolean removeEldestEntry(Map.Entry eldest) {
+			return size() > MAX_ENTRIES;
+		}
+	});
+
+
+	@RequestMapping(value = "/parallel", method = RequestMethod.GET)
+	public String getData(Model model, HttpServletRequest request, RedirectAttributes attributes)
+			throws SolrServerException, IOException {
 
 		TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
 		procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success", false));
-		
+
 		TreeSet<String> centers = new TreeSet<>();
 		centers.addAll(srs.getCenters(null, "unidimensional", "IMPC", "Success"));
 
 		model.addAttribute("procedures", procedures);
 		model.addAttribute("centers", centers);
-		
+
 		return "parallel2";
-		
+
 	}
 
-	
-	@RequestMapping(value="/parallelFrag", method=RequestMethod.GET)
-	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, 	@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
-	throws SolrServerException, IOException, MalformedURLException, IOException, URISyntaxException{
+
+	@RequestMapping(value = "/parallelFrag", method = RequestMethod.GET)
+	public String getGraph(@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, @RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
+						   Model model, HttpServletRequest request)
+			throws SolrServerException, IOException, MalformedURLException, IOException, URISyntaxException {
 
 		long totalTime = System.currentTimeMillis();
-		if (procedureIds == null){
-			
+		if (procedureIds == null) {
+
 			model.addAttribute("procedure", "");
-			model.addAttribute("dataJs", getJsonForParallelCoordinates(null, null) + ";");	
-			
+			model.addAttribute("dataJs", getJsonForParallelCoordinates(null, null) + ";");
+
 		} else {
-			
-			String mappedHostname = (String)request.getAttribute("mappedHostname") + (String)request.getAttribute("baseUrl");
-			List<ParameterDTO> parameters = impressService.getParametersByProcedure(procedureIds, "unidimensional");
-			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname), parameters);
-			String procedures = "{" ;
-			for (int i = 0;  i < procedureIds.size(); i++){
+
+			String procedures = "{";
+			for (int i = 0; i < procedureIds.size(); i++) {
 				String p = procedureIds.get(i);
 				ProcedureDTO proc = impressService.getProcedureByStableId(p + "*");
-				procedures += (i != 0) ? "," :"";
-				procedures += "\"" + proc.getName() + "\":\"" + ImpressService.getProcedureUrl(proc.getStableKey())  + "\"";
+				procedures += (i != 0) ? "," : "";
+				procedures += "\"" + proc.getName() + "\":\"" + ImpressService.getProcedureUrl(proc.getStableKey()) + "\"";
 			}
 			procedures += "}";
-			
-			model.addAttribute("dataJs", data + ";");
+
+			model.addAttribute("dataJs", getData(procedureIds, phenotypingCenter, request) + ";");
 			model.addAttribute("selectedProcedures", procedures);
 			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
-			
+
 		}
-		
+
 		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - totalTime) + " ms.");
 		return "parallelFrag";
 	}
-	
+
+
+	@RequestMapping(value = "/parallel/cache", method = RequestMethod.GET)
+	public ResponseEntity<JSONObject> clearCache(
+			@RequestParam(value = "clearCache", required = false) Boolean clearCache) {
+
+		JSONObject jsonResponse = new JSONObject();
+
+		if (clearCache != null && clearCache == true) {
+			jsonResponse.put("Details", cache.keySet().size() + " cleared from cache");
+			cache.clear();
+		} else {
+			jsonResponse.put("Details", cache.keySet().size() + " entries in cache");
+			jsonResponse.put("Cached Keys", cache.keySet());
+		}
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+		return new ResponseEntity<JSONObject>(jsonResponse,responseHeaders, HttpStatus.CREATED);
+	}
+
+
+	private String getData(List<String> procedureIds, List<String> phenotypingCenter, HttpServletRequest request) throws IOException, SolrServerException, URISyntaxException {
+
+
+		if (!cache.containsKey(procedureIds.toString())){
+			String mappedHostname = (String) request.getAttribute("mappedHostname") + (String) request.getAttribute("baseUrl");
+			List<ParameterDTO> parameters = impressService.getParametersByProcedure(procedureIds, "unidimensional");
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname), parameters);
+			cache.put(procedureIds.toString(), data);
+		}
+
+		return cache.get(procedureIds.toString());
+	}
+
+
 
 	/**
 	 * @author tudose
