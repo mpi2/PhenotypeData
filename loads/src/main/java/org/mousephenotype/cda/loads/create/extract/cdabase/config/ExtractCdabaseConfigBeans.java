@@ -155,7 +155,7 @@ public class ExtractCdabaseConfigBeans {
             , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele,         "http://www.informatics.jax.org/downloads/reports/NorCOMM_Allele.rpt", cdabaseWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
 
           // iMits phenotyped colony report
-            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "http://www.mousephenotype.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
+            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "https://www.mousephenotype.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
 
             // OWL ontologies
             , new DownloadOntologyFilename(DownloadFileEnum.eco,    "http://purl.obolibrary.org/obo/eco.owl", cdabaseWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
@@ -171,7 +171,7 @@ public class ExtractCdabaseConfigBeans {
 
         for (DownloadFilename downloadFilename : filenames) {
 
-            downloadFilename.sourceUrl = UrlUtils.getRedirectedUrl(downloadFilename.sourceUrl).replace("https", "http");// Resolve any URL redirection. Remap https to http.
+            downloadFilename.sourceUrl = UrlUtils.getRedirectedUrl(downloadFilename.sourceUrl);                         // Resolve any URL redirection.
             downloadFilenameMap.put(downloadFilename.downloadFileEnum, downloadFilename);
         }
     }
