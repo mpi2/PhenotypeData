@@ -134,28 +134,28 @@ public class ExtractCdabaseConfigBeans {
               new DownloadFilename(DownloadFileEnum.IMSR_report, "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdabaseWorkspace + "/IMSR_report.txt", DbIdType.IMSR.intValue())
 
           // mgi reports
-            , new DownloadFilename(DownloadFileEnum.ES_CellLine,            "http://www.informatics.jax.org/downloads/reports/reports/ES_CellLine.rpt", cdabaseWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.EUCOMM_Allele,          "http://www.informatics.jax.org/downloads/reports/reports/EUCOMM_Allele.rpt", cdabaseWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype,     "http://www.informatics.jax.org/downloads/reports/reports/HMD_HumanPhenotype.rpt", cdabaseWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.KOMP_Allele,            "http://www.informatics.jax.org/downloads/reports/reports/KOMP_Allele.rpt", cdabaseWorkspace + "/KOMP_Allele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_EntrezGene,         "http://www.informatics.jax.org/downloads/reports/reports/MGI_EntrezGene.rpt", cdabaseWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.HGNC_homologene,        "http://www.informatics.jax.org/downloads/reports/reports/HGNC_homologene.rpt", cdabaseWorkspace + "/HGNC_homologene.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord,   "http://www.informatics.jax.org/downloads/reports/reports/MGI_Gene_Model_Coord.rpt", cdabaseWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_GenePheno,          "http://www.informatics.jax.org/downloads/reports/reports/MGI_GenePheno.rpt", cdabaseWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_PhenoGenoMP,        "http://www.informatics.jax.org/downloads/reports/reports/MGI_PhenoGenoMP.rpt", cdabaseWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_PhenotypicAllele,   "http://www.informatics.jax.org/downloads/reports/reports/MGI_PhenotypicAllele.rpt", cdabaseWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele,          "http://www.informatics.jax.org/downloads/reports/reports/MGI_QTLAllele.rpt", cdabaseWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_Strain,             "http://www.informatics.jax.org/downloads/reports/reports/MGI_Strain.rpt", cdabaseWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_ENSEMBL,            "http://www.informatics.jax.org/downloads/reports/reports/MRK_ENSEMBL.rpt", cdabaseWorkspace + "/MRK_ENSEMBL.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_List1,              "http://www.informatics.jax.org/downloads/reports/reports/MRK_List1.rpt", cdabaseWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_Reference,          "http://www.informatics.jax.org/downloads/reports/reports/MRK_Reference.rpt", cdabaseWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_Sequence,           "http://www.informatics.jax.org/downloads/reports/reports/MRK_Sequence.rpt", cdabaseWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_SwissProt,          "http://www.informatics.jax.org/downloads/reports/reports/MRK_SwissProt.rpt", cdabaseWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_VEGA,               "http://www.informatics.jax.org/downloads/reports/reports/MRK_VEGA.rpt", cdabaseWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.ES_CellLine,            "http://www.informatics.jax.org/downloads/reports/ES_CellLine.rpt", cdabaseWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.EUCOMM_Allele,          "http://www.informatics.jax.org/downloads/reports/EUCOMM_Allele.rpt", cdabaseWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype,     "http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt", cdabaseWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.KOMP_Allele,            "http://www.informatics.jax.org/downloads/reports/KOMP_Allele.rpt", cdabaseWorkspace + "/KOMP_Allele.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MGI_EntrezGene,         "http://www.informatics.jax.org/downloads/reports/MGI_EntrezGene.rpt", cdabaseWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.HGNC_homologene,        "http://www.informatics.jax.org/downloads/reports/HGNC_homologene.rpt", cdabaseWorkspace + "/HGNC_homologene.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord,   "http://www.informatics.jax.org/downloads/reports/MGI_Gene_Model_Coord.rpt", cdabaseWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MGI_GenePheno,          "http://www.informatics.jax.org/downloads/reports/MGI_GenePheno.rpt", cdabaseWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MGI_PhenoGenoMP,        "http://www.informatics.jax.org/downloads/reports/MGI_PhenoGenoMP.rpt", cdabaseWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MGI_PhenotypicAllele,   "http://www.informatics.jax.org/downloads/reports/MGI_PhenotypicAllele.rpt", cdabaseWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele,          "http://www.informatics.jax.org/downloads/reports/MGI_QTLAllele.rpt", cdabaseWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MGI_Strain,             "http://www.informatics.jax.org/downloads/reports/MGI_Strain.rpt", cdabaseWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MRK_ENSEMBL,            "http://www.informatics.jax.org/downloads/reports/MRK_ENSEMBL.rpt", cdabaseWorkspace + "/MRK_ENSEMBL.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MRK_List1,              "http://www.informatics.jax.org/downloads/reports/MRK_List1.rpt", cdabaseWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MRK_Reference,          "http://www.informatics.jax.org/downloads/reports/MRK_Reference.rpt", cdabaseWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MRK_Sequence,           "http://www.informatics.jax.org/downloads/reports/MRK_Sequence.rpt", cdabaseWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MRK_SwissProt,          "http://www.informatics.jax.org/downloads/reports/MRK_SwissProt.rpt", cdabaseWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
+            , new DownloadFilename(DownloadFileEnum.MRK_VEGA,               "http://www.informatics.jax.org/downloads/reports/MRK_VEGA.rpt", cdabaseWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele,         "http://www.informatics.jax.org/downloads/reports/NorCOMM_Allele.rpt", cdabaseWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
 
           // iMits phenotyped colony report
-            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "https://www.mousephenotype.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
+            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "http://www.mousephenotype.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
 
             // OWL ontologies
             , new DownloadOntologyFilename(DownloadFileEnum.eco,    "http://purl.obolibrary.org/obo/eco.owl", cdabaseWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
@@ -171,7 +171,7 @@ public class ExtractCdabaseConfigBeans {
 
         for (DownloadFilename downloadFilename : filenames) {
 
-            downloadFilename.sourceUrl = UrlUtils.getRedirectedUrl(downloadFilename.sourceUrl);
+            downloadFilename.sourceUrl = UrlUtils.getRedirectedUrl(downloadFilename.sourceUrl).replace("https", "http");// Resolve any URL redirection. Remap https to http.
             downloadFilenameMap.put(downloadFilename.downloadFileEnum, downloadFilename);
         }
     }
