@@ -67,7 +67,7 @@
 
             
             <c:if test="${phenotype.isPreQc()}">
-            	<td  class="preQcLink"> <span title="This is a preliminary association based on pre QC data.">
+            	<td  class="preQcLink"> <span title="This is a preliminary association based on preliminary measurements.">
             </c:if>
             <c:if test="${not phenotype.isPreQc()}">
                	<td  class="postQcLink">

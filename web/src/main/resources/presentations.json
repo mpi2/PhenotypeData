@@ -1,0 +1,93 @@
+
+[
+  {
+    "Presentations": [
+      {
+        "title": "Cross-species comprehensive phenotyping to reveal the genetic basis of disease: Informatics for the International Mouse Phenotyping Consortium",
+        "meeting": "American Society of Human Genetics",
+        "date": "2016-10-20",
+        "location": "Vancouver, Canada",
+        "type": "poster",
+        "file": ""
+      },
+      {
+        "title": "Exploring Mouse Phenotypes: From Unknown Gene to Knockout with a Click",
+        "meeting": "Society for Developmental Biology",
+        "date": "2016-08-07",
+        "location": "Boston, MA, USA",
+        "type": "talk",
+        "file": ""
+      },
+      {
+        "title": "International Mouse Phenotyping Consortium- a Platform for Phenotypic and Translational Discovery",
+        "meeting": "International Behavioural and Neural Genetics Society",
+        "date": "2016-05-15",
+        "location": "Bar Harbor, ME, USA",
+        "type": "talk",
+        "file": ""
+      }
+    ],
+  },
+  {
+    "Workshops": [
+      {
+        "title": "IMPC Web portal overview",
+        "meeting": "The Allied Genetics Conference (TAGC)",
+        "date": "",
+        "location": "Orlando, FL, USA",
+        "type": "pptx",
+        "file": ""
+      },
+      {
+        "title": "IMPC Embryo Pipeline overview",
+        "meeting": "The Allied Genetics Conference (TAGC)",
+        "date": "",
+        "location": "Orlando, FL, USA",
+        "type": "pptx",
+        "file": ""
+      },
+      {
+        "title": "IMPC web manual- Summer 2016",
+        "meeting": "The Allied Genetics Conference (TAGC)",
+        "date": "",
+        "location": "Orlando, FL, USA",
+        "type": "docx",
+        "file": ""
+      }
+    ]
+  },
+  {
+    "General Slides": [
+      {
+        "title": "IMPC Overview- 2015",
+        "description": "A complete overview of the data generation and dessimination process",
+        "date": "2015-10-15",
+        "file": ""
+      },
+      {
+        "title": "Data Release",
+        "description": "Numbers from latest data release",
+        "date": "",
+        "file": ""
+      },
+      {
+        "title": "IMPC Partners",
+        "description": "Lists all of the IMPC partner institutes",
+        "date": "2015-10-15",
+        "file": ""
+      },
+      {
+        "title": "IMPC Partners Map",
+        "description": "Map of All IMPC partners",
+        "date": "2015-10-16",
+        "file": ""
+      },
+      {
+        "title": "IMPC informatics Acknowledgement.",
+        "description": "Members of the Mouse Phenotyping Informatics Infrastructure (MPI2)",
+        "date": "2015-09-16",
+        "file": ""
+      }
+    ]
+  }
+]

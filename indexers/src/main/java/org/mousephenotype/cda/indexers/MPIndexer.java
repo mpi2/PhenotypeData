@@ -24,6 +24,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAO;
 import org.mousephenotype.cda.indexers.beans.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -33,10 +34,15 @@ import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
+import org.mousephenotype.cda.solr.repositories.GenotypePhenotypeRepository;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
@@ -48,6 +54,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -107,9 +114,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
-    @Autowired
-    private PhenotypeCallSummarySolr phenotypeSummaryHelper;
-
 
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
@@ -168,6 +172,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
         initializeDatabaseConnections();
+        System.out.println("Started supporting beans");
         initialiseSupportingBeans();
 
         try {
@@ -254,28 +259,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
 
-                PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(termId,  null, null, null);
-                PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(termId,  null, null, null);
+                //phenotypeCallSummaryService.getPhenotypeCallByAccession(termId, genotypePhenotypeCore);
+                //phenotypeCallSummaryService.getPhenotypeCallByAccession(termId);
 
-                List<DataTableRow> uniqGenes = phenotypeSummaryHelper.getPhenotypeRows(phenoResult, preQcResult, "");
-                mp.setGeneVariantCount(uniqGenes.size());
-
-                int maleCount = 0;
-                int femaleCount = 0;
-                for(DataTableRow r : uniqGenes){
-                    for (String s : r.getSexes()){
-                        if (s.equals("female")){
-                            femaleCount++;
-                        }
-                        else if (s.equals("male")){
-                            maleCount++;
-                        }
-                    }
-                }
-
-                mp.setGeneVariantFemaleCount(femaleCount);
-                mp.setGeneVariantMaleCount(maleCount);
-
+//                Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
+//                mp.setGeneVariantCount(geneVariantCounts.get("sumCount"));
+//                mp.setGeneVariantFemaleCount(geneVariantCounts.get("femaleCount"));
+//                mp.setGeneVariantMaleCount(geneVariantCounts.get("maleCount"));
+//
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
@@ -298,6 +289,67 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
+
+//    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
+//            throws IOException, URISyntaxException, SolrServerException {
+
+
+//        PhenotypeFacetResult phenoResult = genotypePhenotypeService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+//        PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+//
+//        List<PhenotypeCallSummaryDTO> phenotypeList;
+//        phenotypeList = phenoResult.getPhenotypeCallSummaries();
+//        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+//
+//        // This is a map because we need to support lookups
+//        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
+//
+//        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+//
+//            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
+//            DataTableRow pr = new PhenotypePageTableRow(pcs, "", null, false);
+//
+//            // Collapse rows on sex
+//            if (phenotypes.containsKey(pr.hashCode())) {
+//
+//                pr = phenotypes.get(pr.hashCode());
+//                // Use a tree set to maintain an alphabetical order (Female, Male)
+//                TreeSet<String> sexes = new TreeSet<String>();
+//                for (String s : pr.getSexes()) {
+//                    sexes.add(s);
+//                }
+//                sexes.add(pcs.getSex().toString());
+//
+//                pr.setSexes(new ArrayList<String>(sexes));
+//            }
+//
+//            if (pr.getParameter() != null && pr.getProcedure() != null) {
+//                phenotypes.put(pr.hashCode(), pr);
+//            }
+//        }
+//
+//        List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
+//
+//        int maleCount = 0;
+//        int femaleCount = 0;
+//        for(DataTableRow r : uniqGenes){
+//            for (String s : r.getSexes()){
+//                if (s.equals("female")){
+//                    femaleCount++;
+//                }
+//                else if (s.equals("male")){
+//                    maleCount++;
+//                }
+//            }
+//        }
+//
+//       Map<String, Integer> kv = new HashMap<>();
+//        kv.put("sumCount", uniqGenes.size());
+//        kv.put("femaleCount", femaleCount);
+//        kv.put("maleCount", maleCount);
+
+//        return kv;
+//    }
 
 
     private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {// Won't work with mp from slim!!
@@ -1038,7 +1090,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
       	List<String> nameId = new ArrayList<>();
       	Set<String> synonyms = new HashSet<>();
 
-      	for (OntologyTermBean term : mpOntologyService.getTopLevel(mp.getMpId())) {
+        for (OntologyTermBean term : mpOntologyService.getTopLevel(mp.getMpId())) {
 			ids.add(term.getId());
 			names.add(term.getName());
 			synonyms.addAll(term.getSynonyms());
@@ -1050,7 +1102,18 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.setTopLevelMpTerm(names);
             mp.setTopLevelMpTermId(nameId);
             mp.setTopLevelMpTermSynonym(new ArrayList<>(synonyms));
+            mp.setTopLevelMpTermInclusive(names);
+            mp.setTopLevelMpIdInclusive(ids);
+
         }
+        else {
+            // add self as top level
+            names.add(mp.getMpTerm());
+            ids.add(mp.getMpId());
+            mp.setTopLevelMpTermInclusive(names);
+            mp.setTopLevelMpIdInclusive(ids);
+        }
+
     }
 
     protected static void addIntermediateLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
@@ -1251,7 +1314,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 if (allele.getMgiNovelPredictedInLocus() != null) {
                     mp.getMgiNovelPredictedInLocus().addAll(allele.getMgiNovelPredictedInLocus());
-                    mp.setMgiNovelPredictedInLocus(new ArrayList<>(new HashSet<>(mp.getMgiNovelPredictedInLocus())));
+                    mp.setMgiNovelPredictedInLocus(new ArrayList<Boolean>(new HashSet<>(mp.getMgiNovelPredictedInLocus())));
                 }
                 if (allele.getImpcNovelPredictedInLocus() != null) {
                     mp.getImpcNovelPredictedInLocus().addAll(allele.getImpcNovelPredictedInLocus());
