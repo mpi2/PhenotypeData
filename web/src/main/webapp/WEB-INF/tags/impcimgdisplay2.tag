@@ -36,10 +36,22 @@ allele = allele.replaceAll("##", "</sup>");
          		 <a href="${href}&mediaType=pdf">
          		<img  src="../${pdfThumbnailUrl}" class="thumbnailStyle"></a>
          	</c:if>
-         	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">
-         		 <a href="${href}">
-         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
+         	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }"> <!-- if has no annotation in string then not a pdf -->
+         		<a href="${href}">
+         		<c:choose>
+         			<c:when test="${img.omero_id == 0 }">
+         				blah
+         				<img  src="${img.full_resolution_file_path}" class="thumbnailStyle"/></a>
+         			</c:when>
+         			<c:otherwise>
+         			<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"/></a>
+         			</c:otherwise>
+         		</c:choose>
+         		 
+         		
          	</c:if>
+         	
+         	
          	<div class="caption" style="height:150px; word-wrap: break-word;">
          </c:when>
 
