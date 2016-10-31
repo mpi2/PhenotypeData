@@ -25,6 +25,7 @@ import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +69,7 @@ public class ExtractCdabaseConfigBeans {
 
     public class DownloadFilename {
         public final DownloadFileEnum downloadFileEnum;
-        public final String sourceUrl;
+        public String sourceUrl;
         public final String targetFilename;
         public final int dbId;
 
@@ -166,20 +167,11 @@ public class ExtractCdabaseConfigBeans {
             , new DownloadOntologyFilename(DownloadFileEnum.mp,     "http://purl.obolibrary.org/obo/mp.owl", cdabaseWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
             , new DownloadOntologyFilename(DownloadFileEnum.mpath,  "http://purl.obolibrary.org/obo/mpath.owl", cdabaseWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
             , new DownloadOntologyFilename(DownloadFileEnum.pato,   "http://purl.obolibrary.org/obo/pato.owl", cdabaseWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.PATO.getName())
-
-
-//                , new DownloadOntologyFilename(DownloadFileEnum.eco, "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdabaseWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
-//                , new DownloadOntologyFilename(DownloadFileEnum.efo, "http://www.ebi.ac.uk/efo/efo.owl", cdabaseWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
-//                , new DownloadOntologyFilename(DownloadFileEnum.emap, "http://purl.obolibrary.org/obo/emap.owl", cdabaseWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
-//                , new DownloadOntologyFilename(DownloadFileEnum.emapa, "http://www.berkeleybop.org/ontologies/emapa.owl", cdabaseWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
-//                , new DownloadOntologyFilename(DownloadFileEnum.ma, "http://purl.obolibrary.org/obo/ma.owl", cdabaseWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
-//                , new DownloadOntologyFilename(DownloadFileEnum.MmusDv, "http://www.berkeleybop.org/ontologies/mmusdv.owl", cdabaseWorkspace + "/MmusDv.owl", DbIdType.MmusDv.intValue(), DbIdType.MmusDv.getName())
-//                , new DownloadOntologyFilename(DownloadFileEnum.mp, "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdabaseWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
-//                , new DownloadOntologyFilename(DownloadFileEnum.mpath, "http://purl.obolibrary.org/obo/mpath.owl", cdabaseWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
-//                , new DownloadOntologyFilename(DownloadFileEnum.pato, "https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdabaseWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.PATO.getName())
         };
 
         for (DownloadFilename downloadFilename : filenames) {
+
+            downloadFilename.sourceUrl = UrlUtils.getRedirectedUrl(downloadFilename.sourceUrl);
             downloadFilenameMap.put(downloadFilename.downloadFileEnum, downloadFilename);
         }
     }
