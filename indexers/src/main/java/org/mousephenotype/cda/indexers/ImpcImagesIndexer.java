@@ -255,6 +255,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 						} else {
 							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
+							imageDTO.setThumbnailUrl(impcMediaBaseUrl + "/render_birds_eye_view/" + omeroId);
 						}
 					} else {
 						runStatus.addWarning(" omero id is 0 for " + downloadFilePath+ " fullres filepath");
