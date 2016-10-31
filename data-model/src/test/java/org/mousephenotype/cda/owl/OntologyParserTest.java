@@ -52,7 +52,7 @@ public class OntologyParserTest {
 
         downloads.put("efo", new Download("EFO", "http://www.ebi.ac.uk/efo/efo.owl", owlpath + "/efo.owl"));
         downloads.put("mphp", new Download("MP", "http://build-artifacts.berkeleybop.org/build-mp-hp-view/latest/mp-hp-view.owl", owlpath + "/mp-hp.owl"));
-        downloads.put("mp", new Download("MP", "http://purl.obolibrary.org/obo/mp.owl", owlpath + "/mp.owl"));
+        downloads.put("mp", new Download("MP", "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", owlpath + "/mp.owl"));
 
         if ( ! downloadFiles) {
             downloadFiles();
