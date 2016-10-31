@@ -35,8 +35,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.sun.tools.internal.xjc.reader.Ring.add;
-
 
 @Controller
 public class PresentationsController {
