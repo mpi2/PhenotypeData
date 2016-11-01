@@ -226,6 +226,8 @@
         <field name="omero_id"     type="int"    indexed="true" stored="true" multiValued="false" />
         <field name="download_url"     type="string"    indexed="true" stored="true" multiValued="false" />
         <field name="jpeg_url"     type="string"    indexed="true" stored="true" multiValued="false" />
+        <field name="thumbnail_url"     type="string"    indexed="true" stored="true" multiValued="false" /><!--  just used for small thumbnail representations either through omero or a seconday projec thumbnail such as https://img1.sanger.ac.uk/images/1604/3_M01758589_download_tn_small.jpg -->
+        
         <field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="marker_synonym_symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="true" />
         <!-- end of experiment data fields -->
