@@ -31,6 +31,7 @@ import javax.sql.DataSource;
         "file:${user.home}/configfiles/${profile:jenkins}/application.properties",
         "file:${user.home}/configfiles/${profile:jenkins}/datarelease.properties"
 })
+@Import(SolrServerConfig.class)
 public class ReportsConfig {
 
     @Bean
