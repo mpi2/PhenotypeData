@@ -16,12 +16,8 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
-
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
 import org.apache.solr.client.solrj.SolrServerException;
-
+import java.io.UnsupportedEncodingException;
 
 /**
  *
@@ -35,9 +31,9 @@ public class GenePageTableRow extends DataTableRow {
         super();
     }
 
-    public GenePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) 
+    public GenePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, String drupalBaseUrl)
     throws UnsupportedEncodingException, SolrServerException {
-        super(pcs, baseUrl, config);
+        super(pcs, baseUrl, drupalBaseUrl);
     }
 
     /**

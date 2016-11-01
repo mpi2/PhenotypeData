@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -51,8 +51,8 @@ public class PhenotypeCallSummarySolr {
 	@Qualifier("preqcService")
 	PreQcService preqcService;
 
-	@Resource(name = "globalConfiguration")
-	private Map<String, String> config;
+	@Value("drupalBaseUrl")
+	private String drupalBaseUrl;
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
@@ -90,10 +90,9 @@ public class PhenotypeCallSummarySolr {
 
 	/**
 	 *
-	 * @param phenotypeId
-	 * @param filter
-	 * @param model
-	 * @param request
+	 * @param phenoResult
+	 * @param preQcResult
+	 * @param baseUrl
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 * @throws SolrServerException, IOException
@@ -112,7 +111,7 @@ public class PhenotypeCallSummarySolr {
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
 			// On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-			DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, config, false);
+			DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, drupalBaseUrl, false);
 
 			// Collapse rows on sex
 			if (phenotypes.containsKey(pr.hashCode())) {
