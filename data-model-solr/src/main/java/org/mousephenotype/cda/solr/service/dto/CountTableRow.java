@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.solr.service.dto;
 
+import java.util.Comparator;
+
 /**
  * Created by ilinca on 25/10/2016.
  */
@@ -45,5 +47,16 @@ public class CountTableRow {
     }
 
 
+    public static Comparator<CountTableRow> getComparatorByCount()
+    {
+        Comparator<CountTableRow> comp = new Comparator<CountTableRow>(){
+            @Override
+            public int compare(CountTableRow a, CountTableRow b)
+            {
+                return b.getCount().compareTo(a.getCount()); // b compare to a so we get reverse order. We want highest numbers at the top!
+            }
+        };
+        return comp;
+    }
 
 }

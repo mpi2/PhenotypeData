@@ -96,7 +96,7 @@ public class LandingPageController {
             mpId = "MP:0005385";
             model.addAttribute("pageTitle", "Cardiovascular");
         } else if (page.equalsIgnoreCase("metabolism")){
-            mpId = "MP:0005266";
+            mpId = "MP:0005376";
             model.addAttribute("pageTitle", "Metabolism");
         } else if (page.equalsIgnoreCase("vision")){
             mpId = "MP:0005391";
