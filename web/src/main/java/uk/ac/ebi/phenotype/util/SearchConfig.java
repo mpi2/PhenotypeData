@@ -196,6 +196,7 @@ public class SearchConfig {
                 "anatomy_term",
                 "anatomy_id",
                 "jpeg_url",
+                "thumbnail_url",
                 "download_url",
                 "parameter_association_name",
                 "parameter_association_value");
