@@ -479,7 +479,7 @@ public class SolrIndex {
             //String link = null;
 			String img = null;
 
-            if (doc.containsKey("omero_id")) {
+            if (doc.containsKey("omero_id") && (doc.getInt("omero_id")!=0)) {
                 String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
                 String downloadUrl=doc.getString("download_url");
                 //System.out.println("full size path="+downloadUrl);
@@ -490,10 +490,21 @@ public class SolrIndex {
                 	//img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
 					img="<img style='width: 96px' src='../" + pdfThumbnailUrl + "'/>";
                 	//link = "<a href='" + downloadUrl +"'>" + img + "</a>";
-                }else{
-                	//link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
                 }
-            } else {
+            } else 
+            if(doc.getInt("omero_id")==0)
+            {//we have a secondary project image (currently only available through PHIS)
+            	//String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+                String downloadUrl=doc.getString("download_url");
+                //System.out.println("full size path="+downloadUrl);
+                
+                String smallThumbNailPath = doc.getString("thumbnail_url");
+                img = "<img style='width: 96px' src='" + smallThumbNailPath + "'/>";
+                if(downloadUrl.contains("/annotation/")){
+                	//img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
+					img="<img style='width: 96px' src='../" + pdfThumbnailUrl + "'/>";
+                }
+            }else{
                 //link = IMG_NOT_FOUND;
 				img = IMG_NOT_FOUND;
             }

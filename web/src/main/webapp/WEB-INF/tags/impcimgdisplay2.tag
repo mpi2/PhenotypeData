@@ -62,7 +62,6 @@ allele = allele.replaceAll("##", "</sup>");
 
          <c:otherwise>
          <!-- used for lacz expression pages -->
-         blah${img.biological_sample_group}
          		<a href="${img.jpeg_url}" class="fancybox" fullRes="${img.jpeg_url}" original="${img.download_url}">
          		<img  src="${img.thumbnail_url}" class="thumbnailStyle"></a>
          		<div class="caption" style="height:150px; overflow:auto;">
@@ -114,6 +113,7 @@ allele = allele.replaceAll("##", "</sup>");
                                                 	</c:forEach>
                                                 </c:if>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
+                                                <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group }</c:if>
                                                 </c:otherwise>
                                                 </c:choose>
 
