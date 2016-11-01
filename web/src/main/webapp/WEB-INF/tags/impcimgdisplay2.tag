@@ -62,8 +62,9 @@ allele = allele.replaceAll("##", "</sup>");
 
          <c:otherwise>
          <!-- used for lacz expression pages -->
-         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
-         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
+         blah${img.biological_sample_group}
+         		<a href="${img.jpeg_url}" class="fancybox" fullRes="${img.jpeg_url}" original="${img.download_url}">
+         		<img  src="${img.thumbnail_url}" class="thumbnailStyle"></a>
          		<div class="caption" style="height:150px; overflow:auto;">
          </c:otherwise>
       </c:choose>
@@ -89,10 +90,18 @@ allele = allele.replaceAll("##", "</sup>");
                                                 		<br/>
                                                 	</c:forEach>
                                                 </c:if>
-                                                <c:if test="${not empty img.ma_id}">
-                                                	<c:forEach items="${img.ma_id}" varStatus="status">
-                                                		<c:out value="${img.ma_id[status.index]}"/>
-                                                		<c:out value="${img.ma_term[status.index]}"/>
+                                                <c:if test="${not empty img.anatomy_id}">
+                                                	<c:forEach items="${img.anatomy_id}" varStatus="status">
+                                                		<c:out value="${img.anatomy_id[status.index]}"/>
+                                                		<c:out value="${img.anatomy_term[status.index]}"/>
+                                                		<br/>
+                                                	</c:forEach>
+                                                </c:if>
+                                                
+                                                 <c:if test="${not empty img.mp_id}">
+                                                	<c:forEach items="${img.mp_id}" varStatus="status">
+                                                		<c:out value="${img.mp_id[status.index]}"/>
+                                                		<c:out value="${img.mp_term[status.index]}"/>
                                                 		<br/>
                                                 	</c:forEach>
                                                 </c:if>
