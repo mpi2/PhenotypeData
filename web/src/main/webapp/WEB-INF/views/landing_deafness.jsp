@@ -36,73 +36,7 @@
                     <div class="node node-gene">
                         <h1 class="title" id="top">${pageTitle} </h1>
 
-                        <div class="section">
-                            <div class="inner">
-                                <p> We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We
-                                    detected known deafness genes and the vast majority of loci were novel. </p>
-                                <br/> <br/>
-
-                                <c:if test="${genePercentage.getDisplay()}">
-
-                                    <div class="half">
-                                        <div id="pieChart">
-                                            <script type="text/javascript">${genePercentage.getPieChartCode()}</script>
-                                        </div>
-
-                                        <c:if test="${genePercentage.getTotalGenesTested() > 0}">
-                                            <p><span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of the
-                                                tested genes with null mutations on a B6N genetic background have related phenotype
-                                                associations
-                                                (${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()})
-                                            </p>
-                                        </c:if>
-                                        <c:if test="${genePercentage.getFemaleGenesTested() > 0}">
-                                            <p>
-                                                        <span class="padleft"><span class="bigger">
-                                                            ${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </span>
-                                            </p>
-                                        </c:if>
-                                        <c:if test="${genePercentage.getMaleGenesTested() > 0}">
-                                            <p>
-                                                    <span class="padleft"><span
-                                                            class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span>
-                                            </p>
-                                        </c:if>
-                                    </div>
-
-
-                                    <div class="half">
-
-                                        <table>
-                                            <thead>
-                                            <tr> <th class="headerSort"> Phenotype </th> <th> # Associations </th> </tr>
-                                            </thead>
-                                            <tbody>
-                                            <c:forEach var="row" items="${phenotypes}">
-                                            <tr>
-                                                <td><h4 class="capitalize">${row.category}</h4></td>
-                                                <c:if test="${row.mpId != null}">
-                                                    <td><h4><a href="${baseUrl}/phenotypes/${row.mpId}">${row.count}</a></h4></td>
-                                                </c:if>
-                                                <c:if test="${row.mpId == null}">
-                                                    <td><h4>${row.count}</h4></td>
-                                                </c:if>
-                                            </tr>
-                                            </c:forEach>
-                                            <tr>
-                                                <td><a id="tsvDownload" href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}" target="_blank" class="button fa fa-download">Download</a>
-                                                </td>
-                                                <td></td>
-                                            </tr>
-                                        </tbody>
-                                        </table>
-
-                                    </div>
-
-                                    <div class="clear both"></div>
-                                </c:if>
-                            </div>
-                        </div>
+                        <c:import url="landing_overview_frag.jsp"/>
 
                         <div class="section">
                             <h1>Approach</h1>
