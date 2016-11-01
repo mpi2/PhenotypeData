@@ -32,7 +32,7 @@
             <div class="half">
                 <table>
                     <thead>
-                        <tr> <th class="headerSort"> Phenotype </th> <th> # Associations </th> </tr>
+                        <tr> <th class="headerSort"> Phenotype </th> <th> # Genes </th> </tr>
                     </thead>
                     <tbody>
                     <c:forEach var="row" items="${phenotypes}"  varStatus="loop">
@@ -67,7 +67,6 @@
 <script type="text/javascript">
 
     $(document).ready(function() {
-
         $('#showMore').click(function () {
             $(".hideable").toggleClass("hidden");
         });
