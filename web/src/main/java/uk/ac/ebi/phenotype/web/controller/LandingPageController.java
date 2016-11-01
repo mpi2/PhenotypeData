@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -79,19 +80,35 @@ public class LandingPageController {
     }
 
 
-    @RequestMapping(value="/landing/deafness", method = RequestMethod.GET)
-    public String loadDeafnessPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
+    @RequestMapping(value="/landing/{page}",  method = RequestMethod.GET)
+    public String loadDeafnessPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
-        String mpId = "MP:0005377";
+        String mpId = "";
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
 
+        if (page.equalsIgnoreCase("deafness")) {
+            mpId = "MP:0005377";
+            model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
+            model.addAttribute("pageTitle", "Deafness");
+        } else if (page.equalsIgnoreCase("cardiovascular")){
+            mpId = "MP:0005385";
+            model.addAttribute("pageTitle", "Cardiovascular");
+        } else if (page.equalsIgnoreCase("metabolism")){
+            mpId = "MP:0005266";
+            model.addAttribute("pageTitle", "Metabolism");
+        } else if (page.equalsIgnoreCase("vision")){
+            mpId = "MP:0005391";
+            model.addAttribute("pageTitle", "Vision");
+        }
+
         model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
-        model.addAttribute("pageTitle", "Deafness");
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
         model.addAttribute("mpId", mpId);
-        return "landing_deafness";
+
+        return "landing_" + page;
+
     }
 
 

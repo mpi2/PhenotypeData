@@ -41,8 +41,9 @@ import java.util.List;
 @SpringBootApplication
 public class ReportsManager implements CommandLineRunner {
 
+
     @Autowired
-    private BmdStatsReport bmdStatsReport;
+    private LaczExpressionReport lacZExpressionReport;
 
     @Autowired
     private BmdStatsGlucoseConcentrationReport bmdStatsGlucoseConcentrationReport;
@@ -52,6 +53,9 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private DataOverviewReport dataOverviewReport;
+
+    @Autowired
+    private BmdStatsReport bmdStatsReport;
 
     @Autowired
     private FertilityReport fertilityReport;
@@ -76,9 +80,6 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ExtractValidateImpressReport extractValidateImpressReport;
-
-    @Autowired
-    private LaczExpressionReport lacZExpressionReport;
 
     @Autowired
     private LoadValidateCdaReport loadValidateCdaReport;
