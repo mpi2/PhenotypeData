@@ -153,6 +153,11 @@ div#impc_imagesTab div.mpi2-search {
     margin-top: 0px;
 }
 
+div#allele2Tab table#dTable td:nth-child(3) > table {
+	padding: 0;
+	margin: 0;
+}
+
 div#allele2Tab table#dTable td:nth-child(3) > table td{
 /*, div#allele2Tab table#dTable th {*/
 	border: 1px solid #F2F2F2;
