@@ -133,7 +133,7 @@ public class ReportsConfig {
 
 
 
-    
+
     @Bean(name = "dccPrevious")
     @ConfigurationProperties(prefix = "datasource.dcc.compare.previous")
    	public DataSource dccPrevious() {
