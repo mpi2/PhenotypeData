@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -86,8 +87,8 @@ public class PhenotypesController {
     @Autowired
     ImpressService impressService;
 
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
+    @Value("drupalBaseUrl")
+    private String drupalBaseUrl;
 
     /**
      * Phenotype controller loads information required for displaying the
@@ -117,7 +118,7 @@ public class PhenotypesController {
      	model.addAttribute("hasData", mpTerm  == null ? false : true);
         
         // register interest state
- 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
+ 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(drupalBaseUrl, request);
  		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest); 		
  		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
@@ -218,7 +219,7 @@ public class PhenotypesController {
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, config, false);
+            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, drupalBaseUrl, false);
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr.hashCode())) {
@@ -318,7 +319,7 @@ public class PhenotypesController {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, url, config, false);
+            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, url, drupalBaseUrl, false);
             phenotypes.add(pr);
         } 
         

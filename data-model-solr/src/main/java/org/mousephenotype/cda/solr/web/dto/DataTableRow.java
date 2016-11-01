@@ -44,25 +44,25 @@ import java.util.*;
  */
 public abstract class DataTableRow implements Comparable<DataTableRow> {
 
-	private Map<String, String> config;
-	protected BasicBean phenotypeTerm;
-	protected MarkerBean gene;
-	protected MarkerBean allele;
-	protected List<String> sexes;
-	protected ZygosityType zygosity;
-	protected String lifeStageName;
-	protected String lifeStageAcc;
-	protected int projectId;
-	protected String phenotypingCenter;
-	protected ImpressBaseDTO procedure;
-	protected ImpressBaseDTO parameter;
-	protected String dataSourceName;
-	protected EvidenceLink evidenceLink;
-	protected ImpressBaseDTO pipeline;
-	protected Double pValue;
-	protected boolean isPreQc;
-	protected String gid;
-	protected String colonyId;
+	private   String          drupalBaseUrl;
+	protected BasicBean       phenotypeTerm;
+	protected MarkerBean      gene;
+	protected MarkerBean      allele;
+	protected List<String>    sexes;
+	protected ZygosityType    zygosity;
+	protected String          lifeStageName;
+	protected String          lifeStageAcc;
+	protected int             projectId;
+	protected String          phenotypingCenter;
+	protected ImpressBaseDTO  procedure;
+	protected ImpressBaseDTO  parameter;
+	protected String          dataSourceName;
+	protected EvidenceLink    evidenceLink;
+	protected ImpressBaseDTO  pipeline;
+	protected Double          pValue;
+	protected boolean         isPreQc;
+	protected String          gid;
+	protected String          colonyId;
 	protected List<BasicBean> topLevelPhenotypeTerms;
 	// keep the top level terms so we can display the correct icons next to them in the row
 	protected Set<String> topLevelMpGroups;
@@ -103,11 +103,11 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	public DataTableRow() {
 	}
 
-	public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config)
+	public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, String drupalBaseUrl)
 			throws UnsupportedEncodingException, SolrServerException {
 
-		this.config = config;
-		List<String> sex = new ArrayList<String>();
+		this.drupalBaseUrl = drupalBaseUrl;
+		List<String> sex = new ArrayList<>();
 		sex.add(pcs.getSex().toString());
 		this.setGid(pcs.getgId());
 		this.setPreQc(pcs.isPreQC());
@@ -212,14 +212,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 	@Override
 	public abstract int compareTo(DataTableRow o);
-
-	public Map<String, String> getConfig() {
-		return config;
-	}
-
-	public void setConfig(Map<String, String> config) {
-		this.config = config;
-	}
 
 	/**
 	 * @return the gid
@@ -370,8 +362,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		} else {
 			// Need to use the drupal base url because phenoview is not mapped
 			// under the /data url
-			url = config.get("drupalBaseUrl");
-			url += "/../phenoview/?gid=";
+			url = drupalBaseUrl + "/../phenoview/?gid=";
 			if (this.getgIds() != null) {
 				url += StringUtils.join(this.getgIds(), ",");
 			}
@@ -588,7 +579,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			return false;
 		if (isPreQc != that.isPreQc)
 			return false;
-		if (config != null ? !config.equals(that.config) : that.config != null)
+		if (drupalBaseUrl != null ? !drupalBaseUrl.equals(that.drupalBaseUrl) : that.drupalBaseUrl != null)
 			return false;
 		if (phenotypeTerm != null ? !phenotypeTerm.equals(that.phenotypeTerm) : that.phenotypeTerm != null)
 			return false;
@@ -629,7 +620,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	 */
 	@Override
 	public int hashCode() {
-		int result = config != null ? config.hashCode() : 0;
+		int result = drupalBaseUrl != null ? drupalBaseUrl.hashCode() : 0;
 		result = 31 * result + (phenotypeTerm != null ? phenotypeTerm.hashCode() : 0);
 		result = 31 * result + (gene != null ? gene.hashCode() : 0);
 		// result = 31 * result + (allele != null ? allele.hashCode() : 0);
@@ -659,7 +650,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	@Override
 	public String toString() {
 		return "DataTableRow [" +
-				 "config=" + config + ", phenotypeTerm=" + phenotypeTerm + ",gene=" + gene + ", allele="
+				 "drupalBaseUrl=" + drupalBaseUrl + ", phenotypeTerm=" + phenotypeTerm + ",gene=" + gene + ", allele="
 				 + allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ",	 lifeStageName=" + lifeStageName
 				 + ", lifeStageAcc=" + lifeStageAcc + ", projectId=" +
 				 projectId + ", phenotypingCenter="

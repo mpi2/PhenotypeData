@@ -222,10 +222,10 @@
         <field name="download_file_path" type="string" indexed="true" stored="true" multiValued="false" />
         <field name="file_type"       type="string" indexed="true" stored="true" multiValued="false" />
         <!-- images from external to Experiment/observations core-->
-        <field name="full_resolution_file_path"  type="string"   indexed="true"  stored="true"  multiValued="false" />
+        <field name="full_resolution_file_path"  type="string"   indexed="true"  stored="true"  multiValued="false" /> <!-- used to store the directory path to the image on our system for cross referencing with omero ids -->
         <field name="omero_id"     type="int"    indexed="true" stored="true" multiValued="false" />
-        <field name="download_url"     type="string"    indexed="true" stored="true" multiValued="false" />
-        <field name="jpeg_url"     type="string"    indexed="true" stored="true" multiValued="false" />
+        <field name="download_url"     type="string"    indexed="true" stored="true" multiValued="false" /> <!-- used to store the place where a user can download the original image whatever type it was e.g. dcm -->
+        <field name="jpeg_url"     type="string"    indexed="true" stored="true" multiValued="false" /> <!-- used to store the largest jpeg version of this image -->
         <field name="thumbnail_url"     type="string"    indexed="true" stored="true" multiValued="false" /><!--  just used for small thumbnail representations either through omero or a seconday projec thumbnail such as https://img1.sanger.ac.uk/images/1604/3_M01758589_download_tn_small.jpg -->
         
         <field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="false" />
