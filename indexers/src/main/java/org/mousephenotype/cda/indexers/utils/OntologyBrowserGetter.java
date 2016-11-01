@@ -59,12 +59,13 @@ public class OntologyBrowserGetter {
 						while (resultSet2.next()) {
 
 							JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
-							//System.out.println("THIS NODE: "+ thisNode);
+							//System.out.println(nodeId + " -- THIS NODE: "+ thisNode.toString());
 							if ( thisNode != null ) {
 								if (thisNode.getBoolean("children")) {
 									thisNode = fetchChildNodes(helper, thisNode, termId);
 									//System.out.println("CHILD TERM ID: "+thisNode.getString("term_id"));
-
+									thisNode.put("children", true);
+									//System.out.println("check children: "+ thisNode.toString());
 									if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
 										thisNode.accumulate("state", getState(false));
 									} else {
@@ -235,6 +236,7 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
+		//System.out.println("QUERY: " + query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/data/anatomy");
 		nameMap.put("emapa", "/data/anatomy");
@@ -315,7 +317,7 @@ public class OntologyBrowserGetter {
 		th.setPreOpenNodes(preOpenNodes);
 		th.setPageBaseUrl(pageBaseUrl);
 		th.setOntologyName(ontologyName);
-
+	//	System.out.println(th.toString());
 		return th;
 
 	}
@@ -433,7 +435,19 @@ public class OntologyBrowserGetter {
 			this.excludedNodeIds = excludedNodeIds;
 		}
 
+		@Override
+		public String toString() {
+			return "TreeHelper{" +
+					"pathNodes=" + pathNodes +
+					", preOpenNodes=" + preOpenNodes +
+					", expandNodeIds=" + expandNodeIds +
+					", pageBaseUrl='" + pageBaseUrl + '\'' +
+					", ontologyName='" + ontologyName + '\'' +
+					", excludedNodeIds=" + excludedNodeIds +
+					'}';
+		}
 	}
+
 
 
 }
