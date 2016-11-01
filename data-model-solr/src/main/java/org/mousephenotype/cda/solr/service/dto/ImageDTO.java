@@ -132,6 +132,7 @@ public class ImageDTO extends ObservationDTO {
     public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "intermediate_anatomy_term_synonym_anatomy_id_term";
 	public static final String ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "anatomy_term_synonym_anatomy_id_term";
 	public static final String AGE_IN_DAYS="age_in_days";
+	public  static final String THUMBNAIL_URL = "thumbnail_url";
 
 	@Field(PARAMETER_ASSOCIATION_VALUE)
 	private List<String>parameterAssociationValues;
@@ -259,7 +260,14 @@ public class ImageDTO extends ObservationDTO {
 	
 	@Field(AGE_IN_DAYS)
 	private Long ageInDays;
+	
+	@Field(THUMBNAIL_URL)
+	private String thumbnailUrl;
 
+
+	public String getThumbnailUrl() {
+		return thumbnailUrl;
+	}
 
 	public Long getAgeInDays() {
 		return ageInDays;
@@ -902,6 +910,11 @@ public class ImageDTO extends ObservationDTO {
 				", anatomyIdTerm=" + anatomyIdTerm +
 				", anatomyTermSynonymAnatomyIdTerm=" + anatomyTermSynonymAnatomyIdTerm +
 				'}';
+	}
+
+	public void setThumbnailUrl(String thumbnailUrl) {
+		this.thumbnailUrl=thumbnailUrl;
+		
 	}
 
 }
