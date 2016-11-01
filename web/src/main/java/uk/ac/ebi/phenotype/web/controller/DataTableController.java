@@ -56,6 +56,7 @@ import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
+import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -643,29 +644,43 @@ public class DataTableController {
 
 			//String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
 			//String alleleName = "<span class='allelename'>"+ doc.getString("allele_name")+ "</span>";
-            String alleleName = doc.getString("allele_name");
-            String markerAcc = doc.getString("mgi_accession_id");
-			String markerSymbol = doc.getString("marker_symbol");
-			String mutationType = doc.getString("mutation_type") + "; " + doc.getString("allele_description");
-			String vectorMap = "<br><a class='iFrameVector' data-url='" + doc.getString("allele_simple_image") + "'>See Vector map</a>";
+			String markerAcc = doc.getString(Allele2DTO.MGI_ACCESSION_ID);
+			String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc;
+            String alleleName = doc.getString(Allele2DTO.ALLELE_NAME);
+			String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
+			String alleleLink = "<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
+			String mutationType = doc.getString(Allele2DTO.MUTATION_TYPE) + "; " + doc.getString(Allele2DTO.ALLELE_DESCRIPTION);
 
-			List<String> orders = new ArrayList<>();
-            String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
+			List<String> order = new ArrayList<>();
+			String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
 
-			if ( doc.containsKey("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
-				orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'> Targeting vector</i></a>");
+			if ( doc.containsKey(Allele2DTO.TARGETING_VECTOR_AVAILABLE) && doc.getBoolean(Allele2DTO.TARGETING_VECTOR_AVAILABLE) ) {
+				order.add("<tr>");
+				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'><span class='orderFont'> Targeting vector</span></i></a></td>");
+				order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.VECTOR_ALLELE_IMAGE) + "' title='map for vector'><i class='fa fa-th-list'></i></a></td>");
+				order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.VECTOR_GENBANK_LINK) + "' title='genbank file for vector'><i class='fa fa-file-text'></i></a></td>");
+				order.add("</tr>");
 			}
-			if ( doc.containsKey("es_cell_available") && doc.getBoolean("es_cell_available")){
-                orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'> ES cell</i></a>");
-			}
-			if ( doc.containsKey("mouse_available") && doc.getBoolean("mouse_available")){
-                orders.add("<a class='iFrameFancy' data-url='" + dataUrl + "&type=mouse'><i class='fa fa-shopping-cart'> Mouse</i></a>");
-			}
-			String order = StringUtils.join(orders, "<br>");
 
-			rowData.add(markerSymbol + "<sup>" + alleleName + "</sup>");
-			rowData.add(mutationType + vectorMap);
-			rowData.add(order);
+			if ( doc.containsKey(Allele2DTO.ES_CELL_AVAILABLE) && doc.getBoolean(Allele2DTO.ES_CELL_AVAILABLE)){
+				order.add("<tr>");
+				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'><span class='orderFont'> ES cell</span></i></a></td>");
+				order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for gene'><i class='fa fa-th-list'></i></a></td>");
+				order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.GENBANK_FILE) + "' title='genbank file for gene'><i class='fa fa-file-text'></i></a></td>");
+				order.add("</tr>");
+			}
+
+			if ( doc.containsKey(Allele2DTO.MOUSE_AVAILABLE) && doc.getBoolean(Allele2DTO.MOUSE_AVAILABLE)){
+				order.add("<tr>");
+				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=mouse'><i class='fa fa-shopping-cart'><span class='orderFont'> Mouse</span></i></a></td>");
+				order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for gene'><i class='fa fa-th-list'></i></a></td>");
+				order.add("<td><a class='iFrameVector' data-url='" + doc.getString(Allele2DTO.GENBANK_FILE) + "' title='genbank file for gene'><i class='fa fa-file-text'></i></a></td>");
+				order.add("</tr>");
+			}
+
+			rowData.add(alleleLink);
+			rowData.add(mutationType);
+			rowData.add("<table><tbody>" + StringUtils.join(order, "") + "</tbody></table>");
 
 			j.getJSONArray("aaData").add(rowData);
 		}

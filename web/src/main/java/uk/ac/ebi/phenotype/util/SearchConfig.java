@@ -215,7 +215,10 @@ public class SearchConfig {
                 "allele_name",
                 "synonym",
                 "allele_description",
-                "allele_simple_image",
+                "allele_simple_image",  // es cell and mouse vector (gene map)
+                "vector_allele_image",  // targeting vector map
+                "genbank_file",         // for es cells / mouse
+                "vector_genbank_file",  // for vector
                 "mutation_type",
                 "es_cell_available",
                 "mouse_available",
