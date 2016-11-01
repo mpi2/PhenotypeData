@@ -52,9 +52,6 @@ public class ExperimentService{
 
     @Autowired
     ObservationService os;
-    
-    @Autowired
-    ImpressService is;
 
     @Autowired
     private StatisticalResultService statisticalResultService;

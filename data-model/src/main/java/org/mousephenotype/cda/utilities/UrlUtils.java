@@ -174,7 +174,7 @@ public class UrlUtils {
      * @param source the url source string for redirection
      * @return the redirected url source string, if redirected; the original source string otherwise
      */
-    public String getRedirectedUrl(String source) {
+    public static String getRedirectedUrl(String source) {
 
         URLConnection urlConnection;
         String        newSource;

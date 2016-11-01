@@ -318,7 +318,7 @@ button.exportButton{
 
 .onethirdForPie               { float: left; width: 33%; }
 
-li img.thumbnailStyle{
+img.thumbnailStyle{
 	max-width: 95px; max-height: 200px;width:auto; height:auto;
 }
 

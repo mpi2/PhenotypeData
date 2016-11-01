@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,7 +96,7 @@ public class OntologyParserTest {
                 target = download.target;
                 targetTemp = target + "." + outputAppender;
                 try {
-                    url = new URL(download.url);
+                    url = new URL(UrlUtils.getRedirectedUrl(download.url));
                     rbc = Channels.newChannel(url.openStream());
                     fos = new FileOutputStream(targetTemp);
                     fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
@@ -107,6 +108,7 @@ public class OntologyParserTest {
             }
         }
     }
+
 
     @Ignore
     @Test
@@ -141,7 +143,7 @@ public class OntologyParserTest {
             System.out.println();
         }
 
-        if (!exception.isEmpty()) {
+        if ( ! exception.isEmpty()) {
             throw exception.get(0);            // Just throw the first one.
         }
     }

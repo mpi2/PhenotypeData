@@ -44,4 +44,6 @@ public class CountTableRow {
         return "CountTableRow [category=" + category + ", mpId=" + mpId + ", count=" + count + "]";
     }
 
+
+
 }
