@@ -23,6 +23,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
+import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -613,6 +614,54 @@ public class CdaSqlUtils {
         return results;
     }
 
+    public int insertExperiment(Experiment experiment) throws DataLoadException {
+            Map<String, Integer> results = new HashMap<>();
+
+            final String insert = "INSERT INTO experiment (" +
+                                        "db_id, external_id, sequence_id, date_of_experiment, organisation_id, project_id," +
+                                        " pipeline_id, pipeline_stable_id, procedure_id, procedure_stable_id, biological_model_id," +
+                                        " colony_id, metadata_combined, metadata_group, procedure_status, procedure_status_message) " +
+                                  "VALUES (:db_id, :external_id, :sequence_id, :date_of_experiment, :organisation_id, :project_id," +
+                                        " :pipeline_id, :pipeline_stable_id, :procedure_id, :procedure_stable_id, :biological_model_id," +
+                                        " :colony_id, :metadata_combined, :metadata_group, :procedure_status, :procedure_status_message)";
+
+            // Insert experiment. Ignore any duplicates. FIXME FIXME FIXME
+            int count = 0;
+            Map<String, Object> parameterMap = new HashMap<>();
+            try {
+                parameterMap.put("db_id", experiment.getDatasource().getId());
+                parameterMap.put("external_id", experiment.getExternalId());
+                parameterMap.put("sequence_id", experiment.getSequenceId());
+                parameterMap.put("date_of_experiment", experiment.getDateOfExperiment());
+                parameterMap.put("orgainsation_id", experiment.getOrganisation().getId());
+                parameterMap.put("project_id", experiment.getProject().getId());
+                parameterMap.put("pipeline_id", experiment.getPipeline().getDatasource());
+                parameterMap.put("pipeline_stable_id", experiment.getPipelineStableId());
+                parameterMap.put("procedure_id", experiment.getProcedure().getDatasource());
+                parameterMap.put("procedure_stable_id", experiment.getProcedureStableId());
+                parameterMap.put("biological_model_id", experiment.getModel().getId());
+                parameterMap.put("colony_id", experiment.getColonyId());
+                parameterMap.put("metadata_combined", experiment.getMetadataCombined());
+                parameterMap.put("metadata_group", experiment.getMetadataGroup());
+                parameterMap.put("procedure_status", experiment.getProcedureStatus());
+                parameterMap.put("procedure_status_message", experiment.getProcedureStatusMessage());
+
+                KeyHolder keyholder = new GeneratedKeyHolder();
+                SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+                count = jdbcCda.update(insert, parameterSource, keyholder);
+                experiment.setId(keyholder.getKey().intValue());
+
+            } catch (DuplicateKeyException e) {
+                throw new DataLoadException("Experiment " + experiment.getExternalId() + " already exists. Skipping...");
+                // FIXME FIXME FIXME
+//                id = jdbcCda.queryForObject("SELECT id FROM experiment WHERE external_id = :external_id AND organisation_id = :organisation_id", parameterMap, Integer.class);
+            }
+
+            return count;
+        }
+
+
+
     /**
      * Insert live_sample record. Ignore duplicates.
      *
@@ -1110,13 +1159,33 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return organisations;
     }
 
-    public PhenotypedColony getPhenotypedColony(String colony_name) {
+    /**
+     * Return a {@link PhenotypedColony} given a colony name (aka colony id). This method is built to correctly work
+     * for that set of EuroPhenome colonies that have duplicated work on a cell line by truncating the characters
+     * from the trailing underscore (inclusive) and re-trying.
+     * @param originalColonyId the colony name/colony id
+     * @return a {@link PhenotypedColony} instance, if found; null otherwise
+     */
+    public PhenotypedColony getPhenotypedColony(String originalColonyId) {
         String query = "SELECT * FROM phenotyped_colony WHERE colony_name = :colony_name";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("colony_name", colony_name);
+        parameterMap.put("colony_name", originalColonyId);
 
         List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, parameterMap, new PhenotypedColonyRowMapper());
+
+        if (phenotypedColonies.isEmpty()) {
+            // NOTE: A certain set of EuroPhenome colonies that have duplicated work on a cell line must have their colony
+            //       ids filtered in order to match the iMits colony to which they belong.
+            // Try looking up the colony id after removing the characters after the trailing underscore.
+            int lastUnderscoreIndex = originalColonyId.lastIndexOf("_");
+            if (lastUnderscoreIndex >= 0) {
+                String truncatedColonyId = originalColonyId.substring(0, lastUnderscoreIndex);
+                parameterMap.put("colony_name", truncatedColonyId);
+
+                phenotypedColonies = jdbcCda.query(query, parameterMap, new PhenotypedColonyRowMapper());
+            }
+        }
 
         return (phenotypedColonies.isEmpty() ? null : phenotypedColonies.get(0));
     }
@@ -1856,6 +1925,106 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
    		return strain;
    	}
+
+    /**
+     * Returns a biological model. First queries for an existing one matching input parameters. If not found, creates
+     * one and returns it.
+     *
+     * @param colonyId
+     * @param strainMapper
+     * @param zygosity
+     * @param sampleGroup
+     * @param allelesBySymbol
+     * @return {@link BiologicalModel} matching the input parameters. Creates it if necessary.
+     * @throws DataLoadException
+     */
+    public BiologicalModel selectOrInsertBiologicalModel(
+            String colonyId,
+            EuroPhenomeStrainMapper strainMapper,
+            String zygosity,
+            String sampleGroup,
+            Map<String, Allele> allelesBySymbol) throws DataLoadException
+    {
+
+        String message;
+
+        GenomicFeature gene;
+        String backgroundStrainName;
+        Strain backgroundStrain;
+
+        // Query iMits first for specimen information. iMits is more up-to-date than the dcc.
+        PhenotypedColony colony = getPhenotypedColony(colonyId);
+        if (colony == null) {
+            throw new DataLoadException("No such colonyId '" + colonyId + "' exists.");
+        }
+
+        // Get the allele by symbol.
+        Allele allele = allelesBySymbol.get(colony.getAlleleSymbol());
+        if (allele == null) {
+            try {
+                allele = createAndInsertAllele(colony.getAlleleSymbol());
+
+            } catch (DataLoadException e) {
+                message = "Missing allele information for dcc-supplied colony " + colonyId + ". Skipping...";
+                logger.error(message);
+                throw new DataLoadException(message, e);
+            }
+        }
+
+        // Get the gene. Mark as error and skip if no gene.
+        gene = colony.getGene();
+        if (gene == null) {
+            message = "Missing gene information for dcc-supplied colony " + colonyId + " for allele " + allele.toString() + ". Skipping...";
+            logger.error(message);
+            throw new DataLoadException(message);
+        }
+
+        // Get the background strain from iMits. EuroPhenome background strains require manual curation/remapping and
+        // may be comprised of multiple strains separated by semicolons. Treat any background strains with semicolons
+        // as a single strain; do not split them into separate strains.
+        // Recap:
+        //  - Get background strain from iMits
+        //  - Filter the iMits background strain name through the EuroPhenomeStrainMapper
+        //  - If the filtered background strain does not exist, create it and add it to the strain table.
+        try {
+            backgroundStrainName = strainMapper.filterEuroPhenomeGeneticBackground(colony.getBackgroundStrainName());
+            backgroundStrain = getStrainByName(backgroundStrainName);
+            if (backgroundStrain == null) {
+                backgroundStrain = createAndInsertStrain(backgroundStrainName);
+            }
+
+        } catch (DataLoadException e) {
+
+            message = "Insert strain " + colony.getBackgroundStrainName() + " for dcc-supplied colony " + colonyId + " failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
+            logger.error(message);
+            throw new DataLoadException(message, e);
+        }
+
+        // Get the biological model. Create one if it is not found.
+        BiologicalModel biologicalModel = getBiologicalModelByJoins(colony.getGene().getId().getAccession(), allele.getSymbol(), backgroundStrainName);
+        if (biologicalModel == null) {
+            String allelicComposition = strainMapper.createAllelicComposition(zygosity, allele.getSymbol(), gene.getSymbol(), sampleGroup);
+            BiologicalModelAggregator biologicalModelAggregator = new BiologicalModelAggregator(
+                    allelicComposition,
+                    allele.getSymbol(),
+                    backgroundStrainName,
+                    zygosity,
+                    allele.getId().getAccession(),
+                    colony.getGene().getId().getAccession(),
+                    backgroundStrain.getId().getAccession());
+            List<BiologicalModelAggregator> biologicalModelAggregators = new ArrayList<>();
+            biologicalModelAggregators.add(biologicalModelAggregator);
+
+            insertBiologicalModel(biologicalModelAggregators);
+
+            biologicalModel = getBiologicalModel(allelicComposition, backgroundStrainName);
+            if (biologicalModel == null) {
+                throw new DataLoadException("Attempt to create biological model for colony " + colonyId + " failed.");
+            }
+        }
+
+        return biologicalModel;
+    }
 
     public class GenomicFeatureRowMapper implements RowMapper<GenomicFeature> {
 
