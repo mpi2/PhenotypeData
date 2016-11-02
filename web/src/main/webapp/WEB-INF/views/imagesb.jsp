@@ -60,7 +60,7 @@
 								<ul>
 										<c:forEach var="image" items="${images}" varStatus="status">
 											<li>
-													<t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+													<t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${mediaBaseUrl}"></t:impcimgdisplay2>
 											</li>
 										</c:forEach>
 								</ul>
