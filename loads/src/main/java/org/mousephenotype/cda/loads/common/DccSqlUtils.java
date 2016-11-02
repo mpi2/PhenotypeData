@@ -1700,7 +1700,7 @@ public class DccSqlUtils {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException("INSERT of parameterAssociation(" + procedureMetadata.getParameterID() + ", " + procedureMetadata.getSequenceID() + " FAILED: " + e.getLocalizedMessage());
+                throw new RuntimeException("INSERT of procedureMetadata(" + procedureMetadata.getParameterID() + ", " + procedureMetadata.getSequenceID() + " FAILED: " + e.getLocalizedMessage());
             }
         }
 
