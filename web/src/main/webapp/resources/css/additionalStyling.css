@@ -1,5 +1,9 @@
 /* Additional styling written at EBI */
 
+.hidden{
+	display:none;
+}
+
 a.bluelink 	{
 	color: #0978a1;
 }
@@ -144,7 +148,7 @@ div.table_legend_key{
 
 form.no-style{
 	border:none;
-	padding:none;
+	padding:initial;
 }
 .filtersMoreLikeNicolas.open{
 	display: block;
@@ -314,7 +318,7 @@ button.exportButton{
 
 .onethirdForPie               { float: left; width: 33%; }
 
-li img.thumbnailStyle{
+img.thumbnailStyle{
 	max-width: 95px; max-height: 200px;width:auto; height:auto;
 }
 

@@ -36,10 +36,17 @@ allele = allele.replaceAll("##", "</sup>");
          		 <a href="${href}&mediaType=pdf">
          		<img  src="../${pdfThumbnailUrl}" class="thumbnailStyle"></a>
          	</c:if>
-         	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">
-         		 <a href="${href}">
-         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
+         	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }"> <!-- if has no annotation in string then not a pdf -->
+         		<a href="${href}">
+         		
+         				<img  src="${img.thumbnail_url}" class="thumbnailStyle"/></a>
+         			
+         			
+         		 
+         		
          	</c:if>
+         	
+         	
          	<div class="caption" style="height:150px; word-wrap: break-word;">
          </c:when>
 
@@ -55,8 +62,8 @@ allele = allele.replaceAll("##", "</sup>");
 
          <c:otherwise>
          <!-- used for lacz expression pages -->
-         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
-         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
+         		<a href="${img.jpeg_url}" class="fancybox" fullRes="${img.jpeg_url}" original="${img.download_url}">
+         		<img  src="${img.thumbnail_url}" class="thumbnailStyle"></a>
          		<div class="caption" style="height:150px; overflow:auto;">
          </c:otherwise>
       </c:choose>
@@ -82,10 +89,18 @@ allele = allele.replaceAll("##", "</sup>");
                                                 		<br/>
                                                 	</c:forEach>
                                                 </c:if>
-                                                <c:if test="${not empty img.ma_id}">
-                                                	<c:forEach items="${img.ma_id}" varStatus="status">
-                                                		<c:out value="${img.ma_id[status.index]}"/>
-                                                		<c:out value="${img.ma_term[status.index]}"/>
+                                                <c:if test="${not empty img.anatomy_id}">
+                                                	<c:forEach items="${img.anatomy_id}" varStatus="status">
+                                                		<c:out value="${img.anatomy_id[status.index]}"/>
+                                                		<c:out value="${img.anatomy_term[status.index]}"/>
+                                                		<br/>
+                                                	</c:forEach>
+                                                </c:if>
+                                                
+                                                 <c:if test="${not empty img.mp_id}">
+                                                	<c:forEach items="${img.mp_id}" varStatus="status">
+                                                		<c:out value="${img.mp_id[status.index]}"/>
+                                                		<c:out value="${img.mp_term[status.index]}"/>
                                                 		<br/>
                                                 	</c:forEach>
                                                 </c:if>
@@ -98,6 +113,7 @@ allele = allele.replaceAll("##", "</sup>");
                                                 	</c:forEach>
                                                 </c:if>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
+                                                <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group }</c:if>
                                                 </c:otherwise>
                                                 </c:choose>
 

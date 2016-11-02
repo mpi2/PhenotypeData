@@ -40,7 +40,7 @@ public class OrderController {
 		System.out.println("orderVector being called with acc="+acc+" allele="+allele);
 		//type "targeting_vector", "es_cell", "mouse"
 		OrderType orderType=OrderType.valueOf(type);
-		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele);
+		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele, false);
 		model.addAttribute("allele", allele2DTO);
 		
 		

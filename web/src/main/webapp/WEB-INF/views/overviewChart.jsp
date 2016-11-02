@@ -5,7 +5,7 @@
 <script type="text/javascript">
 	${chart.getChart()}
 	$(document).ready(function() {
-
+console.log('overview function ready');
 		var c = '${centerFilters}';
 		if (c != ""){
 			c = c.replace("]", "").replace("[", "");
@@ -27,7 +27,7 @@
 			}
 
 			html += '</ul> </div> </div> <div class="clear"></div> </div>';
-		
+			console.log('html overview='+html);
 			$("#chartFilters").html(html);
 			
 			// add open-close functionality
@@ -69,6 +69,7 @@
 					if (checkedCenters.length != 0) chartUrl += "&center=" + checkedCenters.join();
 					if (checkedSexes.length != 0) chartUrl += "&sex=" + checkedSexes.join();
 					if (centers.length != 0) chartUrl += "&all_centers=" + centers.join();
+					console.log('chartUrlOverview='+chartUrl);
 					$.ajax({
 					  url: chartUrl,
 					  cache: false

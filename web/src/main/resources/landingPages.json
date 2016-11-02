@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Embryo Landing Page",
+    "description": "Each IMPC gene knockout strain is assessed for viability by examination of litters produced from mating heterozygous animals. Embryonic lethal and subviable lines are assessed in a dedicated phenotyping pipeline.",
+    "image": "/img/Tmem100_het.jpeg" ,
+    "link": "landing/embryo"
+  },
+  {
+    "title": "Deafness Landing Page",
+    "image": "" ,
+    "description": "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.",
+    "link": "landing/deafness"
+  },
+  {
+    "title": "Metabolism Landing Page",
+    "image": "" ,
+    "description": "description....",
+    "link": "landing/metabolism"
+  },
+  {
+    "title": "Cardiovascular Landing Page",
+    "image": "" ,
+    "description": "Description....",
+    "link": "landing/cardiovascular"
+  },
+  {
+    "title": "Vision Landing Page",
+    "image": "" ,
+    "description": "Description...",
+    "link": "landing/vision"
+  }
+]

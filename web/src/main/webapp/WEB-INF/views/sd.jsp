@@ -30,11 +30,12 @@
                                 <br/>
                                 <p> The scale of IMPC provides a unique opportunity to explore the role of sex on a phenotype. To this end, we have been developing and
                                 validating a bespoke set of analysis pipelines to assess the role of sex.  This has been run as a standalone analysis
-                                on <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-4.2">IMPC dataset version 4.2</a>.  </p>
+                                on <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-4.2">IMPC dataset version 4.2</a>. Supporting data and analysis are available on
+                                <a href="http://doi.org/10.5281/zenodo.160267?">zenodo</a>. </p>
                                 <ul class="pad10px">
-                                    <li>Raw input data</li>
+                                    <li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-4.2">Raw input data</a></li>
+                                    <li> <a href="http://doi.org/10.5281/zenodo.160267?">Supporting material to enable replicable analysis</a></li>
                                     <li>Manuscript</li>
-                                    <li>Supporting material to enable replicable analysis</li>
                                 </ul>
                                 <br/> <br/> <br/>
                                 <p class="smallerAlleleFont">
@@ -50,7 +51,6 @@
                                     5. Woodruff, Teresa K. "Sex, equity, and science." <i>Proceedings of the National Academy of Sciences</i> 111.14 (2014): 5063-5064.
                                     <br/>
                                     6. Morselli, Eugenia, et al. "Sex and Gender: Critical Variables in Pre-Clinical and Clinical Medical Research."  <i>Cell Metabolism</i> 24.2 (2016): 203-209.
-
 
 
                                 </p>

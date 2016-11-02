@@ -116,20 +116,21 @@ public class SearchController {
 		model.addAttribute("dataType", dataType); // lowercase: core name
 		model.addAttribute("dataTypeParams", paramString);
 
-		JSONObject json = fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
-		model.addAttribute("jsonStr", convert2DataTableJson(request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
+        Boolean export = false;
+		JSONObject json = fetchSearchResultJson(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+		model.addAttribute("jsonStr", convert2DataTableJson(export, request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
 
 		return "search";
 	}
 
 
-	public String convert2DataTableJson(HttpServletRequest request, JSONObject json, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String dataType) throws IOException, URISyntaxException {
+	public String convert2DataTableJson(Boolean export, HttpServletRequest request, JSONObject json, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String dataType) throws IOException, URISyntaxException {
 
 		String mode = dataType + "Grid";
 		String solrCoreName = dataType;
 		Boolean legacyOnly = false;
 		String evidRank = "";
-		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
+		String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
 		//System.out.println("SearchController solrParamStr: "+ dataType + " -- " + solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 //		System.out.println("CONTENT: " + content);
@@ -137,7 +138,7 @@ public class SearchController {
 		return content;
 	}
 
-	public JSONObject fetchSearchResultJson(String query, String dataType, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String fqStr, Model model, HttpServletRequest request) throws IOException, URISyntaxException {
+	public JSONObject fetchSearchResultJson(Boolean export, String query, String dataType, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String fqStr, Model model, HttpServletRequest request) throws IOException, URISyntaxException {
 
 		// facet filter on the left panel of search page
 
@@ -147,7 +148,7 @@ public class SearchController {
 
 		// results on the right panel of search page
 
-		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
+		String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
 		//System.out.println("SearchController solrParamStr: " + solrParamStr);
 		String mode = dataType + "Grid";
 		JSONObject json = solrIndex.getQueryJson(query, dataType, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
@@ -155,20 +156,33 @@ public class SearchController {
 		return json;
 	}
 
-	public String composeSolrParamStr(String query, String fqStr, String dataType){
+	public String composeSolrParamStr(Boolean export, String query, String fqStr, String dataType){
 
 		String qfStr = searchConfig.getQfSolrStr(dataType);
 		String defTypeStr = searchConfig.getDefTypeSolrStr();
 		String facetStr = searchConfig.getFacetFieldsSolrStr(dataType);
 		String flStr = searchConfig.getFieldListSolrStr(dataType);
 		String bqStr = searchConfig.getBqStr(dataType, query);
+
+        // extra bq for anatomy and mp with facet filter
+        if ( dataType.equals("mp") || dataType.equals("anatomy")) {
+            if (fqStr != null && !fqStr.contains("AND")) {
+                String[] parts = fqStr.split(":");
+                String fqTerm = " " + parts[1].replaceAll("\\)", "");
+                String field = dataType.equals("mp") ? "mp_term" : "anatomy_term";
+                bqStr += " " + field +  ":" + fqTerm + " ^200";
+            }
+        }
+
 		String sortStr = searchConfig.getSortingStr(dataType);
 
 		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
-		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr;
+		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + bqStr;
+        if (! export) {
+            solrParamStr += facetStr;
+        }
 
-
-		if (fqStr != null) {
+        if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 //            if ( dataType.equals("impc_images")){
 //                solrParamStr += "AND (biological_sample_group:experimental)";

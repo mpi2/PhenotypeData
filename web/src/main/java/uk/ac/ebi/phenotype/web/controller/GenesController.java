@@ -40,6 +40,7 @@ import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -67,7 +68,6 @@ import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -127,8 +127,8 @@ public class GenesController {
 	@Autowired
 	OrderService orderService;
 
-	@Resource(name = "globalConfiguration")
-	private Map<String, String> config;
+	@Value("drupalBaseUrl")
+	private String drupalBaseUrl;
 	
 	HttpProxy proxy = new HttpProxy();
 	
@@ -204,7 +204,7 @@ public class GenesController {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            GenePageTableRow pr = new GenePageTableRow(pcs, url, config);
+            GenePageTableRow pr = new GenePageTableRow(pcs, url, drupalBaseUrl);
             phenotypes.add(pr);
         } 
         
@@ -316,7 +316,7 @@ public class GenesController {
 
 		// code for assessing if the person is logged in and if so have they
 		// registered interest in this gene or not?
-		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
+		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(drupalBaseUrl, request);
 		Map<String, String> regInt = registerInterest.registerInterestState(acc, request, registerInterest);
 
 		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
@@ -587,7 +587,7 @@ public class GenesController {
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), drupalBaseUrl);
 			
 			// Collapse rows on sex	and p-value		
 			if (phenotypes.containsKey(pr.hashCode())) {
