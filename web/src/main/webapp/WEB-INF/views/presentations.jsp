@@ -21,18 +21,18 @@
               border-radius: 5px;
               z-index: 0;
           }
-          ul.tabLabel{
+          ul.preTabLabel{
               list-style: none;
           }
 
-          ul.tabLabel li {
+          ul.preTabLabel li {
               float: left;
               margin: 0 0 0 15px;
               border-radius: 5px 5px 0 0;
               background-color: #0978A1;
           }
 
-          ul.tabLabel li a {
+          ul.preTabLabel li a {
               padding: 0 15px 0px 15px;
               color: white;
               text-decoration: none;
@@ -43,21 +43,27 @@
               display: block;
           }
 
-          ul.tabLabel li:hover {
+          ul.preTabLabel li:hover {
               background-color: rgb(144,195,212); /* light blue */
               border: none;
           }
 
-          ul.tabLabel > li.ui-tabs-active {
+          ul.preTabLabel > li.ui-tabs-active {
               background-color: white;
               border: 2px solid #0978A1;
               border-bottom: 0px solid white;
           }
-          ul.tabLabel > li.ui-tabs-active a {
+          ul.preTabLabel > li.ui-tabs-active a {
               color: #0978A1;
               margin-bottom: -4px;
               border-bottom: 4px solid white;
           }
+          tr:nth-child(even) td {
+              background-color: #F1F2F2;
+          }
+          /*.highlight {*/
+              /*background-color: #F1F2F2;*/
+          /*}*/
 
       </style>
 
@@ -82,7 +88,7 @@
                                 <%--${impcPresentations}--%>
 
                                 <div id="tabs">
-                                    <ul class="tabLabel">
+                                    <ul class="preTabLabel">
                                     <c:forEach var="type" items="${impcPresentations}" varStatus="loop">
                                         <li><a href="#tabs-${loop.index}">${type.key}</a></li>
                                     </c:forEach>
@@ -108,6 +114,12 @@
                 var tabIndex = matches == null ? 0 : matches[0];
                 //alert(tabIndex);
                 $( "#tabs" ).tabs({ active: tabIndex });
+
+//                $('tr').mouseover(function(){
+//                    $(this).find('td').addClass('highlight');
+//                }).mouseout(function(){
+//                    $(this).find('td').removeClass('highlight');
+//                });
             });
 
         </script>
