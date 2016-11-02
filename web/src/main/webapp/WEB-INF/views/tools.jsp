@@ -8,8 +8,7 @@
     <jsp:attribute name="header">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
-        
+
         <style type="text/css">
         	table.tools {
         		border: 1px solid #F0F0F0;
