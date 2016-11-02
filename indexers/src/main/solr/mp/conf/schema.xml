@@ -176,6 +176,10 @@
         <field name="top_level_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="top_level_mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+        <field name="top_level_mp_term_inclusive" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="top_level_mp_id_inclusive" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+
         <!-- mp to hp mapping -->
         <field name="hp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -318,10 +322,12 @@
         <field name="mixSynQf" type="text_ngram" indexed="true" stored="true" multiValued="true"/>
 
         <!-- For ontology browser  -->
-
         <field name="search_term_json" type="string" indexed="false" stored="true" multiValued="false"/>
         <field name="children_json" type="string" indexed="false" stored="true" multiValued="false"/>
         <field name="scroll_node" type="string" indexed="false" stored="true" multiValued="false"/>
+        <field name="gene_variant_male_count" type="int" indexed="false" stored="true" multiValued="false"/>
+        <field name="gene_variant_female_count" type="int" indexed="false" stored="true" multiValued="false"/>
+        <field name="gene_variant_count" type="int" indexed="false" stored="true" multiValued="false"/>
 
     </fields>
 

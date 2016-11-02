@@ -27,42 +27,36 @@ import java.util.List;
 public class GenotypePhenotypeDTO {
 
     public static final String ID = "doc_id";
-    public static final String ONTOLOGY_DB_ID = "ontology_db_id";
-    public static final String ASSERTION_TYPE = "assertion_type";
-    public static final String ASSERTION_TYPE_ID = "assertion_type_id";
-    public static final String GID = "preqc_gid"; // preqc only
-    public static final String MPATH_TERM_ID = "mpath_term_id";
-    public static final String MPATH_TERM_NAME = "mpath_term_name";
     public static final String ANATOMY_TERM_NAME = "anatomy_term_name";
     public static final String ANATOMY_TERM_ID = "anatomy_term_id";
-    public static final String INTERMEDIATE_ANATOMY_TERM_ID = "intermediate_anatomy_term_id";
-    public static final String INTERMEDIATE_ANATOMY_TERM_NAME = "intermediate_anatomy_term_name";
-    public static final String TOP_LEVEL_ANATOMY_TERM_ID = "top_level_anatomy_term_id";
-    public static final String TOP_LEVEL_ANATOMY_TERM_NAME = "top_level_anatomy_term_name";
-    public static final String MP_TERM_ID = "mp_term_id";
-    public static final String MP_TERM_NAME = "mp_term_name";
-    public static final String ALT_MP_TERM_ID = "alt_mp_term_id";
-    public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
-    public static final String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
-    public static final String INTERMEDIATE_MP_TERM_ID = "intermediate_mp_term_id";
-    public static final String INTERMEDIATE_MP_TERM_NAME = "intermediate_mp_term_name";
-    public static final String MARKER_SYMBOL = "marker_symbol";
-    public static final String MARKER_ACCESSION_ID = "marker_accession_id";
-    public static final String COLONY_ID = "colony_id";
     public static final String ALLELE_NAME = "allele_name";
     public static final String ALLELE_SYMBOL = "allele_symbol";
     public static final String ALLELE_ACCESSION_ID = "allele_accession_id";
-    public static final String STRAIN_NAME = "strain_name";
-    public static final String STRAIN_ACCESSION_ID = "strain_accession_id";
+    public static final String ALT_MP_TERM_ID = "alt_mp_term_id";
+    public static final String ASSERTION_TYPE = "assertion_type";
+    public static final String ASSERTION_TYPE_ID = "assertion_type_id";
+    public static final String COLONY_ID = "colony_id";
+    public static final String EFFECT_SIZE = "effect_size";
+    public static final String EXTERNAL_ID = "external_id";
     public static final String GENETIC_BACKGROUND = "genetic_background";
+    public static final String GID = "preqc_gid"; // preqc only
+    public static final String INTERMEDIATE_MP_TERM_ID = "intermediate_mp_term_id";
+    public static final String INTERMEDIATE_MP_TERM_NAME = "intermediate_mp_term_name";
+    public static final String INTERMEDIATE_ANATOMY_TERM_ID = "intermediate_anatomy_term_id";
+    public static final String INTERMEDIATE_ANATOMY_TERM_NAME = "intermediate_anatomy_term_name";
+    public static final String LIFE_STAGE_ACC = "life_stage_acc";
+    public static final String LIFE_STAGE_NAME = "life_stage_name";
+    public static final String MPATH_TERM_ID = "mpath_term_id";
+    public static final String MPATH_TERM_NAME = "mpath_term_name";
+    public static final String MARKER_SYMBOL = "marker_symbol";
+    public static final String MARKER_ACCESSION_ID = "marker_accession_id";
+    public static final String MP_TERM_ID = "mp_term_id";
+    public static final String MP_TERM_NAME = "mp_term_name";
+    public static final String ONTOLOGY_DB_ID = "ontology_db_id";
     public static final String PHENOTYPING_CENTER = "phenotyping_center";
     public static final String PROJECT_EXTERNAL_ID = "project_external_id";
     public static final String PROJECT_NAME = "project_name";
     public static final String PROJECT_FULLNAME = "project_fullname";
-    public static final String RESOURCE_NAME = "resource_name";
-    public static final String RESOURCE_FULLNAME = "resource_fullname";
-    public static final String SEX = "sex";
-    public static final String ZYGOSITY = "zygosity";
     public static final String PIPELINE_NAME = "pipeline_name";
     public static final String PIPELINE_STABLE_ID = "pipeline_stable_id";
     public static final String PIPELINE_STABLE_KEY = "pipeline_stable_key";
@@ -72,27 +66,33 @@ public class GenotypePhenotypeDTO {
     public static final String PARAMETER_NAME = "parameter_name";
     public static final String PARAMETER_STABLE_ID = "parameter_stable_id";
     public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
-    public static final String STATISTICAL_METHOD = "statistical_method";
     public static final String PERCENTAGE_CHANGE = "percentage_change";
     public static final String P_VALUE = "p_value";
-    public static final String EFFECT_SIZE = "effect_size";
-    public static final String EXTERNAL_ID = "external_id";
-    public static final String LIFE_STAGE_ACC = "life_stage_acc";
-    public static final String LIFE_STAGE_NAME = "life_stage_name";
+    public static final String RESOURCE_NAME = "resource_name";
+    public static final String RESOURCE_FULLNAME = "resource_fullname";
+    public static final String SEX = "sex";
+    public static final String STATISTICAL_METHOD = "statistical_method";
+    public static final String STRAIN_NAME = "strain_name";
+    public static final String STRAIN_ACCESSION_ID = "strain_accession_id";
+    public static final String TOP_LEVEL_ANATOMY_TERM_ID = "top_level_anatomy_term_id";
+    public static final String TOP_LEVEL_ANATOMY_TERM_NAME = "top_level_anatomy_term_name";
+    public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
+    public static final String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
+    public static final String ZYGOSITY = "zygosity";
 
 
-	@Id
+    @Id
     @Field(ID)
     Integer id;
 
     @Field(ONTOLOGY_DB_ID)
-    Integer ontology_db_id;
+    Integer ontologyDbId;
 
     @Field(ASSERTION_TYPE)
-    String assertion_type;
+    String assertionType;
 
     @Field(ASSERTION_TYPE_ID)
-    String assertion_type_id;
+    String assertionTypeId;
 
     @Field(MPATH_TERM_ID)
     String mpathTermId;
@@ -105,13 +105,13 @@ public class GenotypePhenotypeDTO {
 
     @Field(ANATOMY_TERM_NAME)
     List<String> anatomyTermName;
-    
+
     @Field(INTERMEDIATE_ANATOMY_TERM_ID)
     List<String> intermediateAnatomyTermId;
 
     @Field(INTERMEDIATE_ANATOMY_TERM_NAME)
     List<String> intermediateAnatomyTermName;
-    
+
     @Field(TOP_LEVEL_ANATOMY_TERM_ID)
     List<String> topLevelAnatomyTermId;
 
@@ -227,16 +227,16 @@ public class GenotypePhenotypeDTO {
     Double p_value;
 
     @Field(EFFECT_SIZE)
-    Double effect_size;
+    Double effectSize;
 
     @Field(EXTERNAL_ID)
     String externalId;
 
     @Field(LIFE_STAGE_ACC)
-    String life_stage_acc;
+    String lifeStageAcc;
 
     @Field(LIFE_STAGE_NAME)
-    String life_stage_name;
+    String lifeStageName;
 
     public Integer getId() {
 
@@ -249,206 +249,174 @@ public class GenotypePhenotypeDTO {
     }
 
     public Integer getOntologyDbId() {
-
-        return ontology_db_id;
+        return ontologyDbId;
     }
 
-    public void setOntologyDbId(Integer ontology_db_id) {
-
-        this.ontology_db_id = ontology_db_id;
+    public void setOntologyDbId(Integer ontologyDbId) {
+        this.ontologyDbId = ontologyDbId;
     }
 
-    public Integer getOntology_db_id() {
-		return ontology_db_id;
-	}
-
-	public void setOntology_db_id(Integer ontology_db_id) {
-		this.ontology_db_id = ontology_db_id;
-	}
-
-	public String getAssertion_type() {
-		return assertion_type;
-	}
-
-	public void setAssertion_type(String assertion_type) {
-		this.assertion_type = assertion_type;
-	}
-
-	public String getAssertion_type_id() {
-		return assertion_type_id;
-	}
-
-	public void setAssertion_type_id(String assertion_type_id) {
-		this.assertion_type_id = assertion_type_id;
-	}
-
-	public List<String> getAnatomyTermId() {
-		return anatomyTermId;
-	}
-	
-	public void addAnatomyTermId(String anatomyTermId){
-		if (this.anatomyTermId == null){
-			this.anatomyTermId = new ArrayList<>();
-		}
-		this.anatomyTermId.add(anatomyTermId);
-	}
-
-	public void setAnatomyTermId(List<String> anatomyTermId) {
-		this.anatomyTermId = anatomyTermId;
-	}
-
-	public List<String> getAnatomyTermName() {
-		return anatomyTermName;
-	}
-
-	public void setAnatomyTermName(List<String> anatomyTermName) {
-		this.anatomyTermName = anatomyTermName;
-	}
-
-	public void addAnatomyTermName(String anatomyTermName){
-		if (this.anatomyTermName == null){
-			this.anatomyTermName = new ArrayList<>();
-		}
-		this.anatomyTermName.add(anatomyTermName);
-	}
-	
-	public List<String> getIntermediateAnatomyTermId() {
-		return intermediateAnatomyTermId;
-	}
-
-	public void setIntermediateAnatomyTermId(List<String> intermediateAnatomyTermId) {
-		this.intermediateAnatomyTermId = intermediateAnatomyTermId;
-	}
-
-	public void addIntermediateAnatomyTermId(String intermediateAnatomyTermId){
-		if (this.intermediateAnatomyTermId == null){
-			this.intermediateAnatomyTermId = new ArrayList<>();
-		}
-		this.intermediateAnatomyTermId.add(intermediateAnatomyTermId);
-	}
-	
-	public void addIntermediateAnatomyTermId(Collection<String> intermediateAnatomyTermIds){
-		if (this.intermediateAnatomyTermId == null){
-			this.intermediateAnatomyTermId = new ArrayList<>();
-		}
-		for (String term : intermediateAnatomyTermIds){
-			if (!this.intermediateAnatomyTermId.contains(term)){
-				this.intermediateAnatomyTermId.add(term);
-			}
-		}
-	}
-	
-	public List<String> getIntermediateAnatomyTermName() {
-		return intermediateAnatomyTermName;
-	}
-
-	public void setIntermediateAnatomyTermName(List<String> intermediateAnatomyTermName) {
-		this.intermediateAnatomyTermName = intermediateAnatomyTermName;
-	}
-
-	public void addIntermediateAnatomyTermName(String intermediateAnatomyTermName){
-		if (this.intermediateAnatomyTermName == null){
-			this.intermediateAnatomyTermName = new ArrayList<>();
-		}
-		this.intermediateAnatomyTermName.add(intermediateAnatomyTermName);
-	}
-	
-	public void addIntermediateAnatomyTermName(Collection<String> intermediateAnatomyTermName){
-		if (this.intermediateAnatomyTermName == null){
-			this.intermediateAnatomyTermName = new ArrayList<>();
-		}
-		for (String term : intermediateAnatomyTermName){
-			if (!this.intermediateAnatomyTermName.contains(term)){
-				this.intermediateAnatomyTermName.add(term);
-			}
-		}
-	}
-	
-	public List<String> getTopLevelAnatomyTermId() {
-		return topLevelAnatomyTermId;
-	}
-
-	public void setTopLevelAnatomyTermId(List<String> topLevelAnatomyTermId) {
-		this.topLevelAnatomyTermId = topLevelAnatomyTermId;
-	}
-	
-	public void addTopLevelAnatomyTermId(String topLevelAnatomyTermId){
-		if (this.topLevelAnatomyTermId == null){
-			this.topLevelAnatomyTermId = new ArrayList<>();
-		}
-		this.topLevelAnatomyTermId.add(topLevelAnatomyTermId);
-	}
-	
-	public void addTopLevelAnatomyTermId(Collection<String> topLevelAnatomyTermId){
-		if (this.topLevelAnatomyTermId == null){
-			this.topLevelAnatomyTermId = new ArrayList<>();
-		}
-		for (String term : topLevelAnatomyTermId){
-			if (!this.topLevelAnatomyTermId.contains(term)){
-				this.topLevelAnatomyTermId.add(term);
-			}
-		}
-	}
-
-	public List<String> getTopLevelAnatomyTermName() {
-		return topLevelAnatomyTermName;
-	}
-
-	public void setTopLevelAnatomyTermName(List<String> topLevelAnatomyTermName) {
-		this.topLevelAnatomyTermName = topLevelAnatomyTermName;
-	}
-
-	public void addTopLevelAnatomyTermName(String topLevelAnatomyTermName){
-		if (this.topLevelAnatomyTermName == null){
-			this.topLevelAnatomyTermName = new ArrayList<>();
-		}
-		this.topLevelAnatomyTermName.add(topLevelAnatomyTermName);
-	}
-	
-	public void addTopLevelAnatomyTermName(Collection<String> topLevelAnatomyTermName){
-		if (this.topLevelAnatomyTermName == null){
-			this.topLevelAnatomyTermName = new ArrayList<>();
-		}
-		for (String term : topLevelAnatomyTermName){
-			if (!this.topLevelAnatomyTermName.contains(term)){
-				this.topLevelAnatomyTermName.add(term);
-			}
-		}
-	}
-	
-	public String getLife_stage_acc() {
-		return life_stage_acc;
-	}
-
-	public void setLife_stage_acc(String life_stage_acc) {
-		this.life_stage_acc = life_stage_acc;
-	}
-
-	public String getLife_stage_name() {
-		return life_stage_name;
-	}
-
-	public void setLife_stage_name(String life_stage_name) {
-		this.life_stage_name = life_stage_name;
-	}
-
-	public String getAssertionType() {
-
-        return assertion_type;
+    public String getAssertionType() {
+        return assertionType;
     }
-    public void setAssertionType(String assertion_type) {
 
-        this.assertion_type = assertion_type;
+    public void setAssertionType(String assertionType) {
+        this.assertionType = assertionType;
+    }
+
+    public String getAssertionTypeId() {
+        return assertionTypeId;
+    }
+
+    public void setAssertionTypeId(String assertionTypeId) {
+        this.assertionTypeId = assertionTypeId;
+    }
+
+    public List<String> getAnatomyTermId() {
+        return anatomyTermId;
+    }
+
+    public void addAnatomyTermId(String anatomyTermId){
+        if (this.anatomyTermId == null){
+            this.anatomyTermId = new ArrayList<>();
+        }
+        this.anatomyTermId.add(anatomyTermId);
+    }
+
+    public void setAnatomyTermId(List<String> anatomyTermId) {
+        this.anatomyTermId = anatomyTermId;
+    }
+
+    public List<String> getAnatomyTermName() {
+        return anatomyTermName;
+    }
+
+    public void setAnatomyTermName(List<String> anatomyTermName) {
+        this.anatomyTermName = anatomyTermName;
+    }
+
+    public void addAnatomyTermName(String anatomyTermName){
+        if (this.anatomyTermName == null){
+            this.anatomyTermName = new ArrayList<>();
+        }
+        this.anatomyTermName.add(anatomyTermName);
+    }
+
+    public List<String> getIntermediateAnatomyTermId() {
+        return intermediateAnatomyTermId;
+    }
+
+    public void setIntermediateAnatomyTermId(List<String> intermediateAnatomyTermId) {
+        this.intermediateAnatomyTermId = intermediateAnatomyTermId;
+    }
+
+    public void addIntermediateAnatomyTermId(String intermediateAnatomyTermId){
+        if (this.intermediateAnatomyTermId == null){
+            this.intermediateAnatomyTermId = new ArrayList<>();
+        }
+        this.intermediateAnatomyTermId.add(intermediateAnatomyTermId);
+    }
+
+    public void addIntermediateAnatomyTermId(Collection<String> intermediateAnatomyTermIds){
+        if (this.intermediateAnatomyTermId == null){
+            this.intermediateAnatomyTermId = new ArrayList<>();
+        }
+        for (String term : intermediateAnatomyTermIds){
+            if (!this.intermediateAnatomyTermId.contains(term)){
+                this.intermediateAnatomyTermId.add(term);
+            }
+        }
+    }
+
+    public List<String> getIntermediateAnatomyTermName() {
+        return intermediateAnatomyTermName;
+    }
+
+    public void setIntermediateAnatomyTermName(List<String> intermediateAnatomyTermName) {
+        this.intermediateAnatomyTermName = intermediateAnatomyTermName;
+    }
+
+    public void addIntermediateAnatomyTermName(String intermediateAnatomyTermName){
+        if (this.intermediateAnatomyTermName == null){
+            this.intermediateAnatomyTermName = new ArrayList<>();
+        }
+        this.intermediateAnatomyTermName.add(intermediateAnatomyTermName);
+    }
+
+    public void addIntermediateAnatomyTermName(Collection<String> intermediateAnatomyTermName){
+        if (this.intermediateAnatomyTermName == null){
+            this.intermediateAnatomyTermName = new ArrayList<>();
+        }
+        for (String term : intermediateAnatomyTermName){
+            if (!this.intermediateAnatomyTermName.contains(term)){
+                this.intermediateAnatomyTermName.add(term);
+            }
+        }
+    }
+
+    public List<String> getTopLevelAnatomyTermId() {
+        return topLevelAnatomyTermId;
+    }
+
+    public void setTopLevelAnatomyTermId(List<String> topLevelAnatomyTermId) {
+        this.topLevelAnatomyTermId = topLevelAnatomyTermId;
+    }
+
+    public void addTopLevelAnatomyTermId(String topLevelAnatomyTermId){
+        if (this.topLevelAnatomyTermId == null){
+            this.topLevelAnatomyTermId = new ArrayList<>();
+        }
+        this.topLevelAnatomyTermId.add(topLevelAnatomyTermId);
+    }
+
+    public void addTopLevelAnatomyTermId(Collection<String> topLevelAnatomyTermId){
+        if (this.topLevelAnatomyTermId == null){
+            this.topLevelAnatomyTermId = new ArrayList<>();
+        }
+        for (String term : topLevelAnatomyTermId){
+            if (!this.topLevelAnatomyTermId.contains(term)){
+                this.topLevelAnatomyTermId.add(term);
+            }
+        }
+    }
+
+    public List<String> getTopLevelAnatomyTermName() {
+        return topLevelAnatomyTermName;
+    }
+
+    public void setTopLevelAnatomyTermName(List<String> topLevelAnatomyTermName) {
+        this.topLevelAnatomyTermName = topLevelAnatomyTermName;
+    }
+
+    public void addTopLevelAnatomyTermName(String topLevelAnatomyTermName){
+        if (this.topLevelAnatomyTermName == null){
+            this.topLevelAnatomyTermName = new ArrayList<>();
+        }
+        this.topLevelAnatomyTermName.add(topLevelAnatomyTermName);
+    }
+
+    public void addTopLevelAnatomyTermName(Collection<String> topLevelAnatomyTermName){
+        if (this.topLevelAnatomyTermName == null){
+            this.topLevelAnatomyTermName = new ArrayList<>();
+        }
+        for (String term : topLevelAnatomyTermName){
+            if (!this.topLevelAnatomyTermName.contains(term)){
+                this.topLevelAnatomyTermName.add(term);
+            }
+        }
+    }
+
+    public String getLifeStageAcc() {
+        return lifeStageAcc;
+    }
+
+    public String getLifeStageName() {
+        return lifeStageName;
     }
 
     public String getAssertionTypeID() {
 
-        return assertion_type_id;
-    }
-
-    public void setAssertionTypeId(String assertion_type_id) {
-
-        this.assertion_type_id = assertion_type_id;
+        return assertionTypeId;
     }
 
     public String getMpathTermId() {
@@ -521,7 +489,7 @@ public class GenotypePhenotypeDTO {
         this.topLevelMpTermName = topLevelMpTermName;
     }
 
-    
+
     public List<String> getIntermediateMpTermId() {
 
         return intermediateMpTermId;
@@ -830,14 +798,14 @@ public class GenotypePhenotypeDTO {
         this.p_value = p_value;
     }
 
-    public Double getEffect_size() {
+    public Double getEffectSize() {
 
-        return effect_size;
+        return effectSize;
     }
 
-    public void setEffect_size(Double effect_size) {
+    public void setEffectSize(Double effectSize) {
 
-        this.effect_size = effect_size;
+        this.effectSize = effectSize;
     }
 
     public String getExternalId() {
@@ -850,24 +818,14 @@ public class GenotypePhenotypeDTO {
         this.externalId = externalId;
     }
 
-    public String LifeStageAcc() {
-
-        return life_stage_acc;
-    }
-
     public void setLifeStageAcc(String life_stage_acc) {
 
-        this.life_stage_acc = life_stage_acc;
-    }
-
-    public String LifeStageName() {
-
-        return life_stage_name;
+        this.lifeStageAcc = life_stage_acc;
     }
 
     public void setLifeStageName(String life_stage_name) {
 
-        this.life_stage_name = life_stage_name;
+        this.lifeStageName = life_stage_name;
     }
 
     @Override
@@ -878,11 +836,11 @@ public class GenotypePhenotypeDTO {
         GenotypePhenotypeDTO that = (GenotypePhenotypeDTO) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (ontology_db_id != null ? !ontology_db_id.equals(that.ontology_db_id) : that.ontology_db_id != null)
+        if (ontologyDbId != null ? !ontologyDbId.equals(that.ontologyDbId) : that.ontologyDbId != null)
             return false;
-        if (assertion_type != null ? !assertion_type.equals(that.assertion_type) : that.assertion_type != null)
+        if (assertionType != null ? !assertionType.equals(that.assertionType) : that.assertionType != null)
             return false;
-        if (assertion_type_id != null ? !assertion_type_id.equals(that.assertion_type_id) : that.assertion_type_id != null)
+        if (assertionTypeId != null ? !assertionTypeId.equals(that.assertionTypeId) : that.assertionTypeId != null)
             return false;
         if (mpathTermId != null ? !mpathTermId.equals(that.mpathTermId) : that.mpathTermId != null) return false;
         if (mpathTermName != null ? !mpathTermName.equals(that.mpathTermName) : that.mpathTermName != null)
@@ -893,7 +851,7 @@ public class GenotypePhenotypeDTO {
             return false;
         if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null)
             return false;
-   
+
         if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null)
             return false;
         if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null)
@@ -945,20 +903,20 @@ public class GenotypePhenotypeDTO {
         if (percentageChange != null ? !percentageChange.equals(that.percentageChange) : that.percentageChange != null)
             return false;
         if (p_value != null ? !p_value.equals(that.p_value) : that.p_value != null) return false;
-        if (effect_size != null ? !effect_size.equals(that.effect_size) : that.effect_size != null) return false;
+        if (effectSize != null ? !effectSize.equals(that.effectSize) : that.effectSize != null) return false;
         if (externalId != null ? !externalId.equals(that.externalId) : that.externalId != null) return false;
-        if (life_stage_acc != null ? !life_stage_acc.equals(that.life_stage_acc) : that.life_stage_acc != null)
+        if (lifeStageAcc != null ? !lifeStageAcc.equals(that.lifeStageAcc) : that.lifeStageAcc != null)
             return false;
-        return !(life_stage_name != null ? !life_stage_name.equals(that.life_stage_name) : that.life_stage_name != null);
+        return !(lifeStageName != null ? !lifeStageName.equals(that.lifeStageName) : that.lifeStageName != null);
 
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (ontology_db_id != null ? ontology_db_id.hashCode() : 0);
-        result = 31 * result + (assertion_type != null ? assertion_type.hashCode() : 0);
-        result = 31 * result + (assertion_type_id != null ? assertion_type_id.hashCode() : 0);
+        result = 31 * result + (ontologyDbId != null ? ontologyDbId.hashCode() : 0);
+        result = 31 * result + (assertionType != null ? assertionType.hashCode() : 0);
+        result = 31 * result + (assertionTypeId != null ? assertionTypeId.hashCode() : 0);
         result = 31 * result + (mpathTermId != null ? mpathTermId.hashCode() : 0);
         result = 31 * result + (mpathTermName != null ? mpathTermName.hashCode() : 0);
         result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
@@ -996,10 +954,10 @@ public class GenotypePhenotypeDTO {
         result = 31 * result + (statisticalMethod != null ? statisticalMethod.hashCode() : 0);
         result = 31 * result + (percentageChange != null ? percentageChange.hashCode() : 0);
         result = 31 * result + (p_value != null ? p_value.hashCode() : 0);
-        result = 31 * result + (effect_size != null ? effect_size.hashCode() : 0);
+        result = 31 * result + (effectSize != null ? effectSize.hashCode() : 0);
         result = 31 * result + (externalId != null ? externalId.hashCode() : 0);
-        result = 31 * result + (life_stage_acc != null ? life_stage_acc.hashCode() : 0);
-        result = 31 * result + (life_stage_name != null ? life_stage_name.hashCode() : 0);
+        result = 31 * result + (lifeStageAcc != null ? lifeStageAcc.hashCode() : 0);
+        result = 31 * result + (lifeStageName != null ? lifeStageName.hashCode() : 0);
         return result;
     }
 
@@ -1007,9 +965,9 @@ public class GenotypePhenotypeDTO {
     public String toString() {
         return "GenotypePhenotypeDTO{" +
                 "id=" + id +
-                ", ontology_db_id=" + ontology_db_id +
-                ", assertion_type='" + assertion_type + '\'' +
-                ", assertion_type_id='" + assertion_type_id + '\'' +
+                ", ontologyDbId=" + ontologyDbId +
+                ", assertionType='" + assertionType + '\'' +
+                ", assertionTypeId='" + assertionTypeId + '\'' +
                 ", mpathTermId='" + mpathTermId + '\'' +
                 ", mpathTermName='" + mpathTermName + '\'' +
                 ", mpTermId='" + mpTermId + '\'' +
@@ -1035,6 +993,7 @@ public class GenotypePhenotypeDTO {
                 ", resourceFullname='" + resourceFullname + '\'' +
                 ", sex='" + sex + '\'' +
                 ", zygosity='" + zygosity + '\'' +
+                ", zygosity='" + zygosity + '\'' +
                 ", pipelineName='" + pipelineName + '\'' +
                 ", pipelineStableId='" + pipelineStableId + '\'' +
                 ", pipelineStableKey='" + pipelineStableKey + '\'' +
@@ -1047,10 +1006,10 @@ public class GenotypePhenotypeDTO {
                 ", statisticalMethod='" + statisticalMethod + '\'' +
                 ", percentageChange='" + percentageChange + '\'' +
                 ", p_value=" + p_value +
-                ", effect_size=" + effect_size +
+                ", effectSize=" + effectSize +
                 ", externalId='" + externalId + '\'' +
-                ", life_stage_acc='" + life_stage_acc + '\'' +
-                ", life_stage_name='" + life_stage_name + '\'' +
+                ", lifeStageAcc='" + lifeStageAcc + '\'' +
+                ", lifeStageName='" + lifeStageName + '\'' +
                 '}';
     }
 

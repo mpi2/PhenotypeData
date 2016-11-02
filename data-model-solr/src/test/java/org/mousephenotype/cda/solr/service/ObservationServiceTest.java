@@ -2,6 +2,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -71,9 +72,9 @@ public class ObservationServiceTest {
 		String geneAccession="MGI:1891341";
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
-			for(ObservationDTO obs: result){
-				System.out.println(obs);
-			}
+//			for(ObservationDTO obs: result){
+//				System.out.println(obs);
+//			}
 			assert(result.size()>5);
 
 		} catch (SolrServerException | IOException e) {
@@ -106,6 +107,17 @@ public class ObservationServiceTest {
 
 		logger.info("datamaplist: " + dataMapList);
 
+
+	}
+	
+	@Test
+	public void testGetStatisticsForParameterFromCenter() throws SolrServerException, IOException {
+
+		
+		String parameter = "IMPC_CBC_010_001";
+		//String phenotypingCenter="HMGU";
+		List<FieldStatsInfo> centerParameterStatsList = observationService.getStatisticsForParameterFromCenter(parameter, null);
+		assertTrue(centerParameterStatsList.size()>3);
 
 	}
 

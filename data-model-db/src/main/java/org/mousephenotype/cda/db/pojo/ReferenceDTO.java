@@ -42,12 +42,13 @@ public class ReferenceDTO {
     private List<String> mgiAlleleNames;
     private String title;
     private String journal;
-    private String pmid;
+    private Integer pmid;
     private String dateOfPublication;
     private String timestamp;
     private List<String> grantIds;
     private List<String> grantAgencies;
     private List<String> paperUrls;
+    private List<String> meshTerms;
 
     public List<String> getAlleleSymbols() {
         return alleleSymbols;
@@ -105,11 +106,9 @@ public class ReferenceDTO {
         this.journal = journal;
     }
 
-    public String getPmid() {
-        return pmid;
-    }
+    public Integer getPmid() { return pmid; }
 
-    public void setPmid(String pmid) {
+    public void setPmid(Integer pmid) {
         this.pmid = pmid;
     }
 
@@ -153,6 +152,14 @@ public class ReferenceDTO {
         this.paperUrls = paperUrls;
     }
 
+    public List<String> getMeshTerms() {
+        return meshTerms;
+    }
+
+    public void setMeshTerms(List<String> meshTerms) {
+        this.meshTerms = meshTerms;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -179,7 +186,8 @@ public class ReferenceDTO {
         if (grantIds != null ? !grantIds.equals(that.grantIds) : that.grantIds != null) return false;
         if (grantAgencies != null ? !grantAgencies.equals(that.grantAgencies) : that.grantAgencies != null)
             return false;
-        return !(paperUrls != null ? !paperUrls.equals(that.paperUrls) : that.paperUrls != null);
+        if (paperUrls != null ? !paperUrls.equals(that.paperUrls) : that.paperUrls != null) return false;
+        return meshTerms != null ? meshTerms.equals(that.meshTerms) : that.meshTerms == null;
 
     }
 
@@ -198,6 +206,7 @@ public class ReferenceDTO {
         result = 31 * result + (grantIds != null ? grantIds.hashCode() : 0);
         result = 31 * result + (grantAgencies != null ? grantAgencies.hashCode() : 0);
         result = 31 * result + (paperUrls != null ? paperUrls.hashCode() : 0);
+        result = 31 * result + (meshTerms != null ? meshTerms.hashCode() : 0);
         return result;
     }
 
@@ -211,12 +220,13 @@ public class ReferenceDTO {
                 ", mgiAlleleNames=" + mgiAlleleNames +
                 ", title='" + title + '\'' +
                 ", journal='" + journal + '\'' +
-                ", pmid='" + pmid + '\'' +
+                ", pmid=" + pmid +
                 ", dateOfPublication='" + dateOfPublication + '\'' +
                 ", timestamp='" + timestamp + '\'' +
                 ", grantIds=" + grantIds +
                 ", grantAgencies=" + grantAgencies +
                 ", paperUrls=" + paperUrls +
+                ", meshTerms=" + meshTerms +
                 '}';
     }
 }

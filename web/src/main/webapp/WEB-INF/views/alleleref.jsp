@@ -11,7 +11,6 @@
         <link href="${baseUrl}/css/default.css" rel="stylesheet" />
         
         <style type="text/css">
-
             div#alleleRef_filter {
             	float: left;
             	clear: right;
@@ -23,6 +22,7 @@
             }
             table#alleleRef {
             	clear: left;
+                margin-top: 20px;
             }
             table#alleleRef th:first-child, table#alleleRef th:nth-child(2) {
                 width: 150px !important;
@@ -36,8 +36,11 @@
             .hideMe {
                 display: none;
             }
-            .showMe {
-                display: block;
+            /*.showMe {*/
+                /*display: block;*/
+            /*}*/
+            ul li.showMe {
+                list-style-type: solid circle !important;
             }
             .alleleToggle {
                 cursor: pointer;
@@ -45,7 +48,7 @@
                 font-weight: bold;
             }
             div.saveTable {
-                bottom: 50px;
+                margin-bottom: 30px;
                 float: right;
                 margin-right: 30px;
             }
@@ -64,8 +67,13 @@
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl};"
 
-                var tableHeader = "<thead><th>Allele symbol</th><th>Paper title</th><th>Pmid</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
+                //var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Pmid</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
+                //var tableCols = 7;
+                var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th><th>Mesh</th></thead>";
+                //var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
+
                 var tableCols = 7;
+
 
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
                 $('div#alleleRef').append(dTable);
@@ -80,7 +88,7 @@
 
             function fetchAlleleRefDataTable(oConf) {
 
-            	var aDataTblCols = [0,1,2,3,4,5,6];
+            	//var aDataTblCols = [0,1,2,3,4,5,6];
                 var oTable = $('table#alleleRef').dataTable({
                     "bSort": true, // true is default 
                     "processing": true,
@@ -94,17 +102,21 @@
                         "sSearch": "Filter: "
                     },
                     "columnDefs": [
-                        { "type": "alt-string", targets: 4 }   //4th col sorted using alt-string
+                      //  { "type": "alt-string", targets: 4 },   //4th col sorted using alt-string
+                        { "targets": [6], // 7th col
+                          "visible": false
+                        }
                     ],
-                    "aaSorting": [[ 4, "desc" ]],  // default sort column order
+                    "aaSorting": [[ 3, "desc" ]],  // default sort column: 4th col
                     "aoColumns": [
+                        {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "html", "bSortable": true},
+                      //  {"bSearchable": true, "sType": "string", "bSortable": true}, //pmid
                         {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},
-                        {"bSearchable": true, "sType": "string", "bSortable": true},
-                        {"bSearchable": true, "sType": "string", "bSortable": true},
-                        {"bSearchable": false, "sType": "html", "bSortable": true}
+                        {"bSearchable": false, "sType": "html", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": false}
                     ],
                     "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
 

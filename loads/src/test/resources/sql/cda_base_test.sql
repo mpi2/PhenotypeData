@@ -35,8 +35,8 @@ CREATE TABLE ontology_term_anomaly (
   PRIMARY KEY(id)
 );
 
-DROP TABLE IF EXISTS phenotype_parameter_ontology_association;
-CREATE TABLE phenotype_parameter_ontology_association (
+DROP TABLE IF EXISTS phenotype_parameter_ontology_annotation;
+CREATE TABLE phenotype_parameter_ontology_annotation (
   id                 INTEGER NULL,
   event_type         VARCHAR(128) NULL,
   option_id          VARCHAR(128) NULL,
@@ -84,21 +84,21 @@ INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:0001',
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:5555', 'MP:6666');
 INSERT INTO alternate_id(ontology_term_acc, alternate_id_acc) VALUES ('MP:4444', 'MP:6666');
 
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0001');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0002');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0003');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0004');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0005');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:9999');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:8888');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0010');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0011');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0012');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0013');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0014');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0015');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0016');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0017');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:0018');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:7777');
-INSERT INTO phenotype_parameter_ontology_association (ontology_acc) VALUES ('MP:6666');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0001');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0002');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0003');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0004');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0005');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:9999');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:8888');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0010');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0011');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0012');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0013');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0014');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0015');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0016');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0017');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:0018');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:7777');
+INSERT INTO phenotype_parameter_ontology_annotation (ontology_acc) VALUES ('MP:6666');

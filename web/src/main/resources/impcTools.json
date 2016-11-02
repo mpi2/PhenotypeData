@@ -1,0 +1,31 @@
+[
+  {
+    "urlPath": "parallel",
+    "toolName": "Parallel coordinates",
+    "imagePath": "/img/parallelCoord.png",
+    "description": "Gene KO effect comparator: how do parameters vary in relation to each other.",
+    "site":"internal"
+  },
+  {
+    "urlPath": "alleleref",
+    "toolName": "IMPC/IKMC publications browser",
+    "imagePath": "/img/pubmed_logo.jpg",
+    "description": "This is a table of IMPC/IKMC related publications. The interface contains a filter where users can type in keywords to search for related papers. The keyword is searched against allele symbol, paper title, Journal title, date of publication and grant agency.",
+    "site":"internal"
+  },
+  {
+    "urlPath": "gene2go",
+    "toolName": "GO annotations to phenotyped IMPC genes",
+    "imagePath": "/img/go_logo.png",
+    "description": "This is a tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms. It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. The dataset can be exported as TSV or Excel format.",
+    "site":"internal"
+  },
+  {
+    "urlPath": "http://metadb.riken.jp/metadb/db/IMPC_RDF",
+    "toolName": "RIKEN RDF for IMPC data",
+    "imagePath": "/img/riken-rdf-impc.png",
+    "description": "RIKEN BioResource partners provides IMPC data in a Resource Description Framework (RDF) via the RIKEN MetaDatabase.",
+    "site":"external"
+  }
+
+]

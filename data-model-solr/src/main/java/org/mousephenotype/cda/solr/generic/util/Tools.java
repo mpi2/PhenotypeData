@@ -117,11 +117,11 @@ public class Tools {
 
 	public static String[][] composeXlsTableData(List<String> rows) {
         int rowNum = rows.size();
-        int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0; // title row, tells how many columns
+		int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0; // title row, tells how many columns
 
         String[][] tableData = new String[rowNum][colNum];
 
-        for (int i = 1; i < rowNum; i++) {  // starts from 1 to skip title row
+		for (int i = 0; i < rowNum; i++) {  // index 0 is title row
             String[] colVals = rows.get(i).split("\t");
 
             for (int j = 0; j < colVals.length; j++) {

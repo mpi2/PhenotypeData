@@ -569,6 +569,34 @@
 
 							if (coreName == 'allele2'){
 								decodeAlleleName();
+
+//									alert($('a.iFrameVector').size());
+//								$('i').qtip({
+//									style : {
+//										classes : 'qtipimpc flat'
+//									},
+//									position : {
+//										my : 'top center',
+//										at : 'bottom center'
+//									},
+//									content : {
+//										text : $(this).attr('oldtitle')
+//									}
+//								});
+								$('a.iFrameVector').qtip({
+									content : {
+										text : $(this).attr('title')
+									},
+									style : {
+										classes : 'qtipimpc',
+										tip : {
+											corner : 'top right'
+										}
+									},
+									position : {
+										my : 'right top'
+									}
+								});
 							}
 						}
 					}
@@ -939,7 +967,7 @@
                       $.fancybox.open([
                                     {
                                         href : $(this).attr('data-url'),
-                                        title : 'Order Products'
+                                        
                                     }
                                 ],
                                 {

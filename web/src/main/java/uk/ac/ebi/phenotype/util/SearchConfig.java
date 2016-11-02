@@ -88,8 +88,6 @@ public class SearchConfig {
         String solrStr = "";
         List<String> fls = new ArrayList<>();
         for ( String fl : getFieldList(coreName) ){
-
-
             fls.add(fl);
         }
         return "&fl=" + StringUtils.join(fls, ",");
@@ -198,6 +196,7 @@ public class SearchConfig {
                 "anatomy_term",
                 "anatomy_id",
                 "jpeg_url",
+                "thumbnail_url",
                 "download_url",
                 "parameter_association_name",
                 "parameter_association_value");
@@ -217,7 +216,10 @@ public class SearchConfig {
                 "allele_name",
                 "synonym",
                 "allele_description",
-                "allele_simple_image",
+                "allele_simple_image",  // es cell and mouse vector (gene map)
+                "vector_allele_image",  // targeting vector map
+                "genbank_file",         // for es cells / mouse
+                "vector_genbank_file",  // for vector
                 "mutation_type",
                 "es_cell_available",
                 "mouse_available",
@@ -247,7 +249,7 @@ public class SearchConfig {
                 "embryo_data_available",
                 "embryo_modalities"
                 );
-        List<String> mpFacets =  Arrays.asList("top_level_mp_term");
+        List<String> mpFacets =  Arrays.asList("top_level_mp_term_inclusive");
         List<String> diseaseFacets =  Arrays.asList("disease_source",
                 "disease_classes",
                 "human_curated",
@@ -309,14 +311,15 @@ public class SearchConfig {
 
            // if ( q.matches(wildCardStr) || q.matches("^.+\\S+.+$") ){
 
-            bqMap.put("gene", "marker_symbol_lowercase:(" + q + ")^1000" + " marker_symbol_bf:(" + q + ")^100 latest_phenotype_status:\"Phenotyping Complete\"^200" );
+            bqMap.put("gene", "marker_symbol_lowercase:(" + q + ")^1000" + " marker_symbol_bf:(" + q + ")^100 latest_phenotype_status:\"Phenotyping Complete\" ^200");
         }
         else if (coreName.equals("mp")) {
             if ( q.equals("*:*") || q.equals("*") ) {
                 bqMap.put("mp", "mp_term:\"male infertility\" ^100 mp_term:\"female infertility\" ^100 mp_term:infertility ^90");
             }
             else {
-                bqMap.put("mp", "mp_term:(" + q + ")^1000"
+                bqMap.put("mp",
+                        "mp_term:(" + q + ")^1000"
                         + " mp_term_synonym:(" + q + ")^500"
                         + " mp_definition:(" + q + ")^100");
             }
@@ -325,7 +328,6 @@ public class SearchConfig {
             bqMap.put("disease", "disease_term:(" + q + ")^1000"
                     + " disease_alts:(" + q + ")^700"
                     + " disease_source:(" + q + ")^200");
-
         }
         else if (coreName.equals("anatomy")) {
             bqMap.put("anatomy", "anatomy_term:(" + q + ")^1000"
@@ -359,7 +361,7 @@ public class SearchConfig {
 
         List<String> impc_imagesCols = Arrays.asList("Name", "Images");
         List<String> imagesCols = Arrays.asList("Name", "Image(s)");
-        List<String> allele2Cols = Arrays.asList("Allele Name", "Mutation", "Order");
+        List<String> allele2Cols = Arrays.asList("Allele Name", "Mutation", "<span id='porder'>Order</span><span id='pmap'>Map</span><span id='pseq'>Seq</span>");
 
         gridHeaderMap.put("gene", geneCols);
         gridHeaderMap.put("mp", mpCols);

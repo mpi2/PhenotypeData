@@ -41,7 +41,6 @@ import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.*;
-import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO.MeanBean;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +52,6 @@ import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -209,12 +207,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	 * @param geneAccessionId
 	 * @return Basic information for allele pages in an AllelePageDTO
 	 */
-	public AllelePageDTO getAllelesInfo(String geneAccessionId){
+	public AllelePageDTO getAllelesInfo(String geneAccessionId, List<String> alleleSymbol, List<String> phenotypingCenter,
+		List<String> pipelineName, List<String> procedureStableId, List<String> procedureName, List<String> mpTermIds, ArrayList<String> resource){
 
 		AllelePageDTO dto = new AllelePageDTO();
-		SolrQuery q = new SolrQuery();
+		SolrQuery q = buildQuery(geneAccessionId, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermIds, null, null, null, null, null, null, null, null);
 
-		q.setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccessionId +"\"");
 		q.addField(StatisticalResultDTO.MARKER_SYMBOL);
 		q.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
 		q.setFacet(true);
@@ -228,8 +226,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		String pivotFacet =  StatisticalResultDTO.PROCEDURE_NAME  + "," + StatisticalResultDTO.PARAMETER_STABLE_ID;
 		q.set("facet.pivot", pivotFacet);
 		q.set("facet.pivot.mincount", 1);
-
-		System.out.println(solr.getBaseURL() + "/select?" + q);
 
 		try {
 			QueryResponse res = solr.query(q);
@@ -260,7 +256,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			}
 
 			SolrDocument doc = res.getResults().get(0);
-			dto.setGeneSymbol(doc.getFieldValue(StatisticalResultDTO.MARKER_ACCESSION_ID).toString());
+			dto.setGeneSymbol(doc.getFieldValue(StatisticalResultDTO.MARKER_SYMBOL).toString());
 			dto.setGeneAccession(geneAccessionId);
 
 		} catch (SolrServerException | IOException e) {
@@ -309,9 +305,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	 /**
      * @author tudose
      * @since 2015/07/21
-     * @param pipelineStableId
-     * @param observationType
-     * @param resource
      * @return List<ProcedureBean>
      */
 	public List<ImpressBaseDTO> getProcedures(String pipelineStableId, String observationType, String resource, Integer minParameterNumber, List<String> proceduresToSkip, String status, boolean includeWilcoxon){
@@ -397,7 +390,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
 	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl)
-	throws SolrServerException, IOException , MalformedURLException, IOException, URISyntaxException{
+	throws SolrServerException, IOException, URISyntaxException{
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
@@ -458,19 +451,15 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	}
 
 	private Comparator<String> getParallelCoordsComparator(){
-		return new Comparator<String>() {
-			
-			@Override
-			public int compare(String o1, String o2) {
-				if ((o1.equals(ParallelCoordinatesDTO.DEFAULT) || o1.equals(ParallelCoordinatesDTO.MEAN)) && !o2.equals(ParallelCoordinatesDTO.DEFAULT) && !o2.equals(ParallelCoordinatesDTO.MEAN)){
-					return 1;
-				} else  if ((o2.equals(ParallelCoordinatesDTO.DEFAULT) || o2.equals(ParallelCoordinatesDTO.MEAN)) && !o1.equals(ParallelCoordinatesDTO.DEFAULT) && !o1.equals(ParallelCoordinatesDTO.MEAN)){
-					return -1;
-				} else {
-					return o1.compareTo(o2);
-				}
-			}
-		};
+		return (o1, o2) -> {
+            if ((o1.equals(ParallelCoordinatesDTO.DEFAULT) || o1.equals(ParallelCoordinatesDTO.MEAN)) && !o2.equals(ParallelCoordinatesDTO.DEFAULT) && !o2.equals(ParallelCoordinatesDTO.MEAN)){
+                return 1;
+            } else  if ((o2.equals(ParallelCoordinatesDTO.DEFAULT) || o2.equals(ParallelCoordinatesDTO.MEAN)) && !o1.equals(ParallelCoordinatesDTO.DEFAULT) && !o1.equals(ParallelCoordinatesDTO.MEAN)){
+                return -1;
+            } else {
+                return o1.compareTo(o2);
+            }
+        };
 	}
 	
 
@@ -479,7 +468,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, "Normal", allParameterNames);
 
 	    for (ParameterDTO param : allParameterNames){
-	        currentBean.addValue(param, new Double(0.0));
+	        currentBean.addValue(param, 0.0);
 	    }
 
 	    beans.put(ParallelCoordinatesDTO.DEFAULT, currentBean);
@@ -501,16 +490,14 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	    }
 
 		for (ParallelCoordinatesDTO pc : beans.values()){
-			for (MeanBean val : pc.getValues().values()){
-				if (val.getMean() != null){
-					sum.put(val.getParameterName(), (sum.get(val.getParameterName()) + val.getMean()));
-					n.put(val.getParameterName(), (n.get(val.getParameterName()) + 1));
-				}
-			}
+			pc.getValues().values().stream().filter(val -> val.getMean() != null).forEach(val -> {
+				sum.put(val.getParameterName(), (sum.get(val.getParameterName()) + val.getMean()));
+				n.put(val.getParameterName(), (n.get(val.getParameterName()) + 1));
+			});
 		}
 
 	    for (ParameterDTO param : allParameterNames){
-	    	Double mean = new Double(sum.get(param.getName())/n.get(param.getName()));
+	    	Double mean = sum.get(param.getName()) / n.get(param.getName());
 	        currentBean.addValue(param, mean);
 	    }
 
@@ -963,58 +950,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     }
 
 
-
     public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
     throws NumberFormatException, SolrServerException, IOException, UnsupportedEncodingException {
 
 		Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
-		SolrQuery query = new SolrQuery();
 
-		query.setQuery("*:*");
-		query.setRows(Integer.MAX_VALUE).set("sort", StatisticalResultDTO.P_VALUE + " asc");
-
-		if (geneAccession != null) {
-			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
-		}
-		if (phenotypingCenter != null) {
-			query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\""
-					+ StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
-		}
-		if (mpTermId != null) {
-			query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-					+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-					+ StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-					+ "\") OR " + StatisticalResultDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + StatisticalResultDTO.MALE_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\")");
-		}
-		if (pipelineName != null) {
-			query.addFilterQuery(
-					StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");
-		}
-		if (alleleSymbol != null) {
-			query.addFilterQuery(
-					StatisticalResultDTO.ALLELE_SYMBOL + ":(\"" + StringUtils.join(alleleSymbol, "\" OR \"") + "\")");
-		}
-		if (procedureStableIds != null) {
-			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":("
-					+ StringUtils.join(procedureStableIds, " OR ") + ")");
-		}
-		if (procedureName != null) {
-			query.addFilterQuery( StatisticalResultDTO.PROCEDURE_NAME + ":(\"" + StringUtils.join(procedureName, "\" OR \"") + "\")");
-		}
-		if (resource != null) {
-			query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resource, " OR ") + ")");
-		}
-
-
+		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
 		List<StatisticalResultDTO> solrResults = solr.query(query).getBeans(StatisticalResultDTO.class);
 
 		for (StatisticalResultDTO statResult : solrResults) {

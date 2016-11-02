@@ -294,7 +294,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                 o.setMpTermId(phenotypeTerm);
                 o.setMpTermName(mpId2TermMapping.get(phenotypeTerm));
                 o.setP_value(pValue);
-                o.setEffect_size(effectSize);
+                o.setEffectSize(effectSize);
 
                 if ( ! zygosityMapping.containsKey(zygosity)) {
                     runStatus.addWarning(" Zygosity " + zygosity + " not found for record id " + id);

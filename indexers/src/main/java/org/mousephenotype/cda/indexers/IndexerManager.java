@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -242,7 +243,7 @@ public class IndexerManager  {
     }
 
 
-	public void run() throws IndexerException, IOException, SolrServerException, SQLException {
+	public void run() throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException {
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
@@ -564,14 +565,14 @@ public class IndexerManager  {
         return options;
     }
 
-    public static void main(String[] args) throws IndexerException, IOException, SolrServerException, SQLException {
+    public static void main(String[] args) throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException {
         int retVal = mainReturnsStatus(args);
         if (retVal != STATUS_OK) {
             throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
         }
     }
 
-    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException, SQLException {
+    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException, SQLException, URISyntaxException {
         try {
 
             IndexerManager manager = new IndexerManager();

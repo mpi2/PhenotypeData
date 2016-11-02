@@ -836,6 +836,8 @@
       <int name="rows">10</int>
       <str name="df">*</str>
     </lst>
+    
+  
  
 
     <!-- In addition to defaults, "appends" params can be specified
@@ -891,6 +893,13 @@
        </arr>
       -->
     </requestHandler>
+    
+     <!-- request handler for cre alleles only -->
+     <requestHandler name="/selectCre" class="solr.SearchHandler">
+   		<lst name="appends">
+  			<str name="fq">allele_type:a</str>
+		</lst> 
+  	</requestHandler>
 
   <!-- A request handler that returns indented JSON by default -->
   <requestHandler name="/query" class="solr.SearchHandler">

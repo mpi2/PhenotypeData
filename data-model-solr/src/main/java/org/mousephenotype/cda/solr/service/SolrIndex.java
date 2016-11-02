@@ -479,21 +479,26 @@ public class SolrIndex {
             //String link = null;
 			String img = null;
 
-            if (doc.containsKey("omero_id")) {
+            if (doc.containsKey("omero_id") && (doc.getInt("omero_id")!=0)) {
                 String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
                 String downloadUrl=doc.getString("download_url");
                 //System.out.println("full size path="+downloadUrl);
                 String thumbnailPath = fullSizePath.replace("render_image", "render_birds_eye_view");
                 String smallThumbNailPath = thumbnailPath + "/";
-                img = "<img src='" + smallThumbNailPath + "'/>";
+                img = "<img class='thumbnailStyle' src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
-                	//img="<img style='width: 200px' src='../" + pdfThumbnailUrl + "'/>";
-					img="<img style='width: 96px' src='../" + pdfThumbnailUrl + "'/>";
-                	//link = "<a href='" + downloadUrl +"'>" + img + "</a>";
-                }else{
-                	//link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
+					img="<img class='thumbnailStyle' src='../" + pdfThumbnailUrl + "'/>";
                 }
-            } else {
+            } else 
+            if(doc.getInt("omero_id")==0)
+            {//we have a secondary project image (currently only available through PHIS)
+                String downloadUrl=doc.getString("download_url");
+                String smallThumbNailPath = doc.getString("thumbnail_url");
+                img = "<img class='thumbnailStyle' src='" + smallThumbNailPath + "'/>";
+                if(downloadUrl.contains("/annotation/")){
+					img="<img class='thumbnailStyle' src='../" + pdfThumbnailUrl + "'/>";
+                }
+            }else{
                 //link = IMG_NOT_FOUND;
 				img = IMG_NOT_FOUND;
             }
@@ -657,8 +662,7 @@ public class SolrIndex {
 
 
 	    query = query.replaceAll("\"", "");
-        JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 		List<AnnotNameValCount> annots = new ArrayList<>();
 
 		Map<String, String> hm = new HashMap<>();
@@ -684,7 +688,7 @@ public class SolrIndex {
         String separator = "___";
 
         for( String fieldName : ffList){
-			//System.out.println(fieldName);
+			//System.out.println("facet field: "+ fieldName);
             try {
                 JSONArray arr = facetFields.getJSONArray(fieldName);
 
@@ -694,8 +698,9 @@ public class SolrIndex {
 
 						if (facetValue instanceof String) {
 							String fv = facetValue.toString();
+							//System.out.println(fieldName + " -- " + fv);
 
-							if (fv.toLowerCase().contains(query.toLowerCase()) || query.equals("*:*")) {
+							if (fv.toLowerCase().contains(query.toLowerCase()) || query.equals("*:*") || query.equals("*")) {
 
 								AnnotNameValCount annotNameValCount = new AnnotNameValCount();
 								annotNameValCount.setImgCount(Integer.parseInt(arr.get(i + 1).toString()));
@@ -784,7 +789,7 @@ public class SolrIndex {
 
 								if (hm.containsKey(fieldName)) {
 									annots.add(annotNameValCount);
-//                                System.out.println("ANNOT: "+annotNameValCount.toString());
+                                	//System.out.println("ANNOT: "+annotNameValCount.toString());
 								}
 							}
 						}
@@ -792,7 +797,7 @@ public class SolrIndex {
                 }
             }
             catch (Exception e){
-				System.out.println("warning: "+ e);
+				System.out.println("mergeImpcFacets warning: "+ e);
 			}
         }
 
@@ -924,7 +929,6 @@ public class SolrIndex {
 			URISyntaxException {
 
 		log.debug("GETTING CONTENT FROM: " + url);
-
 		HttpProxy proxy = new HttpProxy();
 
 		try {

@@ -15,15 +15,13 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.Group;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +29,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Class that encapsulates all internal use displays for testing - not for users
@@ -86,6 +92,8 @@ public class UtilitiesController {
 
         return "statsLinksList";
     }
+
+
 
     private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type, List<String> parameterIds) throws IOException, URISyntaxException, SQLException {
         if (start == null) {
