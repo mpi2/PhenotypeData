@@ -645,8 +645,8 @@ public class DataTableController {
 			//String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
 			//String alleleName = "<span class='allelename'>"+ doc.getString("allele_name")+ "</span>";
 			String markerAcc = doc.getString(Allele2DTO.MGI_ACCESSION_ID);
-			String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc;
             String alleleName = doc.getString(Allele2DTO.ALLELE_NAME);
+            String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
 			String markerSymbol = doc.getString(Allele2DTO.MARKER_SYMBOL);
 			String alleleLink = "<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
 			String mutationType = doc.getString(Allele2DTO.MUTATION_TYPE) + "; " + doc.getString(Allele2DTO.ALLELE_DESCRIPTION);
