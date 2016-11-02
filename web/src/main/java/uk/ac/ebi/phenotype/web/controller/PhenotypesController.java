@@ -48,7 +48,6 @@ import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -78,14 +77,21 @@ public class PhenotypesController {
     @Autowired
 	@Qualifier("postqcService")
     PostQcService gpService;
+
     @Autowired
     MpService mpService;
+
     @Autowired
     ObservationService os;
+
     @Autowired
     PreQcService preqcService;
+
     @Autowired
     ImpressService impressService;
+
+    @Autowired
+    ImageService imageService;
 
     @Value("drupalBaseUrl")
     private String drupalBaseUrl;
@@ -127,7 +133,8 @@ public class PhenotypesController {
         // Query the images for this phenotype
         SolrDocumentList images = imagesSummaryHelper.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
         model.addAttribute("images", images);
-       
+        model.addAttribute("impcImageGroups",imageService.getPhenotypeAssociatedImages(null, phenotype_id, 1));
+
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         
         model.addAttribute("phenotype", mpTerm);

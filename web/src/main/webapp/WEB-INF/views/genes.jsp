@@ -602,7 +602,7 @@
 									<c:if test="${not empty impcImageGroups or not empty solrFacets}">
 										<c:if test="${not empty impcImageGroups}">
 											<h5 class="sectHint">Associated Images</h5>
-											<jsp:include page="genesImpcImagesAssocFrag.jsp"></jsp:include>
+											<jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
 										</c:if>
 
 										<c:if test="${not empty impcImageFacets and not empty solrFacets}">

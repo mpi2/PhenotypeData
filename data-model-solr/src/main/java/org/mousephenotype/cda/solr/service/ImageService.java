@@ -886,10 +886,18 @@ public class ImageService implements WebStatus{
 	
 	
 	
-	public List<Group> getPhenotypeAssociatedImages(String acc, int count) throws SolrServerException, IOException {
-		List<Group> groups = new ArrayList<>();
+	public List<Group> getPhenotypeAssociatedImages(String geneAcc, String mpId, int count)
+	throws SolrServerException, IOException {
+
+			List<Group> groups = new ArrayList<>();
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + acc + "\"");
+		solrQuery.setQuery("*:*");
+		if (geneAcc != null) {
+			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
+		}
+		if (mpId != null){
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId + "\"");
+		}
 		solrQuery.add("group", "true")
         .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
         .add("group.limit", Integer.toString(count));
