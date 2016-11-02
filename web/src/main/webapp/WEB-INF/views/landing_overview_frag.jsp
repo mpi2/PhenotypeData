@@ -32,11 +32,11 @@
             <div class="half">
                 <table>
                     <thead>
-                    <tr> <th class="headerSort"> Phenotype </th> <th> # Associations </th> </tr>
+                        <tr> <th class="headerSort"> Phenotype </th> <th> # Genes </th> </tr>
                     </thead>
                     <tbody>
-                    <c:forEach var="row" items="${phenotypes}">
-                        <tr>
+                    <c:forEach var="row" items="${phenotypes}"  varStatus="loop">
+                        <tr <c:if test="${loop.index >= 10}"> class="hidden hideable" </c:if> >
                             <td class="capitalize">${row.getCategory()}</td>
                             <c:if test="${row.getMpId() != null}">
                                 <td><a href="${baseUrl}/phenotypes/${row.getMpId()}">${row.getCount()} </a></td>
@@ -47,9 +47,12 @@
                         </tr>
                     </c:forEach>
                     <tr>
-                        <td><a id="tsvDownload" href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}" target="_blank" class="button fa fa-download">Download</a>
+                        <td>
+                            <c:if test="${phenotypes.size() > 10}"> <a id="showMore">Show more</a> </c:if> </td>
                         </td>
-                        <td></td>
+                        <td>
+                            <a id="tsvDownload" href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}" target="_blank" class="button fa fa-download">Download</a>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -60,3 +63,12 @@
         </c:if>
     </div>
 </div>
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        $('#showMore').click(function () {
+            $(".hideable").toggleClass("hidden");
+        });
+    });
+</script>

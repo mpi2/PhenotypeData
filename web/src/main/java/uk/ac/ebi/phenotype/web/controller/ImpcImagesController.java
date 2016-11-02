@@ -204,7 +204,7 @@ public class ImpcImagesController {
 		newQueryString+="&sort=parameter_name asc";
 		newQueryString = URLDecoder.decode(newQueryString, "UTF-8");  // before it gets passed to SOLR
 		
-		//System.out.println("new query str: " + newQueryString);
+		System.out.println("new query str: " + newQueryString);
 		QueryResponse imageResponse = imageService
 				.getResponseForSolrQuery(newQueryString);
 		if (imageResponse.getResults() != null) {

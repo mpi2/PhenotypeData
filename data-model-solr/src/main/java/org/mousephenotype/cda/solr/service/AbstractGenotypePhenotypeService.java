@@ -219,9 +219,9 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     }
 
-    public List<CountTableRow> getAssociationsCount(String mpId, List<String> resourceName) throws IOException, SolrServerException {
+    public TreeSet<CountTableRow> getAssociationsCount(String mpId, List<String> resourceName) throws IOException, SolrServerException {
 
-        List<CountTableRow> list = new ArrayList<>();
+        TreeSet<CountTableRow> list = new TreeSet<>(CountTableRow.getComparatorByCount());
         SolrQuery q = new SolrQuery().setFacet(true).setRows(1);
         q.set("facet.limit", -1);
 
