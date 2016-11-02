@@ -4,11 +4,13 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.PImageDTO;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,7 @@ public class PhisService {
 		for (PImageDTO pImage : phisImages) {
 			ImageDTO image = new ImageDTO();
 			String id = pImage.getId();
+			image.setObservationType(ObservationType.image_record.name());
 			if(pImage.getGeneIds().size()>=1){
 					image.setGeneAccession(pImage.getGeneIds().get(0));
 			}
@@ -61,6 +64,9 @@ public class PhisService {
 			//System.out.println("Phis id=" + id);
 			//System.out.println("thumbnail url=" + pImage.getThumbnailUrl());
 			image.setFullResolutionFilePath(pImage.getImageUrl());
+			image.setJpegUrl(pImage.getImageUrl());
+			image.setDownloadUrl(pImage.getImageUrl());
+			image.setThumbnailUrl(pImage.getThumbnailUrl());
 			//thumbnail url what to do? probably need a new field in the ImageDTO?
 			
 			// need to loop over and creat mp_id_terms

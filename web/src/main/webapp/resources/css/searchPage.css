@@ -136,12 +136,14 @@ span.imgAnnots {
 span.annotType {
 	font-weight: bold;
 }
-
 div#diseaseTab table#dTable th:nth-child(1) {
 	width: 45% !important;
 }
+div#allele2Tab table#dTable th:nth-child(1) {
+	width: 30% !important;
+}
 div#allele2Tab table#dTable th:nth-child(3) {
-	width: 33% !important;
+	width: 45% !important;
 }
 div#allele2Tab table#dTable td:nth-child(3) a {
 	margin-left: 5px;
@@ -151,6 +153,35 @@ div#impc_imagesTab div.mpi2-search {
     margin-top: 0px;
 }
 
+div#allele2Tab table#dTable td:nth-child(3) > table {
+	padding: 0;
+	margin: 0;
+}
+
+div#allele2Tab table#dTable td:nth-child(3) > table td{
+/*, div#allele2Tab table#dTable th {*/
+	border: 1px solid #F2F2F2;
+	border-bottom: none;
+	border-collapse: collapse;
+	padding: 3px;
+	/*width: 30px;*/
+	/*height: 25px;*/
+	vertical-align: middle;
+	text-align: center;
+
+}
+div#allele2Tab table#dTable td:nth-child(3) > table tr:nth-child(1) td {
+	border-top: none;
+	width: 20%;
+}
+div#allele2Tab table#dTable td:nth-child(3) > table td:nth-child(1) {
+	text-align: left;
+	padding: 0 5px;
+	min-width: 60%;
+}
+div#allele2Tab table#dTable span.orderFont {
+	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif !important;
+}
 /* end of dataTable on search page */
 
 

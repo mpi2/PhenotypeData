@@ -1,5 +1,4 @@
-/*******************************************************************************
- * Copyright 2015 EMBL - European Bioinformatics Institute
+/* Copyright 2015 EMBL - European Bioinformatics Institute
  *
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -27,6 +26,7 @@ import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +101,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	@Autowired
 	MpOntologyDAO mpService;
 	
+	private List<ImageDTO> secondaryProjectImageList=new ArrayList<>();//store all secondary project images in this list
 	PhisService phisService=new PhisService();
 
 	@Value("classpath:uberonEfoMa_mappings.txt")
@@ -108,7 +109,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	private Map<String, List<AlleleDTO>> alleles;
 	private Map<String, ImageBean> imageBeans;
-	String excludeProcedureStableId = "";
 
 	private Map<String, String> parameterStableIdToMaTermIdMap;
 	private Map<String, String> parameterStableIdToEmapaTermIdMap = new HashMap<>(); // key: EMAPA id;
@@ -165,6 +165,12 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		try {
+			this.secondaryProjectImageList=populateSecondaryProjectImages();
+		} catch (Exception e2) {
+			e2.printStackTrace();
+		}
 
 		imageBeans = populateImageUrls();
 		logger.info("Added {} total Image URL beans", imageBeans.size());
@@ -188,18 +194,18 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		try {
-			
+			List<ImageDTO> imageList=new ArrayList<>();
 			//populate image DTOs from phis solr dto objects
-			List<ImageDTO> phisImages=phisService.getPhenoImageShareImageDTOs();
-			
 			logger.info("Starting indexing.....");
 			impcImagesIndexing.deleteByQuery("*:*");
-
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
-
-			List<ImageDTO> imageList = experimentCore.query(query).getBeans(ImageDTO.class);
-			imageList.addAll(phisImages);
+			List<ImageDTO> imagePrimaryList = experimentCore.query(query).getBeans(ImageDTO.class);
+			imageList.addAll(secondaryProjectImageList);
+			imageList.addAll(imagePrimaryList);
+		
+			
 			for (ImageDTO imageDTO : imageList) {
+				int omeroId=0;
 				
 				if(imageDTO.getDateOfBirth()!=null && imageDTO.getDateOfExperiment() !=null ){
 				Date dateOfExperiment=imageDTO.getDateOfExperiment();
@@ -209,6 +215,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				long ageInDays = Duration.between(dob, expDate).toDays();
 				imageDTO.setAgeInDays(ageInDays);
 				}
+				
 				
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
@@ -223,29 +230,20 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					}
 					imageDTO.setFullResolutionFilePath(fullResFilePath);
 
-					int omeroId = iBean.omeroId;
+					omeroId = iBean.omeroId;
 					imageDTO.setOmeroId(omeroId);
+				}
 
-					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)) {// ||
-																											// downloadFilePath.endsWith(".pdf")
-																											// ){//if(downloadFilePath.endsWith(".pdf")){//||
-																											// (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001")
-																											// &&
-																											// imageDTO.getPhenotypingCenter().equals("JAX")))
-																											// {
-						// Skip records that do not have an omero_id
-						//System.out.println("skipping omeroId=" + omeroId + "param and center"
-								//+ imageDTO.getParameterStableId() + imageDTO.getPhenotypingCenter());
-						// runStatus.addWarning(" Skipping record for image
-						// record " + fullResFilePath + " -- missing omero_id or
-						// excluded procedure");
+					if (omeroId == 0 && imageDTO.getFullResolutionFilePath()==null) {// modified this so phis images should be loaded now
+																											
+						//System.out.println("omero_id is 0 procedureName="+imageDTO.getProcedureName()+" full res file path="+ imageDTO.getFullResolutionFilePath());						
 						continue;
 					}
 
 					// need to add a full path to image in omero as part of api
 					// e.g.
 					// https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
-					if (omeroId != 0 && downloadFilePath != null) {
+					if (omeroId != 0 && downloadFilePath != null) { //phis images have no omero_id but already have these paths set
 						// logger.info(" Setting
 						// downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
 						// /webgateway/archived_files/download/
@@ -257,9 +255,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 						} else {
 							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
+							imageDTO.setThumbnailUrl(impcMediaBaseUrl + "/render_birds_eye_view/" + omeroId);
 						}
 					} else {
-						runStatus.addWarning(" omero id is null for " + downloadFilePath);
+						runStatus.addWarning(" omero id is 0 for " + downloadFilePath+ " fullres filepath");
 					}
 
 					// add the extra stuf we need for the searching and faceting
@@ -292,8 +291,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					impcImagesIndexing.addBean(imageDTO);
 
 					documentCount++;
+					if(documentCount%100==0){
+						System.out.println(documentCount);
+					}
 				}
-			}
+			
 
 			impcImagesIndexing.commit();
 
@@ -305,6 +307,43 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				commonUtils.msToHms(System.currentTimeMillis() - start));
 
 		return runStatus;
+	}
+
+	private List<ImageDTO> populatePhisImages() throws SolrServerException, IOException {
+		List<ImageDTO> phisImages=phisService.getPhenoImageShareImageDTOs();
+		return phisImages;
+	}
+	
+	/**
+	 * Hopefully all secondary project images will come via PHIS this method should encapsulate all data sources from PHIS and other sources
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	private List<ImageDTO> populateSecondaryProjectImages() throws SolrServerException, IOException {
+		//observation_ids are stored as solr id field and so we need to make sure no conflict
+		//need to query the experiment core to make sure we allocate numbers over what we already have
+		//this could have other issues if we have assumed id is observation id elsewhere -but I think it's in loading the db and not after indexing??
+		int highestObserationId=this.getHighestObservationId();
+		//currently just getting brain histopath
+		List<ImageDTO> brainHistoImageDtos = populatePhisImages();
+		int id=highestObserationId;
+		for(ImageDTO image:brainHistoImageDtos){
+			id++;//do here so one higher than highest obs id
+			image.setId(id);//add a generated id that we know hasn't been used before	
+		}
+		return brainHistoImageDtos;
+	}
+
+	private int getHighestObservationId() throws SolrServerException, IOException {
+		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&rows=1&sort=id%20desc&rows=1&fl=id
+		 SolrQuery query = new SolrQuery().setQuery("observation_type:image_record")
+		.addFilterQuery(
+				"(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":"
+						+ "*mousephenotype.org*)");
+		int highestObsId= (int)experimentCore.query(query).getResults().get(0).get("id");
+		logger.info("highest observation_id="+highestObsId);
+		return highestObsId;
 	}
 
 	private void addOntology(RunStatus runStatus, ImageDTO imageDTO, Map<String, String> stableIdToTermIdMap,
