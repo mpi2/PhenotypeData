@@ -1,9 +1,5 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -15,6 +11,10 @@ import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PhisService {
 
@@ -107,7 +107,7 @@ public class PhisService {
 //			<int name="UNSEXED">678</int>
 			if(pImage.getSex()!=null){
 				String sex=pImage.getSex();
-				System.out.println("sex="+sex);
+//				System.out.println("sex="+sex);
 				SexType assignedSex=SexType.no_data;
 				if(sex.equals("MALE")){
 					assignedSex=SexType.male;
@@ -119,7 +119,7 @@ public class PhisService {
 					assignedSex=SexType.not_applicable;
 				}
 				image.setSex(assignedSex.toString());
-				System.out.println("assignedSex="+assignedSex.toString());
+//				System.out.println("assignedSex="+assignedSex.toString());
 			}
 			//<str name="experiment_group">495324</str> is experiment id for sanger data?
 			if(pImage.getExperimentGroup()!=null){
@@ -165,7 +165,7 @@ public class PhisService {
 					if(obs.startsWith("Procedure name: ")){
 						String procedureName=obs.substring(obs.indexOf(": ")+2, obs.length() );
 						image.setProcedureName(procedureName);
-						System.out.println("procedureName="+procedureName);
+//						System.out.println("procedureName="+procedureName);
 					}
 				}
 			}
