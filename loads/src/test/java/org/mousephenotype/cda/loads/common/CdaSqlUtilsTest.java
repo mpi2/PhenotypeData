@@ -131,7 +131,7 @@ public class CdaSqlUtilsTest {
                 "MP:0001", "MP:0002", "MP:0003", "MP:0004", "MP:0005", "MP:0999", "MP:0888", "MP:0010", "MP:0012", "MP:0014", "MP:0016", "MP:0017", "MP:0018", "MP:0777", "MP:0666"
         });
 
-        Set<OntologyTermAnomaly> writtenAnomalies = cdaSqlUtils.checkAndUpdateOntologyTerms(jdbc, ontologyTermAccessionIds, "phenotype_parameter_ontology_association", "ontology_acc");
+        Set<OntologyTermAnomaly> writtenAnomalies = cdaSqlUtils.checkAndUpdateOntologyTerms(jdbc, ontologyTermAccessionIds, "phenotype_parameter_ontology_annotation", "ontology_acc");
 
         Set<OntologyTermAnomaly> readAnomalies = cdaSqlUtils.getOntologyTermAnomalies();
         Assert.assertTrue("written anomaly list size: " + writtenAnomalies.size() + ". read anomaly list size: " + readAnomalies.size(), writtenAnomalies.size() == readAnomalies.size());

@@ -58,6 +58,13 @@ public class ExtractValidateDccReport extends AbstractReport {
      **********************
     */
 
+    private final String PARAMETER_COUNT_QUERY =
+            "SELECT DISTINCT COUNT(s1) AS PARM_COUNT FROM (\n" +
+            "    SELECT DISTINCT SUBSTRING(parameterId, 1, 8) AS s1\n" +
+            "    FROM simpleParameter\n" +
+            "    WHERE parameterId like 'IMPC_%'\n" +
+            ") AS o1";
+
     private final double DELTA = 0.8;
     private LoadsQueryDelta[] deltaQueries = new LoadsQueryDelta[] {
             new LoadsQueryDelta("specimen COUNTS", DELTA, "SELECT count(*) FROM specimen"),
@@ -65,6 +72,7 @@ public class ExtractValidateDccReport extends AbstractReport {
             new LoadsQueryDelta("mouse COUNTS", DELTA, "SELECT count(*) FROM mouse"),
             new LoadsQueryDelta("experiment COUNTS", DELTA, "SELECT count(*) FROM experiment"),
             new LoadsQueryDelta("procedure_ COUNTS", DELTA, "SELECT count(*) FROM procedure_"),
+            new LoadsQueryDelta("parameter_ COUNTS", 1.0, PARAMETER_COUNT_QUERY)
     };
 
     private LoadsQuery[] queries = new LoadsQuery[] {

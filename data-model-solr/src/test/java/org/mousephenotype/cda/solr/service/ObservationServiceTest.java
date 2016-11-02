@@ -72,9 +72,9 @@ public class ObservationServiceTest {
 		String geneAccession="MGI:1891341";
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
-			for(ObservationDTO obs: result){
-				System.out.println(obs);
-			}
+//			for(ObservationDTO obs: result){
+//				System.out.println(obs);
+//			}
 			assert(result.size()>5);
 
 		} catch (SolrServerException | IOException e) {

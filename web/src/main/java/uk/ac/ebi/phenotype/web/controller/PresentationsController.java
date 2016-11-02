@@ -20,19 +20,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
 import java.util.stream.Collectors;
-
 
 @Controller
 public class PresentationsController {
@@ -69,13 +67,13 @@ public class PresentationsController {
         }});
     }};
 
+    private String ftpPath = "ftp://ftp.ebi.ac.uk/pub/databases/impc/presentations/";
 
 	@RequestMapping(value="/presentations", method=RequestMethod.GET)
 	public String loadPresentationsPage(
 			HttpServletRequest request,
 			Model model) throws IOException {
 
-        //Map<String, String>  impcPresentations = composePresentations(request);
         LinkedHashMap<String, String>  impcPresentations = composePresentations(request);
 		model.addAttribute("impcPresentations", impcPresentations);
 
@@ -83,30 +81,44 @@ public class PresentationsController {
 	}
 
 	private LinkedHashMap<String, String>  composePresentations(HttpServletRequest request) throws IOException {
-        //private Map<String, String>  composePresentations(HttpServletRequest request) throws IOException {
+
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
 		//System.out.println("baseurl: " + baseUrl);
         LinkedHashMap<String, String> impcPresentations = new LinkedHashMap<>();
-        //Map<String, String> impcPresentations = new HashMap<>();
 
-		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("presentations.json").getFile()));
-		if (in != null) {
-			String json = in.lines().collect(Collectors.joining(" "));
+       // BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("presentations.json").getFile())); // local test
 
-			//System.out.println(json);
-			JSONArray sections = new JSONArray(json);
+        logger.info("Connecting to FTP server...");
+
+        try {
+            URL url = new URL(ftpPath + "/presentations.json");
+            URLConnection con = url.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+            logger.info("Reading file start.");
+
+            String inputLine;
+            String json = "";
+            while ((inputLine = in.readLine()) != null) {
+               // System.out.println(inputLine);
+                json += inputLine;
+            }
+            in.close();
+
+           // System.out.println("json: " + json);
+
+            JSONArray sections = new JSONArray(json);
 
 			for (int i = 0; i < sections.length(); i++) {
-
 
 				JSONObject thisSecObj = sections.getJSONObject(i);
 				Iterator<String> keys = thisSecObj.keys();
 				if( keys.hasNext() ){
 					String secName = (String)keys.next();
 					JSONArray valsetList = thisSecObj.getJSONArray(secName);
-//					System.out.println(secName + " -- " + valsetList.length());
+                //	System.out.println(secName + " -- " + valsetList.length());
 
                     String th = composeTh(secName);
 
@@ -120,9 +132,17 @@ public class PresentationsController {
                     html += StringUtils.join(trs, "") + "</table>";
                     impcPresentations.put(secName, html);
 				}
-
 			}
-		}
+        }
+        catch (FileNotFoundException e) {
+            logger.error("File not find on server.");
+            System.exit(0);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        logger.info("Read FTP File Complete.");
+
 		return impcPresentations;
 	}
 
@@ -142,7 +162,10 @@ public class PresentationsController {
 
         List<String> tds = new ArrayList<>();
         for(String key : colsOrder.get(secName)){
-            String val = thisValSet.getString(key); 
+            String val = thisValSet.getString(key);
+            if (key.equals("file")) {
+                val = "<a href='" + ftpPath + secName + "/" + thisValSet.getString(key) + "'>" + val + "</a>";
+            }
             tds.add("<td>" + val + "</td>");
         }
 
