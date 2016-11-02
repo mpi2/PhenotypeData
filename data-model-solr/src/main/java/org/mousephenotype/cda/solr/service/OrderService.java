@@ -92,12 +92,15 @@ public class OrderService {
 
 	}
 
-	public Allele2DTO getAlleForGeneAndAllele(String acc, String allele) throws SolrServerException, IOException {
+	public Allele2DTO getAlleForGeneAndAllele(String acc, String allele, boolean creline) throws SolrServerException, IOException {
 		String q = "*:*";// default if no gene specified
 		if (acc != null) {
 			q = "mgi_accession_id:\"" + acc + "\"";// &start=0&rows=100&hl=true&wt=json";
 		}
 		SolrQuery query = new SolrQuery();
+		if(creline){
+			query.setRequestHandler("selectCre");
+		}
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
 		query.addFilterQuery("allele_name:\"" + allele + "\"");
