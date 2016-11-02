@@ -2,15 +2,7 @@
 
 <schema name="mpi2-allele2" version="1.2">
 
-    
-   <requestHandler name="/selectCre" class="solr.SearchHandler">
-   	<lst name="appends">
-  		<str name="fq">allele_type:a</str>
-	</lst> 
-  </requestHandler>
-    
-    
-    
+
     
     <types>
 
