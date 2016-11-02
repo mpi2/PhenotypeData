@@ -4,7 +4,7 @@
 
 <t:genericpage>
     <jsp:attribute name="title">IMPC Tools</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/batchQuery">&nbsp;Tools</a></jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/tools">&nbsp;Tools</a></jsp:attribute>
     <jsp:attribute name="header">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
