@@ -13,60 +13,57 @@
             width: 100% !important;
             margin: 0 !important;
           }
-          div#tabs {
-              border-top: none;
-              width: 100%;
-              margin-top: 50px;
+
+          table {
+              border: 2px solid #0978A1;
+              margin-top: 0px;
+              padding: 15px 20px 20px 20px;
+              border-radius: 5px;
+              z-index: 0;
+          }
+          ul.preTabLabel{
+              list-style: none;
           }
 
-          div#tabs > ul {
-              border: none;
-              border-bottom: 1px solid #666;
-              padding-bottom: 2px;
-              margin-bottom: 0px;
-              background: none;
-              list-style-type: none;
-          }
-
-          div#tabs > ul li {
+          ul.preTabLabel li {
               float: left;
+              margin: 0 0 0 15px;
+              border-radius: 5px 5px 0 0;
+              background-color: #0978A1;
           }
 
-          div.presentationTab {
-              border: 1px solid gray;
-              border-top: none;
-              padding: 45px;
-          }
-          div#tabs > ul li a {
-              margin: 0 0px -3px 20px;
-              border: 1px solid #666;
-              border-bottom: none;
-              font-size: 16px;
+          ul.preTabLabel li a {
+              padding: 0 15px 0px 15px;
+              color: white;
               text-decoration: none;
-              padding: 3px 5px 3px 5px;
-              border-radius: 4px;
-              color: gray;
-          }
-          #tabs .ui-tabs-active > a {
-              border-bottom: 2px solid white;
-              color: black;
+              font-weight: bold;
+              font-size: 20px;
+              vertical-align: middle;
+              cursor: pointer;
+              display: block;
           }
 
+          ul.preTabLabel li:hover {
+              background-color: rgb(144,195,212); /* light blue */
+              border: none;
+          }
 
-          ul.docLi li, ul.subUl li {
-              margin-bottom: 10px;
+          ul.preTabLabel > li.ui-tabs-active {
+              background-color: white;
+              border: 2px solid #0978A1;
+              border-bottom: 0px solid white;
           }
-          ul.subUl {
-              list-style-type: square;
-              margin-left: 50px;
+          ul.preTabLabel > li.ui-tabs-active a {
+              color: #0978A1;
+              margin-bottom: -4px;
+              border-bottom: 4px solid white;
           }
-          table.twoCols th:nth-child(1) {
-              width: 45%;
-          }
-          .highlight {
+          tr:nth-child(even) td {
               background-color: #F1F2F2;
           }
-
+          /*.highlight {*/
+              /*background-color: #F1F2F2;*/
+          /*}*/
 
       </style>
 
@@ -91,13 +88,13 @@
                                 <%--${impcPresentations}--%>
 
                                 <div id="tabs">
-                                    <ul>
+                                    <ul class="preTabLabel">
                                     <c:forEach var="type" items="${impcPresentations}" varStatus="loop">
-                                    <li><a href="#tabs-${loop.index}">${type.key}</a></li>
+                                        <li><a href="#tabs-${loop.index}">${type.key}</a></li>
                                     </c:forEach>
                                     </ul>
                                     <c:forEach var="type" items="${impcPresentations}"  varStatus="loop">
-                                    <div id="tabs-${loop.index}" class="presentationTab">${type.value}</div>
+                                        <div id="tabs-${loop.index}" class="presentationTab">${type.value}</div>
                                     </c:forEach>
                                 </div>
                             </div>
@@ -112,16 +109,17 @@
         <script>
 
             $(function() {
-                // find out which tab to open from hash tag
+                // find out which tab to open from hash tag. Eg. .../presentations#1 (second tab)
                 var matches = window.location.hash.match(/(\d)$/);
                 var tabIndex = matches == null ? 0 : matches[0];
+                //alert(tabIndex);
                 $( "#tabs" ).tabs({ active: tabIndex });
 
-                $('tr').mouseover(function(){
-                   $(this).find('td').addClass('highlight');
-                }).mouseout(function(){
-                    $(this).find('td').removeClass('highlight');
-                });
+//                $('tr').mouseover(function(){
+//                    $(this).find('td').addClass('highlight');
+//                }).mouseout(function(){
+//                    $(this).find('td').removeClass('highlight');
+//                });
             });
 
         </script>

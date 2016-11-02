@@ -570,20 +570,7 @@
 							if (coreName == 'allele2'){
 								decodeAlleleName();
 
-//									alert($('a.iFrameVector').size());
-//								$('i').qtip({
-//									style : {
-//										classes : 'qtipimpc flat'
-//									},
-//									position : {
-//										my : 'top center',
-//										at : 'bottom center'
-//									},
-//									content : {
-//										text : $(this).attr('oldtitle')
-//									}
-//								});
-								$('a.iFrameVector').qtip({
+								$('a.genbank, a.iFrameVector').qtip({
 									content : {
 										text : $(this).attr('title')
 									},
