@@ -8,7 +8,7 @@
         "date": "2016-10-20",
         "location": "Vancouver, Canada",
         "type": "poster",
-        "file": ""
+        "file": "poster-IMPC-TAGC.pdf"
       },
       {
         "title": "Exploring Mouse Phenotypes: From Unknown Gene to Knockout with a Click",
@@ -24,35 +24,35 @@
         "date": "2016-05-15",
         "location": "Bar Harbor, ME, USA",
         "type": "talk",
-        "file": ""
+        "file": "talk-iBANGS_IMPC.pptx"
       }
-    ],
+    ]
   },
   {
     "Workshops": [
       {
         "title": "IMPC Web portal overview",
         "meeting": "The Allied Genetics Conference (TAGC)",
-        "date": "",
+        "date": "2015",
         "location": "Orlando, FL, USA",
         "type": "pptx",
-        "file": ""
+        "file": "TAGC-IMPC-web-portal-overview.pptx"
       },
       {
         "title": "IMPC Embryo Pipeline overview",
         "meeting": "The Allied Genetics Conference (TAGC)",
-        "date": "",
+        "date": "2016",
         "location": "Orlando, FL, USA",
         "type": "pptx",
-        "file": ""
+        "file": "TAGC-IMPC-embryo-pipeline-overview.pptx"
       },
       {
         "title": "IMPC web manual- Summer 2016",
         "meeting": "The Allied Genetics Conference (TAGC)",
-        "date": "",
+        "date": "2016",
         "location": "Orlando, FL, USA",
         "type": "docx",
-        "file": ""
+        "file": "TAGC-IMPC-web-manual.docs"
       }
     ]
   },
@@ -62,31 +62,31 @@
         "title": "IMPC Overview- 2015",
         "description": "A complete overview of the data generation and dessimination process",
         "date": "2015-10-15",
-        "file": ""
+        "file": "IMPC-overview-2015.pptx"
       },
       {
         "title": "Data Release",
         "description": "Numbers from latest data release",
-        "date": "",
-        "file": ""
+        "date": "2016-05-12",
+        "file": "IMPC-data-release-4.3.pptx"
       },
       {
         "title": "IMPC Partners",
         "description": "Lists all of the IMPC partner institutes",
         "date": "2015-10-15",
-        "file": ""
+        "file": "IMPC-partners.pptx"
       },
       {
         "title": "IMPC Partners Map",
         "description": "Map of All IMPC partners",
         "date": "2015-10-16",
-        "file": ""
+        "file": "IMPC-partners-map.pptx"
       },
       {
         "title": "IMPC informatics Acknowledgement.",
         "description": "Members of the Mouse Phenotyping Informatics Infrastructure (MPI2)",
         "date": "2015-09-16",
-        "file": ""
+        "file": "IMPC-informatics-acknowledgement.pptx"
       }
     ]
   }
