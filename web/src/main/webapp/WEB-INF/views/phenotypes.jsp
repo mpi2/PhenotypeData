@@ -402,13 +402,15 @@
 			</c:if>
 
 			<%--IMPC images--%>
-						<c:if test="${not empty impcImageGroups}">
-							<h5 class="sectHint">Associated Images</h5>
+			<c:if test="${not empty impcImageGroups}">
+				<div class="section" id="imagesSection">
+					<h2 class="title">Associated Images </h2>
+						<div class="inner">
 							<jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-						</c:if>
-
-
-					</div>
+						</div>
+				</div>
+			</c:if>
+		</div>
 	</div>
 </div>
 </div>

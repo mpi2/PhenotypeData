@@ -20,6 +20,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
@@ -133,7 +134,17 @@ public class PhenotypesController {
         // Query the images for this phenotype
         SolrDocumentList images = imagesSummaryHelper.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
         model.addAttribute("images", images);
-        model.addAttribute("impcImageGroups",imageService.getPhenotypeAssociatedImages(null, phenotype_id, 1));
+
+        // IMPC image display at the bottom of the page
+        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, phenotype_id, 1);
+        Map<String, String> paramToNumber=new HashMap<>();
+        for(Group group:groups){
+            if(!paramToNumber.containsKey(group.getGroupValue())){
+                paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
+            }
+        }
+        model.addAttribute("paramToNumber", paramToNumber);
+        model.addAttribute("impcImageGroups",groups);
 
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         
