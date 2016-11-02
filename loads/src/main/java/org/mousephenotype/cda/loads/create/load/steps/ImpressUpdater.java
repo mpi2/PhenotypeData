@@ -111,7 +111,7 @@ public class ImpressUpdater implements Step, Tasklet, InitializingBean {
         String query = "SELECT ontology_acc FROM phenotype_parameter_ontology_annotation";
 
         List<String> ontologyAccessionIds = jdbcImpress.queryForList(query, new HashMap<>(), String.class);
-        Set<OntologyTermAnomaly> anomalies = cdaSqlUtils.checkAndUpdateOntologyTerms(jdbcImpress, ontologyAccessionIds, "phenotype_parameter_ontology_association", "ontology_acc");
+        Set<OntologyTermAnomaly> anomalies = cdaSqlUtils.checkAndUpdateOntologyTerms(jdbcImpress, ontologyAccessionIds, "phenotype_parameter_ontology_annotation", "ontology_acc");
 
         if ( ! anomalies.isEmpty()) {
             System.out.println("\nanomalies:");

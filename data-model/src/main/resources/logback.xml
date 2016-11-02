@@ -30,5 +30,14 @@
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
+    <!-- Suppress the annoying ConfigurationClassEnhancer warning (below). See https://jira.spring.io/browse/BATCH-2161
+
+    2016-11-02 14:46:43.921  WARN 2611 --- [           main] o.s.c.a.ConfigurationClassEnhancer       :
+        @Bean method ScopeConfiguration.stepScope is non-static and returns an object assignable to Spring's BeanFactoryPostProcessor interface.
+        This will result in a failure to process annotations such as @Autowired, @Resource and @PostConstruct within the method's declaring
+        @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details.
+    -->
+    <logger name="org.springframework.context.annotation.ConfigurationClassEnhancer" level="ERROR" />
+
 
 </configuration>
