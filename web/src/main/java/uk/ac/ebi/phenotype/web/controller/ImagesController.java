@@ -193,7 +193,7 @@ public class ImagesController {
 		}
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
 
-		// System.out.println("queryString=" + newQueryString);
+		System.out.println("queryString from imagesb=" + newQueryString);
 		JSONObject imageResults = JSONRestUtil.getResults(config.get("internalSolrUrl") + "/images/select?" + newQueryString);
 		JSONArray imageDocs = JSONRestUtil.getDocArray(imageResults);
 		if (imageDocs != null) {
