@@ -32,10 +32,19 @@
            		<c:set var="label" value="${doc.procedure_name}"/>
         </c:if>
            <%-- (${entry.count}) --%>
-        
-          
-            <c:set var="href" scope="page"
+          	<c:choose>
+          		<c:when test="${doc.omero_id == '0' }"><!--  these are secondary project images so compara image view won't work on them -->
+          		<!--  http://localhost:8080/phenotype-archive/impcImages/images?q=*:*%20AND%20observation_type:image_record&qf=imgQf&defType=edismax&fq=procedure_name:%22Brain%20Histopathology%22 -->
+          			<c:set var="href" scope="page"
+                   value="${baseUrl}/impcImages/imagesb?q=gene_accession_id:${acc}&fq=parameter_stable_id:${doc.parameter_stable_id}"></c:set>
+          		</c:when>
+          		<c:otherwise>
+          		<c:set var="href" scope="page"
                    value="${baseUrl}/imageComparator?acc=${acc}&parameter_stable_id=${doc.parameter_stable_id}"></c:set>
+          	
+          		</c:otherwise>
+          	</c:choose>
+            
             <a href="${href}">
               <t:impcimgdisplay2
                       img="${doc}"
