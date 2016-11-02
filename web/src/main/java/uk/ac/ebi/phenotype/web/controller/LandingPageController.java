@@ -90,16 +90,22 @@ public class LandingPageController {
 
         if (page.equalsIgnoreCase("deafness")) {
             mpId = "MP:0005377";
+            model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
+            model.addAttribute("pageTitle", "Deafness");
         } else if (page.equalsIgnoreCase("cardiovascular")){
             mpId = "MP:0005385";
+            model.addAttribute("pageTitle", "Cardiovascular");
+        } else if (page.equalsIgnoreCase("metabolism")){
+            mpId = "MP:0005376";
+            model.addAttribute("pageTitle", "Metabolism");
+        } else if (page.equalsIgnoreCase("vision")){
+            mpId = "MP:0005391";
+            model.addAttribute("pageTitle", "Vision");
         }
 
         model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
-        model.addAttribute("pageTitle", "Deafness");
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
-        System.out.println("GOT --- " + gpService.getAssociationsCount(mpId, resources).size());
         model.addAttribute("mpId", mpId);
-        model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
 
         return "landing_" + page;
 

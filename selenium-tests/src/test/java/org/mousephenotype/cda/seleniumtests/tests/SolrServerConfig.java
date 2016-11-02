@@ -1,15 +1,12 @@
-package uk.ac.ebi;
+package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
@@ -24,28 +21,20 @@ import javax.validation.constraints.NotNull;
 
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
-@ComponentScan(
-	basePackages = {"org.mousephenotype.cda"},
-	useDefaultFilters = false,
-	includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ImpressService.class})
-	})
 public class SolrServerConfig {
-
-	public static final int QUEUE_SIZE = 10000;
-	public static final int THREAD_COUNT = 3;
-
 
 	@NotNull
 	@Value("${solr.host}")
 	private String solrBaseUrl;
 
-	@Autowired
-	ImpressService impressService;
-
 	@NotNull
 	@Value("${imits.solr.host}")
 	private String imitsSolrBaseUrl;
 
+	@Bean
+	public ImpressService impressService() {
+		return new ImpressService();
+	}
 
 	// Required for spring-data-solr repositories
 	@Bean
@@ -73,8 +62,6 @@ public class SolrServerConfig {
 	HttpSolrClient getProductCore() {
 
 		return new HttpSolrClient(imitsSolrBaseUrl + "/product");
-		//return new HttpSolrClient("http://localhost:8086/solr-example/product");
-
 	}
 
 	@Bean(name = "eucommToolsCreAllele2Core")
@@ -131,13 +118,6 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
 	}
 
-	//DELETEME
-//	//GenotypePhenotype
-//	@Bean(name = "genotypePhenotypeCore")
-//	HttpSolrClient getGenotypePhenotypeCore() {
-//		return new HttpSolrClient("http://ves-hx-d1:8090/mi/impc/beta/solr/genotype-phenotype");
-//	}
-
 	// Impc images core
 	@Bean(name = "impcImagesCore")
 	HttpSolrClient getImpcImagesCore() {
@@ -162,8 +142,7 @@ public class SolrServerConfig {
 
 	//MP
 	@Bean(name = "mpCore")
-	//HttpSolrClient getMpCore() { return new HttpSolrClient(solrBaseUrl + "/mp"); }
-	HttpSolrClient getMpCore() { return new HttpSolrClient("http://localhost:8090/solr" + "/mp"); }
+	HttpSolrClient getMpCore() { return new HttpSolrClient(solrBaseUrl + "/mp"); }
 
 	//EMAP
 	@Bean(name = "emapCore")
@@ -188,12 +167,6 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/preqc");
 	}
 
-
-//	@Bean(name = "preqcCore") //DELETEME
-//	HttpSolrClient getPreqcCore() {
-//		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
-//	}
-
 	//StatisticalResult
 	@Bean(name = "statisticalResultCore")
 	HttpSolrClient getStatisticalResultCore() {
@@ -202,13 +175,11 @@ public class SolrServerConfig {
 
 	@Bean(name = "phenotypeCenterService")
 	PhenotypeCenterService phenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
+		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService());
 	}
 
 	@Bean(name = "preQcPhenotypeCenterService")
 	PhenotypeCenterService preQcPhenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService);
+		return new PhenotypeCenterService(solrBaseUrl + "/preqc", impressService());
 	}
-
-
 }
