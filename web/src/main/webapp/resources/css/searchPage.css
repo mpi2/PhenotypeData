@@ -179,6 +179,18 @@ div#allele2Tab table#dTable td:nth-child(3) > table td:nth-child(1) {
 	padding: 0 5px;
 	min-width: 60%;
 }
+
+span#porder, span#pmap, span#pseq {
+	display: block;
+	float: left;
+}
+div#allele2Tab table#dTable th span#porder {
+	width: 60%;
+}
+span#pmap {
+	width: 20%;
+	padding-left: 8px;
+}
 div#allele2Tab table#dTable span.orderFont {
 	font-family: "Source Sans Pro",Arial,Helvetica,sans-serif !important;
 }
