@@ -162,7 +162,8 @@ public class SolrServerConfig {
 
 	//MP
 	@Bean(name = "mpCore")
-	HttpSolrClient getMpCore() { return new HttpSolrClient(solrBaseUrl + "/mp"); }
+	//HttpSolrClient getMpCore() { return new HttpSolrClient(solrBaseUrl + "/mp"); }
+	HttpSolrClient getMpCore() { return new HttpSolrClient("http://localhost:8090/solr" + "/mp"); }
 
 	//EMAP
 	@Bean(name = "emapCore")
