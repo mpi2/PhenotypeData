@@ -792,6 +792,7 @@ public class GenesController {
 	 */
 	private void getImpcImages(String acc, Model model)
 	throws SolrServerException, IOException {
+
 		List<Group> groups = imageService.getPhenotypeAssociatedImages(acc, null, 1);
 		Map<String, String> paramToNumber=new HashMap<>();
 		for(Group group:groups){
@@ -800,7 +801,7 @@ public class GenesController {
 			}
 		}
 		model.addAttribute("paramToNumber", paramToNumber);
-		model.addAttribute("impcImageGroups",imageService.getPhenotypeAssociatedImages(acc, null, 1));
+		model.addAttribute("impcImageGroups", groups );
 
 	}
 
