@@ -147,6 +147,7 @@
 
         <field name="_version_" type="long" indexed="true" stored="true"/>
         <field name="product_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="allele_design_project" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="marker_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="mgi_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
 
