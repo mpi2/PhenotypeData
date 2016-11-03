@@ -42,9 +42,20 @@ public class ProductDTO {
     public static final String LOA_ASSAYS = "loa_assays";
     public static final String ALLELE_SYMBOL = "allele_symbol";
     public static final String AUTO_SUGGEST = "auto_suggest";
+    public static final String ALLELE_DESIGN_PROJECT="allele_design_project";
 
+    @Field(ALLELE_DESIGN_PROJECT)
+    private String alleleDesignProject;
 
-    @Field(IKMC_PROJECT_ID)
+    public String getAlleleDesignProject() {
+		return alleleDesignProject;
+	}
+
+	public void setAlleleDesignProject(String alleleDesignProject) {
+		this.alleleDesignProject = alleleDesignProject;
+	}
+
+	@Field(IKMC_PROJECT_ID)
     private String ikmcProjectId;
 
     @Field(CASSETTE)

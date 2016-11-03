@@ -19,7 +19,7 @@ $(document).ready(function(){
     }
     temp.toggleClass( "img_selected");
     
-
+    
 	/* Prepare right viewport */
 	var viewport2 = $.WeblitzViewport($("#viewport2"), impcMediaBaseUrl, {
     'mediaroot': omeroStaticUrl
