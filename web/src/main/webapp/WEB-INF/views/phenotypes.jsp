@@ -374,11 +374,12 @@
 									class="fa fa-question-circle pull-right"></i>
 						</h2>
 							<div class="inner">
-								<div class="accordion-group">
-										<div class="accordion-heading">
-												Phenotype Associated Images
-										</div>
-										<div class="accordion-body">
+								<%--<div class="accordion-body" style="display: block">--%>
+										<%--<div class="accordion-heading">--%>
+												<%--Phenotype Associated Images--%>
+										<%--</div>--%>
+									<div class="accordion-body" style="display: block">
+										<div id="grid">
 											<ul>
 												<c:forEach var="doc" items="${images}">
 		                                            <li class="span2">
@@ -386,7 +387,7 @@
 		                                            </li>
 		    	  								</c:forEach>
 											</ul>
-
+									</div>
 											<div class="clear"></div>
 												<c:if test="${entry.count>5}">
 												<p class="textright">
@@ -396,40 +397,19 @@
 										</div>
 									</div>
 								<!--  end of accordion -->
-								</div>
+								<%--</div>--%>
 					</div>	<!--  end of images section -->
 			</c:if>
 
-			<%-- <c:if test="${not empty expressionFacets}">
-			<div class="section">
-				<h2 class="title" id="section-expression">Expression <i class="fa fa-question-circle pull-right"></i></h2>
-					<div class="inner">
-
-							<!-- thumbnail scroller markup begin -->
-			   						<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
-		  							<div class="accordion-group">
-										<div class="accordion-heading">
-												${entry.name}  (${entry.count})
-										</div>
-											<div  class="accordion-body">
-
-												<ul>
-												<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
-		                                                                                    <li class="span2">
-													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-		                                                                                    </li>
-		    	  								</c:forEach>
-												</ul>
-												<div class="clear"></div>
-												<c:if test="${entry.count>5}">
-												<p class="textright"><a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a></p>
-												</c:if>
-											</div>
-									</div>
-								</c:forEach>
-					</div>
-			</div>
-			</c:if> --%>
+			<%--IMPC images--%>
+			<c:if test="${not empty impcImageGroups}">
+				<div class="section" id="imagesSection">
+					<h2 class="title">Associated Images </h2>
+						<div class="inner">
+							<jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
+						</div>
+				</div>
+			</c:if>
 		</div>
 	</div>
 </div>
