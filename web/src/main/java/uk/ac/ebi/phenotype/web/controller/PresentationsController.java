@@ -43,7 +43,7 @@ public class PresentationsController {
 	 */
 
     private static final Map<String, List<String>> colsOrder = new HashMap<String, List<String>>() {{
-        put("Presentations", new ArrayList<String>() {{
+        put("Talks-posters", new ArrayList<String>() {{
         add("title");
         add("meeting");
         add("date");
