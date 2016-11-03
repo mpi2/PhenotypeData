@@ -20,6 +20,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
@@ -48,7 +49,6 @@ import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -78,14 +78,21 @@ public class PhenotypesController {
     @Autowired
 	@Qualifier("postqcService")
     PostQcService gpService;
+
     @Autowired
     MpService mpService;
+
     @Autowired
     ObservationService os;
+
     @Autowired
     PreQcService preqcService;
+
     @Autowired
     ImpressService impressService;
+
+    @Autowired
+    ImageService imageService;
 
     @Value("drupalBaseUrl")
     private String drupalBaseUrl;
@@ -126,8 +133,20 @@ public class PhenotypesController {
         
         // Query the images for this phenotype
         SolrDocumentList images = imagesSummaryHelper.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
+
         model.addAttribute("images", images);
-       
+
+        // IMPC image display at the bottom of the page
+        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, phenotype_id, 1);
+        Map<String, String> paramToNumber=new HashMap<>();
+        for(Group group:groups){
+            if(!paramToNumber.containsKey(group.getGroupValue())){
+                paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
+            }
+        }
+        model.addAttribute("paramToNumber", paramToNumber);
+        model.addAttribute("impcImageGroups",groups);
+
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         
         model.addAttribute("phenotype", mpTerm);
