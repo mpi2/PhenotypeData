@@ -28,6 +28,7 @@
         	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
 	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
+
 	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
 	        <c:set var="thumbnailSize" value="96"/>
 	       <%-- jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
@@ -60,6 +61,7 @@
 	            		</div>
 	            	<div id="filters">Filter Images by gender: 
 	            	<%-- ${param.gender} --%>
+	            	${mutants[0].imageLink }
 	            	<select name="gender">
 	            	<option value="not applicable" <c:if test="${param.gender eq 'not applicable'}">selected</c:if> >All</option>
             			<option value="male" <c:if test="${param.gender eq 'male'}">selected</c:if> >Males</option>
@@ -134,13 +136,24 @@
 			            		<c:choose>
 			            			
 			            			<c:when test="${mediaType eq 'pdf' }">		            			
-			            			<iframe id="mutant_frame"
-										src="//docs.google.com/gview?url=${pdfWithoutId}/${mutants[0].omeroId}&embedded=true"></iframe>
+			            				<iframe id="mutant_frame"
+											src="//docs.google.com/gview?url=${pdfWithoutId}/${mutants[0].omeroId}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
-			            			<iframe id="mutant_frame"
-										src="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"></iframe>
-			            			</c:otherwise>
+			      						<c:choose>
+			      							<c:when test="${fn.contains(mutants[0].imageLink, 'omero')} ">
+			      								<iframe id="mutant_frame"
+												src="${mutants[0].imageLink }"></iframe>
+			      							</c:when>
+			      							<c:otherwise>
+			      								<iframe id="mutant_frame"
+												src="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"></iframe>
+			      							</c:otherwise>
+			      						</c:choose>
+				            			
+				            		</c:otherwise>
+			            			
+			            			
 			            			</c:choose>
 								
 							</c:when>

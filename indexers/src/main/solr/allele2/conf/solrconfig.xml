@@ -832,6 +832,9 @@
       -->    
  
     <lst name="defaults">
+    	<lst name="appends">
+  			<str name="fq">allele_design_project:IMPC</str>
+		</lst> 
       <str name="echoParams">explicit</str>
       <int name="rows">10</int>
       <str name="df">*</str>
@@ -897,7 +900,7 @@
      <!-- request handler for cre alleles only -->
      <requestHandler name="/selectCre" class="solr.SearchHandler">
    		<lst name="appends">
-  			<str name="fq">allele_type:a</str>
+  			<str name="fq">allele_design_project:Cre</str>
 		</lst> 
   	</requestHandler>
 
