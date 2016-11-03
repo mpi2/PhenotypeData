@@ -152,6 +152,7 @@
         <field name="latest_phenotype_started" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="latest_phenotype_complete" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="latest_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="allele_design_project" type="string" indexed="true" stored="true" multiValued="false"/>
 
         <field name="notes" type="text" indexed="true" stored="false" multiValued="false"/>
         <field name="genetic_map_links" type="string" indexed="false" stored="true" multiValued="true"/>
@@ -184,6 +185,7 @@
         <field name="phenotyping_centres_str" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="allele_symbol" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+        
 
     </fields>
 
