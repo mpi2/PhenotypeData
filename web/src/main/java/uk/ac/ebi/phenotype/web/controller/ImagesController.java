@@ -15,21 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -48,8 +35,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.*;
 
 @Controller
 public class ImagesController {
@@ -118,7 +109,17 @@ public class ImagesController {
 
 
 	@RequestMapping("/imagesb*")
-	public String allImagesb(@RequestParam(required = false, defaultValue = "0", value = "start") int start, @RequestParam(required = false, defaultValue = "25", value = "length") int length, @RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn, @RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId, @RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId, @RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField, @RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField, @RequestParam(required = false, defaultValue = "", value = "qf") String qf, @RequestParam(required = false, defaultValue = "", value = "defType") String defType, @RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId, HttpServletRequest request, Model model)
+	public String allImagesb(@RequestParam(required = false, defaultValue = "0", value = "start") int start,
+	@RequestParam(required = false, defaultValue = "25", value = "length") int length,
+	@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
+	@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
+	@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
+	@RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField,
+	@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
+	@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
+	@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
+	@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
+	HttpServletRequest request, Model model)
 	throws SolrServerException, IOException , URISyntaxException {
 
 		// only need to send the solr query part of the url to solr
