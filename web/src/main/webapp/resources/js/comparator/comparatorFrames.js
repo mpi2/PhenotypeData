@@ -30,7 +30,7 @@ $(".clickable_image_mutant").click(function() {
 	  }
 	  if(this.src.indexOf('_pdf')>-1){
 		  $('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
-	  }else if(this.src.indexOf('omero')>-1){
+	  }else if(this.data-imageLink.indexOf('omero')>-1){
 		  console.log('omero url found');
 		  //$('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
 		  $('#mutant_frame').attr('src',jpegUrlDetailWithoutId+'/'+this.id);
