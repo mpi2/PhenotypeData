@@ -216,7 +216,14 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             if(el.isEmpty()){
                 return null;
             }
-            return new Integer(el);
+            try {
+				return new Integer(el);
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				System.err.println("field not string is ="+el);
+				e.printStackTrace();
+				return null;
+			}
         } else {
             System.out.println("Field not found " + field);
             runStatus.addError(" Caught error accessing Allele2 core: " + "Field not found " + field );

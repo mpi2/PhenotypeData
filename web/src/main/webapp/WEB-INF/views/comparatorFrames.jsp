@@ -129,7 +129,12 @@
 	            	
 	            	</div>
 	            
-	 
+	 				<c:set var="imageLink" value="${mutants[0].imageLink}"/>
+	 				<c:set var="srcForMuatant" value="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"/>
+	 				<c:if test="${fn:containsIgnoreCase(imageLink, 'omero' )}">
+	 					<c:set var="srcForMuatant" value="${imageLink }"/>
+	 				</c:if>
+	 				
 	            	<div id="mutant_box" class="box half_box_right">
 	            	<c:choose>
 			            	<c:when test="${not empty mutants}">
@@ -140,16 +145,10 @@
 											src="//docs.google.com/gview?url=${pdfWithoutId}/${mutants[0].omeroId}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
-			      						<c:choose>
-			      							<c:when test="${fn.contains(mutants[0].imageLink, 'omero')} ">
+			      						
 			      								<iframe id="mutant_frame"
-												src="${mutants[0].imageLink }"></iframe>
-			      							</c:when>
-			      							<c:otherwise>
-			      								<iframe id="mutant_frame"
-												src="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"></iframe>
-			      							</c:otherwise>
-			      						</c:choose>
+												src="${imageLink}"></iframe>
+			      							
 				            			
 				            		</c:otherwise>
 			            			
