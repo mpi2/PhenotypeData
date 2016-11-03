@@ -60,7 +60,10 @@ public class Allele2DTO {
 	public static final String ALLELE_CATEGORY = "allele_category";
 	public static final String ALLELE_FEATURES = "allele_features";
 	public static final String WITHOUT_ALLELE_FEATURES = "without_allele_features";
-
+	public static final String ALLELE_DESIGN_PROJECT="allele_design_project";
+	
+	@Field(ALLELE_DESIGN_PROJECT)
+	private String alleleDesignProject;
 	@Field(MUTATION_TYPE)
 	private String mutationType;
 	@Field(ALLELE_CATEGORY)
@@ -189,6 +192,15 @@ public class Allele2DTO {
 	@Field(VECTOR_GENBANK_LINK)
 	private String vectorGenbankLink;
 
+	public String getAlleleDesignProject() {
+		return alleleDesignProject;
+	}
+
+	public void setAlleleDesignProject(String alleleDesignProject) {
+		this.alleleDesignProject = alleleDesignProject;
+	}
+	
+	
 	public String getMutationType() {
 		return mutationType;
 	}
