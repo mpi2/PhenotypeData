@@ -133,6 +133,7 @@ public class PhenotypesController {
         
         // Query the images for this phenotype
         SolrDocumentList images = imagesSummaryHelper.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
+
         model.addAttribute("images", images);
 
         // IMPC image display at the bottom of the page
