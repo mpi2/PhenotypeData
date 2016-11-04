@@ -90,7 +90,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         run();
     }
 
-    private void initialize(String[] args) {
+    private void initialize(String[] args) throws DataLoadException {
         List<Specimen> specimens = dccSqlUtils.getSpecimens();
         for (Specimen specimen : specimens) {
             String key = specimen.getSpecimenID() + "_" + specimen.getPhenotypingCentre().value();
@@ -116,6 +116,11 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         OptionSet options = parser.parse(args);
 
+        if ( ! options.has("datasourceShortName")) {
+            String message = "Missing required command-line paraemter 'datasourceShortName'";
+            logger.error(message);
+            throw new DataLoadException(message);
+        }
         datasourceShortName = (String) options.valuesOf("datasourceShortName").get(0);
         filename = (String) options.valuesOf("filename").get(0);
 

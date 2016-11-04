@@ -81,7 +81,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         run();
     }
 
-    private void initialize(String[] args) {
+    private void initialize(String[] args) throws DataLoadException {
 
         OptionParser parser = new OptionParser();
 
@@ -99,6 +99,11 @@ public class ExtractDccSpecimens implements CommandLineRunner {
 
         OptionSet options = parser.parse(args);
 
+        if ( ! options.has("datasourceShortName")) {
+            String message = "Missing required command-line paraemter 'datasourceShortName'";
+            logger.error(message);
+            throw new DataLoadException(message);
+        }
         datasourceShortName = (String) options.valuesOf("datasourceShortName").get(0);
         filename = (String) options.valuesOf("filename").get(0);
 
