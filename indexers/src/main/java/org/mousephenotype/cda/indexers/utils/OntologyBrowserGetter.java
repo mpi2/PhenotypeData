@@ -72,13 +72,10 @@ public class OntologyBrowserGetter {
 										thisNode.accumulate("state", getState(true));  // whether its subtree is open or closed
 									}
 
-                                   // System.out.println("check children: "+ thisNode.toString());
                                     if (helper.getPathNodes().size()==2){
                                         thisNode.put("children", true);
                                         JSONObject jstate = (JSONObject) thisNode.get("state");
                                         jstate.put("opened", true);
-                                       // System.out.println("STATE: " + thisNode.get("state"));
-
                                     }
                                     //System.out.println("check children: "+ thisNode.toString());
 
@@ -113,9 +110,7 @@ public class OntologyBrowserGetter {
 
 	public String getScrollTo(List<JSONObject> tree){
 
-		//System.out.println("TREE: " + tree);
 		for (JSONObject topLevel: tree){
-            //System.out.println("check top: " + topLevel.toString());
 			if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
 				return topLevel.getString("id");
 			}
