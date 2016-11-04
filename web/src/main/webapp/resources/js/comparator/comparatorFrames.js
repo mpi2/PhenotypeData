@@ -16,7 +16,7 @@ $(".clickable_image_control").click(function() {
 			$('#control_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));
 		}
 		else if($(this).attr('data-imageLink') !== 'undefined'){
-			  console.log('omero url found');
+			  console.log('data-imageLink url found='+$(this).attr('data-imageLink'));
 			  //$('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
 			  $('#control_frame').attr('src',$(this).attr('data-imageLink'));
 		 }else{
@@ -36,12 +36,9 @@ $(".clickable_image_mutant").click(function() {
 	  if(this.src.indexOf('_pdf')>-1){
 		  $('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
 	  }else if($(this).attr('data-imageLink')!=='undefined'){
-		  console.log('omero url found');
-		  //$('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
 		  $('#mutant_frame').attr('src',$(this).attr('data-imageLink'));
 	  }else
 	 {
-		  console.log('no omero found');
 		  $('#mutant_frame').attr('src',jpegUrlDetailWithoutId+'/'+this.id);
 	 }
 	  $('#'+this.id).toggleClass( "img_selected");

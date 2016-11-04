@@ -78,8 +78,8 @@
             		</div>
             		<c:set var="ctrlImageLink" value="${controls[0].imageLink}"/>
 	 				<c:set var="srcForControl" value="${jpegUrlDetailWithoutId}/${controls[0].omeroId }"/>
-	 				<c:if test="${fn:containsIgnoreCase(ctrlImageLink, 'omero' )}">
-	 					<c:set var="srcForControl" value="${imageLink }"/>
+	 				<c:if test="${fn:containsIgnoreCase(ctrlImageLink, 'omero' ) || fn:containsIgnoreCase(ctrlImageLink, 'ndp' )}">
+	 					<c:set var="srcForControl" value="${ctrlImageLink}"/>
 	 				</c:if>
 	            	<div id="control_box" class="box half_box_left">
 		            	<c:choose>
@@ -135,9 +135,9 @@
 	            	</div>
 	            
 	 				<c:set var="imageLink" value="${mutants[0].imageLink}"/>
-	 				<c:set var="srcForMuatant" value="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"/>
-	 				<c:if test="${fn:containsIgnoreCase(imageLink, 'omero' )}">
-	 					<c:set var="srcForMuatant" value="${imageLink }"/>
+	 				<c:set var="srcForMutant" value="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"/>
+	 				<c:if test="${fn:containsIgnoreCase(imageLink, 'omero' ) || fn:containsIgnoreCase(imageLink, 'ndp' )}">
+	 					<c:set var="srcForMutant" value="${imageLink }"/>
 	 				</c:if>
 	 				
 	            	<div id="mutant_box" class="box half_box_right">
@@ -152,7 +152,7 @@
 			            			<c:otherwise>
 			      						
 			      								<iframe id="mutant_frame"
-												src="${imageLink}"></iframe>
+												src="${srcForMutant}"></iframe>
 			      							
 				            			
 				            		</c:otherwise>
