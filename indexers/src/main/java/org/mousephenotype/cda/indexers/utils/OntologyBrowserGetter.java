@@ -64,7 +64,7 @@ public class OntologyBrowserGetter {
 								if (thisNode.getBoolean("children")) {
 									thisNode = fetchChildNodes(helper, thisNode, termId);
 									//System.out.println("CHILD TERM ID: "+thisNode.getString("term_id"));
-									thisNode.put("children", true);
+									//thisNode.put("children", true);
 									//System.out.println("check children: "+ thisNode.toString());
 									if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
 										thisNode.accumulate("state", getState(false));
