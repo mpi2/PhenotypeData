@@ -27,6 +27,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mrelac on 03/09/16.
@@ -44,17 +46,32 @@ public class LoadConfigBeans {
     private NamedParameterJdbcTemplate jdbcDcc;
 
     @Autowired
+    private NamedParameterJdbcTemplate jdbcDccEurophenome;
+
+    @Autowired
     private StepBuilderFactory stepBuilderFactory;
+// // FIXME: 04/11/16
+//    @Bean
+//    public List<SampleLoader> sampleLoaders() {
+//        List<SampleLoader>  sampleLoaders = new ArrayList<>();
+//
+////        String externalDbShortName = "EuroPhenome";
+////        String externalDbShortName = "3i";
+//        String externalDbShortName = "IMPC";
+//
+//        SampleLoader sampleLoader = new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), externalDbShortName);
+//
+//        return sampleLoader;
+//    }
 
     @Bean
-    public SampleLoader sampleLoader() {
-//        String externalDbShortName = "EuroPhenome";
-//        String externalDbShortName = "3i";
-        String externalDbShortName = "IMPC";
+    public List<SampleLoader> sampleLoaders() {
+        List<SampleLoader> sampleLoaders = new ArrayList<>();
 
-        SampleLoader sampleLoader = new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), externalDbShortName);
+        sampleLoaders.add(new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils()));
+        sampleLoaders.add(new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils()));
 
-        return sampleLoader;
+        return sampleLoaders;
     }
 
     @Bean
@@ -73,5 +90,10 @@ public class LoadConfigBeans {
     @Bean
     public DccSqlUtils dccSqlUtils() {
         return new DccSqlUtils(jdbcDcc);
+    }
+
+    @Bean
+    public DccSqlUtils dccEurophenomeSqlUtils() {
+        return new DccSqlUtils(jdbcDccEurophenome);
     }
 }
