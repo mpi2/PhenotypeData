@@ -96,13 +96,14 @@ public class ImageServiceTest {
 
 	@Test
 	public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException{
+
 		String acc="MGI:1891341";//should be 8 parameters for this gene at least.
 		int rows=1;
 		List<Group> response=null;
-			response = imageService.getPhenotypeAssociatedImages(acc, rows);
+			response = imageService.getPhenotypeAssociatedImages(acc, null,  rows);
 			System.out.println(response.size());
 
-		assertTrue(response !=null);
+		assertTrue(response != null);
 
 	}
 

@@ -28,6 +28,7 @@
         	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
 	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
+
 	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
 	        <c:set var="thumbnailSize" value="96"/>
 	       <%-- jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
@@ -60,6 +61,7 @@
 	            		</div>
 	            	<div id="filters">Filter Images by gender: 
 	            	<%-- ${param.gender} --%>
+	            	
 	            	<select name="gender">
 	            	<option value="not applicable" <c:if test="${param.gender eq 'not applicable'}">selected</c:if> >All</option>
             			<option value="male" <c:if test="${param.gender eq 'male'}">selected</c:if> >Males</option>
@@ -74,6 +76,11 @@
             		</select>
             		<input type="submit" value="Go"> <span class="btn" id="mutant_only_button">Display Mutant Only</span>
             		</div>
+            		<c:set var="ctrlImageLink" value="${controls[0].imageLink}"/>
+	 				<c:set var="srcForControl" value="${jpegUrlDetailWithoutId}/${controls[0].omeroId }"/>
+	 				<c:if test="${fn:containsIgnoreCase(ctrlImageLink, 'omero' )}">
+	 					<c:set var="srcForControl" value="${imageLink }"/>
+	 				</c:if>
 	            	<div id="control_box" class="box half_box_left">
 		            	<c:choose>
 			            	<c:when test="${not empty controls}">
@@ -84,7 +91,7 @@
 			            			</c:when>
 			            			<c:otherwise>
 			            				<iframe id="control_frame"
-												src="${jpegUrlDetailWithoutId}/${controls[0].omeroId }"></iframe>
+												src="${srcForControl}"></iframe>
 			            			</c:otherwise>
 			            		</c:choose>
 			            		
@@ -118,7 +125,7 @@
 										<img id="${img.omeroId}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" data-imageLink="${img.imageLink}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            				</div>
@@ -127,20 +134,30 @@
 	            	
 	            	</div>
 	            
-	 
+	 				<c:set var="imageLink" value="${mutants[0].imageLink}"/>
+	 				<c:set var="srcForMuatant" value="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"/>
+	 				<c:if test="${fn:containsIgnoreCase(imageLink, 'omero' )}">
+	 					<c:set var="srcForMuatant" value="${imageLink }"/>
+	 				</c:if>
+	 				
 	            	<div id="mutant_box" class="box half_box_right">
 	            	<c:choose>
 			            	<c:when test="${not empty mutants}">
 			            		<c:choose>
 			            			
 			            			<c:when test="${mediaType eq 'pdf' }">		            			
-			            			<iframe id="mutant_frame"
-										src="//docs.google.com/gview?url=${pdfWithoutId}/${mutants[0].omeroId}&embedded=true"></iframe>
+			            				<iframe id="mutant_frame"
+											src="//docs.google.com/gview?url=${pdfWithoutId}/${mutants[0].omeroId}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
-			            			<iframe id="mutant_frame"
-										src="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"></iframe>
-			            			</c:otherwise>
+			      						
+			      								<iframe id="mutant_frame"
+												src="${imageLink}"></iframe>
+			      							
+				            			
+				            		</c:otherwise>
+			            			
+			            			
 			            			</c:choose>
 								
 							</c:when>
@@ -171,8 +188,9 @@
 									<c:when test="${mediaType eq 'pdf' }">
 										<img id="${img.omeroId}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 									</c:when>
+									
 									<c:otherwise>
-	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" data-imageLink="${img.imageLink}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            			</div>
