@@ -115,7 +115,7 @@ public class OntologyBrowserGetter {
 
 		//System.out.println("TREE: " + tree);
 		for (JSONObject topLevel: tree){
-            System.out.println("check top: " + topLevel.toString());
+            //System.out.println("check top: " + topLevel.toString());
 			if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
 				return topLevel.getString("id");
 			}
@@ -250,7 +250,7 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
-		System.out.println("TREE HELPER QUERY: " + query);
+		//System.out.println("TREE HELPER QUERY: " + query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/data/anatomy");
 		nameMap.put("emapa", "/data/anatomy");
@@ -331,7 +331,7 @@ public class OntologyBrowserGetter {
 		th.setPreOpenNodes(preOpenNodes);
 		th.setPageBaseUrl(pageBaseUrl);
 		th.setOntologyName(ontologyName);
-		System.out.println(th.toString());
+		//System.out.println(th.toString());
 		return th;
 
 	}
