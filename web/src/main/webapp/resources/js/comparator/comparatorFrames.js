@@ -14,7 +14,12 @@ $(".clickable_image_control").click(function() {
 		}
 		if(this.src.indexOf('_pdf')>-1){
 			$('#control_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));
-		}else{
+		}
+		else if($(this).attr('data-imageLink') !== 'undefined'){
+			  console.log('omero url found');
+			  //$('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
+			  $('#control_frame').attr('src',$(this).attr('data-imageLink'));
+		 }else{
 			$('#control_frame').attr('src',jpegUrlDetailWithoutId+'/'+this.id);
 		}
 		
@@ -30,8 +35,13 @@ $(".clickable_image_mutant").click(function() {
 	  }
 	  if(this.src.indexOf('_pdf')>-1){
 		  $('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
+	  }else if($(this).attr('data-imageLink')!=='undefined'){
+		  console.log('omero url found');
+		  //$('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
+		  $('#mutant_frame').attr('src',$(this).attr('data-imageLink'));
 	  }else
 	 {
+		  console.log('no omero found');
 		  $('#mutant_frame').attr('src',jpegUrlDetailWithoutId+'/'+this.id);
 	 }
 	  $('#'+this.id).toggleClass( "img_selected");

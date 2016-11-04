@@ -19,16 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.GroupCommand;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -103,7 +97,6 @@ public class ImageService implements WebStatus{
 
     /**
      * This method should not be used! This method should use the observation core and get categorical data as well as have image links where applicable!!!
-     * @param anatomyTable 
      * @param anatomyId
      * @param anatomyTerms
      * @param phenotypingCenter
@@ -396,10 +389,10 @@ public class ImageService implements WebStatus{
 			String metadataGroup, String strain, String anatomyId,
 			String parameterAssociationValue, String mpId, String colonyId) throws SolrServerException, IOException {
 
-		SolrQuery solrQuery = new SolrQuery();
+		SolrQuery solrQuery = new SolrQuery().setQuery("*:*");
 		//gene accession will take precedence if both acc and symbol supplied
 		if(StringUtils.isNotEmpty(mgiAccession)){
-			solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+			solrQuery.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		}
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
 				+ experimentOrControl);
@@ -428,7 +421,7 @@ public class ImageService implements WebStatus{
 					+ anatomyId+"\"");
 		}
 		if (StringUtils.isNotEmpty(mpId)) {
-			solrQuery.addFilterQuery(MpDTO.MP_ID + ":\""
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\""
 					+ mpId+"\"");
 		}
 		if (StringUtils.isNotEmpty(colonyId)) {
@@ -886,10 +879,18 @@ public class ImageService implements WebStatus{
 	
 	
 	
-	public List<Group> getPhenotypeAssociatedImages(String acc, int count) throws SolrServerException, IOException {
-		List<Group> groups = new ArrayList<>();
+	public List<Group> getPhenotypeAssociatedImages(String geneAcc, String mpId, int count)
+	throws SolrServerException, IOException {
+
+			List<Group> groups = new ArrayList<>();
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + acc + "\"");
+		solrQuery.setQuery("*:*");
+		if (geneAcc != null) {
+			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
+		}
+		if (mpId != null){
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId + "\"");
+		}
 		solrQuery.add("group", "true")
         .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
         .add("group.limit", Integer.toString(count));

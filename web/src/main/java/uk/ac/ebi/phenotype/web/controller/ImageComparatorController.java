@@ -110,6 +110,8 @@ public class ImageComparatorController {
 			filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
 		}
 		
+		boolean federated=this.isFederated(filteredMutants);
+		
 
 		
 		
@@ -121,13 +123,23 @@ public class ImageComparatorController {
 		model.addAttribute("mutants", filteredMutants);
 		//System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
-		if(mediaType!=null && mediaType.equals("pdf")){//we need iframes to load google pdf viewer so switch to this view for the pdfs.
+		if(mediaType!=null && mediaType.equals("pdf") || federated){//we need iframes to load google pdf viewer so switch to this view for the pdfs.
 			System.out.println("using frames based comparator to pdfs");
 			return "comparatorFrames";
 		}
 		return "comparator";//js viewport used to view images in this view.
 	}
 	
+	private boolean isFederated(List<ImageDTO> filteredMutants) {
+		for(ImageDTO image:filteredMutants){
+			if(image.getImageLink()!=null && image.getImageLink().contains("omero") ){//at the moment only use federated approach on omero served images - bad assumption here unwritten rule
+				return true;
+				
+			}
+		}
+		return false;
+	}
+
 	@RequestMapping("/overlap")
 	public String overlap(@RequestParam String acc,@RequestParam String id1, @RequestParam String id2, Model model) throws SolrServerException, IOException{
 		

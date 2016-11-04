@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +99,7 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
             doc.setStatus(getValueFor(ProductDTO.STATUS, array, columns, runStatus));
             doc.setStatusDate(getValueFor(ProductDTO.STATUS_DATE, array, columns, runStatus));
             doc.setType(getValueFor(ProductDTO.TYPE, array, columns, runStatus));
+            doc.setAlleleDesignProject(getValueFor(ProductDTO.ALLELE_DESIGN_PROJECT, array, columns, runStatus));
 
             line = in.readLine();
 

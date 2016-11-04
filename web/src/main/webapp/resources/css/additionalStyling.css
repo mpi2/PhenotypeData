@@ -319,7 +319,7 @@ button.exportButton{
 .onethirdForPie               { float: left; width: 33%; }
 
 img.thumbnailStyle{
-	max-width: 95px; max-height: 200px;width:auto; height:auto;
+	max-width: 145px; max-height: 200px; width:auto; height:auto;
 }
 
 td h4 a{

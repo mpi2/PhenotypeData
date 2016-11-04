@@ -562,7 +562,7 @@ public class SolrIndex2 {
 
     private String getProduct(String name, String type) {
         name = name.replace("-", "\\-");
-        String search_url = "/search?q=name:"
+        String search_url = "/select?q=name:"
                 + '"' + name + '"'
                 + " AND type:"
                 + '"' + type + '"'
