@@ -52,9 +52,10 @@ import java.util.*;
 @Import( { ExtractDccConfigBeans.class })
 public class ExtractDccExperiments implements CommandLineRunner {
 
+    private String datasourceShortName;
     private String dbname;
     private String filename;
-    private final org.slf4j.Logger logger         = LoggerFactory.getLogger(this.getClass());
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Map<String, Long> specimenIdPhenotypingCenterMap = new HashMap<>();         // key = specimenId_phenotypingCenter. Value = specimenPk.
 
@@ -101,6 +102,9 @@ public class ExtractDccExperiments implements CommandLineRunner {
         // parameter to indicate experiment table creation
         parser.accepts("create");
 
+        // parameter to indicate the data source short name (e.g. EuroPhenome, IMPC, 3I, etc)
+        parser.accepts("datasourceShortName").withRequiredArg().ofType(String.class);
+
         // parameter to indicate the name of the file to process
         parser.accepts("filename").withRequiredArg().ofType(String.class);
 
@@ -112,6 +116,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         OptionSet options = parser.parse(args);
 
+        datasourceShortName = (String) options.valuesOf("datasourceShortName").get(0);
         filename = (String) options.valuesOf("filename").get(0);
 
         if (options.has("create")) {
@@ -194,7 +199,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                         centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
                     }
 
-                    insertLine(line, centerProcedure, centerPk);
+                    insertLine(line, datasourceShortName, centerProcedure, centerPk);
                     totalLines++;
                 } catch (Exception e) {
                     logger.error("ERROR IMPORTING LINE. CENTER: {}. LINE: {}. EXPERIMENT SKIPPED. ERROR:\n{}" , centerProcedure.getCentreID(), line, e.getLocalizedMessage());
@@ -404,7 +409,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertLine(Line line, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
+    private void insertLine(Line line, String datasourceShortName, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
 
         Long procedurePk, center_procedurePk;
 
@@ -445,7 +450,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         long linePk = dccSqlUtils.getLinePk(line.getColonyID(), center_procedurePk);
         if (linePk == 0) {
-            linePk = dccSqlUtils.insertLine(line, center_procedurePk);
+            linePk = dccSqlUtils.insertLine(line, datasourceShortName, center_procedurePk);
         }
 
         if (line.getStatusCode() != null) {

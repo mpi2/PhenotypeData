@@ -47,8 +47,7 @@ import java.util.Map;
  */
 public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
-    private CommonUtils             commonUtils             = new CommonUtils();
-
+    private CommonUtils                commonUtils = new CommonUtils();
     private CdaSqlUtils                cdaSqlUtils;
     private DccSqlUtils                dccSqlUtils;
     private NamedParameterJdbcTemplate jdbcCda;
@@ -63,6 +62,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private int    externalDbId;
 
 
+    // FIXME FIXME FIXME
+    // FIXME FIXME FIXME CONSIDER HAVING ONLY ONE jdbcDcc AND CALLING THIS CLASS FOR EVERY DCC SCHEMA!!!
+    // FIXME FIXME FIXME
     public ExperimentLoader(
             NamedParameterJdbcTemplate jdbcCda,
             NamedParameterJdbcTemplate jdbcDcc,
@@ -203,15 +205,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     @Transactional
     private Map<String, Integer> insertExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment) throws DataLoadException {
-        Map<String, Integer> results = new HashMap<>();
 
-        Experiment experiment = createExperiment(dccExperiment);
+        Experiment experiment = new Experiment();
+        Map<String, Integer> counts = createExperiment(dccExperiment, experiment);
 
-        return results;
+        return counts;
     }
 
-    private Experiment createExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment) throws DataLoadException {
-        Experiment experiment = new Experiment();
+    private Map<String, Integer> createExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment, Experiment experiment) throws DataLoadException {
+        Map<String, Integer> counts = new HashMap<>();
 
         String colonyId;                        // FIXME
 //        PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getProcedure().)
@@ -267,7 +269,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         cdaSqlUtils.insertExperiment(experiment);
 
-        return experiment;
+        return counts;
     }
 
     public String getExternalDb() {

@@ -49,6 +49,7 @@ import java.util.List;
 @Import( {ExtractDccConfigBeans.class })
 public class ExtractDccSpecimens implements CommandLineRunner {
 
+    private String datasourceShortName;
     private String filename;
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -87,6 +88,9 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         // parameter to indicate specimen table creation
         parser.accepts("create");
 
+        // parameter to indicate the data source short name (e.g. EuroPhenome, IMPC, 3I, etc)
+        parser.accepts("datasourceShortName").withRequiredArg().ofType(String.class);
+
         // parameter to indicate the name of the file to process
         parser.accepts("filename").withRequiredArg().ofType(String.class);
 
@@ -95,6 +99,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
 
         OptionSet options = parser.parse(args);
 
+        datasourceShortName = (String) options.valuesOf("datasourceShortName").get(0);
         filename = (String) options.valuesOf("filename").get(0);
 
         try {
@@ -137,7 +142,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
 
             for (Specimen specimen : centerSpecimen.getMouseOrEmbryo()) {
                 try {
-                    insertSpecimen(specimen, centerSpecimen);
+                    insertSpecimen(specimen, datasourceShortName, centerSpecimen);
                     totalSpecimens++;
                 } catch (Exception e) {
                     logger.error("ERROR IMPORTING SPECIMEN. CENTER: {}. SPECIMEN: {}. SPECIMEN SKIPPED. ERROR:\n{}", centerSpecimen.getCentreID(), specimen, e.getLocalizedMessage());
@@ -148,7 +153,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertSpecimen(Specimen specimen, CentreSpecimen centerSpecimen) throws DataLoadException {
+    private void insertSpecimen(Specimen specimen, String datasourceShortName, CentreSpecimen centerSpecimen) throws DataLoadException {
 
         Long specimenPk;
 
@@ -164,7 +169,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         }
 
         // specimen
-        specimen = dccSqlUtils.insertSpecimen(specimen);
+        specimen = dccSqlUtils.insertSpecimen(specimen, datasourceShortName);
         specimenPk = specimen.getHjid();
 
         // embryo or mouse

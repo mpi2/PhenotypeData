@@ -635,17 +635,19 @@ public class DccSqlUtils {
      * Inserts the given {@link Line} into the {@code line} table. Duplicates are ignored.
      *
      * @param line;   The {@link Line} instance to be inserted
+     * @param datasourceShortName the data source short name (e.g. EuroPhenome, IMPC, 3I, etc.)
      * @param center_procedurePk   The center_procedure primary key
      *
      * @return returns the line primary key
      */
-    public long insertLine(Line line, long center_procedurePk) {
+    public long insertLine(Line line, String datasourceShortName, long center_procedurePk) {
         long pk = 0L;
-        String insert = "INSERT INTO line (colonyId, center_procedure_pk) VALUES (:colonyId, :center_procedurePk)";
+        String insert = "INSERT INTO line (colonyId, datasourceShortName, center_procedure_pk) VALUES (:colonyId, :datasourceShortName, :center_procedurePk)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("colonyId", line.getColonyID());
+            parameterMap.put("datasourceShortName", datasourceShortName);
             parameterMap.put("center_procedurePk", center_procedurePk);
 
             int count = npJdbcTemplate.update(insert, parameterMap);
@@ -1387,18 +1389,20 @@ public class DccSqlUtils {
      * Inserts the given {@link Specimen} into the specimen table. Duplicates are ignored.
      *
      * @param specimen the specimen to be inserted
+     * @param datasourceShortName the data source short name (e.g. EuroPhenome, IMPC, 3I, etc.)
      *
      * @return the specimen, with primary key loaded
      */
-    public Specimen insertSpecimen(Specimen specimen) throws DataLoadException {
+    public Specimen insertSpecimen(Specimen specimen, String datasourceShortName) throws DataLoadException {
         final String insert = "INSERT INTO specimen (" +
-                    "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project, specimenId, strainId, zygosity, statuscode_pk) VALUES " +
-                    "(:colonyId, :gender, :isBaseline, :litterId, :phenotypingCenter, :pipeline, :productionCenter, :project, :specimenId, :strainId, :zygosity, :statuscodePk);";
+                    "colonyId, datasourceShortName, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project, specimenId, strainId, zygosity, statuscode_pk) VALUES " +
+                    "(:colonyId, :datasourceShortName, :gender, :isBaseline, :litterId, :phenotypingCenter, :pipeline, :productionCenter, :project, :specimenId, :strainId, :zygosity, :statuscodePk);";
 
         Map<String, Object> parameterMap = new HashMap();
 
         try {
             parameterMap.put("colonyId", specimen.getColonyID());
+            parameterMap.put("datasourceShortName", datasourceShortName);
             parameterMap.put("gender", specimen.getGender().value());
             parameterMap.put("isBaseline", specimen.isIsBaseline() ? 1 : 0);
             parameterMap.put("litterId", specimen.getLitterId());

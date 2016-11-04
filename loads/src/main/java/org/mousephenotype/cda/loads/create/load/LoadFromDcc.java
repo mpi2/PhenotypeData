@@ -54,7 +54,8 @@ import java.util.Date;
 public class LoadFromDcc implements CommandLineRunner {
 
     /**
-     * This class is intended to be a command-line callable java main program that loads the cda database.
+     * This class is intended to be a command-line callable java main program that loads the cda database with all
+     * data conforming to the dcc schema. This input data may be in different databases.
      */
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(LoadFromDcc.class);
