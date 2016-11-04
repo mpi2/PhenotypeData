@@ -40,6 +40,7 @@ DROP TABLE IF EXISTS line;
 CREATE TABLE line (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   colonyId VARCHAR(255) NOT NULL,
+  datasourceShortName VARCHAR(40) NOT NULL,
   center_procedure_pk INT UNSIGNED NOT NULL,
   UNIQUE KEY colonyId_centerProcedurePk_uk (colonyId, center_procedure_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

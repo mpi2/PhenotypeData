@@ -61,7 +61,7 @@
 	            		</div>
 	            	<div id="filters">Filter Images by gender: 
 	            	<%-- ${param.gender} --%>
-	            	${mutants[0].imageLink }
+	            	
 	            	<select name="gender">
 	            	<option value="not applicable" <c:if test="${param.gender eq 'not applicable'}">selected</c:if> >All</option>
             			<option value="male" <c:if test="${param.gender eq 'male'}">selected</c:if> >Males</option>
@@ -78,8 +78,8 @@
             		</div>
             		<c:set var="ctrlImageLink" value="${controls[0].imageLink}"/>
 	 				<c:set var="srcForControl" value="${jpegUrlDetailWithoutId}/${controls[0].omeroId }"/>
-	 				<c:if test="${fn:containsIgnoreCase(ctrlImageLink, 'omero' )}">
-	 					<c:set var="srcForControl" value="${imageLink }"/>
+	 				<c:if test="${fn:containsIgnoreCase(ctrlImageLink, 'omero' ) || fn:containsIgnoreCase(ctrlImageLink, 'ndp' )}">
+	 					<c:set var="srcForControl" value="${ctrlImageLink}"/>
 	 				</c:if>
 	            	<div id="control_box" class="box half_box_left">
 		            	<c:choose>
@@ -124,11 +124,8 @@
 									<c:when test="${mediaType eq 'pdf' }">
 										<img id="${img.omeroId}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 									</c:when>
-									<c:when test="${fn:containsIgnoreCase(img.imageLink,'omero') }">
-										<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" data-imageLink="${img.imageLink}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
-									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" data-imageLink="${img.imageLink}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            				</div>
@@ -138,9 +135,9 @@
 	            	</div>
 	            
 	 				<c:set var="imageLink" value="${mutants[0].imageLink}"/>
-	 				<c:set var="srcForMuatant" value="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"/>
-	 				<c:if test="${fn:containsIgnoreCase(imageLink, 'omero' )}">
-	 					<c:set var="srcForMuatant" value="${imageLink }"/>
+	 				<c:set var="srcForMutant" value="${jpegUrlDetailWithoutId}/${mutants[0].omeroId }"/>
+	 				<c:if test="${fn:containsIgnoreCase(imageLink, 'omero' ) || fn:containsIgnoreCase(imageLink, 'ndp' )}">
+	 					<c:set var="srcForMutant" value="${imageLink }"/>
 	 				</c:if>
 	 				
 	            	<div id="mutant_box" class="box half_box_right">
@@ -155,7 +152,7 @@
 			            			<c:otherwise>
 			      						
 			      								<iframe id="mutant_frame"
-												src="${imageLink}"></iframe>
+												src="${srcForMutant}"></iframe>
 			      							
 				            			
 				            		</c:otherwise>
@@ -191,11 +188,9 @@
 									<c:when test="${mediaType eq 'pdf' }">
 										<img id="${img.omeroId}" src="${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 									</c:when>
-									<c:when test="${fn:containsIgnoreCase(img.imageLink,'omero') }">
-										<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" data-imageLink="${img.imageLink}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
-									</c:when>
+									
 									<c:otherwise>
-	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	            						<img id="${img.omeroId}" src="${jpegUrlThumbWithoutId}/${img.omeroId}/" data-imageLink="${img.imageLink}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            			</div>

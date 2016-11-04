@@ -63,7 +63,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private LoadUtils                  loadUtils = new LoadUtils();
 
     private Set<String> missingColonyIds = new HashSet<>();
-    private Set<String> unexpectedStage = new HashSet<>();
+    private Set<String> unexpectedStage  = new HashSet<>();
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
     private StepBuilderFactory   stepBuilderFactory;
@@ -73,18 +73,16 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private OntologyTerm sampleTypeMouseEmbryoStage;
     private OntologyTerm sampleTypeWholeOrganism;
 
-    private String externalDbShortName;
     private int externalDbId;
     private int efoDbId;
 
 
     public SampleLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
-                        CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils, String externalDbShortName) {
+                        CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils) {
         this.jdbcCda = jdbcCda;
         this.stepBuilderFactory = stepBuilderFactory;
         this.cdaSqlUtils = cdaSqlUtils;
         this.dccSqlUtils = dccSqlUtils;
-        this.externalDbShortName = externalDbShortName;
 
         written.put("biologicalModel", 0);
         written.put("biologicalSample", 0);
@@ -101,7 +99,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         sampleTypeWholeOrganism = cdaSqlUtils.getOntologyTermByName("whole organism");
         allelesBySymbol = cdaSqlUtils.getAllelesBySymbol();
         this.euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
-        setExternalDb(externalDbShortName);
         this.efoDbId = cdaSqlUtils.getExternalDbId("EFO");
 
         Assert.notNull(developmentalStageMouse, "developmentalStageMouse must be set");
@@ -499,15 +496,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         int biologicalModelSampleId = cdaSqlUtils.insertBiologicalModelSample(biologicalModelId, biologicalSampleId);
 
         return counts;
-    }
-
-    public String getExternalDb() {
-        return externalDbShortName;
-    }
-
-    public void setExternalDb(String externalDbShortName) {
-        this.externalDbShortName = externalDbShortName;
-        this.externalDbId = cdaSqlUtils.getExternalDbId(externalDbShortName);
     }
 
 

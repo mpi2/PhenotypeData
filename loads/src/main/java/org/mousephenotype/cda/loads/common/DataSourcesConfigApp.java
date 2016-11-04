@@ -60,6 +60,9 @@ public class DataSourcesConfigApp {
     @Value("${datasource.dcc.url}")
     String dccUrl;
 
+    @Value("${datasource.dccEurophenomeFinal.url}")
+    String dccEurophenomeFinalUrl;
+
     @Value("${datasource.cdabase.username}")
     String username;
 
@@ -144,5 +147,30 @@ public class DataSourcesConfigApp {
     @Bean(name = "jdbcDcc")
     public NamedParameterJdbcTemplate jdbcDcc() {
         return new NamedParameterJdbcTemplate(dccDataSource());
+    }
+
+    @Bean(name = "dccEurophenomeDataSource", destroyMethod = "close")
+    public DataSource dccEurophenomeDataSource() {
+
+        DataSource ds = DataSourceBuilder
+                .create()
+                .url(dccEurophenomeFinalUrl)
+                .username(username)
+                .password(password)
+                .type(BasicDataSource.class)
+                .driverClassName("com.mysql.jdbc.Driver").build();
+        ((BasicDataSource) ds).setInitialSize(1);
+
+        try {
+            logger.info("Using dcc europhenome database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+
+        } catch (Exception e) { }
+
+        return ds;
+    }
+
+    @Bean(name = "jdbcDccEurophenome")
+    public NamedParameterJdbcTemplate jdbcDccEurophenome() {
+        return new NamedParameterJdbcTemplate(dccEurophenomeDataSource());
     }
 }
