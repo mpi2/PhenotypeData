@@ -36,6 +36,7 @@ public class OntologyBrowserGetter {
 
 			ResultSet resultSet = p.executeQuery();
 
+            //System.out.println("PATH: " + helper.getPathNodes().size());
 			while (resultSet.next()) {
 
 				String nodeId = resultSet.getString("node_id");  // child_node_id
@@ -64,16 +65,28 @@ public class OntologyBrowserGetter {
 								if (thisNode.getBoolean("children")) {
 									thisNode = fetchChildNodes(helper, thisNode, termId);
 									//System.out.println("CHILD TERM ID: "+thisNode.getString("term_id"));
-									//thisNode.put("children", true);
-									//System.out.println("check children: "+ thisNode.toString());
+
 									if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
 										thisNode.accumulate("state", getState(false));
 									} else {
-										thisNode.accumulate("state", getState(true));
+										thisNode.accumulate("state", getState(true));  // whether its subtree is open or closed
 									}
+
+                                   // System.out.println("check children: "+ thisNode.toString());
+                                    if (helper.getPathNodes().size()==2){
+                                        thisNode.put("children", true);
+                                        JSONObject jstate = (JSONObject) thisNode.get("state");
+                                        jstate.put("opened", true);
+                                       // System.out.println("STATE: " + thisNode.get("state"));
+
+                                    }
+                                    //System.out.println("check children: "+ thisNode.toString());
+
 								}
 								if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
-									thisNode.accumulate("type", "selected");
+									thisNode.accumulate("type", "selected"); // shows as blue
+
+
 								}
 								tn.add(thisNode);
 							}
@@ -102,6 +115,7 @@ public class OntologyBrowserGetter {
 
 		//System.out.println("TREE: " + tree);
 		for (JSONObject topLevel: tree){
+            System.out.println("check top: " + topLevel.toString());
 			if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
 				return topLevel.getString("id");
 			}
@@ -236,7 +250,7 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
-		//System.out.println("QUERY: " + query);
+		System.out.println("TREE HELPER QUERY: " + query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/data/anatomy");
 		nameMap.put("emapa", "/data/anatomy");
@@ -317,7 +331,7 @@ public class OntologyBrowserGetter {
 		th.setPreOpenNodes(preOpenNodes);
 		th.setPageBaseUrl(pageBaseUrl);
 		th.setOntologyName(ontologyName);
-	//	System.out.println(th.toString());
+		System.out.println(th.toString());
 		return th;
 
 	}
