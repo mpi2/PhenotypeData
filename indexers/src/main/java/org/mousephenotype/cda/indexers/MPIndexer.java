@@ -182,9 +182,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String termId = rs.getString("term_id");
-              if ( ! termId.equals("MP:0005384")){
-                    continue;
-                }
+//              if ( ! termId.equals("MP:0005384")){
+//                    continue;
+//                }
 
                 MpDTO mp = new MpDTO();
                 mp.setDataType(rs.getString("dataType"));
