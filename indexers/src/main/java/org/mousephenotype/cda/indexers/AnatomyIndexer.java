@@ -137,6 +137,10 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 String id = bean.getId();
 
+//                if (!id.equals("MA:0002433")){
+//                    continue;
+//                }
+
                 // Set scalars.
                 anatomyTerm.setDataType("ma");
                 anatomyTerm.setAnatomyId(id);

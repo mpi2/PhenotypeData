@@ -320,7 +320,7 @@ public class ImageService implements WebStatus{
 	public static SolrQuery allImageRecordSolrQuery()
 			throws SolrServerException, IOException {
 
-		return new SolrQuery().setQuery("observation_type:image_record")
+		return new SolrQuery().setQuery(ImageDTO.OBSERVATION_TYPE + ":image_record")
 				.addFilterQuery(
 						"(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":"
 								+ "*mousephenotype.org*)");
@@ -341,7 +341,7 @@ public class ImageService implements WebStatus{
 		// make requests for each procedure
 		// http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2384986%22&&fq=biological_sample_group:experimental&facet=true&facet.field=procedure_name
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
 				+ experimentOrControl);
 		solrQuery.setFacetMinCount(1);
@@ -370,7 +370,7 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ObservationDTO.STRAIN_NAME + ":" + strain);
 		}
 		if (sex != null) {
-			solrQuery.addFilterQuery("sex:" + sex.name());
+			solrQuery.addFilterQuery(ImageDTO.SEX + ":" + sex.name());
 		}
 		if (parameterStableId != null) {
 			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":"
@@ -889,7 +889,9 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
 		}
 		if (mpId != null){
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId + "\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\"");// put these in with mp not anatomy when Ilinca has put into imageDTO? + "\" OR "+ ImageDTO.INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + mpId + "\"");
+//			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ images Section\" OR " + ImageDTO.PARAMETER_NAME
+//					+ ":\"LacZ images wholemount\"");
 		}
 		solrQuery.add("group", "true")
         .add("group.field", ImageDTO.PARAMETER_STABLE_ID)

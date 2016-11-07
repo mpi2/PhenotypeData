@@ -107,51 +107,7 @@ public class ImagesController {
 		return "images";
 	}
 
-
-	@RequestMapping("/imagesb*")
-	public String allImagesb(@RequestParam(required = false, defaultValue = "0", value = "start") int start,
-	@RequestParam(required = false, defaultValue = "25", value = "length") int length,
-	@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
-	@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
-	@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
-	@RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField,
-	@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
-	@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
-	@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
-	@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
-	HttpServletRequest request, Model model)
-	throws SolrServerException, IOException , URISyntaxException {
-
-		// only need to send the solr query part of the url to solr
-		sendQueryStringToSolr(request, model);
-		// add breadcrumbs using different method than for images.jsp that is
-		// called from genes or phenotypes pages
-		String emptyString = "*:*";
-		String queryString = "";
-		if (filterField.length > 0) {
-			if (!filterField[0].equals(emptyString)) {
-				queryString += filterField[0];
-			}
-
-		}
-		if (qIn != null && !qIn.equals(emptyString)) {
-			qIn = URLDecoder.decode(qIn, "UTF-8");
-			queryString += " search keyword: \"" + qIn + "\"";// URLDecoder.decode(request.getQueryString(),
-																	// "UTF-8");
-		} else {
-			queryString += " search keyword: \"\"";
-		}
-		queryString = queryString.replace("annotatedHigherLevelMpTermName", "phenotype");
-		queryString = queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
-		queryString = queryString.replace("expName", "procedure");
-		queryString = queryString.replace("subtype", "gene_subtype");
-
-		model.addAttribute("breadcrumbText", queryString);
-
-		return "imagesb";
-	}
-
-
+	
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
 	throws IOException, URISyntaxException {
 
@@ -182,7 +138,7 @@ public class ImagesController {
 			// System.out.println("value=" + value);
 			// only add to our new query string if not rows or length as we want
 			// to set those to specific values in the jsp
-			if (!key.equals("rows") && !key.equals("start")) {
+            if (!key.equals("rows") && !key.equals("start")) {
 				newQueryString += "&" + key + "=" + value;
 				// If the same key has multiple values (check boxes)
 				String[] valueArray = request.getParameterValues(key);
@@ -215,7 +171,6 @@ public class ImagesController {
 			model.addAttribute("solrImagesError", "");
 		}
 	}
-
 
 	/**
 	 * Returns an HTML string representation of the "last mile" breadcrumb
