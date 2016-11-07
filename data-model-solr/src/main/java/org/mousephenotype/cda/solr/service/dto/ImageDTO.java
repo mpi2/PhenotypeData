@@ -491,12 +491,8 @@ public class ImageDTO extends ObservationDTO {
 		this.mpId.add(mpId);
 	}
 
-	public void addMpIdTerm(String mpIdTerm) {
-
-		if (this.mpIdTerm == null) {
-			this.mpIdTerm = new ArrayList<>();
-		}
-		this.mpIdTerm.add(mpIdTerm);
+	public void addMpIdTerm(String mpIdTerm, boolean uniqueOnly) {
+		this.mpIdTerm = add(this.mpIdTerm, mpIdTerm, true);
 	}
 
 	public List<String> getMpId() {
@@ -521,6 +517,10 @@ public class ImageDTO extends ObservationDTO {
 
 	public List<String> getMpTermSynonym() {
 		return mpTermSynonym;
+	}
+
+	public void addMpTermSynonym(List<String> mpTermSynonym, Boolean uniqueOnly) {
+		this.mpTermSynonym = add(this.mpTermSynonym, mpTermSynonym, uniqueOnly);
 	}
 
 	public void setMpTermSynonym(List<String> mpTermSynonym) {
@@ -1040,6 +1040,16 @@ public class ImageDTO extends ObservationDTO {
 	public void setThumbnailUrl(String thumbnailUrl) {
 		this.thumbnailUrl=thumbnailUrl;
 		
+	}
+
+	private List<String> add(List<String> to, String what, Boolean uniqueOnly){
+		if (to == null){
+			to = new ArrayList<>();
+		}
+		if (!to.contains(what)) {
+			to.add(what);
+		}
+		return to;
 	}
 
 	private List<String> add(List<String> to, String what){

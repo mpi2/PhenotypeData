@@ -405,6 +405,8 @@ public abstract class OntologyDAO {
         return new ArrayList<>(beans);
     }
 
+
+
     /**
      * Returns a <code>List&lt;OntologyTerm&gt;</code> of all of
      * <code>id</code>'s terms between the top level (inclusive) and
