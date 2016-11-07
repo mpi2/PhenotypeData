@@ -71,12 +71,6 @@ public class PhisService {
 			// need to loop over and creat mp_id_terms
 			if (pImage.getPhenotypeIdBag() != null) {
 				image.setMpId(pImage.getPhenotypeIdBag());
-				image.setMpTerm(pImage.getPhenotypeLabelBag());
-				// image.setMpTermSynonym(mpTermSynonym); dont currently have mp
-				List<String> mpIdTerms = new ArrayList<>();
-				for (int i = 0; i < pImage.getPhenotypeIdBag().size(); i++) {
-					mpIdTerms.add(pImage.getPhenotypeIdBag().get(i) + "_" + pImage.getPhenotypeLabelBag().get(i));
-				}
 			}
 			
 			//what about mpath, emap and cmpo? no ids in the list of 163?
@@ -154,8 +148,7 @@ public class PhisService {
 				if(z!=null){
 					image.setZygosity(z.toString());
 				}
-				
-				
+
 			}
 			
 //			//<arr name="stage_facet">
