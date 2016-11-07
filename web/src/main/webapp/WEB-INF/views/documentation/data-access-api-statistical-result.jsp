@@ -1,34 +1,3 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-
-<t:genericpage>
-    <jsp:attribute name="title">International Mouse Phenotyping Consortium Documentation</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-            href="${baseUrl}/documentation/index">Documentation</a></jsp:attribute>
-    <jsp:attribute name="bodyTag"><body
-            class="page-node searchpage one-sidebar sidebar-first small-header"></body></jsp:attribute>
-    <jsp:attribute name="addToFooter"></jsp:attribute>
-
-    <jsp:attribute name="header">
-        <link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css'/>
-    </jsp:attribute>
-
-    <jsp:body>
-
-        <div id="wrapper">
-
-            <div id="main">
-                <!-- Sidebar First -->
-                <jsp:include page="doc-menu.jsp"></jsp:include>
-
-                <!-- Maincontent -->
-
-                <div class="region region-content">
-
-                    <div class="block block-system">
-
-                        <div id="top" class="content node">
 
                             <h1>REST API documentation for IMPC and Legacy statistical result access</h1>
 
@@ -649,12 +618,3 @@
                             <h4>Get a list of specific fields from statistical results for gene Car4 in CSV format</h4>
                             <a href="http://www.ebi.ac.uk/mi/impc/solr/statistical-result/select?q=marker_symbol:Car4&wt=csv&fl=parameter_stable_id,parameter_name,female_control_count,female_mutant_count,male_control_count,male_mutant_count,null_test_p_value,statistical_method,allele_name,status,marker_accession_id,marker_symbol,allele_accession_id,allele_symbol,colony_id,metadata_group,zygosity,strain_accession_id,strain_name,classification_tag,genotype_effect_p_value,effect_size,genotype_effect_stderr_estimate">http://www.ebi.ac.uk/mi/impc/solr/statistical-result/select?q=marker_symbol:Car4&wt=csv&fl=parameter_stable_id,parameter_name,female_control_count,female_mutant_count,male_control_count,male_mutant_count,null_test_p_value,statistical_method,allele_name,status,marker_accession_id,marker_symbol,allele_accession_id,allele_symbol,colony_id,metadata_group,zygosity,strain_accession_id,strain_name,classification_tag,genotype_effect_p_value,effect_size,genotype_effect_stderr_estimate</a>
                             </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </jsp:body>
-
-</t:genericpage>

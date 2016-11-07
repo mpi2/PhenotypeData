@@ -101,7 +101,7 @@ public class PhenotypesController {
      * Phenotype controller loads information required for displaying the
      * phenotype page or, in the case of an error, redirects to the error page
      *
-     * @param phenotype_id the Mammalian phenotype id of the phenotype to
+     * @param phenotypeId the Mammalian phenotype id of the phenotype to
      * display
      * @param model the data model
      * @param request the <code>HttpServletRequest</code> request instance
@@ -115,29 +115,29 @@ public class PhenotypesController {
      * @throws SQLException
      *
      */
-    @RequestMapping(value = "/phenotypes/{phenotype_id}", method = RequestMethod.GET)
-    public String loadMpPage(   @PathVariable String phenotype_id,  Model model, HttpServletRequest request, RedirectAttributes attributes)
+    @RequestMapping(value = "/phenotypes/{phenotypeId}", method = RequestMethod.GET)
+    public String loadMpPage(   @PathVariable String phenotypeId,  Model model, HttpServletRequest request, RedirectAttributes attributes)
     throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
     	
     	// Check whether the MP term exists
-    	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
+    	MpDTO mpTerm = mpService.getPhenotype(phenotypeId);
     	
      	model.addAttribute("hasData", mpTerm  == null ? false : true);
         
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(drupalBaseUrl, request);
- 		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest); 		
+ 		Map<String, String> regInt = registerInterest.registerInterestState(phenotypeId, request, registerInterest);
  		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
         
         // Query the images for this phenotype
-        SolrDocumentList images = imagesSummaryHelper.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
+        SolrDocumentList images = imagesSummaryHelper.getDocsForMpTerm(phenotypeId, 0, numberOfImagesToDisplay).getResults();
 
         model.addAttribute("images", images);
 
         // IMPC image display at the bottom of the page
-        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, phenotype_id, 1);
+        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, phenotypeId, 1);
         Map<String, String> paramToNumber=new HashMap<>();
         for(Group group:groups){
             if(!paramToNumber.containsKey(group.getGroupValue())){
@@ -152,21 +152,21 @@ public class PhenotypesController {
         model.addAttribute("phenotype", mpTerm);
 
 
-        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotype_id));
+        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotypeId));
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
 
-	    model.addAttribute("parametersAssociated", getParameters(phenotype_id));
+	    model.addAttribute("parametersAssociated", getParameters(phenotypeId));
 
-	    model.addAttribute("genePercentage", ControllerUtils.getPercentages(phenotype_id, srService, gpService));
+	    model.addAttribute("genePercentage", ControllerUtils.getPercentages(phenotypeId, srService, gpService));
 
         // Stuff for parent-child display
-        model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
-        model.addAttribute("hasParents", mpService.getParents(phenotype_id).size() > 0 ? true : false);
+        model.addAttribute("hasChildren", mpService.getChildren(phenotypeId).size() > 0 ? true : false);
+        model.addAttribute("hasParents", mpService.getParents(phenotypeId).size() > 0 ? true : false);
 
         // Associations table and filters
-        PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(phenotype_id,  null, null, null);
-        PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  null, null, null);       
+        PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(phenotypeId,  null, null, null);
+        PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotypeId,  null, null, null);
         model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult, preQcResult));
         model.addAttribute("errorMessage", getErrorMessage(phenoResult, preQcResult));   
         model.addAttribute("phenotypes", getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
