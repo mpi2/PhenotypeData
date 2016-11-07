@@ -104,7 +104,7 @@
                                         <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}</a>
                                         </li>
                                         <li>RESTful interfaces:&nbsp;<a
-                                                href="${baseUrl}/documentation/api-help">APIs</a></li>
+                                                href="${baseUrl}/documentation/data-access">APIs</a></li>
                                     </ul>
                                 </div>
                             </div>
