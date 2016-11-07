@@ -69,8 +69,15 @@ public class OntologyBrowserGetter {
 										thisNode.accumulate("state", getState(true));  // whether its subtree is open or closed
 									}
 
-                                    if ( (termId.startsWith("MP:") && helper.getPathNodes().size()==2) ||
-                                            ( (termId.startsWith("MA:") || termId.startsWith("EMAPA:")) && helper.getPathNodes().size()==3)
+//                                    if ( (termId.startsWith("MP:") && helper.getPathNodes().size()==2) ||
+//                                            ( (termId.startsWith("MA:") || termId.startsWith("EMAPA:")) && helper.getPathNodes().size()==3)
+//                                            ){
+//                                        thisNode.put("children", true);
+//                                        JSONObject jstate = (JSONObject) thisNode.get("state");
+//                                        jstate.put("opened", true);
+//                                    }
+                                    if ( (termId.startsWith("MP:") && helper.getPathNodes().size()==2)
+
                                             ){
                                         thisNode.put("children", true);
                                         JSONObject jstate = (JSONObject) thisNode.get("state");
@@ -302,10 +309,10 @@ public class OntologyBrowserGetter {
 				//System.out.println("Path: " + fullpath);
 				String[] nodes = fullpath.split(" ");
 
-                if ( (ontologyName.equals("ma") || ontologyName.equals("emapa")) && rowCount > 1 && nodes.length > minPathLen) {
-                    // ignore other path that is not straig
-                    continue;
-                }
+//                if ( (ontologyName.equals("ma") || ontologyName.equals("emapa")) && rowCount > 1 && nodes.length > minPathLen) {
+//                    // ignore other path that is not straig
+//                    continue;
+//                }
 
 				if ( nodes.length >= minPathLen ) {
 					pathNodes.addAll(Arrays.asList(nodes));
