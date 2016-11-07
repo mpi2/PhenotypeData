@@ -295,12 +295,12 @@ public class OntologyBrowserGetter {
 				minPathLen = 2;
 			}
 
-			int rowCount = 0;
-            if (resultSet != null) {
-                resultSet.last();
-                rowCount = resultSet.getRow();
-                resultSet.beforeFirst();
-            }
+//			int rowCount = 0;
+//            if (resultSet != null) {
+//                resultSet.last();
+//                rowCount = resultSet.getRow();
+//                resultSet.beforeFirst();
+//            }
 
 
 			while (resultSet.next()) {
