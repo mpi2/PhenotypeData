@@ -17,7 +17,7 @@
             <li>Who is it for?</li>
             <li>How to use it?</li>
         </ul>
-
+    </li>
     <li><strong>Users' Manual - The PhenoDCC Crawler</strong> [ <a href="/sites/mousephenotype.org/files/files/TR-MRCH-DCC-GY003.pdf" rel="nofollow">TR-MRCH-DCC-GY003.pdf</a> ]
         <ul class="subUl">
             <li>What is the PhenoDCC data crawler?</li>

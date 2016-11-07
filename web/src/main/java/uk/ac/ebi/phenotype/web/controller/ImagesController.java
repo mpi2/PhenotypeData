@@ -107,115 +107,70 @@ public class ImagesController {
 		return "images";
 	}
 
+	
+	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
+	throws IOException, URISyntaxException {
 
-//	@RequestMapping("/imagesb*")
-//	public String allImagesb(@RequestParam(required = false, defaultValue = "0", value = "start") int start,
-//	@RequestParam(required = false, defaultValue = "25", value = "length") int length,
-//	@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
-//	@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
-//	@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
-//	@RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField,
-//	@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
-//	@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
-//	@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
-//	@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
-//	HttpServletRequest request, Model model)
-//	throws SolrServerException, IOException , URISyntaxException {
-//
-//		// only need to send the solr query part of the url to solr
-//		sendQueryStringToSolr(request, model);
-//		// add breadcrumbs using different method than for images.jsp that is
-//		// called from genes or phenotypes pages
-//		String emptyString = "*:*";
-//		String queryString = "";
-//		if (filterField.length > 0) {
-//			if (!filterField[0].equals(emptyString)) {
-//				queryString += filterField[0];
-//			}
-//
-//		}
-//		if (qIn != null && !qIn.equals(emptyString)) {
-//			qIn = URLDecoder.decode(qIn, "UTF-8");
-//			queryString += " search keyword: \"" + qIn + "\"";// URLDecoder.decode(request.getQueryString(),
-//																	// "UTF-8");
-//		} else {
-//			queryString += " search keyword: \"\"";
-//		}
-//		queryString = queryString.replace("annotatedHigherLevelMpTermName", "phenotype");
-//		queryString = queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
-//		queryString = queryString.replace("expName", "procedure");
-//		queryString = queryString.replace("subtype", "gene_subtype");
-//
-//		model.addAttribute("breadcrumbText", queryString);
-//
-//		return "imagesb";
-//	}
+		String queryString = request.getQueryString();
+		String startString = "0";
+		String rowsString = "25";// the number of images passed back for each
+									// solr request
+		if (request.getParameter("start") != null) {
+			startString = request.getParameter("start");
+		}
+		// if (request.getParameter("rows") != null) {
+		// rowsString = request.getParameter("rows");
+		// }
 
+		// Map params = request.getParameterMap();
+		// Map newParamsMap=new HashMap<>();
+		// newParamsMap.putAll(params);
+		// newParamsMap.remove("rows");
+		// newParamsMap.remove("start");
+		String newQueryString = "";
+		Enumeration keys = request.getParameterNames();
+		while (keys.hasMoreElements()) {
+			String key = (String) keys.nextElement();
+			// System.out.println("key=" + key);
 
-//	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
-//	throws IOException, URISyntaxException {
-//		System.out.println("calling sendQuery in sanger images controller");
-//		String queryString = request.getQueryString();
-//		String startString = "0";
-//		String rowsString = "25";// the number of images passed back for each
-//									// solr request
-//		if (request.getParameter("start") != null) {
-//			startString = request.getParameter("start");
-//		}
-//		// if (request.getParameter("rows") != null) {
-//		// rowsString = request.getParameter("rows");
-//		// }
-//
-//		// Map params = request.getParameterMap();
-//		// Map newParamsMap=new HashMap<>();
-//		// newParamsMap.putAll(params);
-//		// newParamsMap.remove("rows");
-//		// newParamsMap.remove("start");
-//		String newQueryString = "";
-//		Enumeration keys = request.getParameterNames();
-//		while (keys.hasMoreElements()) {
-//			String key = (String) keys.nextElement();
-//			// System.out.println("key=" + key);
-//
-//			// To retrieve a single value
-//			String value = request.getParameter(key);
-//			// System.out.println("value=" + value);
-//			// only add to our new query string if not rows or length as we want
-//			// to set those to specific values in the jsp
-//			if (!key.equals("rows") && !key.equals("start")) {
-//				newQueryString += "&" + key + "=" + value;
-//				// If the same key has multiple values (check boxes)
-//				String[] valueArray = request.getParameterValues(key);
-//
-//				for (int i = 0; i > valueArray.length; i++) {
-//					System.out.println("VALUE ARRAY" + valueArray[i]);
-//				}
-//			}
-//		}
-//		newQueryString += "&start=" + startString + "&rows=" + rowsString;
-//
-//		System.out.println("queryString from imagesb=" + newQueryString);
-//		JSONObject imageResults = JSONRestUtil.getResults(config.get("internalSolrUrl") + "/images/select?" + newQueryString);
-//		JSONArray imageDocs = JSONRestUtil.getDocArray(imageResults);
-//		if (imageDocs != null) {
-//			model.addAttribute("images", imageDocs);
-//			int numberFound = JSONRestUtil.getNumberFoundFromJsonResponse(imageResults);
-//			// System.out.println("image count=" + numberFound);
-//			model.addAttribute("imageCount", numberFound);
-//			model.addAttribute("q", newQueryString);
-//			// model.addAttribute("filterQueries", filterQueries);
-//			// model.addAttribute("filterField", filterField);
-//			// model.addAttribute("qf", qf);//e.g. auto_suggest
-//			// //model.addAttribute("filterParam", filterParam);
-//			// model.addAttribute("queryTerms", queryTerms);
-//			model.addAttribute("start", Integer.valueOf(startString));
-//			model.addAttribute("length", Integer.valueOf(rowsString));
-//			// model.addAttribute("defType", defType);
-//		} else {
-//			model.addAttribute("solrImagesError", "");
-//		}
-//	}
+			// To retrieve a single value
+			String value = request.getParameter(key);
+			// System.out.println("value=" + value);
+			// only add to our new query string if not rows or length as we want
+			// to set those to specific values in the jsp
+            if (!key.equals("rows") && !key.equals("start")) {
+				newQueryString += "&" + key + "=" + value;
+				// If the same key has multiple values (check boxes)
+				String[] valueArray = request.getParameterValues(key);
 
+				for (int i = 0; i > valueArray.length; i++) {
+					System.out.println("VALUE ARRAY" + valueArray[i]);
+				}
+			}
+		}
+		newQueryString += "&start=" + startString + "&rows=" + rowsString;
+
+		System.out.println("queryString from imagesb=" + newQueryString);
+		JSONObject imageResults = JSONRestUtil.getResults(config.get("internalSolrUrl") + "/images/select?" + newQueryString);
+		JSONArray imageDocs = JSONRestUtil.getDocArray(imageResults);
+		if (imageDocs != null) {
+			model.addAttribute("images", imageDocs);
+			int numberFound = JSONRestUtil.getNumberFoundFromJsonResponse(imageResults);
+			// System.out.println("image count=" + numberFound);
+			model.addAttribute("imageCount", numberFound);
+			model.addAttribute("q", newQueryString);
+			// model.addAttribute("filterQueries", filterQueries);
+			// model.addAttribute("filterField", filterField);
+			// model.addAttribute("qf", qf);//e.g. auto_suggest
+			// //model.addAttribute("filterParam", filterParam);
+			// model.addAttribute("queryTerms", queryTerms);
+			model.addAttribute("start", Integer.valueOf(startString));
+			model.addAttribute("length", Integer.valueOf(rowsString));
+			// model.addAttribute("defType", defType);
+		} else {
+			model.addAttribute("solrImagesError", "");
+		}
+	}
 
 	/**
 	 * Returns an HTML string representation of the "last mile" breadcrumb
