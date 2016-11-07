@@ -337,14 +337,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
 
 		// term
-		imageDTO.addMpTerm(termBean.getName());
-		imageDTO.addMpId(termBean.getId());
+		imageDTO.addMpTerm(termBean.getName(), true);
+		imageDTO.addMpId(termBean.getId(), true);
 		imageDTO.addMpTermSynonym(termBean.getSynonyms(), true);
 		imageDTO.addMpIdTerm(termBean.getId() + "_" + termBean.getName(), true);
 
-		if (ontologyDAO.getIntermediates(termBean.getId()) == null || ontologyDAO.getIntermediates(termBean.getId()).isEmpty()){
-			System.out.println("EMPTY intermediates for " + imageDTO.getId());
-		}
 		// intermediate
 		List<OntologyTermBean> intermediate = ontologyDAO.getIntermediates(termBean.getId());
 		for (OntologyTermBean term : intermediate) {
@@ -355,8 +352,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		// top levels
 		List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(termBean.getId(), OntologyDAO.PHENOTYPE_LEVELS);
 		for (OntologyTermBean term : topLevels) {
-			imageDTO.addTopLevelMpId(term.getId());
-			imageDTO.addTopLevelMpTerm(term.getName());
+			imageDTO.addTopLevelMpId(term.getId(), true);
+			imageDTO.addTopLevelMpTerm(term.getName(), true);
 		}
 
 		// anatomy terms from mp
@@ -448,9 +445,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	ImageDTO addMpInfo (ImageDTO image, RunStatus runStatus){
 
-		List<String> mpIds = new ArrayList<>(image.getMpId());
-		image.setMpId(new ArrayList<>());
-		if ( mpIds!= null && !mpIds.isEmpty()){
+		if ( image.getMpId() != null && !image.getMpId().isEmpty()){
+
+			List<String> mpIds = new ArrayList<>(image.getMpId());
+			image.setMpId(new ArrayList<>());
 			for (String mpId : mpIds){
 				addMpValues(mpId, image, mpOntologyService, runStatus);
 			}
