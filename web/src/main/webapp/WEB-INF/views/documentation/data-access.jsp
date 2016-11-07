@@ -9,6 +9,7 @@
 
 	<jsp:attribute name="header">
 		<link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
+		<link href="${baseUrl}/css/custom.css" rel="stylesheet" type="text/css" />
         <style>
             .srchdocTab ul {
                 list-style-type: square;
@@ -32,7 +33,8 @@
                 <li><a href="#tabs-1">IMPC Genotype Phenotype API</a></li>
                 <li><a href="#tabs-2">IMPC Statistical Result API</a></li>
                 <li><a href="#tabs-3">IMPC Observation API</a></li>
-                <li><a href="#tabs-4">Data submission to IMPC</a></li>
+                <li><a href="#tabs-4">IMPC Images API</a></li>
+                <li><a href="#tabs-5">Data submission to IMPC</a></li>
 
             </ul>
 
@@ -45,10 +47,13 @@
             <div id="tabs-3" class="srchdocTab">
                 <%@ include file="data-access-api-observation.jsp" %>
             </div>
-            <div id="tabs-4" class="srchdocTab">
+            <div  id="tabs-4" class="srchdocTab">
+                 <%@ include file="data-access-api-images.jsp" %>
+            </div>
+            <div id="tabs-5" class="srchdocTab">
                 <%@ include file="data-access-submission-api-help.jsp" %>
             </div>
-
+            </div>
         </div>
 
         <script>

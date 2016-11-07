@@ -1,34 +1,3 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-
-<t:genericpage>
-    <jsp:attribute name="title">International Mouse Phenotyping Consortium Documentation</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-            href="${baseUrl}/documentation/index">Documentation</a></jsp:attribute>
-    <jsp:attribute name="bodyTag"><body
-            class="page-node searchpage one-sidebar sidebar-first small-header"></body></jsp:attribute>
-    <jsp:attribute name="addToFooter"></jsp:attribute>
-
-    <jsp:attribute name="header">
-        <link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css'/>
-    </jsp:attribute>
-
-    <jsp:body>
-
-        <div id="wrapper">
-
-            <div id="main">
-                <!-- Sidebar First -->
-                <jsp:include page="doc-menu.jsp"></jsp:include>
-
-                <!-- Maincontent -->
-
-                <div class="region region-content">
-
-                    <div class="block block-system">
-
-                        <div id="top" class="content node">
 
                             <h1>REST API documentation for Genotype associated phenotype calls</h1>
 
@@ -349,12 +318,3 @@
         <a href='http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select/?q=*:*&amp;version=2.2&amp;start=0&amp;rows=0&amp;indent=on&amp;wt=json&amp;fq=-resource_name:%22IMPC%22&amp;fl=top_level_mp_term_name&amp;facet=on&amp;facet.pivot=top_level_mp_term_name,resource_name' target="_blank">http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select/?q=*:*&amp;version=2.2&amp;start=0&amp;rows=0&amp;indent=on&amp;wt=json&amp;fq=-resource_name:%22IMPC%22&amp;fl=top_level_mp_term_name&amp;facet=on&amp;facet.pivot=top_level_mp_term_name,resource_name</a>
         </pre>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </jsp:body>
-
-</t:genericpage>

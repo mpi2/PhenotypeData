@@ -302,10 +302,6 @@
         <!-- for lexical match -->
         <field name="anatomy_term_synonym_anatomy_id_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-        <field name="top_level_anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="top_level_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="top_level_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
         <field name="selected_top_level_anatomy_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="selected_top_level_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="selected_top_level_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -322,23 +318,8 @@
         <field name="intermediate_anatomy_term_anatomy_id_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="intermediate_anatomy_term_synonym_anatomy_id_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-        <field name="parent_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parent_anatomy_term" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parent_anatomy_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
-        <!-- for lexical match -->
-        <field name="parent_anatomy_id_anatomy_id_term" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parent_anatomy_term_anatomy_id_term" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="parent_anatomy_term_synonym_anatomy_id_term" type="string" indexed="true" stored="true" multiValued="true" />
-
-        <field name="child_anatomy_id" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="child_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="child_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="stage" type="string" indexed="true" stored="true" required="false" multiValued="false" />
         <!-- for lexical match -->
-        <field name="child_anatomy_id_anatomy_id_term" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="child_anatomy_term_anatomy_id_term" type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="child_anatomy_term_synonym_anatomy_id_term" type="string" indexed="true" stored="true" multiValued="true" />
-
 
         <!-- For anatomogram -->
         <field name="efo_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
