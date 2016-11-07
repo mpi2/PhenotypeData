@@ -118,8 +118,7 @@ public class ImagesController {
 	@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
 	@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
 	@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
-	@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
-	HttpServletRequest request, Model model)
+	@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId, HttpServletRequest request, Model model)
 	throws SolrServerException, IOException , URISyntaxException {
 
 		// only need to send the solr query part of the url to solr
@@ -182,7 +181,7 @@ public class ImagesController {
 			// System.out.println("value=" + value);
 			// only add to our new query string if not rows or length as we want
 			// to set those to specific values in the jsp
-			if (!key.equals("rows") && !key.equals("start")) {
+            if (!key.equals("rows") && !key.equals("start")) {
 				newQueryString += "&" + key + "=" + value;
 				// If the same key has multiple values (check boxes)
 				String[] valueArray = request.getParameterValues(key);

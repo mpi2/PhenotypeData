@@ -50,7 +50,7 @@
       <tr>
         <td><a href='${baseUrl}/documentation/doc-method'><i class="fa fa-line-chart fa-4x"></i></a></td>
         <td><a href='${baseUrl}/documentation/doc-related-resources'><i class="fa fa-sitemap fa-4x"></i></a></td>
-        <td><a href='${baseUrl}/documentation/doc-access'><i class="fa fa-download fa-4x"></i></a></td>
+        <td><a href='${baseUrl}/documentation/data-access'><i class="fa fa-download fa-4x"></i></a></td>
       </tr>
       <tr>
         <td class="descTxt"><a href='${baseUrl}/documentation/doc-method'>Methods</a></td>

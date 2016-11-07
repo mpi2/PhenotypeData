@@ -15,27 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-
 import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -43,6 +22,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.Map.Entry;
 
 
 /**
@@ -90,6 +78,9 @@ public abstract class OntologyDAO {
 
     public static final int MAX_ROWS = 1000000;
     public static final int BATCH_SIZE = 2000;
+    // number of levels to use when selecting top levels
+    public static final int ANATOMY_LEVELS = 2;
+    public static final int PHENOTYPE_LEVELS = 1;
 
     @Autowired
     @Qualifier("ontodbDataSource")
@@ -107,7 +98,7 @@ public abstract class OntologyDAO {
      */
     public OntologyDetail getSelectedTopLevelDetails(String id) {
         int level = 1;
-        List<OntologyTermBean> beans = getSelectedTopLevel(id, level);
+        List<OntologyTermBean> beans = getTopLevel(id, level);
         OntologyDetail detail = new OntologyDetail(beans);
 
         return detail;
@@ -362,45 +353,6 @@ public abstract class OntologyDAO {
      */
     public List<String> getSynonyms(String id) {
         return (synonymsMap.containsKey(id) ? synonymsMap.get(id) : new ArrayList<String>());
-    }
-
-    /**
-     * Returns a <code>List&lt;OntologyTerm&gt;</code> of <code>id</code>'s
-     * top-level terms at level <code>level</code>, exclusive of self, or an
-     * empty list if there are none.
-     *
-     * @param id id of top-level relative terms to return.
-     * @param level the 1-relative level below the top level (i.e. 1 = top
-     * level, 2 = top-level - 1, etc.)
-     *
-     * @return a <code>List&lt;OntologyTerm&gt;</code> of <code>id</code>'s
-     * top-level terms at level <code>level</code>, exclusive of self, or an
-     * empty list if there are none.
-     */
-
-    public List<OntologyTermBean> getSelectedTopLevel(String id, int level) {
-
-        // should be the first one in the graph, so level should be 1
-        if (level <= 0) {
-            throw new RuntimeException("Level must be > 0. level was " + level);
-        }
-
-        Set<OntologyTermBean> beans = new LinkedHashSet<>();
-        List<List<String>> selectedAncestorGraphsId = selectedAncestorGraphsMap.get(id);
-
-        if (selectedAncestorGraphsId != null) {
-            for (List<String> ancestorGraphId : selectedAncestorGraphsId) {
-                if (( ! ancestorGraphId.isEmpty()) && (ancestorGraphId.size() >= level)) {
-                    String topTermId = ancestorGraphId.get(level - 1);
-
-                    //if ( ! id.equals(topTermId)) {                              // Don't include self in top-level list.
-                    beans.add(allTermsMap.get(topTermId));
-                    //}
-                }
-            }
-        }
-
-        return new ArrayList<>(beans);
     }
 
     /**
