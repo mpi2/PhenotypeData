@@ -651,7 +651,7 @@ public class DataTableController {
 			String mutationType = "";
 			String mt = doc.containsKey(Allele2DTO.MUTATION_TYPE) ? doc.getString(Allele2DTO.MUTATION_TYPE) : "";
 			String desc = doc.containsKey(Allele2DTO.ALLELE_DESCRIPTION) ? doc.getString(Allele2DTO.ALLELE_DESCRIPTION) : "";
-			List<String> mtDesc = null; mtDesc.add(mt); mtDesc.add(desc);
+			List<String> mtDesc = new ArrayList<>(); mtDesc.add(mt); mtDesc.add(desc);
 
 			if (! mt.isEmpty() && ! desc.isEmpty()) {
 				mutationType = StringUtils.join(mtDesc, "; ");
