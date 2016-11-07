@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -154,14 +155,21 @@ public class ImpcImagesController {
 
 			// To retrieve a single value
 			String value = request.getParameter(key);
-			 //System.out.println(key + " value=" + value);
+			 System.out.println(key + " value=" + value);
 			// only add to our new query string if not rows or length as we want
 			// to set those to specific values in the jsp
 			if (!key.equals("rows") && !key.equals("start")) {
-				if (value.contains("MGI:")) {
-					value = value.replace("MGI:", "MGI\\:");// for mgi ids for
-															// example encode
-															// the :
+				
+				if(StringUtils.countMatches(value, ":")>=2){
+					//query has colon in it more than field seperator e.g. q value=mp_id:MP:0012466
+					String fieldQuery=value.substring(value.indexOf(":")+1, value.length());
+					System.out.println("fieldQuery="+fieldQuery);
+					String fieldKey=value.substring(0,value.indexOf(":")+1);
+					if (value.contains(":")) {
+						value = fieldKey+"\""+fieldQuery+"\"";// for mgi ids for
+																// example encode
+																// the :
+					}
 				}
 				newQueryString += "&" + key + "=" + value;
 				
