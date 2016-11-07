@@ -1,9 +1,6 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,6 +33,7 @@ public class OntologyBrowserGetter {
 
 			ResultSet resultSet = p.executeQuery();
 
+            //System.out.println("PATH: " + helper.getPathNodes().size());
 			while (resultSet.next()) {
 
 				String nodeId = resultSet.getString("node_id");  // child_node_id
@@ -64,16 +62,35 @@ public class OntologyBrowserGetter {
 								if (thisNode.getBoolean("children")) {
 									thisNode = fetchChildNodes(helper, thisNode, termId);
 									//System.out.println("CHILD TERM ID: "+thisNode.getString("term_id"));
-									thisNode.put("children", true);
-									//System.out.println("check children: "+ thisNode.toString());
+
 									if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
 										thisNode.accumulate("state", getState(false));
 									} else {
-										thisNode.accumulate("state", getState(true));
+										thisNode.accumulate("state", getState(true));  // whether its subtree is open or closed
 									}
+
+//                                    if ( (termId.startsWith("MP:") && helper.getPathNodes().size()==2) ||
+//                                            ( (termId.startsWith("MA:") || termId.startsWith("EMAPA:")) && helper.getPathNodes().size()==3)
+//                                            ){
+//                                        thisNode.put("children", true);
+//                                        JSONObject jstate = (JSONObject) thisNode.get("state");
+//                                        jstate.put("opened", true);
+//                                    }
+                                    if ( (termId.startsWith("MP:") && helper.getPathNodes().size()==2)
+
+                                            ){
+                                        thisNode.put("children", true);
+                                        JSONObject jstate = (JSONObject) thisNode.get("state");
+                                        jstate.put("opened", true);
+                                    }
+
+                                    //System.out.println("check children: "+ thisNode.toString());
+
 								}
 								if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
-									thisNode.accumulate("type", "selected");
+									thisNode.accumulate("type", "selected"); // shows as blue
+
+
 								}
 								tn.add(thisNode);
 							}
@@ -100,7 +117,6 @@ public class OntologyBrowserGetter {
 
 	public String getScrollTo(List<JSONObject> tree){
 
-		//System.out.println("TREE: " + tree);
 		for (JSONObject topLevel: tree){
 			if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
 				return topLevel.getString("id");
@@ -236,7 +252,8 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
-		//System.out.println("QUERY: " + query);
+
+		//System.out.println("TREE HELPER QUERY: " + query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/data/anatomy");
 		nameMap.put("emapa", "/data/anatomy");
@@ -251,31 +268,39 @@ public class OntologyBrowserGetter {
 
 
 		try ( Connection conn = ontodbDataSource.getConnection();
-			  PreparedStatement p = conn.prepareStatement(query)) {
+          PreparedStatement p = conn.prepareStatement(query)) {
 
 			p.setString(1, termId);
-			ResultSet resultSet = p.executeQuery();
+            ResultSet resultSet = p.executeQuery();
+
 
 			int topIndex = 0;
 			int startNodeIndex = 0;
 			int minPathLen = 0;
 
 			if ( ontologyName.equals("ma")){
-				topIndex = 2;
-				startNodeIndex = 1;
+				topIndex = 2; // 3rd in the fullpath is the one below the real root in obo
+				startNodeIndex = 1;  // mouse anatomical structure (under mouse anatomical entity)
 				minPathLen = 3;
 			}
 			else if (ontologyName.equals("emapa")){
-				topIndex = 2; // 2nd in the fullpath is the one below the real root in obo
+				topIndex = 2; // 3rd in the fullpath is the one below the real root in obo
 				startNodeIndex = 1;
 				minPathLen = 3;
 			}
 
 			else if (ontologyName.equals("mp")){
-				topIndex = 1; // 2nd in the fullpath is the one below the real root in obo
+				topIndex = 1; // 2nd in the fullpath is the one below the real root (mammalian phenotype: node=0) in obo
 				startNodeIndex = 0;
 				minPathLen = 2;
 			}
+
+			int rowCount = 0;
+            if (resultSet != null) {
+                resultSet.last();
+                rowCount = resultSet.getRow();
+                resultSet.beforeFirst();
+            }
 
 
 			while (resultSet.next()) {
@@ -283,6 +308,11 @@ public class OntologyBrowserGetter {
 				String fullpath = resultSet.getString("path");
 				//System.out.println("Path: " + fullpath);
 				String[] nodes = fullpath.split(" ");
+
+//                if ( (ontologyName.equals("ma") || ontologyName.equals("emapa")) && rowCount > 1 && nodes.length > minPathLen) {
+//                    // ignore other path that is not straig
+//                    continue;
+//                }
 
 				if ( nodes.length >= minPathLen ) {
 					pathNodes.addAll(Arrays.asList(nodes));
@@ -317,7 +347,7 @@ public class OntologyBrowserGetter {
 		th.setPreOpenNodes(preOpenNodes);
 		th.setPageBaseUrl(pageBaseUrl);
 		th.setOntologyName(ontologyName);
-	//	System.out.println(th.toString());
+		//System.out.println(th.toString());
 		return th;
 
 	}

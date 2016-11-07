@@ -67,5 +67,5 @@ public class BasicBean {
         result = prime * result + ((description == null) ? 0 : description.hashCode());
         return result;
     }
-	
+
 }

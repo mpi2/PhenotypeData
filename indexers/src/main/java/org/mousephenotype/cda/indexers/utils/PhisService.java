@@ -10,7 +10,6 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.PImageDTO;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,13 +70,7 @@ public class PhisService {
 			
 			// need to loop over and creat mp_id_terms
 			if (pImage.getPhenotypeIdBag() != null) {
-				image.setMpTermIds(pImage.getPhenotypeIdBag());
-				image.setMpTerm(pImage.getPhenotypeLabelBag());
-				// image.setMpTermSynonym(mpTermSynonym); dont currently have mp
-				List<String> mpIdTerms = new ArrayList<>();
-				for (int i = 0; i < pImage.getPhenotypeIdBag().size(); i++) {
-					mpIdTerms.add(pImage.getPhenotypeIdBag().get(i) + "_" + pImage.getPhenotypeLabelBag().get(i));
-				}
+				image.setMpId(pImage.getPhenotypeIdBag());
 			}
 			
 			//what about mpath, emap and cmpo? no ids in the list of 163?
@@ -155,16 +148,15 @@ public class PhisService {
 				if(z!=null){
 					image.setZygosity(z.toString());
 				}
-				
-				
+
 			}
 			
-			//<arr name="stage_facet">
-			//<str>post-embryonic stage</str>
-			//</arr>
-			if(pImage.getStage()!=null){
-				image.setStage(pImage.getStage());
-			}
+//			//<arr name="stage_facet">
+//			//<str>post-embryonic stage</str>
+//			//</arr>
+//			if(pImage.getStage()!=null){
+//				image.setStage(pImage.getStage());
+//			}
 			//observations seem to contain the procedure name - loop over these and see if they have procedure at the start and if so add them to procedure name (or get it from our impress? how generic can we be?)
 			if(pImage.getObservations().size()>=1){
 				for(String obs: pImage.getObservations()){

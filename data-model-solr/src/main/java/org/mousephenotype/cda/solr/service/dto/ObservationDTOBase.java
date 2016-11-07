@@ -361,6 +361,12 @@ public class ObservationDTOBase {
 	public void setAnatomyIdTerm(List<String> anatomyIdTerm) {
 		this.anatomyIdTerm = anatomyIdTerm;
 	}
+	public void addAnatomyIdTerm(String anatomyIdTerm) {
+		if (this.anatomyIdTerm == null){
+			this.anatomyIdTerm = new ArrayList<>();
+		}
+		this.anatomyIdTerm.add(anatomyIdTerm);
+	}
 
 	public List<String> getAnatomyTermSynonym() {
 		return anatomyTermSynonym;
@@ -370,12 +376,48 @@ public class ObservationDTOBase {
 		this.anatomyTermSynonym = anatomyTermSynonym;
 	}
 
+	public void addAnatomyTermSynonym(String anatomyTermSynonym) {
+		if (this.anatomyTermSynonym == null){
+			this.anatomyTermSynonym = new ArrayList<>();
+		}
+		this.anatomyTermSynonym.add(anatomyTermSynonym);
+	}
+	public void addAnatomyTermSynonym(List<String> anatomyTermSynonym, boolean uniqueOnly) {
+		if (this.anatomyTermSynonym == null){
+			this.anatomyTermSynonym = new ArrayList<>();
+		}
+		if (!uniqueOnly) {
+			this.anatomyTermSynonym.addAll(anatomyTermSynonym);
+		} else {
+			this.anatomyTermSynonym = addUnique(this.anatomyTermSynonym, anatomyTermSynonym);
+		}
+	}
 	public List<String> getIntermediateAnatomyId() {
 		return intermediateAnatomyId;
 	}
 
 	public void setIntermediateAnatomyId(List<String> intermediateAnatomyId) {
 		this.intermediateAnatomyId = intermediateAnatomyId;
+	}
+
+	public void addIntermediateAnatomyId(String intermediateAnatomyId) {
+
+		if (this.intermediateAnatomyId == null) {
+			this.intermediateAnatomyId = new ArrayList<>();
+		}
+
+		this.intermediateAnatomyId.add(intermediateAnatomyId);
+
+	}
+
+	private List<String> addUnique(List<String> toList, List<String> fromList){
+
+		for (String o : fromList){
+			if (!toList.contains(o)){
+				toList.add(o);
+			}
+		}
+		return toList;
 	}
 
 	public List<String> getIntermediateAnatomyTerm() {
@@ -386,12 +428,84 @@ public class ObservationDTOBase {
 		this.intermediateAnatomyTerm = intermediateAnatomyTerm;
 	}
 
+	public void addIntermediateAnatomyTerm(String intermediateAnatomyTerm) {
+		if (this.intermediateAnatomyTerm == null){
+			this.intermediateAnatomyTerm = new ArrayList<>();
+		}
+		this.intermediateAnatomyTerm.add(intermediateAnatomyTerm);
+	}
+
+	public void addTopLevelAnatomyTerm(String topLevelAnatomyTerm) {
+		if (this.topLevelAnatomyTerm == null){
+			this.topLevelAnatomyTerm = new ArrayList<>();
+		}
+		this.topLevelAnatomyTerm.add(topLevelAnatomyTerm);
+	}
+
+	public void addSelectedTopLevelAnatomyTerm(String selectedTopLevelAnatomyTerm, boolean uniqueOnly) {
+		if (this.selectedTopLevelAnatomyTerm == null){
+			this.selectedTopLevelAnatomyTerm = new ArrayList<>();
+		}
+		if (!uniqueOnly || !this.selectedTopLevelAnatomyTerm.contains(selectedTopLevelAnatomyTerm)){
+			this.selectedTopLevelAnatomyTerm.add(selectedTopLevelAnatomyTerm);
+		}
+	}
+
+	public void addSelectedTopLevelAnatomyId(String selectedTopLevelAnatomyId, boolean uniqueOnly) {
+		if (this.selectedTopLevelAnatomyId == null){
+			this.selectedTopLevelAnatomyId = new ArrayList<>();
+		}
+		if (!uniqueOnly || !this.selectedTopLevelAnatomyId.contains(selectedTopLevelAnatomyId)){
+			this.selectedTopLevelAnatomyId.add(selectedTopLevelAnatomyId);
+		}
+	}
+
+	public void addSelectedTopLevelAnatomySynonyms(List<String> selectedTopLevelAnatomyTermSynonym, boolean uniqueOnly) {
+		if (this.selectedTopLevelAnatomyTermSynonym == null){
+			this.selectedTopLevelAnatomyTermSynonym = new ArrayList<>();
+		}
+		if (uniqueOnly){
+			addUnique(this.selectedTopLevelAnatomyTermSynonym, selectedTopLevelAnatomyTermSynonym);
+		} else {
+			this.selectedTopLevelAnatomyTermSynonym.addAll(selectedTopLevelAnatomyTermSynonym);
+		}
+	}
+
+	public void addTopLevelAnatomyId(String topLevelAnatomyId) {
+		if (this.topLevelAnatomyId == null){
+			this.topLevelAnatomyId = new ArrayList<>();
+		}
+		this.topLevelAnatomyId.add(topLevelAnatomyId);
+	}
+
+	public void addTopLevelAnatomySynonym(List<String> topLevelAnatomyTermSynonym, boolean uniqueOnly) {
+		if (this.topLevelAnatomyTermSynonym == null){
+			this.topLevelAnatomyTermSynonym = new ArrayList<>();
+		}
+		if (!uniqueOnly) {
+			this.topLevelAnatomyTermSynonym.addAll(topLevelAnatomyTermSynonym);
+		} else {
+			this.topLevelAnatomyTermSynonym = addUnique(this.topLevelAnatomyTermSynonym, topLevelAnatomyTermSynonym);
+		}
+	}
+
 	public List<String> getIntermediateAnatomyTermSynonym() {
 		return intermediateAnatomyTermSynonym;
 	}
 
 	public void setIntermediateAnatomyTermSynonym(List<String> intermediateAnatomyTermSynonym) {
 		this.intermediateAnatomyTermSynonym = intermediateAnatomyTermSynonym;
+	}
+
+	public void addIntermediateAnatomyTermSynonym(List<String> intermediateAnatomyTermSynonym, boolean uniqueOnly) {
+		if (this.intermediateAnatomyTermSynonym == null){
+			this.intermediateAnatomyTermSynonym = new ArrayList<>();
+		}
+		if (!uniqueOnly) {
+			this.intermediateAnatomyTermSynonym.addAll(intermediateAnatomyTermSynonym);
+		} else {
+			this.intermediateAnatomyTermSynonym = addUnique(this.intermediateAnatomyTermSynonym, intermediateAnatomyTermSynonym);
+		}
 	}
 
 	public List<String> getTopLevelAnatomyId() {
