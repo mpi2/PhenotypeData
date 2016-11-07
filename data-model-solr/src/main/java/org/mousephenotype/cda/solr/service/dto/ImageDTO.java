@@ -110,16 +110,20 @@ public class ImageDTO extends ObservationDTO {
 	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
 
-	public static final String MP_ID_TERM = "mp_id_term";
 	public static final String MP_ID = MpDTO.MP_ID;
 	public static final String MP_TERM = MpDTO.MP_TERM;
 	public static final String MP_TERM_SYNONYM = MpDTO.MP_TERM_SYNONYM;
 	public static final String MP_NARROW_SYNONYM = MpDTO.MP_NARROW_SYNONYM;
 
+	public static final String INTERMEDIATE_MP_ID = MpDTO.INTERMEDIATE_MP_ID;
+	public static final String INTERMEDIATE_MP_TERM = MpDTO.INTERMEDIATE_MP_TERM;
+
+	public static final String TOP_LEVEL_MP_TERM = MpDTO.TOP_LEVEL_MP_TERM;
+	public static final String TOP_LEVEL_MP_ID = MpDTO.TOP_LEVEL_MP_ID;
+
+	public static final String MP_ID_TERM = "mp_id_term";
 
 	public static final String INCREMENT_VALUE = "increment_value";
-	public static final String STAGE = "stage";
-
 
 	//	used for lexical match on search page
 	public static final String MARKER_SYNONYM_SYMBOL_GENE = "marker_synonym_symbol_gene";
@@ -146,10 +150,22 @@ public class ImageDTO extends ObservationDTO {
 	}
 
 	@Field(MP_ID)
-	private List<String> mpTermIds;
+	private List<String> mpId;
 
 	@Field(MP_TERM)
 	private List<String> mpTerm;
+
+	@Field(INTERMEDIATE_MP_ID)
+	private List<String> intermediateMpId;
+
+	@Field(INTERMEDIATE_MP_TERM)
+	private List<String> intermediateMpTerm;
+
+	@Field(TOP_LEVEL_MP_TERM)
+	private List<String> topLevelMpTerm;
+
+	@Field(TOP_LEVEL_MP_ID)
+	private List<String> topLevelMpId;
 
 	@Field(MP_ID_TERM)
 	private List<String> mpIdTerm;
@@ -232,9 +248,6 @@ public class ImageDTO extends ObservationDTO {
 	@Field(INCREMENT_VALUE)
 	private Integer increment;
 
-	@Field(STAGE)
-	private String stage;
-
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypeStatus;
 
@@ -257,7 +270,67 @@ public class ImageDTO extends ObservationDTO {
 	private List<String> intermediateAnatomyTermSynonymAnatomyIdTerm;
 	@Field(ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM)
 	private List<String> anatomyTermSynonymAnatomyIdTerm;
-	
+
+	public List<String> getIntermediateMpId() {
+		return intermediateMpId;
+	}
+
+	public void setIntermediateMpId(List<String> intermediateMpId) {
+		this.intermediateMpId = intermediateMpId;
+	}
+
+	public void addIntermediateMpId(String intermediateMpId) {
+		if (this.intermediateMpId == null){
+			this.intermediateMpId = new ArrayList<>();
+		}
+		this.intermediateMpId.add(intermediateMpId);
+	}
+
+	public List<String> getIntermediateMpTerm() {
+		return intermediateMpTerm;
+	}
+
+	public void setIntermediateMpTerm(List<String> intermediateMpTerm) {
+		this.intermediateMpTerm = intermediateMpTerm;
+	}
+
+	public void addIntermediateMpTerm(String intermediateMpTerm) {
+		if (this.intermediateMpTerm == null){
+			this.intermediateMpTerm = new ArrayList<>();
+		}
+		this.intermediateMpTerm.add(intermediateMpTerm);
+	}
+
+	public List<String> getTopLevelMpTerm() {
+		return topLevelMpTerm;
+	}
+
+	public void setTopLevelMpTerm(List<String> topLevelMpTerm) {
+		this.topLevelMpTerm = topLevelMpTerm;
+	}
+
+	public void addTopLevelMpTerm(String topLevelMpTerm) {
+		if (this.topLevelMpTerm == null){
+			this.topLevelMpTerm = new ArrayList<>();
+		}
+		this.topLevelMpTerm.add(topLevelMpTerm);
+	}
+
+	public List<String> getTopLevelMpId() {
+		return topLevelMpId;
+	}
+
+	public void setTopLevelMpId(List<String> topLevelMpId) {
+		this.topLevelMpId = topLevelMpId;
+	}
+
+	public void addTopLevelMpId(String topLevelMpId) {
+		if (this.topLevelMpId == null){
+			this.topLevelMpId = new ArrayList<>();
+		}
+		this.topLevelMpId.add(topLevelMpId);
+	}
+
 	@Field(AGE_IN_DAYS)
 	private Long ageInDays;
 	
@@ -301,6 +374,12 @@ public class ImageDTO extends ObservationDTO {
 		this.selectedTopLevelAnatomyIdAnatomyIdTerm = selectedTopLevelAnatomyIdAnatomyIdTerm;
 	}
 
+    public void addSelectedTopLevelAnatomyIdAnatomyIdTerm(String selectedTopLevelAnatomyIdAnatomyIdTerm) {
+
+        this.selectedTopLevelAnatomyIdAnatomyIdTerm = add(this.selectedTopLevelAnatomyIdAnatomyIdTerm, selectedTopLevelAnatomyIdAnatomyIdTerm);
+
+    }
+
 	public List<String> getSelectedTopLevelAnatomyTermAnatomyIdTerm() {
 		return selectedTopLevelAnatomyTermAnatomyIdTerm;
 	}
@@ -308,6 +387,10 @@ public class ImageDTO extends ObservationDTO {
 	public void setSelectedTopLevelAnatomyTermAnatomyIdTerm(List<String> selectedTopLevelAnatomyTermAnatomyIdTerm) {
 		this.selectedTopLevelAnatomyTermAnatomyIdTerm = selectedTopLevelAnatomyTermAnatomyIdTerm;
 	}
+
+    public void addSelectedTopLevelAnatomyTermAnatomyIdTerm(String selectedTopLevelAnatomyTermAnatomyIdTerm) {
+        this.selectedTopLevelAnatomyTermAnatomyIdTerm = add(this.selectedTopLevelAnatomyTermAnatomyIdTerm, selectedTopLevelAnatomyTermAnatomyIdTerm);
+    }
 
 	public List<String> getSelectedTopLevelAnatomyTermSynonymAnatomyIdTerm() {
 		return selectedTopLevelAnatomyTermSynonymAnatomyIdTerm;
@@ -317,6 +400,12 @@ public class ImageDTO extends ObservationDTO {
 		this.selectedTopLevelAnatomyTermSynonymAnatomyIdTerm = selectedTopLevelAnatomyTermSynonymAnatomyIdTerm;
 	}
 
+    public void addSelectedTopLevelAnatomyTermSynonymAnatomyIdTerm(List<String> synonyms, String postfix) {
+        for (String synonym: synonyms) {
+            this.selectedTopLevelAnatomyTermSynonymAnatomyIdTerm = add(this.selectedTopLevelAnatomyTermSynonymAnatomyIdTerm, synonym + postfix);
+        }
+    }
+
 	public List<String> getIntermediateAnatomyIdAnatomyIdTerm() {
 		return intermediateAnatomyIdAnatomyIdTerm;
 	}
@@ -324,6 +413,10 @@ public class ImageDTO extends ObservationDTO {
 	public void setIntermediateAnatomyIdAnatomyIdTerm(List<String> intermediateAnatomyIdAnatomyIdTerm) {
 		this.intermediateAnatomyIdAnatomyIdTerm = intermediateAnatomyIdAnatomyIdTerm;
 	}
+
+    public void addIntermediateAnatomyIdAnatomyIdTerm(String intermediateAnatomyIdAnatomyIdTerm) {
+        this.intermediateAnatomyIdAnatomyIdTerm = add(this.intermediateAnatomyIdAnatomyIdTerm, intermediateAnatomyIdAnatomyIdTerm);
+    }
 
 	public List<String> getIntermediateAnatomyTermAnatomyIdTerm() {
 		return intermediateAnatomyTermAnatomyIdTerm;
@@ -333,6 +426,13 @@ public class ImageDTO extends ObservationDTO {
 		this.intermediateAnatomyTermAnatomyIdTerm = intermediateAnatomyTermAnatomyIdTerm;
 	}
 
+    public void addIntermediateAnatomyTermAnatomyIdTerm(String intermediateAnatomyTermAnatomyIdTerm) {
+        if( this.intermediateAnatomyTermAnatomyIdTerm == null){
+            this.intermediateAnatomyTermAnatomyIdTerm = new ArrayList<>();
+        }
+        this.intermediateAnatomyTermAnatomyIdTerm.add(intermediateAnatomyTermAnatomyIdTerm);
+    }
+
 	public List<String> getIntermediateAnatomyTermSynonymAnatomyIdTerm() {
 		return intermediateAnatomyTermSynonymAnatomyIdTerm;
 	}
@@ -341,15 +441,24 @@ public class ImageDTO extends ObservationDTO {
 		this.intermediateAnatomyTermSynonymAnatomyIdTerm = intermediateAnatomyTermSynonymAnatomyIdTerm;
 	}
 
-//	@Override
-//	public List<String> getAnatomyIdTerm() {
-//		return anatomyIdTerm;
-//	}
-//
-//	@Override
-//	public void setAnatomyIdTerm(List<String> anatomyIdTerm) {
-//		this.anatomyIdTerm = anatomyIdTerm;
-//	}
+    public void addIntermediateAnatomyTermSynonymAnatomyIdTerm(List<String> synonyms, String postfix) {
+        for (String synonym : synonyms ){
+            add(this.intermediateAnatomyTermSynonymAnatomyIdTerm, synonym + postfix);
+        }
+    }
+
+	public void addAnatomyId(String anatomyId) {
+		if(	this.anatomyId == null){
+			this.anatomyId = new ArrayList<>();
+		}
+		this.anatomyId.add(anatomyId);
+	}
+	public void addAnatomyTerm(String anatomyTerm) {
+		if(	this.anatomyTerm == null){
+			this.anatomyTerm = new ArrayList<>();
+		}
+		this.anatomyTerm.add(anatomyTerm);
+	}
 
 	public List<String> getAnatomyTermSynonymAnatomyIdTerm() {
 		return anatomyTermSynonymAnatomyIdTerm;
@@ -359,6 +468,13 @@ public class ImageDTO extends ObservationDTO {
 		this.anatomyTermSynonymAnatomyIdTerm = anatomyTermSynonymAnatomyIdTerm;
 	}
 
+	public void addAnatomyTermSynonymAnatomyIdTerm(List<String> synonyms, String postfix) {
+
+		for(String syn : synonyms) {
+            this.anatomyTermSynonymAnatomyIdTerm = add(this.anatomyTermSynonymAnatomyIdTerm, syn + postfix);
+        }
+	}
+
 	public List<String> getMpIdTerm() {
 		return mpIdTerm;
 	}
@@ -366,13 +482,25 @@ public class ImageDTO extends ObservationDTO {
 	public void setMpIdTerm(List<String> mpIdTerm) {
 		this.mpIdTerm = mpIdTerm;
 	}
-	
-	public List<String> getMpTermIds() {
-		return mpTermIds;
+
+	public void addMpId(String mpId) {
+
+		if (this.mpId == null) {
+			this.mpId = new ArrayList<>();
+		}
+		this.mpId.add(mpId);
 	}
 
-	public void setMpTermIds(ArrayList<String> mpTermIds) {
-		this.mpTermIds = mpTermIds;
+	public void addMpIdTerm(String mpIdTerm) {
+
+		if (this.mpIdTerm == null) {
+			this.mpIdTerm = new ArrayList<>();
+		}
+		this.mpIdTerm.add(mpIdTerm);
+	}
+
+	public List<String> getMpId() {
+		return mpId;
 	}
 
 	public List<String> getMpTerm() {
@@ -383,6 +511,14 @@ public class ImageDTO extends ObservationDTO {
 		this.mpTerm = mpTerm;
 	}
 
+	public void addMpTerm(String mpTerm) {
+
+		if (this.mpTerm == null) {
+			this.mpTerm = new ArrayList<>();
+		}
+		this.mpTerm.add(mpTerm);
+	}
+
 	public List<String> getMpTermSynonym() {
 		return mpTermSynonym;
 	}
@@ -391,8 +527,8 @@ public class ImageDTO extends ObservationDTO {
 		this.mpTermSynonym = mpTermSynonym;
 	}
 
-    public void setMpTermIds(List<String> mpTermIds) {
-        this.mpTermIds = mpTermIds;
+    public void setMpId(List<String> mpId) {
+        this.mpId = mpId;
     }
 
     public Set<String> getMpNarrowSynonym() {
@@ -482,14 +618,6 @@ public class ImageDTO extends ObservationDTO {
     public List<String> getLatestPhenotypeStatus() {
         return latestPhenotypeStatus;
     }
-
-    public String getStage() {
-		return stage;
-	}
-
-	public void setStage(String stage) {
-		this.stage = stage;
-	}
 
 	public int getIncrement() {
 		return increment;
@@ -741,7 +869,7 @@ public class ImageDTO extends ObservationDTO {
 
 	}
 	public void setMpTermId(ArrayList<String> mpTermIds) {
-		this.mpTermIds=mpTermIds;
+		this.mpId =mpTermIds;
 
 	}
 
@@ -753,7 +881,7 @@ public class ImageDTO extends ObservationDTO {
 		ImageDTO imageDTO = (ImageDTO) o;
 
 		if (omeroId != imageDTO.omeroId) return false;
-		if (mpTermIds != null ? !mpTermIds.equals(imageDTO.mpTermIds) : imageDTO.mpTermIds != null) return false;
+		if (mpId != null ? !mpId.equals(imageDTO.mpId) : imageDTO.mpId != null) return false;
 		if (mpTerm != null ? !mpTerm.equals(imageDTO.mpTerm) : imageDTO.mpTerm != null) return false;
 		if (mpIdTerm != null ? !mpIdTerm.equals(imageDTO.mpIdTerm) : imageDTO.mpIdTerm != null) return false;
 		if (mpTermSynonym != null ? !mpTermSynonym.equals(imageDTO.mpTermSynonym) : imageDTO.mpTermSynonym != null)
@@ -794,7 +922,6 @@ public class ImageDTO extends ObservationDTO {
 		if (symbol != null ? !symbol.equals(imageDTO.symbol) : imageDTO.symbol != null) return false;
 		if (subtype != null ? !subtype.equals(imageDTO.subtype) : imageDTO.subtype != null) return false;
 		if (increment != null ? !increment.equals(imageDTO.increment) : imageDTO.increment != null) return false;
-		if (stage != null ? !stage.equals(imageDTO.stage) : imageDTO.stage != null) return false;
 		if (latestPhenotypeStatus != null ? !latestPhenotypeStatus.equals(imageDTO.latestPhenotypeStatus) : imageDTO.latestPhenotypeStatus != null)
 			return false;
 		if (markerSynonymSymbolGene != null ? !markerSynonymSymbolGene.equals(imageDTO.markerSynonymSymbolGene) : imageDTO.markerSynonymSymbolGene != null)
@@ -821,7 +948,7 @@ public class ImageDTO extends ObservationDTO {
 
 	@Override
 	public int hashCode() {
-		int result = mpTermIds != null ? mpTermIds.hashCode() : 0;
+		int result = mpId != null ? mpId.hashCode() : 0;
 		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
 		result = 31 * result + (mpIdTerm != null ? mpIdTerm.hashCode() : 0);
 		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
@@ -850,7 +977,6 @@ public class ImageDTO extends ObservationDTO {
 		result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
 		result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
 		result = 31 * result + (increment != null ? increment.hashCode() : 0);
-		result = 31 * result + (stage != null ? stage.hashCode() : 0);
 		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
 		result = 31 * result + (markerSynonymSymbolGene != null ? markerSynonymSymbolGene.hashCode() : 0);
 		result = 31 * result + (parameterAssociationNameProcedureName != null ? parameterAssociationNameProcedureName.hashCode() : 0);
@@ -868,7 +994,7 @@ public class ImageDTO extends ObservationDTO {
 	@Override
 	public String toString() {
 		return "ImageDTO{" +
-				"mpTermIds=" + mpTermIds +
+				"mpId=" + mpId +
 				", mpTerm=" + mpTerm +
 				", mpIdTerm=" + mpIdTerm +
 				", mpTermSynonym=" + mpTermSynonym +
@@ -897,7 +1023,6 @@ public class ImageDTO extends ObservationDTO {
 				", symbol='" + symbol + '\'' +
 				", subtype='" + subtype + '\'' +
 				", increment=" + increment +
-				", stage='" + stage + '\'' +
 				", latestPhenotypeStatus=" + latestPhenotypeStatus +
 				", markerSynonymSymbolGene=" + markerSynonymSymbolGene +
 				", parameterAssociationNameProcedureName=" + parameterAssociationNameProcedureName +
@@ -916,5 +1041,36 @@ public class ImageDTO extends ObservationDTO {
 		this.thumbnailUrl=thumbnailUrl;
 		
 	}
+
+	private List<String> add(List<String> to, String what){
+	    if (to == null){
+	        to = new ArrayList<>();
+        }
+        to.add(what);
+        return to;
+	}
+
+    private List<String> add (List<String> to, List<String> what, Boolean uniqueOnly){
+        if (to == null){
+            to = new ArrayList<>();
+        }
+        if ( uniqueOnly ) {
+            addUnique(to, what);
+        } else {
+            to.addAll(what);
+        }
+        return to;
+    }
+
+    private List<String> addUnique(List<String> toList, List<String> fromList){
+
+        for (String o : fromList){
+            if (!toList.contains(o)){
+                toList.add(o);
+            }
+        }
+        return toList;
+    }
+
 
 }
