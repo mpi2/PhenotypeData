@@ -889,7 +889,9 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
 		}
 		if (mpId != null){
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId + "\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\"");// put these in with mp not anatomy when Ilinca has put into imageDTO? + "\" OR "+ ImageDTO.INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + mpId + "\"");
+//			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ images Section\" OR " + ImageDTO.PARAMETER_NAME
+//					+ ":\"LacZ images wholemount\"");
 		}
 		solrQuery.add("group", "true")
         .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
