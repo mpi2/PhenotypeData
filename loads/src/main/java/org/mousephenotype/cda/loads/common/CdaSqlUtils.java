@@ -426,13 +426,14 @@ public class CdaSqlUtils {
             parameterMap.put("genetic_background", bioModel.getGeneticBackground());
             parameterMap.put("zygosity", bioModel.getZygosity());
 
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
             try {
-                count = jdbcCda.update(bioModelInsert, parameterMap);
+                count = jdbcCda.update(bioModelInsert, parameterSource, keyholder);
                 if (count > 0) {
                     countsMap.put("bioModelsInserted", countsMap.get("bioModelsInserted") + count);
-
-                    int bioModelId = jdbcCda.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Integer.class);
-                    bioModel.setBiologicalModelId(bioModelId);
+                    bioModel.setBiologicalModelId(keyholder.getKey().intValue());
                 }
 
             } catch (DuplicateKeyException e) {
@@ -598,10 +599,12 @@ public class CdaSqlUtils {
             parameterMap.put("sample_group", sampleGroup);
             parameterMap.put("organisation_id", phenotypingCenterId);
             parameterMap.put("production_center_id", productionCenterId);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
 
-            count = jdbcCda.update(insert, parameterMap);
+            count = jdbcCda.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                id = jdbcCda.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Integer.class);
+                id = keyholder.getKey().intValue();
             }
 
         } catch (DuplicateKeyException e) {
@@ -1027,6 +1030,7 @@ public class CdaSqlUtils {
 
         KeyHolder keyholder = new GeneratedKeyHolder();
         SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
         int count = jdbcCda.update(ontologyTermInsert, parameterSource, keyholder);
         anomaly.setId(keyholder.getKey().intValue());
         anomaly.setLast_modified(now);
