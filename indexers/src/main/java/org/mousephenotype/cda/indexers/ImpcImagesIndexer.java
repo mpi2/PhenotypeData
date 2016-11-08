@@ -295,6 +295,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 					addOntologyTerms( imageDTO, parameterStableIdToMaTermIdMap, runStatus);
 					addOntologyTerms( imageDTO, parameterStableIdToEmapaTermIdMap, runStatus);
+					addOntologyTerms( imageDTO, parameterStableIdToMpTermIdMap, runStatus);
 
 					impcImagesIndexing.addBean(imageDTO, 30000);
 					documentCount++;
