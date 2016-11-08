@@ -92,6 +92,8 @@ public class ImageDTO extends ObservationDTO {
 	public static final String EFO_ID = "efo_id";
 	public static final String UBERON_ID = "uberon_id";
 
+	public static final String STAGE = "stage";
+
 	public static final String SYMBOL_GENE = "symbol_gene";
 	public static final String SYMBOL = "symbol";
 	public static final String SUBTYPE = "subtype";
@@ -184,6 +186,9 @@ public class ImageDTO extends ObservationDTO {
 
 	@Field(DOWNLOAD_URL)
 	private String downloadUrl;
+
+	@Field(STAGE)
+	private String stage;
 
 	@Field(IMAGE_LINK)
 	private String imageLink;
@@ -331,6 +336,13 @@ public class ImageDTO extends ObservationDTO {
 	@Field(THUMBNAIL_URL)
 	private String thumbnailUrl;
 
+	public String getStage() {
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
 
 	public String getThumbnailUrl() {
 		return thumbnailUrl;
