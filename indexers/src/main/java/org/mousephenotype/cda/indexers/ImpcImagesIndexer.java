@@ -397,7 +397,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			imageDTO.addSelectedTopLevelAnatomyTermAnatomyIdTerm(term.getName() + fieldSeparator + termBean.getTermIdTermName());
 			imageDTO.addSelectedTopLevelAnatomyIdAnatomyIdTerm(term.getId() + fieldSeparator + termBean.getTermIdTermName());
 		}
-
 		// UBERON/EFO id for MA id
 		try {
 			if (maUberonEfoMap.containsKey(termBean.getId())) {
