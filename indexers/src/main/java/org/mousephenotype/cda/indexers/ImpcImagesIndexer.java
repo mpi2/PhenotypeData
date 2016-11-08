@@ -351,6 +351,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		// top levels
 		List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(termBean.getId(), OntologyDAO.PHENOTYPE_LEVELS);
+		System.out.println("Top levels " + topLevels.size() + " " + termId + " " + imageDTO.getId());
 		for (OntologyTermBean term : topLevels) {
 			imageDTO.addTopLevelMpId(term.getId(), true);
 			imageDTO.addTopLevelMpTerm(term.getName(), true);
@@ -386,7 +387,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		// selected top levels - what we actually use
 		List<OntologyTermBean> selectedTopLevels = ontologyDAO.getTopLevel(termBean.getId(),1);
-		for (OntologyTermBean term : intermediate) {
+		for (OntologyTermBean term : selectedTopLevels) {
 			imageDTO.addSelectedTopLevelAnatomyId(term.getId(), true);
 			imageDTO.addSelectedTopLevelAnatomyTerm(term.getName(), true);
 			imageDTO.addSelectedTopLevelAnatomySynonyms(term.getSynonyms(), true);
@@ -450,7 +451,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			List<String> mpIds = new ArrayList<>(image.getMpId());
 			image.setMpId(new ArrayList<>());
 			for (String mpId : mpIds){
-				addMpValues(mpId, image, mpOntologyService, runStatus);
+				image = addMpValues(mpId, image, mpOntologyService, runStatus);
 			}
 		}
 		return image;
