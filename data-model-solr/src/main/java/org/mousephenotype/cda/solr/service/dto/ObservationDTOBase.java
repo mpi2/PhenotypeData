@@ -527,6 +527,18 @@ public class ObservationDTOBase {
 		this.selectedTopLevelAnatomyTermSynonym = selectedTopLevelAnatomyTermSynonym;
 	}
 
+	public void addSelectedTopLevelAnatomyTerm(String selectedTopLevelAnatomyTerm, boolean uniqueOnly) {
+		this.selectedTopLevelAnatomyTerm = add(this.selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTerm, uniqueOnly);
+	}
+
+	public void addSelectedTopLevelAnatomyId(String selectedTopLevelAnatomyId, boolean uniqueOnly) {
+		this.selectedTopLevelAnatomyId = add(this.selectedTopLevelAnatomyId, selectedTopLevelAnatomyId, uniqueOnly);
+	}
+
+	public void addSelectedTopLevelAnatomySynonyms(List<String> selectedTopLevelAnatomyTermSynonym, boolean uniqueOnly) {
+		this.selectedTopLevelAnatomyTermSynonym = add(this.selectedTopLevelAnatomyTermSynonym, selectedTopLevelAnatomyTermSynonym, uniqueOnly);
+	}
+
 	public Integer getSequenceId() {
 		return sequenceId;
 	}
