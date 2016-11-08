@@ -20,6 +20,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
@@ -91,8 +92,9 @@ public class ExtractDccExperiments implements CommandLineRunner {
     }
 
     private void initialize(String[] args) throws DataLoadException {
-        List<Specimen> specimens = dccSqlUtils.getSpecimens();
-        for (Specimen specimen : specimens) {
+        List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
+        for (SpecimenExtended specimenExtended : specimens) {
+            Specimen specimen = specimenExtended.getSpecimen();
             String key = specimen.getSpecimenID() + "_" + specimen.getPhenotypingCentre().value();
             specimenIdPhenotypingCenterMap.put(key, specimen.getHjid());
         }

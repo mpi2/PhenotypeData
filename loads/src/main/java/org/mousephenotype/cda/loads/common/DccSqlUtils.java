@@ -432,7 +432,7 @@ public class DccSqlUtils {
      *
      * @return The {@link List} of {@link Specimen} instances
      */
-    public List<Specimen> getSpecimens() {
+    public List<SpecimenExtended> getSpecimens() {
         // The Specimen class is abstract. Instances are of either Mouse or Embryo. Select info for both. The RowMapper
         // will return a Specimen of type Mouse or Embryo with all mouse or embryo table columns filled out.
         final String query =
@@ -448,7 +448,7 @@ public class DccSqlUtils {
 
         Map<String, Object> parameterMap = new HashMap<>();
 
-        List<Specimen> specimens = npJdbcTemplate.query(query, parameterMap, new SpecimenRowMapper());
+        List<SpecimenExtended> specimens = npJdbcTemplate.query(query, parameterMap, new SpecimenExtendedRowMapper());
 
         return specimens;
     }
@@ -1841,10 +1841,11 @@ public class DccSqlUtils {
      * {@link Specimen} is an abstract class from which {@link Mouse} and {@link Embryo} are derived. This RowMapper
      * creates either a {@link Mouse} or a {@link Embryo}, returning it as the generic {@link Specimen}.
      */
-    public class SpecimenRowMapper implements RowMapper<Specimen> {
+    public class SpecimenExtendedRowMapper implements RowMapper<SpecimenExtended> {
 
         @Override
-        public Specimen mapRow(ResultSet rs, int rowNum) throws SQLException {
+        public SpecimenExtended mapRow(ResultSet rs, int rowNum) throws SQLException {
+            SpecimenExtended specimenExtended = new SpecimenExtended();
             Specimen specimen;
 
             // Create the correct Specimen type and load the Mouse- or Embryo-specific data.
@@ -1888,7 +1889,11 @@ public class DccSqlUtils {
             statusCode.setHjid(rs.getLong("statuscode_pk"));
             specimen.setStatusCode(statusCode);
 
-            return specimen;
+            specimenExtended.setSpecimen(specimen);
+            specimenExtended.setDatasourceShortName(rs.getString("datasourceShortName"));
+
+            return specimenExtended;
+
         }
     }
 

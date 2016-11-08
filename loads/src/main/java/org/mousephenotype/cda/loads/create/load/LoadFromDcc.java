@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.create.load;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.loads.create.load.config.LoadConfigBeans;
+import org.mousephenotype.cda.loads.create.load.steps.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,16 @@ public class LoadFromDcc implements CommandLineRunner {
     public JobRepository jobRepository;
 
     @Autowired
-    public SampleLoader sampleLoader;
+    public ExperimentLoader experimentDccLoader;
+
+    @Autowired
+    public SampleLoader sampleDccLoader;
+
+    @Autowired
+    public ExperimentLoader experimentDccEurophenomeLoader;
+
+    @Autowired
+    public SampleLoader sampleDccEurophenomeLoader;
 
     @Autowired
     @Qualifier("cdaDataSource")
@@ -105,6 +115,7 @@ public class LoadFromDcc implements CommandLineRunner {
         }
 
         Job[] jobs = new Job[] {
+                  fromDccEurophenome(),
                   fromDcc()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -128,11 +139,31 @@ public class LoadFromDcc implements CommandLineRunner {
     public Job fromDcc() throws DataLoadException {
 
         // Specimens to Samples
-        Flow samplesFlow = new FlowBuilder<Flow>("samplesFlow").from(sampleLoader).end();
+        Flow samplesFlow = new FlowBuilder<Flow>("samplesDccFlow").from(sampleDccLoader).end();
+
+        // Dcc Experiments to Cda Experiments
+        Flow experimentsFlow = new FlowBuilder<Flow>("experimentsDccFlow").from(experimentDccLoader).end();
 
         return jobBuilderFactory.get("samplesJob")
                 .incrementer(new RunIdIncrementer())
                 .start(samplesFlow)
+//                .next(experimentsFlow)
+                .end()
+                .build();
+    }
+
+    public Job fromDccEurophenome() throws DataLoadException {
+
+        // Specimens to Samples
+        Flow samplesFlow = new FlowBuilder<Flow>("samplesDccEurophenomeFlow").from(sampleDccEurophenomeLoader).end();
+
+        // Dcc Experiments to Cda Experiments
+        Flow experimentsFlow = new FlowBuilder<Flow>("experimentsDccEurophenomeFlow").from(experimentDccEurophenomeLoader).end();
+
+        return jobBuilderFactory.get("samplesJob")
+                .incrementer(new RunIdIncrementer())
+                .start(samplesFlow)
+//                .next(experimentsFlow)
                 .end()
                 .build();
     }

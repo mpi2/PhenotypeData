@@ -162,7 +162,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 		
 		try {
-			this.secondaryProjectImageList=populateSecondaryProjectImages();
+			this.secondaryProjectImageList=populateSecondaryProjectImages(runStatus);
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		}
@@ -289,7 +289,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 					addOntologyTerms( imageDTO, parameterStableIdToMaTermIdMap, runStatus);
 					addOntologyTerms( imageDTO, parameterStableIdToEmapaTermIdMap, runStatus);
-					addOntologyTerms( imageDTO, parameterStableIdToMpTermIdMap, runStatus);
 
 					impcImagesIndexing.addBean(imageDTO, 30000);
 					documentCount++;
@@ -338,10 +337,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
 
 		// term
-		imageDTO.addMpTerm(termBean.getName());
-		imageDTO.addMpId(termBean.getId());
-		imageDTO.addAnatomyTermSynonym(termBean.getSynonyms(), true);
-		imageDTO.addMpIdTerm(termBean.getId() + "_" + termBean.getName());
+		imageDTO.addMpTerm(termBean.getName(), true);
+		imageDTO.addMpId(termBean.getId(), true);
+		imageDTO.addMpTermSynonym(termBean.getSynonyms(), true);
+		imageDTO.addMpIdTerm(termBean.getId() + "_" + termBean.getName(), true);
 
 		// intermediate
 		List<OntologyTermBean> intermediate = ontologyDAO.getIntermediates(termBean.getId());
@@ -353,8 +352,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		// top levels
 		List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(termBean.getId(), OntologyDAO.PHENOTYPE_LEVELS);
 		for (OntologyTermBean term : topLevels) {
-			imageDTO.addTopLevelMpId(term.getId());
-			imageDTO.addTopLevelMpTerm(term.getName());
+			imageDTO.addTopLevelMpId(term.getId(), true);
+			imageDTO.addTopLevelMpTerm(term.getName(), true);
 		}
 
 		// anatomy terms from mp
@@ -428,7 +427,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	 * @throws SolrServerException
 	 * @throws IOException
 	 */
-	private List<ImageDTO> populateSecondaryProjectImages() throws SolrServerException, IOException {
+	private List<ImageDTO> populateSecondaryProjectImages(RunStatus runStatus) throws SolrServerException, IOException {
 		//observation_ids are stored as solr id field and so we need to make sure no conflict
 		//need to query the experiment core to make sure we allocate numbers over what we already have
 		//this could have other issues if we have assumed id is observation id elsewhere -but I think it's in loading the db and not after indexing??
@@ -439,8 +438,22 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		for(ImageDTO image:brainHistoImageDtos){
 			id++;//do here so one higher than highest obs id
 			image.setId(id);//add a generated id that we know hasn't been used before
+			addMpInfo( image, runStatus);
 		}
 		return brainHistoImageDtos;
+	}
+
+	ImageDTO addMpInfo (ImageDTO image, RunStatus runStatus){
+
+		if ( image.getMpId() != null && !image.getMpId().isEmpty()){
+
+			List<String> mpIds = new ArrayList<>(image.getMpId());
+			image.setMpId(new ArrayList<>());
+			for (String mpId : mpIds){
+				addMpValues(mpId, image, mpOntologyService, runStatus);
+			}
+		}
+		return image;
 	}
 
 	private int getHighestObservationId() throws SolrServerException, IOException {

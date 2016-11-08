@@ -23,6 +23,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.LoadUtils;
+import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -73,7 +74,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private OntologyTerm sampleTypeMouseEmbryoStage;
     private OntologyTerm sampleTypeWholeOrganism;
 
-    private int externalDbId;
     private int efoDbId;
 
 
@@ -109,7 +109,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
         Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
-        Assert.notNull(externalDbId, "externalDb short_name (e.g. IMPC, Ensembl, etc.) must be set");
         Assert.notNull(efoDbId, "efoDbId must be set");
     }
 
@@ -118,7 +117,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
      */
     @Override
     public String getName() {
-        return "specimenLoaderStep";
+        return "sampleLoaderStep";
     }
 
     /**
@@ -149,7 +148,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
      */
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
-        stepBuilderFactory.get("specimenLoaderStep")
+        stepBuilderFactory.get("sampleLoaderStep")
                 .tasklet(this)
                 .build()
                 .execute(stepExecution);
@@ -160,18 +159,19 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         long startStep = new Date().getTime();
 
-        List<Specimen> specimens = dccSqlUtils.getSpecimens();
-        Map<String, Integer> counts;
+        List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
+        Map<String, Integer>   counts;
 
-        for (Specimen specimen : specimens) {
+        for (SpecimenExtended specimenExtended : specimens) {
+            Specimen specimen = specimenExtended.getSpecimen();
             String sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
             boolean isControl = (sampleGroup.equals("control"));
 
             if (isControl) {
-                counts = insertSampleControlSpecimen(specimen);
+                counts = insertSampleControlSpecimen(specimenExtended);
                 written.put("controlSample", written.get("controlSample") + 1);
             } else {
-                counts = insertSampleExperimentalSpecimen(specimen);
+                counts = insertSampleExperimentalSpecimen(specimenExtended);
                 written.put("experimentalSample", written.get("experimentalSample") + 1);
             }
 
@@ -207,7 +207,11 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     }
 
     @Transactional
-    private Map<String, Integer> insertSampleExperimentalSpecimen(Specimen specimen) throws DataLoadException {
+    private Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
+        Specimen specimen = specimenExtended.getSpecimen();
+
+        int externalDbId = cdaSqlUtils.getExternalDbId(specimenExtended.getDatasourceShortName());
+
         Map<String, Integer> counts = new HashMap<>();
         counts.put("biologicalModel", 0);
         counts.put("biologicalSample", 0);
@@ -352,7 +356,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     }
 
     @Transactional
-    private Map<String, Integer> insertSampleControlSpecimen(Specimen specimen) throws DataLoadException {
+    private Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
+
+        Specimen specimen = specimenExtended.getSpecimen();
+
+        int externalDbId = cdaSqlUtils.getExternalDbId(specimenExtended.getDatasourceShortName());
+
         String allelicComposition;
         Strain backgroundStrain;
         int biologicalSampleId;
