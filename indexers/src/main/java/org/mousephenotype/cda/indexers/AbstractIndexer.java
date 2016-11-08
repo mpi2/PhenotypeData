@@ -232,35 +232,38 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     }
 
     protected void doLiveStageLookup() throws SQLException {
+	    // This query: CREATE TABLE specimen_life_stage SELECT DISTINCT o.biological_sample_id AS biological_sample_id, e.pipeline_stable_id AS pipeline_stable_id, e.procedure_stable_id AS procedure_stable_id FROM observation o, experiment_observation eo, experiment e     WHERE o.id = eo.observation_id  AND eo.experiment_id = e.id
+	    // creates a table this method relies on and must be run prior to using.
 
-        long time = System.currentTimeMillis();
-        System.out.println("Filling up LIVE STAGE LOOKUP");
+	    long time = System.currentTimeMillis();
+        System.out.println("Populating LIFE STAGE LOOKUP");
 
         connection = komp2DataSource.getConnection();
 
-        String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
-                + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
-              + "FROM observation o, experiment_observation eo, experiment e "
-                 + "WHERE o.id=eo.observation_id "
-                 + "AND eo.experiment_id=e.id )";
+//         String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
+//                 + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
+//               + "FROM observation o, experiment_observation eo, experiment e "
+//                  + "WHERE o.id=eo.observation_id "
+//                  + "AND eo.experiment_id=e.id )";
 
              String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
-                 + "FROM observations2 o, live_sample ls, ontology_term ot "
+                 + "FROM specimen_life_stage o, live_sample ls, ontology_term ot "
                  + "WHERE ot.acc=ls.developmental_stage_acc "
                  + "AND ls.id=o.biological_sample_id" ;
 
-             try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-             p1.executeUpdate();
+//              try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+//              p1.executeUpdate();
              //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
-             PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-             ResultSet r = p.executeQuery();
-             while (r.next()) {
-                 List<String> fields = new ArrayList<String>();
-                 fields.add(r.getString("colony_id"));
-                 fields.add(r.getString("pipeline_stable_id"));
-                 fields.add(r.getString("procedure_stable_id"));
-                 BasicBean stage = new BasicBean(
+        try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            ResultSet r = p.executeQuery();
+
+            while (r.next()) {
+                List<String> fields = new ArrayList<String>();
+                fields.add(r.getString("colony_id"));
+                fields.add(r.getString("pipeline_stable_id"));
+                fields.add(r.getString("procedure_stable_id"));
+                BasicBean stage = new BasicBean(
                         		            r.getString("developmental_stage_acc"),
                         		            r.getString("developmental_stage_name"));
                      String key = StringUtils.join(fields, "_");
