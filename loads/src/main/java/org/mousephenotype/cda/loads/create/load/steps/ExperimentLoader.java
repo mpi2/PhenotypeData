@@ -51,35 +51,18 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private CdaSqlUtils                cdaSqlUtils;
     private DccSqlUtils                dccSqlUtils;
     private NamedParameterJdbcTemplate jdbcCda;
-    private NamedParameterJdbcTemplate jdbcDcc;
-    private NamedParameterJdbcTemplate jdbcDccEurophenomeFinal;
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
     private StepBuilderFactory   stepBuilderFactory;
     private Map<String, Integer> written     = new HashMap<>();
 
-    private String externalDbShortName;
-    private int    externalDbId;
 
-
-    // FIXME FIXME FIXME
-    // FIXME FIXME FIXME CONSIDER HAVING ONLY ONE jdbcDcc AND CALLING THIS CLASS FOR EVERY DCC SCHEMA!!!
-    // FIXME FIXME FIXME
-    public ExperimentLoader(
-            NamedParameterJdbcTemplate jdbcCda,
-            NamedParameterJdbcTemplate jdbcDcc,
-            NamedParameterJdbcTemplate jdbcDccEurophenomeFinal,
-            StepBuilderFactory stepBuilderFactory,
-            CdaSqlUtils cdaSqlUtils,
-            DccSqlUtils dccSqlUtils,
-            String externalDbShortName) {
-        this.jdbcCda = jdbcCda;
-        this.jdbcDcc = jdbcDcc;
-        this.jdbcDccEurophenomeFinal = jdbcDccEurophenomeFinal;
-        this.stepBuilderFactory = stepBuilderFactory;
-        this.cdaSqlUtils = cdaSqlUtils;
-        this.dccSqlUtils = dccSqlUtils;
-        this.externalDbShortName = externalDbShortName;
+    public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
+                            CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils) {
+            this.jdbcCda = jdbcCda;
+            this.stepBuilderFactory = stepBuilderFactory;
+            this.cdaSqlUtils = cdaSqlUtils;
+            this.dccSqlUtils = dccSqlUtils;
 
 
         // FIXME FIXME FIXME
@@ -93,15 +76,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        setExternalDb(externalDbShortName);
-
         Assert.notNull(jdbcCda, "jdbcCda must be set");
-        Assert.notNull(jdbcDcc, "jdbcDcc must be set");
-        Assert.notNull(jdbcDccEurophenomeFinal, "jdbcDccEurophenomeFinal must be set");
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
         Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
-        Assert.notNull(externalDbId, "externalDb short_name (e.g. IMPC, Ensembl, etc.) must be set");
     }
 
     /**
@@ -154,8 +132,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         List<org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment> dccExperiments = dccSqlUtils.getExperiments();
         Map<String, Integer> counts;
 
-        for (org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment : dccExperiments) {
-            counts = insertExperiment(dccExperiment);
+        for (org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment experiment : dccExperiments) {
+            counts = insertExperiment(experiment);
 
 
 
@@ -213,13 +191,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private Map<String, Integer> createExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment, Experiment experiment) throws DataLoadException {
+
         Map<String, Integer> counts = new HashMap<>();
 
         String colonyId;                        // FIXME
 //        PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getProcedure().)
 
-        Datasource datasource = new Datasource();
-        datasource.setId(externalDbId);
         Date dateOfExperiment = getDateOfExperiment(dccExperiment);
         if (dateOfExperiment == null) {
             return null;
@@ -270,15 +247,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaSqlUtils.insertExperiment(experiment);
 
         return counts;
-    }
-
-    public String getExternalDb() {
-        return externalDbShortName;
-    }
-
-    public void setExternalDb(String externalDbShortName) {
-        this.externalDbShortName = externalDbShortName;
-        this.externalDbId = cdaSqlUtils.getExternalDbId(externalDbShortName);
     }
 
 

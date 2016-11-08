@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.load.config;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.create.load.steps.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -72,6 +73,26 @@ public class LoadConfigBeans {
         sampleLoaders.add(new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils()));
 
         return sampleLoaders;
+    }
+
+    @Bean
+    public SampleLoader sampleDccLoader() {
+        return new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils());
+    }
+
+    @Bean
+    public ExperimentLoader experimentDccLoader() {
+        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils());
+    }
+
+    @Bean
+    public SampleLoader sampleDccEurophenomeLoader() {
+        return new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils());
+    }
+
+    @Bean
+    public ExperimentLoader experimentDccEurophenomeLoader() {
+        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils());
     }
 
     @Bean
