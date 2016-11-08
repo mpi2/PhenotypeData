@@ -211,7 +211,13 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					imageDTO.setAgeInDays(ageInDays);
 				}
 				
-				
+				// "stage" field is needed for search, stage facet on image seach
+				if (imageDTO.getDevelopmentalStageAcc() != null && imageDTO.getDevelopmentalStageAcc().equalsIgnoreCase("MmusDv:0000092")) { // postnatal stage
+					imageDTO.setStage("adult");
+				} else {
+					imageDTO.setStage("embryo");
+				}
+
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
 
