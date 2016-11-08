@@ -309,11 +309,8 @@ public class ImageDTO extends ObservationDTO {
 		this.topLevelMpTerm = topLevelMpTerm;
 	}
 
-	public void addTopLevelMpTerm(String topLevelMpTerm) {
-		if (this.topLevelMpTerm == null){
-			this.topLevelMpTerm = new ArrayList<>();
-		}
-		this.topLevelMpTerm.add(topLevelMpTerm);
+	public void addTopLevelMpTerm(String topLevelMpTerm, Boolean uniqueOnly) {
+		add(this.topLevelMpTerm, topLevelMpTerm, true);
 	}
 
 	public List<String> getTopLevelMpId() {
@@ -324,11 +321,8 @@ public class ImageDTO extends ObservationDTO {
 		this.topLevelMpId = topLevelMpId;
 	}
 
-	public void addTopLevelMpId(String topLevelMpId) {
-		if (this.topLevelMpId == null){
-			this.topLevelMpId = new ArrayList<>();
-		}
-		this.topLevelMpId.add(topLevelMpId);
+	public void addTopLevelMpId(String topLevelMpId, Boolean uniqueOnly) {
+		add(this.topLevelMpId, topLevelMpId, true);
 	}
 
 	@Field(AGE_IN_DAYS)
@@ -483,20 +477,12 @@ public class ImageDTO extends ObservationDTO {
 		this.mpIdTerm = mpIdTerm;
 	}
 
-	public void addMpId(String mpId) {
-
-		if (this.mpId == null) {
-			this.mpId = new ArrayList<>();
-		}
-		this.mpId.add(mpId);
+	public void addMpId(String mpId, Boolean uniqueOnly) {
+		add(this.mpId, mpId, true);
 	}
 
-	public void addMpIdTerm(String mpIdTerm) {
-
-		if (this.mpIdTerm == null) {
-			this.mpIdTerm = new ArrayList<>();
-		}
-		this.mpIdTerm.add(mpIdTerm);
+	public void addMpIdTerm(String mpIdTerm, boolean uniqueOnly) {
+		this.mpIdTerm = add(this.mpIdTerm, mpIdTerm, true);
 	}
 
 	public List<String> getMpId() {
@@ -511,16 +497,16 @@ public class ImageDTO extends ObservationDTO {
 		this.mpTerm = mpTerm;
 	}
 
-	public void addMpTerm(String mpTerm) {
-
-		if (this.mpTerm == null) {
-			this.mpTerm = new ArrayList<>();
-		}
-		this.mpTerm.add(mpTerm);
+	public void addMpTerm(String mpTerm, Boolean uniqueOnly) {
+		add(this.mpTerm, mpTerm, true);
 	}
 
 	public List<String> getMpTermSynonym() {
 		return mpTermSynonym;
+	}
+
+	public void addMpTermSynonym(List<String> mpTermSynonym, Boolean uniqueOnly) {
+		this.mpTermSynonym = add(this.mpTermSynonym, mpTermSynonym, uniqueOnly);
 	}
 
 	public void setMpTermSynonym(List<String> mpTermSynonym) {
@@ -1040,6 +1026,16 @@ public class ImageDTO extends ObservationDTO {
 	public void setThumbnailUrl(String thumbnailUrl) {
 		this.thumbnailUrl=thumbnailUrl;
 		
+	}
+
+	private List<String> add(List<String> to, String what, Boolean uniqueOnly){
+		if (to == null){
+			to = new ArrayList<>();
+		}
+		if (!to.contains(what)) {
+			to.add(what);
+		}
+		return to;
 	}
 
 	private List<String> add(List<String> to, String what){
