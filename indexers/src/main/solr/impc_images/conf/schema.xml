@@ -378,17 +378,6 @@
     <copyField source="gene_symbol" dest="auto_suggest" />
     <copyField source="procedure_name" dest="auto_suggest" />
 
-    <copyField source="mp_id" dest="auto_suggest" />
-    <copyField source="mp_term" dest="auto_suggest" />
-    <copyField source="mp_id_term" dest="auto_suggest" />
-    <copyField source="mp_term_synonym" dest="auto_suggest" />
-    <copyField source="top_level_mp_id" dest="auto_suggest" />
-    <copyField source="top_level_mp_term" dest="auto_suggest" />
-    <copyField source="top_level_mp_term_synonym" dest="auto_suggest" />
-    <copyField source="intermediate_mp_id" dest="auto_suggest" />
-    <copyField source="intermediate_mp_term" dest="auto_suggest" />
-    <copyField source="intermediate_mp_term_synonym" dest="auto_suggest" />
-
     <copyField source="anatomy_id" dest="auto_suggest" />
     <copyField source="anatomy_term" dest="auto_suggest" />
     <copyField source="anatomy_term_synonym" dest="auto_suggest" />
