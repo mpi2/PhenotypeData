@@ -421,8 +421,10 @@ public class ImageService implements WebStatus{
 					+ anatomyId+"\"");
 		}
 		if (StringUtils.isNotEmpty(mpId)) {
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\""
-					+ mpId+"\"");
+//			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\""
+//					+ mpId+"\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.INTERMEDIATE_MP_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId + "\"");
+			
 		}
 		if (StringUtils.isNotEmpty(colonyId)) {
 			solrQuery.addFilterQuery(ObservationDTO.COLONY_ID + ":\""
@@ -430,7 +432,7 @@ public class ImageService implements WebStatus{
 		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println("solr Query in image service"+solrQuery);
+		//System.out.println("solr Query in image service"+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
@@ -889,9 +891,7 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
 		}
 		if (mpId != null){
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.INTERMEDIATE_MP_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_TERM + ":\"" + mpId + "\"");
-//			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ images Section\" OR " + ImageDTO.PARAMETER_NAME
-//					+ ":\"LacZ images wholemount\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId +"\"");
 		}
 		solrQuery.add("group", "true")
         .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
