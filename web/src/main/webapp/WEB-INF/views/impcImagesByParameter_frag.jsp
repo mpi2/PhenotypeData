@@ -41,7 +41,8 @@
                         <c:when test="${doc.omero_id == '0' && phenotype.getMpId() != null}"><!-- these are secondary project images so compara image view won't work on them -->
                             <!-- http://localhost:8080/phenotype-archive/impcImages/images?q=*:*%20AND%20observation_type:image_record&qf=imgQf&defType=edismax&fq=procedure_name:%22Brain%20Histopathology%22 -->
                             <c:set var="href" scope="page"
-                                   value='${baseUrl}/impcImages/images?q=mp_id:${phenotype.getMpId()}&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set>
+                                   value='${baseUrl}/impcImages/images?q=*:*&fq=mp_id:"${phenotype.getMpId()}" OR+intermediate_mp_id:"${phenotype.getMpId()}" OR intermediate_mp_term:"${phenotype.getMpId()}" OR top_level_mp_term:"${phenotype.getMpId()}"&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set><%-- &fq=parameter_stable_id:\"${doc.parameter_stable_id}"&fq=mp_id:"MP:0000807" OR+intermediate_mp_id:"MP:0000807" OR intermediate_mp_term:"MP:0000807" OR top_level_mp_term:"MP:0000807"&group=true&group.field=parameter_stable_id&group --%>
+             
                         </c:when>
                         <c:otherwise>
                             <c:set var="href" scope="page"
@@ -49,15 +50,15 @@
                         </c:otherwise>
                     </c:choose>
 
-                    <a href="${href}">
+                    
                         <t:impcimgdisplay2
                                 img="${doc}"
                                 impcMediaBaseUrl="${impcMediaBaseUrl}"
                                 pdfThumbnailUrl="${pdfThumbnailUrl}"
-                                href="${href}"
+                                href="${fn:escapeXml(href)}"
                                 count="${paramToNumber[doc.parameter_stable_id]}"
                                 parameterName="${label}"></t:impcimgdisplay2>
-                    </a>
+                    
 
 
                         <%--  <div class="clear"></div>
