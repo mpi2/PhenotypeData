@@ -44,6 +44,10 @@
                                    value='${baseUrl}/impcImages/images?q=*:*&fq=mp_id:"${phenotype.getMpId()}" OR+intermediate_mp_id:"${phenotype.getMpId()}" OR intermediate_mp_term:"${phenotype.getMpId()}" OR top_level_mp_term:"${phenotype.getMpId()}"&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set><%-- &fq=parameter_stable_id:\"${doc.parameter_stable_id}"&fq=mp_id:"MP:0000807" OR+intermediate_mp_id:"MP:0000807" OR intermediate_mp_term:"MP:0000807" OR top_level_mp_term:"MP:0000807"&group=true&group.field=parameter_stable_id&group --%>
              
                         </c:when>
+                        <c:when test="${doc.omero_id != '0' && phenotype.getMpId() != null}">
+                            <c:set var="href" scope="page"
+                                   value='${baseUrl}/imageComparator?acc=${acc}&parameter_stable_id=${doc.parameter_stable_id}&fq=mp_id:"${phenotype.getMpId()}" OR+intermediate_mp_id:"${phenotype.getMpId()}" OR intermediate_mp_term:"${phenotype.getMpId()}" OR top_level_mp_term:"${phenotype.getMpId()}"&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set>
+                        </c:when>
                         <c:otherwise>
                             <c:set var="href" scope="page"
                                    value='${baseUrl}/imageComparator?acc=${acc}&parameter_stable_id=${doc.parameter_stable_id}'></c:set>
