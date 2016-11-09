@@ -241,8 +241,8 @@ public class ImageService implements WebStatus{
 						ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
 						ImageDTO.PHENOTYPING_CENTER);
 
-		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?"
-				+ query);
+//		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?"
+//				+ query);
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 
 		for (ImageDTO image : response) {
@@ -903,7 +903,6 @@ public class ImageService implements WebStatus{
             groups.addAll(localGroups);
             
         }
-        System.out.println("solr query for mp="+solrQuery);
 		return groups;
 		
 	}
