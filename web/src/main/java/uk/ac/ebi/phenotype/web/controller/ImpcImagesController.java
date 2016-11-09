@@ -155,7 +155,7 @@ public class ImpcImagesController {
 
 			// To retrieve a single value
 			String value = request.getParameter(key);
-			 System.out.println(key + " value=" + value);
+			 
 			// only add to our new query string if not rows or length as we want
 			// to set those to specific values in the jsp
 			if (!key.equals("rows") && !key.equals("start")) {
