@@ -889,7 +889,7 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
 		}
 		if (mpId != null){
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\"");// put these in with mp not anatomy when Ilinca has put into imageDTO? + "\" OR "+ ImageDTO.INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + mpId + "\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.INTERMEDIATE_MP_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_TERM + ":\"" + mpId + "\"");
 //			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ images Section\" OR " + ImageDTO.PARAMETER_NAME
 //					+ ":\"LacZ images wholemount\"");
 		}
@@ -903,7 +903,7 @@ public class ImageService implements WebStatus{
             groups.addAll(localGroups);
             
         }
-        
+        System.out.println("solr query for mp="+solrQuery);
 		return groups;
 		
 	}
