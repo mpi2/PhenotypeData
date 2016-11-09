@@ -417,7 +417,7 @@ public class ImageService implements WebStatus{
 		if(StringUtils.isNotEmpty(anatomyId)){
 			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":\""
 					+ anatomyId+"\" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\""
-					+ anatomyId+"\" OR "+ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\""
+					+ anatomyId+"\" OR "+ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\""
 					+ anatomyId+"\"");
 		}
 		if (StringUtils.isNotEmpty(mpId)) {
