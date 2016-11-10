@@ -139,6 +139,11 @@ public class ReleaseController {
 		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 		return responseHeaders;
 	}
+	
+	@RequestMapping(value="/release/web")
+	public String getWebRelease(Model model){
+		return "webRelease";
+	}
 
 	@RequestMapping(value="/release", method=RequestMethod.GET)
 	public String getReleaseInformation(
