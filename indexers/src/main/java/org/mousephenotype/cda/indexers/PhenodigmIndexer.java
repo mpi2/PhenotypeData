@@ -18,6 +18,8 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.beans.OntologyTermBean;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -56,6 +58,9 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
     @Qualifier("phenodigmDataSource")
     @NotNull
     private DataSource phenodigmDataSource;
+
+    @Autowired
+    MpOntologyDAO mpOntologyService;
 
     public static final long MIN_EXPECTED_ROWS = 218000;
 
@@ -618,7 +623,41 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setModelToDiseaseScore(getDoubleDefaultZero(r, "model_to_disease_perc_score"));
                 doc.setRawScore(getDoubleDefaultZero(r, "raw_score"));
                 doc.setHpMatchedTerms(Arrays.asList(r.getString("hp_matched_terms").split(",")));
-                doc.setMpMatchedTerms(Arrays.asList(r.getString("mp_matched_terms").split(",")));
+
+                // add matched id/term for an MP and its intermediates and toplevels
+                List<String> mpMatchedIds = Arrays.asList(r.getString("mp_matched_terms").split(","));
+
+                doc.setMpMatchedIds(mpMatchedIds);
+
+                List<String> names = new ArrayList<>();
+                List<String> topIds = new ArrayList<>();
+                List<String> topNames = new ArrayList<>();
+                List<String> intermediateIds = new ArrayList<>();
+                List<String> intermediateNames = new ArrayList<>();
+
+                for(String mpId : mpMatchedIds){
+
+                    OntologyTermBean term =  mpOntologyService.getTerm(mpId);
+
+                    if (term != null) {
+                        names.add(term.getName());
+
+                        for (OntologyTermBean topTerm : mpOntologyService.getTopLevel(mpId)) {
+                            topIds.add(topTerm.getId());
+                            topNames.add(topTerm.getName());
+                        }
+                        for (OntologyTermBean iterm : mpOntologyService.getIntermediates(mpId)) {
+                            intermediateIds.add(iterm.getId());
+                            intermediateNames.add(iterm.getName());
+                        }
+                    }
+                }
+                doc.setMpMatchedTerms(names);
+                doc.setTopLevelMpMatchedIds(topIds);
+                doc.setTopLevelMpMatchedTerms(topNames);
+                doc.setIntermediateMpMatchedIds(intermediateIds);
+                doc.setIntermediateMpMatchedTerms(intermediateNames);
+
 
                 phenodigmIndexing.addBean(doc);
                 count++;
