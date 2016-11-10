@@ -368,6 +368,7 @@
 			</c:if>
 
 			<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
+			<!--  old sanger images section should be replaced by PHIS route soon so we could delete this soon!!!??? -->
 			<c:if test="${not empty images && fn:length(images) !=0}">
 				<div class="section" id="imagesSection">
 						<h2 class="title" id="section">Images <i
