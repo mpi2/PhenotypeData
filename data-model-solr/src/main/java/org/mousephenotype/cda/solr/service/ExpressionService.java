@@ -747,7 +747,7 @@ public class ExpressionService extends BasicService {
 		 + "\"");
 		 }
 
-		System.out.println("SOLR URL WAS " + experimentSolr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + experimentSolr.getBaseURL() + "/select?" + query);
 		List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
 		for (ObservationDTO observation : response) {
 

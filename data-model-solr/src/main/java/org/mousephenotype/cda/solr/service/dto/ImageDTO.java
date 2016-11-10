@@ -92,6 +92,8 @@ public class ImageDTO extends ObservationDTO {
 	public static final String EFO_ID = "efo_id";
 	public static final String UBERON_ID = "uberon_id";
 
+	public static final String STAGE = "stage";
+
 	public static final String SYMBOL_GENE = "symbol_gene";
 	public static final String SYMBOL = "symbol";
 	public static final String SUBTYPE = "subtype";
@@ -184,6 +186,9 @@ public class ImageDTO extends ObservationDTO {
 
 	@Field(DOWNLOAD_URL)
 	private String downloadUrl;
+
+	@Field(STAGE)
+	private String stage;
 
 	@Field(IMAGE_LINK)
 	private String imageLink;
@@ -310,7 +315,7 @@ public class ImageDTO extends ObservationDTO {
 	}
 
 	public void addTopLevelMpTerm(String topLevelMpTerm, Boolean uniqueOnly) {
-		add(this.topLevelMpTerm, topLevelMpTerm, true);
+		this.topLevelMpTerm = add(this.topLevelMpTerm, topLevelMpTerm, uniqueOnly);
 	}
 
 	public List<String> getTopLevelMpId() {
@@ -322,7 +327,7 @@ public class ImageDTO extends ObservationDTO {
 	}
 
 	public void addTopLevelMpId(String topLevelMpId, Boolean uniqueOnly) {
-		add(this.topLevelMpId, topLevelMpId, true);
+		this.topLevelMpId = add(this.topLevelMpId, topLevelMpId, uniqueOnly);
 	}
 
 	@Field(AGE_IN_DAYS)
@@ -331,6 +336,13 @@ public class ImageDTO extends ObservationDTO {
 	@Field(THUMBNAIL_URL)
 	private String thumbnailUrl;
 
+	public String getStage() {
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
 
 	public String getThumbnailUrl() {
 		return thumbnailUrl;
@@ -437,7 +449,7 @@ public class ImageDTO extends ObservationDTO {
 
     public void addIntermediateAnatomyTermSynonymAnatomyIdTerm(List<String> synonyms, String postfix) {
         for (String synonym : synonyms ){
-            add(this.intermediateAnatomyTermSynonymAnatomyIdTerm, synonym + postfix);
+			this.intermediateAnatomyTermSynonymAnatomyIdTerm = add(this.intermediateAnatomyTermSynonymAnatomyIdTerm, synonym + postfix);
         }
     }
 
@@ -478,7 +490,7 @@ public class ImageDTO extends ObservationDTO {
 	}
 
 	public void addMpId(String mpId, Boolean uniqueOnly) {
-		add(this.mpId, mpId, true);
+		this.mpId = add(this.mpId, mpId, true);
 	}
 
 	public void addMpIdTerm(String mpIdTerm, boolean uniqueOnly) {
@@ -498,7 +510,7 @@ public class ImageDTO extends ObservationDTO {
 	}
 
 	public void addMpTerm(String mpTerm, Boolean uniqueOnly) {
-		add(this.mpTerm, mpTerm, true);
+		this.mpTerm = add(this.mpTerm, mpTerm, uniqueOnly);
 	}
 
 	public List<String> getMpTermSynonym() {
@@ -1032,7 +1044,7 @@ public class ImageDTO extends ObservationDTO {
 		if (to == null){
 			to = new ArrayList<>();
 		}
-		if (!to.contains(what)) {
+		if (!uniqueOnly || !to.contains(what)) {
 			to.add(what);
 		}
 		return to;

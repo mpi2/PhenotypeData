@@ -442,35 +442,6 @@ public class ObservationDTOBase {
 		this.topLevelAnatomyTerm.add(topLevelAnatomyTerm);
 	}
 
-	public void addSelectedTopLevelAnatomyTerm(String selectedTopLevelAnatomyTerm, boolean uniqueOnly) {
-		if (this.selectedTopLevelAnatomyTerm == null){
-			this.selectedTopLevelAnatomyTerm = new ArrayList<>();
-		}
-		if (!uniqueOnly || !this.selectedTopLevelAnatomyTerm.contains(selectedTopLevelAnatomyTerm)){
-			this.selectedTopLevelAnatomyTerm.add(selectedTopLevelAnatomyTerm);
-		}
-	}
-
-	public void addSelectedTopLevelAnatomyId(String selectedTopLevelAnatomyId, boolean uniqueOnly) {
-		if (this.selectedTopLevelAnatomyId == null){
-			this.selectedTopLevelAnatomyId = new ArrayList<>();
-		}
-		if (!uniqueOnly || !this.selectedTopLevelAnatomyId.contains(selectedTopLevelAnatomyId)){
-			this.selectedTopLevelAnatomyId.add(selectedTopLevelAnatomyId);
-		}
-	}
-
-	public void addSelectedTopLevelAnatomySynonyms(List<String> selectedTopLevelAnatomyTermSynonym, boolean uniqueOnly) {
-		if (this.selectedTopLevelAnatomyTermSynonym == null){
-			this.selectedTopLevelAnatomyTermSynonym = new ArrayList<>();
-		}
-		if (uniqueOnly){
-			addUnique(this.selectedTopLevelAnatomyTermSynonym, selectedTopLevelAnatomyTermSynonym);
-		} else {
-			this.selectedTopLevelAnatomyTermSynonym.addAll(selectedTopLevelAnatomyTermSynonym);
-		}
-	}
-
 	public void addTopLevelAnatomyId(String topLevelAnatomyId) {
 		if (this.topLevelAnatomyId == null){
 			this.topLevelAnatomyId = new ArrayList<>();
@@ -554,6 +525,18 @@ public class ObservationDTOBase {
 
 	public void setSelectedTopLevelAnatomyTermSynonym(List<String> selectedTopLevelAnatomyTermSynonym) {
 		this.selectedTopLevelAnatomyTermSynonym = selectedTopLevelAnatomyTermSynonym;
+	}
+
+	public void addSelectedTopLevelAnatomyTerm(String selectedTopLevelAnatomyTerm, boolean uniqueOnly) {
+		this.selectedTopLevelAnatomyTerm = add(this.selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTerm, uniqueOnly);
+	}
+
+	public void addSelectedTopLevelAnatomyId(String selectedTopLevelAnatomyId, boolean uniqueOnly) {
+		this.selectedTopLevelAnatomyId = add(this.selectedTopLevelAnatomyId, selectedTopLevelAnatomyId, uniqueOnly);
+	}
+
+	public void addSelectedTopLevelAnatomySynonyms(List<String> selectedTopLevelAnatomyTermSynonym, boolean uniqueOnly) {
+		this.selectedTopLevelAnatomyTermSynonym = add(this.selectedTopLevelAnatomyTermSynonym, selectedTopLevelAnatomyTermSynonym, uniqueOnly);
 	}
 
 	public Integer getSequenceId() {
@@ -1561,6 +1544,25 @@ public class ObservationDTOBase {
 		this.developmentalStageName = developmentalStageName;
 	}
 
+	private List<String> add(List<String> to, String what, Boolean uniqueOnly){
+		if (to == null){
+			to = new ArrayList<>();
+		}
+		if (!uniqueOnly || !to.contains(what)) {
+			to.add(what);
+		}
+		return to;
+	}
 
-
+	private List<String> add (List<String> to, List<String> what, Boolean uniqueOnly){
+		if (to == null){
+			to = new ArrayList<>();
+		}
+		if ( uniqueOnly ) {
+			addUnique(to, what);
+		} else {
+			to.addAll(what);
+		}
+		return to;
+	}
 }
