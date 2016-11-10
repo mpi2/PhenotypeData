@@ -32,32 +32,53 @@
                         <c:set var="label" value="${doc.procedure_name}"/>
                     </c:if>
                         <%-- (${entry.count}) --%>
-                    <c:choose>
-                        <c:when test="${doc.omero_id == '0' && acc != null}"><!-- these are secondary project images so compara image view won't work on them -->
+                   
+                        <c:if test="${doc.omero_id == '0'}"><!-- these are secondary project images so compara image view won't work on them -->
+                        	
+                        	<c:if test="${acc!=null}">
+                         		<c:set var ="query" value='q=gene_accession_id:"${acc}"'/>
+                       		</c:if>
+                       		<c:if test="${phenotype.getMpId()!=null}">
+                       			<c:set var ="query" value='q=mp_id:"${phenotype.getMpId()}" OR+intermediate_mp_id:"${phenotype.getMpId()}" OR intermediate_mp_term:"${phenotype.getMpId()}" OR top_level_mp_term:"${phenotype.getMpId()}"&fq=parameter_stable_id:${doc.parameter_stable_id}'/>
+                       		</c:if>
+                        
+                  
                             <!-- http://localhost:8080/phenotype-archive/impcImages/images?q=*:*%20AND%20observation_type:image_record&qf=imgQf&defType=edismax&fq=procedure_name:%22Brain%20Histopathology%22 -->
                             <c:set var="href" scope="page"
-                                   value="${baseUrl}/impcImages/images?q=gene_accession_id:${acc}&fq=parameter_stable_id:${doc.parameter_stable_id}"></c:set>
-                        </c:when>
-                        <c:when test="${doc.omero_id == '0' && phenotype.getMpId() != null}"><!-- these are secondary project images so compara image view won't work on them -->
+                                   value='${baseUrl}/impcImages/images?${query}&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set>
+                        </c:if>
+                        <%-- <c:when test="${doc.omero_id == '0' && phenotype.getMpId() != null}"><!-- these are secondary project images so compara image view won't work on them -->
                             <!-- http://localhost:8080/phenotype-archive/impcImages/images?q=*:*%20AND%20observation_type:image_record&qf=imgQf&defType=edismax&fq=procedure_name:%22Brain%20Histopathology%22 -->
                             <c:set var="href" scope="page"
-                                   value='${baseUrl}/impcImages/images?q=mp_id:${phenotype.getMpId()}&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set>
-                        </c:when>
-                        <c:otherwise>
+                                   value='${baseUrl}/impcImages/images?q=mp_id:"${phenotype.getMpId()}" OR+intermediate_mp_id:"${phenotype.getMpId()}" OR intermediate_mp_term:"${phenotype.getMpId()}" OR top_level_mp_term:"${phenotype.getMpId()}"&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set>&fq=parameter_stable_id:\"${doc.parameter_stable_id}"&fq=mp_id:"MP:0000807" OR+intermediate_mp_id:"MP:0000807" OR intermediate_mp_term:"MP:0000807" OR top_level_mp_term:"MP:0000807"&group=true&group.field=parameter_stable_id&group
+             
+                        </c:when> --%>
+                        <c:if test="${doc.omero_id != '0'}"> <!-- omero images and gene or mp ids for comparator -->
+                            <c:set var="query" value='parameter_stable_id=${doc.parameter_stable_id}'/>
+                            <c:if test="${acc!=null}">
+                            		<c:set var="query" scope="page"
+                                   value='&${query}&acc=${acc}'></c:set>
+                            </c:if>
+                            <c:if test="${phenotype.getMpId()!=null}">
+                            	 <c:set var="query" scope="page"
+                                   value='&${query}&mp_id=${phenotype.getMpId()}'></c:set>
+                            </c:if>
+                            
+                        
                             <c:set var="href" scope="page"
-                                   value="${baseUrl}/imageComparator?acc=${acc}&mp_id=${phenotype.getMpId()}&parameter_stable_id=${doc.parameter_stable_id}"></c:set>
-                        </c:otherwise>
-                    </c:choose>
+                                   value='${baseUrl}/imageComparator?${query}'></c:set>
+                        </c:if>
+                   
 
-                    <a href="${href}">
+                    
                         <t:impcimgdisplay2
                                 img="${doc}"
                                 impcMediaBaseUrl="${impcMediaBaseUrl}"
                                 pdfThumbnailUrl="${pdfThumbnailUrl}"
-                                href="${href}"
+                                href="${fn:escapeXml(href)}"
                                 count="${paramToNumber[doc.parameter_stable_id]}"
                                 parameterName="${label}"></t:impcimgdisplay2>
-                    </a>
+                    
 
 
                         <%--  <div class="clear"></div>

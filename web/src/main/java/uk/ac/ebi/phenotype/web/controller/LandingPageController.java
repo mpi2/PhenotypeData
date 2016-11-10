@@ -102,7 +102,13 @@ public class LandingPageController {
             mpId = "MP:0005391";
             model.addAttribute("pageTitle", "Vision");
         }
-
+        else if (page.equalsIgnoreCase("nervous")){
+            mpId = "MP:0003631";
+            model.addAttribute("pageTitle", "Nervous phenotypes");
+        }else if (page.equalsIgnoreCase("neurological")){
+            mpId = "MP:0005386";
+            model.addAttribute("pageTitle", "Beghavioural/neurological phenotypes");
+        }
         model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
         model.addAttribute("mpId", mpId);

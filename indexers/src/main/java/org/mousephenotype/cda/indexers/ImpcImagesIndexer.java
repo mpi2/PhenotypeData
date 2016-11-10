@@ -211,7 +211,13 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					imageDTO.setAgeInDays(ageInDays);
 				}
 				
-				
+				// "stage" field is needed for search, stage facet on image seach
+				if (imageDTO.getDevelopmentalStageAcc() != null && imageDTO.getDevelopmentalStageAcc().equalsIgnoreCase("MmusDv:0000092")) { // postnatal stage
+					imageDTO.setStage("adult");
+				} else {
+					imageDTO.setStage("embryo");
+				}
+
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
 
@@ -289,6 +295,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 					addOntologyTerms( imageDTO, parameterStableIdToMaTermIdMap, runStatus);
 					addOntologyTerms( imageDTO, parameterStableIdToEmapaTermIdMap, runStatus);
+					addOntologyTerms( imageDTO, parameterStableIdToMpTermIdMap, runStatus);
 
 					impcImagesIndexing.addBean(imageDTO, 30000);
 					documentCount++;
@@ -362,7 +369,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	}
 
 
-	private ImageDTO addAnatomyValues(String termId, ImageDTO imageDTO, OntologyDAO ontologyDAO, RunStatus runStatus){
+	private ImageDTO addAnatomyValues(String termId, ImageDTO imageDTO, OntologyDAO ontologyDAO, RunStatus runStatus) {
 
 		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
 
@@ -375,7 +382,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		// intermediate terms
 		List<OntologyTermBean> intermediate = ontologyDAO.getIntermediates(termBean.getId());
-		for (OntologyTermBean term : intermediate){
+		for (OntologyTermBean term : intermediate) {
 			imageDTO.addIntermediateAnatomyId(term.getId());
 			imageDTO.addIntermediateAnatomyTerm(term.getName());
 			imageDTO.addIntermediateAnatomyTermSynonym(term.getSynonyms(), true);
@@ -385,8 +392,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		// selected top levels - what we actually use
-		List<OntologyTermBean> selectedTopLevels = ontologyDAO.getTopLevel(termBean.getId(),1);
-		for (OntologyTermBean term : intermediate) {
+		List<OntologyTermBean> selectedTopLevels = ontologyDAO.getSelectedTopLevel(termBean.getId(), 1);
+		if (selectedTopLevels.size() == 0){
+			runStatus.addWarning("No selected top level found for " + termId);
+		}
+		for (OntologyTermBean term : selectedTopLevels) {
 			imageDTO.addSelectedTopLevelAnatomyId(term.getId(), true);
 			imageDTO.addSelectedTopLevelAnatomyTerm(term.getName(), true);
 			imageDTO.addSelectedTopLevelAnatomySynonyms(term.getSynonyms(), true);
@@ -394,7 +404,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			imageDTO.addSelectedTopLevelAnatomyTermAnatomyIdTerm(term.getName() + fieldSeparator + termBean.getTermIdTermName());
 			imageDTO.addSelectedTopLevelAnatomyIdAnatomyIdTerm(term.getId() + fieldSeparator + termBean.getTermIdTermName());
 		}
-
 		// UBERON/EFO id for MA id
 		try {
 			if (maUberonEfoMap.containsKey(termBean.getId())) {
@@ -450,7 +459,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			List<String> mpIds = new ArrayList<>(image.getMpId());
 			image.setMpId(new ArrayList<>());
 			for (String mpId : mpIds){
-				addMpValues(mpId, image, mpOntologyService, runStatus);
+				image = addMpValues(mpId, image, mpOntologyService, runStatus);
 			}
 		}
 		return image;
