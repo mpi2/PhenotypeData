@@ -138,6 +138,7 @@
    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
    <field name="_version_" type="long" indexed="true" stored="true"/>
+   <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 
    <!--
      Some fields such as popularity and manu_exact could be modified to
@@ -162,6 +163,7 @@
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
+   <copyField source="disease_term" dest="auto_suggest"/>
    <copyField source="disease_term" dest="text"/>
    <copyField source="disease_alts" dest="text"/>
    <copyField source="disease_classes" dest="text"/>
@@ -307,6 +309,23 @@
               <filter class="solr.LowerCaseFilterFactory"/>
               <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
               <filter class="solr.PorterStemFilterFactory"/>
+          </analyzer>
+      </fieldType>
+
+      <fieldType name="text_ngram" class="solr.TextField">
+          <analyzer type="index">
+              <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+              <filter class="solr.LowerCaseFilterFactory"/>
+              <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+              <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="100" side="front"/>
+              <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
+          </analyzer>
+          <analyzer type="query">
+              <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+              <filter class="solr.LowerCaseFilterFactory"/>
+              <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
+              <!--<filter class="solr.KStemFilterFactory"/> -->
+              <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
           </analyzer>
       </fieldType>
 
