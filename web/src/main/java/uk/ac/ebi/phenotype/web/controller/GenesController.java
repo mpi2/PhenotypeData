@@ -793,7 +793,7 @@ public class GenesController {
 	private void getImpcImages(String acc, Model model)
 	throws SolrServerException, IOException {
 
-		List<Group> groups = imageService.getPhenotypeAssociatedImages(acc, null, 1);
+		List<Group> groups = imageService.getPhenotypeAssociatedImages(acc, null, true, 1);
 		Map<String, String> paramToNumber=new HashMap<>();
 		for(Group group:groups){
 			if(!paramToNumber.containsKey(group.getGroupValue())){
