@@ -646,7 +646,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
                     OntologyTermBean term =  mpOntologyService.getTerm(mpId);
 
-                    if (term != null) {
+                    if (term != null) {  // some phenodigm MPs are not in IMPC slim
                         names.add(term.getName());
 
                         for (OntologyTermBean topTerm : mpOntologyService.getTopLevel(mpId)) {
