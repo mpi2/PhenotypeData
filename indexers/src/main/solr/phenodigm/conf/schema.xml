@@ -116,10 +116,16 @@
    <field name="raw_score" type="double" indexed="true" stored="true"/>
    <field name="hp_matched_terms" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="mp_matched_terms" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="mp_matched_ids" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="top_level_mp_matched_ids" type="string" indexed="true" stored="true" multiValued="true" />
+   <field name="top_level_mp_matched_terms" type="string" indexed="true" stored="true" multiValued="true" />
+   <field name="intermediate_mp_matched_ids" type="string" indexed="true" stored="true" multiValued="true" />
+   <field name="intermediate_mp_matched_terms" type="string" indexed="true" stored="true" multiValued="true" />
 
    <!--phenotypes-->
    <field name="mp_id" type="string" indexed="true" stored="true" multiValued="false" />
    <field name="mp_term" type="string" indexed="true" stored="true" multiValued="false" />
+
 
    <field name="hp_id" type="string" indexed="true" stored="true" multiValued="false" />
    <field name="hp_term" type="string" indexed="true" stored="true" multiValued="false" />
