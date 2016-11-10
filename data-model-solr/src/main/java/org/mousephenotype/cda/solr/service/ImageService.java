@@ -241,8 +241,8 @@ public class ImageService implements WebStatus{
 						ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
 						ImageDTO.PHENOTYPING_CENTER);
 
-		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?"
-				+ query);
+//		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?"
+//				+ query);
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 
 		for (ImageDTO image : response) {
@@ -417,12 +417,14 @@ public class ImageService implements WebStatus{
 		if(StringUtils.isNotEmpty(anatomyId)){
 			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":\""
 					+ anatomyId+"\" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\""
-					+ anatomyId+"\" OR "+ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\""
+					+ anatomyId+"\" OR "+ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\""
 					+ anatomyId+"\"");
 		}
 		if (StringUtils.isNotEmpty(mpId)) {
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\""
-					+ mpId+"\"");
+//			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\""
+//					+ mpId+"\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.INTERMEDIATE_MP_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId + "\"");
+			
 		}
 		if (StringUtils.isNotEmpty(colonyId)) {
 			solrQuery.addFilterQuery(ObservationDTO.COLONY_ID + ":\""
@@ -430,7 +432,7 @@ public class ImageService implements WebStatus{
 		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		System.out.println("solr Query in image service"+solrQuery);
+		//System.out.println("solr Query in image service"+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
@@ -889,9 +891,7 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
 		}
 		if (mpId != null){
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\"");// put these in with mp not anatomy when Ilinca has put into imageDTO? + "\" OR "+ ImageDTO.INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + mpId + "\"");
-//			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ images Section\" OR " + ImageDTO.PARAMETER_NAME
-//					+ ":\"LacZ images wholemount\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId +"\"");
 		}
 		solrQuery.add("group", "true")
         .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
@@ -903,7 +903,6 @@ public class ImageService implements WebStatus{
             groups.addAll(localGroups);
             
         }
-        
 		return groups;
 		
 	}
@@ -980,13 +979,13 @@ public class ImageService implements WebStatus{
 								+ MpDTO.MP_ID + ":\"" + mpId + "\")")
 				.setRows(0);
 
-		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
 			return false;
 		}
-		System.out.println("returning true");
+		//System.out.println("returning true");
 		return true;
 	}
 
