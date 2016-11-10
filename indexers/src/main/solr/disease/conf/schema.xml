@@ -365,6 +365,7 @@
           or to add multiple fields to the same field for easier/faster searching.  -->
 
     <copyField source="disease_term" dest="text"/>
+    <copyField source="disease_term" dest="auto_suggest"/>
     <copyField source="disease_alts" dest="text"/>
     <copyField source="disease_classes" dest="text"/>
     <copyField source="disease_id" dest="text"/>
