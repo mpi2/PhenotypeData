@@ -22,6 +22,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -881,7 +882,7 @@ public class ImageService implements WebStatus{
 	
 	
 	
-	public List<Group> getPhenotypeAssociatedImages(String geneAcc, String mpId, int count)
+	public List<Group> getPhenotypeAssociatedImages(String geneAcc, String mpId, boolean experimentalOnly, int count)
 	throws SolrServerException, IOException {
 
 			List<Group> groups = new ArrayList<>();
@@ -892,6 +893,9 @@ public class ImageService implements WebStatus{
 		}
 		if (mpId != null){
 			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId +"\"");
+		}
+		if(experimentalOnly){
+			solrQuery.addFilterQuery(ImageDTO.BIOLOGICAL_SAMPLE_GROUP+":"+BiologicalSampleType.experimental);
 		}
 		solrQuery.add("group", "true")
         .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
