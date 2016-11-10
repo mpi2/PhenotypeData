@@ -592,11 +592,16 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 "  mdma.model_to_disease_perc_score AS model_to_disease_perc_score, " +
                 "  mdma.raw_score, " +
                 "  mdma.hp_matched_terms, " +
-                "  mdma.mp_matched_terms " +
+                "  mdma.mp_matched_terms, " +
+                "  mds.mod_predicted, " +
+                "  mds.htpc_predicted " +
                 "FROM mouse_disease_gene_summary_high_quality mdgshq " +
                 "  JOIN mouse_model_gene_ortholog mmgo ON mdgshq.model_gene_id = mmgo.model_gene_id " +
-                "  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id AND mmgo.model_id = mdma.model_id ";
+                "  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id " +
+                "  JOIN mouse_disease_summary mds ON mds.disease_id = mdgshq.disease_id " +
+                "  AND mmgo.model_id = mdma.model_id";
 
+        //System.out.println("DISEASE MODEL ASSOC QUERY: " + query);
         try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
             p.setFetchSize(Integer.MIN_VALUE);
@@ -622,6 +627,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setDiseaseToModelScore(getDoubleDefaultZero(r, "disease_to_model_perc_score"));
                 doc.setModelToDiseaseScore(getDoubleDefaultZero(r, "model_to_disease_perc_score"));
                 doc.setRawScore(getDoubleDefaultZero(r, "raw_score"));
+                doc.setMgiPredicted(r.getBoolean("mod_predicted"));
+                doc.setImpcPredicted(r.getBoolean("htpc_predicted"));
                 doc.setHpMatchedTerms(Arrays.asList(r.getString("hp_matched_terms").split(",")));
 
                 // add matched id/term for an MP and its intermediates and toplevels
