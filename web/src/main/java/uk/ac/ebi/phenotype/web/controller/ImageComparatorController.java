@@ -50,7 +50,7 @@ public class ImageComparatorController {
 
 	
 	@RequestMapping("/imageComparator")
-	public String imageCompBrowser( @RequestParam(value = "acc")  String acc,
+	public String imageCompBrowser( @RequestParam(value = "acc", required=false)  String acc,
 				@RequestParam(value = "parameter_stable_id", required=false)  String parameterStableId,
 				@RequestParam(value = "parameter_association_value", required=false)  String parameterAssociationValue,
 				@RequestParam(value = "anatomy_id", required=false)  String anatomyId,
