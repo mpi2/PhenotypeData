@@ -9,7 +9,11 @@ CREATE TABLE experiment (
   dateOfExperiment DATE NOT NULL,
   experimentId VARCHAR(255) NOT NULL,
   sequenceId VARCHAR(255) DEFAULT NULL,
-  center_procedure_pk INT UNSIGNED NOT NULL
+  center_procedure_pk INT UNSIGNED NOT NULL,
+
+  KEY dateOfExperiment_idx(dateOfExperiment),
+  KEY experimentId_idx(experimentId)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS experiment_statuscode;
@@ -17,7 +21,9 @@ CREATE TABLE experiment_statuscode (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   experiment_pk INT UNSIGNED NOT NULL,
   statuscode_pk INT UNSIGNED NOT NULL,
+
   UNIQUE KEY experimentPk_statuscodePk_uk (experiment_pk, statuscode_pk)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS experiment_specimen;
@@ -25,7 +31,9 @@ CREATE TABLE experiment_specimen (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   experiment_pk INT UNSIGNED NOT NULL,
   specimen_pk INT UNSIGNED NOT NULL,
+
   UNIQUE KEY experimentPk_specimenPk_uk (experiment_pk, specimen_pk)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS housing;
@@ -34,6 +42,7 @@ CREATE TABLE housing (
   fromLims TINYINT UNSIGNED NOT NULL,
   lastUpdated DATE DEFAULT NULL,
   center_procedure_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS line;
@@ -42,13 +51,20 @@ CREATE TABLE line (
   colonyId VARCHAR(255) NOT NULL,
   datasourceShortName VARCHAR(40) NOT NULL,
   center_procedure_pk INT UNSIGNED NOT NULL,
-  UNIQUE KEY colonyId_centerProcedurePk_uk (colonyId, center_procedure_pk)
+
+  UNIQUE KEY colonyId_centerProcedurePk_uk (colonyId, center_procedure_pk),
+  KEY colonyId_idx(colonyId),
+  KEY center_procedure_pk_idx(center_procedure_pk)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS procedure_;
 CREATE TABLE procedure_ (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  procedureId VARCHAR(255) NOT NULL
+  procedureId VARCHAR(255) NOT NULL,
+
+  KEY procedureId_idx(procedureId)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS center_procedure;
@@ -56,7 +72,11 @@ CREATE TABLE center_procedure (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   center_pk INT UNSIGNED NOT NULL,
   procedure_pk INT UNSIGNED NOT NULL,
-  UNIQUE KEY centerPk_procedurePk_uk (center_pk, procedure_pk)
+
+  UNIQUE KEY centerPk_procedurePk_uk (center_pk, procedure_pk),
+  KEY center_pk_idx(center_pk),
+  KEY procedure_pk_idx(procedure_pk)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS line_statuscode;
@@ -64,6 +84,7 @@ CREATE TABLE line_statuscode (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   line_pk INT UNSIGNED NOT NULL,
   statuscode_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS simpleParameter;
@@ -74,7 +95,11 @@ CREATE TABLE simpleParameter (
   sequenceId INTEGER DEFAULT NULL,
   unit VARCHAR(255) DEFAULT NULL,
   value VARCHAR(4096) DEFAULT NULL,
-  procedure_pk INT UNSIGNED NOT NULL
+  procedure_pk INT UNSIGNED NOT NULL,
+
+  KEY parameterId_idx(parameterId),
+  KEY parameterStatus_idx(parameterStatus)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS ontologyParameter;
@@ -83,7 +108,11 @@ CREATE TABLE ontologyParameter (
   parameterId VARCHAR(255) NOT NULL,
   parameterStatus VARCHAR(255) DEFAULT NULL,
   sequenceId INTEGER DEFAULT NULL,
-  procedure_pk INT UNSIGNED NOT NULL
+  procedure_pk INT UNSIGNED NOT NULL,
+
+  KEY parameterId_idx(parameterId),
+  KEY parameterStatus_idx(parameterStatus)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS seriesParameter;
@@ -92,7 +121,11 @@ CREATE TABLE seriesParameter (
   parameterId VARCHAR(255) NOT NULL,
   parameterStatus VARCHAR(255) DEFAULT NULL,
   sequenceId INTEGER DEFAULT NULL,
-  procedure_pk INT UNSIGNED NOT NULL
+  procedure_pk INT UNSIGNED NOT NULL,
+
+  KEY parameterId_idx(parameterId),
+  KEY parameterStatus_idx(parameterStatus)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaParameter;
@@ -102,7 +135,11 @@ CREATE TABLE mediaParameter (
   parameterId VARCHAR(255) NOT NULL,
   parameterStatus VARCHAR(255) DEFAULT NULL,
   URI VARCHAR(255) NOT NULL,
-  procedure_pk INT UNSIGNED NOT NULL
+  procedure_pk INT UNSIGNED NOT NULL,
+
+  KEY parameterId_idx(parameterId),
+  KEY parameterStatus_idx(parameterStatus)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS ontologyParameterTerm;
@@ -111,6 +148,7 @@ CREATE TABLE ontologyParameterTerm (
   term VARCHAR(255) NOT NULL,
   ontologyParameter_pk INT UNSIGNED NOT NULL,
   UNIQUE KEY ontologyParameterPk_term_uk (ontologyParameter_pk, term)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS seriesParameterValue;
@@ -120,6 +158,7 @@ CREATE TABLE seriesParameterValue (
   incrementValue VARCHAR(255) NOT NULL,
   value VARCHAR(4096) DEFAULT NULL,
   seriesParameter_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaParameter_parameterAssociation;
@@ -127,6 +166,7 @@ CREATE TABLE mediaParameter_parameterAssociation (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   mediaParameter_pk INT UNSIGNED NOT NULL,
   parameterAssociation_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaParameter_procedureMetadata;
@@ -134,13 +174,18 @@ CREATE TABLE mediaParameter_procedureMetadata (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   mediaParameter_pk INT UNSIGNED NOT NULL,
   procedureMetadata_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS parameterAssociation;
 CREATE TABLE parameterAssociation (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   parameterId VARCHAR(255) NOT NULL,
-  sequenceId INTEGER DEFAULT NULL
+  sequenceId INTEGER DEFAULT NULL,
+
+  KEY parameterId_idx(parameterId),
+  KEY sequenceId_idx(sequenceId)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS procedureMetadata;
@@ -149,7 +194,11 @@ CREATE TABLE procedureMetadata (
   parameterId VARCHAR(255) NOT NULL,
   parameterStatus VARCHAR(255) DEFAULT NULL,
   sequenceId INTEGER DEFAULT NULL,
-  value VARCHAR(4096) DEFAULT NULL
+  value VARCHAR(4096) DEFAULT NULL,
+
+  KEY parameterId_idx(parameterId),
+  KEY parameterStatus_idx(parameterStatus)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS dimension;
@@ -159,7 +208,10 @@ CREATE TABLE dimension (
   origin VARCHAR(255) NOT NULL,
   unit VARCHAR(255) DEFAULT NULL,
   value decimal(15, 10) NOT NULL,
-  parameterAssociation_pk INT UNSIGNED NOT NULL
+  parameterAssociation_pk INT UNSIGNED NOT NULL,
+
+  KEY id_idx(id)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaSampleParameter;
@@ -167,21 +219,31 @@ CREATE TABLE mediaSampleParameter (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   parameterId VARCHAR(255) NOT NULL,
   parameterStatus VARCHAR(255) DEFAULT NULL,
-  procedure_pk INT UNSIGNED NOT NULL
+  procedure_pk INT UNSIGNED NOT NULL,
+
+  KEY parameterId_idx(parameterId),
+  KEY parameterStatus_idx(parameterStatus)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaSample;
 CREATE TABLE mediaSample (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   localId VARCHAR(255) NOT NULL,
-  mediaSampleParameter_pk INT UNSIGNED NOT NULL
+  mediaSampleParameter_pk INT UNSIGNED NOT NULL,
+
+  KEY localId_idx(localId)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaSection;
 CREATE TABLE mediaSection (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   localId VARCHAR(255) NOT NULL,
-  mediaSample_pk INT UNSIGNED NOT NULL
+  mediaSample_pk INT UNSIGNED NOT NULL,
+
+  KEY localId_idx(localId)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaFile;
@@ -190,7 +252,10 @@ CREATE TABLE mediaFile (
   fileType VARCHAR(255) NOT NULL,
   localId VARCHAR(255) NOT NULL,
   URI VARCHAR(255) NOT NULL,
-  mediaSection_pk INT UNSIGNED NOT NULL
+  mediaSection_pk INT UNSIGNED NOT NULL,
+
+  KEY localId_idx(localId)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaFile_parameterAssociation;
@@ -198,6 +263,7 @@ CREATE TABLE mediaFile_parameterAssociation (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   mediaFile_pk INT UNSIGNED NOT NULL,
   parameterAssociation_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS mediaFile_procedureMetadata;
@@ -205,6 +271,7 @@ CREATE TABLE mediaFile_procedureMetadata (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   mediaFile_pk INT UNSIGNED NOT NULL,
   procedureMetadata_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS seriesMediaParameter;
@@ -220,6 +287,7 @@ CREATE TABLE procedure_procedureMetadata (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   procedure_pk INT UNSIGNED NOT NULL,
   procedureMetadata_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS seriesMediaParameterValue;
@@ -229,6 +297,7 @@ CREATE TABLE seriesMediaParameterValue (
   incrementValue VARCHAR(255) NOT NULL,
   URI VARCHAR(255) NOT NULL,
   seriesMediaParameter_pk INT UNSIGNED NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS seriesMediaParameterValue_parameterAssociation;
@@ -236,7 +305,9 @@ CREATE TABLE seriesMediaParameterValue_parameterAssociation (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   seriesMediaParameterValue_pk INT UNSIGNED NOT NULL,
   parameterAssociation_pk INT UNSIGNED NOT NULL,
+
   UNIQUE KEY smpvPk_paPk_uk (seriesMediaParameterValue_pk, parameterAssociation_pk)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS seriesMediaParameterValue_procedureMetadata;
@@ -244,6 +315,7 @@ CREATE TABLE seriesMediaParameterValue_procedureMetadata (
   pk INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   seriesMediaParameterValue_pk INT UNSIGNED NOT NULL,
   procedureMetadata_pk INT UNSIGNED NOT NULL,
+
   UNIQUE KEY smpvPk_pmPk_uk (seriesMediaParameterValue_pk, procedureMetadata_pk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
