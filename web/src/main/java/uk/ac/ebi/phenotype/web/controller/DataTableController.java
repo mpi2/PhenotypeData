@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -2457,7 +2458,7 @@ public class DataTableController {
         return j.toString();
     }
 
-    public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
+    public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException, UnsupportedEncodingException {
         final int DISPLAY_THRESHOLD = 4;
         List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
 
@@ -2465,23 +2466,6 @@ public class DataTableController {
         j.put("aaData", new Object[0]);
         j.put("iTotalRecords", references.size());
         j.put("iTotalDisplayRecords", references.size());
-
-//        // MMM to digit conversion
-//        Map<String, String> m2d = new HashMap<>();
-//        // the digit part is set as such to work with the default non-natural sort behavior so that
-//        // 9 will not be sorted after 10
-//        m2d.put("Jan","11");
-//        m2d.put("Feb","12");
-//        m2d.put("Mar","13");
-//        m2d.put("Apr","14");
-//        m2d.put("May","15");
-//        m2d.put("Jun","16");
-//        m2d.put("Jul","17");
-//        m2d.put("Aug","18");
-//        m2d.put("Sep","19");
-//        m2d.put("Oct","20");
-//        m2d.put("Nov","21");
-//        m2d.put("Dec","22");
 
         for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
 
@@ -2506,6 +2490,7 @@ public class DataTableController {
                     	alleleLink = alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
                     }
                 }
+
                 alleleSymbolinks.put(symbol, alleleLink);
             }
 
@@ -2526,12 +2511,8 @@ public class DataTableController {
                 it.remove(); // avoids a ConcurrentModificationException
             }
 
-
 			rowData.add(reference.getTitle());
             rowData.add(StringUtils.join(alLinks, ""));
-
-
-			//rowData.add(Integer.toString(reference.getPmid()));
             rowData.add(reference.getJournal());
 
             String oriPubDate = reference.getDateOfPublication();
@@ -2612,6 +2593,9 @@ public class DataTableController {
                 }
             }
 
+			// hidden
+			rowData.add(Integer.toString(reference.getPmid()));
+
             // ordered
 //            paperLinks.addAll(paperLinksEuroPubmed);
 //            paperLinks.addAll(paperLinksPubmed);
@@ -2628,10 +2612,9 @@ public class DataTableController {
 				rowData.add(paperLinksOther.get(0));
 			}
 
-            // mesh terms
+            // hidden in datatable: mesh terms
             String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
             rowData.add(meshTerms);
-
 
             j.getJSONArray("aaData").add(rowData);
 
