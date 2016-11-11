@@ -66,11 +66,11 @@
 								<div class="with-label"><span class="label">Website Updates:</span>
                                     <ul>
                                         <li>Version:&nbsp;v2.2.0</li>
+                                        <li>Release Date:&nbsp;14 November 2016</li>
                                         <li>Genbank files for products now available on the products search results tab
                                         <li>New image overlap view available from the image comparison pages to make it easy to compare for example the size of bones on XRay images</li>
-                                        <li>Images associated with an MP term are now displayed on the MP pages</li>
-                                        
-                                        <li>New federated comparison viewer page: brings images from the JAX ndpi server and omero server seemlessly into the side by side image viewer</li>
+                                        <li>Images associated with an MP term are now displayed on the MP pages</li>                                        
+                                        <li>New federated comparison viewer functionality: e.g. brings images from the JAX NDPI server and OMERO server seamlessly directly into the side by side image viewer</li>
                                     </ul>
                                 </div>
                                 <div class="with-label"><span class="label">RESTful Services Updates</span>
