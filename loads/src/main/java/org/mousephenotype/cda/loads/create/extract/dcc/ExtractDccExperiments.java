@@ -119,7 +119,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         OptionSet options = parser.parse(args);
 
         if ( ! options.has("datasourceShortName")) {
-            String message = "Missing required command-line paraemter 'datasourceShortName'";
+            String message = "Missing required command-line parameter 'datasourceShortName'";
             logger.error(message);
             throw new DataLoadException(message);
         }
@@ -206,7 +206,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                         centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
                     }
 
-                    insertLine(line, centerProcedure.getExperiment(), datasourceShortName, centerProcedure, centerPk);
+                    insertLine(line, datasourceShortName, centerProcedure, centerPk);
                     totalLines++;
                 } catch (Exception e) {
                     logger.error("ERROR IMPORTING LINE. CENTER: {}. LINE: {}. EXPERIMENT SKIPPED. ERROR:\n{}" , centerProcedure.getCentreID(), line, e.getLocalizedMessage());
@@ -420,7 +420,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertLine(Line line, List<Experiment> experiments, String datasourceShortName, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
+    private void insertLine(Line line, String datasourceShortName, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
 
         Long procedurePk, center_procedurePk;
 
@@ -453,15 +453,6 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         // center_procedure
         center_procedurePk = dccSqlUtils.selectOrInsertCenter_procedure(centerPk, procedurePk);
-
-        // experiments
-        for (Experiment experiment : experiments) {
-            long experimentPk = dccSqlUtils.selectOrInsertExperiment(experiment, center_procedurePk);
-            if (experimentPk == 0) {
-                logger.warn("SELECT/INSERT experimentId " + experiment.getExperimentID() + " failed. SKIPPING.");
-                continue;
-            }
-        }
 
         // housing
         if (centerProcedure.getHousing() != null) {
