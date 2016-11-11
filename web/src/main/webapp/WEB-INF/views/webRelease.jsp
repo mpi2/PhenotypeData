@@ -71,7 +71,7 @@
                                         <li>New image overlap view available from the image comparison pages to make it easy to compare for example the size of bones on XRay images</li>
                                         <li>Images associated with an MP term are now displayed on the MP pages</li>                                        
                                         <li>New federated comparison viewer functionality: e.g. brings images from the JAX NDPI server and OMERO server seamlessly directly into the side by side image viewer</li>
-                                        <li>New Homepage design with links to <a href="${baseUrl}/tools">Tools</a>, <a href="${baseUrl}/presentations>">Presentations</a> and <a href="${baseUrl}/alleleref>">IMPC publications</a> pages. The latter allows searching for papers mentioning IMPC or IMPC produced alleles</li>
+                                        <li>New Homepage design with links to <a href="${baseUrl}/tools">Tools</a>, <a href="${baseUrl}/presentations">Presentations</a> and <a href="${baseUrl}/alleleref">IMPC publications</a> pages. The latter allows searching for papers mentioning IMPC or IMPC produced alleles</li>
                                     </ul>
                                 </div>
                                 <div class="with-label"><span class="label">RESTful Services Updates</span>
