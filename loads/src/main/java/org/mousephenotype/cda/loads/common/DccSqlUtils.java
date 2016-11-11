@@ -306,6 +306,79 @@ public class DccSqlUtils {
         return dimensions;
     }
 
+//    /**
+//     *
+//     * @return all line-level experiments. No sample-level experiments are included.
+//     */
+//    public List<Experiment> getLineLevelExperiments() {
+//
+//        if (lineLevelExperiments == null) {
+//            final String query =
+//                "SELECT\n" +
+//                "  l.datasourceShortName,\n" +
+//                "  e.experimentId,\n" +
+//                "  e.sequenceId,\n" +
+//                "  e.dateOfExperiment,\n" +
+//                "  c.centerId,\n" +
+//                "  c.pipeline,\n" +
+//                "  c.project,\n" +
+//                "  p.procedureId,\n" +
+//                "  l.colonyId\n" +
+//                "  1    AS isLineLevel\n" +
+//                "FROM experiment e\n" +
+//                "JOIN center_procedure            cp  ON cp .pk                  = e  .center_procedure_pk\n" +
+//                "JOIN center                      c   ON c  .pk                  = cp .center_pk\n" +
+//                "JOIN procedure_                  p   ON p  .pk                  = cp .procedure_pk\n" +
+//                "JOIN line                        l   ON l  .center_procedure_pk = e  .pk";
+//
+//            lineLevelExperiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentRowMapper());
+//            lineLevelExperimentIds = new ArrayList<>();
+//            for (Experiment experiment : lineLevelExperiments) {
+//                lineLevelExperimentIds.add(experiment.getExperimentID());
+//            }
+//        }
+//
+//        return lineLevelExperiments;
+//    }
+//    private List<Experiment> lineLevelExperiments;
+//    private List<String> lineLevelExperimentIds;
+
+//    public List<Experiment> getSampleLevelExperiments() {
+//
+//        if (sampleLevelExperiments == null) {
+//            final String query =
+//                "SELECT\n" +
+//                "  s.datasourceShortName,\n" +
+//                "  e.experimentId,\n" +
+//                "  e.sequenceId,\n" +
+//                "  e.dateOfExperiment,\n" +
+//                "  c.centerId,\n" +
+//                "  c.pipeline,\n" +
+//                "  c.project,\n" +
+//                "  p.procedureId,\n" +
+//                "  null AS colonyId,\n" +
+//                "  0    AS isLineLevel\n" +
+//                "FROM experiment e\n" +
+//                "JOIN center_procedure    cp  ON cp .pk = e  .center_procedure_pk\n" +
+//                "JOIN center              c   ON c  .pk = cp .center_pk\n" +
+//                "JOIN procedure_          p   ON p  .pk = cp .procedure_pk\n" +
+//                "JOIN experiment_specimen es  ON es .pk = e  .pk\n" +
+//                "JOIN specimen            s   ON s  .pk = es .specimen_pk";
+//
+//            List<ExperimentDccToCda> tmpSampleLevelExperiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentDccToCdaRowMapper());
+//
+//            // Add sample-level experiments. Exclude experiment if it is line-level.
+//            for (Experiment sampleLevelExperiment : tmpSampleLevelExperiments) {
+//                if ( ! lineLevelExperimentIds.contains(sampleLevelExperiment.getExperimentID())) {
+//                    sampleLevelExperiments.add(tmpSampleLevelExperiments);
+//                }
+//            }
+//        }
+//
+//        return sampleLevelExperiments;
+//    }
+//    private List<Experiment> sampleLevelExperiments;
+
     /**
      * Returns the line primary key matching {@code colonyId} and {@code center_procedurePk}, if found; 0 otherwise.
      *
