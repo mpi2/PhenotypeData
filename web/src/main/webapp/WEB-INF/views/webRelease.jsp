@@ -67,6 +67,7 @@
                                     <ul>
                                         <li>Version:&nbsp;v2.2.0</li>
                                         <li>Release Date:&nbsp;14 November 2016</li>
+                                        <li>Box plot showing variations in data for a center by paramater no the phenotypes pages with continuous data 
                                         <li>Genbank files for products now available on the products search results tab
                                         <li>New image overlap view available from the image comparison pages to make it easy to compare for example the size of bones on XRay images</li>
                                         <li>Images associated with an MP term are now displayed on the MP pages</li>                                        
