@@ -22,6 +22,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -241,8 +242,8 @@ public class ImageService implements WebStatus{
 						ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
 						ImageDTO.PHENOTYPING_CENTER);
 
-		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?"
-				+ query);
+//		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?"
+//				+ query);
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 
 		for (ImageDTO image : response) {
@@ -417,12 +418,14 @@ public class ImageService implements WebStatus{
 		if(StringUtils.isNotEmpty(anatomyId)){
 			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":\""
 					+ anatomyId+"\" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\""
-					+ anatomyId+"\" OR "+ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\""
+					+ anatomyId+"\" OR "+ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\""
 					+ anatomyId+"\"");
 		}
 		if (StringUtils.isNotEmpty(mpId)) {
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\""
-					+ mpId+"\"");
+//			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\""
+//					+ mpId+"\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.INTERMEDIATE_MP_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId + "\"");
+			
 		}
 		if (StringUtils.isNotEmpty(colonyId)) {
 			solrQuery.addFilterQuery(ObservationDTO.COLONY_ID + ":\""
@@ -879,7 +882,7 @@ public class ImageService implements WebStatus{
 	
 	
 	
-	public List<Group> getPhenotypeAssociatedImages(String geneAcc, String mpId, int count)
+	public List<Group> getPhenotypeAssociatedImages(String geneAcc, String mpId, boolean experimentalOnly, int count)
 	throws SolrServerException, IOException {
 
 			List<Group> groups = new ArrayList<>();
@@ -889,9 +892,10 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
 		}
 		if (mpId != null){
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\"");// put these in with mp not anatomy when Ilinca has put into imageDTO? + "\" OR "+ ImageDTO.INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + mpId + "\"");
-//			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ images Section\" OR " + ImageDTO.PARAMETER_NAME
-//					+ ":\"LacZ images wholemount\"");
+			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId +"\"");
+		}
+		if(experimentalOnly){
+			solrQuery.addFilterQuery(ImageDTO.BIOLOGICAL_SAMPLE_GROUP+":"+BiologicalSampleType.experimental);
 		}
 		solrQuery.add("group", "true")
         .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
@@ -903,7 +907,6 @@ public class ImageService implements WebStatus{
             groups.addAll(localGroups);
             
         }
-        
 		return groups;
 		
 	}
@@ -980,13 +983,13 @@ public class ImageService implements WebStatus{
 								+ MpDTO.MP_ID + ":\"" + mpId + "\")")
 				.setRows(0);
 
-		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
 			return false;
 		}
-		System.out.println("returning true");
+		//System.out.println("returning true");
 		return true;
 	}
 

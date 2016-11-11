@@ -52,7 +52,12 @@ public class PhenodigmDTO {
 	public static final String MODEL_TO_DISEASE_SCORE = "model_to_disease_score";
 	public static final String RAW_SCORE = "raw_score";
 	public static final String HP_MATCHED_TERMS = "hp_matched_terms";
+	public static final String MP_MATCHED_IDS = "mp_matched_ids";
 	public static final String MP_MATCHED_TERMS = "mp_matched_terms";
+	public static final String TOP_LEVEL_MP_MATCHED_IDS = "top_level_mp_matched_ids";
+	public static final String TOP_LEVEL_MP_MATCHED_TERMS = "top_level_mp_matched_terms";
+	public static final String INTERMEDIATE_MP_MATCHED_IDS = "intermediate_mp_matched_ids";
+	public static final String INTERMEDIATE_MP_MATCHED_TERMS = "intermediate_mp_matched_terms";
 	public static final String MP_ID = "mp_id";
 	public static final String MP_TERM = "mp_term";
 	public static final String HP_ID = "hp_id";
@@ -187,8 +192,23 @@ public class PhenodigmDTO {
 	@Field(HP_MATCHED_TERMS)
 	private List<String> hpMatchedTerms;
 
+	@Field(MP_MATCHED_IDS)
+	private List<String> mpMatchedIds;
+
 	@Field(MP_MATCHED_TERMS)
 	private List<String> mpMatchedTerms;
+
+	@Field(TOP_LEVEL_MP_MATCHED_IDS)
+	private List<String> topLevelMpMatchedIds;
+
+	@Field(TOP_LEVEL_MP_MATCHED_TERMS)
+	private List<String> topLevelMpMatchedTerms;
+
+	@Field(INTERMEDIATE_MP_MATCHED_IDS)
+	private List<String> intermediateMpMatchedIds;
+
+	@Field(INTERMEDIATE_MP_MATCHED_TERMS)
+	private List<String> intermediateMpMatchedTerms;
 
 	@Field(MP_ID)
 	private String mpID;
@@ -548,12 +568,52 @@ public class PhenodigmDTO {
 		this.hpMatchedTerms = hpMatchedTerms;
 	}
 
+	public List<String> getMpMatchedIds() {
+		return mpMatchedIds;
+	}
+
+	public void setMpMatchedIds(List<String> mpMatchedIds) {
+		this.mpMatchedIds = mpMatchedIds;
+	}
+
 	public List<String> getMpMatchedTerms() {
 		return mpMatchedTerms;
 	}
 
 	public void setMpMatchedTerms(List<String> mpMatchedTerms) {
 		this.mpMatchedTerms = mpMatchedTerms;
+	}
+
+	public List<String> getTopLevelMpMatchedIds() {
+		return topLevelMpMatchedIds;
+	}
+
+	public void setTopLevelMpMatchedIds(List<String> topLevelMpMatchedIds) {
+		this.topLevelMpMatchedIds = topLevelMpMatchedIds;
+	}
+
+	public List<String> getTopLevelMpMatchedTerms() {
+		return topLevelMpMatchedTerms;
+	}
+
+	public void setTopLevelMpMatchedTerms(List<String> topLevelMpMatchedTerms) {
+		this.topLevelMpMatchedTerms = topLevelMpMatchedTerms;
+	}
+
+	public List<String> getIntermediateMpMatchedIds() {
+		return intermediateMpMatchedIds;
+	}
+
+	public void setIntermediateMpMatchedIds(List<String> intermediateMpMatchedIds) {
+		this.intermediateMpMatchedIds = intermediateMpMatchedIds;
+	}
+
+	public List<String> getIntermediateMpMatchedTerms() {
+		return intermediateMpMatchedTerms;
+	}
+
+	public void setIntermediateMpMatchedTerms(List<String> intermediateMpMatchedTerms) {
+		this.intermediateMpMatchedTerms = intermediateMpMatchedTerms;
 	}
 
 	public String getMpID() {
@@ -619,205 +679,207 @@ public class PhenodigmDTO {
 
 		PhenodigmDTO that = (PhenodigmDTO) o;
 
-		if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
-		if (getType() != null ? !getType().equals(that.getType()) : that.getType() != null) return false;
-		if (getDiseaseID() != null ? !getDiseaseID().equals(that.getDiseaseID()) : that.getDiseaseID() != null)
+		if (id != null ? !id.equals(that.id) : that.id != null) return false;
+		if (type != null ? !type.equals(that.type) : that.type != null) return false;
+		if (diseaseID != null ? !diseaseID.equals(that.diseaseID) : that.diseaseID != null) return false;
+		if (diseaseSource != null ? !diseaseSource.equals(that.diseaseSource) : that.diseaseSource != null)
 			return false;
-		if (getDiseaseSource() != null ? !getDiseaseSource().equals(that.getDiseaseSource()) : that.getDiseaseSource() != null)
+		if (diseaseTerm != null ? !diseaseTerm.equals(that.diseaseTerm) : that.diseaseTerm != null) return false;
+		if (diseaseAlts != null ? !diseaseAlts.equals(that.diseaseAlts) : that.diseaseAlts != null) return false;
+		if (diseaseLocus != null ? !diseaseLocus.equals(that.diseaseLocus) : that.diseaseLocus != null) return false;
+		if (diseaseClasses != null ? !diseaseClasses.equals(that.diseaseClasses) : that.diseaseClasses != null)
 			return false;
-		if (getDiseaseTerm() != null ? !getDiseaseTerm().equals(that.getDiseaseTerm()) : that.getDiseaseTerm() != null)
+		if (markerAccession != null ? !markerAccession.equals(that.markerAccession) : that.markerAccession != null)
 			return false;
-		if (getDiseaseAlts() != null ? !getDiseaseAlts().equals(that.getDiseaseAlts()) : that.getDiseaseAlts() != null)
+		if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
+		if (hgncGeneSymbol != null ? !hgncGeneSymbol.equals(that.hgncGeneSymbol) : that.hgncGeneSymbol != null)
 			return false;
-		if (getDiseaseLocus() != null ? !getDiseaseLocus().equals(that.getDiseaseLocus()) : that.getDiseaseLocus() != null)
+		if (hgncGeneID != null ? !hgncGeneID.equals(that.hgncGeneID) : that.hgncGeneID != null) return false;
+		if (hgncGeneLocus != null ? !hgncGeneLocus.equals(that.hgncGeneLocus) : that.hgncGeneLocus != null)
 			return false;
-		if (getDiseaseClasses() != null ? !getDiseaseClasses().equals(that.getDiseaseClasses()) : that.getDiseaseClasses() != null)
+		if (modelID != null ? !modelID.equals(that.modelID) : that.modelID != null) return false;
+		if (source != null ? !source.equals(that.source) : that.source != null) return false;
+		if (allelicComposition != null ? !allelicComposition.equals(that.allelicComposition) : that.allelicComposition != null)
 			return false;
-		if (getMarkerAccession() != null ? !getMarkerAccession().equals(that.getMarkerAccession()) : that.getMarkerAccession() != null)
+		if (geneticBackground != null ? !geneticBackground.equals(that.geneticBackground) : that.geneticBackground != null)
 			return false;
-		if (getMarkerSymbol() != null ? !getMarkerSymbol().equals(that.getMarkerSymbol()) : that.getMarkerSymbol() != null)
+		if (alleleIds != null ? !alleleIds.equals(that.alleleIds) : that.alleleIds != null) return false;
+		if (homHet != null ? !homHet.equals(that.homHet) : that.homHet != null) return false;
+		if (humanCurated != null ? !humanCurated.equals(that.humanCurated) : that.humanCurated != null) return false;
+		if (mouseCurated != null ? !mouseCurated.equals(that.mouseCurated) : that.mouseCurated != null) return false;
+		if (mgiPredicted != null ? !mgiPredicted.equals(that.mgiPredicted) : that.mgiPredicted != null) return false;
+		if (impcPredicted != null ? !impcPredicted.equals(that.impcPredicted) : that.impcPredicted != null)
 			return false;
-		if (getHgncGeneSymbol() != null ? !getHgncGeneSymbol().equals(that.getHgncGeneSymbol()) : that.getHgncGeneSymbol() != null)
+		if (mgiPredictedKnownGene != null ? !mgiPredictedKnownGene.equals(that.mgiPredictedKnownGene) : that.mgiPredictedKnownGene != null)
 			return false;
-		if (getHgncGeneID() != null ? !getHgncGeneID().equals(that.getHgncGeneID()) : that.getHgncGeneID() != null) return false;
-		if (getHgncGeneLocus() != null ? !getHgncGeneLocus().equals(that.getHgncGeneLocus()) : that.getHgncGeneLocus() != null)
+		if (impcPredictedKnownGene != null ? !impcPredictedKnownGene.equals(that.impcPredictedKnownGene) : that.impcPredictedKnownGene != null)
 			return false;
-		if (getModelID() != null ? !getModelID().equals(that.getModelID()) : that.getModelID() != null) return false;
-		if (getSource() != null ? !getSource().equals(that.getSource()) : that.getSource() != null) return false;
-		if (getAllelicComposition() != null ? !getAllelicComposition().equals(that.getAllelicComposition()) : that.getAllelicComposition() != null)
+		if (mgiNovelPredictedInLocus != null ? !mgiNovelPredictedInLocus.equals(that.mgiNovelPredictedInLocus) : that.mgiNovelPredictedInLocus != null)
 			return false;
-		if (getGeneticBackground() != null ? !getGeneticBackground().equals(that.getGeneticBackground()) : that.getGeneticBackground() != null)
+		if (impcNovelPredictedInLocus != null ? !impcNovelPredictedInLocus.equals(that.impcNovelPredictedInLocus) : that.impcNovelPredictedInLocus != null)
 			return false;
-		if (getAlleleIds() != null ? !getAlleleIds().equals(that.getAlleleIds()) : that.getAlleleIds() != null)
+		if (modModel != null ? !modModel.equals(that.modModel) : that.modModel != null) return false;
+		if (htpcModel != null ? !htpcModel.equals(that.htpcModel) : that.htpcModel != null) return false;
+		if (htpcPhenotype != null ? !htpcPhenotype.equals(that.htpcPhenotype) : that.htpcPhenotype != null)
 			return false;
-		if (getHomHet() != null ? !getHomHet().equals(that.getHomHet()) : that.getHomHet() != null) return false;
-		if (getHumanCurated() != null ? !getHumanCurated().equals(that.getHumanCurated()) : that.getHumanCurated() != null)
+		if (maxMgiD2mScore != null ? !maxMgiD2mScore.equals(that.maxMgiD2mScore) : that.maxMgiD2mScore != null)
 			return false;
-		if (getMouseCurated() != null ? !getMouseCurated().equals(that.getMouseCurated()) : that.getMouseCurated() != null)
+		if (maxMgiM2dScore != null ? !maxMgiM2dScore.equals(that.maxMgiM2dScore) : that.maxMgiM2dScore != null)
 			return false;
-		if (getMgiPredicted() != null ? !getMgiPredicted().equals(that.getMgiPredicted()) : that.getMgiPredicted() != null)
+		if (maxImpcD2mScore != null ? !maxImpcD2mScore.equals(that.maxImpcD2mScore) : that.maxImpcD2mScore != null)
 			return false;
-		if (getImpcPredicted() != null ? !getImpcPredicted().equals(that.getImpcPredicted()) : that.getImpcPredicted() != null)
+		if (maxImpcM2dScore != null ? !maxImpcM2dScore.equals(that.maxImpcM2dScore) : that.maxImpcM2dScore != null)
 			return false;
-		if (getMgiPredictedKnownGene() != null ? !getMgiPredictedKnownGene().equals(that.getMgiPredictedKnownGene()) : that.getMgiPredictedKnownGene() != null)
+		if (rawModScore != null ? !rawModScore.equals(that.rawModScore) : that.rawModScore != null) return false;
+		if (rawHtpcScore != null ? !rawHtpcScore.equals(that.rawHtpcScore) : that.rawHtpcScore != null) return false;
+		if (inLocus != null ? !inLocus.equals(that.inLocus) : that.inLocus != null) return false;
+		if (litModel != null ? !litModel.equals(that.litModel) : that.litModel != null) return false;
+		if (diseaseToModelScore != null ? !diseaseToModelScore.equals(that.diseaseToModelScore) : that.diseaseToModelScore != null)
 			return false;
-		if (getImpcPredictedKnownGene() != null ? !getImpcPredictedKnownGene().equals(that.getImpcPredictedKnownGene()) : that.getImpcPredictedKnownGene() != null)
+		if (modelToDiseaseScore != null ? !modelToDiseaseScore.equals(that.modelToDiseaseScore) : that.modelToDiseaseScore != null)
 			return false;
-		if (getMgiNovelPredictedInLocus() != null ? !getMgiNovelPredictedInLocus().equals(that.getMgiNovelPredictedInLocus()) : that.getMgiNovelPredictedInLocus() != null)
+		if (rawScore != null ? !rawScore.equals(that.rawScore) : that.rawScore != null) return false;
+		if (hpMatchedTerms != null ? !hpMatchedTerms.equals(that.hpMatchedTerms) : that.hpMatchedTerms != null)
 			return false;
-		if (getImpcNovelPredictedInLocus() != null ? !getImpcNovelPredictedInLocus().equals(that.getImpcNovelPredictedInLocus()) : that.getImpcNovelPredictedInLocus() != null)
+		if (mpMatchedIds != null ? !mpMatchedIds.equals(that.mpMatchedIds) : that.mpMatchedIds != null) return false;
+		if (mpMatchedTerms != null ? !mpMatchedTerms.equals(that.mpMatchedTerms) : that.mpMatchedTerms != null)
 			return false;
-		if (getModModel() != null ? !getModModel().equals(that.getModModel()) : that.getModModel() != null)
+		if (topLevelMpMatchedIds != null ? !topLevelMpMatchedIds.equals(that.topLevelMpMatchedIds) : that.topLevelMpMatchedIds != null)
 			return false;
-		if (getHtpcModel() != null ? !getHtpcModel().equals(that.getHtpcModel()) : that.getHtpcModel() != null)
+		if (topLevelMpMatchedTerms != null ? !topLevelMpMatchedTerms.equals(that.topLevelMpMatchedTerms) : that.topLevelMpMatchedTerms != null)
 			return false;
-		if (getHtpcPhenotype() != null ? !getHtpcPhenotype().equals(that.getHtpcPhenotype()) : that.getHtpcPhenotype() != null)
+		if (intermediateMpMatchedIds != null ? !intermediateMpMatchedIds.equals(that.intermediateMpMatchedIds) : that.intermediateMpMatchedIds != null)
 			return false;
-		if (getMaxMgiD2mScore() != null ? !getMaxMgiD2mScore().equals(that.getMaxMgiD2mScore()) : that.getMaxMgiD2mScore() != null)
+		if (intermediateMpMatchedTerms != null ? !intermediateMpMatchedTerms.equals(that.intermediateMpMatchedTerms) : that.intermediateMpMatchedTerms != null)
 			return false;
-		if (getMaxMgiM2dScore() != null ? !getMaxMgiM2dScore().equals(that.getMaxMgiM2dScore()) : that.getMaxMgiM2dScore() != null)
-			return false;
-		if (getMaxImpcD2mScore() != null ? !getMaxImpcD2mScore().equals(that.getMaxImpcD2mScore()) : that.getMaxImpcD2mScore() != null)
-			return false;
-		if (getMaxImpcM2dScore() != null ? !getMaxImpcM2dScore().equals(that.getMaxImpcM2dScore()) : that.getMaxImpcM2dScore() != null)
-			return false;
-		if (getRawModScore() != null ? !getRawModScore().equals(that.getRawModScore()) : that.getRawModScore() != null)
-			return false;
-		if (getRawHtpcScore() != null ? !getRawHtpcScore().equals(that.getRawHtpcScore()) : that.getRawHtpcScore() != null)
-			return false;
-		if (getInLocus() != null ? !getInLocus().equals(that.getInLocus()) : that.getInLocus() != null) return false;
-		if (getLitModel() != null ? !getLitModel().equals(that.getLitModel()) : that.getLitModel() != null)
-			return false;
-		if (getDiseaseToModelScore() != null ? !getDiseaseToModelScore().equals(that.getDiseaseToModelScore()) : that.getDiseaseToModelScore() != null)
-			return false;
-		if (getModelToDiseaseScore() != null ? !getModelToDiseaseScore().equals(that.getModelToDiseaseScore()) : that.getModelToDiseaseScore() != null)
-			return false;
-		if (getRawScore() != null ? !getRawScore().equals(that.getRawScore()) : that.getRawScore() != null)
-			return false;
-		if (getHpMatchedTerms() != null ? !getHpMatchedTerms().equals(that.getHpMatchedTerms()) : that.getHpMatchedTerms() != null)
-			return false;
-		if (getMpMatchedTerms() != null ? !getMpMatchedTerms().equals(that.getMpMatchedTerms()) : that.getMpMatchedTerms() != null)
-			return false;
-		if (getMpID() != null ? !getMpID().equals(that.getMpID()) : that.getMpID() != null) return false;
-		if (getMpTerm() != null ? !getMpTerm().equals(that.getMpTerm()) : that.getMpTerm() != null) return false;
-		if (getHpID() != null ? !getHpID().equals(that.getHpID()) : that.getHpID() != null) return false;
-		if (getHpTerm() != null ? !getHpTerm().equals(that.getHpTerm()) : that.getHpTerm() != null) return false;
-		if (getHpSynonym() != null ? !getHpSynonym().equals(that.getHpSynonym()) : that.getHpSynonym() != null)
-			return false;
-		if (getPhenotypes() != null ? !getPhenotypes().equals(that.getPhenotypes()) : that.getPhenotypes() != null)
-			return false;
-		return getText() != null ? getText().equals(that.getText()) : that.getText() == null;
+		if (mpID != null ? !mpID.equals(that.mpID) : that.mpID != null) return false;
+		if (mpTerm != null ? !mpTerm.equals(that.mpTerm) : that.mpTerm != null) return false;
+		if (hpID != null ? !hpID.equals(that.hpID) : that.hpID != null) return false;
+		if (hpTerm != null ? !hpTerm.equals(that.hpTerm) : that.hpTerm != null) return false;
+		if (hpSynonym != null ? !hpSynonym.equals(that.hpSynonym) : that.hpSynonym != null) return false;
+		if (phenotypes != null ? !phenotypes.equals(that.phenotypes) : that.phenotypes != null) return false;
+		return text != null ? text.equals(that.text) : that.text == null;
 
 	}
 
 	@Override
 	public int hashCode() {
-		int result = getId() != null ? getId().hashCode() : 0;
-		result = 31 * result + (getType() != null ? getType().hashCode() : 0);
-		result = 31 * result + (getDiseaseID() != null ? getDiseaseID().hashCode() : 0);
-		result = 31 * result + (getDiseaseSource() != null ? getDiseaseSource().hashCode() : 0);
-		result = 31 * result + (getDiseaseTerm() != null ? getDiseaseTerm().hashCode() : 0);
-		result = 31 * result + (getDiseaseAlts() != null ? getDiseaseAlts().hashCode() : 0);
-		result = 31 * result + (getDiseaseLocus() != null ? getDiseaseLocus().hashCode() : 0);
-		result = 31 * result + (getDiseaseClasses() != null ? getDiseaseClasses().hashCode() : 0);
-		result = 31 * result + (getMarkerAccession() != null ? getMarkerAccession().hashCode() : 0);
-		result = 31 * result + (getMarkerSymbol() != null ? getMarkerSymbol().hashCode() : 0);
-		result = 31 * result + (getHgncGeneSymbol() != null ? getHgncGeneSymbol().hashCode() : 0);
-		result = 31 * result + (getHgncGeneID() != null ? getHgncGeneID().hashCode() : 0);
-		result = 31 * result + (getHgncGeneLocus() != null ? getHgncGeneLocus().hashCode() : 0);
-		result = 31 * result + (getModelID() != null ? getModelID().hashCode() : 0);
-		result = 31 * result + (getSource() != null ? getSource().hashCode() : 0);
-		result = 31 * result + (getAllelicComposition() != null ? getAllelicComposition().hashCode() : 0);
-		result = 31 * result + (getGeneticBackground() != null ? getGeneticBackground().hashCode() : 0);
-		result = 31 * result + (getAlleleIds() != null ? getAlleleIds().hashCode() : 0);
-		result = 31 * result + (getHomHet() != null ? getHomHet().hashCode() : 0);
-		result = 31 * result + (getHumanCurated() != null ? getHumanCurated().hashCode() : 0);
-		result = 31 * result + (getMouseCurated() != null ? getMouseCurated().hashCode() : 0);
-		result = 31 * result + (getMgiPredicted() != null ? getMgiPredicted().hashCode() : 0);
-		result = 31 * result + (getImpcPredicted() != null ? getImpcPredicted().hashCode() : 0);
-		result = 31 * result + (getMgiPredictedKnownGene() != null ? getMgiPredictedKnownGene().hashCode() : 0);
-		result = 31 * result + (getImpcPredictedKnownGene() != null ? getImpcPredictedKnownGene().hashCode() : 0);
-		result = 31 * result + (getMgiNovelPredictedInLocus() != null ? getMgiNovelPredictedInLocus().hashCode() : 0);
-		result = 31 * result + (getImpcNovelPredictedInLocus() != null ? getImpcNovelPredictedInLocus().hashCode() : 0);
-		result = 31 * result + (getModModel() != null ? getModModel().hashCode() : 0);
-		result = 31 * result + (getHtpcModel() != null ? getHtpcModel().hashCode() : 0);
-		result = 31 * result + (getHtpcPhenotype() != null ? getHtpcPhenotype().hashCode() : 0);
-		result = 31 * result + (getMaxMgiD2mScore() != null ? getMaxMgiD2mScore().hashCode() : 0);
-		result = 31 * result + (getMaxMgiM2dScore() != null ? getMaxMgiM2dScore().hashCode() : 0);
-		result = 31 * result + (getMaxImpcD2mScore() != null ? getMaxImpcD2mScore().hashCode() : 0);
-		result = 31 * result + (getMaxImpcM2dScore() != null ? getMaxImpcM2dScore().hashCode() : 0);
-		result = 31 * result + (getRawModScore() != null ? getRawModScore().hashCode() : 0);
-		result = 31 * result + (getRawHtpcScore() != null ? getRawHtpcScore().hashCode() : 0);
-		result = 31 * result + (getInLocus() != null ? getInLocus().hashCode() : 0);
-		result = 31 * result + (getLitModel() != null ? getLitModel().hashCode() : 0);
-		result = 31 * result + (getDiseaseToModelScore() != null ? getDiseaseToModelScore().hashCode() : 0);
-		result = 31 * result + (getModelToDiseaseScore() != null ? getModelToDiseaseScore().hashCode() : 0);
-		result = 31 * result + (getRawScore() != null ? getRawScore().hashCode() : 0);
-		result = 31 * result + (getHpMatchedTerms() != null ? getHpMatchedTerms().hashCode() : 0);
-		result = 31 * result + (getMpMatchedTerms() != null ? getMpMatchedTerms().hashCode() : 0);
-		result = 31 * result + (getMpID() != null ? getMpID().hashCode() : 0);
-		result = 31 * result + (getMpTerm() != null ? getMpTerm().hashCode() : 0);
-		result = 31 * result + (getHpID() != null ? getHpID().hashCode() : 0);
-		result = 31 * result + (getHpTerm() != null ? getHpTerm().hashCode() : 0);
-		result = 31 * result + (getHpSynonym() != null ? getHpSynonym().hashCode() : 0);
-		result = 31 * result + (getPhenotypes() != null ? getPhenotypes().hashCode() : 0);
-		result = 31 * result + (getText() != null ? getText().hashCode() : 0);
+		int result = id != null ? id.hashCode() : 0;
+		result = 31 * result + (type != null ? type.hashCode() : 0);
+		result = 31 * result + (diseaseID != null ? diseaseID.hashCode() : 0);
+		result = 31 * result + (diseaseSource != null ? diseaseSource.hashCode() : 0);
+		result = 31 * result + (diseaseTerm != null ? diseaseTerm.hashCode() : 0);
+		result = 31 * result + (diseaseAlts != null ? diseaseAlts.hashCode() : 0);
+		result = 31 * result + (diseaseLocus != null ? diseaseLocus.hashCode() : 0);
+		result = 31 * result + (diseaseClasses != null ? diseaseClasses.hashCode() : 0);
+		result = 31 * result + (markerAccession != null ? markerAccession.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (hgncGeneSymbol != null ? hgncGeneSymbol.hashCode() : 0);
+		result = 31 * result + (hgncGeneID != null ? hgncGeneID.hashCode() : 0);
+		result = 31 * result + (hgncGeneLocus != null ? hgncGeneLocus.hashCode() : 0);
+		result = 31 * result + (modelID != null ? modelID.hashCode() : 0);
+		result = 31 * result + (source != null ? source.hashCode() : 0);
+		result = 31 * result + (allelicComposition != null ? allelicComposition.hashCode() : 0);
+		result = 31 * result + (geneticBackground != null ? geneticBackground.hashCode() : 0);
+		result = 31 * result + (alleleIds != null ? alleleIds.hashCode() : 0);
+		result = 31 * result + (homHet != null ? homHet.hashCode() : 0);
+		result = 31 * result + (humanCurated != null ? humanCurated.hashCode() : 0);
+		result = 31 * result + (mouseCurated != null ? mouseCurated.hashCode() : 0);
+		result = 31 * result + (mgiPredicted != null ? mgiPredicted.hashCode() : 0);
+		result = 31 * result + (impcPredicted != null ? impcPredicted.hashCode() : 0);
+		result = 31 * result + (mgiPredictedKnownGene != null ? mgiPredictedKnownGene.hashCode() : 0);
+		result = 31 * result + (impcPredictedKnownGene != null ? impcPredictedKnownGene.hashCode() : 0);
+		result = 31 * result + (mgiNovelPredictedInLocus != null ? mgiNovelPredictedInLocus.hashCode() : 0);
+		result = 31 * result + (impcNovelPredictedInLocus != null ? impcNovelPredictedInLocus.hashCode() : 0);
+		result = 31 * result + (modModel != null ? modModel.hashCode() : 0);
+		result = 31 * result + (htpcModel != null ? htpcModel.hashCode() : 0);
+		result = 31 * result + (htpcPhenotype != null ? htpcPhenotype.hashCode() : 0);
+		result = 31 * result + (maxMgiD2mScore != null ? maxMgiD2mScore.hashCode() : 0);
+		result = 31 * result + (maxMgiM2dScore != null ? maxMgiM2dScore.hashCode() : 0);
+		result = 31 * result + (maxImpcD2mScore != null ? maxImpcD2mScore.hashCode() : 0);
+		result = 31 * result + (maxImpcM2dScore != null ? maxImpcM2dScore.hashCode() : 0);
+		result = 31 * result + (rawModScore != null ? rawModScore.hashCode() : 0);
+		result = 31 * result + (rawHtpcScore != null ? rawHtpcScore.hashCode() : 0);
+		result = 31 * result + (inLocus != null ? inLocus.hashCode() : 0);
+		result = 31 * result + (litModel != null ? litModel.hashCode() : 0);
+		result = 31 * result + (diseaseToModelScore != null ? diseaseToModelScore.hashCode() : 0);
+		result = 31 * result + (modelToDiseaseScore != null ? modelToDiseaseScore.hashCode() : 0);
+		result = 31 * result + (rawScore != null ? rawScore.hashCode() : 0);
+		result = 31 * result + (hpMatchedTerms != null ? hpMatchedTerms.hashCode() : 0);
+		result = 31 * result + (mpMatchedIds != null ? mpMatchedIds.hashCode() : 0);
+		result = 31 * result + (mpMatchedTerms != null ? mpMatchedTerms.hashCode() : 0);
+		result = 31 * result + (topLevelMpMatchedIds != null ? topLevelMpMatchedIds.hashCode() : 0);
+		result = 31 * result + (topLevelMpMatchedTerms != null ? topLevelMpMatchedTerms.hashCode() : 0);
+		result = 31 * result + (intermediateMpMatchedIds != null ? intermediateMpMatchedIds.hashCode() : 0);
+		result = 31 * result + (intermediateMpMatchedTerms != null ? intermediateMpMatchedTerms.hashCode() : 0);
+		result = 31 * result + (mpID != null ? mpID.hashCode() : 0);
+		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
+		result = 31 * result + (hpID != null ? hpID.hashCode() : 0);
+		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
+		result = 31 * result + (hpSynonym != null ? hpSynonym.hashCode() : 0);
+		result = 31 * result + (phenotypes != null ? phenotypes.hashCode() : 0);
+		result = 31 * result + (text != null ? text.hashCode() : 0);
 		return result;
 	}
 
 	@Override
 	public String toString() {
 		return "PhenodigmDTO{" +
-			"id='" + id + '\'' +
-			", type='" + type + '\'' +
-			", diseaseID='" + diseaseID + '\'' +
-			", diseaseSource='" + diseaseSource + '\'' +
-			", diseaseTerm='" + diseaseTerm + '\'' +
-			", diseaseAlts=" + diseaseAlts +
-			", diseaseLocus='" + diseaseLocus + '\'' +
-			", diseaseClasses=" + diseaseClasses +
-			", markerAccession='" + markerAccession + '\'' +
-			", markerSymbol='" + markerSymbol + '\'' +
-			", hgncGeneSymbol='" + hgncGeneSymbol + '\'' +
-			", hgncGeneID='" + hgncGeneID + '\'' +
-			", hgncGeneLocus='" + hgncGeneLocus + '\'' +
-			", modelID=" + modelID +
-			", source='" + source + '\'' +
-			", allelicComposition='" + allelicComposition + '\'' +
-			", geneticBackground='" + geneticBackground + '\'' +
-			", alleleIds='" + alleleIds + '\'' +
-			", homHet='" + homHet + '\'' +
-			", humanCurated=" + humanCurated +
-			", mouseCurated=" + mouseCurated +
-			", mgiPredicted=" + mgiPredicted +
-			", impcPredicted=" + impcPredicted +
-			", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
-			", impcPredictedKnownGene=" + impcPredictedKnownGene +
-			", mgiNovelPredictedInLocus=" + mgiNovelPredictedInLocus +
-			", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
-			", modModel=" + modModel +
-			", htpcModel=" + htpcModel +
-			", htpcPhenotype=" + htpcPhenotype +
-			", maxMgiD2mScore=" + maxMgiD2mScore +
-			", maxMgiM2dScore=" + maxMgiM2dScore +
-			", maxImpcD2mScore=" + maxImpcD2mScore +
-			", maxImpcM2dScore=" + maxImpcM2dScore +
-			", rawModScore=" + rawModScore +
-			", rawHtpcScore=" + rawHtpcScore +
-			", inLocus=" + inLocus +
-			", litModel=" + litModel +
-			", diseaseToModelScore=" + diseaseToModelScore +
-			", modelToDiseaseScore=" + modelToDiseaseScore +
-			", rawScore=" + rawScore +
-			", hpMatchedTerms=" + hpMatchedTerms +
-			", mpMatchedTerms=" + mpMatchedTerms +
-			", mpID='" + mpID + '\'' +
-			", mpTerm='" + mpTerm + '\'' +
-			", hpID='" + hpID + '\'' +
-			", hpTerm='" + hpTerm + '\'' +
-			", hpSynonym=" + hpSynonym +
-			", phenotypes=" + phenotypes +
-			", text=" + text +
-			'}';
+				"id='" + id + '\'' +
+				", type='" + type + '\'' +
+				", diseaseID='" + diseaseID + '\'' +
+				", diseaseSource='" + diseaseSource + '\'' +
+				", diseaseTerm='" + diseaseTerm + '\'' +
+				", diseaseAlts=" + diseaseAlts +
+				", diseaseLocus='" + diseaseLocus + '\'' +
+				", diseaseClasses=" + diseaseClasses +
+				", markerAccession='" + markerAccession + '\'' +
+				", markerSymbol='" + markerSymbol + '\'' +
+				", hgncGeneSymbol='" + hgncGeneSymbol + '\'' +
+				", hgncGeneID='" + hgncGeneID + '\'' +
+				", hgncGeneLocus='" + hgncGeneLocus + '\'' +
+				", modelID=" + modelID +
+				", source='" + source + '\'' +
+				", allelicComposition='" + allelicComposition + '\'' +
+				", geneticBackground='" + geneticBackground + '\'' +
+				", alleleIds='" + alleleIds + '\'' +
+				", homHet='" + homHet + '\'' +
+				", humanCurated=" + humanCurated +
+				", mouseCurated=" + mouseCurated +
+				", mgiPredicted=" + mgiPredicted +
+				", impcPredicted=" + impcPredicted +
+				", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
+				", impcPredictedKnownGene=" + impcPredictedKnownGene +
+				", mgiNovelPredictedInLocus=" + mgiNovelPredictedInLocus +
+				", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
+				", modModel=" + modModel +
+				", htpcModel=" + htpcModel +
+				", htpcPhenotype=" + htpcPhenotype +
+				", maxMgiD2mScore=" + maxMgiD2mScore +
+				", maxMgiM2dScore=" + maxMgiM2dScore +
+				", maxImpcD2mScore=" + maxImpcD2mScore +
+				", maxImpcM2dScore=" + maxImpcM2dScore +
+				", rawModScore=" + rawModScore +
+				", rawHtpcScore=" + rawHtpcScore +
+				", inLocus=" + inLocus +
+				", litModel=" + litModel +
+				", diseaseToModelScore=" + diseaseToModelScore +
+				", modelToDiseaseScore=" + modelToDiseaseScore +
+				", rawScore=" + rawScore +
+				", hpMatchedTerms=" + hpMatchedTerms +
+				", mpMatchedIds=" + mpMatchedIds +
+				", mpMatchedTerms=" + mpMatchedTerms +
+				", topLevelMpMatchedIds=" + topLevelMpMatchedIds +
+				", topLevelMpMatchedTerms=" + topLevelMpMatchedTerms +
+				", intermediateMpMatchedIds=" + intermediateMpMatchedIds +
+				", intermediateMpMatchedTerms=" + intermediateMpMatchedTerms +
+				", mpID='" + mpID + '\'' +
+				", mpTerm='" + mpTerm + '\'' +
+				", hpID='" + hpID + '\'' +
+				", hpTerm='" + hpTerm + '\'' +
+				", hpSynonym=" + hpSynonym +
+				", phenotypes=" + phenotypes +
+				", text=" + text +
+				'}';
 	}
 }
