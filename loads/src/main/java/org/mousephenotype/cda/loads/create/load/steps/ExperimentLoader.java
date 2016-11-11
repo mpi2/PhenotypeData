@@ -194,37 +194,32 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         Map<String, Integer> counts = new HashMap<>();
 
-        String colonyId;                        // FIXME
+//        String colonyId;                        // FIXME
 //        PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getProcedure().)
 
-        Date dateOfExperiment = getDateOfExperiment(dccExperiment);
-        if (dateOfExperiment == null) {
-            return null;
-        }
+//        Date dateOfExperiment = getDateOfExperiment(dccExperiment);
+//        if (dateOfExperiment == null) {
+//            return null;
+//        }
 
-        String metadataCombined;                // FIXME
+        int db_id;
+        String externalId;
+        String sequenceId;
+        Date dateOfExperiment;
+        int organisationId;
+        int projectId;
+        int pipelineId;
+        String pipelineStableId;
+        int procedureId;
+        String procedureStableId;
+        int biologicalModelId;
+        String colonyId;
+        String metadataCombined;
+        String metadataGroup;
+        String procedureStatus;
+        String procedureStatusMessage;
 
-        String metadataGroup;                   // FIXME
 
-        BiologicalModel biologicalModel;        // FIXME
-
-        List<Observation> observations;;        // FIXME
-
-        Organisation organisation;              // FIXME
-
-        Pipeline pipeline;                      // FIXME
-
-        Procedure procedure;                    // FIXME
-
-        String procedureStableId;               // FIXME
-
-        String procedureStatus;                 // FIXME
-
-        String procedureStatusMessage;          // FIXME
-
-        Project project;                        // FIXME
-
-        String sequenceId;                      // FIXME
 
 //        experiment.setColonyId(colonyId);
 //        experiment.setDatasource(datasource);
@@ -244,7 +239,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 //        experiment.setProject(project);
 //        experiment.setSequenceId(sequenceId);
 
-        cdaSqlUtils.insertExperiment(experiment);
+//        cdaSqlUtils.insertExperiment(experiment);
 
         return counts;
     }
