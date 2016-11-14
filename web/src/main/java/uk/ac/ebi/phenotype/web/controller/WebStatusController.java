@@ -112,10 +112,9 @@ public class WebStatusController {
 		webStatusObjects.add(autoSuggestService);
 		webStatusObjects.add(ppDAO);
 		webStatusObjects.add(phenodigmService);
-		webStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second - put back in as render_birds_eye_view should be cached by omero!
-		
+				
 		nonEssentialWebStatusObjects = new ArrayList<>();
-		
+		nonEssentialWebStatusObjects.add(omeroStatusService);//omero status service is just for checking the status of omero and nothing else. uses internalImpcMediaBaseUrl app.prop should point to corresponding vm to where this is hosted
 		nonEssentialWebStatusObjects.add(allele2);
 		nonEssentialWebStatusObjects.add(productService);
 	}
