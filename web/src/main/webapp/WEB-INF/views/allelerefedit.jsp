@@ -340,6 +340,9 @@
 								if (formVal=="Needs hand curation") {
 									alert("Sorry, data to submit is unchanged");
 								}
+								else if (formVal=="") {
+									alert("Sorry, allele symbol is missing");
+								}
 								else {
 									$.ajax({
 										method: "post",
