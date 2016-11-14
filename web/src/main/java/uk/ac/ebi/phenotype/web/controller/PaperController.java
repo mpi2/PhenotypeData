@@ -94,6 +94,42 @@ public class PaperController {
 	private GenomicFeatureDAO genesDao;
 
 
+	// allele reference stuff
+	@RequestMapping(value = "/alleleRefLogin", method = RequestMethod.POST)
+	public @ResponseBody
+	boolean checkPassCode(
+			@RequestParam(value = "passcode", required = true) String passcode,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException {
+
+		return checkPassCode(passcode);
+	}
+
+	public boolean checkPassCode(String passcode) throws SQLException {
+
+		Connection conn = admintoolsDataSource.getConnection();
+
+		// prevent sql injection
+		String query = "select password = md5(?) as status from users where name='ebi'";
+		boolean match = false;
+
+		try (PreparedStatement p = conn.prepareStatement(query)) {
+			p.setString(1, passcode);
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				match = resultSet.getBoolean("status");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			conn.close();
+		}
+
+		return match;
+	}
+
 	@RequestMapping(value = "/addpmid", method = RequestMethod.POST)
 	public @ResponseBody
 	String addPaper(
