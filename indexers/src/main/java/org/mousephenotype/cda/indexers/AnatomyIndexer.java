@@ -45,8 +45,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-
 /**
  * Populate the Anatomy core
  *
@@ -115,7 +113,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 //            logger.info(" Source of images core: " + SolrUtils.getBaseURL(imagesCore) );
             initialiseSupportingBeans();
 
-            List<AnatomyDTO> maBatch = new ArrayList<>(BATCH_SIZE);
             List<OntologyTermBean> maBeans = maOntologyService.getAllTerms();
             List<OntologyTermBean> emapaBeans = emapaOntologyService.getAllTerms();
 
@@ -270,22 +267,10 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 //                }
 
                 count++;
-                if ( !maBatch.contains(anatomyTerm)) {
-                    maBatch.add(anatomyTerm);
-                }
-//                if (maBatch.size() == BATCH_SIZE) {
-//                    // Update the batch, clear the list
-//                    documentCount += maBatch.size();
-//                    anatomyCore.addBeans(maBatch, 60000);
-//                    maBatch.clear();
-//                }
 
                 documentCount++;
                 anatomyCore.addBean(anatomyTerm, 60000);
 
-                if (documentCount % 100 == 0){
-                    anatomyCore.commit();
-                }
             }
 
             // Add all emapa terms to the index.
@@ -369,27 +354,12 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 emapa.setChildrenJson(childrenTree2.toString());
 
                 count++;
-//                maBatch.add(emapa);
-//                if (maBatch.size() == BATCH_SIZE) {
-//                    // Update the batch, clear the list
-//                    documentCount += maBatch.size();
-//                    anatomyCore.addBeans(maBatch, 60000);
-//                    maBatch.clear();
-//                }
+
                 documentCount++;
                 anatomyCore.addBean(emapa, 60000);
 
-                if (documentCount % 100 == 0){
-                    anatomyCore.commit();
-                }
-
             }
 
-            // Make sure the last batch is indexed
-//            if (maBatch.size() > 0) {
-//                documentCount += maBatch.size();
-//                anatomyCore.addBeans(maBatch, 60000);
-//            }
 
             // Send a final commit
             anatomyCore.commit();
