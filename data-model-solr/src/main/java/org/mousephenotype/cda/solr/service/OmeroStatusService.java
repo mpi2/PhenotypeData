@@ -15,9 +15,9 @@ import java.net.URL;
 
 @Service
 public class OmeroStatusService implements WebStatus {
-
+ 
     @NotNull
-    @Value("${impcMediaBaseUrl}")
+    @Value("${internalImpcMediaBaseUrl}")
     private String omeroUrl;
 
     @PostConstruct
