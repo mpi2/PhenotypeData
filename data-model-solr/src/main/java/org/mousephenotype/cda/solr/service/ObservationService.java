@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -39,6 +40,7 @@ import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -67,13 +69,13 @@ public class ObservationService extends BasicService implements WebStatus {
     private final Logger logger = LoggerFactory.getLogger(ObservationService.class);
 
     @Autowired
-    @Qualifier("experimentCore")
-    private HttpSolrClient solr;
+    @Qualifier("observationCore")
+    protected SolrClient solr;
 
     /**
      * set this constructor up for unit testing
      *
-     * @param solr
+     * @param solr the siolr server to use
      */
     public ObservationService(HttpSolrClient solr) {
         this.solr = solr;
@@ -112,7 +114,7 @@ public class ObservationService extends BasicService implements WebStatus {
                 ObservationDTO.PARAMETER_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
         q.setRows(10000);
 
-        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + SolrUtils.getBaseURL(solr) + "/select?" + q);
         return solr.query(q).getGroupResponse().getValues().get(0).getValues();
 
     }
@@ -222,7 +224,7 @@ public class ObservationService extends BasicService implements WebStatus {
         q.setFacetMinCount(1);
         q.set("facet.limit", -1);
 
-        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + SolrUtils.getBaseURL(solr) + "/select?" + q);
         QueryResponse response = solr.query(q);
 
         for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
@@ -239,7 +241,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
         query.setRows(Integer.MAX_VALUE);
 
-        logger.info("getObservationsByParameterStableId Url: " + solr.getBaseURL() + "/select?" + query);
+        logger.info("getObservationsByParameterStableId Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         return solr.query(query).getBeans(ObservationDTO.class);
     }
@@ -250,7 +252,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setRows(Integer.MAX_VALUE);
         query.addFilterQuery("gene_accession_id:\"" + mgiAccession + "\"");
 
-        logger.info("getObservationsByParameterStableId Url: " + solr.getBaseURL() + "/select?" + query);
+        logger.info("getObservationsByParameterStableId Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         return solr.query(query).getBeans(ObservationDTO.class);
     }
@@ -308,7 +310,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.addField(ObservationDTO.CATEGORY);
         query.setRows(100000);
 
-        logger.info("getViabilityForGene Url" + solr.getBaseURL() + "/select?" + query);
+        logger.info("getViabilityForGene Url" + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         HashSet<String> viabilityCategories = new HashSet<String>();
 
@@ -339,7 +341,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.addField(ObservationDTO.CATEGORY);
         query.setRows(100000);
 
-        logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
+        logger.info("getViabilityData Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         return solr.query(query);
     }
@@ -362,7 +364,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setFacetLimit(-1);
         query.set("facet.pivot", pivot);
 
-        logger.info("getViabilityCategories Url: " + solr.getBaseURL() + "/select?" + query);
+        logger.info("getViabilityCategories Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         try {
             Map<String, List<String>> facets = getFacetPivotResults(solr.query(query), pivot);
@@ -402,7 +404,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setFacetLimit(-1);
         query.set("facet.pivot", pivot);
 
-        logger.info("getCategories Url: " + solr.getBaseURL() + "/select?" + query);
+        logger.info("getCategories Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         return getFacetPivotResults(solr.query(query), false);
     }
@@ -438,7 +440,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.addField(ObservationDTO.ZYGOSITY);
         query.setRows(1000000);
 
-        logger.info("getData Url: " + solr.getBaseURL() + "/select?" + query);
+        logger.info("getData Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         return solr.query(query);
     }
@@ -577,7 +579,7 @@ public class ObservationService extends BasicService implements WebStatus {
             length = 100;
         }
 
-        String url = solr.getBaseURL() + "/select?" + "q=" + ObservationDTO.OBSERVATION_TYPE + ":" + type + " AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental" + "&wt=json&indent=true&start=" + start + "&rows=" + length;
+        String url = SolrUtils.getBaseURL(solr) + "/select?" + "q=" + ObservationDTO.OBSERVATION_TYPE + ":" + type + " AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental" + "&wt=json&indent=true&start=" + start + "&rows=" + length;
 
         net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
         JSONArray resultsArray = JSONRestUtil.getDocArray(result);
@@ -836,7 +838,7 @@ public class ObservationService extends BasicService implements WebStatus {
                 .setFacetLimit(-1)
                 .addFacetField(ObservationDTO.PROCEDURE_GROUP);
 
-        logger.info(solr.getBaseURL() + "/select?" + centersQuery);
+        logger.info(SolrUtils.getBaseURL(solr) + "/select?" + centersQuery);
 
         QueryResponse centerResponse = solr.query(centersQuery);
         List<FacetField> candidateSubsets = centerResponse.getFacetFields();
@@ -862,7 +864,7 @@ public class ObservationService extends BasicService implements WebStatus {
                         .setFacetLimit(-1)
                         .addFacetPivotField(StringUtils.join(Arrays.asList(ObservationDTO.PIPELINE_ID, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID), ","));
 
-                logger.info(solr.getBaseURL() + "/select?" + query);
+                logger.info(SolrUtils.getBaseURL(solr) + "/select?" + query);
 
                 QueryResponse response = solr.query(query);
 
@@ -1092,7 +1094,7 @@ public class ObservationService extends BasicService implements WebStatus {
                 + "," + ObservationDTO.PROCEDURE_NAME + "," + ObservationDTO.PARAMETER_STABLE_ID + "," + ObservationDTO.PARAMETER_NAME
                 + "," + ObservationDTO.OBSERVATION_TYPE + "," + ObservationDTO.ZYGOSITY);
 
-        logger.info(solr.getBaseURL() + "/select?" + query.toString());
+        logger.info(SolrUtils.getBaseURL(solr) + "/select?" + query.toString());
         QueryResponse response = solr.query(query);
         NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
         List<Map<String, String>> results = new LinkedList<Map<String, String>>();
@@ -1189,7 +1191,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.set("group.sort", ObservationDTO.DISCRETE_POINT + " asc");
         query.setRows(10000);
 
-		// logger.info("+_+_+ " + solr.getBaseURL() + "/select?" +
+		// logger.info("+_+_+ " + SolrUtils.getBaseURL(solr) + "/select?" +
         // query);
         List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		// for mutants it doesn't seem we need binning
@@ -1261,7 +1263,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.set("sort", ObservationDTO.DISCRETE_POINT + " asc");
         query.setRows(10000);
 
-		// logger.info("+_+_+ " + solr.getBaseURL() + "/select?" +
+		// logger.info("+_+_+ " + SolrUtils.getBaseURL(solr) + "/select?" +
         // query);
         List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
         boolean rounding = false;
@@ -1407,7 +1409,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.set("wt", "json");
 
         try {
-            JSONObject response = JSONRestUtil.getResults(solr.getBaseURL() + "/select?" + query);
+            JSONObject response = JSONRestUtil.getResults(SolrUtils.getBaseURL(solr) + "/select?" + query);
             mean = response.getJSONObject("stats").getJSONObject("stats_fields").getJSONObject("data_point").getDouble("mean");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1451,7 +1453,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.set("group", true);
         query.setRows(100);
 
-        logger.info("URL in getCategories " + solr.getBaseURL() + "/select?" + query);
+        logger.info("URL in getCategories " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         QueryResponse res = solr.query(query, METHOD.POST);
 
@@ -1632,7 +1634,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 
     public HttpSolrClient getSolrServer() {
-        return solr;
+        return SolrUtils.getHttpSolrServer(solr);
     }
 
 
@@ -1654,7 +1656,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setFacetLimit(100000);
         query.addFacetField(ObservationDTO.BIOLOGICAL_SAMPLE_ID);
 
-        logger.info(solr.getBaseURL() + "/select?" + query);
+        logger.info(SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         return getFacets(solr.query(query)).get(ObservationDTO.BIOLOGICAL_SAMPLE_ID).keySet();
     }
@@ -1721,7 +1723,7 @@ public class ObservationService extends BasicService implements WebStatus {
             q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
         }
 
-        logger.info("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr URL getAllGeneIdsByResource " + SolrUtils.getBaseURL(solr) + "/select?" + q);
         try {
             return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
         } catch (SolrServerException | IOException e) {
@@ -1751,7 +1753,7 @@ public class ObservationService extends BasicService implements WebStatus {
             q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
         }
 
-        logger.info("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr URL getAllColonyIdsByResource " + SolrUtils.getBaseURL(solr) + "/select?" + q);
         try {
             return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
         } catch (SolrServerException | IOException e) {
@@ -1910,7 +1912,7 @@ public class ObservationService extends BasicService implements WebStatus {
 		query.setRows(10000);
 		query.set("group.limit", 1);
 
-        logger.info("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
+        logger.info("SOLR URL getPipelines " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
         QueryResponse response = solr.query(query);
 
@@ -1934,7 +1936,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();
@@ -2066,8 +2068,6 @@ public class ObservationService extends BasicService implements WebStatus {
 	/**
 	 * Get stats for the baseline graphs on the phenotype pages for each parameter/center
 	 * if phenotypingCenter is null just return all stats for the center otherwise filter on that center
-	 * @throws IOException 
-	 * @throws SolrServerException 
 	 */
 	public List<FieldStatsInfo> getStatisticsForParameterFromCenter(String parameterStableId, String phenotypingCenter) throws SolrServerException, IOException{
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&stats=true&stats.field=data_point&stats.facet=parameter_stable_id&rows=0&indent=true&fq=phenotyping_center:HMGU&fq=parameter_stable_id:IMPC_CBC_010_001
@@ -2090,7 +2090,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 			query.setRows(0);
 			
-	        logger.info("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
+	        logger.info("SOLR URL getPipelines " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 	        QueryResponse response = solr.query(query);
 	        FieldStatsInfo statsInfo=response.getFieldStatsInfo().get(ObservationDTO.DATA_POINT);

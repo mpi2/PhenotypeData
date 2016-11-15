@@ -68,12 +68,12 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private String pdfThumbnailUrl;
 
 	@Autowired
-	@Qualifier("experimentCore")
+	@Qualifier("observationCore")
 	SolrClient experimentCore;
 
 	@Autowired
-	@Qualifier("impcImagesIndexing")
-	SolrClient impcImagesIndexing;
+	@Qualifier("impcImagesCore")
+	SolrClient impcImagesCore;
 
 	@Autowired
 	@Qualifier("alleleCore")
@@ -122,7 +122,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(impcImagesIndexing);
+		return super.validateBuild(impcImagesCore);
 	}
 
 	public static void main(String[] args) throws IndexerException, SQLException {
@@ -192,7 +192,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			List<ImageDTO> imageList=new ArrayList<>();
 			//populate image DTOs from phis solr dto objects
 			logger.info("Starting indexing.....");
-			impcImagesIndexing.deleteByQuery("*:*");
+			impcImagesCore.deleteByQuery("*:*");
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 			List<ImageDTO> imagePrimaryList = experimentCore.query(query).getBeans(ImageDTO.class);
 			imageList.addAll(secondaryProjectImageList);
@@ -290,11 +290,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					addOntologyTerms( imageDTO, parameterStableIdToMaTermIdMap, runStatus);
 					addOntologyTerms( imageDTO, parameterStableIdToEmapaTermIdMap, runStatus);
 
-					impcImagesIndexing.addBean(imageDTO, 30000);
+					impcImagesCore.addBean(imageDTO, 30000);
 					documentCount++;
 				}
 
-			impcImagesIndexing.commit();
+			impcImagesCore.commit();
 
 		} catch (SolrServerException | IOException e) {
 			throw new IndexerException(e);

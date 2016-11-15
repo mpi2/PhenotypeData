@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -39,7 +40,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 
 	@Autowired
 	@Qualifier("anatomyCore")
-	private HttpSolrClient solr;
+	private SolrClient solr;
 
 	public AnatomyService() {
 	}
@@ -76,7 +77,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 	 */
 	public List<AnatomyDTO> getAllMaTerms() throws SolrServerException, IOException  {
 
-		//System.out.println("SOLR: " + solr.getBaseURL());
+		//System.out.println("SOLR: " + SolrUtils.getBaseURL(solr));
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":*");
 		solrQuery.setRows(1000000);
@@ -273,7 +274,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 
 		query.setQuery("*:*").setRows(0);
 
-		// System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" +
+		// System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" +
 		// query);
 
 		QueryResponse response = solr.query(query);

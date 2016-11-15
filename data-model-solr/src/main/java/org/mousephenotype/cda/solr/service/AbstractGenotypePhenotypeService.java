@@ -35,6 +35,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
@@ -60,7 +61,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     @Autowired
     ImpressService is;
 
-    protected HttpSolrClient solr;
+    protected SolrClient solr;
 
     protected Boolean isPreQc;
 
@@ -205,7 +206,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         q.setRows(1);
         q.set("facet.limit", -1);
 
-        logger.info("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getHitsDistributionByParameter " + SolrUtils.getBaseURL(solr) + "/select?" + q);
         QueryResponse response = solr.query(q);
 
         for( Count facet : response.getFacetField(fieldToDistributeBy).getValues()){
@@ -239,7 +240,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         q.add("facet.pivot", pivot);
 
 
-        logger.info("Solr url for getAssociationsCount " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getAssociationsCount " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 
         QueryResponse response = solr.query(q);
         for (PivotField p : response.getFacetPivot().get(pivot)){
@@ -271,7 +272,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             q.add("facet.pivot", facetPivot);
         }
 
-        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 
         QueryResponse response = solr.query(q);
         for (PivotField pivot : response.getFacetPivot().get(facetPivot)){
@@ -317,7 +318,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         q.setRows(1);
         q.set("facet.limit", -1);
 
-        logger.info("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getHitsDistributionByParameter " + SolrUtils.getBaseURL(solr) + "/select?" + q);
         QueryResponse response = solr.query(q);
 
         for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -666,7 +667,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public Parameter getParameterByStableId(String paramStableId, String queryString)
         throws IOException, URISyntaxException {
 
-        String solrUrl = solr.getBaseURL() + "/select/?q=" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + paramStableId + "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+        String solrUrl = SolrUtils.getBaseURL(solr) + "/select/?q=" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + paramStableId + "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
         if (queryString.startsWith("&")) {
             solrUrl += queryString;
         } else {// add an ampersand parameter splitter if not one as we need
@@ -715,7 +716,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public List<? extends StatisticalResult> getStatsResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession)
         throws IOException, URISyntaxException {
 
-        String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
+        String solrUrl = SolrUtils.getBaseURL(solr);// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
         solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"" + "&fq=" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + "&fq=" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + strainAccession + "\"" + "&fq=" + GenotypePhenotypeDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
         //		System.out.println("solr url for stats results=" + solrUrl);
         List<? extends StatisticalResult> statisticalResult = this.createStatsResultFromSolr(solrUrl, observationType);
@@ -734,7 +735,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public PhenotypeFacetResult getPhenotypeFacetResultByGenomicFeatures(Set<String> genomicFeatures)
         throws IOException, URISyntaxException, SolrServerException {
 
-        String solrUrl = solr.getBaseURL();
+        String solrUrl = SolrUtils.getBaseURL(solr);
         // build OR query from a list of genes (assuming they have MGI ids
         StringBuilder geneClause = new StringBuilder(genomicFeatures.size() * 15);
         boolean start = true;
@@ -763,7 +764,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
         throws IOException, URISyntaxException, SolrServerException {
 
-        String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
+        String solrUrl = SolrUtils.getBaseURL(solr);// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
         //		System.out.println("SOLR URL = " + solrUrl);
 
         solrUrl += "/select/?q=" + GenotypePhenotypeDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"" + "&fq=" + GenotypePhenotypeDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
@@ -774,7 +775,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public PhenotypeFacetResult getMPByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname)
     throws IOException, URISyntaxException, SolrServerException {
 
-        String solrUrl = solr.getBaseURL() + "/select?";
+        String solrUrl = SolrUtils.getBaseURL(solr) + "/select?";
         SolrQuery q = new SolrQuery();
         
         q.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accId + "\"");
@@ -802,7 +803,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName)
     throws IOException, URISyntaxException, SolrServerException {
 
-        String url = solr.getBaseURL() + "/select/?";
+        String url = SolrUtils.getBaseURL(solr) + "/select/?";
         SolrQuery q = new SolrQuery();
         
         q.setQuery("*:*");
@@ -1297,7 +1298,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     public HttpSolrClient getHttpSolrClient() {
-        return solr;
+        return SolrUtils.getHttpSolrServer(solr);
     }
 
     
@@ -1326,9 +1327,9 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     	q.set("wt", "xslt").set("tr", "pivot.xsl");
     	
     	HttpProxy proxy = new HttpProxy();
-		System.out.println("Solr ULR for getTabbedCallSummary " + solr.getBaseURL() + "/select?" + q);
+		System.out.println("Solr ULR for getTabbedCallSummary " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 
-		String content = proxy.getContent(new URL(solr.getBaseURL() + "/select?" + q));
+		String content = proxy.getContent(new URL(SolrUtils.getBaseURL(solr) + "/select?" + q));
 
         return content;
     }

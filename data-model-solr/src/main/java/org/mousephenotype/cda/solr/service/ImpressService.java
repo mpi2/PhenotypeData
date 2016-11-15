@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -24,6 +25,7 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -53,7 +55,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 	@Autowired
 	@Qualifier("pipelineCore")
-	private HttpSolrClient solr;
+	private SolrClient solr;
 
 
 
@@ -92,7 +94,7 @@ public class ImpressService extends BasicService implements WebStatus {
 			query.setRows(10000);
 			query.set("group.limit", 1);
 
-			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
+			System.out.println("URL for getProceduresByStableIdRegex " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 			QueryResponse response = solr.query(query);
 
@@ -571,7 +573,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();
