@@ -69,10 +69,10 @@
 
                 //var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Pmid</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
                 //var tableCols = 7;
-                var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th><th>Mesh</th></thead>";
+                var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>PMID</th><th>Paper link</th><th>Mesh</th></thead>";
                 //var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
 
-                var tableCols = 7;
+                var tableCols = 8;
 
 
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
@@ -103,19 +103,20 @@
                     },
                     "columnDefs": [
                       //  { "type": "alt-string", targets: 4 },   //4th col sorted using alt-string
-                        { "targets": [6], // 7th col
+                        { "targets": [7], // 7th col
                           "visible": false
                         }
+
                     ],
                     "aaSorting": [[ 3, "desc" ]],  // default sort column: 4th col
                     "aoColumns": [
                         {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "html", "bSortable": true},
-                      //  {"bSearchable": true, "sType": "string", "bSortable": true}, //pmid
                         {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},
-                        {"bSearchable": false, "sType": "html", "bSortable": true},
+                        {"bSearchable": true, "sType": "html", "bSortable": true},
+                        {"bSearchable": true, "sType": "string", "bSortable": false},
                         {"bSearchable": true, "sType": "string", "bSortable": false}
                     ],
                     "fnDrawCallback": function (oSettings) {  // when dataTable is loaded

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by mrelac on 10/08/16.
@@ -53,7 +54,7 @@ public class LoadUtils {
     /**
      * Maps external input names to Organisation.name. Lookups are case-insensitive.
      */
-    private final Map<String, String> mappedTerms = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+    public static final Map<String, String> mappedOrganisationName = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
         //   External name          Organisation.name
         put("CDTA",                 "CDTA");
         put("Bcm",                  "BCM");
@@ -79,7 +80,7 @@ public class LoadUtils {
      */
     public Organisation translateILAR(NamedParameterJdbcTemplate jdbcCda, String ilarValue) {
         String query = "SELECT * FROM organisation WHERE name = :name";
-        String organisationName = mappedTerms.get(ilarValue);
+        String organisationName = mappedOrganisationName.get(ilarValue);
         if (organisationName == null)
             return null;
 
@@ -92,4 +93,31 @@ public class LoadUtils {
 
         return organisations.get(0);
     }
+
+    public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
+        return sourceMap.entrySet().stream().collect(
+                Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey,
+                                 (a, b) -> a) //if sourceMap has duplicate values, keep only first
+            );
+    }
+
+    /**
+     * Maps external input names to cda project.name. Lookups are case-insensitive.
+     */
+    public static final Map<String, String> mappedProjectNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+        //   External name          Organisation.name
+        put("BaSH",                 "BaSH");
+        put("DTCC",                 "DTCC");
+        put("Eumodic",              "EUMODIC");
+//        put("EUCOMM-EUMODIC",       "???EUCOMM-EUMODIC???");
+        put("Helmholtz GMC",        "HMGU");
+        put("JAX",                  "JAX");
+        put("MARC",                 "MARC");
+        put("MGP",                  "MGP");
+//        put("MGP Legacy",           "???MGP Legacy???");
+        put("MRC",                  "MRC");
+        put("NorCOMM2",             "NorCOMM2");
+        put("Phenomin",             "Phenomin");
+        put("RIKEN BRC",            "RBRC");
+    }};
 }

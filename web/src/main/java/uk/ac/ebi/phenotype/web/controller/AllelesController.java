@@ -188,7 +188,6 @@ public class AllelesController {
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-
         log.info("#### AllelesController::alleles2");
         log.info("#### acc: " + acc);
         log.info("#### allele_name: " + allele_name);

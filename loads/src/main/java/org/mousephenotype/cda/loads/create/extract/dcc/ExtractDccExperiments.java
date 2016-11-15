@@ -119,7 +119,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         OptionSet options = parser.parse(args);
 
         if ( ! options.has("datasourceShortName")) {
-            String message = "Missing required command-line paraemter 'datasourceShortName'";
+            String message = "Missing required command-line parameter 'datasourceShortName'";
             logger.error(message);
             throw new DataLoadException(message);
         }
@@ -233,7 +233,6 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         Long procedurePk, center_procedurePk;
 
-        // procedure
         String procedureName = experiment.getProcedure().getProcedureID();
 
         // Skip any lines whose procedure group has been marked to be skipped.
@@ -243,6 +242,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
             return;
         }
 
+        // procedure
         Procedure procedure = dccSqlUtils.getProcedure(experiment.getProcedure().getProcedureID());
         if (procedure == null) {
             procedure = dccSqlUtils.insertProcedure(experiment.getProcedure().getProcedureID());
@@ -260,7 +260,11 @@ public class ExtractDccExperiments implements CommandLineRunner {
         center_procedurePk = dccSqlUtils.selectOrInsertCenter_procedure(centerPk, procedurePk);
 
         // experiment
-        long experimentPk = dccSqlUtils.selectOrInsertExperiment(experiment, center_procedurePk).getHjid();
+        long experimentPk = dccSqlUtils.selectOrInsertExperiment(experiment, center_procedurePk);
+        if (experimentPk == 0) {
+            logger.warn("SELECT/INSERT experimentId " + experiment.getExperimentID() + " failed. SKIPPING.");
+            return;
+        }
 
         // specimens
         for (String specimenId : experiment.getSpecimenID()) {
