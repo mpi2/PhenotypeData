@@ -25,7 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.util.Assert;
 
@@ -218,6 +222,7 @@ public class DccSqlUtils {
 
     /**
      * Returns the primary key for the given centerId, pipeline, and project, if found; 0 otherwise
+     * NOTE: This method caches the center for faster returns.
      *
      * @param centerId   The center id
      * @param pipeline   The pipeline
@@ -226,23 +231,28 @@ public class DccSqlUtils {
      * @return The center primary key if found; 0 otherwise.
      */
     public long getCenterPk(String centerId, String pipeline, String project) {
-        long centerPk = 0L;
-        String query = "SELECT pk FROM center WHERE centerId = :centerId AND pipeline = :pipeline AND project = :project";
+        String centerKey = centerId + "_" + pipeline + "_" + project;
+        Long centerPk = centerPkMap.get(centerKey);
+        if (centerPk == null) {
+            String query = "SELECT pk FROM center WHERE centerId = :centerId AND pipeline = :pipeline AND project = :project";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+            Map<String, Object> parameterMap = new HashMap<>();
 
-        parameterMap.put("centerId", centerId);
-        parameterMap.put("pipeline", pipeline);
-        parameterMap.put("project", project);
+            parameterMap.put("centerId", centerId);
+            parameterMap.put("pipeline", pipeline);
+            parameterMap.put("project", project);
 
-        try {
             centerPk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
-        } catch (Exception e) {
-
+            if (centerPk != 0) {
+                centerPkMap.put(centerKey, centerPk);
+            } else {
+                centerPk = null;
+            }
         }
 
         return centerPk;
     }
+    private Map<String, Long> centerPkMap = new HashMap<>();
 
     public long getCenter_specimenPk(long centerPk, long specimenPk) {
         long center_specimenPk = 0L;
@@ -296,6 +306,79 @@ public class DccSqlUtils {
         return dimensions;
     }
 
+//    /**
+//     *
+//     * @return all line-level experiments. No sample-level experiments are included.
+//     */
+//    public List<Experiment> getLineLevelExperiments() {
+//
+//        if (lineLevelExperiments == null) {
+//            final String query =
+//                "SELECT\n" +
+//                "  l.datasourceShortName,\n" +
+//                "  e.experimentId,\n" +
+//                "  e.sequenceId,\n" +
+//                "  e.dateOfExperiment,\n" +
+//                "  c.centerId,\n" +
+//                "  c.pipeline,\n" +
+//                "  c.project,\n" +
+//                "  p.procedureId,\n" +
+//                "  l.colonyId\n" +
+//                "  1    AS isLineLevel\n" +
+//                "FROM experiment e\n" +
+//                "JOIN center_procedure            cp  ON cp .pk                  = e  .center_procedure_pk\n" +
+//                "JOIN center                      c   ON c  .pk                  = cp .center_pk\n" +
+//                "JOIN procedure_                  p   ON p  .pk                  = cp .procedure_pk\n" +
+//                "JOIN line                        l   ON l  .center_procedure_pk = e  .pk";
+//
+//            lineLevelExperiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentRowMapper());
+//            lineLevelExperimentIds = new ArrayList<>();
+//            for (Experiment experiment : lineLevelExperiments) {
+//                lineLevelExperimentIds.add(experiment.getExperimentID());
+//            }
+//        }
+//
+//        return lineLevelExperiments;
+//    }
+//    private List<Experiment> lineLevelExperiments;
+//    private List<String> lineLevelExperimentIds;
+
+//    public List<Experiment> getSampleLevelExperiments() {
+//
+//        if (sampleLevelExperiments == null) {
+//            final String query =
+//                "SELECT\n" +
+//                "  s.datasourceShortName,\n" +
+//                "  e.experimentId,\n" +
+//                "  e.sequenceId,\n" +
+//                "  e.dateOfExperiment,\n" +
+//                "  c.centerId,\n" +
+//                "  c.pipeline,\n" +
+//                "  c.project,\n" +
+//                "  p.procedureId,\n" +
+//                "  null AS colonyId,\n" +
+//                "  0    AS isLineLevel\n" +
+//                "FROM experiment e\n" +
+//                "JOIN center_procedure    cp  ON cp .pk = e  .center_procedure_pk\n" +
+//                "JOIN center              c   ON c  .pk = cp .center_pk\n" +
+//                "JOIN procedure_          p   ON p  .pk = cp .procedure_pk\n" +
+//                "JOIN experiment_specimen es  ON es .pk = e  .pk\n" +
+//                "JOIN specimen            s   ON s  .pk = es .specimen_pk";
+//
+//            List<ExperimentDccToCda> tmpSampleLevelExperiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentDccToCdaRowMapper());
+//
+//            // Add sample-level experiments. Exclude experiment if it is line-level.
+//            for (Experiment sampleLevelExperiment : tmpSampleLevelExperiments) {
+//                if ( ! lineLevelExperimentIds.contains(sampleLevelExperiment.getExperimentID())) {
+//                    sampleLevelExperiments.add(tmpSampleLevelExperiments);
+//                }
+//            }
+//        }
+//
+//        return sampleLevelExperiments;
+//    }
+//    private List<Experiment> sampleLevelExperiments;
+
     /**
      * Returns the line primary key matching {@code colonyId} and {@code center_procedurePk}, if found; 0 otherwise.
      *
@@ -314,6 +397,27 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("colonyId", colonyId);
         parameterMap.put("center_procedurePk", center_procedurePk);
+        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
+
+        return pk;
+    }
+
+    /**
+     * Returns the matching line_statuscode primary key, if any; 0 otherwise.
+     *
+     * @param line_pk The line primary key value to search for
+     * @param statuscode_pk The statuscode primary key value to search for
+     *
+     * @return The matching line_statuscode primary key, if any; 0 otherwise.
+     */
+    public long getLineStatuscodePk(long line_pk, long statuscode_pk) {
+        long pk = 0L;
+
+        final String query = "SELECT pk FROM line_statuscode WHERE line_pk = :line_pk AND statuscode_pk = :statuscode_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("line_pk", line_pk);
+        parameterMap.put("statuscode_pk", statuscode_pk);
         pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
 
         return pk;
@@ -504,8 +608,11 @@ public class DccSqlUtils {
             parameterMap.put("pipeline", pipeline);
             parameterMap.put("project", project);
 
-            npJdbcTemplate.update(insert, parameterMap);
-            pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            npJdbcTemplate.update(insert, parameterSource, keyholder);
+            pk = keyholder.getKey().longValue();
 
         } catch (DuplicateKeyException e) {
             pk = getCenterPk(centerId, pipeline, project);
@@ -531,8 +638,11 @@ public class DccSqlUtils {
             parameterMap.put("centerPk", centerPk);
             parameterMap.put("specimenPk", specimenPk);
 
-            npJdbcTemplate.update(insert, parameterMap);
-            pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            npJdbcTemplate.update(insert, parameterSource, keyholder);
+            pk = keyholder.getKey().longValue();
 
         } catch (DuplicateKeyException e) {
             pk = getCenter_specimenPk(centerPk, specimenPk);
@@ -546,9 +656,10 @@ public class DccSqlUtils {
      *
      * @param embryo the embryo to be inserted
      *
-     * @return the embryo, with primary key loaded
+     * @return count of records inserted
      */
-    public Embryo insertEmbryo(Embryo embryo, long specimenPk) {
+    public int insertEmbryo(Embryo embryo, long specimenPk) {
+        int count = 0;
         String insert = "INSERT INTO embryo (stage, stageUnit, specimen_pk) VALUES (:stage, :stageUnit, :specimenPk)";
 
         try {
@@ -558,17 +669,13 @@ public class DccSqlUtils {
             parameterMap.put("stageUnit", embryo.getStageUnit().value());
             parameterMap.put("specimenPk", specimenPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
-            if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
-                embryo.setHjid(pk);
-            }
+            count = npJdbcTemplate.update(insert, parameterMap);
 
         } catch (DuplicateKeyException e) {
 
         }
 
-        return embryo;
+        return count;
     }
 
     /**
@@ -576,10 +683,10 @@ public class DccSqlUtils {
      *
      * @param genotype the genotype to be inserted
      *
-     * @return the genotype, with primary key loaded
+     * @return count of records inserted
      */
-    public Genotype insertGenotype(Genotype genotype, long specimenPk) {
-        long pk = 0L;
+    public int insertGenotype(Genotype genotype, long specimenPk) {
+        int count = 0;
         String insert = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_pk) "
                      + " VALUES (:geneSymbol, :mgiAlleleId, :mgiGeneId, :fatherZygosity, :motherZygosity, :specimenPk)";
 
@@ -593,17 +700,13 @@ public class DccSqlUtils {
             parameterMap.put("motherZygosity", (genotype.getMotherZygosity() == null ? null : genotype.getMotherZygosity().value()));
             parameterMap.put("specimenPk", specimenPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
-            if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
-                genotype.setHjid(pk);
-            }
+            count = npJdbcTemplate.update(insert, parameterMap);
 
         } catch (DuplicateKeyException e) {
 
         }
 
-        return genotype;
+        return count;
     }
 
     /**
@@ -650,13 +753,16 @@ public class DccSqlUtils {
             parameterMap.put("datasourceShortName", datasourceShortName);
             parameterMap.put("center_procedurePk", center_procedurePk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
-
+            pk = getLinePk(line.getColonyID(), center_procedurePk);
         }
 
         return pk;
@@ -679,13 +785,16 @@ public class DccSqlUtils {
             parameterMap.put("linePk", linePk);
             parameterMap.put("statuscodePk", statuscodePk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
-
+            pk = getLineStatuscodePk(linePk, statuscodePk);
         }
 
         return pk;
@@ -696,9 +805,10 @@ public class DccSqlUtils {
      *
      * @param mouse the mouse to be inserted
      *
-     * @return the mouse, with primary key loaded
+     * @return count of records inserted
      */
-    public Mouse insertMouse(Mouse mouse, long specimenPk) {
+    public int insertMouse(Mouse mouse, long specimenPk) {
+        int count = 0;
         String insert = "INSERT INTO mouse (DOB, specimen_pk) VALUES (:DOB, :specimenPk)";
 
         try {
@@ -707,17 +817,13 @@ public class DccSqlUtils {
             parameterMap.put("DOB", new java.sql.Date(mouse.getDOB().getTime().getTime()));
             parameterMap.put("specimenPk", specimenPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
-            if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
-                mouse.setHjid(pk);
-            }
+           count = npJdbcTemplate.update(insert, parameterMap);
 
         } catch (DuplicateKeyException e) {
 
         }
 
-        return mouse;
+        return count;
     }
 
     /**
@@ -732,22 +838,25 @@ public class DccSqlUtils {
         String insert = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_pk) " +
                         "VALUES (:localId, :fileType, :URI, :mediaSectionPk)";
 
+        Map<String, Object> parameterMap = new HashMap<>();
         try {
-            Map<String, Object> parameterMap = new HashMap<>();
 
             parameterMap.put("localId", mediaFile.getLocalId());
             parameterMap.put("fileType", mediaFile.getFileType());
             parameterMap.put("URI", mediaFile.getURI());
             parameterMap.put("mediaSectionPk", mediaSectionPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
-                mediaFile.setHjid(pk);
+                mediaFile.setHjid(keyholder.getKey().longValue());
             }
 
         } catch (DuplicateKeyException e) {
-
+            String query = "SELECT pk FROM mediaFile WHERE fileType = :fileType AND localId = :localId AND URI = :URI AND mediaSection_pk = :mediaSectionPk";
+            mediaFile.setHjid(npJdbcTemplate.queryForObject(query, parameterMap, Long.class));
         }
 
         return mediaFile;
@@ -767,18 +876,22 @@ public class DccSqlUtils {
         String insert = "INSERT INTO mediaFile_parameterAssociation(mediaFile_pk, parameterAssociation_pk) " +
                         "VALUES (:mediaFilePk, :parameterAssociationPk)";
 
+        Map<String, Object> parameterMap = new HashMap<>();
         try {
-            Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("mediaFilePk", mediaFilePk);
             parameterMap.put("parameterAssociationPk", parameterAssociationPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
-
+            String query = "SELECT pk FROM mediaFile_parameterAssociation WHERE mediaFile_pk = :mediaFilePk AND parameterAssociation_pk = :parameterAssociationPk";
+            pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
         }
 
         return pk;
@@ -798,18 +911,22 @@ public class DccSqlUtils {
         String insert = "INSERT INTO mediaFile_procedureMetadata(mediaFile_pk, procedureMetadata_pk) " +
                         "VALUES (:mediaFilePk, :procedureMetadataPk)";
 
+        Map<String, Object> parameterMap = new HashMap<>();
         try {
-            Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("mediaFilePk", mediaFilePk);
             parameterMap.put("procedureMetadataPk", procedureMetadataPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
-
+            String query = "SELECT pk FROM mediaFile_procedureMetadata WHERE mediaFile_pk = :mediaFilePk AND procedureMetadata_pk = :procedureMetadataPk";
+            pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
         }
 
         return pk;
@@ -1502,19 +1619,20 @@ public class DccSqlUtils {
     }
 
     /**
-     * Returns the {@link Experiment} instance identified by {@code} experiment and center_procedure primary key. The
+     * Returns the {@link Experiment} primary key identified by {@code} experiment and center_procedure primary key. The
      * data is first inserted into the experiment table if it does not yet exist.
      *
      * @param experiment The experiment instance to be fetched/inserted
      * @param center_procedurePk The center_procedure primary key
      *
-     * @return the {@link Experiment} instance identified by {@code} experiment and center_procedure primary key. The
-          * data is first inserted into the experiment table if it does not yet exist.
-     * 
+     * @return the {@link Experiment} primary key identified by {@code} experiment and center_procedure primary key. The
+     * data is first inserted into the experiment table if it does not yet exist.
      */
-    public Experiment selectOrInsertExperiment(Experiment experiment, long center_procedurePk) {
-        Experiment retVal = getExperiment(experiment, center_procedurePk);
-        if (retVal == null) {
+    public long selectOrInsertExperiment(Experiment experiment, long center_procedurePk) {
+        long pk = 0L;
+
+        pk = getExperimentPkByExperimentId(experiment.getExperimentID(), center_procedurePk);
+        if (pk == 0) {
             String insert = "INSERT INTO experiment (center_procedure_pk, dateOfExperiment, experimentId, sequenceId) "
                           + "VALUES (:center_procedurePk, :dateOfExperiment, :experimentId, :sequenceId)";
             
@@ -1523,14 +1641,17 @@ public class DccSqlUtils {
             parameterMap.put("dateOfExperiment", experiment.getDateOfExperiment());
             parameterMap.put("experimentId", experiment.getExperimentID());
             parameterMap.put("sequenceId", experiment.getSequenceID());
-            
-            int count = npJdbcTemplate.update(insert, parameterMap);
+
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                retVal = getExperiment(experiment, center_procedurePk);
+                pk = keyholder.getKey().longValue();
             }
         }
         
-        return retVal;
+        return pk;
     }
 
     /**
@@ -1600,24 +1721,70 @@ public class DccSqlUtils {
 
         return pk;
     }
-    
-    public Experiment getExperiment(Experiment experiment, long center_procedurePk) {
-        
-        final String query = "SELECT * FROM experiment WHERE experimentId = :experimentId AND center_procedure_pk = :center_procedurePk";
+
+    /**
+     * Returns experiment primary key if found; 0 otherwise
+     * @param experimentId
+     * @param center_procedurePk
+     * @return experiment primary key if found; 0 otherwise
+     */
+    public long getExperimentPkByExperimentId(String experimentId, long center_procedurePk) {
+        long pk = 0L;
+        final String query = "SELECT pk FROM experiment WHERE experimentId = :experimentId AND center_procedure_pk = :center_procedurePk";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("experimentId", experiment.getExperimentID());
+        parameterMap.put("experimentId", experimentId);
         parameterMap.put("center_procedurePk", center_procedurePk);
-        List<Experiment> experiments = npJdbcTemplate.query(query, parameterMap, new ExperimentRowMapper());
-        
-        return (experiments.isEmpty() ? null : experiments.get(0));
+
+        try {
+            pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+        } catch (Exception e) {
+
+        }
+
+        return pk;
     }
 
-    public List<Experiment> getExperiments() {
+    /**
+     * @return all line- and procedure-level experiments
+     */
+    public List<DccExperimentDTO> getExperiments() {
 
-        final String query = "SELECT * FROM experiment";
+        final String query = "SELECT\n" +
+                "  s.datasourceShortName,\n" +
+                "  e.experimentId,\n" +
+                "  e.sequenceId,\n" +
+                "  e.dateOfExperiment,\n" +
+                "  c.centerId,\n" +
+                "  c.pipeline,\n" +
+                "  c.project,\n" +
+                "  p.procedureId,\n" +
+                "  s.colonyId AS colonyId,\n" +
+                "  0    AS isLineLevel\n" +
+                "FROM experiment e\n" +
+                "JOIN center_procedure    cp  ON cp .pk = e  .center_procedure_pk\n" +
+                "JOIN center              c   ON c  .pk = cp .center_pk\n" +
+                "JOIN procedure_          p   ON p  .pk = cp .procedure_pk\n" +
+                "JOIN experiment_specimen es  ON es .pk = e  .pk\n" +
+                "JOIN specimen            s   ON s  .pk = es .specimen_pk\n" +
+                "UNION ALL\n" +
+                "SELECT\n" +
+                "  l.datasourceShortName,\n" +
+                "  null,\n" +
+                "  null,\n" +
+                "  null,\n" +
+                "  c.centerId,\n" +
+                "  c.pipeline,\n" +
+                "  c.project,\n" +
+                "  p.procedureId,\n" +
+                "  l.colonyId,\n" +
+                "  1 AS isLineLevel\n" +
+                "FROM line l\n" +
+                "JOIN center_procedure cp  ON cp .pk = l  .center_procedure_pk\n" +
+                "JOIN center           c   ON c  .pk = cp .center_pk\n" +
+                "JOIN procedure_       p   ON p  .pk = cp .procedure_pk";
 
-        List<Experiment> experiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentRowMapper());
+        List<DccExperimentDTO> experiments = npJdbcTemplate.query(query, new HashMap<>(), new DccExperimentRowMapper());
 
         return (experiments.isEmpty() ? new ArrayList<>() : experiments);
     }
