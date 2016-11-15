@@ -18,10 +18,10 @@ package org.mousephenotype.cda.solr.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -47,7 +47,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 	@Autowired
 	@Qualifier("geneCore")
-	private HttpSolrClient solr;
+	private SolrClient solr;
 
     @NotNull
     @Value("${baseUrl}")
@@ -231,8 +231,6 @@ public class GeneService extends BasicService implements WebStatus{
 	/**
 	 * Get the latest phenotyping status for a document. Modified 2015/08/03 by @author tudose
 	 * 
-	 * @param doc represents a gene with imits status fields
-     * @param url the hostname
      * @Param toExport export if true; false otherwise
      * @param legacyOnly is legacy only if true; false otherwise
      *
@@ -759,7 +757,7 @@ public class GeneService extends BasicService implements WebStatus{
 		solrQuery.setRows(100000);
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS);
 		
-		//System.out.println("getProductionStatusForGeneSet solr url " + solr.getBaseURL() + "/select?" + solrQuery);
+		//System.out.println("getProductionStatusForGeneSet solr url " + SolrUtils.getBaseURL(solr) + "/select?" + solrQuery);
 		
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
 		//System.out.println("solr query in basicbean=" + solrQuery);
@@ -988,7 +986,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();

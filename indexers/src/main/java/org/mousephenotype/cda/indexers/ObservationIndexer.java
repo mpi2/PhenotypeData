@@ -78,8 +78,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	DataSource komp2DataSource;
 
 	@Autowired
-	@Qualifier("observationIndexing")
-	SolrClient observationIndexing;
+	@Qualifier("observationCore")
+	SolrClient observationCore;
 
 	@Autowired
 	MaOntologyDAO maOntologyService;
@@ -127,7 +127,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(observationIndexing);
+		return super.validateBuild(observationCore);
 	}
 
 	public static void main(String[] args) throws IndexerException {
@@ -213,7 +213,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 		int count = 0;
 
-		observationIndexing.deleteByQuery("*:*");
+		observationCore.deleteByQuery("*:*");
 
 		Boolean hasSequenceIdColumn = sqlUtils.columnInSchemaMysql(connection, "observation", "sequence_id");
 
@@ -572,7 +572,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				// 60 seconds between commits
 				documentCount++;
-				observationIndexing.addBean(o, 60000);
+				observationCore.addBean(o, 60000);
 
 				count++;
 
@@ -582,7 +582,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			}
 
 			// Final commit to save the rest of the docs
-			observationIndexing.commit();
+			observationCore.commit();
 
 		} catch (Exception e) {
 			e.printStackTrace();

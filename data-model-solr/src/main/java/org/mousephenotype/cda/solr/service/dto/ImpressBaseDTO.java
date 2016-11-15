@@ -17,9 +17,6 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import java.util.Comparator;
 
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO.MeanBean;
-
 /**
  * Class to act as Map value DTO for impress data
  * @author tudose

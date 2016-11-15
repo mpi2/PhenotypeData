@@ -18,7 +18,6 @@ package org.mousephenotype.cda.solr.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
-import java.util.Objects;
 
 
 /**
