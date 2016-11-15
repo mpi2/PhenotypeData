@@ -16,8 +16,10 @@
 
 package org.mousephenotype.cda.loads.create.load.steps;
 
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.Experiment;
+import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.DccExperimentDTO;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -124,16 +126,31 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 .execute(stepExecution);
     }
 
+
+
+    private Map<String, Integer> cdaDb_idMap;
+    private Map<String, Integer> cdaOrganisation_idMap;
+    private Map<String, Integer> cdaProject_idMap;
+    private Map<String, Integer> cdaPipeline_idMap;
+    private Map<String, Integer> cdaProcedure_idMap;
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         long startStep = new Date().getTime();
+        Experiment experiment;
+        List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
+        Map<String, Integer>   counts;
 
-        List<org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment> dccExperiments = dccSqlUtils.getExperiments();
-        Map<String, Integer> counts;
+        // Initialise maps.
+        cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
+        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
+        cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
+        cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
+        cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccPipeline();
 
-        for (org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment experiment : dccExperiments) {
-            counts = insertExperiment(experiment);
+        for (DccExperimentDTO dccExperiment : dccExperiments) {
+            experiment = insertExperiment(dccExperiment);
 
 
 
@@ -182,17 +199,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     @Transactional
-    private Map<String, Integer> insertExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment) throws DataLoadException {
+    private Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
-        Experiment experiment = new Experiment();
-        Map<String, Integer> counts = createExperiment(dccExperiment, experiment);
+        Experiment experiment = createExperiment(dccExperiment);
 
-        return counts;
+        return experiment;
     }
 
-    private Map<String, Integer> createExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment, Experiment experiment) throws DataLoadException {
-
-        Map<String, Integer> counts = new HashMap<>();
+    private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
+        Experiment experiment = new Experiment();
 
 //        String colonyId;                        // FIXME
 //        PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getProcedure().)
@@ -203,45 +218,66 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 //        }
 
         int db_id;
-        String externalId;
-        String sequenceId;
-        Date dateOfExperiment;
-        int organisationId;
-        int projectId;
-        int pipelineId;
-        String pipelineStableId;
-        int procedureId;
-        String procedureStableId;
+        String external_id;
+        String sequence_id;
+        Date date_of_experiment;
+        int organisation_id;
+        int project_id;
+        int pipeline_id;
+        String pipeline_stable_id;
+        int procedure_id;
+        String procedure_stable_id;
+        String colony_id;
         int biologicalModelId;
-        String colonyId;
         String metadataCombined;
         String metadataGroup;
         String procedureStatus;
         String procedureStatusMessage;
 
+        db_id = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
+        external_id = dccExperiment.getExperimentId();
+        sequence_id = dccExperiment.getSequenceId();
+        // sample-level procedures must have a correctly-formatted date. line-level ones are always null.
+        if (dccExperiment.isLineLevel()) {
+            date_of_experiment = getDateOfExperiment(dccExperiment);
+            if (date_of_experiment == null) {
+                return null;
+            }
+        } else {
+            date_of_experiment = null;
+        }
+        organisation_id = cdaOrganisation_idMap.get(dccExperiment.getCenterId());
+        project_id = cdaProject_idMap.get(dccExperiment.getProject());
+        pipeline_id = cdaPipeline_idMap.get(dccExperiment.getPipeline());
+        pipeline_stable_id = dccExperiment.getPipeline();
+        procedure_id = cdaProcedure_idMap.get(dccExperiment.getProcedureId());
+        procedure_stable_id = dccExperiment.getProcedureId();
+        if (dccExperiment.isLineLevel()) {
+            PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getColonyId());
+            if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
+                logger.error("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
+                return null;
+            }
+            colony_id = phenotypedColony.getColonyName();
+        } else {
+            colony_id = null;
+        }
 
+        cdaSqlUtils.insertExperiment(
+                db_id,
+                external_id,
+                sequence_id,
+                date_of_experiment,
+                organisation_id,
+                project_id,
+                pipeline_id,
+                pipeline_stable_id,
+                procedure_id,
+                procedure_stable_id,
+                colony_id
+        );
 
-//        experiment.setColonyId(colonyId);
-//        experiment.setDatasource(datasource);
-//        experiment.setDateOfExperiment(dateOfExperiment);
-//        experiment.setExternalId(dccExperiment.getExperimentID());
-////        experiment.setId();
-//        experiment.setMetadataCombined(metadataCombined);
-//        experiment.setMetadataGroup(metadataGroup);
-//        experiment.setModel(biologicalModel);
-//        experiment.setObservations(observations);
-//        experiment.setOrganisation(organisation);
-//        experiment.setPipeline(pipeline);
-//        experiment.setProcedure(procedure);
-//        experiment.setProcedureStableId(procedureStableId);
-//        experiment.setProcedureStatus(procedureStatus);
-//        experiment.setProcedureStatusMessage(procedureStatusMessage);
-//        experiment.setProject(project);
-//        experiment.setSequenceId(sequenceId);
-
-//        cdaSqlUtils.insertExperiment(experiment);
-
-        return counts;
+        return experiment;
     }
 
 
@@ -270,31 +306,36 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 //    }
 
     /**
-     * Validates and returns date of experiment, if valid; null otherwise. Logs error message if invalid.
+     * Validates and returns date of experiment, if valid; null otherwise. Logs null/invalid dates.
      * @param dccExperiment
      * @return the date of experiment, if valid; null otherwise.
      */
-    public Date getDateOfExperiment(org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment dccExperiment) {
-        Date date;
-        Date dccDate = dccExperiment.getDateOfExperiment().getTime();
-        String experimentId = dccExperiment.getExperimentID();
+    public Date getDateOfExperiment(DccExperimentDTO dccExperiment) {
+        Date dateOfExperiment = null;
+        SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd");
+
+        String experimentId = dccExperiment.getExperimentId();
 
         try {
-            SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd");
-            date = sdf.parse("1975-01-01");
+            Date dccDate = dccExperiment.getDateOfExperiment();
+            Date maxDate = new Date();
+            Date minDate = dateFormat.parse("1975-01-01");
 
-            if (dccDate.before(date)) {
+            if (dccDate.before(minDate)) {
 
-                logger.warn("Skipping experiment '{}' due to invalid date {}", experimentId, dccDate);
-                return null;
+                logger.warn("Experiment {} has date before 01-January-1975. Skipping ...", experimentId, dccDate);
+            } else if (dccDate.after(maxDate)) {
+
+                logger.warn("Experiment {} has date after today's date. Skipping ...", experimentId, dccDate);
             }
+
+            dateOfExperiment = dccDate;
 
         } catch (Exception e) {
 
-            logger.warn("Skipping experiment '{}' due to invalid parsed date {}", experimentId, dccDate);
-            return null;
+            logger.warn("Experiment {} has invalid date. Skipping ...", experimentId, dccExperiment.getDateOfExperiment());
         }
 
-        return date;
+        return dateOfExperiment;
     }
 }
