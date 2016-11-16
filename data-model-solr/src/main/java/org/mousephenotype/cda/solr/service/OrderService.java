@@ -195,13 +195,17 @@ public class OrderService {
 	 * @param type es_cell or mouse etc
 	 * @param productName e.g. EPD0386_3_A05
 	 * @param alleleName 
+	 * @param creLine TODO
 	 * @return 
 	 * @throws SolrServerException 
 	 */
-	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName) throws SolrServerException, IOException {
+	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName, boolean creLine) throws SolrServerException, IOException {
 		ProductDTO prod=null;
 		List<String>qcData=null;
 		SolrQuery query = new SolrQuery();
+		if(creLine){
+			query.setRequestHandler(selectCre);
+		}
 		String q="name:"+productName;
 		query.setQuery(q);
 		if (type != null) {

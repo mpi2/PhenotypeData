@@ -47,14 +47,17 @@ public class OrderController {
 		Map<String, List<ProductDTO>> storeToProductsMap = orderService.getStoreNameToProductsMap(acc, allele, orderType, creLine);
 		model.addAttribute("storeToProductsMap", storeToProductsMap);
 		model.addAttribute("type", orderType);
+		if(creLine){
+			model.addAttribute("creLine", true);
+		}
 		return "order";
 	}
 	
 	@RequestMapping("/qcData")
-	public String qcData(@RequestParam (required= true) String type, @RequestParam (required=true)String productName,  @RequestParam (required=true)String alleleName, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
+	public String qcData(@RequestParam (required= true) String type, @RequestParam (required=true)String productName,  @RequestParam (required=true)String alleleName, @RequestParam(required=false, defaultValue="false") boolean creLine, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
 		//get the qc_data list
 		OrderType orderType=OrderType.valueOf(type);
-		HashMap<String, HashMap<String, List<String>>> qcData = orderService.getProductQc(orderType, productName, alleleName);
+		HashMap<String, HashMap<String, List<String>>> qcData = orderService.getProductQc(orderType, productName, alleleName, creLine);
 		model.addAttribute("qcData", qcData);
 		return "qcData";
 	}
