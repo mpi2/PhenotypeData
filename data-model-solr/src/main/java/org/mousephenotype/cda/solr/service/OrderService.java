@@ -1,47 +1,34 @@
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.enumerations.OrderType;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
-import org.mousephenotype.cda.solr.web.dto.LinkDetails;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderService {
 
 	@Autowired
 	@Qualifier("allele2Core")
-	private HttpSolrClient allele2Core;
-
-	@Autowired
-	@Qualifier("eucommCreProductsCore")
-	private HttpSolrClient eucommProduct;
+	private SolrClient allele2Core;
 
 	@Autowired
 	@Qualifier("productCore")
-	private HttpSolrClient productCore;
+	private SolrClient productCore;
 	
 	 @Value("${imits.solr.host}")
 	 private String IMITS_SOLR_CORE_URL;
@@ -221,8 +208,6 @@ public class OrderService {
 	
 	/**
 	 * method copied from Peters code
-	 * @param docs
-	 * @param i
 	 * @return
 	 */
 	 private HashMap<String, HashMap<String, List<String>>> extractQcData(List<String> qcStrings) {
@@ -263,9 +248,13 @@ public class OrderService {
 			query.addFilterQuery("(type:mouse OR type:es_cell)");
 			
 			query.setRows(Integer.MAX_VALUE);
+
+		 //
+		 // TODO: Update for displaying the CRELINE products at the bottom of the gene page
+		 //
 			
 			System.out.println("query for cre  products=" + query);
-			QueryResponse response = eucommProduct.query(query);
+			QueryResponse response = productCore.query(query);
 			System.out.println("number found of products docs=" + response.getResults().getNumFound());
 			List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
 			for(ProductDTO prod:productDTOs){

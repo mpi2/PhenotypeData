@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -21,7 +22,7 @@ public class PhenodigmService implements WebStatus{
 
 	@Autowired
 	@Qualifier("phenodigmCore")
-	private HttpSolrClient solr;
+	private SolrClient solr;
 
 	/**
 	 * Get the number of unique disease associations from the phenodigm core
@@ -59,7 +60,7 @@ public class PhenodigmService implements WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();

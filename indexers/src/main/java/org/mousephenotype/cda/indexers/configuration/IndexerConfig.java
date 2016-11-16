@@ -2,7 +2,6 @@ package org.mousephenotype.cda.indexers.configuration;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -17,7 +16,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.util.Properties;
@@ -32,7 +30,7 @@ import java.util.Properties;
 @EnableAutoConfiguration
 @EnableTransactionManagement
 @ComponentScan(
-	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.solr.service.*", "org.mousephenotype.cda.solr.generic.util.*"}),
+	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.solr.generic.util.*"}),
 	basePackages = {
 	"org.mousephenotype.cda.indexers",
 	"org.mousephenotype.cda.db",
@@ -49,184 +47,92 @@ public class IndexerConfig {
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
 
-    @Value("${buildIndexesSolrUrlReadonly:}")
-    private String readSolrBaseUrl;
-
-    @PostConstruct
-    public void setup() {
-        if (readSolrBaseUrl.isEmpty()) {
-            readSolrBaseUrl = writeSolrBaseUrl;
-        }
-    }
-
     // Indexers for writing
     @Bean
-    SolrClient observationIndexing() {
+    SolrClient observationCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/experiment", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrClient genotypePhenotypeIndexing() {
+    SolrClient genotypePhenotypeCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/genotype-phenotype", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrClient statisticalResultsIndexing() {
+    SolrClient statisticalResultCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/statistical-result", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrClient preqcIndexing() {
+    SolrClient preqcCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/preqc", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrClient alleleIndexing() {
+    SolrClient alleleCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/allele", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrClient sangerImagesIndexing() {
+    SolrClient sangerImagesCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/images", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrClient impcImagesIndexing() {
+    SolrClient impcImagesCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/impc_images", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrClient mpIndexing() {
+    SolrClient mpCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/mp", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
-    SolrClient anatomyIndexing() {
+    SolrClient anatomyCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/anatomy", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrClient pipelineIndexing() {
+    SolrClient pipelineCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/pipeline", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrClient geneIndexing() {
+    SolrClient geneCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/gene", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrClient allele2Indexing() {
+    SolrClient allele2Core() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/allele2", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrClient productIndexing() {
+    SolrClient productCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/product", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrClient diseaseIndexing() {
+    SolrClient diseaseCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/disease", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrClient autosuggestIndexing() {
+    SolrClient autosuggestCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/autosuggest", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrClient mgiPhenotypeIndexing() {
+    SolrClient mgiPhenotypeCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/mgi-phenotype", QUEUE_SIZE, THREAD_COUNT);
     }
 
     @Bean
-    SolrClient gwasIndexing() {
+    SolrClient gwasCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/gwas", QUEUE_SIZE, THREAD_COUNT);
     }
 
 	@Bean
-	SolrClient phenodigmIndexing() {
+	SolrClient phenodigmCore() {
 		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
 	}
-
-
-
-    // Indexers for reading
-    @Bean
-    SolrClient experimentCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/experiment");
+    @Bean(name = "eucommCreProductsCore")
+    ConcurrentUpdateSolrClient eucommCreProductsCore() {
+        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/eucommtoolscre_product", QUEUE_SIZE, THREAD_COUNT);
     }
-    @Bean
-    SolrClient genotypePhenotypeCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/genotype-phenotype");
-    }
-    @Bean
-    SolrClient statisticalResultsCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/statistical-result");
-    }
-    @Bean
-    SolrClient preqcCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/preqc");
-    }
-    @Bean
-    SolrClient alleleCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/allele");
-    }
-    @Bean
-    SolrClient sangerImagesCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/images");
-    }
-    @Bean
-    SolrClient impcImagesCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/impc_images");
-    }
-    @Bean
-    SolrClient mpCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/mp");
-    }
-    @Bean
-    SolrClient anatomyCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/anatomy");
-    }
-
-    @Bean
-    SolrClient pipelineCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/pipeline");
-    }
-
-    @Bean
-    SolrClient geneCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/gene");
-    }
-
-    @Bean
-    SolrClient allele2Core() {
-        return new HttpSolrClient(readSolrBaseUrl + "/allele2");
-    }
-
-    @Bean
-    SolrClient productCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/product");
-    }
-
-    @Bean
-    SolrClient diseaseCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/disease");
-    }
-
-    @Bean
-    SolrClient autosuggestCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/autosuggest");
-    }
-
-    @Bean
-    SolrClient mgiPhenotypeCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/mgi-phenotype");
-    }
-
-    @Bean
-    SolrClient gwasCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/gwas");
-    }
-
-    @Bean
-    SolrClient phenodigmCore() {
-        return new HttpSolrClient(readSolrBaseUrl + "/phenodigm");
-    }
-
 
 
 	// database connections

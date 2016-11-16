@@ -1,10 +1,11 @@
 package org.mousephenotype.cda.loads.statistics;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -37,13 +38,15 @@ import java.util.stream.Stream;
 public class StatisticalDatasetGenerator extends BasicService implements CommandLineRunner {
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
-    final private HttpSolrClient experimentCore;
-    final private HttpSolrClient pipelineCore;
+    final private SolrClient experimentCore;
+    final private SolrClient pipelineCore;
+
+
 
     @Inject
     public StatisticalDatasetGenerator(
-            @Named("experimentCore") HttpSolrClient experimentCore,
-            @Named("pipelineCore") HttpSolrClient pipelineCore) {
+            @Named("experimentCore") SolrClient experimentCore,
+            @Named("pipelineCore") SolrClient pipelineCore) {
         Assert.notNull(experimentCore);
         Assert.notNull(pipelineCore);
 
@@ -76,7 +79,7 @@ public class StatisticalDatasetGenerator extends BasicService implements Command
                     .setFacet(true)
                     .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
 
-            logger.info(experimentCore.getBaseURL() + "/select" + query.toQueryString());
+            logger.info(SolrUtils.getBaseURL(experimentCore) + "/select" + query.toQueryString());
             List<Map<String, String>> results = getFacetPivotResults(experimentCore.query(query), false);
 
             logger.info("Processing {} data sets", results.size());

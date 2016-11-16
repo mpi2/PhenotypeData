@@ -69,8 +69,8 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	SolrClient alleleCore;
 
 	@Autowired
-	@Qualifier("sangerImagesIndexing")
-	SolrClient sangerImagesIndexing;
+	@Qualifier("sangerImagesCore")
+	SolrClient sangerImagesCore;
 
 	private Map<Integer, DcfBean> dcfMap = new HashMap<>();
 	private Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
@@ -110,7 +110,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(sangerImagesIndexing);
+		return super.validateBuild(sangerImagesCore);
 	}
 
 
@@ -200,7 +200,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
 				java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
-			sangerImagesIndexing.deleteByQuery("*:*");
+			sangerImagesCore.deleteByQuery("*:*");
 
 			p.setFetchSize(Integer.MIN_VALUE);
 
@@ -499,7 +499,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 				}
 
 				documentCount++;
-				sangerImagesIndexing.addBean(o, 10000);
+				sangerImagesCore.addBean(o, 10000);
 
 				count++;
 			}
@@ -512,7 +512,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
             }
 
 			// Final commit to save the rest of the docs
-			sangerImagesIndexing.commit();
+			sangerImagesCore.commit();
 
 		} catch (Exception e) {
 			throw new IndexerException(e.getMessage());

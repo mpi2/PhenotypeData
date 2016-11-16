@@ -16,14 +16,9 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
@@ -33,12 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -61,8 +54,8 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
     private SolrClient geneCore;
 
     @Autowired
-    @Qualifier("diseaseIndexing")
-    private SolrClient diseaseIndexing;
+    @Qualifier("diseaseCore")
+    private SolrClient diseaseCore;
 
     public static final int MAX_DISEASES = 10000;
 
@@ -75,7 +68,7 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(diseaseIndexing);
+        return super.validateBuild(diseaseCore);
     }
 
 
@@ -87,8 +80,8 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
 
         try {
             populateGenesLookup();
-            diseaseIndexing.deleteByQuery("*:*");
-            diseaseIndexing.commit();
+            diseaseCore.deleteByQuery("*:*");
+            diseaseCore.commit();
 
             // Fields from the phenodigm core to bring back
             String fields = StringUtils.join(Arrays.asList(DiseaseBean.DISEASE_ID,
@@ -167,12 +160,12 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
                 }
 
                 documentCount++;
-                diseaseIndexing.addBean(disease, 60000);
+                diseaseCore.addBean(disease, 60000);
 
                 count ++;
             }
 
-            diseaseIndexing.commit();
+            diseaseCore.commit();
 
         } catch (SolrServerException | IOException e) {
 

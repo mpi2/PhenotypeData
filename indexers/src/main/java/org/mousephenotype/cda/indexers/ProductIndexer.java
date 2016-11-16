@@ -4,7 +4,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +27,12 @@ import java.util.Map;
 public class ProductIndexer  extends AbstractIndexer implements CommandLineRunner {
 
     @Autowired
-    @Qualifier("productIndexing")
+    @Qualifier("productCore")
     private SolrClient productCore;
 
     // This is needed only for validation.
     @Autowired
-    @Qualifier("allele2Indexing")
+    @Qualifier("allele2Core")
     private SolrClient allele2Core;
 
     @NotNull
