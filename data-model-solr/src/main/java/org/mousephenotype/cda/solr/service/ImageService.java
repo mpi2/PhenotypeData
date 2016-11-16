@@ -16,14 +16,15 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -49,7 +50,7 @@ public class ImageService implements WebStatus{
 
 	@Autowired
 	@Qualifier("impcImagesCore")
-	private HttpSolrClient solr;
+	private SolrClient solr;
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
 
@@ -242,7 +243,7 @@ public class ImageService implements WebStatus{
 						ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
 						ImageDTO.PHENOTYPING_CENTER);
 
-//		System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?"
+//		System.out.println("SOLR URL WAS " +  SolrUtils.getBaseURL(solr) + "/select?"
 //				+ query);
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 
@@ -425,7 +426,7 @@ public class ImageService implements WebStatus{
 //			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\""
 //					+ mpId+"\"");
 			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.INTERMEDIATE_MP_TERM + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId + "\"");
-			
+
 		}
 		if (StringUtils.isNotEmpty(colonyId)) {
 			solrQuery.addFilterQuery(ObservationDTO.COLONY_ID + ":\""
@@ -501,7 +502,7 @@ public class ImageService implements WebStatus{
             header.add("Sex");
             header.add("Phenotyping Centre");
 
-            System.out.println(solr.getBaseURL() + "/select?" + query);
+            System.out.println(SolrUtils.getBaseURL(solr) + "/select?" + query);
 
             // Get facets as we need to turn them into columns
             for (Count facet : solrResult.getFacetField(
@@ -961,7 +962,7 @@ public class ImageService implements WebStatus{
 								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\")")
 				.setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
@@ -983,7 +984,7 @@ public class ImageService implements WebStatus{
 								+ MpDTO.MP_ID + ":\"" + mpId + "\")")
 				.setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
@@ -999,7 +1000,7 @@ public class ImageService implements WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();
@@ -1018,7 +1019,7 @@ public class ImageService implements WebStatus{
 		//query.addField(ImageDTO.INCREMENT_VALUE);
 		//query.addField(ImageDTO.DOWNLOAD_URL);
 		//query.addField(ImageDTO.EXTERNAL_SAMPLE_ID);
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		SolrDocument img = response.getResults().get(0);

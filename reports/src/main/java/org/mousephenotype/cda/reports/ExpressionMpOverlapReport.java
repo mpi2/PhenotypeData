@@ -274,7 +274,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 			return ancestors;
 		}
 
-		public void setAncestors(List<MaDTO>  ancestorId) {
+		public void setAncestors(List<AnatomyDTO>  ancestorId) {
 			this.ancestors = ancestors;
 		}
 	}

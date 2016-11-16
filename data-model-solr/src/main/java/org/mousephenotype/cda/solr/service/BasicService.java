@@ -15,13 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import net.sf.json.JSONArray;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.PivotField;
@@ -30,7 +24,7 @@ import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.json.JSONArray;
+import java.util.*;
 
 
 
@@ -47,7 +41,6 @@ public class BasicService {
      * pass back to the caller a list of all possible combination
      * 
      * @param pivotLevel
-     * @param map
      */
     protected List<Map<String, String>> getLeveledFacetPivotValue(PivotField pivotLevel, PivotField parentPivot, boolean keepCount) {
 

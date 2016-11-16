@@ -18,6 +18,7 @@ package org.mousephenotype.cda.solr.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -27,6 +28,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
@@ -49,12 +51,12 @@ import java.util.*;
 public class ExpressionService extends BasicService {
 
 	@Autowired
-	@Qualifier("experimentCore")
-	private HttpSolrClient experimentSolr;
+	@Qualifier("observationCore")
+	private SolrClient experimentSolr;
 
 	@Autowired
 	@Qualifier("impcImagesCore")
-	private HttpSolrClient imagesSolr;
+	private SolrClient imagesSolr;
 
 	@Autowired
 	ExperimentService experimentService;
@@ -747,7 +749,7 @@ public class ExpressionService extends BasicService {
 		 + "\"");
 		 }
 
-		//System.out.println("SOLR URL WAS " + experimentSolr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(experimentSolr) + "/select?" + query);
 		List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
 		for (ObservationDTO observation : response) {
 
