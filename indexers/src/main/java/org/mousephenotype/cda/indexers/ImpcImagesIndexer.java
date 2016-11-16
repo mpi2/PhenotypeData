@@ -343,6 +343,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
 
+		if (termBean == null) {
+			logger.info("  Cannot find MP ontology term for ID \"{}\",\n   OMERO ID: {},\n   URL: {}", termId, imageDTO.getOmeroId(), imageDTO.getFullResolutionFilePath());
+			return imageDTO;
+		}
+
 		// term
 		imageDTO.addMpTerm(termBean.getName(), true);
 		imageDTO.addMpId(termBean.getId(), true);
@@ -459,7 +464,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			List<String> mpIds = new ArrayList<>(image.getMpId());
 			image.setMpId(new ArrayList<>());
 			for (String mpId : mpIds){
-				image = addMpValues(mpId, image, mpOntologyService, runStatus);
+				if (mpId.startsWith("MP:")) {
+					image = addMpValues(mpId, image, mpOntologyService, runStatus);
+				}
 			}
 		}
 		return image;
