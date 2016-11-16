@@ -18,14 +18,9 @@ package org.mousephenotype.cda.indexers;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
@@ -155,8 +150,8 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 	private SolrClient phenodigmCore;
 
 	@Autowired
-    @Qualifier("alleleIndexing")
-    private SolrClient alleleIndexing;
+    @Qualifier("alleleCore")
+    private SolrClient alleleCore;
 
 
     public AlleleIndexer() {
@@ -165,7 +160,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(alleleIndexing);
+        return super.validateBuild(alleleCore);
     }
 
 
@@ -217,8 +212,8 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             //logger.info(" Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
 //            logger.info(" Populated uniprot to pfamA lookup is skipped for now");
 
-            alleleIndexing.deleteByQuery("*:*");
-            alleleIndexing.commit();
+            alleleCore.deleteByQuery("*:*");
+            alleleCore.commit();
 
             while (count <= rows) {
                 query.setStart(count);
@@ -262,7 +257,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                 count += BATCH_SIZE;
             }
 
-            alleleIndexing.commit();
+            alleleCore.commit();
 
         } catch (SQLException | SolrServerException | IOException | ClassNotFoundException e) {
             throw new IndexerException(e);
@@ -1202,7 +1197,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {
 
-        alleleIndexing.addBeans(alleles.values(), 60000);
+        alleleCore.addBeans(alleles.values(), 60000);
     }
 
     public static void main(String[] args) throws IndexerException {

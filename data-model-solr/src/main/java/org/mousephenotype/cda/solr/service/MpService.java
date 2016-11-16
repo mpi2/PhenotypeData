@@ -17,9 +17,9 @@ package org.mousephenotype.cda.solr.service;
 
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -43,7 +43,7 @@ public class MpService extends BasicService implements WebStatus{
 
 	@Autowired
 	@Qualifier("mpCore")
-    private HttpSolrClient solr;
+    private SolrClient solr;
 
 	public MpService() {
 	}

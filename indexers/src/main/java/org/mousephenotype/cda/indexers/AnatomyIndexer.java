@@ -16,19 +16,7 @@
 
 package org.mousephenotype.cda.indexers;
 
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
+import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
@@ -39,7 +27,6 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
-import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -53,7 +40,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.core.io.Resource;
 
-import net.sf.json.JSONObject;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Populate the Anatomy core
@@ -81,8 +71,8 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 //    SolrClient imagesCore;
 
     @Autowired
-    @Qualifier("anatomyIndexing")
-    SolrClient anatomyIndexing;
+    @Qualifier("anatomyCore")
+    SolrClient anatomyCore;
 
     @Autowired
     MaOntologyDAO maOntologyService;
@@ -100,7 +90,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(anatomyIndexing);
+        return super.validateBuild(anatomyCore);
     }
 
 
@@ -117,13 +107,12 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     	try {
 
             // Delete the documents in the core if there are any.
-            anatomyIndexing.deleteByQuery("*:*");
-            anatomyIndexing.commit();
+            anatomyCore.deleteByQuery("*:*");
+            anatomyCore.commit();
 
 //            logger.info(" Source of images core: " + SolrUtils.getBaseURL(imagesCore) );
             initialiseSupportingBeans();
 
-            List<AnatomyDTO> maBatch = new ArrayList<>(BATCH_SIZE);
             List<OntologyTermBean> maBeans = maOntologyService.getAllTerms();
             List<OntologyTermBean> emapaBeans = emapaOntologyService.getAllTerms();
 
@@ -278,22 +267,10 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 //                }
 
                 count++;
-                if ( !maBatch.contains(anatomyTerm)) {
-                    maBatch.add(anatomyTerm);
-                }
-//                if (maBatch.size() == BATCH_SIZE) {
-//                    // Update the batch, clear the list
-//                    documentCount += maBatch.size();
-//                    anatomyIndexing.addBeans(maBatch, 60000);
-//                    maBatch.clear();
-//                }
 
                 documentCount++;
-                anatomyIndexing.addBean(anatomyTerm, 60000);
+                anatomyCore.addBean(anatomyTerm, 60000);
 
-                if (documentCount % 100 == 0){
-                    anatomyIndexing.commit();
-                }
             }
 
             // Add all emapa terms to the index.
@@ -377,30 +354,15 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 emapa.setChildrenJson(childrenTree2.toString());
 
                 count++;
-//                maBatch.add(emapa);
-//                if (maBatch.size() == BATCH_SIZE) {
-//                    // Update the batch, clear the list
-//                    documentCount += maBatch.size();
-//                    anatomyIndexing.addBeans(maBatch, 60000);
-//                    maBatch.clear();
-//                }
-                documentCount++;
-                anatomyIndexing.addBean(emapa, 60000);
 
-                if (documentCount % 100 == 0){
-                    anatomyIndexing.commit();
-                }
+                documentCount++;
+                anatomyCore.addBean(emapa, 60000);
 
             }
 
-            // Make sure the last batch is indexed
-//            if (maBatch.size() > 0) {
-//                documentCount += maBatch.size();
-//                anatomyIndexing.addBeans(maBatch, 60000);
-//            }
 
             // Send a final commit
-            anatomyIndexing.commit();
+            anatomyCore.commit();
 
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
@@ -417,7 +379,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 //    @Override
 //    protected void printConfiguration() {
 //        if (logger.isDebugEnabled()) {
-//            logger.debug(" WRITING ma     CORE TO: " + SolrUtils.getBaseURL(anatomyIndexing));
+//            logger.debug(" WRITING ma     CORE TO: " + SolrUtils.getBaseURL(anatomyCore));
 //            logger.debug(" USING   images CORE AT: " + SolrUtils.getBaseURL(imagesCore));
 //        }
 //    }
