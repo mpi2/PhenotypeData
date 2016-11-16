@@ -100,7 +100,30 @@ public class OrderServiceTest {
 		OrderType orderType = OrderType.mouse;
 
 		try {
-			Map<String, List<ProductDTO>> storeToMap = orderService.getStoreNameToProductsMap(acc, allele, orderType);
+			Map<String, List<ProductDTO>> storeToMap = orderService.getStoreNameToProductsMap(acc, allele, orderType, false);
+			for(String store: storeToMap.keySet()){
+				System.out.println("store="+store);
+				System.out.println("products="+storeToMap.get(store));
+			}
+			assertTrue(storeToMap.size()>0);
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testGetStoreNameToProductsMapWithCreLine() {
+		String acc = "MGI:95771";
+		String allele = "tm2(EGFP_CreERT2)Wtsi";
+		OrderType orderType = OrderType.mouse;
+		boolean creLine=true;
+
+		try {
+			Map<String, List<ProductDTO>> storeToMap = orderService.getStoreNameToProductsMap(acc, allele, orderType, creLine);
 			for(String store: storeToMap.keySet()){
 				System.out.println("store="+store);
 				System.out.println("products="+storeToMap.get(store));

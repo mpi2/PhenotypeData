@@ -35,7 +35,7 @@ public class OrderController {
 	 * @throws SolrServerException, IOException
 	 */
 	@RequestMapping("/order")
-	public String order(@RequestParam (required = true) String acc, @RequestParam (required = true) String allele,  @RequestParam (required = true) String type, @RequestParam(required=false) boolean creLine, 
+	public String order(@RequestParam (required = true) String acc, @RequestParam (required = true) String allele,  @RequestParam (required = true) String type, @RequestParam(required=false, defaultValue="false") boolean creLine, 
 			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
 		System.out.println("orderVector being called with acc="+acc+" allele="+allele);
 		//type "targeting_vector", "es_cell", "mouse"
@@ -44,7 +44,7 @@ public class OrderController {
 		model.addAttribute("allele", allele2DTO);
 		
 		
-		Map<String, List<ProductDTO>> storeToProductsMap = orderService.getStoreNameToProductsMap(acc, allele, orderType);
+		Map<String, List<ProductDTO>> storeToProductsMap = orderService.getStoreNameToProductsMap(acc, allele, orderType, creLine);
 		model.addAttribute("storeToProductsMap", storeToProductsMap);
 		model.addAttribute("type", orderType);
 		return "order";
@@ -65,6 +65,8 @@ public class OrderController {
 		boolean creline=true;
 		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null, creline);
 		model.addAttribute("orderRows", orderRows);
+		model.addAttribute("creLine", true);
+		model.addAttribute("acc", acc);
     	return "creLineAlleles";
     }
 
