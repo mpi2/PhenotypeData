@@ -32,6 +32,8 @@ public class OrderService {
 	
 	 @Value("${imits.solr.host}")
 	 private String IMITS_SOLR_CORE_URL;
+	 
+	 private String selectCre="/selectCre";
 
 	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
@@ -67,7 +69,7 @@ public class OrderService {
 		}
 		SolrQuery query = new SolrQuery();
 		if(creLine){
-			query.setRequestHandler("/selectCre");
+			query.setRequestHandler(selectCre);
 		}
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
@@ -105,7 +107,7 @@ public class OrderService {
 		}
 		SolrQuery query = new SolrQuery();
 		if(creline){
-			query.setRequestHandler("selectCre");
+			query.setRequestHandler(selectCre);
 		}
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
@@ -120,16 +122,16 @@ public class OrderService {
 	}
 
 	protected Map<String, List<ProductDTO>> getProductsForAllele(String alleleName) throws SolrServerException, IOException {
-		return this.getProducts(null, alleleName, null);
+		return this.getProducts(null, alleleName, null, false);
 	}
 
 	protected Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
-		return this.getProducts(geneAcc, null, null);
+		return this.getProducts(geneAcc, null, null, false);
 	}
 
-	public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName, OrderType productType)  throws SolrServerException, IOException {
+	public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName, OrderType productType, boolean creLine)  throws SolrServerException, IOException {
 		List<ProductDTO> productList = null;
-		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType);
+		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType, creLine);
 		if (productsMap.keySet().size() > 1) {
 			System.err.println("more than one key for products - should only be one");
 		}
@@ -151,7 +153,7 @@ public class OrderService {
 		return orderNameToProductList;
 	}
 
-	protected Map<String, List<ProductDTO>> getProducts(String geneAcc, String alleleName, OrderType productType)
+	protected Map<String, List<ProductDTO>> getProducts(String geneAcc, String alleleName, OrderType productType, boolean creLine)
 			throws SolrServerException, IOException {
 		Map<String, List<ProductDTO>> alleleNameToProductsMap = new HashMap<>();
 		String q = "*:*";
@@ -160,6 +162,9 @@ public class OrderService {
 		}
 
 		SolrQuery query = new SolrQuery();
+		if(creLine){
+			query.setRequestHandler(selectCre);
+		}
 		query.setQuery(q);
 		if (alleleName != null) {
 			query.addFilterQuery("allele_name:\"" + alleleName + "\"");
@@ -168,6 +173,7 @@ public class OrderService {
 		if (productType != null) {
 			query.addFilterQuery("type:" + productType);
 		}
+		
 		query.addFilterQuery("production_completed:true");
 
 		QueryResponse response = productCore.query(query);

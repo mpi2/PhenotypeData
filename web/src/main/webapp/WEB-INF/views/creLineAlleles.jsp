@@ -75,6 +75,36 @@
 	</div>
 </div>
 </div>
+<script type="text/javascript">
+
+$(document).ready(function () {
+
+$('.iFrameFancy').click(function()
+        {
+            $.fancybox.open([
+                  {
+                     href : $(this).attr('data-url'),
+                     
+                  }
+                  ],
+                   {
+                     'maxWidth'          : 1000,
+                     'maxHeight'         : 1900,
+                     'fitToView'         : false,
+                     'width'             : '100%',
+                     'height'            : '85%',
+                     'autoSize'          : true,
+                     'transitionIn'      : 'none',
+                     'transitionOut'     : 'none',
+                     'type'              : 'iframe',
+                     scrolling           : 'auto'
+                  });
+        }
+    );
+    
+});
+
+</script>
 
 </jsp:body>
 
