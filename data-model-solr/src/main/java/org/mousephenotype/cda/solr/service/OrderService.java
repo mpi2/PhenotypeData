@@ -46,9 +46,10 @@ public class OrderService {
 	 @Value("${imits.solr.host}")
 	 private String IMITS_SOLR_CORE_URL;
 
-	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows) throws SolrServerException, IOException {
+	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
-		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows);
+		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows, creLine);
+		System.out.println("size of allele2DTOS"+allele2DTOs.size());
 
 		for (Allele2DTO allele : allele2DTOs) {
 			OrderTableRow row = new OrderTableRow();	
@@ -71,25 +72,43 @@ public class OrderService {
 		return orderTableRows;
 	}
 
-	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows) throws SolrServerException, IOException {
+	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows, boolean creLine) throws SolrServerException, IOException {
+		
 		String q = "*:*";// default if no gene specified
 		if (geneAcc != null) {
 			q = "mgi_accession_id:\"" + geneAcc + "\"";// &start=0&rows=100&hl=true&wt=json";
 		}
 		SolrQuery query = new SolrQuery();
+		if(creLine){
+			query.setRequestHandler("/selectCre");
+		}
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
 		query.addFilterQuery("("+Allele2DTO.ES_CELL_AVAILABLE+":true OR "+Allele2DTO.TARGETING_VECTOR_AVAILABLE+":true OR "+Allele2DTO.MOUSE_AVAILABLE+":true)" );
+		
 		if(rows!=null){
-		query.setRows(rows);
+			query.setRows(rows);
+		}else{
+			query.setRows(Integer.MAX_VALUE);
 		}
-		//System.out.println("query for alleles=" + query);
+		
+		System.out.println("query for allele2DTOs=" + query);
 		QueryResponse response = allele2Core.query(query);
 		System.out.println("number found of allele2 docs=" + response.getResults().getNumFound());
 		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
 
 		return allele2DTOs;
 
+	}
+	
+	public boolean crelineAvailable(String geneAccession) throws SolrServerException, IOException{
+		boolean creLineAvailable=false;
+		boolean searchCreline=true;
+		List<Allele2DTO> rows=this.getAllele2DTOs(geneAccession, 1, searchCreline);
+		if(rows.size()>0){
+			creLineAvailable= true;
+		}
+		return creLineAvailable;
 	}
 
 	public Allele2DTO getAlleForGeneAndAllele(String acc, String allele, boolean creline) throws SolrServerException, IOException {

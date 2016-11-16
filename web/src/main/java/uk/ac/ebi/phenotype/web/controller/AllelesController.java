@@ -83,6 +83,7 @@ public class AllelesController {
         return geneAllelesCommon(acc, ikmc_project_id, null, null, bare, model, request, attributes);
 
     }
+    
 
 
     @RequestMapping("/alleles/{acc}")
