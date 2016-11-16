@@ -278,6 +278,92 @@ public class CdaSqlUtils {
 
         return (alternateIds == null ? new HashSet<>() : alternateIds);
     }
+
+
+
+    /**
+     *
+     * @return A complete map of cda db_id, keyed by datasourceShortName
+     */
+    public Map<String, Integer> getCdaDb_idsByDccDatasourceShortName() {
+        Map<String, Integer> map = new ConcurrentHashMap<>();
+
+        List<Datasource> results = jdbcCda.queryForList("SELECT * FROM external_db", new ConcurrentHashMap<>(), Datasource.class);
+        for (Datasource result : results) {
+            map.put(result.getShortName(), result.getId());
+        }
+
+        return map;
+    }
+
+    /**
+     *
+     * @return A complete map of cda organisation_id primary keys, keyed by dcc center.centerId
+     */
+    public Map<String, Integer> getCdaOrganisation_idsByDccCenterId() {
+        Map<String, Integer> map = new ConcurrentHashMap<>();
+
+        List<Organisation> results = jdbcCda.queryForList("SELECT * FROM organisation", new ConcurrentHashMap<>(), Organisation.class);
+        Map<String, String> cdaOrganisation_idToDccCenterIdMap = LoadUtils.inverseMap(LoadUtils.mappedOrganisationName);
+        for (Organisation result : results) {
+            String dccKey = cdaOrganisation_idToDccCenterIdMap.get(result.getName());
+            if (dccKey != null) {
+                map.put(dccKey, result.getId());
+            }
+        }
+
+        return map;
+    }
+
+    /**
+     *
+     * @return A complete map of cda project_id primary keys, keyed by dcc center.project
+     */
+    public Map<String, Integer> getCdaProject_idsByDccProject() {
+        Map<String, Integer> map = new ConcurrentHashMap<>();
+
+        List<Project>       results                     = jdbcCda.queryForList("SELECT * FROM project", new ConcurrentHashMap<>(), Project.class);
+        Map<String, String> cdaProject_idToDccProjectMap = LoadUtils.inverseMap(LoadUtils.mappedProjectNames);
+        for (Project result : results) {
+            String dccKey = cdaProject_idToDccProjectMap.get(result.getName());
+            if (dccKey != null) {
+                map.put(dccKey, result.getId());
+            }
+        }
+
+        return map;
+    }
+
+    /**
+     *
+     * @return A complete map of cda pipeline primary keys, keyed by dcc center.pipeline
+     */
+    public Map<String, Integer> getCdaPipeline_idsByDccPipeline() {
+        Map<String, Integer> map = new ConcurrentHashMap<>();
+
+        List<Pipeline> results = jdbcCda.queryForList("SELECT * FROM phenotype_pipeline", new ConcurrentHashMap<>(), Pipeline.class);
+        for (Pipeline result : results) {
+            map.put(result.getName(), result.getId());
+        }
+
+        return map;
+    }
+
+    /**
+     *
+     * @return A complete map of cda procedure primary keys, keyed by dcc procedure_.procedureId
+     */
+    public Map<String, Integer> getCdaProcedure_idsByDccPipeline() {
+        Map<String, Integer> map = new ConcurrentHashMap<>();
+
+        List<Pipeline> results = jdbcCda.queryForList("SELECT * FROM phenotype_procedure", new ConcurrentHashMap<>(), Pipeline.class);
+        for (Pipeline result : results) {
+            map.put(result.getName(), result.getId());
+        }
+
+        return map;
+    }
+
     
     
     
@@ -617,8 +703,22 @@ public class CdaSqlUtils {
         return results;
     }
 
-    public int insertExperiment(Experiment experiment) throws DataLoadException {
-            Map<String, Integer> results = new HashMap<>();
+    // Returns the newly-inserted primary key if successful; null otherwise.
+    public Integer insertExperiment(
+            int db_id,
+            String external_id,
+            String sequence_id,
+            Date date_of_experiment,
+            int organisation_id,
+            int project_id,
+            int pipeline_id,
+            String pipeline_stable_id,
+            int procedure_id,
+            String procedure_stable_id,
+            String colony_id
+            
+    ) throws DataLoadException {
+            Integer pk = null;
 
             final String insert = "INSERT INTO experiment (" +
                                         "db_id, external_id, sequence_id, date_of_experiment, organisation_id, project_id," +
@@ -628,39 +728,38 @@ public class CdaSqlUtils {
                                         " :pipeline_id, :pipeline_stable_id, :procedure_id, :procedure_stable_id, :biological_model_id," +
                                         " :colony_id, :metadata_combined, :metadata_group, :procedure_status, :procedure_status_message)";
 
-            // Insert experiment. Ignore any duplicates. FIXME FIXME FIXME
-            int count = 0;
+            // Insert experiment. Ignore any duplicates.
             Map<String, Object> parameterMap = new HashMap<>();
             try {
-                parameterMap.put("db_id", experiment.getDatasource().getId());
-                parameterMap.put("external_id", experiment.getExternalId());
-                parameterMap.put("sequence_id", experiment.getSequenceId());
-                parameterMap.put("date_of_experiment", experiment.getDateOfExperiment());
-                parameterMap.put("orgainsation_id", experiment.getOrganisation().getId());
-                parameterMap.put("project_id", experiment.getProject().getId());
-                parameterMap.put("pipeline_id", experiment.getPipeline().getDatasource());
-                parameterMap.put("pipeline_stable_id", experiment.getPipelineStableId());
-                parameterMap.put("procedure_id", experiment.getProcedure().getDatasource());
-                parameterMap.put("procedure_stable_id", experiment.getProcedureStableId());
-                parameterMap.put("biological_model_id", experiment.getModel().getId());
-                parameterMap.put("colony_id", experiment.getColonyId());
-                parameterMap.put("metadata_combined", experiment.getMetadataCombined());
-                parameterMap.put("metadata_group", experiment.getMetadataGroup());
-                parameterMap.put("procedure_status", experiment.getProcedureStatus());
-                parameterMap.put("procedure_status_message", experiment.getProcedureStatusMessage());
+                parameterMap.put("db_id", db_id);
+                parameterMap.put("external_id", external_id);
+                parameterMap.put("sequence_id", sequence_id);
+                parameterMap.put("date_of_experiment", date_of_experiment);
+                parameterMap.put("orgainsation_id", organisation_id);
+                parameterMap.put("project_id", project_id);
+                parameterMap.put("pipeline_id", pipeline_id);
+                parameterMap.put("pipeline_stable_id", pipeline_stable_id);
+                parameterMap.put("procedure_id", procedure_id);
+                parameterMap.put("procedure_stable_id", procedure_stable_id);
+//                parameterMap.put("biological_model_id", experiment.getModel().getId());
+//                parameterMap.put("colony_id", experiment.getColonyId());
+//                parameterMap.put("metadata_combined", experiment.getMetadataCombined());
+//                parameterMap.put("metadata_group", experiment.getMetadataGroup());
+//                parameterMap.put("procedure_status", experiment.getProcedureStatus());
+//                parameterMap.put("procedure_status_message", experiment.getProcedureStatusMessage());
 
                 KeyHolder keyholder = new GeneratedKeyHolder();
                 SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-                count = jdbcCda.update(insert, parameterSource, keyholder);
-                experiment.setId(keyholder.getKey().intValue());
+                int count = jdbcCda.update(insert, parameterSource, keyholder);
+                if (count == 1) {
+                    pk = keyholder.getKey().intValue();
+                }
 
             } catch (DuplicateKeyException e) {
-                throw new DataLoadException("Experiment " + experiment.getExternalId() + " already exists. Skipping...");
-                // FIXME FIXME FIXME
-//                id = jdbcCda.queryForObject("SELECT id FROM experiment WHERE external_id = :external_id AND organisation_id = :organisation_id", parameterMap, Integer.class);
+
             }
 
-            return count;
+            return pk;
         }
 
 

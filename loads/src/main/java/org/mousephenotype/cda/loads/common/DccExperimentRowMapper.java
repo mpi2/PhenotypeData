@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.common;
 
-import org.mousephenotype.cda.db.pojo.Experiment;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -25,7 +24,7 @@ import java.sql.SQLException;
 /**
  * Created by mrelac on 10/11/2016.
  */
-public class CdaExperimentRowMapper implements RowMapper<Experiment> {
+public class DccExperimentRowMapper implements RowMapper<DccExperimentDTO> {
 
         /**
          * Implementations must implement this method to map each row of data
@@ -39,22 +38,19 @@ public class CdaExperimentRowMapper implements RowMapper<Experiment> {
          *                      column values (that is, there's no need to catch SQLException)
          */
         @Override
-        public Experiment mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Experiment experiment = new Experiment();
+        public DccExperimentDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            DccExperimentDTO experiment = new DccExperimentDTO();
 
-
-            // fixme fixme fixme fixme fixme
-            // fixme fixme fixme fixme fixme
-            // fixme fixme fixme fixme fixme
-            // fixme fixme fixme fixme fixme
-            // fixme fixme fixme fixme fixme
-//            Datasource datasource = new Datasource();
-//            datasource.s
-//
-//            experiment.setId(rs.getInt("id"));
-//            experiment.setDatasource(new Datasource(rs.getString("name"));
-//            experiment.setFullname(rs.getString("fullname"));
-//            experiment.setDescription(rs.getString("description"));
+            experiment.setDatasourceShortName(rs.getString("datasourceShortName"));
+            experiment.setExperimentId(rs.getString("experimentId"));
+            experiment.setSequenceId(rs.getString("sequenceId"));
+            experiment.setDateOfExperiment(rs.getDate("dateOfExperiment"));
+            experiment.setCenterId(rs.getString("centerId"));
+            experiment.setPipeline(rs.getString("pipeline"));
+            experiment.setProject(rs.getString("project"));
+            experiment.setProcedureId(rs.getString("procedureId"));
+            experiment.setColonyId(rs.getString("colonyId"));
+            experiment.setLineLevel(rs.getInt("isLineLevel") == 1 ? true : false);
 
             return experiment;
         }

@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import org.apache.solr.client.solrj.beans.Field;
+
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -22,8 +24,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.TimeZone;
-
-import org.apache.solr.client.solrj.beans.Field;
 
 public class ObservationDTO extends ObservationDTOBase {
 

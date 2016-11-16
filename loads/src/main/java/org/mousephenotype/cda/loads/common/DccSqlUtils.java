@@ -1745,11 +1745,46 @@ public class DccSqlUtils {
         return pk;
     }
 
-    public List<Experiment> getExperiments() {
+    /**
+     * @return all line- and procedure-level experiments
+     */
+    public List<DccExperimentDTO> getExperiments() {
 
-        final String query = "SELECT * FROM experiment";
+        final String query = "SELECT\n" +
+                "  s.datasourceShortName,\n" +
+                "  e.experimentId,\n" +
+                "  e.sequenceId,\n" +
+                "  e.dateOfExperiment,\n" +
+                "  c.centerId,\n" +
+                "  c.pipeline,\n" +
+                "  c.project,\n" +
+                "  p.procedureId,\n" +
+                "  s.colonyId AS colonyId,\n" +
+                "  0    AS isLineLevel\n" +
+                "FROM experiment e\n" +
+                "JOIN center_procedure    cp  ON cp .pk = e  .center_procedure_pk\n" +
+                "JOIN center              c   ON c  .pk = cp .center_pk\n" +
+                "JOIN procedure_          p   ON p  .pk = cp .procedure_pk\n" +
+                "JOIN experiment_specimen es  ON es .pk = e  .pk\n" +
+                "JOIN specimen            s   ON s  .pk = es .specimen_pk\n" +
+                "UNION ALL\n" +
+                "SELECT\n" +
+                "  l.datasourceShortName,\n" +
+                "  null,\n" +
+                "  null,\n" +
+                "  null,\n" +
+                "  c.centerId,\n" +
+                "  c.pipeline,\n" +
+                "  c.project,\n" +
+                "  p.procedureId,\n" +
+                "  l.colonyId,\n" +
+                "  1 AS isLineLevel\n" +
+                "FROM line l\n" +
+                "JOIN center_procedure cp  ON cp .pk = l  .center_procedure_pk\n" +
+                "JOIN center           c   ON c  .pk = cp .center_pk\n" +
+                "JOIN procedure_       p   ON p  .pk = cp .procedure_pk";
 
-        List<Experiment> experiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentRowMapper());
+        List<DccExperimentDTO> experiments = npJdbcTemplate.query(query, new HashMap<>(), new DccExperimentRowMapper());
 
         return (experiments.isEmpty() ? new ArrayList<>() : experiments);
     }

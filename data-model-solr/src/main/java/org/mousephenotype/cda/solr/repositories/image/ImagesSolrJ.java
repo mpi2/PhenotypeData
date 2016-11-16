@@ -349,7 +349,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = server.query(query);
 		return response.getResults().getNumFound();

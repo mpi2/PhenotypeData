@@ -16,9 +16,9 @@
 
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -41,7 +41,7 @@ public class PreQcService extends AbstractGenotypePhenotypeService implements We
 
     @Autowired
     @Qualifier("preqcCore")
-    HttpSolrClient solr;
+    SolrClient solr;
 
     public PreQcService() {
         super();
@@ -110,7 +110,7 @@ public class PreQcService extends AbstractGenotypePhenotypeService implements We
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();

@@ -15,16 +15,15 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 public class ImageServiceUtil {
 	

@@ -55,8 +55,8 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     private String preqcXmlFilename;
 
     @Autowired
-    @Qualifier("preqcIndexing")
-    SolrClient preqcIndexing;
+    @Qualifier("preqcCore")
+    SolrClient preqcCore;
 
     @Autowired
     @Qualifier("ontodbDataSource")
@@ -100,7 +100,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	@Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(preqcIndexing);
+        return super.validateBuild(preqcCore);
     }
 
     @Override
@@ -143,8 +143,8 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
             logger.info("Truncating existing PreQC index");
-            preqcIndexing.deleteByQuery("*:*");
-            preqcIndexing.commit();
+            preqcCore.deleteByQuery("*:*");
+            preqcCore.commit();
 
             logger.info("Start reading the file");
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new BufferedInputStream(new FileInputStream(preqcXmlFilename)));
@@ -348,12 +348,12 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     o.setId(count ++);
                     o.setSex(SexType.female.getName());
                     documentCount++;
-                    preqcIndexing.addBean(o);
+                    preqcCore.addBean(o);
 
                     o.setId(count ++);
                     o.setSex(SexType.male.getName());
                     documentCount++;
-                    preqcIndexing.addBean(o);
+                    preqcCore.addBean(o);
 
                 } else {
 
@@ -370,11 +370,11 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                     o.setSex(sex.toLowerCase());
                     documentCount++;
-                    preqcIndexing.addBean(o);
+                    preqcCore.addBean(o);
                 }
             }
 
-            preqcIndexing.commit();
+            preqcCore.commit();
 
         } catch (Exception e) {
             throw new IndexerException(e);

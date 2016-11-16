@@ -1,7 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
@@ -13,7 +13,7 @@ import javax.inject.Named;
  */
 public class ConfigurationService {
 
-    private HttpSolrClient server;
+    private SolrClient server;
 
     @Inject
     @Named("configurationCore")
