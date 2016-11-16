@@ -46,8 +46,8 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
 
     @Autowired
-    @Qualifier("autosuggestIndexing")
-    private SolrClient autosuggestIndexing;
+    @Qualifier("autosuggestCore")
+    private SolrClient autosuggestCore;
 
     @Autowired
     @Qualifier("allele2Core")
@@ -144,7 +144,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(autosuggestIndexing);
+        return super.validateBuild(autosuggestCore);
     }
 
 
@@ -156,7 +156,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
         try {
 
-            autosuggestIndexing.deleteByQuery("*:*");
+            autosuggestCore.deleteByQuery("*:*");
 
             populateGeneAutosuggestTerms();
             populateMpAutosuggestTerms();
@@ -167,7 +167,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             populateGwasAutosuggestTerms();
 
             // Final commit
-            autosuggestIndexing.commit();
+            autosuggestCore.commit();
 
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
@@ -261,7 +261,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestIndexing.addBeans(beans, 60000);
+                autosuggestCore.addBeans(beans, 60000);
             }
 
         }
@@ -539,7 +539,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestIndexing.addBeans(beans, 60000);
+                autosuggestCore.addBeans(beans, 60000);
             }
 
         }
@@ -596,7 +596,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestIndexing.addBeans(beans, 60000);
+                autosuggestCore.addBeans(beans, 60000);
             }
 
         }
@@ -873,7 +873,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestIndexing.addBeans(beans, 60000);
+                autosuggestCore.addBeans(beans, 60000);
             }
         }
     }
@@ -965,7 +965,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestIndexing.addBeans(beans, 60000);
+                autosuggestCore.addBeans(beans, 60000);
             }
 
         }
@@ -1082,7 +1082,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 
             if ( ! beans.isEmpty()) {
                 documentCount += beans.size();
-                autosuggestIndexing.addBeans(beans, 60000);
+                autosuggestCore.addBeans(beans, 60000);
             }
         }
     }
@@ -1135,7 +1135,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
 //
 //            if ( ! beans.isEmpty()) {
 //                documentCount += beans.size();
-//                autosuggestIndexing.addBeans(beans, 60000);
+//                autosuggestCore.addBeans(beans, 60000);
 //            }
 //        }
 //    }

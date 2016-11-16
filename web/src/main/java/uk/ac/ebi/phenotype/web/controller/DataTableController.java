@@ -1979,20 +1979,23 @@ public class DataTableController {
     @RequestMapping(value = "/dataTableAlleleRefPost", method = RequestMethod.POST)
 	 public @ResponseBody
 	 String updateReviewed(
-					@RequestParam(value = "value", required = true) String value,
+					@RequestParam(value = "symbol", required = true) String alleleSymbol,
 					@RequestParam(value = "id", required = true) String dbidStr,
 					@RequestParam(value = "pmid", required = true) String pmidStr,
+					@RequestParam(value = "falsepositive", required = true) String falsepositive,
+					@RequestParam(value = "reviewed", required = true) String reviewed,
 					HttpServletRequest request,
 					HttpServletResponse response,
 					Model model) throws IOException, URISyntaxException, SQLException {
 
 		// store new value to database
-		value = value.trim();
+		alleleSymbol = alleleSymbol.trim();
 		Integer dbid = Integer.parseInt(dbidStr);
 		Integer pmid = Integer.parseInt(pmidStr);
 
-		return setAlleleSymbol(dbid, pmid,  value);
+		return setAlleleSymbol(dbid, pmid, alleleSymbol, falsepositive, reviewed);
 	}
+
 	@RequestMapping(value = "/dataTableAlleleRefSetFalsePositive", method = RequestMethod.POST)
 	public @ResponseBody
 	Boolean updateFalsePositive(
@@ -2041,10 +2044,11 @@ public class DataTableController {
 		return mterms.size() > 0 ? StringUtils.join(mterms, "|||") : "";
 
 	}
-    public String setAlleleSymbol(Integer dbid, Integer pmid, String alleleSymbol) throws SQLException {
+    public String setAlleleSymbol(Integer dbid, Integer pmid, String alleleSymbol, String falsepositive, String reviewed) throws SQLException {
 
 		String meshTerms = fetchMeshTermsByPmid(pmid);
 
+		final String NA = "Not available";
 		// convert "<sup>" to "<" and "</sup>" to ">"
 		alleleSymbol = alleleSymbol.replaceAll("<sup>","<");
 		alleleSymbol = alleleSymbol.replaceAll("</sup>",">");
@@ -2057,18 +2061,16 @@ public class DataTableController {
 		JSONObject j = new JSONObject();
 
 		String sqla = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
-		String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=?, mesh=? WHERE dbid=?";
+		String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=?, falsepositive=?, mesh=? WHERE dbid=?";
 
-		// when symbol is set to be empty, change reviewed status, too
-		if (alleleSymbol.equals("")) {
-
-			updatePaper(conn, updateSql, "", "", alleleSymbol, dbid, meshTerms);
-
-			j.put("reviewed", "no");
-			j.put("symbol", "");
-
+		// when symbol is set to be empty, reviewed should have been set to "yes" by curator
+		if (reviewed.equals("yes") && alleleSymbol.isEmpty()) {
+			alleleSymbol = NA;
+			updatePaper(conn, updateSql, "", "", alleleSymbol, falsepositive, dbid, meshTerms);
+			j.put("reviewed", "yes");
+			j.put("symbol", NA);
 		}
-		else if (! alleleSymbol.contains(",")) {
+		else if (! alleleSymbol.contains(",")) { // single symbol
 
 			// single allele symbols
 			String alleleAcc = null;
@@ -2082,7 +2084,7 @@ public class DataTableController {
 				while (resultSet.next()) {
 					alleleAcc = resultSet.getString("acc");
 					geneAcc = resultSet.getString("gf_acc");
-					//System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
+					System.out.println(alleleSymbol + ": " + alleleAcc + " --- " + geneAcc);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -2090,12 +2092,12 @@ public class DataTableController {
 
 			try {
 				if (alleleAcc != null && geneAcc != null) {
-
-					updatePaper(conn, updateSql, alleleAcc, geneAcc, alleleSymbol, dbid, meshTerms);
+					updatePaper(conn, updateSql, alleleAcc, geneAcc, alleleSymbol, falsepositive, dbid, meshTerms);
 
 					j.put("reviewed", "yes");
 					j.put("symbol", alleleSymbol);
-				} else {
+				}
+				else {
 					j.put("reviewed", "no");
 					j.put("symbol", "ERROR: setting symbol failed: could not find matching accession id");
 					j.put("allAllelesNotFound", true);
@@ -2162,7 +2164,7 @@ public class DataTableController {
 			String geneAccsStr = StringUtils.join(geneAccs, delimiter);
 
 			try{
-				updatePaper(conn, updateSql, alleleAccsStr, geneAccsStr, StringUtils.join(matchedAlleleSymbols, delimiter), dbid, meshTerms);
+				updatePaper(conn, updateSql, alleleAccsStr, geneAccsStr, StringUtils.join(matchedAlleleSymbols, delimiter), falsepositive, dbid, meshTerms);
 			}
 			catch (SQLException se) {
 				//Handle errors for JDBC
@@ -2200,16 +2202,21 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	private void updatePaper(Connection conn, String updateSql, String alleleAccsStr, String geneAccsStr, String alleleSymbol, Integer dbid, String meshTerms) throws SQLException {
-		//System.out.println(updateSql + " 1: - " + alleleAccsStr + " 2: - " + geneAccsStr + " 3: - " + alleleSymbol + " 6: - "  + dbid  + " 7: - " +  meshTerms);
+	private void updatePaper(
+			Connection conn, String updateSql,
+			String alleleAccsStr, String geneAccsStr,
+			String alleleSymbol, String falsepositive, Integer dbid,
+			String meshTerms) throws SQLException {
+		System.out.println(updateSql + " 1: " + alleleAccsStr + " 2: " + geneAccsStr + " 3: " + alleleSymbol + " 6: "  + falsepositive + " 7: " + meshTerms  + " 8: " +  dbid);
 		PreparedStatement stmt = conn.prepareStatement(updateSql);
 		stmt.setString(1, alleleAccsStr);
 		stmt.setString(2, geneAccsStr);
 		stmt.setString(3, alleleSymbol);
 		stmt.setString(4, "yes");
 		stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
-		stmt.setString(6, meshTerms);
-		stmt.setInt(7, dbid);
+		stmt.setString(6, falsepositive);
+		stmt.setString(7, meshTerms);
+		stmt.setInt(8, dbid);
 
 		stmt.executeUpdate();
 	}
@@ -2229,7 +2236,8 @@ public class DataTableController {
 		Boolean editMode = jParams.getString("editMode").equals("true") ? true : false;
 
 		String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch, editMode);
-        return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+		System.out.println("ALLELE REF EDIT: " + content);
+		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
 
@@ -2357,33 +2365,29 @@ public class DataTableController {
 
 				// dbid has been concatanated so becomes a string
 				String dbidStr = resultSet.getString("dbid");
-
 				//int dbid = resultSet.getInt("dbid");
+                ///String gacc = resultSet.getString("gacc");
+				String falsePositive = "<input type='checkbox' name='falsepositive'>False positive<br>";
+				String reviewed = resultSet.getString("reviewed").equals("yes") ? "<input type='checkbox' checked name='reviewed'>Reviewed<br><br>" : "<input type='checkbox' name='reviewed'>Reviewed<br><br>";
+				String alleleSymbol = resultSet.getString("symbol").isEmpty() ? "Symbol needs hand curation" : Tools.superscriptify(resultSet.getString("symbol")).replaceAll(delimeter, ", ");
 
-                String gacc = resultSet.getString("gacc");
-
-				rowData.add("<input type='checkbox'>");
-                rowData.add(resultSet.getString("reviewed"));
-
-                //rowData.add(resultSet.getString("acc"));
-				String alleleSymbol = resultSet.getString("symbol").isEmpty() ? "Needs hand curation" : Tools.superscriptify(resultSet.getString("symbol")).replaceAll(delimeter, ", ");
 				if (editMode){
-
-					String hint = "<span class='hint'>Symbol can be Sox13&lt;sup&gt;tm1a(EUCOMM)Wtsi&lt;/sup&gt; or Sox13&lt;tm1a(EUCOMM)Wtsi&gt;. Separate by comma if multiple</span>";
-					alleleSymbol = hint + "<form>"
-							+ "<textarea name='asymbolForm' form='asymbolForm'>" + alleleSymbol + "</textarea>"
-							+ "<input type='submit' value='Update'>"
+					String hint = "<span class='hint'>symbol can be Sox13&lt;sup&gt;tm1a(EUCOMM)Wtsi&lt;/sup&gt; or Sox13&lt;tm1a(EUCOMM)Wtsi&gt;. Separate by comma if multiple.</span><br><br>";
+					alleleSymbol = "<form class='alleleSub'>"
+							+ falsePositive
+							+ reviewed
+							+ "<textarea name='asymbolForm'>" + alleleSymbol + "</textarea><br><br>"
+							+ "Hint: "
+							+ hint
+							+ "<input class='update' type='button' value='Update'>"
 							+ "</form>";
 				}
 				//String alLink = alleleSymbol.equals("") ? "" : "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
 				rowData.add(alleleSymbol);
 
-                //rowData.add(resultSet.getString("name"));
-                //String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
+				rowData.add(resultSet.getString("date_of_publication"));
 				String pmid = "<span class='pmid' id=" + dbidStr + ">" + resultSet.getInt("pmid") + "</span>";
                 rowData.add(pmid);
-
-                rowData.add(resultSet.getString("date_of_publication"));
 
 				String[] grantIds = resultSet.getString("grant_id").split(delimeter);
 				String[] grantAgencies = resultSet.getString("agency").split(delimeter);
@@ -2435,45 +2439,58 @@ public class DataTableController {
 
         	List<String> rowData = new ArrayList<>();
         	Map<String,String> alleleSymbolinks = new LinkedHashMap<String,String>();
+			List<String> alLinks = new ArrayList<>();
 
-			// show max of 50 alleles for a paper
-            int alleleAccessionIdCount = reference.getAlleleAccessionIds().size() > 50 ? 50 : reference.getAlleleAccessionIds().size();
+			if (reference.getAlleleAccessionIds() != null) {
 
-			for (int i = 0; i < alleleAccessionIdCount; i++) {
-				String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
-                String alleleLink;
-                //String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
-				String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+				// show max of 50 alleles for a paper
+				int alleleAccessionIdCount = reference.getAlleleAccessionIds().size() > 50 ? 50 : reference.getAlleleAccessionIds().size();
 
-				if (i < reference.getImpcGeneLinks().size()) {
-                		alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
-                } else {
-                    if (i > 0) {
-                    	alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></div>";
-                    } else {
-                    	alleleLink = alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
-                    }
-                }
+				for (int i = 0; i < alleleAccessionIdCount; i++) {
+					String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
+					String alleleLink;
+					//String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+					String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 
-                alleleSymbolinks.put(symbol, alleleLink);
-            }
+					if (reference.getImpcGeneLinks() != null) {
+						if (i < reference.getImpcGeneLinks().size()) {
+							alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
+						} else {
+							if (i > 0) {
+								alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></div>";
+							} else {
+								alleleLink = alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
+							}
+						}
 
-            if (alleleSymbolinks.size() > 5) {
-				int num = alleleSymbolinks.size();
-				int totalNum = reference.getAlleleAccessionIds().size();
-				if (totalNum > num) {
-					alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show " + num + " of " + totalNum + " alleles...</div>");
-				} else {
-					alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
+						alleleSymbolinks.put(symbol, alleleLink);
+					}
+					else {
+						// some allele id does not associate with a gene id in database yet
+						alleleSymbolinks.put(symbol, symbol);
+					}
+				}
+
+				if (alleleSymbolinks.size() > 5) {
+					int num = alleleSymbolinks.size();
+					int totalNum = reference.getAlleleAccessionIds().size();
+					if (totalNum > num) {
+						alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show " + num + " of " + totalNum + " alleles...</div>");
+					} else {
+						alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
+					}
+				}
+
+				Iterator it = alleleSymbolinks.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					alLinks.add(pair.getValue().toString());
+					it.remove(); // avoids a ConcurrentModificationException
 				}
 			}
-            List<String> alLinks = new ArrayList<>();
-            Iterator it = alleleSymbolinks.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry)it.next();
-                alLinks.add(pair.getValue().toString());
-                it.remove(); // avoids a ConcurrentModificationException
-            }
+			else {
+				alLinks.add("Not available");
+			}
 
 			rowData.add(reference.getTitle());
             rowData.add(StringUtils.join(alLinks, ""));
@@ -2481,21 +2498,6 @@ public class DataTableController {
 
             String oriPubDate = reference.getDateOfPublication();
 
-//            String altStr = null;
-//            oriPubDate = oriPubDate.trim();
-//            if ( oriPubDate.matches("^\\d+$") ){
-//            	altStr = oriPubDate + "-23"; // so that YYYY will be sorted after YYYY MMM
-//            }
-//            else {
-//            	String[] parts = oriPubDate.split(" ");
-//            	altStr = parts[0] + "-" + m2d.get(parts[1]);
-//            }
-
-            // alt is for alt-string sorting in dataTable for date_of_publication field
-            // The format is either YYYY or YYYY Mmm (2012 Jul, eg)
-            // I could not get sorting to work with this column using dataTable datetime-moment plugin (which supports self-defined format)
-            // but I managed to get it to work with alt-string
-            //rowData.add("<span alt='" + altStr + "'>" + oriPubDate + "</span>");
 			rowData.add("<span>" + oriPubDate + "</span>");
 
             List<String> agencyList = new ArrayList();

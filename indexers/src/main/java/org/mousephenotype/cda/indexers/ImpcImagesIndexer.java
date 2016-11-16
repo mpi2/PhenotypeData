@@ -72,8 +72,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	SolrClient experimentCore;
 
 	@Autowired
-	@Qualifier("impcImagesIndexing")
-	SolrClient impcImagesIndexing;
+	@Qualifier("impcImagesCore")
+	SolrClient impcImagesCore;
 
 	@Autowired
 	@Qualifier("alleleCore")
@@ -122,7 +122,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(impcImagesIndexing);
+		return super.validateBuild(impcImagesCore);
 	}
 
 	public static void main(String[] args) throws IndexerException, SQLException {
@@ -192,7 +192,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			List<ImageDTO> imageList=new ArrayList<>();
 			//populate image DTOs from phis solr dto objects
 			logger.info("Starting indexing.....");
-			impcImagesIndexing.deleteByQuery("*:*");
+			impcImagesCore.deleteByQuery("*:*");
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 			List<ImageDTO> imagePrimaryList = experimentCore.query(query).getBeans(ImageDTO.class);
 			imageList.addAll(secondaryProjectImageList);
@@ -297,11 +297,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					addOntologyTerms( imageDTO, parameterStableIdToEmapaTermIdMap, runStatus);
 					addOntologyTerms( imageDTO, parameterStableIdToMpTermIdMap, runStatus);
 
-					impcImagesIndexing.addBean(imageDTO, 30000);
+					impcImagesCore.addBean(imageDTO, 30000);
 					documentCount++;
 				}
 
-			impcImagesIndexing.commit();
+			impcImagesCore.commit();
 
 		} catch (SolrServerException | IOException e) {
 			throw new IndexerException(e);
@@ -342,6 +342,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private ImageDTO addMpValues(String termId, ImageDTO imageDTO, OntologyDAO ontologyDAO, RunStatus runStatus){
 
 		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
+
+		if (termBean == null) {
+			logger.info("  Cannot find MP ontology term for ID \"{}\",\n   OMERO ID: {},\n   URL: {}", termId, imageDTO.getOmeroId(), imageDTO.getFullResolutionFilePath());
+			return imageDTO;
+		}
 
 		// term
 		imageDTO.addMpTerm(termBean.getName(), true);
@@ -459,7 +464,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			List<String> mpIds = new ArrayList<>(image.getMpId());
 			image.setMpId(new ArrayList<>());
 			for (String mpId : mpIds){
-				image = addMpValues(mpId, image, mpOntologyService, runStatus);
+				if (mpId.startsWith("MP:")) {
+					image = addMpValues(mpId, image, mpOntologyService, runStatus);
+				}
 			}
 		}
 		return image;
