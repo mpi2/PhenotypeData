@@ -375,12 +375,13 @@ public class GenesController {
 		
 		//process ardering section
 		
-		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null);
+		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null, false);
 		model.addAttribute("acc",acc);
 		model.addAttribute("orderRows", orderRows);
 
 		//for cre products link at bottom of table
-		model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
+		//model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
+		model.addAttribute("creLineAvailable", orderService.crelineAvailable(acc));
 		
 	}
 

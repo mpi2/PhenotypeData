@@ -35,12 +35,12 @@ public class OrderController {
 	 * @throws SolrServerException, IOException
 	 */
 	@RequestMapping("/order")
-	public String order(@RequestParam (required = true) String acc, @RequestParam (required = true) String allele,  @RequestParam (required = true) String type,
+	public String order(@RequestParam (required = true) String acc, @RequestParam (required = true) String allele,  @RequestParam (required = true) String type, @RequestParam(required=false) boolean creLine, 
 			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
 		System.out.println("orderVector being called with acc="+acc+" allele="+allele);
 		//type "targeting_vector", "es_cell", "mouse"
 		OrderType orderType=OrderType.valueOf(type);
-		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele, false);
+		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele, creLine);
 		model.addAttribute("allele", allele2DTO);
 		
 		
@@ -58,5 +58,14 @@ public class OrderController {
 		model.addAttribute("qcData", qcData);
 		return "qcData";
 	}
+	
+	@RequestMapping("/order/creline")
+    public String creLineAlleles(@RequestParam (required = false) String acc, Model model) throws SolrServerException, IOException{
+		
+		boolean creline=true;
+		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null, creline);
+		model.addAttribute("orderRows", orderRows);
+    	return "creLineAlleles";
+    }
 
 }
