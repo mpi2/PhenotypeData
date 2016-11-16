@@ -49,7 +49,7 @@ public class IndexerConfig {
 
     // Indexers for writing
     @Bean
-    SolrClient observationCore() {
+    SolrClient experimentCore() {
         return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/experiment", QUEUE_SIZE, THREAD_COUNT);
     }
     @Bean
