@@ -69,7 +69,7 @@ public class ObservationService extends BasicService implements WebStatus {
     private final Logger logger = LoggerFactory.getLogger(ObservationService.class);
 
     @Autowired
-    @Qualifier("observationCore")
+    @Qualifier("experimentCore")
     protected SolrClient solr;
 
     /**
