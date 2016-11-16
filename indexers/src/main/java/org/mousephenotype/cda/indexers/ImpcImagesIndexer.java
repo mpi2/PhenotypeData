@@ -68,7 +68,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private String pdfThumbnailUrl;
 
 	@Autowired
-	@Qualifier("observationCore")
+	@Qualifier("experimentCore")
 	SolrClient experimentCore;
 
 	@Autowired

@@ -51,7 +51,7 @@ import java.util.*;
 public class ExpressionService extends BasicService {
 
 	@Autowired
-	@Qualifier("observationCore")
+	@Qualifier("experimentCore")
 	private SolrClient experimentSolr;
 
 	@Autowired

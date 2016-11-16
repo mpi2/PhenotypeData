@@ -78,7 +78,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	DataSource komp2DataSource;
 
 	@Autowired
-	@Qualifier("observationCore")
+	@Qualifier("experimentCore")
 	SolrClient observationCore;
 
 	@Autowired
