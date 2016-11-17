@@ -185,20 +185,18 @@ public class AllelesController {
     public String alleles2(
             @PathVariable String acc,
             @PathVariable(value="allele_name") String allele_name,  // redefine, so that string after dot will not be truncated
-            @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
+            @RequestParam(value = "creLine", required = false, defaultValue = "false") Boolean creLine,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
         log.info("#### AllelesController::alleles2");
         log.info("#### acc: " + acc);
         log.info("#### allele_name: " + allele_name);
-        log.info("#### bare: " + bare);
-
+        System.out.println("creline is "+creLine);
         String debug = request.getParameter("debug");
         log.info("#### alleles1: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
-
-        if (bare) model.addAttribute("bare", bare);
+        if (creLine) model.addAttribute("creLine", creLine);
 
         return allelesCommon(acc, allele_name, null, null, model, request, attributes);
     }
@@ -505,7 +503,7 @@ public class AllelesController {
 
         Map<String, Object> constructs;
 
-        if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
+        if ( request.getParameter("creLine") != null && request.getParameter("creLine").equals("true")) {
         	// here we reuse the IMPC code to create eucommtools allele project page that is used in creline.org
         	// the main difference is the solr core used
                 log.info("Call SolrIndex2 with pipeline = Cre");
