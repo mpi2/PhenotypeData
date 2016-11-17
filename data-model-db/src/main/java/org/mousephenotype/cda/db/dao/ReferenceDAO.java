@@ -51,8 +51,8 @@ public class ReferenceDAO {
         + "\tDate of publication"
         + "\tGrant id"
         + "\tGrant agency"
-        + "\tPaper link"
-        + "\tMesh terms";
+        + "\tPaper link";
+
 
 
     @Autowired
