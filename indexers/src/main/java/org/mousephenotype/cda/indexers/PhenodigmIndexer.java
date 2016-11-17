@@ -181,7 +181,6 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
     Map<Integer, Set<String>> getMousePhenotypeMap() throws SQLException {
 
         Map<Integer, Set<String>> map = new HashMap<>();
-
         String query = "SELECT CONCAT(mp.mp_id, '_', mp.term) AS phenotype, mmmp.model_id FROM mp JOIN mouse_model_mp mmmp ON mmmp.mp_id = mp.mp_id";
 
         try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
@@ -594,11 +593,13 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 "  mdma.hp_matched_terms, " +
                 "  mdma.mp_matched_terms, " +
                 "  mds.mod_predicted, " +
-                "  mds.htpc_predicted " +
+                "  mds.htpc_predicted, " +
+                "  d.disease_classes " +
                 "FROM mouse_disease_gene_summary_high_quality mdgshq " +
                 "  JOIN mouse_model_gene_ortholog mmgo ON mdgshq.model_gene_id = mmgo.model_gene_id " +
                 "  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id " +
                 "  JOIN mouse_disease_summary mds ON mds.disease_id = mdgshq.disease_id " +
+                "  JOIN disease d ON d.disease_id = mdgshq.disease_id " +
                 "  AND mmgo.model_id = mdma.model_id";
 
         //System.out.println("DISEASE MODEL ASSOC QUERY: " + query);
@@ -629,6 +630,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setRawScore(getDoubleDefaultZero(r, "raw_score"));
                 doc.setMgiPredicted(r.getBoolean("mod_predicted"));
                 doc.setImpcPredicted(r.getBoolean("htpc_predicted"));
+                doc.setDiseaseClasses(Arrays.asList(r.getString("disease_classes").split(",")));
                 doc.setHpMatchedTerms(Arrays.asList(r.getString("hp_matched_terms").split(",")));
 
                 // add matched id/term for an MP and its intermediates and toplevels

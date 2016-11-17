@@ -2539,9 +2539,7 @@ public class DataTableController {
             rowData.add(StringUtils.join(alLinks, ""));
             rowData.add(reference.getJournal());
 
-            String oriPubDate = reference.getDateOfPublication();
-
-			rowData.add("<span>" + oriPubDate + "</span>");
+			rowData.add("<span>" + reference.getDateOfPublication() + "</span>");
 
             List<String> agencyList = new ArrayList();
             int agencyCount = reference.getGrantAgencies().size();
