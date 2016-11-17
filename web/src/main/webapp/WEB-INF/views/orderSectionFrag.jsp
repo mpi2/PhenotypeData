@@ -37,9 +37,9 @@
                 	<c:set var="rowSpan" value="2"></c:set>
                 </c:if>
                       <tr>
-                        
+                        <!-- /alleles/MGI:2443967/tm1a(EUCOMM)Hmgu -->
                          <td rowspan="${rowSpan}">
-                         	${row.markerSymbol}<sup>${row.alleleName}</sup>
+                         	<a href="${baseUrl}/alleles/${acc}/${row.alleleName}?${creLineParam}">${row.markerSymbol}<sup>${row.alleleName}</sup></a>
                          </td>
                          <%-- <td>
                          	${row.strainOfOrigin}
