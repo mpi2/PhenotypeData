@@ -19,6 +19,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.solr.service.OrderService;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,7 @@ public class SolrIndex2 {
             alleleMap.put(allele_name, getAlleleData(jsonObject2));
         }
 
-        String productSearch = getAllProductsUrl(accession, null);
+        String productSearch = getAllProductsUrl(accession, null, false);
         String url = searchProductCore("impc", productSearch);
 
         JSONObject jsonObject1 = getResults(url);
@@ -148,7 +149,7 @@ public class SolrIndex2 {
 
         List<Map<String, Object>> mapper = filterGeneProductInfoList(mice, es_cells, targeting_vectors);
 
-        String creSearch = getMiceAndEsCellsUrl(accession, null);
+        String creSearch = getMiceAndEsCellsUrl(accession, null, false);
         String creUrl = searchProductCore("cre", creSearch);
         JSONObject jsonObjectCre = getResults(creUrl);
         JSONArray creDocs = jsonObjectCre.getJSONObject("response").getJSONArray("docs");
@@ -196,17 +197,17 @@ public class SolrIndex2 {
 
         if (hash.containsKey("allele_name") && hash.get("allele_name") != null){
             allele_name = hash.get("allele_name");
-            searchParams = getAllProductsUrl(accession, allele_name);
+            searchParams = getAllProductsUrl(accession, allele_name, false);
             alleleSearchParams = getAlleleUrl(accession, allele_name);
         }
         else if (hash.containsKey("cassette") && hash.containsKey("design_id")){
             String cassette = hash.get("cassette");
             String design_id = hash.get("design_id");
-            searchParams = getAllProductsUrl(accession, cassette, design_id);
+            searchParams = getAllProductsUrl(accession, cassette, design_id, false);
             alleleSearchParams = getAlleleUrl(accession, cassette, design_id);
         }
 
-        otherAllelesSearchParams = getMiceAndEsCellsUrl(accession, null);
+        otherAllelesSearchParams = getMiceAndEsCellsUrl(accession, null, false);
         geneSearchParams = getGeneUrl(accession);
 
         url = searchProductCore(pipeline, searchParams);
@@ -466,50 +467,59 @@ public class SolrIndex2 {
         return construct;
     }
 
-    public Map<String, Object> getGeneByIkmcProjectId(String pipeline, String ikmc_project_id)
-            throws IOException, URISyntaxException {
+//    public Map<String, Object> getGeneByIkmcProjectId(String pipeline, String ikmc_project_id)
+//            throws IOException, URISyntaxException {
+//
+//        String url;
+//        String target = "type:gene AND ikmc_project:" + ikmc_project_id;
+//
+//        String search_url = "/select?q="
+//                + target
+//                + "&start=0&rows=1&hl=true&wt=json";
+//
+//        url = searchAlleleCore(pipeline, search_url);
+//        JSONObject jsonObject = getResults(url);
+//
+//        JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+//
+//        if (docs.size() < 1) {
+//            log.info("#### No rows returned for the query!");
+//            return null;
+//        }
+//
+//        return getGeneData(docs.getJSONObject(0));
+//    }
 
-        String url;
-        String target = "type:gene AND ikmc_project:" + ikmc_project_id;
-
-        String search_url = "/select?q="
-                + target
-                + "&start=0&rows=1&hl=true&wt=json";
-
-        url = searchAlleleCore(pipeline, search_url);
-        JSONObject jsonObject = getResults(url);
-
-        JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
-
-        if (docs.size() < 1) {
-            log.info("#### No rows returned for the query!");
-            return null;
-        }
-
-        return getGeneData(docs.getJSONObject(0));
-    }
-
-    private String getAllProductsUrl(String accession, String allele_name) {
+    private String getAllProductsUrl(String accession, String allele_name, boolean creLine) {
 
         String qallele_name = "";
+        String select="/select";
+        if(creLine){
+        	select=OrderService.selectCre;
+        }
 
         if (allele_name != null) {
             qallele_name = " AND " + ALLELE_NAME_FIELD + ":\"" + allele_name + "\"";
 
         }
+   
 
         String target = "mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
 
-        String search_url = "/select?q="
+        String search_url = select+"?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
         return search_url;
     }
 
-    private String getAllProductsUrl(String accession, String cassette, String design) {
+    private String getAllProductsUrl(String accession, String cassette, String design, boolean creLine) {
 
         String qallele_search = "";
+        String select="/select";
+        if(creLine){
+        	select=OrderService.selectCre;
+        }
 
         if (cassette != null && design != null) {
             qallele_search = " AND cassette:\"" + cassette + "\" AND design_id:\"" + design + "\""  ;
@@ -517,17 +527,20 @@ public class SolrIndex2 {
 
         String target = "mgi_accession_id:" + accession.replace(":", "\\:") + qallele_search;
 
-        String search_url = "/select?q="
+        String search_url = select+"?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
         return search_url;
     }
 
-    private String getMiceAndEsCellsUrl(String accession, String allele_name) {
+    private String getMiceAndEsCellsUrl(String accession, String allele_name, boolean creLine) {
 
         String qallele_name = "";
-
+        String select="/select";
+        if(creLine){
+        	select=OrderService.selectCre;
+        }
         if (allele_name != null) {
             qallele_name = " AND " + ALLELE_NAME_FIELD + ":\"" + allele_name + "\"";
 
@@ -535,28 +548,28 @@ public class SolrIndex2 {
 
         String target = "-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
 
-        String search_url = "/select?q="
+        String search_url = select+"?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
         return search_url;
     }
 
-    private String getMiceAndEsCellsUrl(String accession, String cassette, String design) {
-        String qallele_search = "";
-
-        if (cassette != null && design != null) {
-            qallele_search = " AND cassette:\"" + cassette + "\" AND design_id:\"" + design + "\""  ;
-        }
-
-        String target = "-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_search;
-
-        String search_url = "/select?q="
-                + target
-                + "&start=0&rows=100&hl=true&wt=json";
-
-        return search_url;
-    }
+//    private String getMiceAndEsCellsUrl(String accession, String cassette, String design) {
+//        String qallele_search = "";
+//
+//        if (cassette != null && design != null) {
+//            qallele_search = " AND cassette:\"" + cassette + "\" AND design_id:\"" + design + "\""  ;
+//        }
+//
+//        String target = "-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_search;
+//
+//        String search_url = "/select?q="
+//                + target
+//                + "&start=0&rows=100&hl=true&wt=json";
+//
+//        return search_url;
+//    }
 
 
 

@@ -675,8 +675,8 @@ CREATE TABLE categorical_observation (
  */
 DROP TABLE IF EXISTS alternate_id;
 CREATE TABLE alternate_id (
-	ontology_term_acc          VARCHAR(30) NOT NULL,
-	alternate_id_acc           VARCHAR(30) NOT NULL,
+	ontology_term_acc          VARCHAR(60) NOT NULL,
+	alternate_id_acc           VARCHAR(60) NOT NULL,
 
   UNIQUE KEY alternate_id_acc_idx(ontology_term_acc, alternate_id_acc)
 
@@ -688,8 +688,8 @@ CREATE TABLE alternate_id (
  */
 DROP TABLE IF EXISTS consider_id;
 CREATE TABLE consider_id (
-	ontology_term_acc          VARCHAR(30) NOT NULL,
-	consider_id_acc            VARCHAR(30) NOT NULL,
+	ontology_term_acc          VARCHAR(60) NOT NULL,
+	consider_id_acc            VARCHAR(60) NOT NULL,
 
 	UNIQUE KEY ontology_term_acc_idx(ontology_term_acc, consider_id_acc)
 
