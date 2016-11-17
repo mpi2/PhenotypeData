@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Map;
 import java.util.Set;
@@ -240,9 +241,13 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
                     logger.warn("MGI IMSR_report file is out-of-sync. Added withdrawn gene {} to allele {}.",
                             gene.toString(), allele.toString());
 
-                } catch (Exception e) {
-                    logger.warn("MGI IMSR_report file is out-of-sync. Failed to add withdrawn gene {} to allele {}.Reason:\n{}",
-                            gene.toString(), allele.toString(), e.getLocalizedMessage());
+                } catch (DataIntegrityViolationException e) {
+                    if (e.getLocalizedMessage().contains("cannot be null")) {
+                        logger.warn("MGI IMSR_report file is out-of-sync. Failed to add withdrawn gene {} to allele {}.",
+                                    gene.toString(), allele.toString());
+                    } else {
+                        throw e;
+                    }
                 }
             }
         }
