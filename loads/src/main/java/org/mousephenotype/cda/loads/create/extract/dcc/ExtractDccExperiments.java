@@ -243,10 +243,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         }
 
         // procedure
-        Procedure procedure = dccSqlUtils.getProcedure(experiment.getProcedure().getProcedureID());
-        if (procedure == null) {
-            procedure = dccSqlUtils.insertProcedure(experiment.getProcedure().getProcedureID());
-        }
+        Procedure  procedure = dccSqlUtils.insertProcedure(experiment.getProcedure().getProcedureID());
         procedurePk = procedure.getHjid();
 
         if (experiment.getProcedure().getProcedureMetadata() != null) {
@@ -426,7 +423,6 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         final String colonyId = line.getColonyID();
 
-        // procedure
         String procedureName = line.getProcedure().getProcedureID();
 
         // Skip any lines whose procedure group has been marked to be skipped.
@@ -437,11 +433,8 @@ public class ExtractDccExperiments implements CommandLineRunner {
             return;
         }
 
-        Procedure procedure = dccSqlUtils.getProcedure(procedureName);
-        if (procedure == null) {
-            procedure = dccSqlUtils.insertProcedure(line.getProcedure().getProcedureID());
-
-        }
+        // procedure
+        Procedure  procedure = dccSqlUtils.insertProcedure(line.getProcedure().getProcedureID());
         procedurePk = procedure.getHjid();
 
         if (line.getProcedure().getProcedureMetadata() != null) {
