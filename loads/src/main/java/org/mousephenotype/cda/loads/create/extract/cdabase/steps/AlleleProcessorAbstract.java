@@ -243,6 +243,7 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
                 } catch (Exception e) {
                     logger.warn("MGI IMSR_report file is out-of-sync. Failed to add withdrawn gene {} to allele {}.Reason:\n{}",
                             gene.toString(), allele.toString(), e.getLocalizedMessage());
+                    e.printStackTrace();
                 }
             }
         }
