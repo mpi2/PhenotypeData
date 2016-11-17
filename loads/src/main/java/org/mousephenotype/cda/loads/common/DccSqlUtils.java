@@ -478,35 +478,6 @@ public class DccSqlUtils {
         return parameterAssociation;
     }
 
-    /**
-     * Looks for the procedure for the given procedureId.
-     * Retuns the {@link Procedure} instance if found; null otherwise.
-     *
-     * @param procedureId The procedure id
-     * @return The {@link Procedure} instance if found; null otherwise.
-     * <p/>
-     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
-     */
-    public Procedure getProcedure(String procedureId) {
-        Procedure procedure = null;
-        final String query =
-                "SELECT * FROM procedure_ WHERE procedureId = :procedureId";
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("procedureId", procedureId);
-
-        List<Procedure> procedures = npJdbcTemplate.query(query, parameterMap, new ProcedureRowMapper());
-        if ( ! procedures.isEmpty()) {
-            procedure = procedures.get(0);
-        }
-
-        return procedure;
-    }
-    
-    
-    
-    
-    
     public List<MediaParameter> getMediaParameters(long procedure_pk) {
         final String query = "SELECT * FROM mediaParameter WHERE procedure_pk = :procedure_pk";
 
@@ -1289,29 +1260,33 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given {@code procedureId} into the procedure_ table. Duplicates are ignored.
+     * Inserts the given {@code procedureId} into the procedure_ table.
      *
      * @param procedureId the procedure id to be inserted
      *
-     * @return the procedure, with primary key loaded
+     * @return the procedure primary key
      */
-    public Procedure insertProcedure(String procedureId) {
-        Procedure procedure;
+    public long insertProcedure(String procedureId) {
+        long pk;
+
         String insert = "INSERT INTO procedure_ (procedureId) VALUES (:procedureId)";
 
         try {
             Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("procedureId", procedureId);
 
-            npJdbcTemplate.update(insert, parameterMap);
-            procedure = getProcedure(procedureId);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+            npJdbcTemplate.update(insert, parameterSource, keyholder);
+            pk = keyholder.getKey().longValue();
 
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("INSERT of procedure(" + procedureId + " FAILED: " + e.getLocalizedMessage());
         }
 
-        return procedure;
+        return pk;
     }
 
     /**

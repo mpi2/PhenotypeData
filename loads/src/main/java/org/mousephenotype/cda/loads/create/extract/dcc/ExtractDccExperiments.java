@@ -243,13 +243,12 @@ public class ExtractDccExperiments implements CommandLineRunner {
         }
 
         // procedure
-        Procedure  procedure = dccSqlUtils.insertProcedure(experiment.getProcedure().getProcedureID());
-        procedurePk = procedure.getHjid();
+        procedurePk = dccSqlUtils.insertProcedure(experiment.getProcedure().getProcedureID());
 
         if (experiment.getProcedure().getProcedureMetadata() != null) {
             for (ProcedureMetadata procedureMetadata : experiment.getProcedure().getProcedureMetadata()) {
                 long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
-                dccSqlUtils.insertProcedure_procedureMetadata(procedure.getHjid(), procedureMetadataPk);
+                dccSqlUtils.insertProcedure_procedureMetadata(procedurePk, procedureMetadataPk);
             }
         }
 
@@ -434,13 +433,12 @@ public class ExtractDccExperiments implements CommandLineRunner {
         }
 
         // procedure
-        Procedure  procedure = dccSqlUtils.insertProcedure(line.getProcedure().getProcedureID());
-        procedurePk = procedure.getHjid();
+        procedurePk = dccSqlUtils.insertProcedure(line.getProcedure().getProcedureID());
 
         if (line.getProcedure().getProcedureMetadata() != null) {
             for (ProcedureMetadata procedureMetadata : line.getProcedure().getProcedureMetadata()) {
                 long procedureMetadataPk = dccSqlUtils.selectOrInsertProcedureMetadata(procedureMetadata).getHjid();
-                dccSqlUtils.insertProcedure_procedureMetadata(procedure.getHjid(), procedureMetadataPk);
+                dccSqlUtils.insertProcedure_procedureMetadata(procedurePk, procedureMetadataPk);
             }
         }
 
