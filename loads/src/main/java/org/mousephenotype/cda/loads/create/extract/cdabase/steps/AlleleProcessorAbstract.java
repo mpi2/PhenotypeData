@@ -198,7 +198,6 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
         }
 
         allele.setGene(gene);
-
         return allele;
     }
 

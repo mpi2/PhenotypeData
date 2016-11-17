@@ -232,23 +232,19 @@ public class DccSqlUtils {
      * @return The center primary key if found; 0 otherwise.
      */
     public long getCenterPk(String centerId, String pipeline, String project) {
-        String centerKey = centerId + "_" + pipeline + "_" + project;
-        Long centerPk = centerPkMap.get(centerKey);
-        if (centerPk == null) {
-            String query = "SELECT pk FROM center WHERE centerId = :centerId AND pipeline = :pipeline AND project = :project";
+        long centerPk = 0L;
+        String query = "SELECT pk FROM center WHERE centerId = :centerId AND pipeline = :pipeline AND project = :project";
 
-            Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, Object> parameterMap = new HashMap<>();
 
-            parameterMap.put("centerId", centerId);
-            parameterMap.put("pipeline", pipeline);
-            parameterMap.put("project", project);
+        parameterMap.put("centerId", centerId);
+        parameterMap.put("pipeline", pipeline);
+        parameterMap.put("project", project);
 
+        try {
             centerPk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
-            if (centerPk != 0) {
-                centerPkMap.put(centerKey, centerPk);
-            } else {
-                centerPk = null;
-            }
+        } catch (Exception e) {
+
         }
 
         return centerPk;
