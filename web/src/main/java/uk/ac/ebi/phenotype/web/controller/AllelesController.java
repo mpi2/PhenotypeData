@@ -27,11 +27,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -86,99 +88,26 @@ public class AllelesController {
 //    
 //
 //
-//    @RequestMapping("/alleles/{acc}")
-//    public String alleles1(
-//            @PathVariable String acc,
-//            @RequestParam (value = "ikmc_project_id", required = false) String ikmc_project_id,
-//            @RequestParam (value = "allele_type", required = false) String allele_type,
-//            @RequestParam (value = "pipeline", required = false) String pipeline,
-//            @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
-//            Model model,
-//            HttpServletRequest request,
-//            RedirectAttributes attributes) throws Exception {
-//
-//        log.info("#### alleles1...");
-//        List<Map<String, Object>> list;
-//
-//        if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
-//                log.info("Call SolrIndex2 with pipeline = Cre");
-//        	list = solrIndex2.getAllAlleles("cre", acc);
-//        }
-//        else {
-//                log.info("Call SolrIndex2 with pipeline = impc");
-//        	list = solrIndex2.getAllAlleles("impc", acc);
-//        }
-//
-//        List<Map<String, Object>> list1 = new ArrayList<>();
-//        List<Map<String, Object>> list2 = new ArrayList<>();
-//        List<Map<String, Object>> list3 = new ArrayList<>();
-//
-//
-//        List<Map<String, Object>> list_alleles = new ArrayList<>();
-//        String mgi_accession_id = acc;
-//        String marker_symbol="";
-//
-//        if (list != null) {
-//            for (Map<String, Object> item : list) {
-//                marker_symbol = (String)item.get("marker_symbol");
-//                if (ikmc_project_id != null && (!item.containsKey("ikmc_project") || ! item.get("ikmc_project").equals(ikmc_project_id))){
-//                    log.info("#### alleles1...");
-//                    continue;
-//                }
-//
-//                if (allele_type != null && (!item.containsKey("allele_type") || ! item.get("allele_type").equals(allele_type))){
-//                    log.info("#### alleles1...");
-//                    continue;
-//                }
-//
-//                if (pipeline != null && (!item.containsKey("pipeline") || ! item.get("pipeline").equals(pipeline))){
-//                    continue;
-//                }
-//
-//                if( item.get("mouse_status") != null && ! item.get("mouse_status").equals("")) {
-//                    log.info("#### alleles1..." + item.get("mouse_status"));
-//                    list1.add(item);
-//                }
-//                else if (item.get("es_cell_status").equals("ES Cell Targeting Confirmed")) {
-//                    list2.add(item);
-//                }
-//                else {
-//                    list3.add(item);
-//                }
-//            }
-//        }
-//
-//        list_alleles.addAll(list1);
-//        list_alleles.addAll(list2);
-//        list_alleles.addAll(list3);
-//
-//        log.info("#### alleles1: list_alleles: " + list_alleles);
-//
-//        String allele_type_string = "";
-//        String pipeline_string;
-//        String ikmc_project_id_string;
-//
-//        if (allele_type != null ){
-//            if( allele_type.equals("a") || allele_type.equals("b") || allele_type.equals("c") || allele_type.equals("") || allele_type.equals(".1") || allele_type.equals(".2") || allele_type.equals("e") || allele_type.equals("e.1") || allele_type.equals("d")) {
-//                allele_type_string = " tm" + allele_type;
-//            } else {
-//                allele_type_string =  allele_type;
-//            }
-//        }
-//
-//        pipeline_string = (pipeline != null) ? " for " + pipeline : "";
-//        ikmc_project_id_string = (ikmc_project_id != null) ? " created by project " +  ikmc_project_id : "";
-//        log.info("SEARCH STRING: showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
-//
-//        model.addAttribute("search_title", "Showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
-//        model.addAttribute("list_alleles", list_alleles);
-//        model.addAttribute("marker_symbol", marker_symbol);
-//        if (bare){
-//        	model.addAttribute("bare", bare);
-//        }
-//
-//        return "alleles_list";
-//    }
+    @RequestMapping("/alleles/{acc}")
+    public String alleles1(
+            @PathVariable String acc,
+            @RequestParam (value = "ikmc_project_id", required = false) String ikmc_project_id,
+            @RequestParam (value = "allele_type", required = false) String allele_type,
+            @RequestParam (value = "pipeline", required = false) String pipeline,
+            @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws Exception {
+
+        log.info("#### alleles1...");
+        List<Map<String, Object>> list;
+        String redirectUrl="redirect:search";
+        if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
+                log.info("redirect to search with pipeline = Cre");
+                redirectUrl=redirectUrl+"?creLine=true";
+        }
+        return redirectUrl;
+    }
 
 
     @RequestMapping("/alleles/{acc}/{allele_name:.*}")
