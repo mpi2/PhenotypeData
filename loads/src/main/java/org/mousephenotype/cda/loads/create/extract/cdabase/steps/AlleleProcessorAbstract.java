@@ -203,7 +203,8 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
 
     /**
      * A gene that does not exist signifies that MGI's report files are out of sync. There should never be any such
-     * genes. Log a warning if there are, and add the missing gene to the genomic_features table with status 'withdrawn'.
+     * genes. Log a warning if there are, and try to add the missing gene to the genomic_features table with status
+     * 'withdrawn'. Ignore any errors.
      *
      * <p>If the marker accession id is null or empty, a null gene is added to the allele and the allele is returned.</p>
      * <p>If the gene is found by the marker accession id, it is added to the allele and the allele is returned.</p>
@@ -224,7 +225,6 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
         } else {
             gene = genes.get(allele.getGene().getId().getAccession());
             if (gene == null) {
-                withdrawnGenesCount++;
 
                 OntologyTerm biotype = cdaSqlUtils.getOntologyTerm(DbIdType.Genome_Feature_Type.intValue(), CdaSqlUtils.BIOTYPE_GENE_STRING);
                 gene = new GenomicFeature();
@@ -233,10 +233,17 @@ public abstract class AlleleProcessorAbstract implements ItemProcessor<Allele, A
                 gene.setSymbol(allele.getGene().getSymbol());
                 gene.setName(allele.getGene().getSymbol());
                 gene.setStatus(CdaSqlUtils.STATUS_WITHDRAWN);
-                logger.warn("MGI IMSR_report file is out-of-sync. Adding withdrawn gene {} to allele {}.",
-                        gene.toString(), allele.toString());
 
-                cdaSqlUtils.insertGene(gene);
+                try {
+                    cdaSqlUtils.insertGene(gene);
+                    withdrawnGenesCount++;
+                    logger.warn("MGI IMSR_report file is out-of-sync. Added withdrawn gene {} to allele {}.",
+                            gene.toString(), allele.toString());
+
+                } catch (Exception e) {
+                    logger.warn("MGI IMSR_report file is out-of-sync. Failed to add withdrawn gene {} to allele {}.Reason:\n{}",
+                            gene.toString(), allele.toString(), e.getLocalizedMessage());
+                }
             }
         }
 
