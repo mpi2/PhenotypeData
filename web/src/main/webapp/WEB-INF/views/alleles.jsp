@@ -94,9 +94,17 @@
   </jsp:attribute>
 
 	<jsp:body>
-
+	<c:set var="selectUrl" value="${baseUrl}/search/allele2?kw=${acc}"/>
+	<c:if test="${creLine}">
+	<!-- http://localhost:8080/phenotype-archive/order/creline?acc=MGI:95771 -->
+		<c:set var="selectUrl" value="${baseUrl}/order/creline?acc=${acc}"/>
+	</c:if>
+	
 <h1 class="title" id="top">${title}        
-    <span style="font-size: 40%;">See <a href="${baseUrl}/alleles/${acc}<c:if test="${bare == true}">?bare=true</c:if>">all alleles</a> for ${summary['marker_symbol']}</span>
+    <%-- <span style="font-size: 40%;">See <a href="${baseUrl}/alleles/${acc}${creLineParam}">all alleles</a> for ${summary['marker_symbol']}</span> --%>
+    
+    	<span style="font-size: 40%;">See <a href="${selectUrl}">&nbsp; all <c:if test="${creLine}">Cre </c:if>Alleles</a> for ${summary['marker_symbol']}</span>
+   
 </h1>
 
 <jsp:include page="alleles_summary_frag.jsp" />
