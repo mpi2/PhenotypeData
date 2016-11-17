@@ -380,13 +380,25 @@
 				}
 				else if (symbolVal != "" && reviewed == 'yes' && falsepositive == 'yes') {
 					alert("Sorry, you cannot set a symbol and make it as false positive");
-					textarea.val(defaultLabel);
 
-					var isReviewed = reviewed=='yes' ? true : false;
-					thisObj.siblings("input[name='reviewed']").prop('checked', isReviewed);
+					// fetch original values
+					$.ajax({
+						method: "post",
+						url: baseUrl + "/fetchAlleleRefPmidData?pmid=" + pmid,
+						success: function (jsonStr) {
+							//alert(jsonStr);
+							var j = JSON.parse(jsonStr);
+							var isReviewed = j.reviewed=='yes' ? true : false;
+							thisObj.siblings("input[name='reviewed']").prop('checked', isReviewed);
 
-					var isFalsepositive = falsepositive =='yes' ? true : false;
-					thisObj.siblings("input[name='falsepositive']").prop('checked', isFalsepositive);
+							var isFalsepositive = j.falsepositive =='yes' ? true : false;
+							thisObj.siblings("input[name='falsepositive']").prop('checked', isFalsepositive);
+							textarea.val(j.symbol == "" ? defaultLabel : j.symbol);
+						},
+						error: function () {
+							alert('AJAX error trying to reset allele info');
+						}
+					});
 				}
 				else {
 
