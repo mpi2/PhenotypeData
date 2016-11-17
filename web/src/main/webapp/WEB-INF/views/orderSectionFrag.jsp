@@ -4,9 +4,9 @@
 
 <!-- just for testing with styles remove -->
 <c:if test="${orderRows.size() > 0}">
-<c:if test="${creLine}">
-<c:set var="creLineParam" value="&creLine=true"/>
-</c:if>
+	<c:if test="${creLine}">
+		<c:set var="creLineParam" value="&creLine=true"/>
+	</c:if>
 <table>        
         <thead>
         		 <tr>
