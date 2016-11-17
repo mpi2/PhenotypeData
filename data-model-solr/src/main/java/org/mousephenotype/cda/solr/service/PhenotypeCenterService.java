@@ -16,12 +16,14 @@
 
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.slf4j.Logger;
@@ -34,7 +36,8 @@ import java.util.*;
 
 public class PhenotypeCenterService {
 	private static final Logger LOG = LoggerFactory.getLogger(PhenotypeCenterService.class);
-	private HttpSolrClient solr;
+	private
+	SolrClient solr;
 	private final String datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -67,7 +70,7 @@ public class PhenotypeCenterService {
 		.addFacetField(ObservationDTO.PHENOTYPING_CENTER)
 		.setFacetMinCount(1)
 		.setRows(0);
-		if(solr.getBaseURL().endsWith("experiment")){
+		if(SolrUtils.getBaseURL(solr).endsWith("experiment")){
 			query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
 		}
 
@@ -97,7 +100,7 @@ public class PhenotypeCenterService {
 		.setFacetMinCount(1)
 		.setFacetLimit(-1)
 		.setRows(0);
-		if(solr.getBaseURL().endsWith("experiment")){
+		if(SolrUtils.getBaseURL(solr).endsWith("experiment")){
 				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + "\"" + datasourceName + "\"");
 		}
 		QueryResponse response = solr.query(query);
@@ -105,7 +108,7 @@ public class PhenotypeCenterService {
 		for(Count values: fields.get(0).getValues()){
 			strains.add(values.getName());
 		}
-		logger.info("getStrainsForCenter ---- " + solr.getBaseURL() + "/select?" + query);
+		logger.info("getStrainsForCenter ---- " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 		return strains;
 	}
 
@@ -121,7 +124,7 @@ public class PhenotypeCenterService {
 		query.set("group.limit", 1);
 
 
-		if(solr.getBaseURL().endsWith("experiment")){
+		if(SolrUtils.getBaseURL(solr).endsWith("experiment")){
 				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + "\"" + datasourceName + "\"");
 		}
 		QueryResponse response = solr.query(query);
@@ -138,7 +141,7 @@ public class PhenotypeCenterService {
 				strains.add(strain);
 			}
 		}
-		LOG.info("getStrainsForCenter -- " + solr.getBaseURL() + "/select?" + query);
+		LOG.info("getStrainsForCenter -- " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 		return strains;
 	}
 
@@ -161,7 +164,7 @@ public class PhenotypeCenterService {
 		 .setFacetMinCount(1)
 		 .setRows(0);
 
-		if(solr.getBaseURL().endsWith("experiment")){
+		if(SolrUtils.getBaseURL(solr).endsWith("experiment")){
 			query.addFilterQuery(ObservationDTO.DATASOURCE_NAME+":"+"\""+datasourceName+"\"");
 		}
 

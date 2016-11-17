@@ -15,14 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
@@ -37,6 +29,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Populate the MGI-Phenotype core - currently only for internal EBI consumption
@@ -55,8 +54,8 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 	DataSource ontodbDataSource;
 
 	@Autowired
-    @Qualifier("mgiPhenotypeIndexing")
-    SolrClient mgiPhenotypeIndexing;
+    @Qualifier("mgiPhenotypeCore")
+    SolrClient mgiPhenotypeCore;
 
     @Autowired
     MpOntologyDAO mpOntologyService;
@@ -66,7 +65,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(mgiPhenotypeIndexing);
+        return super.validateBuild(mgiPhenotypeCore);
     }
 
 
@@ -104,7 +103,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
 	    int count = 1;
 
-        mgiPhenotypeIndexing.deleteByQuery("*:*");
+        mgiPhenotypeCore.deleteByQuery("*:*");
 
         String query="SELECT DISTINCT CONCAT_WS(\"-\", bm.id, gf.acc, bmp.phenotype_acc) as id, bm.zygosity, org.short_name AS project_name, " +
 	        "org.name as project_fullname, gf.acc AS marker_accession_id, gf.symbol as marker_symbol, " +
@@ -193,7 +192,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
                 doc.setLifeStageName(developmentalStageName);
 
                 documentCount++;
-                mgiPhenotypeIndexing.addBean(doc, 30000);
+                mgiPhenotypeCore.addBean(doc, 30000);
                 count ++;
 
 	            if (count % 100000 == 0) {
@@ -202,7 +201,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
             }
 
             // Final commit to save the rest of the docs
-            mgiPhenotypeIndexing.commit();
+            mgiPhenotypeCore.commit();
 
         } catch (Exception e) {
             runStatus.addError(" Big error " + e.getMessage());

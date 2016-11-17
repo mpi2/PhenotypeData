@@ -71,8 +71,8 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     SolrClient alleleCore;
 
     @Autowired
-    @Qualifier("geneIndexing")
-    SolrClient geneIndexing;
+    @Qualifier("geneCore")
+    SolrClient geneCore;
 
     @Autowired
     @Qualifier("mpCore")
@@ -108,7 +108,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
-        return super.validateBuild(geneIndexing);
+        return super.validateBuild(geneCore);
     }
 
 
@@ -127,7 +127,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
             initialiseSupportingBeans();
 
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
-            geneIndexing.deleteByQuery("*:*");
+            geneCore.deleteByQuery("*:*");
 
             for (AlleleDTO allele : alleles) {
                 //System.out.println("allele="+allele.getMarkerSymbol());
@@ -580,11 +580,11 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym())));
 
                 documentCount++;
-                geneIndexing.addBean(gene, 60000);
+                geneCore.addBean(gene, 60000);
                 count ++;
             }
 
-            geneIndexing.commit();
+            geneCore.commit();
 
         } catch (IOException | SolrServerException e) {
             e.printStackTrace();

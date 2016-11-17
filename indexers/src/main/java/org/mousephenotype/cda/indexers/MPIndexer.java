@@ -98,8 +98,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
      * Destination Solr core
      */
     @Autowired
-    @Qualifier("mpIndexing")
-    private SolrClient mpIndexing;
+    @Qualifier("mpCore")
+    private SolrClient mpCore;
 
     @Autowired
     MpOntologyDAO mpOntologyService;
@@ -150,7 +150,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Override
     public RunStatus validateBuild()
     throws IndexerException {
-        return super.validateBuild(mpIndexing);
+        return super.validateBuild(mpCore);
     }
 
 
@@ -172,8 +172,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         	populateMpCallMap();
 
             // Delete the documents in the core if there are any.
-            mpIndexing.deleteByQuery("*:*");
-            mpIndexing.commit();
+            mpCore.deleteByQuery("*:*");
+            mpCore.commit();
 
             // Loop through the mp_term_infos
             //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
@@ -262,15 +262,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 count ++;
 
                 documentCount++;
-                mpIndexing.addBean(mp, 60000);
+                mpCore.addBean(mp, 60000);
 //
 //                if (documentCount % 100 == 0){
-//                	mpIndexing.commit();
+//                	mpCore.commit();
 //                }
             }
 
             // Send a final commit
-            mpIndexing.commit();
+            mpCore.commit();
 
         } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException e) {
             throw new IndexerException(e);

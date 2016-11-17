@@ -147,8 +147,10 @@ public class ReferenceDAO {
               + " reviewed = 'yes'\n"
               + " AND falsepositive = 'no'"
               + " AND symbol != ''\n"
-              + " AND gacc != ''\n"
-              + " AND acc != ''\n"
+
+             // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
+             // + " AND gacc != ''\n"
+             // + " AND acc != ''\n"
               + notInClause
               + searchClause;
 
@@ -176,7 +178,7 @@ public class ReferenceDAO {
               //+ "GROUP BY pmid\n"
               + "ORDER BY date_of_publication DESC\n";
 
-             //System.out.println("alleleRef query: " + query);
+        //System.out.println("alleleRef query: " + query);
 
         List<ReferenceDTO> results = new ArrayList<>();
 

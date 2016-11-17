@@ -16,11 +16,12 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class AlleleService implements WebStatus{
 	private static final Logger logger = LoggerFactory.getLogger(AlleleService.class);
 
 	@Autowired @Qualifier("alleleCore")
-	private HttpSolrClient solr;
+	private SolrClient solr;
 
 	public AlleleService() {}
 
@@ -147,7 +148,7 @@ public class AlleleService implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		solrQuery.addFacetField(field);
 
-		logger.info(this.getClass().getEnclosingMethod() + "   " + solr.getBaseURL() + "/select?" + solrQuery);
+		logger.info(this.getClass().getEnclosingMethod() + "   " + SolrUtils.getBaseURL(solr) + "/select?" + solrQuery);
 
 		try {
 			solrResponse = solr.query(solrQuery);
@@ -206,7 +207,7 @@ public class AlleleService implements WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();

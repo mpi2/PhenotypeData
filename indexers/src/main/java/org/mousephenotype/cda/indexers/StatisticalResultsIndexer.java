@@ -70,8 +70,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	DataSource ontodbDataSource;
 
 	@Autowired
-	@Qualifier("statisticalResultsIndexing")
-	SolrClient statisticalResultsIndexing;
+	@Qualifier("statisticalResultCore")
+	SolrClient statisticalResultCore;
 
 	@Autowired
 	MpOntologyDAO mpOntologyService;
@@ -116,7 +116,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(statisticalResultsIndexing);
+		return super.validateBuild(statisticalResultCore);
 	}
 
 
@@ -160,7 +160,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		try {
 
-			statisticalResultsIndexing.deleteByQuery("*:*");
+			statisticalResultCore.deleteByQuery("*:*");
 
 			List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
 				getViabilityResults(),
@@ -179,8 +179,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					List<StatisticalResultDTO> documents = r.call();
 					count += documents.size();
-					statisticalResultsIndexing.addBeans(documents);
-					statisticalResultsIndexing.commit(true, true);
+					statisticalResultCore.addBeans(documents);
+					statisticalResultCore.commit(true, true);
 					checkSolrCount(count);
 
 				} catch (Exception e) {
@@ -221,7 +221,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("*:*").setRows(0);
-		QueryResponse response = statisticalResultsIndexing.query(query);
+		QueryResponse response = statisticalResultCore.query(query);
 		Long solrCount = response.getResults().getNumFound();
 
 		logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrCount, count, count - solrCount);
