@@ -2068,8 +2068,10 @@ public class DataTableController {
 			alleleSymbol = NA;
 			updatePaper(conn, updateSql, "", "", alleleSymbol, falsepositive, dbid, meshTerms);
 			j.put("reviewed", "yes");
+			j.put("falsepositive", falsepositive.equals("yes") ? "yes" : "no");
 			j.put("symbol", NA);
 		}
+
 		else if (! alleleSymbol.contains(",")) { // single symbol
 
 			// single allele symbols
@@ -2095,20 +2097,29 @@ public class DataTableController {
 					updatePaper(conn, updateSql, alleleAcc, geneAcc, alleleSymbol, falsepositive, dbid, meshTerms);
 
 					j.put("reviewed", "yes");
+					j.put("falsepositive", "no");
 					j.put("symbol", alleleSymbol);
 				}
 				else {
-					j.put("reviewed", "no");
-					j.put("symbol", "ERROR: setting symbol failed: could not find matching accession id");
+					// revert info in the db
+					Map<String, String> info = fetch_pmid_data(pmid);
+					j.put("reviewed", info.get("reviewed"));
+					j.put("falsepositive", info.get("falsepositive"));
+					j.put("error", "ERROR: setting symbol failed: could not find matching accession id");
 					j.put("allAllelesNotFound", true);
+					j.put("symbol", info.get("symbol"));
 				}
 
 			} catch (SQLException se) {
 				//Handle errors for JDBC
 				se.printStackTrace();
-				j.put("reviewed", "no");
-				j.put("symbol", "ERROR: setting symbol failed");
 
+				// revert info in the db
+				Map<String, String> info = fetch_pmid_data(pmid);
+				j.put("reviewed", info.get("reviewed"));
+				j.put("falsepositive", info.get("falsepositive"));
+				j.put("error", "ERROR: setting symbol failed");
+				j.put("symbol", info.get("symbol"));
 			}
 
 		}
@@ -2169,28 +2180,40 @@ public class DataTableController {
 			catch (SQLException se) {
 				//Handle errors for JDBC
 				se.printStackTrace();
-				j.put("reviewed", "no");
-				j.put("symbol", "ERROR: setting symbol failed");
 
+				// revert info in the db
+				Map<String, String> info = fetch_pmid_data(pmid);
+				j.put("reviewed", info.get("reviewed"));
+				j.put("falsepositive", info.get("falsepositive"));
+				j.put("error", "ERROR: setting symbol failed");
+				j.put("symbol", info.get("symbol"));
 			}
 
 			if ( nonMatchedAlleleSymbols.size() == alleleSymbols.size() ) {
 				// all symbols not found in KOMP2
-				j.put("reviewed", "no");
-				j.put("symbol", alleleSymbol);
+//				j.put("reviewed", "no");
+//				j.put("symbol", alleleSymbol);
+//				j.put("allAllelesNotFound", true);
+
+				Map<String, String> info = fetch_pmid_data(pmid);
+				j.put("reviewed", info.get("reviewed"));
+				j.put("falsepositive", info.get("falsepositive"));
+				j.put("error", "ERROR: setting symbol failed");
 				j.put("allAllelesNotFound", true);
+				j.put("symbol", info.get("symbol"));
 			}
 			else {
 				if ( matchedAlleleSymbols.size() == alleleSymbols.size() ){
 					// all matched
 					j.put("reviewed", "yes");
+					j.put("falsepositive", "no");
 					j.put("symbol", alleleSymbol);
 				}
 				else {
 					// displays only the matched ones
 					j.put("reviewed", "yes");
+					j.put("falsepositive", "no");
 					j.put("symbol", StringUtils.join(matchedAlleleSymbols, ","));
-
 					j.put("someAllelesNotFound", StringUtils.join(nonMatchedAlleleSymbols, ","));
 				}
 			}
@@ -2202,12 +2225,33 @@ public class DataTableController {
 		return j.toString();
 	}
 
+	private Map<String, String> fetch_pmid_data(Integer pmid) throws SQLException {
+		Connection conn = admintoolsDataSource.getConnection();
+
+		Map<String, String> info = new HashMap<>();
+
+		String query = "SELECT * FROM allele_ref WHERE pmid=?";
+		try (PreparedStatement p = conn.prepareStatement(query)) {
+			p.setInt(1, pmid);
+			ResultSet resultSet = p.executeQuery();
+			while (resultSet.next()) {
+				info.put("symbol", resultSet.getString("symbol"));
+				info.put("reviewed", resultSet.getString("reviewed"));
+				info.put("falsepositive", resultSet.getString("falsepositive"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return info;
+	}
+
 	private void updatePaper(
 			Connection conn, String updateSql,
 			String alleleAccsStr, String geneAccsStr,
 			String alleleSymbol, String falsepositive, Integer dbid,
 			String meshTerms) throws SQLException {
-		System.out.println(updateSql + " 1: " + alleleAccsStr + " 2: " + geneAccsStr + " 3: " + alleleSymbol + " 6: "  + falsepositive + " 7: " + meshTerms  + " 8: " +  dbid);
+		//System.out.println(updateSql + " 1: " + alleleAccsStr + " 2: " + geneAccsStr + " 3: " + alleleSymbol + " 6: "  + falsepositive + " 7: " + meshTerms  + " 8: " +  dbid);
 		PreparedStatement stmt = conn.prepareStatement(updateSql);
 		stmt.setString(1, alleleAccsStr);
 		stmt.setString(2, geneAccsStr);
@@ -2236,7 +2280,7 @@ public class DataTableController {
 		Boolean editMode = jParams.getString("editMode").equals("true") ? true : false;
 
 		String content = fetch_allele_ref_edit(iDisplayLength, iDisplayStart, sSearch, editMode);
-		System.out.println("ALLELE REF EDIT: " + content);
+		//System.out.println("ALLELE REF EDIT: " + content);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
     }
@@ -2367,20 +2411,19 @@ public class DataTableController {
 				String dbidStr = resultSet.getString("dbid");
 				//int dbid = resultSet.getInt("dbid");
                 ///String gacc = resultSet.getString("gacc");
-				String falsePositive = "<input type='checkbox' name='falsepositive'>False positive<br>";
-				String reviewed = resultSet.getString("reviewed").equals("yes") ? "<input type='checkbox' checked name='reviewed'>Reviewed<br><br>" : "<input type='checkbox' name='reviewed'>Reviewed<br><br>";
 				String alleleSymbol = resultSet.getString("symbol").isEmpty() ? "Symbol needs hand curation" : Tools.superscriptify(resultSet.getString("symbol")).replaceAll(delimeter, ", ");
 
 				if (editMode){
-					String hint = "<span class='hint'>symbol can be Sox13&lt;sup&gt;tm1a(EUCOMM)Wtsi&lt;/sup&gt; or Sox13&lt;tm1a(EUCOMM)Wtsi&gt;. Separate by comma if multiple.</span><br><br>";
+					String falsePositive = "<input type='checkbox' name='falsepositive'>False positive<br>";
+					String reviewed = resultSet.getString("reviewed").equals("yes") ? "<input type='checkbox' checked name='reviewed'>Reviewed<br><br>" : "<input type='checkbox' name='reviewed'>Reviewed<br><br>";
+
 					alleleSymbol = "<form class='alleleSub'>"
-							+ falsePositive
-							+ reviewed
-							+ "<textarea name='asymbolForm'>" + alleleSymbol + "</textarea><br><br>"
-							+ "Hint: "
-							+ hint
-							+ "<input class='update' type='button' value='Update'>"
-							+ "</form>";
+						+ falsePositive
+						+ reviewed
+						+ "<textarea name='asymbolForm'>" + alleleSymbol + "</textarea><br><br>"
+						+ "<input class='update' type='button' value='Update'>"
+						+ "<a><i class='fa fa-question-circle fa-1x howto'></i></a>"
+						+ "</form>";
 				}
 				//String alLink = alleleSymbol.equals("") ? "" : "<a target='_blank' href='" + impcGeneBaseUrl + resultSet.getString("gacc") + "'>" + alleleSymbol + "</a>";
 				rowData.add(alleleSymbol);

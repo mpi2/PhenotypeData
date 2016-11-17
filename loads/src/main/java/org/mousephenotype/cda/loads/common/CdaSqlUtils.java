@@ -29,6 +29,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -214,6 +215,25 @@ public class CdaSqlUtils {
         return bm;
     }
 
+
+    /**
+     *
+     * @return a map of {@link BiologicalSample}, keyed by external_id.
+     */
+    public Map<String, BiologicalSample> getBiologicalSamples() {
+
+        Map<String, BiologicalSample> map = new HashMap<>();
+        String query = "SELECT * FROM biologcial_sample WHERE external_id = :external_id";
+
+        List<BiologicalSample> samples = jdbcCda.query(query, new BeanPropertyRowMapper(BiologicalSample.class));
+        for (BiologicalSample sample : samples) {
+            map.put(sample.getStableId(), sample);
+        }
+
+        return map;
+    }
+
+
     /**
      * Return the {@link BiologicalModel} for the given input parameters
      *
@@ -288,7 +308,7 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaDb_idsByDccDatasourceShortName() {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Datasource> results = jdbcCda.queryForList("SELECT * FROM external_db", new ConcurrentHashMap<>(), Datasource.class);
+        List<Datasource> results = jdbcCda.query("SELECT * FROM external_db", new BeanPropertyRowMapper(Datasource.class));
         for (Datasource result : results) {
             map.put(result.getShortName(), result.getId());
         }
@@ -300,15 +320,26 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda organisation_id primary keys, keyed by dcc center.centerId
      */
-    public Map<String, Integer> getCdaOrganisation_idsByDccCenterId() {
+    public Map<String, Integer> getCdaOrganisation_idsByDccCenterId(List<String> dccCenterIds) {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Organisation> results = jdbcCda.queryForList("SELECT * FROM organisation", new ConcurrentHashMap<>(), Organisation.class);
-        Map<String, String> cdaOrganisation_idToDccCenterIdMap = LoadUtils.inverseMap(LoadUtils.mappedOrganisationName);
-        for (Organisation result : results) {
-            String dccKey = cdaOrganisation_idToDccCenterIdMap.get(result.getName());
-            if (dccKey != null) {
-                map.put(dccKey, result.getId());
+        List<Organisation>                  organisations             = jdbcCda.query("SELECT * FROM organisation", new BeanPropertyRowMapper(Organisation.class));
+        Map<String, String>                 mappedOrganisationNames   = LoadUtils.mappedOrganisationNames;
+
+        for (Organisation result : organisations) {
+            Iterator<Map.Entry<String, String>> mappedOrganisationNamesIt = mappedOrganisationNames.entrySet().iterator();
+            String organisationName = result.getName();
+            String centerId = null;
+            while (mappedOrganisationNamesIt.hasNext()) {
+                Map.Entry<String, String> entry = mappedOrganisationNamesIt.next();
+                if (entry.getValue().equals(organisationName)) {
+                    centerId = entry.getKey();
+                    break;
+                }
+            }
+
+            if (centerId != null) {
+                map.put(centerId, result.getId());
             }
         }
 
@@ -322,7 +353,7 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaProject_idsByDccProject() {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Project>       results                     = jdbcCda.queryForList("SELECT * FROM project", new ConcurrentHashMap<>(), Project.class);
+        List<Project>       results                     = jdbcCda.query("SELECT * FROM project", new BeanPropertyRowMapper(Project.class));
         Map<String, String> cdaProject_idToDccProjectMap = LoadUtils.inverseMap(LoadUtils.mappedProjectNames);
         for (Project result : results) {
             String dccKey = cdaProject_idToDccProjectMap.get(result.getName());
@@ -341,9 +372,9 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaPipeline_idsByDccPipeline() {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Pipeline> results = jdbcCda.queryForList("SELECT * FROM phenotype_pipeline", new ConcurrentHashMap<>(), Pipeline.class);
+        List<Pipeline> results = jdbcCda.query("SELECT * FROM phenotype_pipeline", new BeanPropertyRowMapper(Pipeline.class));
         for (Pipeline result : results) {
-            map.put(result.getName(), result.getId());
+            map.put(result.getStableId(), result.getId());
         }
 
         return map;
@@ -356,9 +387,9 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaProcedure_idsByDccPipeline() {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Pipeline> results = jdbcCda.queryForList("SELECT * FROM phenotype_procedure", new ConcurrentHashMap<>(), Pipeline.class);
+        List<Pipeline> results = jdbcCda.query("SELECT * FROM phenotype_procedure", new BeanPropertyRowMapper(Pipeline.class));
         for (Pipeline result : results) {
-            map.put(result.getName(), result.getId());
+            map.put(result.getStableId(), result.getId());
         }
 
         return map;
@@ -715,9 +746,14 @@ public class CdaSqlUtils {
             String pipeline_stable_id,
             int procedure_id,
             String procedure_stable_id,
-            String colony_id
-            
+            String colony_id,
+            String procedure_status,
+            String procedure_status_message,
+            Integer biological_model_id,
+            String metadataCombined,
+            String metadataGroup
     ) throws DataLoadException {
+
             Integer pk = null;
 
             final String insert = "INSERT INTO experiment (" +
@@ -735,18 +771,19 @@ public class CdaSqlUtils {
                 parameterMap.put("external_id", external_id);
                 parameterMap.put("sequence_id", sequence_id);
                 parameterMap.put("date_of_experiment", date_of_experiment);
-                parameterMap.put("orgainsation_id", organisation_id);
+                parameterMap.put("external_id", external_id);
+                parameterMap.put("organisation_id", organisation_id);
                 parameterMap.put("project_id", project_id);
                 parameterMap.put("pipeline_id", pipeline_id);
                 parameterMap.put("pipeline_stable_id", pipeline_stable_id);
                 parameterMap.put("procedure_id", procedure_id);
                 parameterMap.put("procedure_stable_id", procedure_stable_id);
-//                parameterMap.put("biological_model_id", experiment.getModel().getId());
-//                parameterMap.put("colony_id", experiment.getColonyId());
-//                parameterMap.put("metadata_combined", experiment.getMetadataCombined());
-//                parameterMap.put("metadata_group", experiment.getMetadataGroup());
-//                parameterMap.put("procedure_status", experiment.getProcedureStatus());
-//                parameterMap.put("procedure_status_message", experiment.getProcedureStatusMessage());
+                parameterMap.put("biological_model_id", biological_model_id);
+                parameterMap.put("colony_id", colony_id);
+                parameterMap.put("metadata_combined", metadataCombined);
+                parameterMap.put("metadata_group", metadataGroup);
+                parameterMap.put("procedure_status", procedure_status);
+                parameterMap.put("procedure_status_message", procedure_status_message);
 
                 KeyHolder keyholder = new GeneratedKeyHolder();
                 SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);

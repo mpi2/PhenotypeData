@@ -16,13 +16,15 @@
 
 package org.mousephenotype.cda.loads.create.load.steps;
 
-import org.mousephenotype.cda.db.pojo.Experiment;
-import org.mousephenotype.cda.db.pojo.PhenotypedColony;
+import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccExperimentDTO;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
+import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.SimpleParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
@@ -36,10 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -52,6 +52,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private CommonUtils                commonUtils = new CommonUtils();
     private CdaSqlUtils                cdaSqlUtils;
     private DccSqlUtils                dccSqlUtils;
+    private EuroPhenomeStrainMapper    euroPhenomeStrainMapper;
     private NamedParameterJdbcTemplate jdbcCda;
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
@@ -127,63 +128,71 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
 
-
+    // lookup maps returning cda table primary key given dca unique string
     private Map<String, Integer> cdaDb_idMap;
     private Map<String, Integer> cdaOrganisation_idMap;
     private Map<String, Integer> cdaProject_idMap;
     private Map<String, Integer> cdaPipeline_idMap;
     private Map<String, Integer> cdaProcedure_idMap;
+    private Map<String, BiologicalSample> samplesMap;
+
+    // lookup maps returning specified parameter type list given cda procedure primary key
+    private ConcurrentHashMap<String, Allele> allelesBySymbolMap;
+
+
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         long startStep = new Date().getTime();
         Experiment experiment;
+        Observation observation;
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
         Map<String, Integer>   counts;
 
+        euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
+        allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
+
+        cdaSqlUtils.getAllelesBySymbol();
+
         // Initialise maps.
+        List<String> dccCenterIds = dccSqlUtils.getCenterIds();
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
-        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
+        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId(dccCenterIds);
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccPipeline();
+        samplesMap = cdaSqlUtils.getBiologicalSamples();
 
         for (DccExperimentDTO dccExperiment : dccExperiments) {
+
             experiment = insertExperiment(dccExperiment);
-
-
-
-
-
-//            String sampleGroup = (experiment.isIsBaseline()) ? "control" : "experimental";
-//            boolean isControl = (sampleGroup.equals("control"));
-//
-//            if (isControl) {
-//                counts = insertSampleControlSpecimen(experiment);
-//                written.put("controlSample", written.get("controlSample") + 1);
-//            } else {
-//                counts = insertSampleExperimentalSpecimen(experiment);
-//                written.put("experimentalSample", written.get("experimentalSample") + 1);
-//            }
-//
-//            written.put("biologicalModel", written.get("biologicalModel") + counts.get("biologicalModel"));
-//            written.put("biologicalSample", written.get("biologicalSample") + counts.get("biologicalSample"));
-//            written.put("liveSample", written.get("liveSample") + counts.get("liveSample"));
         }
 
-//        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
-//        while (missingColonyIdsIt.hasNext()) {
-//            String colonyId = missingColonyIdsIt.next();
-//            logger.error("Missing phenotyped_colony information for dcc-supplied colony " + colonyId + ". Skipping...");
-//        }
+        Iterator<String> missingCentersIt = missingCenters.iterator();
+        while (missingCentersIt.hasNext()) {
+            String centerId = missingCentersIt.next();
+            logger.error("Missing center '" + centerId + "'. Skipping...");
+        }
 
-//        Iterator<String> unexpectedStageIt = unexpectedStage.iterator();
-//        while (unexpectedStageIt.hasNext()) {
-//            String stage = unexpectedStageIt.next();
-//            logger.info("Unexpected value for embryonic DCP stage: " + stage);
-//        }
-//
+        Iterator<String> missingPipelinesIt = missingPipelines.iterator();
+        while (missingPipelinesIt.hasNext()) {
+            String pipelineId = missingPipelinesIt.next();
+            logger.error("Missing pipeline '" + pipelineId + "'. Skipping...");
+        }
+
+        Iterator<String> missingProceduresIt = missingProcedures.iterator();
+        while (missingProceduresIt.hasNext()) {
+            String procedureId = missingProceduresIt.next();
+            logger.error("Missing procedure '" + procedureId + "'. Skipping...");
+        }
+
+        Iterator<String> missingProjectsIt = missingProjects.iterator();
+        while (missingProjectsIt.hasNext()) {
+            String projectId = missingProjectsIt.next();
+            logger.error("Missing project '" + projectId + "'. Skipping...");
+        }
+
 //        logger.info("Wrote {} new biological models", written.get("biologicalModel"));
 //        logger.info("Wrote {} new biological samples", written.get("biologicalSample"));
 //        logger.info("Wrote {} new live samples", written.get("liveSample"));
@@ -206,52 +215,79 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return experiment;
     }
 
+    private Set<String> missingCenters    = new HashSet<>();
+    private Set<String> missingProjects   = new HashSet<>();
+    private Set<String> missingPipelines  = new HashSet<>();
+    private Set<String> missingProcedures = new HashSet<>();
+
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
 
-//        String colonyId;                        // FIXME
-//        PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getProcedure().)
-
-//        Date dateOfExperiment = getDateOfExperiment(dccExperiment);
-//        if (dateOfExperiment == null) {
-//            return null;
-//        }
-
         int db_id;
-        String external_id;
-        String sequence_id;
-        Date date_of_experiment;
-        int organisation_id;
-        int project_id;
-        int pipeline_id;
+        Integer organisation_id;
+        Integer project_id;
+        Integer pipeline_id;
         String pipeline_stable_id;
-        int procedure_id;
+        Integer procedure_id;
         String procedure_stable_id;
+        String external_id;
+        String procedure_status;
+        String procedure_status_message;
+
         String colony_id;
-        int biologicalModelId;
+        Date date_of_experiment;
+        String sequence_id;
+
+        Integer biological_model_id;
         String metadataCombined;
         String metadataGroup;
-        String procedureStatus;
-        String procedureStatusMessage;
 
         db_id = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
-        external_id = dccExperiment.getExperimentId();
-        sequence_id = dccExperiment.getSequenceId();
-        // sample-level procedures must have a correctly-formatted date. line-level ones are always null.
-        if (dccExperiment.isLineLevel()) {
-            date_of_experiment = getDateOfExperiment(dccExperiment);
-            if (date_of_experiment == null) {
-                return null;
-            }
-        } else {
-            date_of_experiment = null;
-        }
         organisation_id = cdaOrganisation_idMap.get(dccExperiment.getCenterId());
+        if (organisation_id == null) {
+            missingCenters.add(dccExperiment.getCenterId());
+            return null;
+        }
         project_id = cdaProject_idMap.get(dccExperiment.getProject());
+        if (project_id == null) {
+            missingProjects.add(dccExperiment.getProject());
+            return null;
+        }
         pipeline_id = cdaPipeline_idMap.get(dccExperiment.getPipeline());
+        if (pipeline_id == null) {
+            missingPipelines.add(dccExperiment.getPipeline());
+            return null;
+        }
         pipeline_stable_id = dccExperiment.getPipeline();
         procedure_id = cdaProcedure_idMap.get(dccExperiment.getProcedureId());
+        if (procedure_id == null) {
+            missingProcedures.add(dccExperiment.getProcedureId());
+            return null;
+        }
         procedure_stable_id = dccExperiment.getProcedureId();
+        external_id = dccExperiment.getExperimentId();
+        String[] rawProcedureStatus = commonUtils.parseImpressStatus(dccExperiment.getRawProcedureStatus());
+        procedure_status = rawProcedureStatus[0];
+        procedure_status_message = rawProcedureStatus[1];
+
+        // Determining the biological_model_id for line-level procedures requires the experiment's list of SimpleParameter first.
+        List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
+
+
+
+
+
+
+        // Within the scope of the cda experiment, line-level procedures have:
+        //   - no dcc experiment info (e.g. no date_of_experimentor or sequence_id). The external_id is computed from
+        //     a concatenation of Dcc procedureId and colonyId.
+        //   - non-null colony_id
+        //   - non-null biological_model_id
+        //   Create an external_id from the dcc procedureId and colonyId.
+        // sample-level procedures have:
+        //  - date_of_experiment (skip if it is null), external_id, sequence_id (though it may be null)
+        //  - null colony_id
+        //  - null biological_model_id
         if (dccExperiment.isLineLevel()) {
             PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
@@ -259,9 +295,26 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 return null;
             }
             colony_id = phenotypedColony.getColonyName();
+            date_of_experiment = null;
+
+
+
+
+            sequence_id = null;
+            biological_model_id = getBiologicalModelId(colony_id, simpleParameters);
+
         } else {
             colony_id = null;
+            date_of_experiment = getDateOfExperiment(dccExperiment);
+            if (date_of_experiment == null) {
+                return null;
+            }
+            sequence_id = dccExperiment.getSequenceId();
+            biological_model_id = null;
         }
+
+metadataCombined = null;
+metadataGroup = null;
 
         cdaSqlUtils.insertExperiment(
                 db_id,
@@ -274,7 +327,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 pipeline_stable_id,
                 procedure_id,
                 procedure_stable_id,
-                colony_id
+                colony_id,
+                procedure_status,
+                procedure_status_message,
+                biological_model_id,
+                metadataCombined,
+                metadataGroup
         );
 
         return experiment;
@@ -305,12 +363,20 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 //        }
 //    }
 
+
+    private Observation createObservations(DccExperimentDTO dccExperimentDTO, Experiment cdaExperiment) {
+        Observation observation = new Observation();
+
+
+        return observation;
+    }
+
     /**
      * Validates and returns date of experiment, if valid; null otherwise. Logs null/invalid dates.
      * @param dccExperiment
      * @return the date of experiment, if valid; null otherwise.
      */
-    public Date getDateOfExperiment(DccExperimentDTO dccExperiment) {
+    private Date getDateOfExperiment(DccExperimentDTO dccExperiment) {
         Date dateOfExperiment = null;
         SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -337,5 +403,44 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
 
         return dateOfExperiment;
+    }
+
+    private int getBiologicalModelId(
+            String colony_id,
+            List<SimpleParameter> simpleParameters) throws DataLoadException {
+        int biological_model_id = 0;
+
+        String zygosity = getZygosity(simpleParameters);
+        String sampleGroup = "experimental";
+        biological_model_id = cdaSqlUtils.selectOrInsertBiologicalModel(colony_id, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbolMap).getId();
+
+        return biological_model_id;
+    }
+
+    private String getZygosity(List<SimpleParameter> simpleParameters) {
+
+        // Default zygosity is homozygous since most of the time this will be the case
+        ZygosityType zygosity = ZygosityType.homozygote;
+
+        // Check if Hemizygote
+        for (SimpleParameter param : simpleParameters) {
+
+            // Find the associated "Outcome" parameter
+            if (param.getParameterID()
+                     .equals("IMPC_VIA_001_001")) {
+
+                // Found the outcome parameter, check zygosity
+                String category = param.getValue();
+
+                if (category != null && category.contains("Hemizygous")) {
+                    zygosity = ZygosityType.hemizygote;
+                }
+
+                break;
+            }
+
+        }
+
+        return zygosity.getName();
     }
 }
