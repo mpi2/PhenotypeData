@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,6 +47,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
@@ -61,7 +61,6 @@ import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +85,6 @@ import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.ebi.phenotype.web.controller.PaperController;
 
 @Controller
 public class DataTableController {
@@ -1996,33 +1994,16 @@ public class DataTableController {
 		return setAlleleSymbol(dbid, pmid, alleleSymbol, falsepositive, reviewed);
 	}
 
-	@RequestMapping(value = "/dataTableAlleleRefSetFalsePositive", method = RequestMethod.POST)
+	@RequestMapping(value = "/fetchAlleleRefPmidData", method = RequestMethod.POST)
 	public @ResponseBody
-	Boolean updateFalsePositive(
-			@RequestParam(value = "value", required = true) String falsePositive,
-			@RequestParam(value = "id", required = true) String dbidStr,
+	String fetchAlleleRefPmidData(
+			@RequestParam(value = "pmid", required = true) String pmidStr,
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
 
-		Integer dbid = Integer.parseInt(dbidStr);
-		// store new value to database
-		System.out.println("Doing falsepos setting");
-		return setFalsePositive(dbid, falsePositive);
-	}
-
-	public Boolean setFalsePositive(Integer dbid, String falsePositive) throws SQLException {
-		Connection conn = admintoolsDataSource.getConnection();
-
-		String uptSql = "UPDATE allele_ref SET falsepositive=?, reviewed=?, acc='', gacc='', timestamp=? WHERE dbid=?";
-		PreparedStatement stmt = conn.prepareStatement(uptSql);
-		stmt.setString(1, falsePositive);
-		stmt.setString(2, falsePositive.equals("yes") ? "yes" : "no");
-		stmt.setString(3, String.valueOf(new Timestamp(System.currentTimeMillis())));
-		stmt.setInt(4, dbid);
-		stmt.executeUpdate();
-		System.out.println("Falsepositive value: " + falsePositive);
-		return true;
+		Integer pmid = Integer.parseInt(pmidStr);
+		return new ObjectMapper().writeValueAsString(fetchPmidData(pmid));
 	}
 
 	private String fetchMeshTermsByPmid(Integer pmid) {
@@ -2102,7 +2083,7 @@ public class DataTableController {
 				}
 				else {
 					// revert info in the db
-					Map<String, String> info = fetch_pmid_data(pmid);
+					Map<String, String> info = fetchPmidData(pmid);
 					j.put("reviewed", info.get("reviewed"));
 					j.put("falsepositive", info.get("falsepositive"));
 					j.put("error", "ERROR: setting symbol failed: could not find matching accession id");
@@ -2115,7 +2096,7 @@ public class DataTableController {
 				se.printStackTrace();
 
 				// revert info in the db
-				Map<String, String> info = fetch_pmid_data(pmid);
+				Map<String, String> info = fetchPmidData(pmid);
 				j.put("reviewed", info.get("reviewed"));
 				j.put("falsepositive", info.get("falsepositive"));
 				j.put("error", "ERROR: setting symbol failed");
@@ -2182,7 +2163,7 @@ public class DataTableController {
 				se.printStackTrace();
 
 				// revert info in the db
-				Map<String, String> info = fetch_pmid_data(pmid);
+				Map<String, String> info = fetchPmidData(pmid);
 				j.put("reviewed", info.get("reviewed"));
 				j.put("falsepositive", info.get("falsepositive"));
 				j.put("error", "ERROR: setting symbol failed");
@@ -2195,7 +2176,7 @@ public class DataTableController {
 //				j.put("symbol", alleleSymbol);
 //				j.put("allAllelesNotFound", true);
 
-				Map<String, String> info = fetch_pmid_data(pmid);
+				Map<String, String> info = fetchPmidData(pmid);
 				j.put("reviewed", info.get("reviewed"));
 				j.put("falsepositive", info.get("falsepositive"));
 				j.put("error", "ERROR: setting symbol failed");
@@ -2225,7 +2206,7 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	private Map<String, String> fetch_pmid_data(Integer pmid) throws SQLException {
+	public Map<String, String> fetchPmidData(Integer pmid) throws SQLException {
 		Connection conn = admintoolsDataSource.getConnection();
 
 		Map<String, String> info = new HashMap<>();
