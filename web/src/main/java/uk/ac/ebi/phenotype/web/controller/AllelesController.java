@@ -100,8 +100,7 @@ public class AllelesController {
             RedirectAttributes attributes) throws Exception {
 
         log.info("#### alleles1...");
-        List<Map<String, Object>> list;
-        String redirectUrl="redirect:search";
+        String redirectUrl="redirect:/search";
         if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
                 log.info("redirect to search with pipeline = Cre");
                 redirectUrl=redirectUrl+"?creLine=true";
