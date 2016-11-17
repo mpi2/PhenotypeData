@@ -33,7 +33,7 @@ public class OrderService {
 	 @Value("${imits.solr.host}")
 	 private String IMITS_SOLR_CORE_URL;
 	 
-	 private String selectCre="/selectCre";
+	 public static String selectCre="/selectCre";
 
 	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();

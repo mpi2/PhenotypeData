@@ -54,7 +54,7 @@ public class LoadUtils {
     /**
      * Maps external input names to Organisation.name. Lookups are case-insensitive.
      */
-    public static final Map<String, String> mappedOrganisationName = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+    public static final Map<String, String> mappedOrganisationNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
         //   External name          Organisation.name
         put("CDTA",                 "CDTA");
         put("Bcm",                  "BCM");
@@ -80,7 +80,7 @@ public class LoadUtils {
      */
     public Organisation translateILAR(NamedParameterJdbcTemplate jdbcCda, String ilarValue) {
         String query = "SELECT * FROM organisation WHERE name = :name";
-        String organisationName = mappedOrganisationName.get(ilarValue);
+        String organisationName = mappedOrganisationNames.get(ilarValue);
         if (organisationName == null)
             return null;
 
