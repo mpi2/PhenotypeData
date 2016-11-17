@@ -155,6 +155,34 @@ public class CommonUtils {
     }
 
     /**
+     * Given an Impress rawStatus in the form "xxx[:yyy]" (where ":yyy" is optional), returns xxx as the first element, and yyy
+     * (if it exists) as the second element. Any/all missing parts are returned as null strings in the returned array.
+     * The returned array is guaranteed to always have exactly two elements.
+     * @param rawStatus the status to parse
+     * @return the status in element[0], the status message in element[1]. Either/all elements may be null.
+     */
+    public String[] parseImpressStatus(String rawStatus) {
+        String[] retVal = new String[] { null, null };
+
+        if ((rawStatus == null) || rawStatus.trim().isEmpty()) {
+            return retVal;
+        }
+
+        // Can't use String.split, as tokens can contain multiple ":", and we only want to split on the first occurence.
+        int idx = rawStatus.indexOf(":");
+        if (idx == -1) {
+            retVal[0] = rawStatus;
+        } else {
+            retVal[0] = rawStatus.substring(0, idx);
+            try {       // Just in case colon terminates the string
+                retVal[1] = rawStatus.substring(idx + 1);
+            } catch (Exception e) { }
+        }
+
+        return retVal;
+    }
+
+    /**
      * Returns a String containing the start, stop, and elapsed time, wrapped in parentheses.
      * @param start start time, in milliseconds
      * @param stop stop time, in milliseconds

@@ -116,7 +116,7 @@ public class LoadFromDcc implements CommandLineRunner {
 
         Job[] jobs = new Job[] {
                   fromDccEurophenome(),
-                  fromDcc()
+//                  fromDcc()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -162,8 +162,9 @@ public class LoadFromDcc implements CommandLineRunner {
 
         return jobBuilderFactory.get("samplesJob")
                 .incrementer(new RunIdIncrementer())
-                .start(samplesFlow)
+//                .start(samplesFlow)
 //                .next(experimentsFlow)
+                .start(experimentsFlow)
                 .end()
                 .build();
     }
