@@ -140,6 +140,7 @@ public class PaperController {
 
 		List<String> pmidQrys = new ArrayList<>();
 		List<String> pmidStrs = Arrays.asList(idStr.split(","));
+		int pmidCount = pmidStrs.size();
 
 		System.out.println("Got paper id str: "+idStr);
 		for( String pmidStr : pmidStrs ){
@@ -147,7 +148,9 @@ public class PaperController {
 		}
 
 		Connection conn = admintoolsDataSource.getConnection();
-		PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO allele_ref "
+
+		// make sure do not insert duplicate pmid
+		PreparedStatement insertStatement = conn.prepareStatement("INSERT IGNORE INTO allele_ref "
 				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh) "
 				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)");
 
@@ -155,11 +158,13 @@ public class PaperController {
 		String failStatus = "";
 		String successStatus = "";
 		String notFoundStatus = "";
+		String ignoreStatus = "";
+		int ignoredCount = 0;
 
 		Map<Integer, Pubmed> pubmeds = fetchEuropePubmedData(pmidQrys);
 
 		if (pubmeds.size() == 0) {
-			status = "Your paper ids are not found in pubmed database";
+			status = "Paper id(s) not found in pubmed database";
 		}
 		else {
 			//System.out.println("found " + pubmeds.size() + " papers");
@@ -181,7 +186,11 @@ public class PaperController {
 				String msg = savePmidData(pub, insertStatement);
 
 				//System.out.println("insert status: "+msg);
-				if ( ! msg.equals("success") ){
+				if (msg.contains("duplicate ")){
+					ignoreStatus += pub.getPmid() + "\n";
+					ignoredCount++;
+				}
+				else if ( ! msg.equals("success") ){
 					//System.out.println("failed: "+ msg);
 					msg = msg.replace(" for key 'pmid'", "");
 					failedPmids.add(pmidStr);
@@ -191,11 +200,17 @@ public class PaperController {
 					successStatus += pmidStr + " added to database\n";
 				}
 
-
 				it.remove(); // avoids a ConcurrentModificationException
 			}
-			if ( failedPmids.size() == 0 && foundPmids.size() == pmidStrs.size()) {
-				status = "Pmid(s) added successfully";
+
+			String submitted = pmidCount + " PMID(s) submitted\n";
+			status += submitted;
+
+			if ( failedPmids.size() == 0 && foundPmids.size() == pmidCount && ignoreStatus.isEmpty() ) {
+				status += pmidCount + " PMID(s) added successfully";
+			}
+			else if (failedPmids.size() == 0 && foundPmids.size() == pmidCount && ! ignoreStatus.isEmpty() ){
+				status += ignoredCount + " PMID(s) ignored  - already in database:\n" + ignoreStatus;
 			}
 			else {
 				failStatus += fetchNotFoundMsg(pmidStrs, failedPmids);
@@ -233,12 +248,13 @@ public class PaperController {
 		// 12.journal, 13.paper_url, 14.datasource, 15.timestamp, 16.falsepositive, 17.mesh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
 
 		final String delimiter = "|||";
+		int pmid = pub.getPmid();
 
 		insertStatement.setString(1, "");
 		insertStatement.setString(2, "");
 		insertStatement.setString(3, "");
 		insertStatement.setString(4, "");
-		insertStatement.setInt(5, pub.getPmid());
+		insertStatement.setInt(5, pmid);
 		insertStatement.setString(6, pub.getDateOfPublication());
 		insertStatement.setString(7, "no"); // reviewed, default is no
 
@@ -296,6 +312,10 @@ public class PaperController {
 
 		try {
 			int count = insertStatement.executeUpdate();
+			//System.out.println("INSERTED counter: " + count);
+			if (count==0){
+				return "duplicate " + pmid;
+			}
 			return "success";
 		}
 		catch(SQLException se){

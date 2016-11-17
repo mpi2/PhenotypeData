@@ -1,54 +1,44 @@
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.enumerations.OrderType;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
-import org.mousephenotype.cda.solr.web.dto.LinkDetails;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderService {
 
 	@Autowired
 	@Qualifier("allele2Core")
-	private HttpSolrClient allele2Core;
-
-	@Autowired
-	@Qualifier("eucommCreProductsCore")
-	private HttpSolrClient eucommProduct;
+	private SolrClient allele2Core;
 
 	@Autowired
 	@Qualifier("productCore")
-	private HttpSolrClient productCore;
+	private SolrClient productCore;
 	
 	 @Value("${imits.solr.host}")
 	 private String IMITS_SOLR_CORE_URL;
+	 
+	 private String selectCre="/selectCre";
 
-	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows) throws SolrServerException, IOException {
+	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
-		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows);
+		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows, creLine);
+		System.out.println("size of allele2DTOS"+allele2DTOs.size());
 
 		for (Allele2DTO allele : allele2DTOs) {
 			OrderTableRow row = new OrderTableRow();	
@@ -71,25 +61,43 @@ public class OrderService {
 		return orderTableRows;
 	}
 
-	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows) throws SolrServerException, IOException {
+	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows, boolean creLine) throws SolrServerException, IOException {
+		
 		String q = "*:*";// default if no gene specified
 		if (geneAcc != null) {
 			q = "mgi_accession_id:\"" + geneAcc + "\"";// &start=0&rows=100&hl=true&wt=json";
 		}
 		SolrQuery query = new SolrQuery();
+		if(creLine){
+			query.setRequestHandler(selectCre);
+		}
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
 		query.addFilterQuery("("+Allele2DTO.ES_CELL_AVAILABLE+":true OR "+Allele2DTO.TARGETING_VECTOR_AVAILABLE+":true OR "+Allele2DTO.MOUSE_AVAILABLE+":true)" );
+		
 		if(rows!=null){
-		query.setRows(rows);
+			query.setRows(rows);
+		}else{
+			query.setRows(Integer.MAX_VALUE);
 		}
-		//System.out.println("query for alleles=" + query);
+		
+		System.out.println("query for allele2DTOs=" + query);
 		QueryResponse response = allele2Core.query(query);
 		System.out.println("number found of allele2 docs=" + response.getResults().getNumFound());
 		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
 
 		return allele2DTOs;
 
+	}
+	
+	public boolean crelineAvailable(String geneAccession) throws SolrServerException, IOException{
+		boolean creLineAvailable=false;
+		boolean searchCreline=true;
+		List<Allele2DTO> rows=this.getAllele2DTOs(geneAccession, 1, searchCreline);
+		if(rows.size()>0){
+			creLineAvailable= true;
+		}
+		return creLineAvailable;
 	}
 
 	public Allele2DTO getAlleForGeneAndAllele(String acc, String allele, boolean creline) throws SolrServerException, IOException {
@@ -99,7 +107,7 @@ public class OrderService {
 		}
 		SolrQuery query = new SolrQuery();
 		if(creline){
-			query.setRequestHandler("selectCre");
+			query.setRequestHandler(selectCre);
 		}
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
@@ -114,16 +122,16 @@ public class OrderService {
 	}
 
 	protected Map<String, List<ProductDTO>> getProductsForAllele(String alleleName) throws SolrServerException, IOException {
-		return this.getProducts(null, alleleName, null);
+		return this.getProducts(null, alleleName, null, false);
 	}
 
 	protected Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
-		return this.getProducts(geneAcc, null, null);
+		return this.getProducts(geneAcc, null, null, false);
 	}
 
-	public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName, OrderType productType)  throws SolrServerException, IOException {
+	public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName, OrderType productType, boolean creLine)  throws SolrServerException, IOException {
 		List<ProductDTO> productList = null;
-		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType);
+		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType, creLine);
 		if (productsMap.keySet().size() > 1) {
 			System.err.println("more than one key for products - should only be one");
 		}
@@ -145,7 +153,7 @@ public class OrderService {
 		return orderNameToProductList;
 	}
 
-	protected Map<String, List<ProductDTO>> getProducts(String geneAcc, String alleleName, OrderType productType)
+	protected Map<String, List<ProductDTO>> getProducts(String geneAcc, String alleleName, OrderType productType, boolean creLine)
 			throws SolrServerException, IOException {
 		Map<String, List<ProductDTO>> alleleNameToProductsMap = new HashMap<>();
 		String q = "*:*";
@@ -154,6 +162,9 @@ public class OrderService {
 		}
 
 		SolrQuery query = new SolrQuery();
+		if(creLine){
+			query.setRequestHandler(selectCre);
+		}
 		query.setQuery(q);
 		if (alleleName != null) {
 			query.addFilterQuery("allele_name:\"" + alleleName + "\"");
@@ -162,6 +173,7 @@ public class OrderService {
 		if (productType != null) {
 			query.addFilterQuery("type:" + productType);
 		}
+		
 		query.addFilterQuery("production_completed:true");
 
 		QueryResponse response = productCore.query(query);
@@ -183,13 +195,17 @@ public class OrderService {
 	 * @param type es_cell or mouse etc
 	 * @param productName e.g. EPD0386_3_A05
 	 * @param alleleName 
+	 * @param creLine TODO
 	 * @return 
 	 * @throws SolrServerException 
 	 */
-	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName) throws SolrServerException, IOException {
+	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName, boolean creLine) throws SolrServerException, IOException {
 		ProductDTO prod=null;
 		List<String>qcData=null;
 		SolrQuery query = new SolrQuery();
+		if(creLine){
+			query.setRequestHandler(selectCre);
+		}
 		String q="name:"+productName;
 		query.setQuery(q);
 		if (type != null) {
@@ -221,8 +237,6 @@ public class OrderService {
 	
 	/**
 	 * method copied from Peters code
-	 * @param docs
-	 * @param i
 	 * @return
 	 */
 	 private HashMap<String, HashMap<String, List<String>>> extractQcData(List<String> qcStrings) {
@@ -263,9 +277,13 @@ public class OrderService {
 			query.addFilterQuery("(type:mouse OR type:es_cell)");
 			
 			query.setRows(Integer.MAX_VALUE);
+
+		 //
+		 // TODO: Update for displaying the CRELINE products at the bottom of the gene page
+		 //
 			
 			System.out.println("query for cre  products=" + query);
-			QueryResponse response = eucommProduct.query(query);
+			QueryResponse response = productCore.query(query);
 			System.out.println("number found of products docs=" + response.getResults().getNumFound());
 			List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
 			for(ProductDTO prod:productDTOs){

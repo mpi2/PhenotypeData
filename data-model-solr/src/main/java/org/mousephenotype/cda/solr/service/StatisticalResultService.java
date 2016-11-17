@@ -18,10 +18,10 @@ package org.mousephenotype.cda.solr.service;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
@@ -37,6 +37,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
@@ -88,7 +89,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     ImpressService impressService;
 
 	@Autowired @Qualifier("statisticalResultCore")
-	HttpSolrClient solr;
+	SolrClient solr;
 
 	public StatisticalResultService() {
 		super();
@@ -191,7 +192,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	q.setRows(1);
     	q.set("facet.limit", -1);
 
-    	logger.info("Solr url for getColoniesNoMPHit " + solr.getBaseURL() + "/select?" + q);
+    	logger.info("Solr url for getColoniesNoMPHit " + SolrUtils.getBaseURL(solr) + "/select?" + q);
     	QueryResponse response = solr.query(q);
 
     	for( Count facet : response.getFacetField(StatisticalResultDTO.COLONY_ID).getValues()){
@@ -760,7 +761,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		logger.info("Solr url for getDistributionOfLinesByMPTopLevel " + solr.getBaseURL() + "/select?" + q);
+		logger.info("Solr url for getDistributionOfLinesByMPTopLevel " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -797,7 +798,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		logger.info("Solr url for getDistributionOfGenesByMPTopLevel " + solr.getBaseURL() + "/select?" + q);
+		logger.info("Solr url for getDistributionOfGenesByMPTopLevel " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -1085,7 +1086,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.set("wt", "json");
 		query.set("version", "2.2");
 
-		String solrUrl = solr.getBaseURL() + "/select?" + query;
+		String solrUrl = SolrUtils.getBaseURL(solr) + "/select?" + query;
 		return gpService.createPhenotypeResultFromSolrResponse(solrUrl, false);
 	}
 
@@ -1365,7 +1366,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		logger.info("Solr url for getParametersToProcedureMap " + solr.getBaseURL() + "/select?" + q);
+		logger.info("Solr url for getParametersToProcedureMap " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -1391,7 +1392,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	q.add("group.rows", "1");
         q.add("fl", StatisticalResultDTO.PROCEDURE_NAME + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID);
 
-        logger.info("Procedure query " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Procedure query " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 
     	try {
     		GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
@@ -1477,7 +1478,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-        logger.info("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getParameterToGeneMap " + SolrUtils.getBaseURL(solr) + "/select?" + q);
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -1665,7 +1666,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();

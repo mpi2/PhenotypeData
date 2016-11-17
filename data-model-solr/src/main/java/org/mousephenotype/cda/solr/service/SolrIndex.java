@@ -19,13 +19,11 @@ package org.mousephenotype.cda.solr.service;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.utilities.HttpProxy;
@@ -59,31 +57,31 @@ public class SolrIndex {
 
 	@Autowired
 	@Qualifier("autosuggestCore")
-	HttpSolrClient autosuggestCore;
+	SolrClient autosuggestCore;
 
 	@Autowired
 	@Qualifier("mpCore")
-	HttpSolrClient mpCore;
+	SolrClient mpCore;
 
 	@Autowired
 	@Qualifier("geneCore")
-	HttpSolrClient geneCore;
+	SolrClient geneCore;
 
 	@Autowired
 	@Qualifier("diseaseCore")
-	HttpSolrClient diseaseCore;
+	SolrClient diseaseCore;
 
 	@Autowired
 	@Qualifier("anatomyCore")
-	HttpSolrClient anatomyCore;
+	SolrClient anatomyCore;
 
 	@Autowired
 	@Qualifier("impcImagesCore")
-	HttpSolrClient impcImagesCore;
+	SolrClient impcImagesCore;
 
 	@Autowired
 	@Qualifier("allele2Core")
-	HttpSolrClient allele2Core;
+	SolrClient allele2Core;
 
 	private List<String> phenoStatuses = new ArrayList<String>();
 

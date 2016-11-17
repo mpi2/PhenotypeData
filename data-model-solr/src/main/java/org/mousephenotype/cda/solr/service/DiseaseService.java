@@ -15,10 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -30,13 +27,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Service
 public class DiseaseService implements WebStatus{
 
     @Autowired
     @Qualifier("diseaseCore")
-    private HttpSolrClient solr;
+    private SolrClient solr;
 
     // Disease sources. When modifying these, please modify getAllDiseases() accordingly.
     public static final class DiseaseField {
@@ -100,7 +101,7 @@ public class DiseaseService implements WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();

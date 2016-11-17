@@ -52,8 +52,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	DataSource komp2DataSource;
 
 	@Autowired
-	@Qualifier("pipelineIndexing")
-	SolrClient pipelineIndexing;
+	@Qualifier("pipelineCore")
+	SolrClient pipelineCore;
 
 	@Autowired
 	MpOntologyDAO mpOntologyService;
@@ -89,7 +89,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	@Override
 	public RunStatus validateBuild()	throws IndexerException {
-		return super.validateBuild(pipelineIndexing);
+		return super.validateBuild(pipelineCore);
 	}
 
 
@@ -123,8 +123,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			this.komp2DbConnection = komp2DataSource.getConnection();
 
 			initialiseSupportingBeans(runStatus);
-			pipelineIndexing.deleteByQuery("*:*");
-			pipelineIndexing.commit();
+			pipelineCore.deleteByQuery("*:*");
+			pipelineCore.commit();
 
 			for (PipelineDTO pipeline : pipelines.values()) {
 
@@ -254,7 +254,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								logger.debug("EMAP Id {} is not mapped to an EMAPA Id", emapId);
 							}
 						}
-						pipelineIndexing.addBean(doc);
+						pipelineCore.addBean(doc);
 						documentCount++;
 					}
 				}
@@ -266,7 +266,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
                 runStatus.addWarning( "No mp term for " + mpId);
 			}
 
-			pipelineIndexing.commit();
+			pipelineCore.commit();
 
 		} catch (IOException | SolrServerException e) {
 			e.printStackTrace();
