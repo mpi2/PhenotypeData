@@ -24,6 +24,7 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -289,6 +290,18 @@ public class DccSqlUtils {
     }
 
     /**
+     *
+     * @return a list of all centerIds
+     */
+    public List<String> getCenterIds() {
+        String query = "SELECT DISTINCT centerId FROM center ORDER BY centerId";
+
+         List<String> centerIds = npJdbcTemplate.queryForList(query, new HashMap<>(), String.class);
+
+        return centerIds;
+    }
+
+    /**
      * Returns a {@link List} of {@link Dimension} instances associated with parameter association primary key. If
      * there are no associations, an empty list is returned.
      *
@@ -493,6 +506,67 @@ public class DccSqlUtils {
 
         return procedure;
     }
+    
+    
+    
+    
+    
+    public List<MediaParameter> getMediaParameters(long procedure_pk) {
+        final String query = "SELECT * FROM mediaParameter WHERE procedure_pk = :procedure_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedure_pk", procedure_pk);
+
+        List<MediaParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(MediaParameter.class));
+
+        return list;
+    }
+    
+    public List<OntologyParameter> getOntologyParameters(long procedure_pk) {
+        final String query = "SELECT * FROM ontologyParameter WHERE procedure_pk = :procedure_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedure_pk", procedure_pk);
+
+        List<OntologyParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(OntologyParameter.class));
+
+        return list;
+    }
+    
+    public List<SeriesMediaParameter> getSeriesMediaParameters(long procedure_pk) {
+        final String query = "SELECT * FROM seriesMediaParameter WHERE procedure_pk = :procedure_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedure_pk", procedure_pk);
+
+        List<SeriesMediaParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(SeriesMediaParameter.class));
+
+        return list;
+    }
+    
+    public List<SeriesParameter> getSeriesParameters(long procedure_pk) {
+        final String query = "SELECT * FROM seriesParameter WHERE procedure_pk = :procedure_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedure_pk", procedure_pk);
+
+        List<SeriesParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(SeriesParameter.class));
+
+        return list;
+    }
+    
+    public List<SimpleParameter> getSimpleParameters(long procedure_pk) {
+        final String query = "SELECT * FROM simpleParameter WHERE procedure_pk = :procedure_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedure_pk", procedure_pk);
+
+        List<SimpleParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(SimpleParameter.class));
+
+        return list;
+    }
+    
+    
 
     /**
      * Returns the {@code ProcedureMetadata} matching {@code parameterId} and {@code sequenceId} if found; null
@@ -1750,39 +1824,48 @@ public class DccSqlUtils {
      */
     public List<DccExperimentDTO> getExperiments() {
 
-        final String query = "SELECT\n" +
-                "  s.datasourceShortName,\n" +
-                "  e.experimentId,\n" +
-                "  e.sequenceId,\n" +
-                "  e.dateOfExperiment,\n" +
-                "  c.centerId,\n" +
-                "  c.pipeline,\n" +
-                "  c.project,\n" +
-                "  p.procedureId,\n" +
-                "  s.colonyId AS colonyId,\n" +
-                "  0    AS isLineLevel\n" +
-                "FROM experiment e\n" +
-                "JOIN center_procedure    cp  ON cp .pk = e  .center_procedure_pk\n" +
-                "JOIN center              c   ON c  .pk = cp .center_pk\n" +
-                "JOIN procedure_          p   ON p  .pk = cp .procedure_pk\n" +
-                "JOIN experiment_specimen es  ON es .pk = e  .pk\n" +
-                "JOIN specimen            s   ON s  .pk = es .specimen_pk\n" +
-                "UNION ALL\n" +
+        final String query =
                 "SELECT\n" +
-                "  l.datasourceShortName,\n" +
-                "  null,\n" +
-                "  null,\n" +
-                "  null,\n" +
-                "  c.centerId,\n" +
-                "  c.pipeline,\n" +
-                "  c.project,\n" +
-                "  p.procedureId,\n" +
-                "  l.colonyId,\n" +
-                "  1 AS isLineLevel\n" +
-                "FROM line l\n" +
-                "JOIN center_procedure cp  ON cp .pk = l  .center_procedure_pk\n" +
-                "JOIN center           c   ON c  .pk = cp .center_pk\n" +
-                "JOIN procedure_       p   ON p  .pk = cp .procedure_pk";
+                        "  s.datasourceShortName,\n" +
+                        "  e.experimentId,\n" +
+                        "  e.sequenceId,\n" +
+                        "  e.dateOfExperiment,\n" +
+                        "  c.centerId,\n" +
+                        "  c.pipeline,\n" +
+                        "  c.project,\n" +
+                        "  p.procedureId,\n" +
+                        "  p.pk       AS dcc_procedure_pk," +
+                        "  s.colonyId AS colonyId,\n" +
+                        "  sc.value   AS rawProcedureStatus,\n" +
+                        "  0    AS isLineLevel\n" +
+                        "FROM experiment e\n" +
+                        "JOIN center_procedure                 cp  ON cp .pk            = e  .center_procedure_pk\n" +
+                        "JOIN center                           c   ON c  .pk            = cp .center_pk\n" +
+                        "JOIN procedure_                       p   ON p  .pk            = cp .procedure_pk\n" +
+                        "JOIN experiment_specimen              es  ON es .pk            = e  .pk\n" +
+                        "JOIN specimen                         s   ON s  .pk            = es .specimen_pk\n" +
+                        "LEFT OUTER JOIN experiment_statuscode esc ON esc.experiment_pk = e  .pk\n" +
+                        "LEFT OUTER JOIN statuscode            sc  ON sc .pk            = esc.statuscode_pk\n" +
+                        "UNION ALL\n" +
+                        "SELECT\n" +
+                        "  l.datasourceShortName,\n" +
+                        "  CONCAT(p.procedureId, '-', l.colonyId) AS experimentId,\n" +
+                        "  null,\n" +
+                        "  null,\n" +
+                        "  c.centerId,\n" +
+                        "  c.pipeline,\n" +
+                        "  c.project,\n" +
+                        "  p.procedureId,\n" +
+                        "  p.pk       AS dcc_procedure_pk," +
+                        "  l.colonyId,\n" +
+                        "  sc.value   AS rawProcedureStatus,\n" +
+                        "  1 AS isLineLevel\n" +
+                        "FROM line l\n" +
+                        "JOIN center_procedure            cp  ON cp .pk            = l  .center_procedure_pk\n" +
+                        "JOIN center                      c   ON c  .pk            = cp .center_pk\n" +
+                        "JOIN procedure_                  p   ON p  .pk            = cp .procedure_pk\n" +
+                        "LEFT OUTER JOIN line_statuscode  lsc ON lsc.line_pk       = l  .pk\n" +
+                        "LEFT OUTER JOIN statuscode       sc  ON sc .pk            = lsc.statuscode_pk";
 
         List<DccExperimentDTO> experiments = npJdbcTemplate.query(query, new HashMap<>(), new DccExperimentRowMapper());
 
