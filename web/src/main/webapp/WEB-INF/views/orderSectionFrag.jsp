@@ -4,9 +4,9 @@
 
 <!-- just for testing with styles remove -->
 <c:if test="${orderRows.size() > 0}">
-<c:if test="${creLine}">
-<c:set var="creLineParam" value="&creLine=true"/>
-</c:if>
+	<c:if test="${creLine}">
+		<c:set var="creLineParam" value="&creLine=true"/>
+	</c:if>
 <table>        
         <thead>
         		 <tr>
@@ -39,7 +39,7 @@
                       <tr>
                         <!-- /alleles/MGI:2443967/tm1a(EUCOMM)Hmgu -->
                          <td rowspan="${rowSpan}">
-                         	<a href="${baseUrl}/alleles/${acc}/${row.alleleName}?${creLineParam}">${row.markerSymbol}<sup>${row.alleleName}</sup></a>
+                         	<a href="${baseUrl}/alleles/${row.mgiAccessionId}/${row.alleleName}?${creLineParam}">${row.markerSymbol}<sup>${row.alleleName}</sup></a>
                          </td>
                          <%-- <td>
                          	${row.strainOfOrigin}
