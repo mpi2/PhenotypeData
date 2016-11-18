@@ -331,11 +331,11 @@ public class ExpressionService extends BasicService {
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
 			termIdField = ImageDTO.ANATOMY_ID;
 			if (imagesOverview) {
-				laczResponse = getEmbryoLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
+				laczResponse = getEmbryoLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL, topLevelField,
 						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ANATOMY_ID,
 						ImageDTO.ANATOMY_TERM);
 			} else {
-				laczResponse = getEmbryoLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
+				laczResponse = getEmbryoLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL, topLevelField,
 						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 						ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
 						ImageDTO.ANATOMY_ID, ImageDTO.ANATOMY_TERM);
@@ -346,11 +346,11 @@ public class ExpressionService extends BasicService {
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
 			termIdField = ImageDTO.ANATOMY_ID;
 			if (imagesOverview) {
-				laczResponse = getAdultLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
+				laczResponse = getAdultLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL, topLevelField,
 						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ANATOMY_ID,
 						ImageDTO.UBERON_ID, ImageDTO.EFO_ID);
 			} else {
-				laczResponse = getAdultLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, topLevelField,
+				laczResponse = getAdultLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL,  ImageDTO.THUMBNAIL_URL, topLevelField,
 						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 						ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
 						ImageDTO.ANATOMY_ID, ImageDTO.UBERON_ID, ImageDTO.EFO_ID);

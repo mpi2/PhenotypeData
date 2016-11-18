@@ -31,7 +31,6 @@ allele = allele.replaceAll("##", "</sup>");
 
         <c:when test="${not empty href}">
             <!-- href specified as arg to tag as in the case of gene page to image picker links -->
-
             <c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
                 <!-- if this image is a pdf on the gene page we want to link to a list view of the pdfs for that gene not the image picker -->
                 <a href="${href}&mediaType=pdf">
