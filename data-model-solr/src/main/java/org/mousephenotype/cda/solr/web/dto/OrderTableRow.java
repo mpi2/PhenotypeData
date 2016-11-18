@@ -88,10 +88,14 @@ public class OrderTableRow {
 	private String vectorMapLink;
 	private String geneGenbankLink;
 	private String vectorGenbankLink;
+	private String mgiAccessionId;
 
 
 	
 	
+	public String getMgiAccessionId() {
+		return mgiAccessionId;
+	}
 	public String getType() {
 		return type;
 	}
@@ -127,6 +131,10 @@ public class OrderTableRow {
 	public String toString() {
 		return "OrderTableRow [geneMapLink=" + geneMapLink + ", vectorMapLink=" + vectorMapLink + ", geneGenbankLink="
 				+ geneGenbankLink + ", vectorGenbankLink=" + vectorGenbankLink + "]";
+	}
+	public void setMgiAccessionId(String mgiAccessionId) {
+		this.mgiAccessionId=mgiAccessionId;
+		
 	}
 	
 
