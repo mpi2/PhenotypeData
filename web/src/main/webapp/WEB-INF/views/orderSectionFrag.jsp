@@ -39,7 +39,7 @@
                       <tr>
                         <!-- /alleles/MGI:2443967/tm1a(EUCOMM)Hmgu -->
                          <td rowspan="${rowSpan}">
-                         	<a href="${baseUrl}/alleles/${acc}/${row.alleleName}?${creLineParam}">${row.markerSymbol}<sup>${row.alleleName}</sup></a>
+                         	<a href="${baseUrl}/alleles/${row.mgiAccessionId}/${row.alleleName}?${creLineParam}">${row.markerSymbol}<sup>${row.alleleName}</sup></a>
                          </td>
                          <%-- <td>
                          	${row.strainOfOrigin}
