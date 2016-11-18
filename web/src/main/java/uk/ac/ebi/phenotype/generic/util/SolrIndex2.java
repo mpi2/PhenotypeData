@@ -149,7 +149,7 @@ public class SolrIndex2 {
 
         List<Map<String, Object>> mapper = filterGeneProductInfoList(mice, es_cells, targeting_vectors);
 
-        String creSearch = getMiceAndEsCellsUrl(accession, null, false);
+        String creSearch = getMiceAndEsCellsUrl(accession, null, true);
         String creUrl = searchProductCore("cre", creSearch);
         JSONObject jsonObjectCre = getResults(creUrl);
         JSONArray creDocs = jsonObjectCre.getJSONObject("response").getJSONArray("docs");

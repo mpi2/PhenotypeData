@@ -54,6 +54,7 @@ public class OrderService {
 			row.setVectorGenbankLink(allele.getVectorGenbankLink());
 			row.setGeneMapLink(allele.getAlleleSimpleImage());
 			row.setGeneGenbankLink(allele.getGenbankFile());
+			row.setMgiAccessionId(allele.getMgiAccessionId());
 			orderTableRows.add(row);
 
 		}
