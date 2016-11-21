@@ -53,21 +53,14 @@ public class OrderServiceTest {
 			return new HttpSolrClient(solrBaseUrl + "/allele2");
 		}
 
-		@Bean(name = "eucommCreProductsCore")
-		HttpSolrClient getEucomCreToolsProduct() {
-			return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_product");
-		}
+		
 
 		@Bean(name = "productCore")
 		HttpSolrClient getProductCore() {
 			return new HttpSolrClient(solrBaseUrl + "/product");
 		}
 
-		@Bean(name = "eucommToolsCreAllele2Core")
-		HttpSolrClient getEucommToolsCreAllele2() {
-			return new HttpSolrClient(solrBaseUrl + "/eucommtoolscre_allele2");
-		}
-
+		
 
 		@Bean
 		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
