@@ -129,10 +129,7 @@ public class IndexerConfig {
 	SolrClient phenodigmCore() {
 		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
 	}
-    @Bean(name = "eucommCreProductsCore")
-    ConcurrentUpdateSolrClient eucommCreProductsCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/eucommtoolscre_product", QUEUE_SIZE, THREAD_COUNT);
-    }
+   
 
 
 	// database connections

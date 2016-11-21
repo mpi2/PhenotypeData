@@ -952,7 +952,7 @@ public class GenesController {
 	public String genesAllele2(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
 
-		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo(acc);
+		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo(acc, false);//creLine is false as don't want to show creLine stuff on gene page apart from a link
 		Map<String, Object> creProducts = null;
 
 		if (constructs2 != null) {
