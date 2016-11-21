@@ -289,7 +289,7 @@ public class GenesController {
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 
-			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
+			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);//problem is this is only true when we have pvalue significant phenotype data
 			model.addAttribute("hasPreQcData", hasPreQc);
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
