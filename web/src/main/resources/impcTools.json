@@ -1,4 +1,33 @@
 [
+
+  {
+    "urlPath": "gene2go",
+    "toolName": "GO annotations to phenotyped IMPC genes",
+    "imagePath": "/img/go_logo.png",
+    "description": "This is a tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms. It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. The dataset can be exported as TSV or Excel format.",
+    "site":"internal"
+  },
+  {
+    "urlPath": "alleleref",
+    "toolName": "IMPC publications browser",
+    "imagePath": "/img/pubmed_logo.jpg",
+    "description": "This is a table of IMPC/IKMC related publications. The interface contains a filter where users can type in keywords to search for related papers. The keyword is searched against allele symbol, paper title, Journal title, date of publication, grant agency and mesh terms.",
+    "site":"internal"
+  },
+  {
+    "urlPath": "impress",
+    "toolName": "IMPReSS (International Mouse Phenotyping Resource of Standardised Screens)",
+    "imagePath": "/img/impresslogo.gif",
+    "description": "It contains standardized phenotyping protocols which are essential for the characterization of mouse phenotypes. IMPReSS contains definitions of the phenotyping Pipelines and mandatory and optional Procedures and Parameters carried out and data collected by international mouse clinics following the protocols defined. This allows data to be comparable and shareable and ontological annotations permit interspecies comparison which may help in the identification of phenotypic mouse-models of human diseases.",
+    "site":"harwell"
+  },
+  {
+    "urlPath": "https://monarchinitiative.org/",
+    "toolName": "Monarch Initiative",
+    "imagePath": "/img/monarch_logo.png",
+    "description": "A tool that uses computational reasoning to enable phenotype comparison both within and across species, with the ultimate goal of improving biomedical research.",
+    "site":"external"
+  },
   {
     "urlPath": "parallel",
     "toolName": "Parallel coordinates",
@@ -7,18 +36,11 @@
     "site":"internal"
   },
   {
-    "urlPath": "alleleref",
-    "toolName": "IMPC/IKMC publications browser",
-    "imagePath": "/img/pubmed_logo.jpg",
-    "description": "This is a table of IMPC/IKMC related publications. The interface contains a filter where users can type in keywords to search for related papers. The keyword is searched against allele symbol, paper title, Journal title, date of publication and grant agency.",
-    "site":"internal"
-  },
-  {
-    "urlPath": "gene2go",
-    "toolName": "GO annotations to phenotyped IMPC genes",
-    "imagePath": "/img/go_logo.png",
-    "description": "This is a tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms. It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. The dataset can be exported as TSV or Excel format.",
-    "site":"internal"
+    "urlPath": "phenoview",
+    "toolName": "Phenoview",
+    "imagePath": "/img/phenoview_logo.png",
+    "description": "An interactive web application with integrated media viewer for comparative visualisation of genotypes and phenotypes.",
+    "site":"harwell"
   },
   {
     "urlPath": "http://metadb.riken.jp/metadb/db/IMPC_RDF",
