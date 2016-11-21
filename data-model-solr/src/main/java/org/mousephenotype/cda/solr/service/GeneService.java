@@ -607,14 +607,8 @@ public class GeneService extends BasicService implements WebStatus{
 
 			SolrDocument doc = response.getResults().get(0);
 			if (doc.containsKey(GeneDTO.PHENOTYPE_STATUS)) {
-
-				List<String> statuses = getListFromCollection(doc.getFieldValues(GeneDTO.PHENOTYPE_STATUS));
-				for (String status : statuses) {
-
-					if (status.equalsIgnoreCase(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED)) {
+	
 						return true;
-					}
-				}
 			}
 		}
 
