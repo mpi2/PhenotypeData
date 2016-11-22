@@ -89,83 +89,7 @@
 				
        
 
-        <%----%>
-        <%--<c:forEach var="zyg"--%>
-                   <%--items="${phenotypeSummaryObjects.keySet()}">--%>
-          <%--<p>In <b>${zyg} :</b>--%>
-          <%--</p>--%>
-          <%--<ul class="phenoSum">--%>
-            <%--<c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>--%>
-              <%--<li> <b>Both sexes</b> have the following phenotypic abnormalities--%>
-                <%--<ul>--%>
-                  <%--<c:forEach var="summaryObj"--%>
-                             <%--items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>--%>
-                    <%--<li>--%>
-                      <%--<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.--%>
-                      <%--Evidence from--%>
-                      <%--<c:forEach var="evidence"--%>
-                                 <%--items="${summaryObj.getDataSources()}"--%>
-                                 <%--varStatus="loop">--%>
-                        <%--${evidence}--%>
-                        <%--<c:if test="${!loop.last}">,&nbsp;--%>
-                        <%--</c:if>--%>
-                      <%--</c:forEach> &nbsp;&nbsp;&nbsp;--%>
-                        <%--&lt;%&ndash;(<a&ndash;%&gt;--%>
-                            <%--&lt;%&ndash;class="filterTrigger"&ndash;%&gt;--%>
-                            <%--&lt;%&ndash;id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) &ndash;%&gt;--%>
-                    <%--</li>--%>
-                  <%--</c:forEach>--%>
-                <%--</ul>--%>
-              <%--</li>--%>
-            <%--</c:if>--%>
-
-            <%--<c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>--%>
-              <%--<li><b>Females</b> only have the following phenotypic abnormalities--%>
-                <%--<ul>--%>
-                  <%--<c:forEach--%>
-                          <%--var="summaryObj"--%>
-                          <%--items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>--%>
-                    <%--<li><a--%>
-                            <%--href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.--%>
-                      <%--Evidence from <c:forEach--%>
-                              <%--var="evidence"--%>
-                              <%--items="${summaryObj.getDataSources()}"--%>
-                              <%--varStatus="loop"> ${evidence} <c:if--%>
-                              <%--test="${!loop.last}">,&nbsp;</c:if>--%>
-                      <%--</c:forEach>  &nbsp;&nbsp;&nbsp;--%>
-                        <%--&lt;%&ndash;(<a&ndash;%&gt;--%>
-                              <%--&lt;%&ndash;class="filterTrigger"&ndash;%&gt;--%>
-                              <%--&lt;%&ndash;id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)&ndash;%&gt;--%>
-                    <%--</li>--%>
-                  <%--</c:forEach>--%>
-                <%--</ul>--%>
-              <%--</li>--%>
-            <%--</c:if>--%>
-
-            <%--<c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>--%>
-              <%--<li> <b>Males</b> only have the following phenotypic abnormalities--%>
-                <%--<ul>--%>
-                  <%--<c:forEach--%>
-                          <%--var="summaryObj"--%>
-                          <%--items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>--%>
-                    <%--<li><a--%>
-                            <%--href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.--%>
-                      <%--Evidence from <c:forEach--%>
-                              <%--var="evidence"--%>
-                              <%--items="${summaryObj.getDataSources()}"--%>
-                              <%--varStatus="loop"> ${evidence} <c:if--%>
-                              <%--test="${!loop.last}">,&nbsp;</c:if>--%>
-                      <%--</c:forEach>  &nbsp;&nbsp;&nbsp;--%>
-                        <%--&lt;%&ndash;(<a&ndash;%&gt;--%>
-                              <%--&lt;%&ndash;class="filterTrigger"&ndash;%&gt;--%>
-                              <%--&lt;%&ndash;id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)&ndash;%&gt;--%>
-                    <%--</li>--%>
-                  <%--</c:forEach>--%>
-                <%--</ul>--%>
-              <%--</li>--%>
-            <%--</c:if>--%>
-          <%--</ul>--%>
-        <%--</c:forEach>--%>
+       
     </div>
   </c:when>
 
@@ -178,26 +102,38 @@
 							
 							
 							
-    <c:if test="${empty dataMapList && empty phenotypes}">
-      <c:if test="${attemptRegistered}">
-        <div class="alert alert-info">
-          <h5>Registered for phenotyping</h5>
-
-          <p>Phenotyping is planned for a knockout strain of this gene but
-            data is not currently available.</p>
-        </div>
-      </c:if>
-
-      <c:if test="${!attemptRegistered}">
-        <div class="alert alert-info">
-          <h5>Not currently registered for phenotyping</h5>
-
-          <p>Phenotyping is currently not planned for a knockout strain of this gene.
-          </p>
-        </div>
-      </c:if>
-      <br/>
+    <c:if test="${empty dataMapList && empty phenotypes}"><!-- no postQC data -->
+    
+	    <c:choose>
+	    	<c:when test="${ attemptRegistered && phenotypeStarted }">
+	    	<h5>Phenotyping has started and has preliminary data</h5>
+	
+	          <p>Preliminary Data Available Need heatmap button here factor out heatmap into frag.jsp</p>
+	    	</c:when>
+	    	<c:when  test="${attemptRegistered}">
+		        <div class="alert alert-info">
+		          <h5>Registered for phenotyping</h5>
+		
+		          <p>Phenotyping is planned for a knockout strain of this gene but
+		            data is not currently available.</p>
+		        </div>
+	    
+	    	</c:when>
+	    	<c:when test="${!attemptRegistered}">
+		        <div class="alert alert-info">
+		          <h5>Not currently registered for phenotyping</h5>
+		
+		          <p>Phenotyping is currently not planned for a knockout strain of this gene.
+		          </p>
+		        </div>
+		      
+		      	<br/>
+	    	</c:when>
+	    </c:choose>
     </c:if>
+     
+
+     
     <c:if test="${!(empty dataMapList) && empty phenotypes}">
       <div class="alert alert-info">
         <h5>No Significant Phenotype Associations Found</h5>
