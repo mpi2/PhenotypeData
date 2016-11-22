@@ -1207,4 +1207,21 @@ public class ImpressDTO {
 		};
 		return comp;
 	}
+
+	public static Comparator<ImpressDTO> getComparatorByProcedureName()	{
+		Comparator<ImpressDTO> comp = new Comparator<ImpressDTO>(){
+			@Override
+			public int compare(ImpressDTO param1, ImpressDTO param2)
+			{
+				String s1 = param1.getProcedureName() + "_" + param1.getPipelineName();
+				String s2 = param2.getProcedureName() + "_" + param2.getPipelineName();
+				return s1.compareTo(s2);
+			}
+			private boolean isImpc(String param){
+				return param.startsWith("IMPC");
+			}
+
+		};
+		return comp;
+	}
 }

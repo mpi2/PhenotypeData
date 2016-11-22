@@ -4,11 +4,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
+import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
@@ -49,6 +47,9 @@ public class LandingPageController {
 
     @Autowired
     ImageService imageService;
+
+    @Autowired
+    ImpressService is;
 
     @RequestMapping("/landing")
     public String getAlleles(
@@ -121,9 +122,6 @@ public class LandingPageController {
             mpId = "MP:0005386";
             model.addAttribute("pageTitle", "Behavioural/neurological phenotypes");
         }
-        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
-        model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
-        model.addAttribute("mpId", mpId);
 
         // IMPC image display at the bottom of the page
         List<Group> groups = imageService.getPhenotypeAssociatedImages(null, mpId, anatomyIds, true, 1);
@@ -133,8 +131,17 @@ public class LandingPageController {
                 paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
             }
         }
+        ArrayList<ImpressDTO> procedures = new ArrayList<>();
+        procedures.addAll(is.getProceduresByMpTerm(mpId, true));
+        Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
+
         model.addAttribute("paramToNumber", paramToNumber);
         model.addAttribute("impcImageGroups",groups);
+        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
+        model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
+        model.addAttribute("mpId", mpId);
+        model.addAttribute("procedures", procedures);
+
 
         return "landing_" + page;
 

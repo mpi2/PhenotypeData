@@ -61,7 +61,7 @@
                                     and Pre-pulse Inhibition </a> and <a
                                         href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
                                     Response</a> are available on IMPRESS.</p>
-
+                                <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
 
