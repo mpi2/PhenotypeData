@@ -1,8 +1,10 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.Group;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -45,6 +47,8 @@ public class LandingPageController {
     @Autowired
     StatisticalResultService srService;
 
+    @Autowired
+    ImageService imageService;
 
     @RequestMapping("/landing")
     public String getAlleles(
@@ -87,31 +91,50 @@ public class LandingPageController {
         String mpId = "";
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
+        List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
 
         if (page.equalsIgnoreCase("deafness")) {
             mpId = "MP:0005377";
+            anatomyIds.add("MA:0002443");
+            anatomyIds.add("EMAPA:36002");
             model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
             model.addAttribute("pageTitle", "Deafness");
         } else if (page.equalsIgnoreCase("cardiovascular")){
             mpId = "MP:0005385";
+            anatomyIds.add("MA:0000010");
+            anatomyIds.add("EMAPA:16104");
             model.addAttribute("pageTitle", "Cardiovascular");
         } else if (page.equalsIgnoreCase("metabolism")){
             mpId = "MP:0005376";
             model.addAttribute("pageTitle", "Metabolism");
         } else if (page.equalsIgnoreCase("vision")){
             mpId = "MP:0005391";
+            anatomyIds.add("EMAPA:36003");
+            anatomyIds.add("MA:0002444");
             model.addAttribute("pageTitle", "Vision");
-        }
-        else if (page.equalsIgnoreCase("nervous")){
+        } else if (page.equalsIgnoreCase("nervous")){
             mpId = "MP:0003631";
+            anatomyIds.add("MA:0000016");
+            anatomyIds.add("EMAPA:16469");
             model.addAttribute("pageTitle", "Nervous phenotypes");
-        }else if (page.equalsIgnoreCase("neurological")){
+        } else if (page.equalsIgnoreCase("neurological")){
             mpId = "MP:0005386";
-            model.addAttribute("pageTitle", "Beghavioural/neurological phenotypes");
+            model.addAttribute("pageTitle", "Behavioural/neurological phenotypes");
         }
         model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
         model.addAttribute("mpId", mpId);
+
+        // IMPC image display at the bottom of the page
+        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, mpId, anatomyIds, true, 1);
+        Map<String, String> paramToNumber=new HashMap<>();
+        for(Group group: groups){
+            if(!paramToNumber.containsKey(group.getGroupValue())){
+                paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
+            }
+        }
+        model.addAttribute("paramToNumber", paramToNumber);
+        model.addAttribute("impcImageGroups",groups);
 
         return "landing_" + page;
 
