@@ -64,10 +64,7 @@ public class SolrServerConfig {
 
 	}
 
-	@Bean(name = "eucommCreProductsCore")
-	HttpSolrClient getEucomCreToolsProduct() {
-		return new HttpSolrClient(imitsSolrBaseUrl + "/eucommtoolscre_product");
-	}
+	
 
 	@Bean(name = "productCore")
 	HttpSolrClient getProductCore() {
@@ -77,10 +74,6 @@ public class SolrServerConfig {
 
 	}
 
-	@Bean(name = "eucommToolsCreAllele2Core")
-	HttpSolrClient getEucommToolsCreAllele2() {
-		return new HttpSolrClient(imitsSolrBaseUrl + "/eucommtoolscre_allele2");
-	}
 
 
 

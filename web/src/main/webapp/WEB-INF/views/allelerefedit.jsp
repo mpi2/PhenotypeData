@@ -69,15 +69,17 @@
 			form#pmidbox legend {
 				font-size: 14px;
 			}
-			span.hint {
-				font-size: 13px;
-			}
-			[type='button'] {
+			[type='button'], span.updt {
 				background-color: rgb(9, 120, 161);
 				color: white;
 				border-radius: 8px;
 				padding: 5px 10px;
 				border: none;
+			}
+			span.updt {
+				font-size: 12px;
+				padding: 1px 4px;
+				border-radius: 2px;
 			}
 			div.modal {
 				display:    none;
@@ -92,7 +94,6 @@
 				50% 50%
 				no-repeat;
 			}
-
 			/* When the body has the loading class, we turn
                the scrollbar off with overflow:hidden */
 			body.loading {
@@ -104,7 +105,16 @@
 			body.loading .modal {
 				display: block;
 			}
-			
+			form.alleleSub a {
+				margin-left: 30px;
+			}
+			div.howto p {
+				font-weight: bold;
+			}
+			div.howto div {
+				margin-bottom: 10px;
+			}
+
 		</style>
 	</jsp:attribute>
 
@@ -156,10 +166,6 @@
         $(document).ready(function(){
    			'use strict';
 
-//	        addPaperFormJs();
-
-   			//var baseUrl = '//dev.mousephenotype.org/data';
-   			//var baseUrl = 'http://localhost:8080/phenotype-archive';
    			var baseUrl = "${baseUrl}";
    			var solrUrl = "${internalSolrUrl};";
 
@@ -179,8 +185,6 @@
 					$('#passBox span').text("You are now out of editing mode...");
 
 					$('form#pmidbox').hide();
-//					var oTable = $('table#alleleRef').dataTable();
-//        			oTable.fnStandingRedraw();
 					document.location.href = baseUrl + '/allelerefedit';
 				}
         	});
@@ -191,7 +195,6 @@
 	        oConf.iDisplayStart = 0;
 	        oConf.editMode = false;
 
-	        //var tableHeader = "<thead><th>False-positive</th><th>Reviewed</th><th>Allele symbol</th><th>PMID</th><th>Date of publication</th><th>Grant id (Grant agency)</th><th>Paper link</th></thead>";
 			var tableHeader = "<thead><th>Allele info</th><th>Date of publication</th><th>PMID</th><th>Grant id (Grant agency)</th><th>Paper link</th></thead>";
 
 			var tableCols = 5;
@@ -235,9 +238,6 @@
                	});
               	return false;
 			});
-   			
-   			
-
    		});
 
         function addPaperFormJs(){
@@ -316,12 +316,7 @@
             	"aaSorting": [[ 1, "desc" ]],  // default sort column: 2ndd column (date of publication)
    	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 
-//	                if ( oConf.editMode ) {
-//		                $('table#alleleRef').find('tr th:first-child, tr td:first-child').show();
-//	                }
-//	                else {
-//		                $('table#alleleRef').find('tr th:first-child, tr td:first-child').hide();
-//	                }
+					getUsage();
 
    	            	// download tool
    	            	oConf.externalDbId = 1;
@@ -337,17 +332,12 @@
 
 	   	            	// POST
 	   	            	var thisTable = $(this);
-
-//						// edit 1st column (set false positive)
-//						addJstoFalsePositiveColumn(thisTable);
-
 						var rowForm = null;
 						var thisTr = null;
 						var textarea = null;
 						var defaultLabel = "Symbol needs hand curation";
 						var currSymbol = null;
-						// edit 3rd column (allele symbol)
-						//ajaxForm will send when the submit button is pressed. ajaxSubmit sends immediately.
+
 						thisTable.find('tr td:nth-child(1) textarea').bind('click', function() {
 							textarea = $(this);
 							currSymbol = textarea.val();
@@ -367,7 +357,6 @@
    	            "fnServerParams": function(aoData) {
    	                aoData.push(
    	                        {"name": "doAlleleRefEdit",
-   	                        // "value": JSON.stringify(oConf, null, 3)
 	                         "value": JSON.stringify(oConf)
    	                        }
    	                );
@@ -385,14 +374,40 @@
 
 				var symbolVal = textarea.val();
 
-				if ( (symbolVal == "" || symbolVal == defaultLabel) && reviewed != 'yes') {
+				if ( (symbolVal == "" || symbolVal == defaultLabel) && reviewed != 'yes' && falsepositive != 'yes') {
 					alert("Sorry, allele symbol is missing");
 					textarea.val(defaultLabel);
+				}
+				else if (symbolVal != "" && reviewed == 'yes' && falsepositive == 'yes') {
+					alert("Sorry, you cannot set a symbol and make it as false positive");
+
+					// fetch original values
+					$.ajax({
+						method: "post",
+						url: baseUrl + "/fetchAlleleRefPmidData?pmid=" + pmid,
+						success: function (jsonStr) {
+							//alert(jsonStr);
+							var j = JSON.parse(jsonStr);
+							var isReviewed = j.reviewed=='yes' ? true : false;
+							thisObj.siblings("input[name='reviewed']").prop('checked', isReviewed);
+
+							var isFalsepositive = j.falsepositive =='yes' ? true : false;
+							thisObj.siblings("input[name='falsepositive']").prop('checked', isFalsepositive);
+							textarea.val(j.symbol == "" ? defaultLabel : j.symbol);
+						},
+						error: function () {
+							alert('AJAX error trying to reset allele info');
+						}
+					});
 				}
 				else {
 
 					if ( symbolVal == defaultLabel ){
 						symbolVal = "";
+					}
+
+					if ( falsepositive=='yes'){
+						reviewed = 'yes';
 					}
 
 					$('body').addClass("loading");
@@ -408,23 +423,23 @@
 							if (j.allAllelesNotFound) {
 
 								$('body').removeClass("loading");
-								alert("Curation ignored.\n\n" + j.symbol);
-								displayedSymbol = defaultLabel;
-
+								alert("Curation ignored.\n\n" + j.error);
 							}
 							else if (j.hasOwnProperty("someAllelesNotFound")) {
 								$('body').removeClass("loading");
 								alert("Some curation ignored:\n\n" + j.someAllelesNotFound + "\n\ncould not be mapped to an MGI allele(s)");
-								displayedSymbol = j.symbol;
 							}
 							else {
 								$('body').removeClass("loading");
-								displayedSymbol = j.symbol;
 							}
-
+							displayedSymbol = j.symbol;
 							textarea.val(displayedSymbol);
+
 							var isReviewed = j.reviewed=='yes' ? true : false;
 							thisObj.siblings("input[name='reviewed']").prop('checked', isReviewed);
+
+							var isFalsepositive = j.falsepositive=='yes' ? true : false;
+							thisObj.siblings("input[name='falsepositive']").prop('checked', isFalsepositive);
 
 							//thisTr.find('td:first-child').html("<input type='checkbox'>");
 							//thisTr.find('td:nth-child(2)').text(j.reviewed);
@@ -437,32 +452,39 @@
 					});
 				}
 			}
-
-//			function addJstoFalsePositiveColumn(thisTable){
-//				thisTable.find('tr td:nth-child(1) input').bind('click', function(){
-//
-//					var thisTr = $(this).parent().parent();
-//					var dbid = thisTr.find('td span.pmid').attr('id'); // this comes from concatenation, so is a string
-//
-//					var fp = $(this).is(':checked') ? "yes" : "no"; // falsepositive is checked or not
-//					$.ajax({
-//						method: "post",
-//						url: baseUrl + "/dataTableAlleleRefSetFalsePositive?id="+dbid+"&value="+fp,
-//						success: function(response) {
-//							// boolean response
-//							var reviewed = fp;
-//							thisTr.find('td:nth-child(2)').html(reviewed);
-//						},
-//						error: function() {
-//							window.alert('AJAX error trying to set false positive value for this paper');
-//						}
-//					});
-//
-//				});
-//
-//			}
-
         }
+
+        function getUsage(){
+
+			var symbolHint = "<span>Symbol can be Sox13&lt;sup&gt;tm1a(EUCOMM)Wtsi&lt;/sup&gt; or Sox13&lt;tm1a(EUCOMM)Wtsi&gt;.<br>Separate by comma if multiple.</span>";
+			var howto = "<div class='howto'><div><p>False positive checkbox:</p>Tick the checkbox if this paper does not contain any IMPC allele and so should not be shown to users. Then hit <span class='updt'>Update</span> to save it. That's it. You should see both False positive and Reviewed checkboxes are checked.</div>"
+					+ "<div><p>Reviewed checkbox:</p>(1) If there is no allele symbol mentioned in the paper and you want to make it as reviewed, check it and leave the symbol text box <b>empty</b> and hit <span class='updt'>Update</span>. Your should see 'Not available' appear in the symbol text box.<br>"
+					+ "(2) If there is allele for this paper, enter it in the symbol text box and hit <span class='updt'>Update</span>. You should see the Reviewed checkbox is checked for you.</div>"
+					+ "<div><p>Symbol text box:</p>" +  symbolHint + "</div>"
+					+ "<div><p>What if the update failed?</p>The previous state of the annotation will be restored.</div>"
+					+ "<div><p>Can I re-update a paper?</p>Yes. Just change the value as you would annotate a new paper.</div>"
+					+ "</div>";
+
+			$("i.howto").qtip({
+				hide: true,
+				content: {
+					text: howto,
+					title: {'button': 'close'}
+				},
+				style: {
+					classes: 'qtipimpc',
+					tip: {corner: 'left bottom'},
+					width: '500px'
+				},
+				position: {my: 'left top',
+					adjust: {x: 20, y: -430}
+				},
+				show: {
+					event: 'click' //override the default mouseover
+				}
+			});
+
+		}
 
         </script>
 
