@@ -62,6 +62,7 @@
             <div class="clear both"></div>
         </c:if>
     </div>
+    <div class="clear both"></div>
 </div>
 
 <script type="text/javascript">
