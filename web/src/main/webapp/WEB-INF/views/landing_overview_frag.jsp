@@ -37,7 +37,7 @@
                     <tbody>
                     <c:forEach var="row" items="${phenotypes}"  varStatus="loop">
                         <tr <c:if test="${loop.index >= 10}"> class="hidden hideable" </c:if> >
-                            <td class="capitalize">${row.getCategory()}</td>
+                            <td class="capitalize"><a href="${baseUrl}/phenotypes/${row.getMpId()}">${row.getCategory()}</a></td>
                             <c:if test="${row.getMpId() != null}">
                                 <td><a href="${baseUrl}/phenotypes/${row.getMpId()}">${row.getCount()} </a></td>
                             </c:if>
@@ -62,6 +62,7 @@
             <div class="clear both"></div>
         </c:if>
     </div>
+    <div class="clear both"></div>
 </div>
 
 <script type="text/javascript">

@@ -65,12 +65,12 @@ public class SolrIndex2 {
     }
 
 // Get product data for order section on the gene page
-    public List<Map<String, Object>> getGeneProductInfo(String accession) throws IOException, URISyntaxException, Exception {
+    public List<Map<String, Object>> getGeneProductInfo(String accession, boolean creLine) throws IOException, URISyntaxException, Exception {
 
 
 
-        String alleleSearch = getAlleleUrl(accession, null);
-        String allelelUrl = searchAlleleCore("impc", alleleSearch);
+        String alleleSearch = getAlleleUrl(accession, null, creLine);
+        String allelelUrl = searchAlleleCore(alleleSearch);
 
         JSONObject jsonAllele = getResults(allelelUrl);
         JSONArray alleleDocs = jsonAllele.getJSONObject("response").getJSONArray("docs");
@@ -82,8 +82,8 @@ public class SolrIndex2 {
             alleleMap.put(allele_name, getAlleleData(jsonObject2));
         }
 
-        String productSearch = getAllProductsUrl(accession, null, false);
-        String url = searchProductCore("impc", productSearch);
+        String productSearch = getAllProductsUrl(accession, null, creLine);
+        String url = searchProductCore( productSearch);
 
         JSONObject jsonObject1 = getResults(url);
         JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
@@ -149,8 +149,8 @@ public class SolrIndex2 {
 
         List<Map<String, Object>> mapper = filterGeneProductInfoList(mice, es_cells, targeting_vectors);
 
-        String creSearch = getMiceAndEsCellsUrl(accession, null, false);
-        String creUrl = searchProductCore("cre", creSearch);
+        String creSearch = getMiceAndEsCellsUrl(accession, null, true);
+        String creUrl = searchProductCore(creSearch);
         JSONObject jsonObjectCre = getResults(creUrl);
         JSONArray creDocs = jsonObjectCre.getJSONObject("response").getJSONArray("docs");
 
@@ -194,26 +194,30 @@ public class SolrIndex2 {
         String allele_url;
         String other_alleles_url;
         String gene_url;
+        boolean creLine=false;
+        if(pipeline.equals("cre")){
+        	creLine=true;
+        }
 
         if (hash.containsKey("allele_name") && hash.get("allele_name") != null){
             allele_name = hash.get("allele_name");
-            searchParams = getAllProductsUrl(accession, allele_name, false);
-            alleleSearchParams = getAlleleUrl(accession, allele_name);
+            searchParams = getAllProductsUrl(accession, allele_name, creLine);
+            alleleSearchParams = getAlleleUrl(accession, allele_name, creLine);
         }
         else if (hash.containsKey("cassette") && hash.containsKey("design_id")){
             String cassette = hash.get("cassette");
             String design_id = hash.get("design_id");
-            searchParams = getAllProductsUrl(accession, cassette, design_id, false);
-            alleleSearchParams = getAlleleUrl(accession, cassette, design_id);
+            searchParams = getAllProductsUrl(accession, cassette, design_id, creLine);
+            alleleSearchParams = getAlleleUrl(accession, cassette, design_id, creLine);
         }
 
-        otherAllelesSearchParams = getMiceAndEsCellsUrl(accession, null, false);
+        otherAllelesSearchParams = getMiceAndEsCellsUrl(accession, null, creLine);
         geneSearchParams = getGeneUrl(accession);
 
-        url = searchProductCore(pipeline, searchParams);
-        allele_url = searchAlleleCore(pipeline, alleleSearchParams);
-        other_alleles_url = searchProductCore(pipeline, otherAllelesSearchParams);
-        gene_url = searchAlleleCore(pipeline, geneSearchParams);
+        url = searchProductCore( searchParams);
+        allele_url = searchAlleleCore(alleleSearchParams);
+        other_alleles_url = searchProductCore(otherAllelesSearchParams);
+        gene_url = searchAlleleCore(geneSearchParams);
 
 //        log.info("#### url for getAlleleProductInfo=" + url);
 //        log.info("#### url for getAlleleProductInfo=" + allele_url);
@@ -412,13 +416,13 @@ public class SolrIndex2 {
     }
 
 
-    public List<Map<String, Object>> getAllAlleles(String pipeline, String acc) throws IOException, URISyntaxException {
+    public List<Map<String, Object>> getAllAlleles(boolean creLine, String acc) throws IOException, URISyntaxException {
 
         String searchString;
         String url;
 
-        searchString = getAlleleUrl(acc, null);
-        url = searchAlleleCore(pipeline, searchString);
+        searchString = getAlleleUrl(acc, null, creLine);
+        url = searchAlleleCore(searchString);
 
         JSONObject jsonObject1 = getResults(url);
 
@@ -441,13 +445,13 @@ public class SolrIndex2 {
         return list;
     }
 
-    public HashMap<String, HashMap<String, List<String>>> getAlleleQcInfo(String pipeline, String type, String name)
+    public HashMap<String, HashMap<String, List<String>>> getAlleleQcInfo(String type, String name, boolean creLine)
             throws IOException, URISyntaxException {
 
         String url;
         String searchParams;
-        searchParams = getProduct(name, type);
-        url = searchProductCore(pipeline, searchParams);
+        searchParams = getProduct(name, type, creLine);
+        url = searchProductCore( searchParams);
         JSONObject jsonObject = getResults(url);
 
         JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
@@ -573,9 +577,13 @@ public class SolrIndex2 {
 
 
 
-    private String getProduct(String name, String type) {
+    private String getProduct(String name, String type, boolean creLine) {
+    	 String select="/select";
+         if(creLine){
+         	select=OrderService.selectCre;
+         }
         name = name.replace("-", "\\-");
-        String search_url = "/select?q=name:"
+        String search_url = select+"?q=name:"
                 + '"' + name + '"'
                 + " AND type:"
                 + '"' + type + '"'
@@ -585,10 +593,13 @@ public class SolrIndex2 {
     }
 
 
-    private String getAlleleUrl(String accession, String allele_name) {
+    private String getAlleleUrl(String accession, String allele_name, boolean creLine) {
 
         String qallele_name = "";
-
+        String select="/select";
+        if(creLine){
+        	select=OrderService.selectCre;
+        }
         if (allele_name != null) {
             qallele_name = " AND " + ALLELE_NAME_FIELD + ":\"" + allele_name + "\"";
 
@@ -596,7 +607,7 @@ public class SolrIndex2 {
 
         String target = "type:Allele AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
 
-        String search_url = "/select?q="
+        String search_url = select+"?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
@@ -614,16 +625,19 @@ public class SolrIndex2 {
         return search_url;
     }
 
-    private String getAlleleUrl(String accession, String cassette, String design) {
+    private String getAlleleUrl(String accession, String cassette, String design, boolean creLine) {
         String qallele_search = "";
-
+        String select="/select";
+        if(creLine){
+        	select=OrderService.selectCre;
+        }
         if (cassette != null && design != null) {
             qallele_search = " AND cassette:\"" + cassette + "\" AND design_id:\"" + design + "\""  ;
         }
 
         String target = "type:Allele AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_search;
 
-        String search_url = "/select?q="
+        String search_url = select+"?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
@@ -644,18 +658,13 @@ public class SolrIndex2 {
 
 // SOLR QUERIES
 
-    private String searchProductCore(String pipeline, String searchUrl) throws IOException,
+    private String searchProductCore(String searchUrl) throws IOException,
             URISyntaxException {
 
         String hostUrl;
         String url;
-
-        if (pipeline.equals("cre")) {
-            hostUrl = IMITS_SOLR_CORE_URL + "/eucommtoolscre_product";
-        }
-        else {
             hostUrl = IMITS_SOLR_CORE_URL + "/product";
-        }
+        
 
         url = hostUrl + searchUrl;
 
@@ -665,19 +674,12 @@ public class SolrIndex2 {
 
 
 
-    private String searchAlleleCore(String pipeline, String searchUrl) throws IOException,
+    private String searchAlleleCore(String searchUrl) throws IOException,
             URISyntaxException {
 
         String hostUrl;
         String url;
-
-        if (pipeline.equals("cre")) {
-            hostUrl = IMITS_SOLR_CORE_URL + "/eucommtoolscre_allele2";
-        }
-        else {
-            hostUrl = IMITS_SOLR_CORE_URL + "/allele2";
-        }
-
+        hostUrl = IMITS_SOLR_CORE_URL + "/allele2";
         url = hostUrl + searchUrl;
 
         return url;
@@ -685,7 +687,7 @@ public class SolrIndex2 {
 
     private JSONObject getResults(String url) throws IOException,
             URISyntaxException {
-
+    	log.info("getResults url in solrindex2="+url);
         HttpProxy proxy = new HttpProxy();
         String content = proxy.getContent(new URL(url));
 
