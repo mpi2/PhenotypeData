@@ -55,8 +55,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	private final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexer.class);
 
 	private Double SIGNIFICANCE_THRESHOLD = AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD;
-
-	private Connection connection;
+	final double REPORT_INTERVAL = 100000;
 
 	static final String RESOURCE_3I = "3i";
 	private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
@@ -98,12 +97,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	}
 
-	void setConnection(Connection connection) {
-		this.connection = connection;
-	}
-	Connection getConnection() {
-		return connection;
-	}
 	void setPipelineMap(Map<Integer, ImpressBaseDTO> pipelineMap) {
 		this.pipelineMap = pipelineMap;
 	}
@@ -133,7 +126,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		try {
 
-			connection = komp2DataSource.getConnection();
+			Connection connection = komp2DataSource.getConnection();
 
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
 			procedureMap = IndexerMap.getImpressProcedures(connection);
@@ -179,9 +172,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					List<StatisticalResultDTO> documents = r.call();
 					count += documents.size();
-					statisticalResultCore.addBeans(documents);
-					statisticalResultCore.commit(true, true);
-					checkSolrCount(count);
+					statisticalResultCore.addBeans(documents, 60000);
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -189,6 +180,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 			}
 
+
+			statisticalResultCore.commit();
+			checkSolrCount(count);
 
 			logger.info(" Added {} statistical result documents", count);
 
@@ -716,7 +710,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			+ "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc "
 			+ "WHERE exists(SELECT DISTINCT gf.symbol FROM biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bm.id)";
 
-		try (PreparedStatement p = connection.prepareStatement(query)) {
+		try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
 
@@ -750,7 +744,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		String query = "SELECT id, name, short_name FROM external_db";
 
-		try (PreparedStatement p = connection.prepareStatement(query)) {
+		try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
 
@@ -780,7 +774,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		);
 
 		for (String query : queries) {
-			try (PreparedStatement p = connection.prepareStatement(query)) {
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
 
 				ResultSet resultSet = p.executeQuery();
 
@@ -798,8 +792,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	/**
 	 * The embryo significance map keys are document IDs that should match the embryo documents and the key is the MP
 	 * acc
-	 *
-	 * @throws SQLException
 	 */
 	void populateEmbryoSignificanceMap() throws SQLException {
 
@@ -809,7 +801,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			"INNER JOIN phenotype_parameter parameter ON parameter.id = pcs.parameter_id " +
 			"WHERE parameter.stable_id REGEXP '" + EMBRYO_PROCEDURES + "' ";
 
-		try (PreparedStatement p = connection.prepareStatement(sigResultsQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+		try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(sigResultsQuery)) {
 			ResultSet r = p.executeQuery();
 			while (r.next()) {
 
@@ -830,7 +822,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			"INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
 			"INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id " ;
 
-		try (PreparedStatement p = connection.prepareStatement(query)) {
+		try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
 
@@ -907,13 +899,16 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
 
-			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-				p.setFetchSize(Integer.MIN_VALUE);
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+				
 				ResultSet r = p.executeQuery();
 				while (r.next()) {
 					StatisticalResultDTO doc = parseCategoricalResult(r);
 					docs.add(doc);
 					shouldHaveAdded.add(doc.getDocId());
+					if (docs.size()% REPORT_INTERVAL ==0) {
+						logger.info("Added {} categorical doucments", docs.size());
+					}
 				}
 			} catch (Exception e) {
 				logger.warn("Error occurred getting unidimensional results", e);
@@ -991,13 +986,16 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		public List<StatisticalResultDTO> call() {
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
-			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-				p.setFetchSize(Integer.MIN_VALUE);
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+				
 				ResultSet r = p.executeQuery();
 				while (r.next()) {
 					StatisticalResultDTO doc = parseUnidimensionalResult(r);
 					docs.add(doc);
 					shouldHaveAdded.add(doc.getDocId());
+					if (docs.size()% REPORT_INTERVAL ==0) {
+						logger.info("Added {} unidimensional doucments", docs.size());
+					}
 				}
 			} catch (Exception e) {
 				logger.warn("Error occurred getting unidimensional results", e);
@@ -1132,8 +1130,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		public List<StatisticalResultDTO> call() {
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
-			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-				p.setFetchSize(Integer.MIN_VALUE);
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+				
 				ResultSet r = p.executeQuery();
 				while (r.next()) {
 					StatisticalResultDTO doc = parseReferenceRangeResult(r);
@@ -1344,8 +1342,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
 
-			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-				p.setFetchSize(Integer.MIN_VALUE);
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+				
 				ResultSet r = p.executeQuery();
 				while (r.next()) {
 
@@ -1415,8 +1413,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
 
-			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-				p.setFetchSize(Integer.MIN_VALUE);
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+				
 				ResultSet r = p.executeQuery();
 				while (r.next()) {
 
@@ -1466,8 +1464,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
 
-			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-				p.setFetchSize(Integer.MIN_VALUE);
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+				
 
 				ResultSet r = p.executeQuery();
 				Integer i = 0;
@@ -1529,7 +1527,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		public List<StatisticalResultDTO> call() {
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
-			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
 				ResultSet r = p.executeQuery();
 				while (r.next()) {
 					StatisticalResultDTO doc = parseLineResult(r);
@@ -1579,8 +1577,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
 
-			try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-				p.setFetchSize(Integer.MIN_VALUE);
+			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+				
 				ResultSet r = p.executeQuery();
 				Integer i = 0;
 				while (r.next()) {
