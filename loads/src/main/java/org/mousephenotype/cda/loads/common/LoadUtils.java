@@ -18,6 +18,8 @@ package org.mousephenotype.cda.loads.common;
 
 
 import org.mousephenotype.cda.db.pojo.Organisation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
  * Created by mrelac on 10/08/16.
  */
 public class LoadUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoadUtils.class);
 
     /**
      * Wrapper for namedParameterJdbcTemplat.queryForObject
