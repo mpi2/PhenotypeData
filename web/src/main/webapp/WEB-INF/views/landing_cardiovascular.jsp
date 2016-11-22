@@ -42,7 +42,7 @@
                         <div class="section">
                             <h2 class="title">Approach</h2>
                             <div class="inner">
-                                <p></p>
+                                <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
 
