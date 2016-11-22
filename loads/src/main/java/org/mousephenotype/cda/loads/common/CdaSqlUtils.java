@@ -1158,7 +1158,6 @@ public class CdaSqlUtils {
                         }
                     } catch (NumberFormatException ex) {
                         logger.debug("Invalid float value: " + value);
-                        //TODO probably should throw an exception!
                     }
 
                 } else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.getName().contains("images"))) {
