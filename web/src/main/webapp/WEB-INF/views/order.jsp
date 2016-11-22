@@ -39,7 +39,13 @@
  							
  								<div class="inner"> -->
 									<div>
+									
 		 								<c:if test="${fn:length(storeToProductsMap)>0}">
+		 								
+											<c:if test="${creLine}">
+												<c:set var="creLineParam" value="&creLine=true"/>
+											</c:if>
+		 								
 		 									<h4>This product is available from the following repositories:</h4> 
 		 									<table>        
 			        							<thead>
@@ -69,7 +75,7 @@
 				 											<td>${prod.name} </td>
 				 											<td>
 				 											<c:if test="${fn:length(prod.qcData)>0}">
-				 											 	<a class="btn" href="${baseUrl}/qcData?type=${type}&productName=${prod.name}&alleleName=${prod.alleleName}&bare=true"><i class="fa fa-info"></i>QC Data</a>
+				 											 	<a class="btn" href="${baseUrl}/qcData?type=${type}&productName=${prod.name}&alleleName=${prod.alleleName}&${creLineParam}&bare=true"><i class="fa fa-info"></i>QC Data</a>
 				 											 	</c:if>
 				 											
 				 											

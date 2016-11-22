@@ -137,7 +137,7 @@ public class PhenotypesController {
         model.addAttribute("images", images);
 
         // IMPC image display at the bottom of the page
-        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, phenotypeId, true, 1);
+        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, phenotypeId, null, true, 1);
         Map<String, String> paramToNumber=new HashMap<>();
         for(Group group:groups){
             if(!paramToNumber.containsKey(group.getGroupValue())){
@@ -152,7 +152,7 @@ public class PhenotypesController {
         model.addAttribute("phenotype", mpTerm);
 
 
-        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotypeId));
+        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotypeId, false));
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
 

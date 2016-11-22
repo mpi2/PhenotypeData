@@ -27,11 +27,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,37 +56,38 @@ public class AllelesController {
     @Autowired
     SolrIndex2 solrIndex2;
 
-    @RequestMapping("/alleles/project_id")
-    public String alleles1(
-            @RequestParam (value = "ikmc_project_id", required = true) String ikmc_project_id,
-            @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws Exception {
-
-        Map<String, Object> gene;
-
-        if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
-                log.info("Call SolrIndex2 with pipeline = Cre");
-        	gene = solrIndex2.getGeneByIkmcProjectId("cre", ikmc_project_id);
-        }
-        else {
-                log.info("Call SolrIndex2 with pipeline = impc");
-        	gene = solrIndex2.getGeneByIkmcProjectId("impc", ikmc_project_id);
-        }
-        log.info("GENE" + gene);
-        String acc = "MGI:1";
-        if (gene != null){
-            acc = gene.get("mgi_accession_id").toString();
-        }
-
-        model.addAttribute("acc", acc);
-
-        return geneAllelesCommon(acc, ikmc_project_id, null, null, bare, model, request, attributes);
-
-    }
-
-
+//    @RequestMapping("/alleles/project_id")
+//    public String alleles1(
+//            @RequestParam (value = "ikmc_project_id", required = true) String ikmc_project_id,
+//            @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
+//            Model model,
+//            HttpServletRequest request,
+//            RedirectAttributes attributes) throws Exception {
+//
+//        Map<String, Object> gene;
+//
+//        if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
+//                log.info("Call SolrIndex2 with pipeline = Cre");
+//        	gene = solrIndex2.getGeneByIkmcProjectId("cre", ikmc_project_id);
+//        }
+//        else {
+//                log.info("Call SolrIndex2 with pipeline = impc");
+//        	gene = solrIndex2.getGeneByIkmcProjectId("impc", ikmc_project_id);
+//        }
+//        log.info("GENE" + gene);
+//        String acc = "MGI:1";
+//        if (gene != null){
+//            acc = gene.get("mgi_accession_id").toString();
+//        }
+//
+//        model.addAttribute("acc", acc);
+//
+//        return geneAllelesCommon(acc, ikmc_project_id, null, null, bare, model, request, attributes);
+//
+//    }
+//    
+//
+//
     @RequestMapping("/alleles/{acc}")
     public String alleles1(
             @PathVariable String acc,
@@ -97,86 +100,13 @@ public class AllelesController {
             RedirectAttributes attributes) throws Exception {
 
         log.info("#### alleles1...");
-        List<Map<String, Object>> list;
-
+        String redirectUrl="redirect:/search/allele2?kw=*";
+        //redirect this url to the new search page for products to support old links that will still use the bare parameter to specify creline products rather than default ones of IMPC
         if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
-                log.info("Call SolrIndex2 with pipeline = Cre");
-        	list = solrIndex2.getAllAlleles("cre", acc);
+                log.info("redirect to search with pipeline = Cre");
+                redirectUrl=redirectUrl+"&creLine=true";
         }
-        else {
-                log.info("Call SolrIndex2 with pipeline = impc");
-        	list = solrIndex2.getAllAlleles("impc", acc);
-        }
-
-        List<Map<String, Object>> list1 = new ArrayList<>();
-        List<Map<String, Object>> list2 = new ArrayList<>();
-        List<Map<String, Object>> list3 = new ArrayList<>();
-
-
-        List<Map<String, Object>> list_alleles = new ArrayList<>();
-        String mgi_accession_id = acc;
-        String marker_symbol="";
-
-        if (list != null) {
-            for (Map<String, Object> item : list) {
-                marker_symbol = (String)item.get("marker_symbol");
-                if (ikmc_project_id != null && (!item.containsKey("ikmc_project") || ! item.get("ikmc_project").equals(ikmc_project_id))){
-                    log.info("#### alleles1...");
-                    continue;
-                }
-
-                if (allele_type != null && (!item.containsKey("allele_type") || ! item.get("allele_type").equals(allele_type))){
-                    log.info("#### alleles1...");
-                    continue;
-                }
-
-                if (pipeline != null && (!item.containsKey("pipeline") || ! item.get("pipeline").equals(pipeline))){
-                    continue;
-                }
-
-                if( item.get("mouse_status") != null && ! item.get("mouse_status").equals("")) {
-                    log.info("#### alleles1..." + item.get("mouse_status"));
-                    list1.add(item);
-                }
-                else if (item.get("es_cell_status").equals("ES Cell Targeting Confirmed")) {
-                    list2.add(item);
-                }
-                else {
-                    list3.add(item);
-                }
-            }
-        }
-
-        list_alleles.addAll(list1);
-        list_alleles.addAll(list2);
-        list_alleles.addAll(list3);
-
-        log.info("#### alleles1: list_alleles: " + list_alleles);
-
-        String allele_type_string = "";
-        String pipeline_string;
-        String ikmc_project_id_string;
-
-        if (allele_type != null ){
-            if( allele_type.equals("a") || allele_type.equals("b") || allele_type.equals("c") || allele_type.equals("") || allele_type.equals(".1") || allele_type.equals(".2") || allele_type.equals("e") || allele_type.equals("e.1") || allele_type.equals("d")) {
-                allele_type_string = " tm" + allele_type;
-            } else {
-                allele_type_string =  allele_type;
-            }
-        }
-
-        pipeline_string = (pipeline != null) ? " for " + pipeline : "";
-        ikmc_project_id_string = (ikmc_project_id != null) ? " created by project " +  ikmc_project_id : "";
-        log.info("SEARCH STRING: showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
-
-        model.addAttribute("search_title", "Showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
-        model.addAttribute("list_alleles", list_alleles);
-        model.addAttribute("marker_symbol", marker_symbol);
-        if (bare){
-        	model.addAttribute("bare", bare);
-        }
-
-        return "alleles_list";
+        return redirectUrl;
     }
 
 
@@ -184,20 +114,20 @@ public class AllelesController {
     public String alleles2(
             @PathVariable String acc,
             @PathVariable(value="allele_name") String allele_name,  // redefine, so that string after dot will not be truncated
-            @RequestParam(value = "bare", required = false, defaultValue = "false") Boolean bare,
+            @RequestParam(value = "creLine", required = false, defaultValue = "false") Boolean creLine,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
         log.info("#### AllelesController::alleles2");
         log.info("#### acc: " + acc);
         log.info("#### allele_name: " + allele_name);
-        log.info("#### bare: " + bare);
-
+        System.out.println("creline is "+creLine);
         String debug = request.getParameter("debug");
         log.info("#### alleles1: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
-
-        if (bare) model.addAttribute("bare", bare);
+        if (creLine){
+        	model.addAttribute("creLine", creLine);
+        }
 
         return allelesCommon(acc, allele_name, null, null, model, request, attributes);
     }
@@ -235,11 +165,11 @@ public class AllelesController {
         HashMap<String, HashMap<String, List<String>>> constructs;
         if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
                 log.info("Call SolrIndex2 with pipeline = Cre");
-        	constructs = solrIndex2.getAlleleQcInfo("cre", type, name);
+        	constructs = solrIndex2.getAlleleQcInfo( type, name, true);
         }
         else {
                 log.info("Call SolrIndex2 with pipeline = impc");
-        	constructs = solrIndex2.getAlleleQcInfo("impc", type, name);
+        	constructs = solrIndex2.getAlleleQcInfo( type, name, false);
         }
 
         if (bare) model.addAttribute("bare", bare);
@@ -380,100 +310,100 @@ public class AllelesController {
         return "mutagenesis";
     }
 
-    private String geneAllelesCommon(
-            String acc,
-            String ikmc_project_id,
-            String allele_type,
-            String pipeline,
-            Boolean bare,
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws Exception {
-
-
-        log.info("#### alleles1...");
-        List<Map<String, Object>> list;
-
-        if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
-                log.info("Call SolrIndex2 with pipeline = Cre");
-        	list = solrIndex2.getAllAlleles("cre", acc);
-        }
-        else {
-                log.info("Call SolrIndex2 with pipeline = impc");
-        	list = solrIndex2.getAllAlleles("impc", acc);
-        }
-
-        List<Map<String, Object>> list1 = new ArrayList<>();
-        List<Map<String, Object>> list2 = new ArrayList<>();
-        List<Map<String, Object>> list3 = new ArrayList<>();
-
-
-        List<Map<String, Object>> list_alleles = new ArrayList<>();
-        String mgi_accession_id = acc;
-        String marker_symbol="";
-
-        if (list != null) {
-            for (Map<String, Object> item : list) {
-                marker_symbol = (String)item.get("marker_symbol");
-                mgi_accession_id = (String)item.get("mgi_accession_id");
-                if (ikmc_project_id != null && (!item.containsKey("ikmc_project") || ! item.get("ikmc_project").equals(ikmc_project_id))){
-                    log.info("#### alleles1...");
-                    continue;
-                }
-
-                if (allele_type != null && (!item.containsKey("allele_type") || ! item.get("allele_type").equals(allele_type))){
-                    log.info("#### alleles1...");
-                    continue;
-                }
-
-                if (pipeline != null && (!item.containsKey("pipeline") || ! item.get("pipeline").equals(pipeline))){
-                    continue;
-                }
-
-                if( item.get("mouse_status") != null && ! item.get("mouse_status").equals("")) {
-                    log.info("#### alleles1..." + item.get("mouse_status"));
-                    list1.add(item);
-                }
-                else if (item.get("es_cell_status").equals("ES Cell Targeting Confirmed")) {
-                    list2.add(item);
-                }
-                else {
-                    list3.add(item);
-                }
-            }
-        }
-
-        list_alleles.addAll(list1);
-        list_alleles.addAll(list2);
-        list_alleles.addAll(list3);
-
-        log.info("#### alleles1: list_alleles: " + list_alleles);
-
-        model.addAttribute("mgi_accession_id", mgi_accession_id);
-        model.addAttribute("marker_symbol", marker_symbol);
-        if (bare) model.addAttribute("bare", bare);
-
-        String allele_type_string = "";
-        String pipeline_string;
-        String ikmc_project_id_string;
-
-        if (allele_type != null ){
-            if( allele_type.equals("a") || allele_type.equals("b") || allele_type.equals("c") || allele_type.equals("") || allele_type.equals(".1") || allele_type.equals(".2") || allele_type.equals("e") || allele_type.equals("e.1") || allele_type.equals("d")) {
-                allele_type_string = " tm" + allele_type;
-            } else {
-                allele_type_string =  allele_type;
-            }
-        }
-
-        pipeline_string = (pipeline != null) ? " for " + pipeline : "";
-        ikmc_project_id_string = (ikmc_project_id != null) ? " created by project " +  ikmc_project_id : "";
-        log.info("SEARCH STRING: showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
-        model.addAttribute("search_title", "Showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
-
-        model.addAttribute("list_alleles", list_alleles);
-
-        return "alleles_list";
-        }
+//    private String geneAllelesCommon(
+//            String acc,
+//            String ikmc_project_id,
+//            String allele_type,
+//            String pipeline,
+//            Boolean bare,
+//            Model model,
+//            HttpServletRequest request,
+//            RedirectAttributes attributes) throws Exception {
+//
+//
+//        log.info("#### alleles1...");
+//        List<Map<String, Object>> list;
+//
+//        if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
+//                log.info("Call SolrIndex2 with pipeline = Cre");
+//        	list = solrIndex2.getAllAlleles("cre", acc);
+//        }
+//        else {
+//                log.info("Call SolrIndex2 with pipeline = impc");
+//        	list = solrIndex2.getAllAlleles("impc", acc);
+//        }
+//
+//        List<Map<String, Object>> list1 = new ArrayList<>();
+//        List<Map<String, Object>> list2 = new ArrayList<>();
+//        List<Map<String, Object>> list3 = new ArrayList<>();
+//
+//
+//        List<Map<String, Object>> list_alleles = new ArrayList<>();
+//        String mgi_accession_id = acc;
+//        String marker_symbol="";
+//
+//        if (list != null) {
+//            for (Map<String, Object> item : list) {
+//                marker_symbol = (String)item.get("marker_symbol");
+//                mgi_accession_id = (String)item.get("mgi_accession_id");
+//                if (ikmc_project_id != null && (!item.containsKey("ikmc_project") || ! item.get("ikmc_project").equals(ikmc_project_id))){
+//                    log.info("#### alleles1...");
+//                    continue;
+//                }
+//
+//                if (allele_type != null && (!item.containsKey("allele_type") || ! item.get("allele_type").equals(allele_type))){
+//                    log.info("#### alleles1...");
+//                    continue;
+//                }
+//
+//                if (pipeline != null && (!item.containsKey("pipeline") || ! item.get("pipeline").equals(pipeline))){
+//                    continue;
+//                }
+//
+//                if( item.get("mouse_status") != null && ! item.get("mouse_status").equals("")) {
+//                    log.info("#### alleles1..." + item.get("mouse_status"));
+//                    list1.add(item);
+//                }
+//                else if (item.get("es_cell_status").equals("ES Cell Targeting Confirmed")) {
+//                    list2.add(item);
+//                }
+//                else {
+//                    list3.add(item);
+//                }
+//            }
+//        }
+//
+//        list_alleles.addAll(list1);
+//        list_alleles.addAll(list2);
+//        list_alleles.addAll(list3);
+//
+//        log.info("#### alleles1: list_alleles: " + list_alleles);
+//
+//        model.addAttribute("mgi_accession_id", mgi_accession_id);
+//        model.addAttribute("marker_symbol", marker_symbol);
+//        if (bare) model.addAttribute("bare", bare);
+//
+//        String allele_type_string = "";
+//        String pipeline_string;
+//        String ikmc_project_id_string;
+//
+//        if (allele_type != null ){
+//            if( allele_type.equals("a") || allele_type.equals("b") || allele_type.equals("c") || allele_type.equals("") || allele_type.equals(".1") || allele_type.equals(".2") || allele_type.equals("e") || allele_type.equals("e.1") || allele_type.equals("d")) {
+//                allele_type_string = " tm" + allele_type;
+//            } else {
+//                allele_type_string =  allele_type;
+//            }
+//        }
+//
+//        pipeline_string = (pipeline != null) ? " for " + pipeline : "";
+//        ikmc_project_id_string = (ikmc_project_id != null) ? " created by project " +  ikmc_project_id : "";
+//        log.info("SEARCH STRING: showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
+//        model.addAttribute("search_title", "Showing all" + allele_type_string + " alleles" + pipeline_string + ikmc_project_id_string);
+//
+//        model.addAttribute("list_alleles", list_alleles);
+//
+//        return "alleles_list";
+//        }
 
     private String allelesCommon(
             String acc,
@@ -504,7 +434,7 @@ public class AllelesController {
 
         Map<String, Object> constructs;
 
-        if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
+        if ( request.getParameter("creLine") != null && request.getParameter("creLine").equals("true")) {
         	// here we reuse the IMPC code to create eucommtools allele project page that is used in creline.org
         	// the main difference is the solr core used
                 log.info("Call SolrIndex2 with pipeline = Cre");
@@ -532,11 +462,11 @@ public class AllelesController {
         //model.addAttribute("qc_data_mouse", "alleles/qc_data/" + constructs.get("mice").get("title"));
 
 
-        log.info("#### mice: " + constructs.get("mice"));
-        log.info("#### es_cells: " + constructs.get("es_cells"));
-        log.info("#### targeting_vectors: " + constructs.get("targeting_vectors"));
-        log.info("#### summary: " + constructs.get("summary"));
-        log.info("#### title: " + constructs.get("title"));
+        //log.info("#### mice: " + constructs.get("mice"));
+        //log.info("#### es_cells: " + constructs.get("es_cells"));
+//        log.info("#### targeting_vectors: " + constructs.get("targeting_vectors"));
+//        log.info("#### summary: " + constructs.get("summary"));
+//        log.info("#### title: " + constructs.get("title"));
 
         if (model.containsAttribute("show_header")) {
             return "alleles_noheader";

@@ -149,6 +149,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	}
 
 	private int populateStatisticalResultsSolrCore() throws IndexerException {
+
 		int count = 0;
 
 		try {

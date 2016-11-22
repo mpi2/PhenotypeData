@@ -34,6 +34,8 @@ public class DccExperimentDTO {
     private String  project;
     private String  procedureId;
     private String  colonyId;
+    private String  rawProcedureStatus;
+    private long    dcc_procedure_pk;
     private boolean isLineLevel;
 
     public String getDatasourceShortName() {
@@ -106,6 +108,22 @@ public class DccExperimentDTO {
 
     public void setColonyId(String colonyId) {
         this.colonyId = colonyId;
+    }
+
+    public String getRawProcedureStatus() {
+        return rawProcedureStatus;
+    }
+
+    public void setRawProcedureStatus(String rawProcedureStatus) {
+        this.rawProcedureStatus = rawProcedureStatus;
+    }
+
+    public long getDcc_procedure_pk() {
+        return dcc_procedure_pk;
+    }
+
+    public void setDcc_procedure_pk(long dcc_procedure_pk) {
+        this.dcc_procedure_pk = dcc_procedure_pk;
     }
 
     public boolean isLineLevel() {

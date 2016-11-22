@@ -35,28 +35,42 @@ public class OrderController {
 	 * @throws SolrServerException, IOException
 	 */
 	@RequestMapping("/order")
-	public String order(@RequestParam (required = true) String acc, @RequestParam (required = true) String allele,  @RequestParam (required = true) String type,
+	public String order(@RequestParam (required = true) String acc, @RequestParam (required = true) String allele,  @RequestParam (required = true) String type, @RequestParam(required=false, defaultValue="false") boolean creLine, 
 			Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
 		System.out.println("orderVector being called with acc="+acc+" allele="+allele);
 		//type "targeting_vector", "es_cell", "mouse"
 		OrderType orderType=OrderType.valueOf(type);
-		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele, false);
+		Allele2DTO allele2DTO = orderService.getAlleForGeneAndAllele(acc, allele, creLine);
 		model.addAttribute("allele", allele2DTO);
 		
 		
-		Map<String, List<ProductDTO>> storeToProductsMap = orderService.getStoreNameToProductsMap(acc, allele, orderType);
+		Map<String, List<ProductDTO>> storeToProductsMap = orderService.getStoreNameToProductsMap(acc, allele, orderType, creLine);
 		model.addAttribute("storeToProductsMap", storeToProductsMap);
 		model.addAttribute("type", orderType);
+		if(creLine){
+			model.addAttribute("creLine", true);
+		}
 		return "order";
 	}
 	
 	@RequestMapping("/qcData")
-	public String qcData(@RequestParam (required= true) String type, @RequestParam (required=true)String productName,  @RequestParam (required=true)String alleleName, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
+	public String qcData(@RequestParam (required= true) String type, @RequestParam (required=true)String productName,  @RequestParam (required=true)String alleleName, @RequestParam(required=false, defaultValue="false") boolean creLine, Model model, HttpServletRequest request, RedirectAttributes attributes) throws SolrServerException, IOException {
 		//get the qc_data list
 		OrderType orderType=OrderType.valueOf(type);
-		HashMap<String, HashMap<String, List<String>>> qcData = orderService.getProductQc(orderType, productName, alleleName);
+		HashMap<String, HashMap<String, List<String>>> qcData = orderService.getProductQc(orderType, productName, alleleName, creLine);
 		model.addAttribute("qcData", qcData);
 		return "qcData";
 	}
+	
+	@RequestMapping("/order/creline")
+    public String creLineAlleles(@RequestParam (required = false) String acc, Model model) throws SolrServerException, IOException{
+		
+		boolean creline=true;
+		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null, creline);
+		model.addAttribute("orderRows", orderRows);
+		model.addAttribute("creLine", true);
+		model.addAttribute("acc", acc);
+    	return "creLineAlleles";
+    }
 
 }

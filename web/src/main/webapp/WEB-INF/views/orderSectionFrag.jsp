@@ -4,6 +4,9 @@
 
 <!-- just for testing with styles remove -->
 <c:if test="${orderRows.size() > 0}">
+	<c:if test="${creLine}">
+		<c:set var="creLineParam" value="&creLine=true"/>
+	</c:if>
 <table>        
         <thead>
         		 <tr>
@@ -34,9 +37,9 @@
                 	<c:set var="rowSpan" value="2"></c:set>
                 </c:if>
                       <tr>
-                        
+                        <!-- /alleles/MGI:2443967/tm1a(EUCOMM)Hmgu -->
                          <td rowspan="${rowSpan}">
-                         	${row.markerSymbol}<sup>${row.alleleName}</sup>
+                         	<a href="${baseUrl}/alleles/${row.mgiAccessionId}/${row.alleleName}?${creLineParam}">${row.markerSymbol}<sup>${row.alleleName}</sup></a>
                          </td>
                          <%-- <td>
                          	${row.strainOfOrigin}
@@ -72,7 +75,7 @@
                           
                           <td style="text-align: center;" rowspan="${rowSpan}">
 	                          <c:if test="${row.targetingVectorAvailable}">
-	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector&bare=true"><i class="fa fa-shopping-cart"></i></a>
+	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
 	                          	<%-- <a class="iFrameFancy" style="text-align:right" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=targeting_vector" >
 		                                   
 		                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
@@ -84,13 +87,13 @@
                           <td style="text-align: center;" rowspan="${rowSpan}">
                            
 	                           <c:if test="${row.esCellAvailable}">
-	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=es_cell&bare=true"><i class="fa fa-shopping-cart"></i></a>
+	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=es_cell${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
 	                          </c:if>
                           </td>
                           
                           <td style="text-align: center;" rowspan="${rowSpan}">
 	                           <c:if test="${row.mouseAvailable}">
-	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=mouse&bare=true"><i class="fa fa-shopping-cart"></i></a>
+	                          	<a class="iFrameFancy btn" data-url="${baseUrl}/order?acc=${acc}&allele=${row.alleleName}&type=mouse${creLineParam}&bare=true"><i class="fa fa-shopping-cart"></i></a>
 	                           </c:if>
                           </td> 
                         </tr>
@@ -129,8 +132,8 @@
 
 
 <c:choose>
-    <c:when test="${alleleProductsCre2.get('cre_exists').equals('true')}">
-        <div><a href="http://www.creline.org/eucommtools#${alleleProductsCre2.get('mgi_acc')}" target="_blank">Cre Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>       
+    <c:when test="${creLineAvailable}">
+        <div><a href="${baseUrl}/order/creline?acc=${acc}" target="_blank">Cre Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>       
     </c:when>
 </c:choose>
                             	

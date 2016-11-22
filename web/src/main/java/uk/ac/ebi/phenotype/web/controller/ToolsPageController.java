@@ -85,9 +85,21 @@ public class ToolsPageController {
 				String site = jsonObj.getString("site");
 
 				String trs = "";
-				String link = site.equals("internal") ? hostName + baseUrl + "/" + urlPath : urlPath;
-				trs += "<tr><td colspan=2 class='toolName'><a href='" + link + "'>" + toolName + "</a></td></tr>";
-				trs += "<tr><td><a href='" +  link + "'><img class='toolImg' src='" + baseUrl + imagePath + "'></img></a></td>";
+
+				String url = "";
+				if (site.equals("internal")){
+					url = hostName + baseUrl + "/" + urlPath;
+				}
+				else if (site.equals("external")){
+					url = urlPath;
+				}
+				else if (site.equals("harwell")){
+					url = hostName + "/" + urlPath;
+				}
+
+				System.out.println("URL: " + url);
+				trs += "<tr><td colspan=2 class='toolName'><a href='" + url + "'>" + toolName + "</a></td></tr>";
+				trs += "<tr><td><a href='" +  url + "'><img class='toolImg' src='" + baseUrl + imagePath + "'></img></a></td>";
 				trs += "<td class='toolDesc'>" + description + "</td></tr>";
 
 //				System.out.println("tr: "+trs);
