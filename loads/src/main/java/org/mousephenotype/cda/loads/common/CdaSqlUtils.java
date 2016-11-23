@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -71,6 +72,13 @@ public class CdaSqlUtils {
     public static final String BIOTYPE_GENE_STRING = "Gene";
     public static final String BIOTYPE_TM1A_STRING = "Targeted (Floxed/Frt)";
     public static final String BIOTYPE_TM1E_STRING = "Targeted (Reporter)";
+
+
+    public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
+            "db_id, biological_sample_id, parameter_id, parameter_stable_id, sequence_id, population_id," +
+            "observation_type, missing, parameter_status, parameter_status_message) " +
+            "VALUES (:dbId, :biologicalSampleId, :parameterId, :parameterStableId, :sequenceId, :populationId, " +
+            ":observationType, :missing, :parameterStatus, :parameterStatusMessage)";
 
     @NotNull
     private NamedParameterJdbcTemplate jdbcCda;
@@ -218,14 +226,14 @@ public class CdaSqlUtils {
 
     /**
      *
-     * @return a map of {@link BiologicalSample}, keyed by external_id.
+     * @return a map of {@link BiologicalSample}, keyed by specimen external_id (AKA stableId).
      */
     public Map<String, BiologicalSample> getBiologicalSamples() {
 
         Map<String, BiologicalSample> map = new HashMap<>();
-        String query = "SELECT * FROM biologcial_sample WHERE external_id = :external_id";
+        String query = "SELECT * FROM biological_sample";
 
-        List<BiologicalSample> samples = jdbcCda.query(query, new BeanPropertyRowMapper(BiologicalSample.class));
+        List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
             map.put(sample.getStableId(), sample);
         }
@@ -372,9 +380,12 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaPipeline_idsByDccPipeline() {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Pipeline> results = jdbcCda.query("SELECT * FROM phenotype_pipeline", new BeanPropertyRowMapper(Pipeline.class));
-        for (Pipeline result : results) {
-            map.put(result.getStableId(), result.getId());
+        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_pipeline", new HashMap<>());
+
+        for (Map<String, Object> result : results) {
+            String  stableId = result.get("stable_id").toString();
+            Integer id       = Integer.valueOf(result.get("id").toString());
+            map.put(stableId, id);
         }
 
         return map;
@@ -384,12 +395,33 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda procedure primary keys, keyed by dcc procedure_.procedureId
      */
-    public Map<String, Integer> getCdaProcedure_idsByDccPipeline() {
+    public Map<String, Integer> getCdaProcedure_idsByDccProcedureId() {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Pipeline> results = jdbcCda.query("SELECT * FROM phenotype_procedure", new BeanPropertyRowMapper(Pipeline.class));
-        for (Pipeline result : results) {
-            map.put(result.getStableId(), result.getId());
+        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_procedure", new HashMap<>());
+
+        for (Map<String, Object> result : results) {
+            String  stableId = result.get("stable_id").toString();
+            Integer id       = Integer.valueOf(result.get("id").toString());
+            map.put(stableId, id);
+        }
+
+        return map;
+    }
+
+    /**
+     *
+     * @return A complete map of cda parameter primary keys, keyed by dcc procedure_.parameterId
+     */
+    public Map<String, Integer> getCdaParameter_idsByDccParameterId() {
+        Map<String, Integer> map = new ConcurrentHashMap<>();
+
+        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_parameter", new HashMap<>());
+
+        for (Map<String, Object> result : results) {
+            String  stableId = result.get("stable_id").toString();
+            Integer id       = Integer.valueOf(result.get("id").toString());
+            map.put(stableId, id);
         }
 
         return map;
@@ -754,50 +786,66 @@ public class CdaSqlUtils {
             String metadataGroup
     ) throws DataLoadException {
 
-            Integer pk = null;
+        Integer pk = null;
 
-            final String insert = "INSERT INTO experiment (" +
-                                        "db_id, external_id, sequence_id, date_of_experiment, organisation_id, project_id," +
-                                        " pipeline_id, pipeline_stable_id, procedure_id, procedure_stable_id, biological_model_id," +
-                                        " colony_id, metadata_combined, metadata_group, procedure_status, procedure_status_message) " +
-                                  "VALUES (:db_id, :external_id, :sequence_id, :date_of_experiment, :organisation_id, :project_id," +
-                                        " :pipeline_id, :pipeline_stable_id, :procedure_id, :procedure_stable_id, :biological_model_id," +
-                                        " :colony_id, :metadata_combined, :metadata_group, :procedure_status, :procedure_status_message)";
+        final String insert = "INSERT INTO experiment (" +
+                "db_id, external_id, sequence_id, date_of_experiment, organisation_id, project_id," +
+                " pipeline_id, pipeline_stable_id, procedure_id, procedure_stable_id, biological_model_id," +
+                " colony_id, metadata_combined, metadata_group, procedure_status, procedure_status_message) " +
+                "VALUES (:db_id, :external_id, :sequence_id, :date_of_experiment, :organisation_id, :project_id," +
+                " :pipeline_id, :pipeline_stable_id, :procedure_id, :procedure_stable_id, :biological_model_id," +
+                " :colony_id, :metadata_combined, :metadata_group, :procedure_status, :procedure_status_message)";
 
-            // Insert experiment. Ignore any duplicates.
-            Map<String, Object> parameterMap = new HashMap<>();
-            try {
-                parameterMap.put("db_id", db_id);
-                parameterMap.put("external_id", external_id);
-                parameterMap.put("sequence_id", sequence_id);
-                parameterMap.put("date_of_experiment", date_of_experiment);
-                parameterMap.put("external_id", external_id);
-                parameterMap.put("organisation_id", organisation_id);
-                parameterMap.put("project_id", project_id);
-                parameterMap.put("pipeline_id", pipeline_id);
-                parameterMap.put("pipeline_stable_id", pipeline_stable_id);
-                parameterMap.put("procedure_id", procedure_id);
-                parameterMap.put("procedure_stable_id", procedure_stable_id);
-                parameterMap.put("biological_model_id", biological_model_id);
-                parameterMap.put("colony_id", colony_id);
-                parameterMap.put("metadata_combined", metadataCombined);
-                parameterMap.put("metadata_group", metadataGroup);
-                parameterMap.put("procedure_status", procedure_status);
-                parameterMap.put("procedure_status_message", procedure_status_message);
+        // Insert experiment. Ignore any duplicates.
+        Map<String, Object> parameterMap = new HashMap<>();
+        try {
+            parameterMap.put("db_id", db_id);
+            parameterMap.put("external_id", external_id);
+            parameterMap.put("sequence_id", sequence_id);
+            parameterMap.put("date_of_experiment", date_of_experiment);
+            parameterMap.put("external_id", external_id);
+            parameterMap.put("organisation_id", organisation_id);
+            parameterMap.put("project_id", project_id);
+            parameterMap.put("pipeline_id", pipeline_id);
+            parameterMap.put("pipeline_stable_id", pipeline_stable_id);
+            parameterMap.put("procedure_id", procedure_id);
+            parameterMap.put("procedure_stable_id", procedure_stable_id);
+            parameterMap.put("biological_model_id", biological_model_id);
+            parameterMap.put("colony_id", colony_id);
+            parameterMap.put("metadata_combined", metadataCombined);
+            parameterMap.put("metadata_group", metadataGroup);
+            parameterMap.put("procedure_status", procedure_status);
+            parameterMap.put("procedure_status_message", procedure_status_message);
 
-                KeyHolder keyholder = new GeneratedKeyHolder();
-                SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-                int count = jdbcCda.update(insert, parameterSource, keyholder);
-                if (count == 1) {
-                    pk = keyholder.getKey().intValue();
-                }
-
-            } catch (DuplicateKeyException e) {
-
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int                count           = jdbcCda.update(insert, parameterSource, keyholder);
+            if (count == 1) {
+                pk = keyholder.getKey().intValue();
             }
 
-            return pk;
+        } catch (DuplicateKeyException e) {
+
         }
+
+        return pk;
+    }
+
+    public void insertExperiment_observation(int experimentPk, int observationPk) throws DataLoadException {
+
+        final String insert = "INSERT INTO experiment_observation (" +
+                "experiment_id, observation_id) " +
+                "VALUES (:experimentPk, :observationPk)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("experimentPk", experimentPk);
+        parameterMap.put("observationPk", observationPk);
+
+        KeyHolder          keyholder       = new GeneratedKeyHolder();
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        jdbcCda.update(insert, parameterSource, keyholder);
+    }
 
 
 
@@ -1033,6 +1081,129 @@ public class CdaSqlUtils {
         return anomalies;
     }
 
+
+    /**
+     * Returns the observation type based on the parameterId and a sample
+     * parameter value.
+     *
+     * @param parameterId The parameter Id
+     * @param value     a string representing parameter sample data (e.g. a floating
+     *                  point number or anything else).
+     * @return The observation type based on the parameter and a sample
+     * parameter value. If <code>value</code> is a floating point number and
+     * <code>parameter</code> does not have a valid data type,
+     * <code>value</code> is used to disambiguate the graph type: the
+     * observation type will be either <i>time_series</i> or
+     * <i>unidimensional</i>; otherwise, it will be interpreted as
+     * <i>categorical</i>.
+     */
+    public ObservationType computeObservationType(String parameterId, String value) {
+
+        Parameter parameter = getParameterByStableId(parameterId);
+
+        Map<String, String> MAPPING = new HashMap<>();
+        MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
+        MAPPING.put("M-G-P_022_001_001", "FLOAT");
+        MAPPING.put("ESLIM_006_001_035", "FLOAT");
+        MAPPING = Collections.unmodifiableMap(MAPPING);
+
+        ObservationType observationType = null;
+
+        Float valueToInsert = 0.0f;
+
+        String datatype = parameter.getDatatype();
+        if (MAPPING.containsKey(parameter.getStableId())) {
+            datatype = MAPPING.get(parameter.getStableId());
+        }
+
+        if (parameter.isMetaDataFlag()) {
+
+            observationType = ObservationType.metadata;
+
+        } else {
+
+            if (parameter.isOptionsFlag()) {
+
+                observationType = ObservationType.categorical;
+
+            } else {
+
+                if (datatype.equals("TEXT")) {
+
+                    observationType = ObservationType.text;
+
+                } else if (datatype.equals("DATETIME")) {
+
+                    observationType = ObservationType.datetime;
+
+                } else if (datatype.equals("BOOL")) {
+
+                    observationType = ObservationType.categorical;
+
+                } else if (datatype.equals("FLOAT") || datatype.equals("INT")) {
+
+                    if (parameter.isIncrementFlag()) {
+
+                        observationType = ObservationType.time_series;
+
+                    } else {
+
+                        observationType = ObservationType.unidimensional;
+
+                    }
+
+                    try {
+                        if (value != null) {
+                            valueToInsert = Float.valueOf(value);
+                        }
+                    } catch (NumberFormatException ex) {
+                        logger.debug("Invalid float value: " + value);
+                    }
+
+                } else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.getName().contains("images"))) {
+
+                    observationType = ObservationType.image_record;
+
+                } else if (datatype.equals("") && !parameter.isOptionsFlag() && !parameter.getName().contains("images")) {
+
+                    // is that a number or a category?
+                    try {
+                        // check whether it's null
+                        if (value != null && !value.equals("null")) {
+
+                            valueToInsert = Float.valueOf(value);
+                        }
+                        if (parameter.isIncrementFlag()) {
+                            observationType = ObservationType.time_series;
+                        } else {
+                            observationType = ObservationType.unidimensional;
+                        }
+
+                    } catch (NumberFormatException ex) {
+                        observationType = ObservationType.categorical;
+                    }
+                }
+            }
+        }
+
+        return observationType;
+    }
+
+    private Map<String, Parameter> parametersByStableIdMap;
+    public Parameter getParameterByStableId(String stableId) {
+
+        if (parametersByStableIdMap == null) {
+            String query = "SELECT * FROM phenotype_parameter";
+            parametersByStableIdMap = new HashMap<>();
+            List<Parameter> parameters = jdbcCda.query(query, new HashMap<>(), new ParameterRowMapper());
+            for (Parameter parameter : parameters) {
+                parametersByStableIdMap.put(parameter.getStableId(), parameter);
+            }
+        }
+
+        return parametersByStableIdMap.get(stableId);
+    }
+    
     /**
      * Return the <code>OntologyTerm</code> matching the given {@code accesionId}.
      * <i>NOTE: Ontology terms are unique by accession id.</i>
@@ -1341,6 +1512,66 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         return projects;
     }
+
+    // Returns the newly-inserted primary key if successful; 0 otherwise.
+    public int insertObservation(
+            int dbId,
+            Integer biologicalSampleId,
+            String parameterStableId,
+            int parameterId,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int missing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            String rawValue
+    ) throws DataLoadException {
+
+        int observationPk = 0;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dbId", dbId);
+        parameterMap.put("biologicalSampleId", biologicalSampleId);
+        parameterMap.put("observationType", observationType.name());
+        parameterMap.put("parameterId", parameterId);
+        parameterMap.put("parameterStableId", parameterStableId);
+        parameterMap.put("sequenceId", sequenceId);
+        parameterMap.put("populationId", populationId);
+        parameterMap.put("missing", missing);
+        parameterMap.put("parameterStatus", parameterStatus);
+        parameterMap.put("parameterStatusMessage", parameterStatusMessage);
+
+        switch (observationType) {
+            case metadata:
+                // Do not load metadata parameters like this
+                // See the loadProcedureMetaData(...) method
+                break;
+
+            case datetime:
+                observationPk = insertDatetimeObservation(parameterMap, rawValue);
+                break;
+
+            case text:
+                observationPk = insertTextObservation(parameterMap, rawValue);
+                break;
+
+            case categorical:
+                observationPk = insertCategoricalObservation(parameterMap, rawValue);
+                break;
+
+            case unidimensional:
+                observationPk = insertUnidimensionalObservation(parameterMap, rawValue);
+                break;
+
+            default:
+                throw new DataLoadException("Unknown observationType '" + observationType.toString() + "'");
+        }
+
+        return observationPk;
+    }
+
+
 
     /**
      * Try to insert the ontology terms. If any insert fails, continue to the next term; otherwise, try to insert the synonyms and consider ids.
@@ -1745,6 +1976,213 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return count;
     }
 
+    public void updateObservationMissingFlag(int observationPk, boolean missing) {
+        int iMissing = (missing ? 1 : 0);
+        final String update = "UPDATE observation SET missing = :missing WHERE id = :observationPk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("observationPk", observationPk);
+        parameterMap.put("missing", iMissing);
+
+        jdbcCda.update(update, parameterMap);
+    }
+
+    /**
+     *
+     * @param parameterMap
+     * @param category
+     * @return observation primary key
+     */
+    public int insertCategoricalObservation(Map<String, Object> parameterMap, String category) {
+
+        KeyHolder          keyholder       = new GeneratedKeyHolder();
+        int                missing         = Integer.valueOf(parameterMap.get("missing").toString());
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+        int                observationPk   = 0;
+
+        // Validate the category. If it is missing, mark the observation as missing.
+        if (category == null) {
+            missing = 1;
+        }
+
+        parameterMap.put("missing", missing);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        if (missing == 0) {
+            final String insert = "INSERT INTO categorical_observation (id, category) VALUES (:observationPk, :category)";
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("category", category);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        }
+
+        return observationPk;
+    }
+
+    /**
+     *
+     * @param parameterMap
+     * @param sDate String representation of the (unvalidated) date.
+     * @return observation primary key
+     */
+    public int insertDatetimeObservation(Map<String, Object> parameterMap, String sDate) {
+
+        Date               date            = null;
+        KeyHolder          keyholder       = new GeneratedKeyHolder();
+        int                missing         = Integer.valueOf(parameterMap.get("missing").toString());
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+        int                observationPk   = 0;
+
+        // Validate the date. If it is missing or it fails validation, mark the observation as missing.
+        try {
+            if (sDate == null) {
+                missing = 1;
+            }
+
+            date = javax.xml.bind.DatatypeConverter.parseDateTime(sDate).getTime();
+
+        } catch (Exception e) {
+            missing = 1;
+        }
+
+        parameterMap.put("missing", missing);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        if (missing == 0) {
+            final String insert = "INSERT INTO datetime_observation (id, datetime_point) VALUES (:observationPk, :date)";
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("date", date);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        }
+
+        return observationPk;
+    }
+
+    /**
+     *
+     * @param parameterMap
+     * @param text The text to be inserted
+     * @return observation primary key
+     */
+    public int insertTextObservation(Map<String, Object> parameterMap, String text) {
+
+        KeyHolder          keyholder       = new GeneratedKeyHolder();
+        int                missing         = Integer.valueOf(parameterMap.get("missing").toString());
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+        int                observationPk   = 0;
+
+        // Validate the category. If it is missing, mark the observation as missing.
+        if (text == null) {
+            missing = 1;
+        }
+
+        parameterMap.put("missing", missing);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        final String insert = "INSERT INTO text_observation (id, text) VALUES (:observationPk, :text)";
+
+        if (missing == 0) {
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("text", text);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        }
+
+        return observationPk;
+    }
+
+    /**
+     *
+     * @param parameterMap
+     * @param sDataPoint String representation of the (unvalidated) Float data point.
+     * @return observation primary key
+     */
+    public int insertUnidimensionalObservation(Map<String, Object> parameterMap, String sDataPoint) {
+
+        Float              dataPoint       = null;
+        KeyHolder          keyholder       = new GeneratedKeyHolder();
+        int                missing         = Integer.valueOf(parameterMap.get("missing").toString());
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+        int                observationPk;
+
+        // Validate the data point. If it is missing or it fails validation, mark the observation as missing.
+        try {
+            if (sDataPoint == null) {
+                missing = 1;
+            }
+
+            dataPoint = Float.parseFloat(sDataPoint);
+
+        } catch (Exception e) {
+            missing = 1;
+        }
+
+        parameterMap.put("missing", missing);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        if (missing == 0) {
+            final String insert = "INSERT INTO unidimensional_observation (id, data_point) VALUES (:observationPk, :dataPoint)";
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("dataPoint", dataPoint);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        }
+
+        return observationPk;
+    }
+
 
 
     /**
@@ -1927,6 +2365,42 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             bm.setZygosity(rs.getString("zygosity"));
 
             return bm;
+        }
+    }
+
+    public class BiologicalSampleRowMapper implements RowMapper<BiologicalSample> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public BiologicalSample mapRow(ResultSet rs, int rowNum) throws SQLException {
+            BiologicalSample biologicalSample = new BiologicalSample();
+
+            biologicalSample.setId(rs.getInt("id"));
+            biologicalSample.setStableId(rs.getString("external_id"));
+            Datasource datasource = new Datasource();
+            datasource.setId(rs.getInt("db_id"));
+            biologicalSample.setDatasource(datasource);
+            biologicalSample.setType(new OntologyTerm(rs.getString("sample_type_acc"), rs.getInt("sample_type_db_id")));
+            biologicalSample.setGroup(rs.getString("sample_group"));
+            Organisation organisation = new Organisation();
+            organisation.setId(rs.getInt("organisation_id"));
+            biologicalSample.setOrganisation(organisation);
+            Organisation productionCenter = new Organisation();
+            productionCenter.setId(rs.getInt("production_center_id"));
+            biologicalSample.setProductionCenter(productionCenter);
+            // litter_id was moved to LiveSample.
+
+            return biologicalSample;
         }
     }
 
@@ -2251,6 +2725,74 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             term.setLast_modified(new Date(rs.getTimestamp("last_modified").getTime()));
 
             return term;
+        }
+    }
+
+    public class ParameterRowMapper implements RowMapper<Parameter> {
+
+        /**
+         * Implementations must implement this method to map each row of data
+         * in the ResultSet. This method should not call {@code next()} on
+         * the ResultSet; it is only supposed to map values of the current row.
+         *
+         * @param rs     the ResultSet to map (pre-initialized for the current row)
+         * @param rowNum the number of the current row
+         * @return the result object for the current row
+         * @throws SQLException if a SQLException is encountered getting
+         *                      column values (that is, there's no need to catch SQLException)
+         */
+        @Override
+        public Parameter mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Parameter parameter = new Parameter();
+
+            parameter.setId(rs.getInt("id"));
+            parameter.setStableId(rs.getString("stable_id"));
+
+            Datasource datasource = new Datasource();
+            datasource.setId(rs.getInt("db_id"));
+            parameter.setDatasource(datasource);
+            parameter.setName(rs.getString("name"));
+
+            parameter.setDescription(rs.getString("description"));
+            parameter.setMajorVersion(rs.getInt("major_version"));
+            parameter.setMinorVersion(rs.getInt("minor_version"));
+            parameter.setUnit(rs.getString("unit"));
+            parameter.setDatatype(rs.getString("datatype"));
+            parameter.setType(rs.getString("parameter_type"));
+            parameter.setFormula(rs.getString("formula"));
+            Integer flag = rs.getInt("required");
+            parameter.setRequiredFlag((flag != null) && (flag == 1 ? true : false));
+            
+            flag = rs.getInt("metadata");
+            parameter.setMetaDataFlag((flag != null) && (flag == 1 ? true : false));
+            
+            flag = rs.getInt("important");
+            parameter.setImportantFlag((flag != null) && (flag == 1 ? true : false));
+            
+            flag = rs.getInt("derived");
+            parameter.setDerivedFlag((flag != null) && (flag == 1 ? true : false));
+            
+            flag = rs.getInt("annotate");
+            parameter.setAnnotateFlag((flag != null) && (flag == 1 ? true : false));
+            
+            flag = rs.getInt("increment");
+            parameter.setIncrementFlag((flag != null) && (flag == 1 ? true : false));
+            
+            flag = rs.getInt("options");
+            parameter.setOptionsFlag((flag != null) && (flag == 1 ? true : false));
+
+            parameter.setSequence(rs.getInt("sequence"));
+            
+            flag = rs.getInt("media");
+            parameter.setMediaFlag((flag != null) && (flag == 1 ? true : false));
+            
+            flag = rs.getInt("data_analysis");
+            parameter.setRequiredForDataAnalysisFlag((flag != null) && (flag == 1 ? true : false));
+
+            parameter.setDataAnalysisNotes(rs.getString("data_analysis_notes"));
+            parameter.setStableKey(rs.getInt("stable_key"));
+
+            return parameter;
         }
     }
 
