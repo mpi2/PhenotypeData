@@ -310,7 +310,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-
+            System.out.println(pcs.toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
             DataTableRow pr = new PhenotypePageTableRow(pcs, "", null, false);
 
