@@ -43,7 +43,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +55,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	private final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexer.class);
 
 	private Double SIGNIFICANCE_THRESHOLD = AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD;
-	final double REPORT_INTERVAL = 1000;
+	final double REPORT_INTERVAL = 100000;
 
 	static final String RESOURCE_3I = "3i";
 	private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
@@ -158,29 +158,52 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			statisticalResultCore.commit();
 
 			List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
-//				getViabilityResults(),
-//				getFertilityResults(),
-//				getReferenceRangePlusResults(),
-//				getEmbryoViabilityResults(),
-//				getEmbryoResults(),
-//				getGrossPathologyResults(),
+				getViabilityResults(),
+				getFertilityResults(),
+				getReferenceRangePlusResults(),
+				getEmbryoViabilityResults(),
+				getEmbryoResults(),
+				getGrossPathologyResults(),
 				getUnidimensionalResults(),
 				getCategoricalResults()
 			);
 
+//			for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
+//
+//				try {
+//
+//					List<StatisticalResultDTO> documents = r.call();
+//					count += documents.size();
+////					statisticalResultCore.addBeans(documents, 30000);
+//
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//
+//			}
+
+			ExecutorService pool = Executors.newFixedThreadPool(4);
+			List<Future<List<StatisticalResultDTO>>> producers = new ArrayList<>();
+
 			for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
 
+				Future<List<StatisticalResultDTO>> future = pool.submit(r);
+				producers.add(future);
+
+			}
+
+			for (Future<List<StatisticalResultDTO>> future : producers) {
+
 				try {
-
-					List<StatisticalResultDTO> documents = r.call();
-					count += documents.size();
-					statisticalResultCore.addBeans(documents, 60000);
-
-				} catch (Exception e) {
+					future.get();
+				} catch (ExecutionException | InterruptedException e) {
 					e.printStackTrace();
 				}
 
 			}
+
+			// Stop threadpool
+			pool.shutdown();
 
 
 			statisticalResultCore.commit();
@@ -196,14 +219,14 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	}
 
 
-	public ViabilityResults getViabilityResults() {return new ViabilityResults(); }
-	public FertilityResults getFertilityResults() {return new FertilityResults(); }
-	public ReferenceRangePlusResults getReferenceRangePlusResults() {return new ReferenceRangePlusResults(); }
-	public UnidimensionalResults getUnidimensionalResults() {return new UnidimensionalResults(); }
-	public CategoricalResults getCategoricalResults() {return new CategoricalResults(); }
-	public EmbryoViabilityResults getEmbryoViabilityResults() {return new EmbryoViabilityResults(); }
-	public EmbryoResults getEmbryoResults() {return new EmbryoResults(); }
-	public GrossPathologyResults getGrossPathologyResults() {return new GrossPathologyResults(); }
+	ViabilityResults getViabilityResults() {return new ViabilityResults(); }
+	FertilityResults getFertilityResults() {return new FertilityResults(); }
+	ReferenceRangePlusResults getReferenceRangePlusResults() {return new ReferenceRangePlusResults(); }
+	UnidimensionalResults getUnidimensionalResults() {return new UnidimensionalResults(); }
+	CategoricalResults getCategoricalResults() {return new CategoricalResults(); }
+	EmbryoViabilityResults getEmbryoViabilityResults() {return new EmbryoViabilityResults(); }
+	EmbryoResults getEmbryoResults() {return new EmbryoResults(); }
+	GrossPathologyResults getGrossPathologyResults() {return new GrossPathologyResults(); }
 
 
 	/**
@@ -908,6 +931,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseCategoricalResult(r);
 					docs.add(doc);
+					statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 					if (docs.size()% REPORT_INTERVAL ==0) {
 						logger.info("Added {} categorical doucments", docs.size());
@@ -997,6 +1021,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseUnidimensionalResult(r);
 					docs.add(doc);
+					statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 					if (docs.size()% REPORT_INTERVAL ==0) {
 						logger.info("Added {} unidimensional doucments", docs.size());
@@ -1141,6 +1166,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseReferenceRangeResult(r);
 					docs.add(doc);
+					statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 			} catch (Exception e) {
@@ -1363,6 +1389,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
+					statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 
@@ -1425,6 +1452,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
+					statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 
@@ -1485,6 +1513,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 					}
 
 					docs.add(doc);
+					statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 
 				}
@@ -1537,6 +1566,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
+					statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 			} catch (Exception e) {
@@ -1592,6 +1622,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 					doc.setDocId(doc.getDocId()+"-"+(i++));
 
 					docs.add(doc);
+					statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 

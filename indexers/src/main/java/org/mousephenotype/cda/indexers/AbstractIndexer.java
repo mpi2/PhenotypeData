@@ -232,30 +232,31 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
     protected void doLiveStageLookup() throws SQLException {
 
+        synchronized (this) {
 
-        // Already populated by another thread
-        if (liveStageMap != null && liveStageMap.size() > 0) {
-            logger.info("Life stage lookup already populated");
-            return;
-        }
+            // Already populated by another thread
+            if (liveStageMap != null && liveStageMap.size() > 0) {
+                logger.info("Life stage lookup already populated");
+                return;
+            }
 
-        // Populate the stages map from stage name -> ontology term if it is empty
-        if (stages == null || stages.size() == 0) {
-            Arrays.asList("postnatal", "embryonic day 9.5", "embryonic day 12.5", "embryonic day 14.5", "embryonic day 18.5").forEach(x -> {
-                OntologyTerm t = ontologyTermDAO.getOntologyTermByNameAndDatabaseId(x, EFO_DB_ID);
-                stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
-            });
-        }
+            // Populate the stages map from stage name -> ontology term if it is empty
+            if (stages == null || stages.size() == 0) {
+                Arrays.asList("postnatal", "embryonic day 9.5", "embryonic day 12.5", "embryonic day 14.5", "embryonic day 18.5").forEach(x -> {
+                    OntologyTerm t = ontologyTermDAO.getOntologyTermByNameAndDatabaseId(x, EFO_DB_ID);
+                    stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
+                });
+            }
 
-        long time = System.currentTimeMillis();
-        logger.info("Populating life stage lookup");
+            long time = System.currentTimeMillis();
+            logger.info("Populating life stage lookup");
 
-        Map<String, BasicBean> buildStageMap = new HashMap<>();
+            Map<String, BasicBean> buildStageMap = new HashMap<>();
 
-        String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
-                + "FROM specimen_life_stage o, live_sample ls, ontology_term ot "
-                + "WHERE ot.acc=ls.developmental_stage_acc "
-                + "AND ls.id=o.biological_sample_id";
+            String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
+                    + "FROM specimen_life_stage o, live_sample ls, ontology_term ot "
+                    + "WHERE ot.acc=ls.developmental_stage_acc "
+                    + "AND ls.id=o.biological_sample_id";
 
 
 //         String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
@@ -266,34 +267,35 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
 //              try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 //              p1.executeUpdate();
-        //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
+            //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
-        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
-            ResultSet r = p.executeQuery();
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
+                ResultSet r = p.executeQuery();
 
-            while (r.next()) {
+                while (r.next()) {
 
-                BasicBean stage = new BasicBean(
-                        r.getString("developmental_stage_acc"),
-                        r.getString("developmental_stage_name"));
+                    BasicBean stage = new BasicBean(
+                            r.getString("developmental_stage_acc"),
+                            r.getString("developmental_stage_name"));
 
-                String colonyId = r.getString("colony_id");
-                String pipelineStableId = r.getString("pipeline_stable_id");
-                String procedureStableId = r.getString("procedure_stable_id");
-                String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
+                    String colonyId = r.getString("colony_id");
+                    String pipelineStableId = r.getString("pipeline_stable_id");
+                    String procedureStableId = r.getString("procedure_stable_id");
+                    String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId, procedureStableId), "_");
 
-                if ( ! buildStageMap.containsKey(key)) {
-                    buildStageMap.put(key, stage);
+                    if (!buildStageMap.containsKey(key)) {
+                        buildStageMap.put(key, stage);
+                    }
                 }
+            } catch (Exception e) {
+                System.out.println(" Error populating live stage lookup map: " + e.getMessage());
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            System.out.println(" Error populating live stage lookup map: " + e.getMessage());
-            e.printStackTrace();
+
+            liveStageMap = buildStageMap;
+
+            logger.info("Populating life stage lookup took {}s", ((System.currentTimeMillis() - time) / 1000.0));
         }
-
-        liveStageMap = buildStageMap;
-
-        logger.info("Populating life stage lookup took {}s", ((System.currentTimeMillis() - time) / 1000.0));
     }
 
 
@@ -306,8 +308,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         }
 
         BasicBean stage = null;
-
-//        long start = System.nanoTime();
 
         // Procedure prefix is the first two strings of the parameter after splitting on underscore
         // i.e. IMPC_BWT_001_001 => IMPC_BWT
@@ -341,11 +341,9 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
                 if ( liveStageMap.containsKey(key) ) {
                     stage = liveStageMap.get(key);
-//                    stage = stages.get("postnatal");
                 }
         }
 
-//        System.out.println("Total Time took: " + ((System.nanoTime()-start)));
 
         return stage;
     }
