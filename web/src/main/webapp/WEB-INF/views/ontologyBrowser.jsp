@@ -14,6 +14,11 @@
 
 		<style>
 			/*#ontotree { margin-top: 80px;}*/
+			span#gpassoc {
+				float: right;
+				color: grey;
+				font-size: 14px;
+			}
 		</style>
 	</jsp:attribute>
 
@@ -34,7 +39,8 @@
 
 		 var ontologyLabel = "";
 		 if ( termId.indexOf("MP:") != -1){
-			 ontologyLabel = "Mammalian Phenotype Ontology (MP)";
+			 ontologyLabel = "Mammalian Phenotype Ontology (MP) <span id='gpassoc'>(number) : significant genotype-phenotype associations</span>";
+
 		 }
 		 if ( termId.indexOf("MA:") != -1){
 			 ontologyLabel = "Adult: Mouse Adult Gross Anatomy Ontology (MA)";
@@ -42,7 +48,7 @@
 		 if ( termId.indexOf("EMAPA:") != -1){
 			 ontologyLabel = "Embryo: Mouse gross anatomy and development, timed (EMAPA)";
 		 }
-		 $('#ontotree').text(ontologyLabel);
+		 $('#ontotree').html(ontologyLabel);
 
 		 var clickToOpen = false; // The tree expands too many nodes at load time. This is a hack to only allow it on mouseclick
 		 

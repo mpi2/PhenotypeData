@@ -372,7 +372,7 @@ public class OntologyBrowserGetter {
 				termDisplayText = name;
 			}
 
-			String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText + " (" + helper.getGeneVariantCount() + ")"
+			String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText + " (<span class='gpAssoc'>" + helper.getGeneVariantCount() + "</span>)"
 					+ "</a>";
 			node.put("text", url);
 			node.put("id", Integer.toString(resultSet.getInt("node_id")));
