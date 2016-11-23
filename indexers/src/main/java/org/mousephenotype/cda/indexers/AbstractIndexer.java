@@ -59,11 +59,10 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
-    private static Connection connection;
-
     protected Integer EFO_DB_ID = 15; // default as of 2016-05-06
 
-    Map<String, BasicBean> liveStageMap = new HashMap<>();
+    Map<String, BasicBean> liveStageMap;
+    Map<String, BasicBean> stages = new HashMap<>();
 
 	private final Logger logger = LoggerFactory.getLogger(AbstractIndexer.class);
 
@@ -232,13 +231,32 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     }
 
     protected void doLiveStageLookup() throws SQLException {
-	    // This query: CREATE TABLE specimen_life_stage SELECT DISTINCT o.biological_sample_id AS biological_sample_id, e.pipeline_stable_id AS pipeline_stable_id, e.procedure_stable_id AS procedure_stable_id FROM observation o, experiment_observation eo, experiment e     WHERE o.id = eo.observation_id  AND eo.experiment_id = e.id
-	    // creates a table this method relies on and must be run prior to using.
 
-	    long time = System.currentTimeMillis();
-        System.out.println("Populating LIFE STAGE LOOKUP");
 
-        connection = komp2DataSource.getConnection();
+        // Already populated by another thread
+        if (liveStageMap != null && liveStageMap.size() > 0) {
+            logger.info("Life stage lookup already populated");
+            return;
+        }
+
+        // Populate the stages map from stage name -> ontology term if it is empty
+        if (stages == null || stages.size() == 0) {
+            Arrays.asList("postnatal", "embryonic day 9.5", "embryonic day 12.5", "embryonic day 14.5", "embryonic day 18.5").forEach(x -> {
+                OntologyTerm t = ontologyTermDAO.getOntologyTermByNameAndDatabaseId(x, EFO_DB_ID);
+                stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
+            });
+        }
+
+        long time = System.currentTimeMillis();
+        logger.info("Populating life stage lookup");
+
+        Map<String, BasicBean> buildStageMap = new HashMap<>();
+
+        String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
+                + "FROM specimen_life_stage o, live_sample ls, ontology_term ot "
+                + "WHERE ot.acc=ls.developmental_stage_acc "
+                + "AND ls.id=o.biological_sample_id";
+
 
 //         String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
 //                 + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
@@ -246,95 +264,88 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 //                  + "WHERE o.id=eo.observation_id "
 //                  + "AND eo.experiment_id=e.id )";
 
-             String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
-                 + "FROM specimen_life_stage o, live_sample ls, ontology_term ot "
-                 + "WHERE ot.acc=ls.developmental_stage_acc "
-                 + "AND ls.id=o.biological_sample_id" ;
-
 //              try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 //              p1.executeUpdate();
-             //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
+        //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
-        try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
 
             while (r.next()) {
-                List<String> fields = new ArrayList<String>();
-                fields.add(r.getString("colony_id"));
-                fields.add(r.getString("pipeline_stable_id"));
-                fields.add(r.getString("procedure_stable_id"));
+
                 BasicBean stage = new BasicBean(
-                        		            r.getString("developmental_stage_acc"),
-                        		            r.getString("developmental_stage_name"));
-                     String key = StringUtils.join(fields, "_");
-                    if (!liveStageMap.containsKey(key)){
-                               liveStageMap.put(key, stage);
-                      }
-                 }
-         } catch (Exception e) {
+                        r.getString("developmental_stage_acc"),
+                        r.getString("developmental_stage_name"));
+
+                String colonyId = r.getString("colony_id");
+                String pipelineStableId = r.getString("pipeline_stable_id");
+                String procedureStableId = r.getString("procedure_stable_id");
+                String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
+
+                if ( ! buildStageMap.containsKey(key)) {
+                    buildStageMap.put(key, stage);
+                }
+            }
+        } catch (Exception e) {
             System.out.println(" Error populating live stage lookup map: " + e.getMessage());
             e.printStackTrace();
-         }
-        System.out.println("Remaining took "  + (System.currentTimeMillis() - time));
+        }
+
+        liveStageMap = buildStageMap;
+
+        logger.info("Populating life stage lookup took {}s", ((System.currentTimeMillis() - time) / 1000.0));
     }
 
 
     protected BasicBean getDevelopmentalStage(String pipelineStableId, String procedureStableId, String colonyId) throws SQLException {
 
-        if (liveStageMap  == null || liveStageMap.size() == 0){
+        // Populate the live specimen life stage map if it is empty
+        // Only populate the lookup in one thread
+        if (liveStageMap == null || liveStageMap.size() == 0) {
             doLiveStageLookup();
         }
 
         BasicBean stage = null;
 
-        Map<String, BasicBean> stages = new HashMap<>();
-
-        Arrays.asList("postnatal", "embryonic day 9.5", "embryonic day 12.5", "embryonic day 14.5", "embryonic day 18.5" ).forEach( x -> {
-            OntologyTerm t = ontologyTermDAO.getOntologyTermByNameAndDatabaseId(x, EFO_DB_ID);
-            stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
-        });
-
-        // set life stage by looking up a combination key of
-        // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
-        // The value is cooresponding developmental stage object
-        String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
-
-        if ( liveStageMap.containsKey(key) ) {
-
-            stage = liveStageMap.get(key);
-
-        }
+//        long start = System.nanoTime();
 
         // Procedure prefix is the first two strings of the parameter after splitting on underscore
         // i.e. IMPC_BWT_001_001 => IMPC_BWT
         String procedurePrefix = StringUtils.join(Arrays.asList(procedureStableId.split("_")).subList(0, 2), "_");
 
-        BasicBean stg = null;
         switch (procedurePrefix) {
             case "IMPC_VIA":
                 stage = new BasicBean("n/a", "n/a");
                 break;
             case "IMPC_FER":
-                stg = stages.get("postnatal");
-                stage = new BasicBean(stg.getId(), stg.getName());
+                stage = stages.get("postnatal");
                 break;
             case "IMPC_EVL":
-                stg = stages.get("embryonic day 9.5");
-                stage = new BasicBean(stg.getId(), stg.getName());
+                stage = stages.get("embryonic day 9.5");
                 break;
             case "IMPC_EVM":
-                stg = stages.get("embryonic day 12.5");
-                stage = new BasicBean(stg.getId(), stg.getName());
+                stage = stages.get("embryonic day 12.5");
                 break;
             case "IMPC_EVO":
-                stg = stages.get("embryonic day 14.5");
-                stage = new BasicBean(stg.getId(), stg.getName());
+                stage = stages.get("embryonic day 14.5");
                 break;
             case "IMPC_EVP":
-                stg = stages.get("embryonic day 18.5");
-                stage = new BasicBean(stg.getId(), stg.getName());
+                stage = stages.get("embryonic day 18.5");
                 break;
+            default:
+
+                // set life stage by looking up a combination key of
+                // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
+                // The value is corresponding developmental stage object
+                String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
+
+                if ( liveStageMap.containsKey(key) ) {
+                    stage = liveStageMap.get(key);
+//                    stage = stages.get("postnatal");
+                }
         }
+
+//        System.out.println("Total Time took: " + ((System.nanoTime()-start)));
 
         return stage;
     }

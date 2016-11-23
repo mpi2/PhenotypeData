@@ -39,10 +39,9 @@
                         <c:import url="landing_overview_frag.jsp"/>
 
                         <div class="section">
-                            <h1>Approach</h1>
+                            <h2 class="title">Approach</h2>
                             <div class="inner">
-                                <p></p>
-
+                                <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
                     </div>

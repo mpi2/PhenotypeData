@@ -68,4 +68,16 @@ public class BasicBean {
         return result;
     }
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		BasicBean basicBean = (BasicBean) o;
+
+		if (id != null ? !id.equals(basicBean.id) : basicBean.id != null) return false;
+		if (name != null ? !name.equals(basicBean.name) : basicBean.name != null) return false;
+		return description != null ? description.equals(basicBean.description) : basicBean.description == null;
+
+	}
 }
