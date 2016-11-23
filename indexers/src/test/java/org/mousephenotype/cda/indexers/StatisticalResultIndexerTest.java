@@ -42,6 +42,7 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 	@PostConstruct
 	void postConstruct() {
 
+		System.out.println("Doing post construct");
 
 		try {
 
@@ -49,7 +50,6 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 			statisticalResultIndexer = StatisticalResultsIndexer.class.newInstance();
 			applicationContext.getAutowireCapableBeanFactory().autowireBean(statisticalResultIndexer);
 
-			statisticalResultIndexer.setConnection(komp2DataSource.getConnection());
 			statisticalResultIndexer.setPipelineMap(IndexerMap.getImpressPipelines(komp2DataSource.getConnection()));
 			statisticalResultIndexer.setProcedureMap(IndexerMap.getImpressProcedures(komp2DataSource.getConnection()));
 			statisticalResultIndexer.setParameterMap(IndexerMap.getImpressParameters(komp2DataSource.getConnection()));
@@ -61,7 +61,6 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
 		} catch (IllegalAccessException | InstantiationException | SQLException e) {
 			e.printStackTrace();
-			assert (statisticalResultIndexer.getConnection() != null);
 		}
 	}
 
@@ -114,6 +113,57 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
 		assert (diff.isEmpty());
 		System.out.println("All generated IDs unique");
+	}
+
+
+	@Test
+	public void getBothCategoricalAndUnidimResults() throws Exception {
+
+
+		List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
+				statisticalResultIndexer.getCategoricalResults(),
+				statisticalResultIndexer.getUnidimensionalResults()
+		);
+
+		for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
+
+			try {
+
+				List<StatisticalResultDTO> documents = r.call();
+				assert(documents.size() > 1000);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+
+	}
+
+
+
+	@Test
+	public void getCategoricalResults() throws Exception {
+
+		StatisticalResultsIndexer.CategoricalResults r = statisticalResultIndexer.getCategoricalResults();
+
+		System.out.println("Assessing result of type " + r.getClass().getSimpleName());
+		List<StatisticalResultDTO> results = r.call();
+
+		assert(results.size() > 100000);
+
+	}
+
+	@Test
+	public void getUnidimResults() throws Exception {
+
+		StatisticalResultsIndexer.UnidimensionalResults r = statisticalResultIndexer.getUnidimensionalResults();
+
+		System.out.println("Assessing result of type " + r.getClass().getSimpleName());
+		List<StatisticalResultDTO> results = r.call();
+
+		assert(results.size() > 100000);
+
 	}
 
 

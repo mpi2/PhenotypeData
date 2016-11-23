@@ -39,7 +39,7 @@
                         <c:import url="landing_overview_frag.jsp"/>
 
                         <div class="section">
-                            <h1>Approach</h1>
+                            <h2 class="title">Approach</h2>
                             <div class="inner">
                                 <p>In order to identify genes required for hearing function, the consortium uses an
                                     auditory brainstem response (ABR) test in the adult pipeline at week 14 that
@@ -61,9 +61,22 @@
                                     and Pre-pulse Inhibition </a> and <a
                                         href="https://www.mousephenotype.org/impress/protocol/149/7">Auditory Brain Stem
                                     Response</a> are available on IMPRESS.</p>
-
+                                <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
+
+                        <div class="section">
+                                <%--IMPC images--%>
+                            <c:if test="${not empty impcImageGroups}">
+                                <div class="section" id="imagesSection">
+                                    <h2 class="title">Associated Images </h2>
+                                    <div class="inner">
+                                        <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
+                                    </div>
+                                </div>
+                            </c:if>
+                        </div>
+
                     </div>
                 </div>
             </div>

@@ -115,11 +115,12 @@ public class ImpressService extends BasicService implements WebStatus {
 
 
 
-	public Set<ImpressDTO> getProceduresByMpTerm(String mpTermId) throws IOException {
+	public Set<ImpressDTO> getProceduresByMpTerm(String mpTermId, boolean intermediateMpTermsToo) throws IOException {
 
 		try {
+			String q = intermediateMpTermsToo ? ImpressDTO.MP_ID + ":\"" + mpTermId +"\" OR " + ImpressDTO.TOP_LEVEL_MP_ID + ":\"" + mpTermId +"\" OR " + ImpressDTO.INTERMEDIATE_MP_ID + ":\"" + mpTermId +"\"": ImpressDTO.MP_ID + ":\"" + mpTermId +"\"";
 			SolrQuery query = new SolrQuery()
-				.setQuery(ImpressDTO.MP_ID + ":\"" + mpTermId +"\"")
+				.setQuery(q)
 				.addField(ImpressDTO.PROCEDURE_ID)
 				.addField(ImpressDTO.PROCEDURE_NAME)
 				.addField(ImpressDTO.PROCEDURE_STABLE_ID)
