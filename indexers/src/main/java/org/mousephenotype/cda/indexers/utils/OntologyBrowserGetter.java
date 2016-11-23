@@ -380,8 +380,8 @@ public class OntologyBrowserGetter {
 			String name = resultSet.getString("name");
 			String termDisplayText = null;
 
-            Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
-            int gvCount = geneVariantCounts.get("sumCount");
+            //Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
+            int gvCount = 0;//geneVariantCounts.get("sumCount");
 
 
 			if (helper.getExpandNodeIds().contains(nodeId)) {
