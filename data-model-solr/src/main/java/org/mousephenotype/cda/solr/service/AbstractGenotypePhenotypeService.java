@@ -804,6 +804,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     throws IOException, URISyntaxException, SolrServerException {
 
         String url = SolrUtils.getBaseURL(solr) + "/select/?";
+
         SolrQuery q = new SolrQuery();
         
         q.setQuery("*:*");
@@ -913,8 +914,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
                 
         for (Object doc : docs) {
-        	
-        	try{
+            try{
         		PhenotypeCallSummaryDTO call = createSummaryCall(doc, isPreQc);
         		if (call != null){
         			list.add(call);
