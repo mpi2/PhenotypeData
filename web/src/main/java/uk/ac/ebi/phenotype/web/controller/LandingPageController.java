@@ -138,7 +138,7 @@ public class LandingPageController {
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
 
 
-        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getChatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpId), "Gene pleiotropy", "for genes with at least one " + pageTitle + " phenotype", "Number of associations to " + pageTitle , "Number of associations to other phenotypes"));
+        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpId), "Gene pleiotropy", "for genes with at least one " + pageTitle + " phenotype", "Number of associations to " + pageTitle , "Number of associations to other phenotypes", pageTitle + " phenotype calls: ", "Other phenotype calls: "));
         model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("paramToNumber", paramToNumber);
         model.addAttribute("impcImageGroups",groups);
