@@ -44,6 +44,15 @@
                                 <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
+
+                        <div class="section">
+                            <h2 class="title">Test</h2>
+                            <div class="inner">
+                                <div id="phenotypeChart">
+                                    <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

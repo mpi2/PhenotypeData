@@ -31,9 +31,15 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
@@ -103,6 +109,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     @Autowired
     MpOntologyDAO mpOntologyService;
+
+    @Autowired
+    @Qualifier("postqcService")
+    PostQcService postqcService;
+
+    @Autowired
+    @Qualifier("preqcService")
+    PreQcService preqcService;
 
 
     private static Connection komp2DbConnection;
@@ -183,6 +197,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             while (rs.next()) {
                 String termId = rs.getString("term_id");
 
+//                if ( !termId.equals("MP:0005397")){
+//                    continue;
+//                }
+
                 MpDTO mp = new MpDTO();
                 mp.setDataType(rs.getString("dataType"));
                 mp.setMpId(termId);
@@ -238,8 +256,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
 
+                Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
+                mp.setGeneVariantCount(geneVariantCounts.get("sumCount"));
+                mp.setGeneVariantFemaleCount(geneVariantCounts.get("femaleCount"));
+                mp.setGeneVariantMaleCount(geneVariantCounts.get("maleCount"));
+
                 // Ontology browser stuff
-                TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId);
+                TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId, mp.getGeneVariantCount());
 
                 // for MP the root node id is 0 (MA is 1)
                 List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, termId);
@@ -249,14 +272,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
 
-                //phenotypeCallSummaryService.getPhenotypeCallByAccession(termId, genotypePhenotypeCore);
-                //phenotypeCallSummaryService.getPhenotypeCallByAccession(termId);
-
-//                Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
-//                mp.setGeneVariantCount(geneVariantCounts.get("sumCount"));
-//                mp.setGeneVariantFemaleCount(geneVariantCounts.get("femaleCount"));
-//                mp.setGeneVariantMaleCount(geneVariantCounts.get("maleCount"));
-//
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
@@ -280,66 +295,65 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return runStatus;
     }
 
-//    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
-//            throws IOException, URISyntaxException, SolrServerException {
+    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
+            throws IOException, URISyntaxException, SolrServerException {
 
 
-//        PhenotypeFacetResult phenoResult = genotypePhenotypeService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
-//        PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
-//
-//        List<PhenotypeCallSummaryDTO> phenotypeList;
-//        phenotypeList = phenoResult.getPhenotypeCallSummaries();
-//        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-//
-//        // This is a map because we need to support lookups
-//        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
-//
-//        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-//
-//            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-//            DataTableRow pr = new PhenotypePageTableRow(pcs, "", null, false);
-//
-//            // Collapse rows on sex
-//            if (phenotypes.containsKey(pr.hashCode())) {
-//
-//                pr = phenotypes.get(pr.hashCode());
-//                // Use a tree set to maintain an alphabetical order (Female, Male)
-//                TreeSet<String> sexes = new TreeSet<String>();
-//                for (String s : pr.getSexes()) {
-//                    sexes.add(s);
-//                }
-//                sexes.add(pcs.getSex().toString());
-//
-//                pr.setSexes(new ArrayList<String>(sexes));
-//            }
-//
-//            if (pr.getParameter() != null && pr.getProcedure() != null) {
-//                phenotypes.put(pr.hashCode(), pr);
-//            }
-//        }
-//
-//        List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
-//
-//        int maleCount = 0;
-//        int femaleCount = 0;
-//        for(DataTableRow r : uniqGenes){
-//            for (String s : r.getSexes()){
-//                if (s.equals("female")){
-//                    femaleCount++;
-//                }
-//                else if (s.equals("male")){
-//                    maleCount++;
-//                }
-//            }
-//        }
-//
-//       Map<String, Integer> kv = new HashMap<>();
-//        kv.put("sumCount", uniqGenes.size());
-//        kv.put("femaleCount", femaleCount);
-//        kv.put("maleCount", maleCount);
+        PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+        PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
 
-//        return kv;
-//    }
+        List<PhenotypeCallSummaryDTO> phenotypeList;
+        phenotypeList = phenoResult.getPhenotypeCallSummaries();
+        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
+
+        // This is a map because we need to support lookups
+        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
+
+        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
+            DataTableRow pr = new PhenotypePageTableRow(pcs, "", null, false);
+
+            // Collapse rows on sex
+            if (phenotypes.containsKey(pr.hashCode())) {
+
+                pr = phenotypes.get(pr.hashCode());
+                // Use a tree set to maintain an alphabetical order (Female, Male)
+                TreeSet<String> sexes = new TreeSet<String>();
+                for (String s : pr.getSexes()) {
+                    sexes.add(s);
+                }
+                sexes.add(pcs.getSex().toString());
+
+                pr.setSexes(new ArrayList<String>(sexes));
+            }
+
+            if (pr.getParameter() != null && pr.getProcedure() != null) {
+                phenotypes.put(pr.hashCode(), pr);
+            }
+        }
+
+        List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
+
+        int maleCount = 0;
+        int femaleCount = 0;
+        for(DataTableRow r : uniqGenes){
+            for (String s : r.getSexes()){
+                if (s.equals("female")){
+                    femaleCount++;
+                }
+                else if (s.equals("male")){
+                    maleCount++;
+                }
+            }
+        }
+
+        Map<String, Integer> kv = new HashMap<>();
+        kv.put("sumCount", uniqGenes.size());
+        kv.put("femaleCount", femaleCount);
+        kv.put("maleCount", maleCount);
+
+        return kv;
+    }
 
 
     private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {// Won't work with mp from slim!!
