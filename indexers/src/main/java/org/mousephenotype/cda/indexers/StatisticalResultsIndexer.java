@@ -55,7 +55,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	private final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexer.class);
 
 	private Double SIGNIFICANCE_THRESHOLD = AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD;
-	final double REPORT_INTERVAL = 100000;
+	final double REPORT_INTERVAL = 1000;
 
 	static final String RESOURCE_3I = "3i";
 	private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
@@ -155,16 +155,17 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		try {
 
 			statisticalResultCore.deleteByQuery("*:*");
+			statisticalResultCore.commit();
 
 			List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
-				getViabilityResults(),
-				getFertilityResults(),
-				getReferenceRangePlusResults(),
+//				getViabilityResults(),
+//				getFertilityResults(),
+//				getReferenceRangePlusResults(),
+//				getEmbryoViabilityResults(),
+//				getEmbryoResults(),
+//				getGrossPathologyResults(),
 				getUnidimensionalResults(),
-				getCategoricalResults(),
-				getEmbryoViabilityResults(),
-				getEmbryoResults(),
-				getGrossPathologyResults()
+				getCategoricalResults()
 			);
 
 			for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
@@ -316,19 +317,20 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		addImpressData(r, doc);
 
+		// Biological details
+		addBiologicalData(doc, doc.getMutantBiologicalModelId());
+
+		// MP Terms
+		addMpTermData(r, doc);
+
 		BasicBean stage = getDevelopmentalStage(doc.getPipelineStableId(), doc.getProcedureStableId(), doc.getColonyId());
+
 		if (stage != null) {
 			doc.setLifeStageAcc(stage.getId());
 			doc.setLifeStageName(stage.getName());
 		} else {
 			logger.info("Stage is NULL for doc id" + doc.getDocId());
 		}
-
-		// Biological details
-		addBiologicalData(doc, doc.getMutantBiologicalModelId());
-
-		// MP Terms
-		addMpTermData(r, doc);
 
 		return doc;
 	}
@@ -985,6 +987,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		@Override
 		public List<StatisticalResultDTO> call() {
+
+			logger.info(" Starting unidimensional documents generation");
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
 			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
