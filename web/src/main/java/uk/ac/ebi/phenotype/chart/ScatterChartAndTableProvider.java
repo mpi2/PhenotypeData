@@ -220,6 +220,23 @@ public class ScatterChartAndTableProvider {
 		return scatterChartAndData;
 	}
 
+	public static String getChatterChart(String divId, JSONArray data, String title, String subtitle, String yTitle, String xtitle){
+
+
+		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque) + ", " +
+		" chart: { type: 'scatter',	zoomType: 'xy',	renderTo: '" + divId + "'}, " +
+		" title: { text: '" + title + "'}, " +
+		" subtitle: {	text: '" + subtitle + "'	}," +
+		" credits: { enabled: false }," +
+		" xAxis: { title: { enabled: true,	text: '" + xtitle + "' } }," +
+		" yAxis: { title: {	text: '" + yTitle + "'		}	}, " +
+		" plotOptions: { series:{ turboThreshold:5000}, scatter: {	point: { events: { click: function(point) { var url=\"/data/genes/\" + this.markerAcc" + ";  window.open(url); } } }, marker: {radius: 5,	states: { hover: {	enabled: true	}}}, states: {hover: {marker: {	enabled: false	}}}, tooltip: {headerFormat: '',pointFormat: '<b>{point.markerAcc}</b><br>{point.x}, {point.y}'}}	}," +
+		" series: [{	data: "+ data + "}]});";
+
+		return chartString;
+
+	}
+
 
 	private void addScatterPoint(JSONArray dataArray, ObservationDTO control, Float dataPoint) {
 
