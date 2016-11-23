@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.bean.LandingPageDTO;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
+import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -90,6 +91,7 @@ public class LandingPageController {
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
         String mpId = "";
+        String pageTitle = "";
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
         List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
@@ -99,28 +101,28 @@ public class LandingPageController {
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
             model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
-            model.addAttribute("pageTitle", "Deafness");
+            pageTitle = "Deafness";
         } else if (page.equalsIgnoreCase("cardiovascular")){
             mpId = "MP:0005385";
             anatomyIds.add("MA:0000010");
             anatomyIds.add("EMAPA:16104");
-            model.addAttribute("pageTitle", "Cardiovascular");
+            pageTitle = "Cardiovascular";
         } else if (page.equalsIgnoreCase("metabolism")){
             mpId = "MP:0005376";
-            model.addAttribute("pageTitle", "Metabolism");
+            pageTitle = "Metabolism";
         } else if (page.equalsIgnoreCase("vision")){
             mpId = "MP:0005391";
             anatomyIds.add("EMAPA:36003");
             anatomyIds.add("MA:0002444");
-            model.addAttribute("pageTitle", "Vision");
+            pageTitle = "Vision";
         } else if (page.equalsIgnoreCase("nervous")){
             mpId = "MP:0003631";
             anatomyIds.add("MA:0000016");
             anatomyIds.add("EMAPA:16469");
-            model.addAttribute("pageTitle", "Nervous phenotypes");
+            pageTitle = "Nervous phenotypes";
         } else if (page.equalsIgnoreCase("neurological")){
             mpId = "MP:0005386";
-            model.addAttribute("pageTitle", "Behavioural/neurological phenotypes");
+            pageTitle = "Behavioural/neurological phenotypes";
         }
 
         // IMPC image display at the bottom of the page
@@ -135,6 +137,9 @@ public class LandingPageController {
         procedures.addAll(is.getProceduresByMpTerm(mpId, true));
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
 
+
+        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getChatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpId), "Gene pleiotropy", "for genes with at least one " + pageTitle + " phenotype", "Number of associations to " + pageTitle , "Number of associations to other phenotypes"));
+        model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("paramToNumber", paramToNumber);
         model.addAttribute("impcImageGroups",groups);
         model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
