@@ -34,6 +34,8 @@ public class DccExperimentDTO {
     private String  project;
     private String  procedureId;
     private String  colonyId;
+    private String  specimenId;
+    private String  sex;
     private String  rawProcedureStatus;
     private long    dcc_procedure_pk;
     private boolean isLineLevel;
@@ -110,6 +112,22 @@ public class DccExperimentDTO {
         this.colonyId = colonyId;
     }
 
+    public String getSpecimenId() {
+        return specimenId;
+    }
+
+    public void setSpecimenId(String specimenId) {
+        this.specimenId = specimenId;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
     public String getRawProcedureStatus() {
         return rawProcedureStatus;
     }
@@ -132,5 +150,25 @@ public class DccExperimentDTO {
 
     public void setLineLevel(boolean lineLevel) {
         isLineLevel = lineLevel;
+    }
+
+    @Override
+    public String toString() {
+        return "DccExperimentDTO{" +
+                "datasourceShortName='" + datasourceShortName + '\'' +
+                ", experimentId='" + experimentId + '\'' +
+                ", sequenceId='" + sequenceId + '\'' +
+                ", dateOfExperiment=" + dateOfExperiment +
+                ", centerId='" + centerId + '\'' +
+                ", pipeline='" + pipeline + '\'' +
+                ", project='" + project + '\'' +
+                ", procedureId='" + procedureId + '\'' +
+                ", colonyId='" + colonyId + '\'' +
+                ", specimenId='" + specimenId + '\'' +
+                ", sex='" + sex + '\'' +
+                ", rawProcedureStatus='" + rawProcedureStatus + '\'' +
+                ", dcc_procedure_pk=" + dcc_procedure_pk +
+                ", isLineLevel=" + isLineLevel +
+                '}';
     }
 }

@@ -107,13 +107,6 @@ allele = allele.replaceAll("##", "</sup>");
                             </c:forEach>
                         </c:if>
 
-                        <c:if test="${not empty img.emap_id}">
-                            <c:forEach items="${img.emap_id}" varStatus="status">
-                                <%-- <c:out value="${img.emap_id[status.index]}"/> --%>
-                                <c:out value="${fn:replace(img.emap_term[status.index], 'TS20 ','') }"/>
-                                <br/>
-                            </c:forEach>
-                        </c:if>
                         <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
                         <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group }</c:if>
                     </c:otherwise>
