@@ -16,8 +16,11 @@
 			/*#ontotree { margin-top: 80px;}*/
 			span#gpassoc {
 				float: right;
-				color: grey;
+				color: #EF7B0B;
 				font-size: 14px;
+			}
+			span.gpAssoc {
+				color: #EF7B0B;
 			}
 		</style>
 	</jsp:attribute>
@@ -39,7 +42,7 @@
 
 		 var ontologyLabel = "";
 		 if ( termId.indexOf("MP:") != -1){
-			 ontologyLabel = "Mammalian Phenotype Ontology (MP) <span id='gpassoc'>(number) : significant genotype-phenotype associations</span>";
+			 ontologyLabel = "Mammalian Phenotype Ontology (MP) <span id='gpassoc'>Number by a term : significant genotype-phenotype associations</span>";
 
 		 }
 		 if ( termId.indexOf("MA:") != -1){
