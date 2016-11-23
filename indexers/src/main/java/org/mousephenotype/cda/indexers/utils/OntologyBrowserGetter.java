@@ -236,7 +236,7 @@ public class OntologyBrowserGetter {
 		return sql;
 	}
 
-	public TreeHelper getTreeHelper( String ontologyName, String termId)
+	public TreeHelper getTreeHelper( String ontologyName, String termId, Integer geneVariantCount)
 			throws SQLException {
 
 		String query = "SELECT CONCAT (fullpath , ' ' , node_id) AS path " + "FROM " + ontologyName
@@ -325,6 +325,7 @@ public class OntologyBrowserGetter {
 		th.setPreOpenNodes(preOpenNodes);
 		th.setPageBaseUrl(pageBaseUrl);
 		th.setOntologyName(ontologyName);
+		th.setGeneVariantCount(geneVariantCount);
 		//System.out.println(th.toString());
 		return th;
 
@@ -371,7 +372,7 @@ public class OntologyBrowserGetter {
 				termDisplayText = name;
 			}
 
-			String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText
+			String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText + " (" + helper.getGeneVariantCount() + " significant genotype-phenotype associations)"
 					+ "</a>";
 			node.put("text", url);
 			node.put("id", Integer.toString(resultSet.getInt("node_id")));
@@ -394,6 +395,7 @@ public class OntologyBrowserGetter {
 		String pageBaseUrl;
 		String ontologyName;
 		List<String> excludedNodeIds;
+		Integer geneVariantCount;
 
 		public Set<String> getPathNodes() {
 			return pathNodes;
@@ -443,6 +445,14 @@ public class OntologyBrowserGetter {
 			this.excludedNodeIds = excludedNodeIds;
 		}
 
+		public Integer getGeneVariantCount() {
+			return geneVariantCount;
+		}
+
+		public void setGeneVariantCount(Integer geneVariantCount) {
+			this.geneVariantCount = geneVariantCount;
+		}
+
 		@Override
 		public String toString() {
 			return "TreeHelper{" +
@@ -452,6 +462,7 @@ public class OntologyBrowserGetter {
 					", pageBaseUrl='" + pageBaseUrl + '\'' +
 					", ontologyName='" + ontologyName + '\'' +
 					", excludedNodeIds=" + excludedNodeIds +
+					", geneVariantCount=" + geneVariantCount +
 					'}';
 		}
 	}
