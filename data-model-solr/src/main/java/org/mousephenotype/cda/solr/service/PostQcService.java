@@ -23,6 +23,7 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
@@ -33,8 +34,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service("postqcService")
 public class PostQcService extends AbstractGenotypePhenotypeService implements WebStatus {
@@ -42,6 +42,8 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     @Autowired
     @Qualifier("genotypePhenotypeCore")
     SolrClient solr;
+
+    private Map<String,Long> documentCountGyGene; //<marker_acc,count>
 
     public PostQcService() {
         super();
@@ -52,6 +54,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     public void postSetup() {
         // Ensure the superclass attributes are set
         super.solr = solr;
+        documentCountGyGene = getDocumentCountByGene(null);
     }
 
     /**
@@ -116,6 +119,73 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         }
 
         return retVal;
+    }
+
+
+    Map<String,Long> getDocumentCountByGene(String mpId) {
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery(mpId == null ? "*:*" : GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\"");
+        query.setRows(0);
+        query.setFacet(true);
+        query.addFacetField(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+        query.setFacetLimit(-1);
+        query.setFacetMinCount(1);
+
+        try {
+            return getFacets(solr.query(query)).get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+        } catch (SolrServerException | IOException e) {
+            e.printStackTrace();
+        }
+
+        return new HashMap<>();
+
+    }
+
+    public JSONArray getTopLevelPhenotypeIntersection(String mpId){
+
+        Map<String,Long> countByGene = getDocumentCountByGene(mpId);
+        Set<String> jitter = new HashSet<>();
+        JSONArray array = new JSONArray();
+        for (String markerAcc: countByGene.keySet()){
+            JSONObject obj = new JSONObject();
+            Double y = new Double(countByGene.get(markerAcc));
+            Double x =(documentCountGyGene.get(markerAcc) - y);
+            obj = addJitter(x, y, jitter, obj);
+            obj.accumulate("markerAcc", markerAcc);
+            array.put(obj);
+        }
+
+        return array;
+
+    }
+
+    private JSONObject addJitter(Double x, Double y, Set<String> existingPoints, JSONObject obj){
+
+        String s = x + "_" + y;
+        if (!existingPoints.contains(s)){
+            obj.accumulate("y", y);
+            obj.accumulate("x", x);
+            existingPoints.add(s);
+        } else {
+            if (existingPoints.size()%6 == 0) {
+                y += 0.05;
+            } else if (existingPoints.size()%6 == 1) {
+                x += 0.05;
+            } else if (existingPoints.size()%6 == 2) {
+                x += 0.05;
+                y += 0.05;
+            } else if (existingPoints.size()%6 == 3) {
+                x -= 0.05;
+            } else if (existingPoints.size()%6 == 4) {
+                y -= 0.05;
+            } else if (existingPoints.size()%6 == 5) {
+                x -= 0.05;
+                y -= 0.05;
+            }
+            addJitter(x, y, existingPoints, obj);
+        }
+        return obj;
     }
 
     /**
