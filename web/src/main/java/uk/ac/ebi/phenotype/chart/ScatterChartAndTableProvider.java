@@ -234,7 +234,7 @@ public class ScatterChartAndTableProvider {
 				"series:{ turboThreshold:5000}, " +
 				"scatter: {	point: { events: { click: function(point) { var url=\"/data/genes/\" + this.markerAcc" + ";  window.open(url); } } }, " +
 				"marker: {radius: 5}, " +
-				"tooltip: {headerFormat: '', pointFormat: '<b>{point.markerSymbol}</b><br>" + xTooltipPrefix +" {point.x:,.0f}, " + yTooltipPrefix + "{point.y:,.0f}', hideDelay:5} }	}," +
+				"tooltip: {headerFormat: '', pointFormat: '<b>{point.markerSymbol}</b><br>" + xTooltipPrefix +" {point.x:,.0f}<br/>" + yTooltipPrefix + "{point.y:,.0f}', hideDelay:5} }	}," +
 		" series: [{	data: "+ data + "}]});";
 
 		return chartString;
