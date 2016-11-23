@@ -198,7 +198,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 //System.out.println("MA ID: " + ma.getMaId() + " --- MA node id: " + ma.getMaNodeId() + " --- " + ma.getMaTerm());
                 // OntologyBrowser stuff
-                TreeHelper helper = ontologyBrowser.getTreeHelper("ma", anatomyTerm.getAnatomyId());
+                TreeHelper helper = ontologyBrowser.getTreeHelper("ma", anatomyTerm.getAnatomyId(), 0);
                 //helper.setExcludedNodeIds(excludedNodeIds);
 
                 // for  the root node id is 1 (MP is 0)
@@ -340,7 +340,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 //System.out.println("EMAPA ID: " + emapa.getAnatomyId() + " --- EMAPA node id: " + emapa.getAnatomyNodeId() + " --- " + emapa.getAnatomyTerm());
                 // OntologyBrowser stuff
-                TreeHelper helper2 = ontologyBrowser.getTreeHelper("emapa", emapaId);
+                TreeHelper helper2 = ontologyBrowser.getTreeHelper("emapa", emapaId, 0);
                 //helper.setExcludedNodeIds(excludedNodeIds);
 
                 // for MA the root node id is 1 (MP is 0)
