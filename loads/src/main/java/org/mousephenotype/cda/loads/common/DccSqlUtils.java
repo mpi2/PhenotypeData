@@ -1805,10 +1805,12 @@ public class DccSqlUtils {
                         "  c.pipeline,\n" +
                         "  c.project,\n" +
                         "  p.procedureId,\n" +
-                        "  p.pk       AS dcc_procedure_pk," +
-                        "  s.colonyId AS colonyId,\n" +
-                        "  sc.value   AS rawProcedureStatus,\n" +
-                        "  0    AS isLineLevel\n" +
+                        "  p.pk         AS dcc_procedure_pk,\n" +
+                        "  s.colonyId   AS colonyId,\n" +
+                        "  s.specimenId AS specimenId,\n" +
+                        "  s.gender     AS gender,\n" +
+                        "  sc.value     AS rawProcedureStatus,\n" +
+                        "  0            AS isLineLevel\n" +
                         "FROM experiment e\n" +
                         "JOIN center_procedure                 cp  ON cp .pk            = e  .center_procedure_pk\n" +
                         "JOIN center                           c   ON c  .pk            = cp .center_pk\n" +
@@ -1827,8 +1829,10 @@ public class DccSqlUtils {
                         "  c.pipeline,\n" +
                         "  c.project,\n" +
                         "  p.procedureId,\n" +
-                        "  p.pk       AS dcc_procedure_pk," +
+                        "  p.pk       AS dcc_procedure_pk,\n" +
                         "  l.colonyId,\n" +
+                        "  NULL       AS specimenId,\n" +
+                        "  NULL       AS gender,\n" +
                         "  sc.value   AS rawProcedureStatus,\n" +
                         "  1 AS isLineLevel\n" +
                         "FROM line l\n" +
