@@ -43,6 +43,7 @@ import org.springframework.ui.Model;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -883,24 +884,31 @@ public class ImageService implements WebStatus{
 	
 	
 	
-	public List<Group> getPhenotypeAssociatedImages(String geneAcc, String mpId, boolean experimentalOnly, int count)
+	public List<Group> getPhenotypeAssociatedImages(String geneAcc, String mpId, List<String> anatomyIds, boolean experimentalOnly, int count)
 	throws SolrServerException, IOException {
 
-			List<Group> groups = new ArrayList<>();
+		List<Group> groups = new ArrayList<>();
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("*:*");
+		String fq = "";
 		if (geneAcc != null) {
 			solrQuery.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAcc + "\"");
 		}
 		if (mpId != null){
-			solrQuery.addFilterQuery(ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId +"\"");
+			fq = ImageDTO.MP_ID + ":\"" + mpId  + "\" OR "+ ImageDTO.INTERMEDIATE_MP_ID + ":\"" + mpId + "\" OR " +ImageDTO.TOP_LEVEL_MP_ID + ":\"" + mpId +"\"";
 		}
 		if(experimentalOnly){
 			solrQuery.addFilterQuery(ImageDTO.BIOLOGICAL_SAMPLE_GROUP+":"+BiologicalSampleType.experimental);
 		}
+		if (anatomyIds != null && !anatomyIds.isEmpty()){
+			fq += (fq.isEmpty()) ? "" : " OR ";
+			fq += anatomyIds.stream().collect(Collectors.joining("\" OR " + ImageDTO.ANATOMY_ID + ":\"", ImageDTO.ANATOMY_ID + ":\"", "\""));
+			fq += " OR " + anatomyIds.stream().collect(Collectors.joining("\" OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"", ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"", "\""));
+		}
+		solrQuery.addFilterQuery(fq);
 		solrQuery.add("group", "true")
-        .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
-        .add("group.limit", Integer.toString(count));
+        	.add("group.field", ImageDTO.PARAMETER_STABLE_ID)
+        	.add("group.limit", Integer.toString(count));
 		QueryResponse response = solr.query(solrQuery);
 		List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
         for (GroupCommand groupCommand : groupResponse) {

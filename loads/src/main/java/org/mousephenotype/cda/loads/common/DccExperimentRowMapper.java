@@ -51,6 +51,8 @@ public class DccExperimentRowMapper implements RowMapper<DccExperimentDTO> {
             experiment.setProcedureId(rs.getString("procedureId"));
             experiment.setDcc_procedure_pk(rs.getLong("dcc_procedure_pk"));
             experiment.setColonyId(rs.getString("colonyId"));
+            experiment.setSpecimenId(rs.getString("specimenId"));
+            experiment.setSex(rs.getString("gender"));
             experiment.setRawProcedureStatus(rs.getString("rawProcedureStatus"));
 
             experiment.setLineLevel(rs.getInt("isLineLevel") == 1 ? true : false);

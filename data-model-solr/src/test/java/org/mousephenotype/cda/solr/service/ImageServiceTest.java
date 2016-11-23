@@ -100,7 +100,7 @@ public class ImageServiceTest {
 		String acc="MGI:1891341";//should be 8 parameters for this gene at least.
 		int rows=1;
 		List<Group> response=null;
-			response = imageService.getPhenotypeAssociatedImages(acc, null,  true, rows);
+			response = imageService.getPhenotypeAssociatedImages(acc, null, null, true, rows);
 			System.out.println(response.size());
 
 		assertTrue(response != null);

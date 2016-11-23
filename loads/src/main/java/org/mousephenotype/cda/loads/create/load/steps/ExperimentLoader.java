@@ -17,6 +17,9 @@
 package org.mousephenotype.cda.loads.create.load.steps;
 
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.Experiment;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccExperimentDTO;
@@ -24,7 +27,7 @@ import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.SimpleParameter;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
@@ -134,7 +137,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, Integer> cdaProject_idMap;
     private Map<String, Integer> cdaPipeline_idMap;
     private Map<String, Integer> cdaProcedure_idMap;
-    private Map<String, BiologicalSample> samplesMap;
+    private Map<String, Integer> cdaParameter_idMap;
+    private Map<String, BiologicalSample> samplesMap;   // keyed by external_id
 
     // lookup maps returning specified parameter type list given cda procedure primary key
     private ConcurrentHashMap<String, Allele> allelesBySymbolMap;
@@ -150,18 +154,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
         Map<String, Integer>   counts;
 
+        // Initialise maps.
         euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
         allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
 
-        cdaSqlUtils.getAllelesBySymbol();
-
-        // Initialise maps.
         List<String> dccCenterIds = dccSqlUtils.getCenterIds();
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
         cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId(dccCenterIds);
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
-        cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccPipeline();
+        cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
+        cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
 
         for (DccExperimentDTO dccExperiment : dccExperiments) {
@@ -223,60 +226,52 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
 
-        int db_id;
-        Integer organisation_id;
-        Integer project_id;
-        Integer pipeline_id;
-        String pipeline_stable_id;
-        Integer procedure_id;
-        String procedure_stable_id;
-        String external_id;
-        String procedure_status;
-        String procedure_status_message;
+        int dbId;
+        Integer organisationId;
+        Integer projectId;
+        Integer pipelineId;
+        String pipelineStableId;
+        Integer procedureId;
+        String procedureStableId;
+        String externalId;
+        String procedureStatus;
+        String procedureStatusMessage;
 
-        String colony_id;
-        Date date_of_experiment;
-        String sequence_id;
+        String colonyId;
+        Date dateOfExperiment;
+        String sequenceId;
 
-        Integer biological_model_id;
+        Integer biologicalModelId;
         String metadataCombined;
         String metadataGroup;
 
-        db_id = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
-        organisation_id = cdaOrganisation_idMap.get(dccExperiment.getCenterId());
-        if (organisation_id == null) {
+        dbId = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
+        organisationId = cdaOrganisation_idMap.get(dccExperiment.getCenterId());
+        if (organisationId == null) {
             missingCenters.add(dccExperiment.getCenterId());
             return null;
         }
-        project_id = cdaProject_idMap.get(dccExperiment.getProject());
-        if (project_id == null) {
+        projectId = cdaProject_idMap.get(dccExperiment.getProject());
+        if (projectId == null) {
             missingProjects.add(dccExperiment.getProject());
             return null;
         }
-        pipeline_id = cdaPipeline_idMap.get(dccExperiment.getPipeline());
-        if (pipeline_id == null) {
+        pipelineId = cdaPipeline_idMap.get(dccExperiment.getPipeline());
+        if (pipelineId == null) {
             missingPipelines.add(dccExperiment.getPipeline());
             return null;
         }
-        pipeline_stable_id = dccExperiment.getPipeline();
-        procedure_id = cdaProcedure_idMap.get(dccExperiment.getProcedureId());
-        if (procedure_id == null) {
+        pipelineStableId = dccExperiment.getPipeline();
+        procedureId = cdaProcedure_idMap.get(dccExperiment.getProcedureId());
+        if (procedureId == null) {
             missingProcedures.add(dccExperiment.getProcedureId());
             return null;
         }
-        procedure_stable_id = dccExperiment.getProcedureId();
-        external_id = dccExperiment.getExperimentId();
+        procedureStableId = dccExperiment.getProcedureId();
+        externalId = dccExperiment.getExperimentId();
         String[] rawProcedureStatus = commonUtils.parseImpressStatus(dccExperiment.getRawProcedureStatus());
-        procedure_status = rawProcedureStatus[0];
-        procedure_status_message = rawProcedureStatus[1];
-
-        // Determining the biological_model_id for line-level procedures requires the experiment's list of SimpleParameter first.
-        List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
-
-
-
-
-
+        procedureStatus = rawProcedureStatus[0];
+        procedureStatusMessage = rawProcedureStatus[1];
 
         // Within the scope of the cda experiment, line-level procedures have:
         //   - no dcc experiment info (e.g. no date_of_experimentor or sequence_id). The external_id is computed from
@@ -294,46 +289,45 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 logger.error("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
                 return null;
             }
-            colony_id = phenotypedColony.getColonyName();
-            date_of_experiment = null;
-
-
-
-
-            sequence_id = null;
-            biological_model_id = getBiologicalModelId(colony_id, simpleParameters);
+            colonyId = phenotypedColony.getColonyName();
+            dateOfExperiment = null;
+            sequenceId = null;
+            List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
+            biologicalModelId = getBiologicalModelId(colonyId, simpleParameters);
 
         } else {
-            colony_id = null;
-            date_of_experiment = getDateOfExperiment(dccExperiment);
-            if (date_of_experiment == null) {
+            colonyId = null;
+            dateOfExperiment = getDateOfExperiment(dccExperiment);
+            if (dateOfExperiment == null) {
                 return null;
             }
-            sequence_id = dccExperiment.getSequenceId();
-            biological_model_id = null;
+            sequenceId = dccExperiment.getSequenceId();
+            biologicalModelId = null;
         }
 
 metadataCombined = null;
 metadataGroup = null;
 
-        cdaSqlUtils.insertExperiment(
-                db_id,
-                external_id,
-                sequence_id,
-                date_of_experiment,
-                organisation_id,
-                project_id,
-                pipeline_id,
-                pipeline_stable_id,
-                procedure_id,
-                procedure_stable_id,
-                colony_id,
-                procedure_status,
-                procedure_status_message,
-                biological_model_id,
+        int experimentPk = cdaSqlUtils.insertExperiment(
+                dbId,
+                externalId,
+                sequenceId,
+                dateOfExperiment,
+                organisationId,
+                projectId,
+                pipelineId,
+                pipelineStableId,
+                procedureId,
+                procedureStableId,
+                colonyId,
+                procedureStatus,
+                procedureStatusMessage,
+                biologicalModelId,
                 metadataCombined,
                 metadataGroup
         );
+
+        createObservations(dccExperiment, dbId, experimentPk);
 
         return experiment;
     }
@@ -364,12 +358,99 @@ metadataGroup = null;
 //    }
 
 
-    private Observation createObservations(DccExperimentDTO dccExperimentDTO, Experiment cdaExperiment) {
-        Observation observation = new Observation();
+    private void createObservations( DccExperimentDTO dccExperimentDTO, int dbId, int experimentPk) throws DataLoadException {
+
+        Integer         biologicalSampleId;
+        int             parameterId;
+        String          parameterStableId;
+        String          sequenceId;
+        int             populationId = 0;          // Not used. Always 0.
+        ObservationType observationType;
+        int             missing;
+        String          parameterStatus;
+        String          parameterStatusMessage;
+
+        // For all parameter types:
+        if (dccExperimentDTO.isLineLevel()) {
+            biologicalSampleId = null;
+        } else {
+            BiologicalSample bs = samplesMap.get(dccExperimentDTO.getSpecimenId());
+            if (bs == null) {
+                logger.warn("Missing sample external id {} for experiment id {}. Skipping sample ...",
+                            dccExperimentDTO.getSpecimenId(), dccExperimentDTO.getExperimentId());
+                return;
+            }
+            biologicalSampleId = bs.getId();
+        }
 
 
+        // simpleParameters
+        for (SimpleParameter simpleParameter : dccSqlUtils.getSimpleParameters(dccExperimentDTO.getDcc_procedure_pk())) {
+            parameterStableId = simpleParameter.getParameterID();
+            parameterId = cdaParameter_idMap.get(parameterStableId);
+            sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
+            observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleParameter.getValue());
+            String[] rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
+            parameterStatus = rawParameterStatus[0];
+            parameterStatusMessage = rawParameterStatus[1];
+            missing = (parameterStatus != null ? 1 : 0);
 
-        return observation;
+
+            // Special rules. May cause observation to be skipped.
+            // Skip loading EuroPhenome - ICS - vagina presence - "present" male data
+            // Per Mohammed SELLOUM <selloum@igbmc.fr> 5 June 2015 12:57:28 BST
+            if (dccExperimentDTO.getDatasourceShortName().equals("EuroPhenome") &&
+                dccExperimentDTO.getCenterId().equalsIgnoreCase("ICS") &&
+                parameterStableId.equals("ESLIM_001_001_125") &&
+                dccExperimentDTO.getSpecimenId() != null &&
+                dccExperimentDTO.getSex().equals(SexType.male) &&
+                simpleParameter.getValue().equals("present")
+                ) {
+
+                logger.info("Special rule: skipping specimen {}, experiment {}, parameter {}, sex {} ",
+                            dccExperimentDTO.getSpecimenId(), dccExperimentDTO.getExperimentId(),
+                            parameterStableId, dccExperimentDTO.getSex());
+                continue;
+            }
+
+            // Check for null/empty values.
+            String value = simpleParameter.getValue();
+            if ((value == null) || value.trim().isEmpty()) {
+                logger.warn("Null/empty value found for simple parameter {}, dcc experiment {}. Skipping parameter ...",
+                            simpleParameter.getParameterID(), dccExperimentDTO);
+                continue;
+            }
+
+            int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSampleId, parameterStableId, parameterId,
+                                                              sequenceId, populationId, observationType, missing,
+                                                              parameterStatus, parameterStatusMessage,
+                                                              simpleParameter.getValue());
+
+            // Insert experiment_observation
+            cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+
+
+        }
+
+        // mediaParameters
+        for (MediaParameter mp : dccSqlUtils.getMediaParameters(dccExperimentDTO.getDcc_procedure_pk())) {
+//            observation.setMissingFlag(mp.getParameterStatus() == null ? true : false);
+        }
+
+        // ontologyParameters
+        for (OntologyParameter op : dccSqlUtils.getOntologyParameters(dccExperimentDTO.getDcc_procedure_pk())) {
+//            observation.setMissingFlag(op.getParameterStatus() == null ? true : false);
+        }
+
+        // seriesParameters
+        for (SeriesParameter seriesParameter : dccSqlUtils.getSeriesParameters(dccExperimentDTO.getDcc_procedure_pk())) {
+//            observation.setMissingFlag(seriesParameter.getParameterStatus() == null ? true : false);
+        }
+
+        // seriesMediaParameters
+        for (SeriesMediaParameter smp : dccSqlUtils.getSeriesMediaParameters(dccExperimentDTO.getDcc_procedure_pk())) {
+//            observation.setMissingFlag(smp.getParameterStatus() == null ? true : false);
+        }
     }
 
     /**

@@ -289,7 +289,7 @@ public class GenesController {
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 
-			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
+			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);//problem is this is only true when we have pvalue significant phenotype data
 			model.addAttribute("hasPreQcData", hasPreQc);
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
@@ -794,7 +794,7 @@ public class GenesController {
 	private void getImpcImages(String acc, Model model)
 	throws SolrServerException, IOException {
 
-		List<Group> groups = imageService.getPhenotypeAssociatedImages(acc, null, true, 1);
+		List<Group> groups = imageService.getPhenotypeAssociatedImages(acc, null, null, true, 1);
 		Map<String, String> paramToNumber=new HashMap<>();
 		for(Group group:groups){
 			if(!paramToNumber.containsKey(group.getGroupValue())){
@@ -952,7 +952,7 @@ public class GenesController {
 	public String genesAllele2(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, Exception {
 
-		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo(acc);
+		List<Map<String, Object>> constructs2 = solrIndex2.getGeneProductInfo(acc, false);//creLine is false as don't want to show creLine stuff on gene page apart from a link
 		Map<String, Object> creProducts = null;
 
 		if (constructs2 != null) {

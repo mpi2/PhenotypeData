@@ -165,11 +165,11 @@ public class AllelesController {
         HashMap<String, HashMap<String, List<String>>> constructs;
         if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
                 log.info("Call SolrIndex2 with pipeline = Cre");
-        	constructs = solrIndex2.getAlleleQcInfo("cre", type, name);
+        	constructs = solrIndex2.getAlleleQcInfo( type, name, true);
         }
         else {
                 log.info("Call SolrIndex2 with pipeline = impc");
-        	constructs = solrIndex2.getAlleleQcInfo("impc", type, name);
+        	constructs = solrIndex2.getAlleleQcInfo( type, name, false);
         }
 
         if (bare) model.addAttribute("bare", bare);

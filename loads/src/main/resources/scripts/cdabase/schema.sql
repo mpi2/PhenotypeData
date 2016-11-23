@@ -489,14 +489,13 @@ CREATE TABLE biological_model_sample (
 DROP TABLE IF EXISTS biological_sample;
 CREATE TABLE biological_sample (
 	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	external_id               VARCHAR(100),
-	db_id                     INT(10),
-	sample_type_acc           VARCHAR(20) NOT NULL,
-	sample_type_db_id         INT(10) NOT NULL,
-	sample_group              VARCHAR(100) NOT NULL,
+	external_id               VARCHAR(100)     NOT NULL,
+	db_id                     INT(10)          NOT NULL,
+	sample_type_acc           VARCHAR(20)      NOT NULL,
+	sample_type_db_id         INT(10)          NOT NULL,
+	sample_group              VARCHAR(100)     NOT NULL,
 	organisation_id           INT(10) UNSIGNED NOT NULL,
-	production_center_id      INT(10) UNSIGNED NULL,
-	litter_id                 VARCHAR(200) NULL,
+	production_center_id      INT(10) UNSIGNED NOT NULL,
 
 	PRIMARY KEY (id),
 	KEY external_id_idx(external_id),
