@@ -20,7 +20,7 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -125,18 +125,51 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 				statisticalResultIndexer.getUnidimensionalResults()
 		);
 
+//		for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
+//
+//			try {
+//
+//				List<StatisticalResultDTO> producers = r.call();
+//				assert(producers.size() > 1000);
+//
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//
+//		}
+
+		ExecutorService pool = Executors.newFixedThreadPool(4);
+		List<Future<List<StatisticalResultDTO>>> producers = new ArrayList<>();
+
 		for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
 
+			Future<List<StatisticalResultDTO>> future = pool.submit(r);
+			producers.add(future);
+
+		}
+
+		int count = 0;
+		for (Future<List<StatisticalResultDTO>> future : producers) {
+
+			List<StatisticalResultDTO> beans;
+
 			try {
+				beans = future.get();
 
-				List<StatisticalResultDTO> documents = r.call();
-				assert(documents.size() > 1000);
+				if (beans!= null && beans.size() > 0) {
+					count += beans.size();
+				}
 
-			} catch (Exception e) {
+			} catch (ExecutionException | InterruptedException e) {
 				e.printStackTrace();
 			}
 
 		}
+
+		// Stop threadpool
+		pool.shutdown();
+
+		assert(count>1000000);
 
 	}
 
