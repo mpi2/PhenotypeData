@@ -804,7 +804,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     throws IOException, URISyntaxException, SolrServerException {
 
         String url = SolrUtils.getBaseURL(solr) + "/select/?";
-
         SolrQuery q = new SolrQuery();
         
         q.setQuery("*:*");
