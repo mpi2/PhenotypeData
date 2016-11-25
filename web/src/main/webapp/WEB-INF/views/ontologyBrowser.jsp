@@ -16,11 +16,11 @@
 			/*#ontotree { margin-top: 80px;}*/
 			span#gpassoc {
 				float: right;
-				color: #EF7B0B;
-				font-size: 14px;
+				color: #0978A1;
+				font-size: 16px;
 			}
 			span.gpAssoc {
-				color: #EF7B0B;
+				color: #0978A1;
 			}
 		</style>
 	</jsp:attribute>
