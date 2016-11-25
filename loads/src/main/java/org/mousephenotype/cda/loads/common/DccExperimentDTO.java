@@ -29,8 +29,9 @@ public class DccExperimentDTO {
     private String  experimentId;
     private String  sequenceId;
     private Date    dateOfExperiment;
-    private String  centerId;
+    private String  phenotypingCenter;
     private String  pipeline;
+    private String  productionCenter;
     private String  project;
     private String  procedureId;
     private String  colonyId;
@@ -72,12 +73,12 @@ public class DccExperimentDTO {
         this.dateOfExperiment = dateOfExperiment;
     }
 
-    public String getCenterId() {
-        return centerId;
+    public String getPhenotypingCenter() {
+        return phenotypingCenter;
     }
 
-    public void setCenterId(String centerId) {
-        this.centerId = centerId;
+    public void setPhenotypingCenter(String phenotypingCenter) {
+        this.phenotypingCenter = phenotypingCenter;
     }
 
     public String getPipeline() {
@@ -86,6 +87,14 @@ public class DccExperimentDTO {
 
     public void setPipeline(String pipeline) {
         this.pipeline = pipeline;
+    }
+
+    public String getProductionCenter() {
+        return productionCenter;
+    }
+
+    public void setProductionCenter(String productionCenter) {
+        this.productionCenter = productionCenter;
     }
 
     public String getProject() {
@@ -159,8 +168,9 @@ public class DccExperimentDTO {
                 ", experimentId='" + experimentId + '\'' +
                 ", sequenceId='" + sequenceId + '\'' +
                 ", dateOfExperiment=" + dateOfExperiment +
-                ", centerId='" + centerId + '\'' +
+                ", phenotypingCenter='" + phenotypingCenter + '\'' +
                 ", pipeline='" + pipeline + '\'' +
+                ", productionCenter='" + productionCenter + '\'' +
                 ", project='" + project + '\'' +
                 ", procedureId='" + procedureId + '\'' +
                 ", colonyId='" + colonyId + '\'' +
