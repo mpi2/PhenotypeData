@@ -1071,7 +1071,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	        sum.setSex(sexType);
 
 
-            if( ! preQc) {
+            if( ! preQc &&  phen.containsKey(GenotypePhenotypeDTO.LIFE_STAGE_NAME)) {
                 String lifeStageName = phen.getString(GenotypePhenotypeDTO.LIFE_STAGE_NAME);
                 sum.setLifeStageName(lifeStageName);
             }
