@@ -197,10 +197,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String termId = rs.getString("term_id");
-//
-//                if ( !termId.equals("MP:0005375")){
-//                    continue;
-//                }
 
                 MpDTO mp = new MpDTO();
                 mp.setDataType(rs.getString("dataType"));
@@ -256,12 +252,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 // this sets the number of postqc/preqc phenotyping calls of this MP
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
-
-//                Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
-//                mp.setGeneVariantCount(geneVariantCounts.get("sumCount"));
-//                mp.setGeneVariantFemaleCount(geneVariantCounts.get("femaleCount"));
-//                mp.setGeneVariantMaleCount(geneVariantCounts.get("maleCount"));
-//                System.out.println("GC: " + mp.getGeneVariantCount());
 
                 // Ontology browser stuff
                 TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId);
@@ -335,23 +325,27 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
 
+        int sumCount = 0;
         int maleCount = 0;
         int femaleCount = 0;
         for(DataTableRow r : uniqGenes){
-            for (String s : r.getSexes()){
-                if (s.equals("female")){
-                    femaleCount++;
-                }
-                else if (s.equals("male")){
-                    maleCount++;
-                }
-            }
+            // want all counts, even if sex field has no data
+            sumCount += r.getSexes().size();
+            // sex values: female, male, no data
+//            for (String s : r.getSexes()){
+//                if (s.equals("female")){
+//                    femaleCount++;
+//                }
+//                else if (s.equals("male")){
+//                    maleCount++;
+//                }
+//            }
         }
 
         Map<String, Integer> kv = new HashMap<>();
-        kv.put("sumCount", femaleCount + maleCount);
-        kv.put("femaleCount", femaleCount);
-        kv.put("maleCount", maleCount);
+        kv.put("sumCount", sumCount);
+//        kv.put("femaleCount", femaleCount);
+//        kv.put("maleCount", maleCount);
 
         return kv;
     }
@@ -457,6 +451,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 for (FacetField.Count facet: facetGroup.getValues()){
                     if (!mpCalls.containsKey(facet.getName())){
                         mpCalls.put(facet.getName(), new Long(0));
+
                         Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName());
                         int gvCount = geneVariantCount.get("sumCount");
                         mpGeneVariantCount.put(facet.getName(), gvCount);

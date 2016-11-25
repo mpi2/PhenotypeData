@@ -262,7 +262,6 @@ public class PhenotypesController {
         List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.values());
         Collections.sort(list);
 
-        System.out.println("check counts: " + list.size());
         return list;
 
     }
