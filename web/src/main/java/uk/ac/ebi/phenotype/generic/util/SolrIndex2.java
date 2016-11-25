@@ -815,7 +815,7 @@ public class SolrIndex2 {
         map2.put("production_graph", "");
         map2.put("orders", getOrderInfo(jsonObject2));
         map2.put("contacts", getContactInfo(jsonObject2));
-        map2.put("qc_about", "http://www.knockoutmouse.org/kb/entry/90/");
+        map2.put("qc_about", "");//http://www.knockoutmouse.org/kb/entry/90/
         map2.put("product_url", "alleles/" + jsonObject2.getString("mgi_accession_id") + "/" + jsonObject2.getString("allele_name") + "/");
 
         if(jsonObject2.containsKey("name") && jsonObject2.getString("name").length() > 0) {
@@ -878,7 +878,8 @@ public class SolrIndex2 {
         map2.put("orders", getOrderInfo(jsonObject2));
         map2.put("product_url", "alleles/" + jsonObject2.getString("mgi_accession_id") + "/" + jsonObject2.getString("allele_name") + "/");
         map2.put("allele_has_issue", "false");
-        map2.put("qc_about", "http://www.knockoutmouse.org/kb/entry/78/");
+        //TODO when Peter gives us a suitable endpoit put the url in here or as a property - to other place also one cre and one not search qc_about to find it
+        map2.put("qc_about", "");//used to be http://www.knockoutmouse.org/kb/entry/78/ but awaiting new url from peter
 
         if(jsonObject2.containsKey("name") && jsonObject2.getString("name").length() > 0) {
             map2.put("qc_data_url", "alleles/qc_data/es_cell/" + jsonObject2.getString("name") + "/");
