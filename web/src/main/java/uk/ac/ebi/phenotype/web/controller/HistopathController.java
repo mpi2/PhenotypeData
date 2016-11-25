@@ -72,15 +72,12 @@ public class HistopathController {
 		
 		
 		Set<String> parameterNames=new TreeSet<>();
-		
 		//chop the parameter names so we have just the beginning as we have parameter names like "Brain - Description" and "Brain - MPATH Diagnostic Term" we want to lump all into Brain related
-		
 		for(HistopathPageTableRow row: histopathRows){
 			parameterNames.addAll(row.getParameterNames());
 			
 			
 		}
-		
 
 		model.addAttribute("histopathRows", collapsedRows);
 		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
