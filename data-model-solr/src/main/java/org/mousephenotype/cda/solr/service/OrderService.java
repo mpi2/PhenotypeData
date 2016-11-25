@@ -75,7 +75,7 @@ public class OrderService {
 		query.setQuery(q);
 		query.addFilterQuery("type:Allele");
 		query.addFilterQuery("("+Allele2DTO.ES_CELL_AVAILABLE+":true OR "+Allele2DTO.TARGETING_VECTOR_AVAILABLE+":true OR "+Allele2DTO.MOUSE_AVAILABLE+":true)" );
-		
+		query.set("sort", "marker_symbol asc");
 		if(rows!=null){
 			query.setRows(rows);
 		}else{

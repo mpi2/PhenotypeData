@@ -232,7 +232,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
     protected void doLiveStageLookup() throws SQLException {
 
-        synchronized (this ) {
+        synchronized (this) {
 
             // Already populated by another thread
             if (liveStageMap != null && liveStageMap.size() > 0) {
@@ -273,14 +273,16 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                 ResultSet r = p.executeQuery();
 
                 while (r.next()) {
-                    List<String> fields = new ArrayList<String>();
-                    fields.add(r.getString("colony_id"));
-                    fields.add(r.getString("pipeline_stable_id"));
-                    fields.add(r.getString("procedure_stable_id"));
+
                     BasicBean stage = new BasicBean(
                             r.getString("developmental_stage_acc"),
                             r.getString("developmental_stage_name"));
-                    String key = StringUtils.join(fields, "_");
+
+                    String colonyId = r.getString("colony_id");
+                    String pipelineStableId = r.getString("pipeline_stable_id");
+                    String procedureStableId = r.getString("procedure_stable_id");
+                    String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId, procedureStableId), "_");
+
                     if (!buildStageMap.containsKey(key)) {
                         buildStageMap.put(key, stage);
                     }
@@ -301,22 +303,11 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
         // Populate the live specimen life stage map if it is empty
         // Only populate the lookup in one thread
-        if (liveStageMap  == null || liveStageMap.size() == 0){
-            synchronized (this) {
-                doLiveStageLookup();
-            }
+        if (liveStageMap == null || liveStageMap.size() == 0) {
+            doLiveStageLookup();
         }
 
         BasicBean stage = null;
-
-        // set life stage by looking up a combination key of
-        // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
-        // The value is corresponding developmental stage object
-        String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
-
-        if ( liveStageMap.containsKey(key) ) {
-            stage = liveStageMap.get(key);
-        }
 
         // Procedure prefix is the first two strings of the parameter after splitting on underscore
         // i.e. IMPC_BWT_001_001 => IMPC_BWT
@@ -341,7 +332,18 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             case "IMPC_EVP":
                 stage = stages.get("embryonic day 18.5");
                 break;
+            default:
+
+                // set life stage by looking up a combination key of
+                // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
+                // The value is corresponding developmental stage object
+                String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
+
+                if ( liveStageMap.containsKey(key) ) {
+                    stage = liveStageMap.get(key);
+                }
         }
+
 
         return stage;
     }

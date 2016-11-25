@@ -913,8 +913,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
                 
         for (Object doc : docs) {
-        	
-        	try{
+            try{
         		PhenotypeCallSummaryDTO call = createSummaryCall(doc, isPreQc);
         		if (call != null){
         			list.add(call);
@@ -972,10 +971,16 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
             if( phen.containsKey(GenotypePhenotypeDTO.MP_TERM_ID) ){
 
-                String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
                 String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
                 phenotypeTerm.setId(mpId);
-                phenotypeTerm.setName(mpTerm);
+
+                if ( phen.containsKey(GenotypePhenotypeDTO.MP_TERM_NAME)){
+                    String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
+                    phenotypeTerm.setName(mpTerm);
+                }
+                else {
+                    logger.warn(mpId + " has no term name");
+                }
 
                 // check the top level categories
                 if (phen.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
@@ -1018,7 +1023,12 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	
 	        sum.setPreQC(preQc);
 
-	        sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
+	        if (phen.containsKey(GenotypePhenotypeDTO.PHENOTYPING_CENTER)) {
+                sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
+            }
+            else {
+	            logger.warn(sum.getgId() + " has no phenotyping center");
+            }
 	
 	        if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {            
 	        	MarkerBean allele = new MarkerBean();
@@ -1028,33 +1038,55 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	        }
 	        
 	        if (phen.containsKey(GenotypePhenotypeDTO.MARKER_SYMBOL)) {
-	            MarkerBean gene = new MarkerBean();
-	            gene.setAccessionId(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
-	            gene.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));            
+                MarkerBean gene = new MarkerBean();
+                gene.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));
+
+	            if ( phen.containsKey(GenotypePhenotypeDTO.MARKER_ACCESSION_ID)){
+                    gene.setAccessionId(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
+                }
+                else {
+	                logger.warn(gene.getSymbol() + " has no accession id");
+                }
+
 	            sum.setGene(gene);
 	        }
 	        
 	        if (phen.containsKey(GenotypePhenotypeDTO.PHENOTYPING_CENTER)) {
 	            sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
 	        }
-	
-	        String zygosity = phen.getString(GenotypePhenotypeDTO.ZYGOSITY);
-	        ZygosityType zyg = ZygosityType.valueOf(zygosity);
-	        sum.setZygosity(zyg);
+
+	        if (phen.containsKey(GenotypePhenotypeDTO.ZYGOSITY)) {
+                String zygosity = phen.getString(GenotypePhenotypeDTO.ZYGOSITY);
+                ZygosityType zyg = ZygosityType.valueOf(zygosity);
+                sum.setZygosity(zyg);
+            }
+            else {
+	            logger.warn(sum.getgId() + " has no zygosity");
+            }
+
+
 	        String sex = phen.getString(GenotypePhenotypeDTO.SEX);
 	
 	        SexType sexType = SexType.valueOf(sex);
 	        sum.setSex(sexType);
 
 
-            if( ! preQc) {
+            if( ! preQc &&  phen.containsKey(GenotypePhenotypeDTO.LIFE_STAGE_NAME)) {
                 String lifeStageName = phen.getString(GenotypePhenotypeDTO.LIFE_STAGE_NAME);
                 sum.setLifeStageName(lifeStageName);
             }
-            String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
-	        BasicBean datasource = new BasicBean();
-	        datasource.setName(provider);
-	        sum.setDatasource(datasource);
+
+            BasicBean datasource = new BasicBean();
+            if (phen.containsKey(GenotypePhenotypeDTO.RESOURCE_NAME)) {
+                String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
+                datasource.setName(provider);
+                sum.setDatasource(datasource);
+            }
+            else {
+                logger.warn(sum.getgId() + " has no resource name");
+                datasource.setName("");
+                sum.setDatasource(datasource);
+            }
 	
 	        ImpressBaseDTO parameter = new ParameterDTO();
 	        if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
@@ -1075,11 +1107,16 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	        sum.setPipeline(pipeline);
 	
 	        BasicBean project = new BasicBean();
-	        project.setName(phen.getString(GenotypePhenotypeDTO.PROJECT_NAME));
-	        if (phen.containsKey(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID)) {
-	            project.setId(phen.getString(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID));
-	        }
-	        sum.setProject(project);
+	        if (phen.containsKey(GenotypePhenotypeDTO.PROJECT_NAME)) {
+                project.setName(phen.getString(GenotypePhenotypeDTO.PROJECT_NAME));
+                if (phen.containsKey(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID)) {
+                    project.setId(phen.getString(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID));
+                }
+                sum.setProject(project);
+            }
+            else {
+	            logger.warn(sum.getgId() + " has no project name");
+            }
 	
 	        if (phen.containsKey(GenotypePhenotypeDTO.P_VALUE)) {
 	            sum.setpValue(new Float(phen.getString(GenotypePhenotypeDTO.P_VALUE)));
