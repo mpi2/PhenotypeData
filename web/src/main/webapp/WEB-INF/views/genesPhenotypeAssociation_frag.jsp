@@ -80,9 +80,9 @@
     
 	    <c:choose>
 	    	<c:when test="${ attemptRegistered && phenotypeStarted }">
-	    	<h5>Phenotyping has started, data coming soon.</h5>
+	    	No results meet the p-value threshold
 	
-	         <p><!-- No hits that meet the p value threshold. --><jsp:include page="heatmapFrag.jsp"/></p>
+	         <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
 	    	</c:when>
 	    	<c:when  test="${attemptRegistered}">
 		        <div class="alert alert-info">
