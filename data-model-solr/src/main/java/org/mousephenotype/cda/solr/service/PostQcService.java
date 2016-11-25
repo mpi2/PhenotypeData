@@ -122,6 +122,79 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     }
 
 
+    public String getPleiotropyMatrix(){
+
+        String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
+        SolrQuery query = new SolrQuery()
+            .setQuery("*:*")
+            .setFacet(true)
+            .setFacetLimit(-1);
+        query.add("facet.pivot", pivot);
+        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+
+        TreeMap<String, TreeMap<String, Integer>> matrix = new TreeMap<>();
+
+        try {
+            QueryResponse queryResponse = solr.query(query);
+            Set<String> facets = getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME).keySet();
+            // Fill matrix with 0s
+            for (String facet : facets){
+                TreeMap<String, Integer> row = new TreeMap<>();
+                for (String f : facets) {
+                    row.put(f, 0);
+                }
+                matrix.put(facet, row);
+            }
+
+            Map<String, List<String>> facetPivotResults = getFacetPivotResults(queryResponse, pivot);
+            for (String gene: facetPivotResults.keySet()){
+                List<String> mpTerms = facetPivotResults.get(gene);
+                if (mpTerms.size() > 1) { // other phenotypes too
+                    for (String mpA : mpTerms) {
+                        for (String mpB : mpTerms){
+                            if (!mpA.equalsIgnoreCase(mpB)){
+                                matrix = add(mpA, mpB, 1, matrix);
+                            }
+                        }
+                    }
+                } else { // only one top level mp for this gene. count as self
+                    for (String mpA : mpTerms) {
+                        matrix = add(mpA, mpA, 1, matrix);
+                    }
+                }
+            }
+        } catch (SolrServerException | IOException e) {
+            e.printStackTrace();
+        }
+
+        JSONArray labels = new JSONArray(matrix.keySet());// odered
+        JSONArray jsonMatrix = new JSONArray();
+        for (String keyA : matrix.keySet()){
+            JSONArray row = new JSONArray();
+            for (String keyB : matrix.keySet() ){
+                row.put(matrix.get(keyA).get(keyB));
+            }
+            jsonMatrix.put(row);
+        }
+
+        System.out.println("==== " + matrix);
+        System.out.println(labels);
+        System.out.println("MATRIX: " + jsonMatrix);
+        return "a";
+
+    }
+
+
+    TreeMap<String, TreeMap<String, Integer>> add(String s1, String s2, Integer value,  TreeMap<String, TreeMap<String, Integer>> map){
+
+        Integer val =  map.get(s1).get(s2) + value;
+        TreeMap<String, Integer> row = map.get(s1);
+        row.put(s2,val);
+        map.put(s1, row);
+
+        return map;
+    }
+
     Map<String,Long> getDocumentCountByGene() {
 
         SolrQuery query = new SolrQuery();

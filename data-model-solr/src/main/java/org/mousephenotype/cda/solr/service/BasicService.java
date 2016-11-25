@@ -156,7 +156,29 @@ public class BasicService {
 
         return res;
     }
-    
+
+	/**
+	 * Get results for 2 level pivot faceting only!
+	 * @param response
+	 * @param pivot
+	 * @return Returns values for one facetPivot at a time. <pivot_value, <facet_value, count>>
+	 */
+	protected Map<String, Map<String, Integer>> getFacetPivotResultsKeepCount(QueryResponse response, String pivot) {
+
+		Map<String, Map<String, Integer>>res = new HashMap<String, Map<String, Integer>>();
+		List<PivotField> facetPivot = response.getFacetPivot().get(pivot);
+
+		for( PivotField p : facetPivot){
+			Map<String, Integer> secondLevelFacets = new HashMap<>();
+			for (PivotField pf : p.getPivot()){
+				secondLevelFacets.put(pf.getValue().toString(), pf.getCount());
+			}
+			res.put(p.getValue().toString(), secondLevelFacets);
+		}
+
+		return res;
+	}
+
     /**
      * Java structure for simple facets in Solr. 
      *
