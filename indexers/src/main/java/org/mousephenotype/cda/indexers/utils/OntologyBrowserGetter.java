@@ -381,9 +381,6 @@ public class OntologyBrowserGetter {
 		String name = resultSet.getString("name");
 		String termDisplayText = null;
 
-//		Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
-//        int gvCount = geneVariantCounts.get("sumCount");
-
 		if (helper.getExpandNodeIds().contains(nodeId)) {
 			termDisplayText = "<span class='qryTerm'>" + name + "</span>";
 		} else {
@@ -406,81 +403,6 @@ public class OntologyBrowserGetter {
 
 		return node;
 	}
-
-    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
-            throws IOException, URISyntaxException, SolrServerException {
-
-		PhenotypeFacetResult phenoResult = null;
-		PhenotypeFacetResult preQcResult = null;
-		List<PhenotypeCallSummaryDTO> phenotypeList = null;
-
-		try {
-			phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId, null, null, null);
-			phenotypeList.addAll(phenoResult.getPhenotypeCallSummaries());
-		}
-		catch (Exception e) {
-			System.err.println(e.fillInStackTrace());
-		}
-		try {
-			preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId, null, null, null);
-			phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-		}
-		catch (Exception e){
-			System.err.println(e.fillInStackTrace());
-		}
-
-		int maleCount = 0;
-		int femaleCount = 0;
-
-		if ( phenotypeList != null) {
-
-			// This is a map because we need to support lookups
-			Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
-
-			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-				// On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-				DataTableRow pr = new PhenotypePageTableRow(pcs, "", null, false);
-
-				// Collapse rows on sex
-				if (phenotypes.containsKey(pr.hashCode())) {
-
-					pr = phenotypes.get(pr.hashCode());
-					// Use a tree set to maintain an alphabetical order (Female, Male)
-					TreeSet<String> sexes = new TreeSet<String>();
-					for (String s : pr.getSexes()) {
-						sexes.add(s);
-					}
-					sexes.add(pcs.getSex().toString());
-
-					pr.setSexes(new ArrayList<String>(sexes));
-				}
-
-				if (pr.getParameter() != null && pr.getProcedure() != null) {
-					phenotypes.put(pr.hashCode(), pr);
-				}
-			}
-
-			List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
-
-
-			for (DataTableRow r : uniqGenes) {
-				for (String s : r.getSexes()) {
-					if (s.equals("female")) {
-						femaleCount++;
-					} else if (s.equals("male")) {
-						maleCount++;
-					}
-				}
-			}
-		}
-
-		Map<String, Integer> kv = new HashMap<>();
-		kv.put("sumCount", femaleCount + maleCount);
-		kv.put("femaleCount", femaleCount);
-		kv.put("maleCount", maleCount);
-
-        return kv;
-    }
 
 	public class TreeHelper {
 
