@@ -32,7 +32,6 @@ import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Procedure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
@@ -63,9 +62,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private EuroPhenomeStrainMapper    euroPhenomeStrainMapper;
     private NamedParameterJdbcTemplate jdbcCda;
 
-    private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
-    private StepBuilderFactory   stepBuilderFactory;
-    private Map<String, Integer> written     = new HashMap<>();
+    private Logger logger                                 = LoggerFactory.getLogger(this.getClass());
+    private StepBuilderFactory stepBuilderFactory;
+    private Set<String>          unsupportedParametersMap = new HashSet<>();
+    private Map<String, Integer> written                  = new HashMap<>();
 
 
     public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
@@ -288,6 +288,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         //  - null colony_id
         //  - null biological_model_id
         if (dccExperiment.isLineLevel()) {
+
             PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
                 logger.error("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
@@ -422,7 +423,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
         for (OntologyParameter ontologyParameter : ontologyParameterList) {
-            insertOntologyParameters(ontologyParameter, experimentPk, dbId, biologicalSamplePk);
+            insertOntologyParameters(dccExperimentDTO, ontologyParameter, experimentPk, dbId, biologicalSamplePk);
         }
 
 
@@ -456,7 +457,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
 
 
-
         // mediaSampleParameters
         List<MediaSampleParameter> mediaSampleParameterList = dccSqlUtils.getMediaSampleParameters(dccExperimentDTO.getDcc_procedure_pk());
         if ((dccExperimentDTO.isLineLevel()) && ( ! mediaSampleParameterList.isEmpty())) {
@@ -464,9 +464,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             logger.warn(errMsg);
             return;
         }
-        for (MediaSampleParameter mp : dccSqlUtils.getMediaSampleParameters(dccExperimentDTO.getDcc_procedure_pk())) {
+        for (MediaSampleParameter mediaSampleParameter : dccSqlUtils.getMediaSampleParameters(dccExperimentDTO.getDcc_procedure_pk())) {
 
-//            observation.setMissingFlag(mp.getParameterStatus() == null ? true : false);
+            insertMediaSampleParameter(dccExperimentDTO, mediaSampleParameter, experimentPk, dbId, biologicalSamplePk,
+                                       simpleParameterList, ontologyParameterList);
         }
     }
 
@@ -543,16 +544,19 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return zygosity.getName();
     }
 
-    private void insertSimpleParameter(DccExperimentDTO dccExperimentDTO, SimpleParameter simpleParameter, int experimentPk, int dbId, int biologicalSampleId) throws DataLoadException {
+    private void insertSimpleParameter(DccExperimentDTO dccExperimentDTO, SimpleParameter simpleParameter, int experimentPk,
+                                       int dbId, int biologicalSamplePk) throws DataLoadException {
         String parameterStableId = simpleParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
         ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleParameter.getValue());
+        String[] rawProcedureStatus = commonUtils.parseImpressStatus(dccExperimentDTO.getRawProcedureStatus());
+        String procedureStatus = rawProcedureStatus[0];
         String[] rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
+        int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
-        int missing = (parameterStatus != null ? 1 : 0);
 
 
         // Special rules. May cause observation to be skipped.
@@ -580,7 +584,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
 
-        int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSampleId, parameterStableId, parameterPk,
+        int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
                                                           parameterStatus, parameterStatusMessage,
                                                           simpleParameter);
@@ -589,23 +593,99 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
     }
 
-    private void insertMediaParameter(DccExperimentDTO dccExperimentDTO, MediaParameter mediaParameter, int experimentPk, int dbId, int biologicalSampleId) throws DataLoadException {
+    private void insertMediaParameter(DccExperimentDTO dccExperimentDTO, MediaParameter mediaParameter,
+                                      int experimentPk, int dbId, int biologicalSamplePk) throws DataLoadException
+    {
+        if (dccExperimentDTO.isLineLevel()) {
+            unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains MediaParameters, which is currently unsupported. Skipping parameters.");
+            return;
+        }
+
         String parameterStableId = mediaParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = null;
         ObservationType observationType = ObservationType.image_record;
+        String[] rawProcedureStatus = commonUtils.parseImpressStatus(dccExperimentDTO.getRawProcedureStatus());
+        String procedureStatus = rawProcedureStatus[0];
         String[] rawParameterStatus = commonUtils.parseImpressStatus(mediaParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
+        String URI = mediaParameter.getURI();
+        int missing = ((procedureStatus != null) || parameterStatus != null ||
+                (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : 0);
         int populationId = 0;
-        int missing = (parameterStatus != null ? 1 : 0);
         int samplePk = samplesMap.get(parameterPk).getId();
         int organisationPk = cdaOrganisation_idMap.get(parameterPk);
 
-        int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSampleId, parameterStableId, parameterPk,
+        int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
                                                           parameterStatus, parameterStatusMessage,
                                                           mediaParameter, dccExperimentDTO, samplePk, organisationPk);
+
+        // Insert experiment_observation
+        cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+    }
+
+    public void insertMediaSampleParameter(DccExperimentDTO dccExperimentDTO, MediaSampleParameter mediaSampleParameter,
+                                           int experimentPk, int dbId, int biologicalSamplePk,
+                                           List<SimpleParameter> simpleParameterList,
+                                           List<OntologyParameter> ontologyParameterList) throws DataLoadException
+    {
+        if (dccExperimentDTO.isLineLevel()) {
+            unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains MediaSampleParameters, which is currently unsupported. Skipping parameters.");
+            return;
+        }
+
+        String          parameterStableId      = mediaSampleParameter.getParameterID();
+        int             parameterPk            = cdaParameter_idMap.get(parameterStableId);
+        int             populationId           = 0;
+        String          sequenceId             = null;
+        ObservationType observationType        = ObservationType.image_record;
+        String[]        rawProcedureStatus     = commonUtils.parseImpressStatus(dccExperimentDTO.getRawProcedureStatus());
+        String          procedureStatus        = rawProcedureStatus[0];
+        String[]        rawParameterStatus     = commonUtils.parseImpressStatus(mediaSampleParameter.getParameterStatus());
+        String          parameterStatus        = rawParameterStatus[0];
+        String          parameterStatusMessage = rawParameterStatus[1];
+        int             missing                = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
+        int             samplePk               = samplesMap.get(parameterPk).getId();
+        int             organisationPk         = cdaOrganisation_idMap.get(parameterPk);
+
+        String info              = mediaSampleParameter.getParameterID() + mediaSampleParameter.getParameterStatus();
+        String mediaSampleString = "";
+        for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
+            mediaSampleString += mediaSample.getLocalId();
+            for (MediaSection mediaSection : mediaSample.getMediaSection()) {
+                mediaSampleString += mediaSection.getLocalId();
+                for (MediaFile mediaFile : mediaSection.getMediaFile()) {
+                    mediaSampleString += mediaFile.getFileType();
+                    mediaSampleString += mediaFile.getLocalId();
+                    mediaSampleString += mediaFile.getURI();
+                    mediaSampleString += mediaFile.getParameterAssociation().get(0).getParameterID();
+                }
+            }
+        }
+
+        logger.debug("mediaSampleParam = " + info);
+        logger.debug("mediaSampleString = " + mediaSampleString);
+
+        int observationPk = 0;
+
+        for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
+            String mediaSampleLocalId = mediaSample.getLocalId();
+            for (MediaSection mediaSection : mediaSample.getMediaSection()) {
+
+                for (MediaFile mediaFile : mediaSection.getMediaFile()) {
+                    String URI = mediaFile.getURI();
+                    missing = (missing == 1 || (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : 0);
+
+                    observationPk = cdaSqlUtils.insertObservation(
+                            dbId, biologicalSamplePk, parameterStableId, parameterPk, sequenceId, populationId,
+                            observationType, missing, parameterStatus, parameterStatusMessage, mediaSampleParameter,
+                            mediaFile, dccExperimentDTO, samplePk, organisationPk, experimentPk,
+                            simpleParameterList, ontologyParameterList);
+                }
+            }
+        }
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
@@ -616,15 +696,22 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                                             List<SimpleParameter> simpleParameterList,
                                             List<OntologyParameter> ontologyParameterList) throws DataLoadException
     {
+        if (dccExperimentDTO.isLineLevel()) {
+            unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains SeriesMediaParameters, which is currently unsupported. Skipping parameters.");
+            return;
+        }
+
         String parameterStableId = seriesMediaParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = null;
         ObservationType observationType = ObservationType.image_record;
+        String[] rawProcedureStatus = commonUtils.parseImpressStatus(dccExperimentDTO.getRawProcedureStatus());
+        String procedureStatus = rawProcedureStatus[0];
         String[] rawParameterStatus = commonUtils.parseImpressStatus(seriesMediaParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
+        int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
-        int missing = (parameterStatus != null ? 1 : 0);
         int samplePk = samplesMap.get(parameterPk).getId();
         int organisationPk = cdaOrganisation_idMap.get(parameterPk);
 
@@ -648,6 +735,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private void insertSeriesParameter(DccExperimentDTO dccExperimentDTO, SeriesParameter seriesParameter, int experimentPk,
                                        int dbId, int biologicalSampleId) throws DataLoadException {
 
+        if (dccExperimentDTO.isLineLevel()) {
+            unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains SeriesParameters, which is currently unsupported. Skipping parameters.");
+            return;
+        }
+
 //        String parameterStableId = seriesParameter.getParameterID();
 //
 //        for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
@@ -656,6 +748,16 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 //            String incrementValue = seriesParameterValue.getIncrementValue();
 //            String simpleValue = seriesParameterValue.getValue();
 //            ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleValue);
+//            String[] rawProcedureStatus = commonUtils.parseImpressStatus(dccExperimentDTO.getRawProcedureStatus());
+//            String procedureStatus = rawProcedureStatus[0];
+//            String[] rawParameterStatus = commonUtils.parseImpressStatus(seriesParameter.getParameterStatus());
+//            String parameterStatus = rawParameterStatus[0];
+//            String parameterStatusMessage = rawParameterStatus[1];
+//            int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
+//
+//
+//
+//
 //            String[] units = cdaSqlUtils.computeParameterUnits(parameterStableId);
 //
 //            // Get parameterStatus.
@@ -710,16 +812,25 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 //        cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
     }
 
-    private void insertOntologyParameters(OntologyParameter ontologyParameter, int experimentPk, int dbId, int biologicalSampleId) throws DataLoadException {
+    private void insertOntologyParameters(DccExperimentDTO dccExperimentDTO, OntologyParameter ontologyParameter,
+                                          int experimentPk, int dbId, int biologicalSampleId) throws DataLoadException
+    {
+        if (dccExperimentDTO.isLineLevel()) {
+            unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains OntologyParameters, which is currently unsupported. Skipping parameters.");
+            return;
+        }
+
         String parameterStableId = ontologyParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = null;
         ObservationType observationType = ObservationType.image_record;
+        String[] rawProcedureStatus = commonUtils.parseImpressStatus(dccExperimentDTO.getRawProcedureStatus());
+        String procedureStatus = rawProcedureStatus[0];
         String[] rawParameterStatus = commonUtils.parseImpressStatus(ontologyParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
+        int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
-        int missing = (parameterStatus != null ? 1 : 0);
 
         int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSampleId, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
@@ -728,46 +839,5 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
-    }
-
-
-
-
-
-
-
-
-    private boolean shouldSkipLineLevel(Procedure procedure) {
-        boolean shouldSkip = false;
-
-        // Fail fast on parameter types we do not import yet
-        // Only type we currently import are simple parameters
-        if ( ! procedure.getMediaParameter().isEmpty()) {
-            String errMsg = String.format("We don't process line level MediaParameter: %s", procedure.getProcedureID());
-            logger.warn(errMsg);
-            shouldSkip = true;
-        }
-        if ( ! procedure.getMediaSampleParameter().isEmpty()) {
-            String errMsg = String.format("We don't process line level MediaSampleParameter: %s", procedure.getProcedureID());
-            logger.warn(errMsg);
-            shouldSkip = true;
-        }
-        if ( ! procedure.getOntologyParameter().isEmpty()) {
-            String errMsg = String.format("We don't process line level OntologyParameter: %s", procedure.getProcedureID());
-            logger.warn(errMsg);
-            shouldSkip = true;
-        }
-        if ( ! procedure.getSeriesMediaParameter().isEmpty()) {
-            String errMsg = String.format("We don't process line level SeriesMediaParameter: %s", procedure.getProcedureID());
-            logger.warn(errMsg);
-            shouldSkip = true;
-        }
-        if ( ! procedure.getSeriesParameter().isEmpty()) {
-            String errMsg = String.format("We don't process line level SeriesParameter: %s", procedure.getProcedureID());
-            logger.warn(errMsg);
-            shouldSkip = true;
-        }
-
-        return shouldSkip;
     }
 }

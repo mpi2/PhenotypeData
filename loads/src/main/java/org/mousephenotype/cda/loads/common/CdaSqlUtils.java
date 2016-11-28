@@ -1603,6 +1603,106 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return observationPk;
     }
 
+    // MediaSampleParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
+    public int insertObservation(
+            int dbId,
+            Integer biologicalSamplePk,
+            String parameterStableId,
+            int parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int missing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            MediaSampleParameter mediaSampleParameter,
+            MediaFile mediaFile,
+            DccExperimentDTO dccExperimentDTO,
+            int samplePk,
+            int organisationPk,
+            int experimentPk,
+            List<SimpleParameter> simpleParameterList,
+            List<OntologyParameter> ontologyParameterList
+    ) throws DataLoadException {
+
+        String URI = mediaFile.getURI();
+        KeyHolder keyholder     = new GeneratedKeyHolder();
+        int       observationPk;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dbId", dbId);
+        parameterMap.put("biologicalSampleId", biologicalSamplePk);
+        parameterMap.put("observationType", observationType.name());
+        parameterMap.put("parameterId", parameterPk);
+        parameterMap.put("parameterStableId", parameterStableId);
+        parameterMap.put("sequenceId", sequenceId);
+        parameterMap.put("populationId", populationId);
+        parameterMap.put("missing", missing);
+        parameterMap.put("parameterStatus", parameterStatus);
+        parameterMap.put("parameterStatusMessage", parameterStatusMessage);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert MediaSampleParameter to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        final String insert =
+                "INSERT INTO image_record_observation (" +
+                        "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
+                        "" +
+                ") VALUES (" +
+                        ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
+                        ")";
+
+        if (missing == 0) {
+            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
+            String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, URI);
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("samplePk", samplePk);
+            parameterMap.put("downloadFilePath", URI.toLowerCase());
+            parameterMap.put("imageLink", mediaFile.getLink());
+            parameterMap.put("incrementValue", null);
+            parameterMap.put("fileType", mediaFile.getFileType());
+            parameterMap.put("mediaSampleLocalId", null);
+            parameterMap.put("mediaSectionId", null);
+            parameterMap.put("organisationPk", organisationPk);
+            parameterMap.put("fullResolutionPath", fullResolutionFilePath);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            } else {
+                // Save any parameter associations.
+                for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
+                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+
+                    // Save any Dimensions.
+                    for (Dimension dimension : parameterAssociation.getDim()) {
+                        insertDimension(parameterAssociationPk, dimension);
+                    }
+                }
+
+                // Save any procedure metadata.
+                for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
+                    insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
+                                            experimentPk, observationPk);
+                }
+            }
+        } else {
+            logger.debug("Image record not loaded: " + URI);
+        }
+
+        return observationPk;
+    }
+
     // MediaParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
     public int insertObservation(
             int dbId,
@@ -1817,25 +1917,25 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             if (count == 0) {
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
+            } else {
+                // Save any parameter associations.
+                for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+
+                    // Save any Dimensions.
+                    for (Dimension dimension : parameterAssociation.getDim()) {
+                        insertDimension(parameterAssociationPk, dimension);
+                    }
+                }
+
+                // Save any procedure metadata.
+                for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
+                    insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
+                                            experimentPk, observationPk);
+                }
             }
         } else {
             logger.debug("Image record not loaded: " + seriesMediaParameterValue.getURI());
-        }
-
-        // Save any parameter associations.
-        for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-            int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
-
-            // Save any Dimensions.
-            for (Dimension dimension : parameterAssociation.getDim()) {
-                insertDimension(parameterAssociationPk, dimension);
-            }
-        }
-
-        // Save any procedure metadata.
-        for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
-            insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
-                                    experimentPk, observationPk);
         }
 
         return observationPk;
