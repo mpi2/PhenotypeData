@@ -121,9 +121,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             // Override the EFO db_id with the current term from the database
             EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
 
-            // prepare a live stage lookup
-            doLiveStageLookup();
-
             count = populateGenotypePhenotypeSolrCore(runStatus);
 
         } catch (SQLException | IOException | SolrServerException ex) {
@@ -291,8 +288,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    // mp-ma mappings, only add to adult (MmusDv:0000092) as mapping if to MA
-                    if (doc.getLifeStageAcc().equalsIgnoreCase("MmusDv:0000092")) {
+                    // mp-ma mappings, only add to adult (POSTPARTUM_STAGE) (MmusDv:0000092) as mapping if to MA
+                    if (doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
                         if (mpOntologyService.getAnatomyMappings(mpId) != null) {
                             List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
                             for (String id : anatomyIds) {
