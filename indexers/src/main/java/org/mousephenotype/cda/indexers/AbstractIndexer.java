@@ -51,6 +51,11 @@ import java.util.*;
 @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 public abstract class AbstractIndexer implements CommandLineRunner {
 
+    public static String EMBRYONIC_DAY_9_5  = "EFO:0007641";    // -> embryonic day 9.5
+    public static String EMBRYONIC_DAY_12_5 = "EFO:0002563";    // -> embryonic day 12.5
+    public static String EMBRYONIC_DAY_14_5 = "EFO:0002565";    // -> embryonic day 14.5
+    public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
+    public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
 
     @Autowired
     OntologyTermDAO ontologyTermDAO;
@@ -241,9 +246,19 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             }
 
             // Populate the stages map from stage name -> ontology term if it is empty
+
+            // Current ontology terms used as of 2016-11-28 :
+            //
+            // EFO:0007641 -> embryonic day 9.5
+            // EFO:0002563 -> embryonic day 12.5
+            // EFO:0002565 -> embryonic day 14.5
+            // EFO:0002570 -> embryonic day 18.5
+            // MmusDv:0000092 -> postpartum stage
+            //
+
             if (stages == null || stages.size() == 0) {
-                Arrays.asList("postnatal", "embryonic day 9.5", "embryonic day 12.5", "embryonic day 14.5", "embryonic day 18.5").forEach(x -> {
-                    OntologyTerm t = ontologyTermDAO.getOntologyTermByNameAndDatabaseId(x, EFO_DB_ID);
+                Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_18_5).forEach(x -> {
+                    OntologyTerm t = ontologyTermDAO.getOntologyTermByAccession(x);
                     stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
                 });
             }
@@ -318,19 +333,19 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                 stage = new BasicBean("n/a", "n/a");
                 break;
             case "IMPC_FER":
-                stage = stages.get("postnatal");
+                stage = stages.get(POSTPARTUM_STAGE);
                 break;
             case "IMPC_EVL":
-                stage = stages.get("embryonic day 9.5");
+                stage = stages.get(EMBRYONIC_DAY_9_5);
                 break;
             case "IMPC_EVM":
-                stage = stages.get("embryonic day 12.5");
+                stage = stages.get(EMBRYONIC_DAY_12_5);
                 break;
             case "IMPC_EVO":
-                stage = stages.get("embryonic day 14.5");
+                stage = stages.get(EMBRYONIC_DAY_14_5);
                 break;
             case "IMPC_EVP":
-                stage = stages.get("embryonic day 18.5");
+                stage = stages.get(EMBRYONIC_DAY_18_5);
                 break;
             default:
 
