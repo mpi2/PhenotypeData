@@ -145,7 +145,10 @@
                     .attr("d", ribbon)
                     .attr("class", "chord")
                     .style("fill", function(d) { return color(d.target.index); })
-                    .style("stroke", function(d) { return d3.rgb(color(d.target.index)).darker(); });
+                    .style("stroke", function(d) { return d3.rgb(color(d.target.index)).darker(); })
+                    .append("title").text(function(d) {
+                        return  d.source.value + " genes present both " + labels[d.source.index] + " phenotypes and " + labels[d.target.index] + " phenotypes.";
+                    });
 
             // Returns an array of tick angles and values for a given group and step.
             function groupTicks(d, step) {
