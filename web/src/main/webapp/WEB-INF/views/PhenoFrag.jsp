@@ -83,8 +83,12 @@
                 </c:if>
 
             </td>
-            <td><c:choose><c:when test="${fn:contains(phenotype.allele.accessionId, 'MGI')}"><a
-                    href="http://www.informatics.jax.org/accession/${phenotype.allele.accessionId}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></a></c:when><c:otherwise><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></c:otherwise></c:choose>
+            <td>
+            <!-- note that allele page takes mgi GENE id not allele id -->
+            			<a
+                    	href="${baseUrl}/alleles/${acc}/${phenotype.allele.superScript}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele>
+                    	</a>
+                   
             </td>
             <td title="${phenotype.zygosity}">${phenotype.zygosity.getShortName()}</td>
             <td>
