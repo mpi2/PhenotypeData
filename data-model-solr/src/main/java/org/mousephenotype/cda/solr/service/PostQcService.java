@@ -25,6 +25,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.web.WebStatus;
@@ -33,8 +34,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("postqcService")
 public class PostQcService extends AbstractGenotypePhenotypeService implements WebStatus {
@@ -121,20 +127,18 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         return retVal;
     }
 
-
-    public String getPleiotropyMatrix(){
-
-        String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
-        SolrQuery query = new SolrQuery()
-            .setQuery("*:*")
-            .setFacet(true)
-            .setFacetLimit(-1);
-        query.add("facet.pivot", pivot);
-        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+    /**
+     * Used by
+     * @param topLevelMpTerms the mp terms are used with AND. If not null returns data for genes that have ALL phenotypes in the passed list.
+     * @return
+     */
+    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms) throws IOException, SolrServerException {
 
         TreeMap<String, TreeMap<String, Integer>> matrix = new TreeMap<>();
+        SolrQuery query = getPleiotropyQuery(topLevelMpTerms);
 
         try {
+
             QueryResponse queryResponse = solr.query(query);
             Set<String> facets = getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME).keySet();
             // Fill matrix with 0s
@@ -146,7 +150,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
                 matrix.put(facet, row);
             }
 
-            Map<String, List<String>> facetPivotResults = getFacetPivotResults(queryResponse, pivot);
+            Map<String, List<String>> facetPivotResults = getFacetPivotResults(queryResponse, query.get("facet.pivot"));
             for (String gene: facetPivotResults.keySet()){
                 List<String> mpTerms = facetPivotResults.get(gene);
                 if (mpTerms.size() > 1) { // other phenotypes too
@@ -163,11 +167,13 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
                     }
                 }
             }
+
         } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
 
-        JSONArray labels = new JSONArray(matrix.keySet());// odered
+        List<String> labelList = matrix.keySet().stream().collect(Collectors.toList());
+
         JSONArray jsonMatrix = new JSONArray();
         for (String keyA : matrix.keySet()){
             JSONArray row = new JSONArray();
@@ -177,11 +183,67 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
             jsonMatrix.put(row);
         }
 
-        System.out.println("==== " + matrix);
-        System.out.println(labels);
-        System.out.println("MATRIX: " + jsonMatrix);
-        return "a";
+        JSONObject result = new JSONObject();
+        result.put("matrix", jsonMatrix);
+        result.put("labels", new JSONArray(labelList));
 
+        System.out.println(result);
+        return result;
+
+    }
+
+    public String getPleiotropyDownload(List<String> topLevelMpTerms) throws IOException, SolrServerException {
+
+        TreeMap<String, TreeMap<String, Integer>> matrix = new TreeMap<>();
+        SolrQuery query = getPleiotropyQuery(topLevelMpTerms);
+        query.add("wt", "xslt");
+        query.add("tr", "pivot.xsl");
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(SolrUtils.getBaseURL(solr) + "/select?" + query).openConnection();
+        BufferedReader br = new BufferedReader( new InputStreamReader(connection.getInputStream()));
+
+        return br.lines().collect(Collectors.joining("\n"));
+
+    }
+
+
+    private SolrQuery getPleiotropyQuery(List<String> topLevelMpTerms) throws IOException, SolrServerException {
+
+        String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
+        SolrQuery query = new SolrQuery()
+            .setQuery("*:*")
+            .setFacet(true)
+            .setFacetLimit(-1);
+        query.add("facet.pivot", pivot);
+        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+
+        if (topLevelMpTerms != null) {
+
+            // We want data for genes that have ALL top level phenotypes in the list
+            String interimPivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+            SolrQuery interimQuery = new SolrQuery()
+                    .setFacet(true)
+                    .setFacetLimit(-1)
+                    .setQuery("*:*")
+                    .addFilterQuery(topLevelMpTerms.stream().collect(Collectors.joining("\" OR \"", GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"", "\")")));
+            interimQuery.add("facet.pivot", interimPivot);
+            System.out.println("HEREEE " + SolrUtils.getBaseURL(solr) + "/select?" + interimQuery);
+            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(solr.query(interimQuery), interimPivot).entrySet().stream()
+                    .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
+                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
+
+            Set<String> commonGenes = genesByMpTopLevel.values().iterator().next();
+            commonGenes = genesByMpTopLevel.values().stream()
+                    .reduce(commonGenes, (a, b) -> {
+                        a.retainAll(b);
+                        return a;
+                    });
+
+            query.addFilterQuery(commonGenes.stream().collect(Collectors.joining(" OR ", GenotypePhenotypeDTO.MARKER_SYMBOL + ":(", ")")));
+
+        }
+
+        return query;
     }
 
 
