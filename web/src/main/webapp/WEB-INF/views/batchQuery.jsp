@@ -71,7 +71,6 @@
             	font-size: 12px;
             	padding-left: 20px;
             	height: 40px;
-            	background-color: "#F2F2F2";
             }
             .cat {
             	font-weight: bold;
@@ -216,14 +215,36 @@
              	// test only
                 //var baseUrl = '//dev.mousephenotype.org/data';
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
-                
+
                 var baseUrl = "${baseUrl}";
                 var solrUrl = "${internalSolrUrl}";
                 
                 $('div#batchQryLink').hide(); // hide batchquery link for batchquery page
-                
-                
-               	// initialze search example qTip with close button and proper positioning
+
+
+                if ( window.location.search != ""){
+                    var oConf = convertParamToObject(decodeURIComponent(window.location.search));
+                    console.log(oConf);
+
+                    prepare_dataTable(oConf.fllist);
+                    fetchBatchQueryDataTable(oConf);
+                }
+
+
+                function convertParamToObject(params){
+                    oConf = {};
+                    var paramsStr = params.replace("?", "");
+                    var kv = paramsStr.split("&");
+                    for ( var i=0; i<kv.length; i++){
+                        var kv2 = kv[i].split("=");
+                        oConf[kv2[0]] = kv2[1];
+                    }
+                    return oConf;
+                }
+
+
+
+                // initialze search example qTip with close button and proper positioning
                	var bqDoc = '<h3 id="bqdoc">How to use batch search</h3>'
                	
                		+ '<div id="docTabs">'
@@ -536,7 +557,7 @@
             }
             
             function fetchBatchQueryDataTable(oConf) {
-            	
+
             	// deals with duplicates and take a max of first 10 records to show the users
             	oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
 	            //oConf.idlist = getUniqIdsStr(oConf.idlist);
@@ -667,6 +688,10 @@
         			});*/
         		}
             }
+
+
+			// submit query
+
             
         </script>
        

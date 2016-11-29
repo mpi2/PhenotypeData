@@ -205,7 +205,6 @@ public class SolrIndex {
 			server = getSolrServer("mp");
 		}
 		else if ( dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")){
-
 			server = getSolrServer("gene");
 		}
 		else {
@@ -237,9 +236,9 @@ public class SolrIndex {
 
 		// retrieves wanted fields
 		query.setFields(fllist);
-		//System.out.println("QUERY: " + query);
+		System.out.println("QUERY: " + query);
 		QueryResponse response = server.query(query, METHOD.POST);
-		//System.out.println("response: "+ response);
+		System.out.println("response: "+ response);
 
 		return response;
 	}
