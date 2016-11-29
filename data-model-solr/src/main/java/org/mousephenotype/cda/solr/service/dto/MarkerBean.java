@@ -30,8 +30,15 @@ public class MarkerBean {
 	String symbol;
 	String name;
 	List<String> synonyms;
+	String superScript;
 	
 	
+	public String getSuperScript() {
+		return superScript;
+	}
+	public void setSuperScript(String superScript) {
+		this.superScript = superScript;
+	}
 	public String getAccessionId() {
 		return accessionId;
 	}
