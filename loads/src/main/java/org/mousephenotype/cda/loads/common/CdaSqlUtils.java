@@ -1606,7 +1606,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                     missing = 1;
                 }
 
-                parameterMap.put("text", rawValue);
+                detailParameterMap.put("text", rawValue);
 
                 detailInsert = "INSERT INTO text_observation (id, text) VALUES (:observationPk, :text)";
                 break;
