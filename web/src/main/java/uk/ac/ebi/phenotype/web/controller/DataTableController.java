@@ -153,7 +153,7 @@ public class DataTableController {
 
     	String content = null;
 
-    	String oriDataTypeName = dataTypeName;
+		String oriDataTypeName = dataTypeName;
     	List<String> queryIds = Arrays.asList(idlist.split(","));
     	Long time = System.currentTimeMillis();
 
@@ -204,6 +204,9 @@ public class DataTableController {
 */
 		// batch solr query
 		batchIdListStr = StringUtils.join(batchIdList, ",");
+		if ( !batchIdListStr.startsWith("\"") && !batchIdListStr.endsWith("\"")){
+			batchIdListStr = "\"" + batchIdListStr + "\"";
+		}
 		//System.out.println("idstr: "+ batchIdListStr);
 		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
 
@@ -216,7 +219,7 @@ public class DataTableController {
 		//System.out.println("mgi id: " + mgiIds);
 
 		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, oriDataTypeName, queryIds);
-    	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
     }
 
     private JSONObject prepareHpMpMapping(QueryResponse solrResponse) {
@@ -560,7 +563,7 @@ public class DataTableController {
             showImgView = jParams.getBoolean("showImgView");
         }
 
-		System.out.println("DataTableController SOLRPARAMS: " + solrParamStr);
+		//System.out.println("DataTableController SOLRPARAMS: " + solrParamStr);
 		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
@@ -642,6 +645,12 @@ public class DataTableController {
 			JSONObject doc = docs.getJSONObject(i);
 
 			//String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
+
+			if ( !doc.containsKey(Allele2DTO.ALLELE_NAME)){
+				// no point to show an allele that has no name
+				continue;
+			}
+
 			String markerAcc = doc.getString(Allele2DTO.MGI_ACCESSION_ID);
             String alleleName = doc.getString(Allele2DTO.ALLELE_NAME);
             String alleleUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/alleles/" + markerAcc + "/" + alleleName;
@@ -678,7 +687,6 @@ public class DataTableController {
 				}
 				order.add("</tr>");
 			}
-
 			if ( doc.containsKey(Allele2DTO.ES_CELL_AVAILABLE) && doc.getBoolean(Allele2DTO.ES_CELL_AVAILABLE)){
 				order.add("<tr>");
 				order.add("<td><a class='iFrameFancy' data-url='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'><span class='orderFont'> ES cell</span></i></a></td>");
@@ -718,7 +726,6 @@ public class DataTableController {
 				}
 				order.add("</tr>");
 			}
-
 			rowData.add(alleleLink);
 			rowData.add(mutationType);
 			rowData.add("<table><tbody>" + StringUtils.join(order, "") + "</tbody></table>");
