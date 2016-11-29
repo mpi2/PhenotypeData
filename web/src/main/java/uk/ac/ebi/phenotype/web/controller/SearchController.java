@@ -118,6 +118,7 @@ public class SearchController {
 
         Boolean export = false;
 		JSONObject json = fetchSearchResultJson(export, query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+		//System.out.println(json.toString());
 		model.addAttribute("jsonStr", convert2DataTableJson(export, request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
 
 		return "search";
@@ -133,7 +134,7 @@ public class SearchController {
 		String solrParamStr = composeSolrParamStr(export, query, fqStr, dataType);
 		//System.out.println("SearchController solrParamStr: "+ dataType + " -- " + solrParamStr);
 		String content = dataTableController.fetchDataTableJson(request, json, mode, query, fqStr, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
-//		System.out.println("CONTENT: " + content);
+		//System.out.println("CONTENT: " + content);
 
 		return content;
 	}
@@ -257,14 +258,40 @@ public class SearchController {
 	@RequestMapping(value="/batchQuery", method=RequestMethod.GET)
 	public String loadBatchQueryPage(
 			@RequestParam(value = "core", required = false) String core,
+			@RequestParam(value = "fllist", required = false) String fllist,
+			@RequestParam(value = "idlist", required = false) String idlist,
 			HttpServletRequest request,
 			Model model) {
 
 		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
 		model.addAttribute("outputFields", outputFieldsHtml);
 
+		if ( idlist != null) {
+			model.addAttribute("core", core);
+			model.addAttribute("fllist", fllist);
+			model.addAttribute("idlist", idlist);
+		}
+
 		return "batchQuery";
 	}
 
+
+//	@RequestMapping(value="/batchQuery", method=RequestMethod.GET)
+//	public String loadBatchQueryPage(
+//			@RequestParam(value = "core", required = false) String core,
+//			@RequestParam(value = "fllist", required = false) String fllist,
+//			@RequestParam(value = "idlist", required = false) String idlist,
+//			HttpServletRequest request,
+//			Model model) {
+//
+//		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+//		model.addAttribute("outputFields", outputFieldsHtml);
+//		if ( !idlist.isEmpty()) {
+//			model.addAttribute("core", core);
+//			model.addAttribute("fllist", fllist);
+//			model.addAttribute("idlist", idlist);
+//		}
+//		return "batchQuery";
+//	}
 
 }
