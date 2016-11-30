@@ -65,9 +65,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private NamedParameterJdbcTemplate jdbcCda;
 
     private Logger logger                                 = LoggerFactory.getLogger(this.getClass());
-    private StepBuilderFactory stepBuilderFactory;
+    private StepBuilderFactory   stepBuilderFactory;
     private Set<String>          unsupportedParametersMap = new HashSet<>();
     private Map<String, Integer> written                  = new HashMap<>();
+
+    private int lineLevelProcedureCount   = 0;
+    private int sampleLevelProcedureCount = 0;
 
 
     public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
@@ -76,14 +79,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             this.stepBuilderFactory = stepBuilderFactory;
             this.cdaSqlUtils = cdaSqlUtils;
             this.dccSqlUtils = dccSqlUtils;
-
-
-        // FIXME FIXME FIXME
-        written.put("biologicalModel", 0);
-        written.put("biologicalSample", 0);
-        written.put("liveSample", 0);
-        written.put("controlSample", 0);
-        written.put("experimentalSample", 0);
     }
 
     @Override
@@ -204,12 +199,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             logger.error("Missing project '" + projectId + "'. Skipping...");
         }
 
-//        logger.info("Wrote {} new biological models", written.get("biologicalModel"));
-//        logger.info("Wrote {} new biological samples", written.get("biologicalSample"));
-//        logger.info("Wrote {} new live samples", written.get("liveSample"));
-//        logger.info("Processed {} experimental samples", written.get("experimentalSample"));
-//        logger.info("Processed {} control samples", written.get("controlSample"));
-//        logger.info("Processed {} total samples", written.get("experimentalSample") + written.get("controlSample"));
+        logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
+        logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
         contribution.setExitStatus(ExitStatus.COMPLETED);
@@ -233,7 +224,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
-
         int dbId;
         Integer organisationPk;
         Integer projectPk;
@@ -363,6 +353,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 metadataGroup
         );
 
+        if (dccExperiment.isLineLevel()) {
+            if (experimentPk > 0)
+                lineLevelProcedureCount += 1;
+        } else {
+            if (experimentPk > 0) {
+                sampleLevelProcedureCount += 1;
+            }
+        }
+
         createObservations(dccExperiment, dbId, experimentPk);
 
         cdaSqlUtils.insertProcedureMetadata(dccMetadataList, dccExperiment.getProcedureId(), experimentPk, 0);
@@ -373,18 +372,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     // PRIVATE METHODS
 
-
+private HashSet<String> missingColonyIds = new HashSet<>();
     private void createObservations( DccExperimentDTO dccExperimentDTO, int dbId, int experimentPk) throws DataLoadException {
 
         Integer         biologicalSamplePk;
-        int             parameterId;
-        String          parameterStableId;
-        String          sequenceId;
-        int             populationId = 0;          // Not used. Always 0.
-        ObservationType observationType;
-        int             missing;
-        String          parameterStatus;
-        String          parameterStatusMessage;
 
         // For all parameter types:
         if (dccExperimentDTO.isLineLevel()) {
@@ -392,8 +383,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         } else {
             BiologicalSample bs = samplesMap.get(dccExperimentDTO.getSpecimenId());
             if (bs == null) {
-                logger.warn("Missing sample external id {} for experiment id {}. Skipping sample ...",
-                            dccExperimentDTO.getSpecimenId(), dccExperimentDTO.getExperimentId());
+//                logger.warn("Missing sample external id {} for experiment id {}. Skipping sample ...",
+//                            dccExperimentDTO.getSpecimenId(), dccExperimentDTO.getExperimentId());
+if ( ! missingColonyIds.contains(dccExperimentDTO.getColonyId())) {
+    missingColonyIds.add(dccExperimentDTO.getColonyId());
+    logger.warn("Missing sample(s) for colonyId {}", dccExperimentDTO.getColonyId());
+}
                 return;
             }
             biologicalSamplePk = bs.getId();
@@ -707,8 +702,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         String[] rawProcedureStatus = commonUtils.parseImpressStatus(dccExperimentDTO.getRawProcedureStatus());
         String procedureStatus = rawProcedureStatus[0];
         String[] rawParameterStatus = commonUtils.parseImpressStatus(seriesMediaParameter.getParameterStatus());
-        String parameterStatus = rawParameterStatus[0];
-        String parameterStatusMessage = rawParameterStatus[1];
+        String parameterStatus = null;
+        String parameterStatusMessage = null;
+        try {
+            parameterStatus        = rawParameterStatus[0];
+            parameterStatusMessage = rawParameterStatus[1];
+        } catch (Exception e) {
+            logger.error("Error extracting parameter. rawParameterStatus = {}. Ingored.", rawParameterStatus);
+        }
         int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
         int samplePk = samplesMap.get(parameterPk).getId();
@@ -791,9 +792,22 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                     } catch (ParseException e) {
                         actualTimePoint = dccExperimentDTO.getDateOfExperiment();
                     }
-                    throw new DataLoadException("DEBUG THIS.");
-                    
-                    
+//                    throw new DataLoadException("DEBUG THIS.");
+//
+//
+//                    try {
+//                        timePoint = pStatMap.parse(parsedIncrementValue);
+//                    } catch (ParseException e) {
+//                        timePoint = dccExperimentDTO.getDateOfExperiment();
+//                    }
+//                    discretePoint = Float.parseFloat(simpleValue);                                                     // discretePoint
+                    try {
+                        logger.error("observationPk:{} parameterPk:{} simpleValue:{} dataPoint:{} discreteTimePoint:{} discretePoint:{}",
+                                     observationPk, parameterPk, simpleValue, dataPoint, discreteTimepoint, discretePoint);
+                    } catch (Exception e) {
+
+                    }
+
                 }
 
 

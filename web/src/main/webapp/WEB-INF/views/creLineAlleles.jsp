@@ -42,8 +42,9 @@
             <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
 
             <ul>
-                <li><a href="#top">CreLine Alleles</a></li>
-                
+                <li><a href="#top">Crelines</a></li>
+
+
             </ul>
 
             <div class="clear"></div>
@@ -59,16 +60,16 @@
 		<div class="block block-system">
 			<div class="content">
 				<div class="node node-gene">
-			        <h1 class="title" id="top">CreLine Alleles</h1>
+			        <h1 class="title" id="top">Cre alleles from CREATE (coordination of resources for conditional expression of mutated mouse alleles)</h1>
                     <div class="section">
                         <div class="inner">
-								
+
 								<jsp:include page="orderSectionFrag.jsp"></jsp:include>
-								
+
 							</div>
                     </div>
 
-                   
+
                     <!-- end of section -->
 
 		</div>
@@ -81,6 +82,7 @@ $(document).ready(function () {
 
 $('.iFrameFancy').click(function()
         {
+
             $.fancybox.open([
                   {
                      href : $(this).attr('data-url'),
