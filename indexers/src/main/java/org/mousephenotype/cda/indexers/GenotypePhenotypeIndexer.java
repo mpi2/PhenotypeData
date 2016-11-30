@@ -263,6 +263,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
 
+                BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
+                if (stage != null) {
+                    doc.setLifeStageAcc(stage.getId());
+                    doc.setLifeStageName(stage.getName());
+                }
+
                 // MP association
                 if (r.getString("ontology_term_id").startsWith("MP:")) {
                     // some hard-coded stuff
@@ -276,13 +282,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                         doc.setAssertionTypeId("ECO:0000218");
 
                     }
-
-                    BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
-                    if (stage != null) {
-                        doc.setLifeStageAcc(stage.getId());
-                        doc.setLifeStageName(stage.getName());
-                    }
-
 
                     String mpId = r.getString("ontology_term_id");
                     doc.setMpTermId(mpId);
