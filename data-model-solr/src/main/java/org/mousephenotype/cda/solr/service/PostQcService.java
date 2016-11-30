@@ -194,8 +194,6 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         result.put("matrix", jsonMatrix);
         result.put("labels", labelList);
 
-        System.out.println("-=-=-=- " + matrix);
-        System.out.println(labelList);
         return result;
 
     }
