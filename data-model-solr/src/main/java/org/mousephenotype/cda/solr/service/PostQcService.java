@@ -54,7 +54,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     public void postSetup() {
         // Ensure the superclass attributes are set
         super.solr = solr;
-        documentCountGyGene = getDocumentCountByGene(null);
+        documentCountGyGene = getDocumentCountByGene();
     }
 
     /**
@@ -122,10 +122,10 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     }
 
 
-    Map<String,Long> getDocumentCountByGene(String mpId) {
+    Map<String,Long> getDocumentCountByGene() {
 
         SolrQuery query = new SolrQuery();
-        query.setQuery(mpId == null ? "*:*" : GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\"");
+        query.setQuery("*:*");
         query.setRows(0);
         query.setFacet(true);
         query.addFacetField(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
@@ -142,22 +142,42 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
     }
 
+
     public JSONArray getTopLevelPhenotypeIntersection(String mpId){
 
-        Map<String,Long> countByGene = getDocumentCountByGene(mpId);
-        Set<String> jitter = new HashSet<>();
-        JSONArray array = new JSONArray();
-        for (String markerAcc: countByGene.keySet()){
-            JSONObject obj = new JSONObject();
-            Double y = new Double(countByGene.get(markerAcc));
-            Double x =(documentCountGyGene.get(markerAcc) - y);
-            obj = addJitter(x, y, jitter, obj);
-            obj.accumulate("markerAcc", markerAcc);
-            array.put(obj);
+        String pivot = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+        SolrQuery query = new SolrQuery();
+        query.setQuery(mpId == null ? "*:*" : GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\"");
+        query.setRows(0);
+        query.setFacet(true);
+        query.addFacetField(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+        query.setFacetLimit(-1);
+        query.setFacetMinCount(1);
+        query.add("facet.pivot", pivot);
+
+        try {
+            QueryResponse response = solr.query(query);
+            Map<String,Long> countByGene = getFacets(response).get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+            Map<String,List<String>>  geneAccSymbol = getFacetPivotResults(response,pivot);
+
+            Set<String> jitter = new HashSet<>();
+            JSONArray array = new JSONArray();
+            for (String markerAcc: countByGene.keySet()){
+                JSONObject obj = new JSONObject();
+                Double y = new Double(countByGene.get(markerAcc));
+                Double x =(documentCountGyGene.get(markerAcc) - y);
+                obj = addJitter(x, y, jitter, obj);
+                obj.accumulate("markerAcc", markerAcc);
+                obj.accumulate("markerSymbol", geneAccSymbol.get(markerAcc).get(0));
+                array.put(obj);
+            }
+
+            return array;
+
+        } catch (SolrServerException | IOException e) {
+            e.printStackTrace();
         }
-
-        return array;
-
+        return null;
     }
 
     private JSONObject addJitter(Double x, Double y, Set<String> existingPoints, JSONObject obj){

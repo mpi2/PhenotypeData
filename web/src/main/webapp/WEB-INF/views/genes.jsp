@@ -700,12 +700,12 @@
 
 
         <%-- for anatomogram released in 201609 --%>
-		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/vendorCommons.bundle.js?v=${version}"></script>--%>
-		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram/anatomogramBuilder.bundle.js?v=${version}"></script>--%>
+		<script type="text/javascript" src="${baseUrl}/js/anatomogram/vendorCommons.bundle.js?v=${version}"></script>
+		<script type="text/javascript" src="${baseUrl}/js/anatomogram/anatomogramBuilder.bundle.js?v=${version}"></script>
 
         <%-- these copies have the http:// changed to // --%>
-        <script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>
-        <script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>
+        <%--<script type="text/javascript" src="${baseUrl}/js/vendorCommons.bundle.js?v=${version}"></script>--%>
+        <%--<script type="text/javascript" src="${baseUrl}/js/expressionAtlasAnatomogram.bundle.js?v=${version}"></script>--%>
 
 
         <%--reinvoke this when atlas people are ready supporting https--%>
@@ -757,111 +757,46 @@
 
 
                     //------------ anatomogram 201609 version ----------
-//                    var anatomogramConfig = {mountNode: 'anatomogramContainer', hoveredTissueColour: 'red'};
-//                    anatomogramBuilder.render(anatomogramConfig);
-//
-//                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseEnter', function(pathID) {
-//
-//                        console.log('Entering ' + pathID)
-//                        //console.log('Ma? '+ uberonEfo2MaIdMap[pathID]);
-//                        var maIds = uberonEfo2MaIdMap[pathID];
-//
-//                        if (maIds != undefined) {
-//                            var topLevelNames = [];
-//                            for (var i = 0; i < maIds.length; i++) {
-//                                var tops = maId2topLevelNameMap[maIds[i]];
-//                                for (var j = 0; j < tops.length; j++) {
-//                                    topLevelNames.push(tops[j].trim());
-//                                }
-//                            }
-//
-//                            topLevelNames = $.fn.getUnique(topLevelNames);
-//                            $('ul#expList li a,ul#expList li').each(function () {
-//                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
-//                                    $(this).addClass("mahighlight");
-//                                }
-//                            });
-//                        }
-//                    });
-//                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseLeave', function(pathID) {
-//                        console.log('Leaving ' + pathID)
-//                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
-//                    });
-//
-//
-//                    // top level MA term talks to anatomogram
-//					$("ul#expList li a,ul#expList li").on("mouseover", function() {
-//						var topname = $(this).text().trim();
-//                        console.log("top:"+topname+"--")
-//						var maIds = topLevelName2maIdMap[topname];
-//						//log(topname + " - " + maIds);
-//						var uberonIds = [];
-//						for( var a=0; a<maIds.length; a++){
-//							uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
-//						}
-//						uberonIds = $.fn.getUnique(uberonIds);
-//
-//						//console.log(topname + " : " + uberonIds);
-//
-//                        $(this).addClass("mahighlight");
-//
-//                        // change tissue color
-//                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: uberonIds}));
-//
-//					}).on("mouseout", function(){
-//                        // revert text color
-//                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
-//                        // revert tissue color
-//                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: []}));
-//					});
 
-                    //------------ end of anatomogram 201609 version ----------
+                    //specify the colour in each of your calls to the anatomogram renderer like this:
+                    //anatomogramBuilder.render({mountNode: 'main', hoveredTissueColour: 'blue', highlightIDs: ['UBERON_0002107', 'UBERON_0001242']});
+
+                    var anatomogramConfig = {mountNode: 'anatomogramContainer', hoveredTissueColour: 'red'};
+                    anatomogramBuilder.render(anatomogramConfig);
+
+                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseEnter', function(pathID) {
+
+                        console.log('Entering ' + pathID)
+                        //console.log('Ma? '+ uberonEfo2MaIdMap[pathID]);
+                        var maIds = uberonEfo2MaIdMap[pathID];
+
+                        if (maIds != undefined) {
+                            var topLevelNames = [];
+                            for (var i = 0; i < maIds.length; i++) {
+                                var tops = maId2topLevelNameMap[maIds[i]];
+                                for (var j = 0; j < tops.length; j++) {
+                                    topLevelNames.push(tops[j].trim());
+                                }
+                            }
+
+                            topLevelNames = $.fn.getUnique(topLevelNames);
+                            $('ul#expList li a,ul#expList li').each(function () {
+                                if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
+                                    $(this).addClass("mahighlight");
+                                }
+                            });
+                        }
+                    });
+                    anatomogramBuilder.eventEmitter.on('gxaAnatomogramTissueMouseLeave', function(pathID) {
+                        console.log('Leaving ' + pathID)
+                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
+                    });
 
 
-                    //-------------------------------------------
-					var anatomogramData = {
-
-						"maleAnatomogramFile": "mouse_male.svg",
-						"toggleButtonMaleImageTemplate": "/resources/images/male",
-						"femaleAnatomogramFile": "mouse_female.svg",
-						"toggleButtonFemaleImageTemplate": "/resources/images/female",
-						"brainAnatomogramFile": "mouse_brain.svg",
-						"toggleButtonBrainImageTemplate": "/resources/images/brain",
-
-						// all tested tissues (expressed + tested but not expressed)
-						"allSvgPathIds": expData.allPaths,
-						// test only
-						//"allSvgPathIds": [],
-						//"allSvgPathIds": ["UBERON_0000029", "UBERON_0001736", "UBERON_0001831"], // lymph nodes
-						//"allSvgPathIds": ["UBERON_0000947", "UBERON_0001981", "UBERON_0001348", "UBERON_0001347", "EFO_0000962"],
-
-						"contextRoot": "/gxa"
-					};
-
-					// tissues having expressions
-					var profileRows = [
-						{
-							"name": "tissues with expression",
-							"expressions": expData.expression
-						}
-					];
-
-					//console.log(profileRows);
-
-					var eventEmitter = expressionAtlasAnatomogram.eventEmitter;
-
-					expressionAtlasAnatomogram.render(
-							document.getElementById("anatomogramContainer"),
-							anatomogramData,
-							profileRows,
-							"grey",
-							"red"
-							// "vader" is equivalent to <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/vader/jquery-ui.css">
-					);
-
-					// top level MA term talks to anatomogram
-					$("ul#expList li a").on("mouseover", function() {
+                    // top level MA term talks to anatomogram
+					$("ul#expList li a,ul#expList li").on("mouseover", function() {
 						var topname = $(this).text().trim();
+                        console.log("top:"+topname+"--")
 						var maIds = topLevelName2maIdMap[topname];
 						//log(topname + " - " + maIds);
 						var uberonIds = [];
@@ -872,38 +807,107 @@
 
 						//console.log(topname + " : " + uberonIds);
 
-						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
-						//eventEmitter.emit("gxaHeatmapColumnHoverChange", "UBERON_0000955"); // test for brain
+                        $(this).addClass("mahighlight");
+
+                        // change tissue color
+                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: uberonIds}));
+
 					}).on("mouseout", function(){
-						eventEmitter.emit("gxaHeatmapColumnHoverChange", "");
+                        // revert text color
+                        $('ul#expList li a,ul#expList li').removeClass("mahighlight");
+                        // revert tissue color
+                        anatomogramBuilder.render($.extend(anatomogramConfig, {highlightIDs: []}));
 					});
 
-					// anatomogram tissue talks to MA list
-					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
-						//console.log(e)
+                    //------------ end of anatomogram 201609 version ----------
 
-						var maIds = uberonEfo2MaIdMap[e];
-						var topLevelNames = [];
-						for( var i=0; i<maIds.length; i++) {
-							var tops = maId2topLevelNameMap[maIds[i]];
-							for (var j=0; j<tops.length; j++){
-								topLevelNames.push(tops[j]);
-							}
-						}
 
-						topLevelNames = $.fn.getUnique(topLevelNames);
-
-						$('ul#expList li a').each(function () {
-							if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
-								$(this).addClass("mahighlight");
-							}
-						});
-
-					});
-					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
-						$('ul#expList li a').removeClass("mahighlight");
-					});
-				} 
+                    //-------------------------------------------
+//					var anatomogramData = {
+//
+//						"maleAnatomogramFile": "mouse_male.svg",
+//						"toggleButtonMaleImageTemplate": "/resources/images/male",
+//						"femaleAnatomogramFile": "mouse_female.svg",
+//						"toggleButtonFemaleImageTemplate": "/resources/images/female",
+//						"brainAnatomogramFile": "mouse_brain.svg",
+//						"toggleButtonBrainImageTemplate": "/resources/images/brain",
+//
+//						// all tested tissues (expressed + tested but not expressed)
+//						"allSvgPathIds": expData.allPaths,
+//						// test only
+//						//"allSvgPathIds": [],
+//						//"allSvgPathIds": ["UBERON_0000029", "UBERON_0001736", "UBERON_0001831"], // lymph nodes
+//						//"allSvgPathIds": ["UBERON_0000947", "UBERON_0001981", "UBERON_0001348", "UBERON_0001347", "EFO_0000962"],
+//
+//						"contextRoot": "/gxa"
+//					};
+//
+//					// tissues having expressions
+//					var profileRows = [
+//						{
+//							"name": "tissues with expression",
+//							"expressions": expData.expression
+//						}
+//					];
+//
+//					//console.log(profileRows);
+//
+//					var eventEmitter = expressionAtlasAnatomogram.eventEmitter;
+//
+//					expressionAtlasAnatomogram.render(
+//							document.getElementById("anatomogramContainer"),
+//							anatomogramData,
+//							profileRows,
+//							"grey",
+//							"red"
+//							// "vader" is equivalent to <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/vader/jquery-ui.css">
+//					);
+//
+//					// top level MA term talks to anatomogram
+//					$("ul#expList li a").on("mouseover", function() {
+//						var topname = $(this).text().trim();
+//						var maIds = topLevelName2maIdMap[topname];
+//						//log(topname + " - " + maIds);
+//						var uberonIds = [];
+//						for( var a=0; a<maIds.length; a++){
+//							uberonIds = uberonIds.concat(maId2UberonEfoMap[maIds[a]]);
+//						}
+//						uberonIds = $.fn.getUnique(uberonIds);
+//
+//						//console.log(topname + " : " + uberonIds);
+//
+//						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
+//						//eventEmitter.emit("gxaHeatmapColumnHoverChange", "UBERON_0000955"); // test for brain
+//					}).on("mouseout", function(){
+//						eventEmitter.emit("gxaHeatmapColumnHoverChange", "");
+//					});
+//
+//					// anatomogram tissue talks to MA list
+//					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
+//						//console.log(e)
+//
+//						var maIds = uberonEfo2MaIdMap[e];
+//						var topLevelNames = [];
+//						for( var i=0; i<maIds.length; i++) {
+//							var tops = maId2topLevelNameMap[maIds[i]];
+//							for (var j=0; j<tops.length; j++){
+//								topLevelNames.push(tops[j]);
+//							}
+//						}
+//
+//						topLevelNames = $.fn.getUnique(topLevelNames);
+//
+//						$('ul#expList li a').each(function () {
+//							if ($.fn.inArray($(this).text().trim(), topLevelNames)) {
+//								$(this).addClass("mahighlight");
+//							}
+//						});
+//
+//					});
+//					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
+//						$('ul#expList li a').removeClass("mahighlight");
+//					});
+				}
 
 				$("img.ui-button").each(function () {
 					// hide brain toggle for now

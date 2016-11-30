@@ -31,6 +31,7 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
@@ -118,7 +119,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("preqcService")
     PreQcService preqcService;
 
-
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
 
@@ -153,6 +153,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     Map<Integer, String> lookupTableByNodeId = new HashMap<>(); // <nodeId, mpOntologyId>
 
     Map<String, Long> mpCalls = new HashMap<>();
+    Map<String, Integer> mpGeneVariantCount = new HashMap<>();
 
     private OntologyParser mpHpParser;
 
@@ -183,7 +184,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", null);
         	// maps MP to number of phenotyping calls
-        	populateMpCallMap();
+        	populateMpCallMaps();
 
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
@@ -196,10 +197,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String termId = rs.getString("term_id");
-
-//                if ( !termId.equals("MP:0005397")){
-//                    continue;
-//                }
 
                 MpDTO mp = new MpDTO();
                 mp.setDataType(rs.getString("dataType"));
@@ -256,20 +253,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
 
-                Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
-                mp.setGeneVariantCount(geneVariantCounts.get("sumCount"));
-                mp.setGeneVariantFemaleCount(geneVariantCounts.get("femaleCount"));
-                mp.setGeneVariantMaleCount(geneVariantCounts.get("maleCount"));
-
                 // Ontology browser stuff
-                TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId, mp.getGeneVariantCount());
+                TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId);
 
                 // for MP the root node id is 0 (MA is 1)
-                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, termId);
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, termId, mpGeneVariantCount);
                 mp.setSearchTermJson(searchTree.toString());
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
                 mp.setScrollNode(scrollNodeId);
-                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
+                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
                 mp.setChildrenJson(childrenTree.toString());
 
 
@@ -297,7 +289,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
             throws IOException, URISyntaxException, SolrServerException {
-
 
         PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
         PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
@@ -334,23 +325,27 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
 
+        int sumCount = 0;
         int maleCount = 0;
         int femaleCount = 0;
         for(DataTableRow r : uniqGenes){
-            for (String s : r.getSexes()){
-                if (s.equals("female")){
-                    femaleCount++;
-                }
-                else if (s.equals("male")){
-                    maleCount++;
-                }
-            }
+            // want all counts, even if sex field has no data
+            sumCount += r.getSexes().size();
+            // sex values: female, male, no data
+//            for (String s : r.getSexes()){
+//                if (s.equals("female")){
+//                    femaleCount++;
+//                }
+//                else if (s.equals("male")){
+//                    maleCount++;
+//                }
+//            }
         }
 
         Map<String, Integer> kv = new HashMap<>();
-        kv.put("sumCount", uniqGenes.size());
-        kv.put("femaleCount", femaleCount);
-        kv.put("maleCount", maleCount);
+        kv.put("sumCount", sumCount);
+//        kv.put("femaleCount", femaleCount);
+//        kv.put("maleCount", maleCount);
 
         return kv;
     }
@@ -434,7 +429,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    private void populateMpCallMap() throws IOException, SolrServerException {
+    private void populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException {
 
         List<SolrClient> ss = new ArrayList<>();
         ss.add(preqcCore);
@@ -456,8 +451,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 for (FacetField.Count facet: facetGroup.getValues()){
                     if (!mpCalls.containsKey(facet.getName())){
                         mpCalls.put(facet.getName(), new Long(0));
+
+                        Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName());
+                        int gvCount = geneVariantCount.get("sumCount");
+                        mpGeneVariantCount.put(facet.getName(), gvCount);
                     }
                     mpCalls.put(facet.getName(), facet.getCount() + mpCalls.get(facet.getName()));
+
                 }
             }
 

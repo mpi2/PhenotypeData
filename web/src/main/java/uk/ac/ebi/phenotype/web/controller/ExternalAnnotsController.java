@@ -407,6 +407,16 @@ public class ExternalAnnotsController {
 		return "alleleref";
 	}
 
+	@RequestMapping(value = "/testbq", method = RequestMethod.GET)
+	public String testbq(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException  {
+		// model.addAttribute("q", q);
+
+		return "testbq";
+	}
+
 	@ExceptionHandler(Exception.class)
 	private ResponseEntity<String> getSolrErrorResponse(Exception e) {
 		e.printStackTrace();

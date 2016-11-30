@@ -158,6 +158,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     		MarkerBean gene = new MarkerBean();
     		gene.setAccessionId(call.getMarkerAccessionId());
     		gene.setSymbol(call.getMarkerSymbol());
+    		//System.out.println("call allename="+call.getAlleleName());
+    		//gene.setName(call.getAlleleName());
     		row.addGenes(gene);
     		res.put(call.getMpTermId(), row);
     		
@@ -804,7 +806,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     throws IOException, URISyntaxException, SolrServerException {
 
         String url = SolrUtils.getBaseURL(solr) + "/select/?";
-
         SolrQuery q = new SolrQuery();
         
         q.setQuery("*:*");
@@ -1031,10 +1032,16 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	            logger.warn(sum.getgId() + " has no phenotyping center");
             }
 	
-	        if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {            
+	        if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {
+	        	String alleleSymbol=phen.getString(GenotypePhenotypeDTO.ALLELE_SYMBOL);
 	        	MarkerBean allele = new MarkerBean();
-	            allele.setSymbol(phen.getString(GenotypePhenotypeDTO.ALLELE_SYMBOL));
+	            allele.setSymbol(alleleSymbol);
 	            allele.setAccessionId(phen.getString(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID));
+	            if(alleleSymbol.contains("<")){
+		            String superscript=alleleSymbol.substring(alleleSymbol.indexOf("<")+1, alleleSymbol.indexOf(">"));
+		            allele.setSuperScript(superscript);
+	            }
+	        
 	            sum.setAllele(allele);            
 	        }
 	        
@@ -1072,7 +1079,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	        sum.setSex(sexType);
 
 
-            if( ! preQc) {
+            if( ! preQc &&  phen.containsKey(GenotypePhenotypeDTO.LIFE_STAGE_NAME)) {
                 String lifeStageName = phen.getString(GenotypePhenotypeDTO.LIFE_STAGE_NAME);
                 sum.setLifeStageName(lifeStageName);
             }
