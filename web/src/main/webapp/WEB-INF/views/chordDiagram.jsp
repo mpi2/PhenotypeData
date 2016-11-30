@@ -147,8 +147,6 @@
                                 return d.angle > Math.PI ? "end" : null;
                             })
                             .text(function (d) {
-                                console.log(d.index);
-                                console.log(labels[d.index]);
                                 return labels[d.index].name.replace("phenotype", "");
                             });
 
