@@ -73,7 +73,7 @@
                     var svg     = d3.select("svg"),
                             width = +svg.attr("width"),
                             height = +svg.attr("height"),
-                            outerRadius = Math.min(width, height) * 0.5 - 80,
+                            outerRadius = Math.min(width, height) * 0.5 - 100,
                             innerRadius = outerRadius - 30;
 
                     var formatValue = d3.formatPrefix(",.0", 1e3);
@@ -108,7 +108,7 @@
                             .on("mouseover", fade(.02))
                             .on("mouseout", fade(.80))
                             .on("click", function(d){
-                                window.open(url + "&phenotype_name=" + labels[d.index] , "_self" );
+                                window.open(url + "&phenotype_name=" + labels[d.index].name , "_self" );
                             });
 
                     group.append("path")
@@ -147,7 +147,9 @@
                                 return d.angle > Math.PI ? "end" : null;
                             })
                             .text(function (d) {
-                                return labels[d.index].replace("phenotype", "");
+                                console.log(d.index);
+                                console.log(labels[d.index]);
+                                return labels[d.index].name.replace("phenotype", "");
                             });
 
                     g.append("g")
@@ -166,7 +168,7 @@
                                 return d3.rgb(color(d.target.index)).darker();
                             })
                             .append("title").text(function (d) {
-                        return d.source.value + " genes present both " + labels[d.source.index] + " phenotypes and " + labels[d.target.index] + " phenotypes.";
+                        return d.source.value + " genes present " + labels[d.source.index].name + " phenotype and " + labels[d.target.index].name + " phenotype, " + mpTopLevelTerms.join(", ");
                     });
 
                     // Returns an array of tick angles and values for a given group and step.

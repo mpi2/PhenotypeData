@@ -17,6 +17,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
@@ -135,12 +136,14 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms) throws IOException, SolrServerException {
 
         TreeMap<String, TreeMap<String, Integer>> matrix = new TreeMap<>();
+        TreeMap<String, Set<String>> genesByTopLevelMp = new TreeMap<>(); // <mp, <genes>>
         SolrQuery query = getPleiotropyQuery(topLevelMpTerms);
 
         try {
 
-            QueryResponse queryResponse = solr.query(query);
+            QueryResponse queryResponse = solr.query(query, SolrRequest.METHOD.POST);
             Set<String> facets = getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME).keySet();
+
             // Fill matrix with 0s
             for (String facet : facets){
                 TreeMap<String, Integer> row = new TreeMap<>();
@@ -148,21 +151,25 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
                     row.put(f, 0);
                 }
                 matrix.put(facet, row);
+                genesByTopLevelMp.put(facet, new HashSet<>());
             }
 
             Map<String, List<String>> facetPivotResults = getFacetPivotResults(queryResponse, query.get("facet.pivot"));
-            for (String gene: facetPivotResults.keySet()){
+            for (String gene : facetPivotResults.keySet()) {
                 List<String> mpTerms = facetPivotResults.get(gene);
-                if (mpTerms.size() > 1) { // other phenotypes too
-                    for (String mpA : mpTerms) {
-                        for (String mpB : mpTerms){
-                            if (!mpA.equalsIgnoreCase(mpB)){
+
+                for (String mpA : mpTerms) {
+                    Set<String> temp = genesByTopLevelMp.containsKey(mpA) ? genesByTopLevelMp.get(mpA) : new HashSet<>();
+                    temp.add(gene);
+                    genesByTopLevelMp.put(mpA, temp);
+
+                    if (mpTerms.size() > 1) { // other phenotypes too
+                        for (String mpB : mpTerms) {
+                            if (!mpA.equalsIgnoreCase(mpB)) {
                                 matrix = add(mpA, mpB, 1, matrix);
                             }
                         }
-                    }
-                } else { // only one top level mp for this gene. count as self
-                    for (String mpA : mpTerms) {
+                    } else { // only one top level mp for this gene. count as self
                         matrix = add(mpA, mpA, 1, matrix);
                     }
                 }
@@ -172,7 +179,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
             e.printStackTrace();
         }
 
-        List<String> labelList = matrix.keySet().stream().collect(Collectors.toList());
+        List<JSONObject> labelList = genesByTopLevelMp.entrySet().stream().map(entry -> new JSONObject().put("name", entry.getKey()).put("geneCount", entry.getValue().size())).collect(Collectors.toList());
 
         JSONArray jsonMatrix = new JSONArray();
         for (String keyA : matrix.keySet()){
@@ -185,9 +192,10 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
         JSONObject result = new JSONObject();
         result.put("matrix", jsonMatrix);
-        result.put("labels", new JSONArray(labelList));
+        result.put("labels", labelList);
 
-        System.out.println(result);
+        System.out.println("-=-=-=- " + matrix);
+        System.out.println(labelList);
         return result;
 
     }
@@ -227,7 +235,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
                     .setQuery("*:*")
                     .addFilterQuery(topLevelMpTerms.stream().collect(Collectors.joining("\" OR \"", GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"", "\")")));
             interimQuery.add("facet.pivot", interimPivot);
-            System.out.println("HEREEE " + SolrUtils.getBaseURL(solr) + "/select?" + interimQuery);
+
             Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(solr.query(interimQuery), interimPivot).entrySet().stream()
                     .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
                     .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
@@ -245,6 +253,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
         return query;
     }
+
 
 
     TreeMap<String, TreeMap<String, Integer>> add(String s1, String s2, Integer value,  TreeMap<String, TreeMap<String, Integer>> map){
