@@ -159,6 +159,8 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         long startStep = new Date().getTime();
 
+        logger.info("Loading dcc samples from {}", dccSqlUtils.getDbName());
+
         List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
         Map<String, Integer>   counts;
 

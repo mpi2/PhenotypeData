@@ -53,11 +53,13 @@
                                
                                <td style="text-align: center;">Vector</td>
                                <td>
+                               		<c:if test="${not empty row.vectorMapLink}">
                                			<a class="fancybox" target="_blank" style="text-align:right" href="${row.vectorMapLink}" fullRes="${row.vectorMapLink}" original="${row.vectorMapLink}">
 	                                   
 	                                   		<i class="fa fa-th-list fa-lg" title="Image"></i>
 	                                   
 	                                   </a>
+	                                 </c:if>
 	                            </td>
 	                            <td >
 	                                <c:if test="${not empty row.vectorGenbankLink}">
