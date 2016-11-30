@@ -220,7 +220,7 @@ public class ScatterChartAndTableProvider {
 		return scatterChartAndData;
 	}
 
-	public static String getChatterChart(String divId, JSONArray data, String title, String subtitle, String yTitle, String xtitle){
+	public static String getScatterChart(String divId, JSONArray data, String title, String subtitle, String yTitle, String xTitle, String xTooltipPrefix, String yTooltipPrefix){
 
 
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque) + ", " +
@@ -228,14 +228,13 @@ public class ScatterChartAndTableProvider {
 		" title: { text: '" + title + "'}, " +
 		" subtitle: {	text: '" + subtitle + "'	}," +
 		" credits: { enabled: false }," +
-		" xAxis: { title: { enabled: true,	text: '" + xtitle + "' } }," +
+		" xAxis: { title: { enabled: true,	text: '" + xTitle + "' } }," +
 		" yAxis: { title: {	text: '" + yTitle + "'		}	}, " +
 		" plotOptions: { " +
 				"series:{ turboThreshold:5000}, " +
 				"scatter: {	point: { events: { click: function(point) { var url=\"/data/genes/\" + this.markerAcc" + ";  window.open(url); } } }, " +
-				"marker: {radius: 5,	states: { hover: {	enabled: true}}}, " +
-				"states: {hover: {marker: {	enabled: false	}}}, " +
-				"tooltip: {   formatter: function() { return '<b>{point.markerAcc}</b>:<br> Math.round({point.x}),  Math.round({point.y})'}; } '<b>{point.markerAcc}</b><br>{point.x}, {point.y}'} }	}," +
+				"marker: {radius: 5}, " +
+				"tooltip: {headerFormat: '', pointFormat: '<b>{point.markerSymbol}</b><br>" + xTooltipPrefix +" {point.x:,.0f}<br/>" + yTooltipPrefix + "{point.y:,.0f}', hideDelay:5} }	}," +
 		" series: [{	data: "+ data + "}]});";
 
 		return chartString;

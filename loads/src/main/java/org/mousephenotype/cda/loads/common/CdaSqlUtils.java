@@ -27,6 +27,7 @@ import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -1189,6 +1190,36 @@ public class CdaSqlUtils {
         return observationType;
     }
 
+    public String[] computeParameterUnits(String parameterId) {
+
+        Parameter parameter = getParameterByStableId(parameterId);
+        String[] units = null;
+
+        if (parameter.isIncrementFlag()) {
+            units = new String[2];
+            Iterator i$ = parameter.getIncrement().iterator();
+
+            label22: {
+                ParameterIncrement increment;
+                do {
+                    if( ! i$.hasNext()) {
+                        break label22;
+                    }
+
+                    increment = (ParameterIncrement)i$.next();
+                } while(increment.getValue().length() <= 0 && parameter.getIncrement().size() != 1);
+
+                units[0] = increment.getUnit();
+            }
+
+            units[1] = parameter.getUnit();
+        } else {
+            units = new String[] { parameter.getUnit() };
+        }
+
+        return units;
+    }
+
     private Map<String, Parameter> parametersByStableIdMap;
     public Parameter getParameterByStableId(String stableId) {
 
@@ -1513,10 +1544,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return projects;
     }
 
-    // Returns the newly-inserted primary key if successful; 0 otherwise.
+    // SimpleParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
     public int insertObservation(
             int dbId,
-            Integer biologicalSampleId,
+            Integer biologicalSamplePk,
             String parameterStableId,
             int parameterId,
             String sequenceId,
@@ -1525,14 +1556,16 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             int missing,
             String parameterStatus,
             String parameterStatusMessage,
-            String rawValue
+            SimpleParameter simpleParameter
     ) throws DataLoadException {
 
+        String detailInsert = null;
+        String rawValue = simpleParameter.getValue();
         int observationPk = 0;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("dbId", dbId);
-        parameterMap.put("biologicalSampleId", biologicalSampleId);
+        parameterMap.put("biologicalSampleId", biologicalSamplePk);
         parameterMap.put("observationType", observationType.name());
         parameterMap.put("parameterId", parameterId);
         parameterMap.put("parameterStableId", parameterStableId);
@@ -1542,6 +1575,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         parameterMap.put("parameterStatus", parameterStatus);
         parameterMap.put("parameterStatusMessage", parameterStatusMessage);
 
+        // Do observationType validation and build the observation detail parameter map.
+        Map<String, Object> detailParameterMap = new HashMap<>();
         switch (observationType) {
             case metadata:
                 // Do not load metadata parameters like this
@@ -1549,28 +1584,499 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 break;
 
             case datetime:
-                observationPk = insertDatetimeObservation(parameterMap, rawValue);
+                // Validate the date. If it is missing or it fails validation, mark the observation as missing.
+                try {
+                    if (rawValue == null) {
+                        missing = 1;
+                    }
+
+                    Date date = javax.xml.bind.DatatypeConverter.parseDateTime(rawValue).getTime();
+                    detailParameterMap.put("date", date);
+
+                } catch (Exception e) {
+                    missing = 1;
+                }
+
+                detailInsert = "INSERT INTO datetime_observation (id, datetime_point) VALUES (:observationPk, :date)";
                 break;
 
             case text:
-                observationPk = insertTextObservation(parameterMap, rawValue);
+                // Validate the text. If it is missing, mark the observation as missing.
+                if (rawValue == null) {
+                    missing = 1;
+                }
+
+                detailParameterMap.put("text", rawValue);
+
+                detailInsert = "INSERT INTO text_observation (id, text) VALUES (:observationPk, :text)";
                 break;
 
             case categorical:
-                observationPk = insertCategoricalObservation(parameterMap, rawValue);
+                // Validate the category. If it is missing, mark the observation as missing.
+                try {
+                    if (rawValue == null) {
+                        missing = 1;
+                    }
+
+                    detailParameterMap.put("category", rawValue);
+
+                } catch (Exception e) {
+                    missing = 1;
+                }
+
+                detailInsert = "INSERT INTO categorical_observation (id, category) VALUES (:observationPk, :category)";
                 break;
 
             case unidimensional:
-                observationPk = insertUnidimensionalObservation(parameterMap, rawValue);
+                // Validate the data point. If it is missing or it fails validation, mark the observation as missing.
+                try {
+                    if (rawValue == null) {
+                        missing = 1;
+                    }
+
+                    Float dataPoint = Float.parseFloat(rawValue);
+                    detailParameterMap.put("dataPoint", dataPoint);
+
+                } catch (Exception e) {
+                    missing = 1;
+                }
+
+                detailInsert = "INSERT INTO unidimensional_observation (id, data_point) VALUES (:observationPk, :dataPoint)";
                 break;
 
             default:
                 throw new DataLoadException("Unknown observationType '" + observationType.toString() + "'");
         }
 
+        parameterMap.put("missing", missing);
+
+        KeyHolder          keyholder       = new GeneratedKeyHolder();
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+            detailParameterMap.put("observationPk", observationPk);
+        } else {
+            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        if ((missing == 0) && (detailInsert != null)) {
+            count = jdbcCda.update(detailInsert, detailParameterMap);
+            if (count == 0) {
+                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        }
+
         return observationPk;
     }
 
+
+    // MediaSampleParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
+    public int insertObservation(
+            int dbId,
+            Integer biologicalSamplePk,
+            String parameterStableId,
+            int parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int missing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            MediaSampleParameter mediaSampleParameter,
+            MediaFile mediaFile,
+            DccExperimentDTO dccExperimentDTO,
+            int samplePk,
+            int organisationPk,
+            int experimentPk,
+            List<SimpleParameter> simpleParameterList,
+            List<OntologyParameter> ontologyParameterList
+    ) throws DataLoadException {
+
+        String URI = mediaFile.getURI();
+        KeyHolder keyholder     = new GeneratedKeyHolder();
+        int       observationPk;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dbId", dbId);
+        parameterMap.put("biologicalSampleId", biologicalSamplePk);
+        parameterMap.put("observationType", observationType.name());
+        parameterMap.put("parameterId", parameterPk);
+        parameterMap.put("parameterStableId", parameterStableId);
+        parameterMap.put("sequenceId", sequenceId);
+        parameterMap.put("populationId", populationId);
+        parameterMap.put("missing", missing);
+        parameterMap.put("parameterStatus", parameterStatus);
+        parameterMap.put("parameterStatusMessage", parameterStatusMessage);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert MediaSampleParameter to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        final String insert =
+                "INSERT INTO image_record_observation (" +
+                        "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
+                        "" +
+                ") VALUES (" +
+                        ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
+                        ")";
+
+        if (missing == 0) {
+            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
+            String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, URI);
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("samplePk", samplePk);
+            parameterMap.put("downloadFilePath", URI.toLowerCase());
+            parameterMap.put("imageLink", mediaFile.getLink());
+            parameterMap.put("incrementValue", null);
+            parameterMap.put("fileType", mediaFile.getFileType());
+            parameterMap.put("mediaSampleLocalId", null);
+            parameterMap.put("mediaSectionId", null);
+            parameterMap.put("organisationPk", organisationPk);
+            parameterMap.put("fullResolutionPath", fullResolutionFilePath);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            } else {
+                // Save any parameter associations.
+                for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
+                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+
+                    // Save any Dimensions.
+                    for (Dimension dimension : parameterAssociation.getDim()) {
+                        insertDimension(parameterAssociationPk, dimension);
+                    }
+                }
+
+                // Save any procedure metadata.
+                for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
+                    insertProcedureMetadata(mediaFile.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
+                                            experimentPk, observationPk);
+                }
+            }
+        } else {
+            logger.debug("Image record not loaded: " + URI);
+        }
+
+        return observationPk;
+    }
+
+
+    // MediaParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
+    public int insertObservation(
+            int dbId,
+            Integer biologicalSamplePk,
+            String parameterStableId,
+            int parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int missing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            MediaParameter mediaParameter,
+            DccExperimentDTO dccExperimentDTO,
+            int samplePk,
+            int organisationPk
+    ) throws DataLoadException {
+
+        KeyHolder keyholder     = new GeneratedKeyHolder();
+        int       observationPk;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dbId", dbId);
+        parameterMap.put("biologicalSampleId", biologicalSamplePk);
+        parameterMap.put("observationType", observationType.name());
+        parameterMap.put("parameterId", parameterPk);
+        parameterMap.put("parameterStableId", parameterStableId);
+        parameterMap.put("sequenceId", sequenceId);
+        parameterMap.put("populationId", populationId);
+        parameterMap.put("missing", missing);
+        parameterMap.put("parameterStatus", parameterStatus);
+        parameterMap.put("parameterStatusMessage", parameterStatusMessage);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert MediaParameter to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        final String insert =
+                "INSERT INTO image_record_observation (" +
+                        "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
+                        "" +
+                ") VALUES (" +
+                        ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
+                        ")";
+
+        if (missing == 0) {
+            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
+            String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, mediaParameter.getURI());
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("samplePk", samplePk);
+            parameterMap.put("downloadFilePath", mediaParameter.getURI().toLowerCase());
+            parameterMap.put("imageLink", mediaParameter.getLink());
+            parameterMap.put("incrementValue", null);
+            parameterMap.put("fileType", mediaParameter.getFileType());
+            parameterMap.put("mediaSampleLocalId", null);
+            parameterMap.put("mediaSectionId", null);
+            parameterMap.put("organisationPk", organisationPk);
+            parameterMap.put("fullResolutionPath", fullResolutionFilePath);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        } else {
+            logger.debug("Image record not loaded: " + mediaParameter.getURI());
+        }
+
+        return observationPk;
+    }
+
+
+    // OntologyParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
+    public int insertObservation(
+            int dbId,
+            Integer biologicalSamplePk,
+            String parameterStableId,
+            int parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int missing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            OntologyParameter ontologyParameter
+    ) throws DataLoadException {
+
+        KeyHolder keyholder     = new GeneratedKeyHolder();
+        int       observationPk;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dbId", dbId);
+        parameterMap.put("biologicalSampleId", biologicalSamplePk);
+        parameterMap.put("observationType", observationType.name());
+        parameterMap.put("parameterId", parameterPk);
+        parameterMap.put("parameterStableId", parameterStableId);
+        parameterMap.put("sequenceId", sequenceId);
+        parameterMap.put("populationId", populationId);
+        parameterMap.put("missing", missing);
+        parameterMap.put("parameterStatus", parameterStatus);
+        parameterMap.put("parameterStatusMessage", parameterStatusMessage);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert OntologyParameter to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        final String insert =
+                "INSERT INTO ontology_observation (id, parameter_id, sequence_id)" +
+                  " VALUES (:observationPk, :parameterId, :sequenceId)";
+
+        if (missing == 0) {
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("parameterId", ontologyParameter.getParameterID());
+            parameterMap.put("sequenceId", ontologyParameter.getSequenceID());
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert OntologyParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        }
+
+        return observationPk;
+    }
+
+
+    // SeriesMediaParameterValue version. Returns the newly-inserted primary key if successful; 0 otherwise.
+    public int insertObservation(
+            int dbId,
+            Integer biologicalSamplePk,
+            String parameterStableId,
+            int parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int missing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            SeriesMediaParameterValue seriesMediaParameterValue,
+            DccExperimentDTO dccExperimentDTO,
+            int samplePk,
+            int organisationPk,
+            int experimentPk,
+            List<SimpleParameter> simpleParameterList,
+            List<OntologyParameter> ontologyParameterList
+    ) throws DataLoadException {
+
+        KeyHolder keyholder     = new GeneratedKeyHolder();
+        int       observationPk;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dbId", dbId);
+        parameterMap.put("biologicalSampleId", biologicalSamplePk);
+        parameterMap.put("observationType", observationType.name());
+        parameterMap.put("parameterId", parameterPk);
+        parameterMap.put("parameterStableId", parameterStableId);
+        parameterMap.put("sequenceId", sequenceId);
+        parameterMap.put("populationId", populationId);
+        parameterMap.put("missing", missing);
+        parameterMap.put("parameterStatus", parameterStatus);
+        parameterMap.put("parameterStatusMessage", parameterStatusMessage);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert SeriesMediaParameter to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        final String insert =
+                "INSERT INTO image_record_observation (" +
+                        "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
+                        "" +
+                ") VALUES (" +
+                        ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
+                        ")";
+
+        if (missing == 0) {
+            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
+            String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, seriesMediaParameterValue.getURI());
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("samplePk", samplePk);
+            parameterMap.put("downloadFilePath", seriesMediaParameterValue.getURI().toLowerCase());
+            parameterMap.put("imageLink", seriesMediaParameterValue.getLink());
+            parameterMap.put("incrementValue", null);
+            parameterMap.put("fileType", seriesMediaParameterValue.getFileType());
+            parameterMap.put("mediaSampleLocalId", null);
+            parameterMap.put("mediaSectionId", null);
+            parameterMap.put("organisationPk", organisationPk);
+            parameterMap.put("fullResolutionPath", fullResolutionFilePath);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            } else {
+                // Save any parameter associations.
+                for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+
+                    // Save any Dimensions.
+                    for (Dimension dimension : parameterAssociation.getDim()) {
+                        insertDimension(parameterAssociationPk, dimension);
+                    }
+                }
+
+                // Save any procedure metadata.
+                for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
+                    insertProcedureMetadata(seriesMediaParameterValue.getProcedureMetadata(), dccExperimentDTO.getProcedureId(),
+                                            experimentPk, observationPk);
+                }
+            }
+        } else {
+            logger.debug("Image record not loaded: " + seriesMediaParameterValue.getURI());
+        }
+
+        return observationPk;
+    }
+
+
+    // SeriesParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
+    public int insertObservation(
+            int dbId,
+            Integer biologicalSamplePk,
+            String parameterStableId,
+            int parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int missing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            SeriesParameter seriesParameter,
+            Float dataPoint,
+            Date timePoint,
+            Float discretePoint
+    ) throws DataLoadException {
+
+        KeyHolder keyholder     = new GeneratedKeyHolder();
+        int       observationPk;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dbId", dbId);
+        parameterMap.put("biologicalSampleId", biologicalSamplePk);
+        parameterMap.put("observationType", observationType.name());
+        parameterMap.put("parameterId", parameterPk);
+        parameterMap.put("parameterStableId", parameterStableId);
+        parameterMap.put("sequenceId", sequenceId);
+        parameterMap.put("populationId", populationId);
+        parameterMap.put("missing", missing);
+        parameterMap.put("parameterStatus", parameterStatus);
+        parameterMap.put("parameterStatusMessage", parameterStatusMessage);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert SeriesParameter to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        final String insert = "INSERT INTO time_series_observation (id, data_point, time_point, discrete_point)" +
+                              "VALUES (:observationPk, :dataPoint, :timePoint, :discretePoint)";
+
+        if (missing == 0) {
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("dataPoint", dataPoint);
+            parameterMap.put("timePoint", timePoint);
+            parameterMap.put("discretePoint", discretePoint);
+
+            count = jdbcCda.update(insert, parameterMap);
+            if (count == 0) {
+                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        }
+
+        return observationPk;
+    }
 
 
     /**
@@ -1679,6 +2185,64 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
 
+    // Returns the parameter association primary key.
+    public int insertParameterAssociation(int observationPk, ParameterAssociation parameterAssociation,
+                                           List<SimpleParameter> simpleParameterList,
+                                           List<OntologyParameter> ontologyParameterList)
+    {
+        int pk = 0;
+        String insert = "INSERT INTO parameter_association (observation_id,  parameter_id, sequence_id, parameter_association_value)" +
+                "VALUES (:observationPk, :parameterId, :sequenceId, :parameterAssociationValue)";
+
+        KeyHolder           keyholder       = new GeneratedKeyHolder();
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("observationPk", observationPk);
+        parameterMap.put("parameterId", parameterAssociation.getParameterID());
+        parameterMap.put("sequenceId", parameterAssociation.getSequenceID());
+
+        // set the parameter association value here. It is always a
+        // seriesParameter or Ontology so not multiple values are allowed.
+        // Loop through simple parameters (but not ontology parameters as they
+        // don't have values) to get the value for this parameterAssociation and get
+        // the value for it.
+        String value = null;
+        for (SimpleParameter sp : simpleParameterList) {
+            String paramStableId = sp.getParameterID();                             // parameter stable id
+            if (paramStableId.equals(parameterAssociation.getParameterID())) {
+                value = sp.getValue();
+            }
+        }
+        for (OntologyParameter sp : ontologyParameterList) {
+            String paramStableId = sp.getParameterID();                             // parameter stable id
+            if (paramStableId.equals(parameterAssociation.getParameterID())) {
+                for (String term : sp.getTerm()) {
+                    System.err.println("ontology parameter in parameterAssociation not storing these yet but if they are here we should! term has values in them term=" + term);
+                }
+                value = org.apache.commons.lang.StringUtils.join(sp.getTerm(), ",");
+            }
+        }
+
+        if (value != null) {
+            if (value.length() > 45) {
+                String trimmedValue = StringUtils.left(value, 44);
+                logger.info("Trimming parameterAssociationValue '{}' to 44 characters ('{}')", value, trimmedValue);
+                value = trimmedValue;
+            }
+        }
+
+        parameterMap.put("parameterAssociationValue", value);
+        SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(insert, parameterMap);
+        if (count > 0) {
+            pk = keyholder.getKey().intValue();
+        }
+
+        return pk;
+    }
+
+
 
     /**
      * Try to insert the phenotyped colony. Return the count of inserted phenotype colonies.
@@ -1741,7 +2305,39 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         return count;
     }
 
+    public int insertProcedureMetadata(List<ProcedureMetadata> metadataList, String procedureId, int experimentPk, int observationPk) {
+        int pk = 0;
+        final String insert = "INSERT INTO procedure_meta_data (procedure_id, experiment_id, parameter_id, sequence_id, parameter_status, value, observation_id)" +
+                             " VALUES (:procedureId, :experimentPk, :parameterId, :sequenceId, :parameterStatus, :value, :observationPk)";
 
+        KeyHolder           keyholder       = new GeneratedKeyHolder();
+        Map<String, Object> parameterMap    = new HashMap<>();
+
+        for (ProcedureMetadata metadata : metadataList) {
+
+            String metadataValue = metadata.getValue();
+            if (metadataValue != null) {
+                metadataValue = metadataValue.trim().replace("\n", "");         // remove terminating newlines from europhenome ICS data.
+            }
+
+            parameterMap.put("procedureId", procedureId);
+            parameterMap.put("experimentPk", experimentPk);
+            parameterMap.put("parameterId", metadata.getParameterID());
+            parameterMap.put("sequenceId", metadata.getSequenceID());
+            parameterMap.put("parameterStatus", metadata.getParameterStatus());
+            parameterMap.put("value", metadataValue);
+            parameterMap.put("observationPk", observationPk);
+            SqlParameterSource  parameterSource = new MapSqlParameterSource(parameterMap);
+
+            int count = jdbcCda.update(insert, parameterSource, keyholder);
+
+            if (count > 0) {
+                pk = keyholder.getKey().intValue();
+            }
+        }
+
+        return pk;
+    }
 
     /**
      * Return the {@code SequenceRegion} mapped by {@b id}, if found; null otherwise
@@ -1987,203 +2583,19 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         jdbcCda.update(update, parameterMap);
     }
 
-    /**
-     *
-     * @param parameterMap
-     * @param category
-     * @return observation primary key
-     */
-    public int insertCategoricalObservation(Map<String, Object> parameterMap, String category) {
+    public void insertDimension(int parameterAssociationPk, Dimension dimension) {
+        final String insert = "INSERT INTO dimension (parameter_association_id, id,  origin, unit, value)" +
+                                            " VALUES (:parameterAssociationPk, :id, :origin, :unit, :value)";
 
-        KeyHolder          keyholder       = new GeneratedKeyHolder();
-        int                missing         = Integer.valueOf(parameterMap.get("missing").toString());
-        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-        int                observationPk   = 0;
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("parameterAssociationPk", parameterAssociationPk);
+        parameterMap.put("id", dimension.getId());
+        parameterMap.put("origin", dimension.getOrigin());
+        parameterMap.put("unit", dimension.getUnit());
+        parameterMap.put("value", dimension.getValue());
 
-        // Validate the category. If it is missing, mark the observation as missing.
-        if (category == null) {
-            missing = 1;
-        }
-
-        parameterMap.put("missing", missing);
-
-        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
-        if (count > 0) {
-            observationPk = keyholder.getKey().intValue();
-        } else {
-            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
-            return 0;
-        }
-
-        if (missing == 0) {
-            final String insert = "INSERT INTO categorical_observation (id, category) VALUES (:observationPk, :category)";
-
-            parameterMap.clear();
-            parameterMap.put("observationPk", observationPk);
-            parameterMap.put("category", category);
-
-            count = jdbcCda.update(insert, parameterMap);
-            if (count == 0) {
-                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
-                updateObservationMissingFlag(observationPk, true);
-            }
-        }
-
-        return observationPk;
+        jdbcCda.update(insert, parameterMap);
     }
-
-    /**
-     *
-     * @param parameterMap
-     * @param sDate String representation of the (unvalidated) date.
-     * @return observation primary key
-     */
-    public int insertDatetimeObservation(Map<String, Object> parameterMap, String sDate) {
-
-        Date               date            = null;
-        KeyHolder          keyholder       = new GeneratedKeyHolder();
-        int                missing         = Integer.valueOf(parameterMap.get("missing").toString());
-        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-        int                observationPk   = 0;
-
-        // Validate the date. If it is missing or it fails validation, mark the observation as missing.
-        try {
-            if (sDate == null) {
-                missing = 1;
-            }
-
-            date = javax.xml.bind.DatatypeConverter.parseDateTime(sDate).getTime();
-
-        } catch (Exception e) {
-            missing = 1;
-        }
-
-        parameterMap.put("missing", missing);
-
-        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
-        if (count > 0) {
-            observationPk = keyholder.getKey().intValue();
-        } else {
-            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
-            return 0;
-        }
-
-        if (missing == 0) {
-            final String insert = "INSERT INTO datetime_observation (id, datetime_point) VALUES (:observationPk, :date)";
-
-            parameterMap.clear();
-            parameterMap.put("observationPk", observationPk);
-            parameterMap.put("date", date);
-
-            count = jdbcCda.update(insert, parameterMap);
-            if (count == 0) {
-                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
-                updateObservationMissingFlag(observationPk, true);
-            }
-        }
-
-        return observationPk;
-    }
-
-    /**
-     *
-     * @param parameterMap
-     * @param text The text to be inserted
-     * @return observation primary key
-     */
-    public int insertTextObservation(Map<String, Object> parameterMap, String text) {
-
-        KeyHolder          keyholder       = new GeneratedKeyHolder();
-        int                missing         = Integer.valueOf(parameterMap.get("missing").toString());
-        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-        int                observationPk   = 0;
-
-        // Validate the category. If it is missing, mark the observation as missing.
-        if (text == null) {
-            missing = 1;
-        }
-
-        parameterMap.put("missing", missing);
-
-        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
-        if (count > 0) {
-            observationPk = keyholder.getKey().intValue();
-        } else {
-            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
-            return 0;
-        }
-
-        final String insert = "INSERT INTO text_observation (id, text) VALUES (:observationPk, :text)";
-
-        if (missing == 0) {
-            parameterMap.clear();
-            parameterMap.put("observationPk", observationPk);
-            parameterMap.put("text", text);
-
-            count = jdbcCda.update(insert, parameterMap);
-            if (count == 0) {
-                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
-                updateObservationMissingFlag(observationPk, true);
-            }
-        }
-
-        return observationPk;
-    }
-
-    /**
-     *
-     * @param parameterMap
-     * @param sDataPoint String representation of the (unvalidated) Float data point.
-     * @return observation primary key
-     */
-    public int insertUnidimensionalObservation(Map<String, Object> parameterMap, String sDataPoint) {
-
-        Float              dataPoint       = null;
-        KeyHolder          keyholder       = new GeneratedKeyHolder();
-        int                missing         = Integer.valueOf(parameterMap.get("missing").toString());
-        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-        int                observationPk;
-
-        // Validate the data point. If it is missing or it fails validation, mark the observation as missing.
-        try {
-            if (sDataPoint == null) {
-                missing = 1;
-            }
-
-            dataPoint = Float.parseFloat(sDataPoint);
-
-        } catch (Exception e) {
-            missing = 1;
-        }
-
-        parameterMap.put("missing", missing);
-
-        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
-        if (count > 0) {
-            observationPk = keyholder.getKey().intValue();
-        } else {
-            logger.warn("Insert to observation table failed for parameterSource {}", parameterSource);
-            return 0;
-        }
-
-        if (missing == 0) {
-            final String insert = "INSERT INTO unidimensional_observation (id, data_point) VALUES (:observationPk, :dataPoint)";
-
-            parameterMap.clear();
-            parameterMap.put("observationPk", observationPk);
-            parameterMap.put("dataPoint", dataPoint);
-
-            count = jdbcCda.update(insert, parameterMap);
-            if (count == 0) {
-                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
-                updateObservationMissingFlag(observationPk, true);
-            }
-        }
-
-        return observationPk;
-    }
-
-
 
     /**
      * Return the matching synonym if found; null otherwise
@@ -2426,6 +2838,20 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             return alternateId;
         }
+    }
+
+    /**
+     *
+     * @return A set of required parameters
+     */
+    public HashSet<String> getRequiredImpressParameters() {
+        HashSet<String> set;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        String query = "SELECT stable_id FROM phenotype_parameter WHERE metadata = 1 AND data_analysis = 1";
+        List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
+        return new HashSet<>(results);
     }
 
     public class ConsiderIdRowMapper implements RowMapper<ConsiderId> {
@@ -3006,4 +3432,25 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             return xref;
         }
     }
+
+    // PRIVATE METHODS
+
+
+    private String createNfsPathWithoutName(DccExperimentDTO dccExperimentDTO, String parameterStableId) {
+        return dccExperimentDTO.getPhenotypingCenter() + "/" + dccExperimentDTO.getPipeline() + "/" + dccExperimentDTO.getProcedureId() + "/" + parameterStableId;
+    }
+
+
+    private String getFullResolutionFilePath(String filePathWithoutName, String uri) {
+
+   		String fullResolutionFilePath = null;
+   		//dont do this if it's not a mousephenotype.org URL. ie. it's not been provided by the phenoDCC
+   		if (uri.contains("www.mousephenotype.org")) {
+   			fullResolutionFilePath = filePathWithoutName + "/" + uri.substring(uri.lastIndexOf("/") + 1, uri.length());
+   		}
+
+   		logger.debug("fullresfilepath = " + fullResolutionFilePath);
+
+   		return fullResolutionFilePath;
+   	}
 }

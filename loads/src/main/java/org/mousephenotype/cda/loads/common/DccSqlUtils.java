@@ -24,7 +24,6 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -484,7 +483,18 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("procedure_pk", procedure_pk);
 
-        List<MediaParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(MediaParameter.class));
+        List<MediaParameter> list = npJdbcTemplate.query(query, parameterMap, new MediaParameterRowMapper());
+
+        return list;
+    }
+
+    public List<MediaSampleParameter> getMediaSampleParameters(long procedure_pk) {
+        final String query = "SELECT * FROM mediaSampleParameter WHERE procedure_pk = :procedure_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedure_pk", procedure_pk);
+
+        List<MediaSampleParameter> list = npJdbcTemplate.query(query, parameterMap, new MediaSampleParameterRowMapper());
 
         return list;
     }
@@ -495,7 +505,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("procedure_pk", procedure_pk);
 
-        List<OntologyParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(OntologyParameter.class));
+        List<OntologyParameter> list = npJdbcTemplate.query(query, parameterMap, new OntologyParameterRowMapper());
 
         return list;
     }
@@ -506,7 +516,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("procedure_pk", procedure_pk);
 
-        List<SeriesMediaParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(SeriesMediaParameter.class));
+        List<SeriesMediaParameter> list = npJdbcTemplate.query(query, parameterMap, new SeriesMediaParameterRowMapper());
 
         return list;
     }
@@ -517,7 +527,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("procedure_pk", procedure_pk);
 
-        List<SeriesParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(SeriesParameter.class));
+        List<SeriesParameter> list = npJdbcTemplate.query(query, parameterMap, new SeriesParameterRowMapper());
 
         return list;
     }
@@ -528,7 +538,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("procedure_pk", procedure_pk);
 
-        List<SimpleParameter> list = npJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper(SimpleParameter.class));
+        List<SimpleParameter> list = npJdbcTemplate.query(query, parameterMap, new SimpleParameterRowMapper());
 
         return list;
     }
@@ -570,6 +580,39 @@ public class DccSqlUtils {
         }
 
         return procedureMetadata;
+    }
+
+    public Map<String, Procedure> getProcedures() {
+        Map<String, Procedure> results = new HashMap<>();
+        final String query = "SELECT * FROM procedure";
+
+        List<Procedure> list = npJdbcTemplate.query(query, new HashMap<>(), new ProcedureRowMapper());
+        for (Procedure procedure: list) {
+            results.put(procedure.getProcedureID(), procedure);
+        }
+
+        return results;
+    }
+
+    /**
+     *
+     * @param procedurePk the dcc procedure primary key for the desired metadata
+     * @return a list of this procedure's metadata
+     */
+    public List<ProcedureMetadata> getProcedureMetadata(long procedurePk) {
+        final String query =
+                "SELECT\n" +
+                "  pm.*\n" +
+                "FROM procedureMetadata pm\n" +
+                "JOIN procedure_procedureMetadata ppm ON ppm.procedureMetadata_pk = pm.pk\n" +
+                "where ppm.procedure_pk = :procedurePk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedurePk", procedurePk);
+
+        List<ProcedureMetadata> list = npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+
+        return list;
     }
 
     /**
@@ -1801,7 +1844,8 @@ public class DccSqlUtils {
                         "  e.experimentId,\n" +
                         "  e.sequenceId,\n" +
                         "  e.dateOfExperiment,\n" +
-                        "  c.centerId,\n" +
+                        "  c.centerId   AS phenotypingCenter,\n" +
+                        "  s.productionCenter,\n" +
                         "  c.pipeline,\n" +
                         "  c.project,\n" +
                         "  p.procedureId,\n" +
@@ -1825,7 +1869,8 @@ public class DccSqlUtils {
                         "  CONCAT(p.procedureId, '-', l.colonyId) AS experimentId,\n" +
                         "  null,\n" +
                         "  null,\n" +
-                        "  c.centerId,\n" +
+                        "  c.centerId AS phenotypingCenter,\n" +
+                        "  NULL       AS productionCenter,\n" +
                         "  c.pipeline,\n" +
                         "  c.project,\n" +
                         "  p.procedureId,\n" +

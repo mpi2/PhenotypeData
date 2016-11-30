@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 
 import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.indexers.MPIndexer;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
@@ -17,10 +18,13 @@ import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-
+@EnableAutoConfiguration
 public class OntologyBrowserGetter {
 
+	@Autowired
+	@Qualifier("ontodbDataSource")
 	DataSource ontodbDataSource;
 
     @Autowired
@@ -31,12 +35,13 @@ public class OntologyBrowserGetter {
     @Qualifier("preqcService")
     PreQcService preqcService;
 
+
 	public OntologyBrowserGetter(DataSource ontodbDataSource){
 		this.ontodbDataSource = ontodbDataSource;
 	}
 
 
-	public List<JSONObject> createTreeJson(TreeHelper helper, String rootNodeId, String childNodeId, String termId)
+	public List<JSONObject> createTreeJson(TreeHelper helper, String rootNodeId, String childNodeId, String termId, Map<String, Integer> mpGeneVariantCount)
 			throws SQLException {
 
 		List<JSONObject> tn = new ArrayList<>();
@@ -70,11 +75,11 @@ public class OntologyBrowserGetter {
 						ResultSet resultSet2 = p2.executeQuery();
 						while (resultSet2.next()) {
 
-							JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
+							JSONObject thisNode = fetchNodeInfo(helper, resultSet2, mpGeneVariantCount);
 							//System.out.println(nodeId + " -- THIS NODE: "+ thisNode.toString());
 							if ( thisNode != null ) {
 								if (thisNode.getBoolean("children")) {
-									thisNode = fetchChildNodes(helper, thisNode, termId);
+									thisNode = fetchChildNodes(helper, thisNode, termId, mpGeneVariantCount);
 									//System.out.println("CHILD TERM ID: "+thisNode.getString("term_id"));
 
 									if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
@@ -107,7 +112,7 @@ public class OntologyBrowserGetter {
 				}
 				else {
 					// just fetch the term of this node
-					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
+					JSONObject thisNode = fetchNodeInfo(helper, resultSet, mpGeneVariantCount);
 					if ( thisNode != null ) {
 						tn.add(thisNode);
 					}
@@ -130,7 +135,7 @@ public class OntologyBrowserGetter {
 		return "";
 	}
 
-	private JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj, String termId)
+	private JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj, String termId, Map<String, Integer> mpGeneVariantCount)
             throws SQLException, SolrServerException, IOException, URISyntaxException {
 
 		String parentNodeId = nodeObj.getString("id");
@@ -145,11 +150,11 @@ public class OntologyBrowserGetter {
 			while (resultSet.next()) {
 
 				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
-					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
+					JSONObject thisNode = fetchNodeInfo(helper, resultSet, mpGeneVariantCount);
 
 					if (thisNode != null ) {
 						if (thisNode.getBoolean("children")) {
-							thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
+							thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId, mpGeneVariantCount);
 							if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
 								thisNode.accumulate("state", getState(false));
 							} else {
@@ -173,7 +178,7 @@ public class OntologyBrowserGetter {
 
 	}
 
-	private JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj, Connection conn, String termId)
+	private JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj, Connection conn, String termId, Map<String, Integer> mpGeneVariantCount)
 			throws SQLException {
 
 		String parentNodeId = nodeObj.getString("id");
@@ -190,11 +195,11 @@ public class OntologyBrowserGetter {
 
 				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
 
-					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
+					JSONObject thisNode = fetchNodeInfo(helper, resultSet, mpGeneVariantCount);
 
 					if ( thisNode != null ) {
 						if (thisNode.getBoolean("children")) {
-							thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
+							thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId, mpGeneVariantCount);
 							if (thisNode.getString("term_id").equalsIgnoreCase(termId)) {
 								thisNode.accumulate("state", getState(false));
 							} else {
@@ -250,7 +255,7 @@ public class OntologyBrowserGetter {
 		return sql;
 	}
 
-	public TreeHelper getTreeHelper( String ontologyName, String termId, Integer geneVariantCount)
+	public TreeHelper getTreeHelper( String ontologyName, String termId)
 			throws SQLException {
 
 		String query = "SELECT CONCAT (fullpath , ' ' , node_id) AS path " + "FROM " + ontologyName
@@ -339,7 +344,6 @@ public class OntologyBrowserGetter {
 		th.setPreOpenNodes(preOpenNodes);
 		th.setPageBaseUrl(pageBaseUrl);
 		th.setOntologyName(ontologyName);
-		th.setGeneVariantCount(geneVariantCount);
 		//System.out.println(th.toString());
 		return th;
 
@@ -367,103 +371,38 @@ public class OntologyBrowserGetter {
 		return excludedNodeIds;
 	}
 
-	private JSONObject fetchNodeInfo(TreeHelper helper, ResultSet resultSet) throws SQLException, SolrServerException, IOException, URISyntaxException {
+	private JSONObject fetchNodeInfo(TreeHelper helper, ResultSet resultSet, Map<String, Integer> mpGeneVariantCount) throws SQLException, SolrServerException, IOException, URISyntaxException {
 
 		JSONObject node = new JSONObject();
 
 		String nodeId = Integer.toString(resultSet.getInt("node_id"));
 
-		// for MP, helper.getExcludedNodeIds() will be null
-		//if ( helper.getExcludedNodeIds() == null || !helper.getExcludedNodeIds().contains(nodeId) ) {
+		String termId = resultSet.getString("term_id");
+		String name = resultSet.getString("name");
+		String termDisplayText = null;
 
-			String termId = resultSet.getString("term_id");
-			String name = resultSet.getString("name");
-			String termDisplayText = null;
+		if (helper.getExpandNodeIds().contains(nodeId)) {
+			termDisplayText = "<span class='qryTerm'>" + name + "</span>";
+		} else {
+			termDisplayText = name;
+		}
 
-            //Map<String, Integer> geneVariantCounts = getPhenotypeGeneVariantCounts(termId);
-            int gvCount = 0;//geneVariantCounts.get("sumCount");
+		String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText + "</a>";
 
+		if ( termId.startsWith("MP:")) {
+			int gvCount = mpGeneVariantCount.containsKey(termId) ? mpGeneVariantCount.get(termId) : 0;
+			//System.out.println(termId + " -- " +gvCount);
+			url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText + " (<span class='gpAssoc'>" + gvCount + "</span>)"	+ "</a>";
+		}
+		node.put("text", url);
+		node.put("id", Integer.toString(resultSet.getInt("node_id")));
+		node.put("term_id", resultSet.getString("term_id"));
+		node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
+		node.put("href", helper.getPageBaseUrl() + "/" + termId);
+		node.put("hrefTarget", "_blank");
 
-			if (helper.getExpandNodeIds().contains(nodeId)) {
-				termDisplayText = "<span class='qryTerm'>" + name + "</span>";
-			} else {
-				termDisplayText = name;
-			}
-
-			String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText + " (<span class='gpAssoc'>" + gvCount + "</span>)"
-					+ "</a>";
-			node.put("text", url);
-			node.put("id", Integer.toString(resultSet.getInt("node_id")));
-			node.put("term_id", resultSet.getString("term_id"));
-			node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
-			node.put("href", helper.getPageBaseUrl() + "/" + termId);
-			node.put("hrefTarget", "_blank");
-//		}
-//		else {
-//			return null;
-//		}
 		return node;
 	}
-
-    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
-            throws IOException, URISyntaxException, SolrServerException {
-
-
-        PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
-        PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
-
-        List<PhenotypeCallSummaryDTO> phenotypeList;
-        phenotypeList = phenoResult.getPhenotypeCallSummaries();
-        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-
-        // This is a map because we need to support lookups
-        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
-
-        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            DataTableRow pr = new PhenotypePageTableRow(pcs, "", null, false);
-
-            // Collapse rows on sex
-            if (phenotypes.containsKey(pr.hashCode())) {
-
-                pr = phenotypes.get(pr.hashCode());
-                // Use a tree set to maintain an alphabetical order (Female, Male)
-                TreeSet<String> sexes = new TreeSet<String>();
-                for (String s : pr.getSexes()) {
-                    sexes.add(s);
-                }
-                sexes.add(pcs.getSex().toString());
-
-                pr.setSexes(new ArrayList<String>(sexes));
-            }
-
-            if (pr.getParameter() != null && pr.getProcedure() != null) {
-                phenotypes.put(pr.hashCode(), pr);
-            }
-        }
-
-        List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
-
-        int maleCount = 0;
-        int femaleCount = 0;
-        for(DataTableRow r : uniqGenes){
-            for (String s : r.getSexes()){
-                if (s.equals("female")){
-                    femaleCount++;
-                }
-                else if (s.equals("male")){
-                    maleCount++;
-                }
-            }
-        }
-
-        Map<String, Integer> kv = new HashMap<>();
-        kv.put("sumCount", uniqGenes.size());
-        kv.put("femaleCount", femaleCount);
-        kv.put("maleCount", maleCount);
-
-        return kv;
-    }
 
 	public class TreeHelper {
 
@@ -473,7 +412,6 @@ public class OntologyBrowserGetter {
 		String pageBaseUrl;
 		String ontologyName;
 		List<String> excludedNodeIds;
-		Integer geneVariantCount;
 
 		public Set<String> getPathNodes() {
 			return pathNodes;
@@ -523,13 +461,6 @@ public class OntologyBrowserGetter {
 			this.excludedNodeIds = excludedNodeIds;
 		}
 
-		public Integer getGeneVariantCount() {
-			return geneVariantCount;
-		}
-
-		public void setGeneVariantCount(Integer geneVariantCount) {
-			this.geneVariantCount = geneVariantCount;
-		}
 
 		@Override
 		public String toString() {
@@ -540,7 +471,6 @@ public class OntologyBrowserGetter {
 					", pageBaseUrl='" + pageBaseUrl + '\'' +
 					", ontologyName='" + ontologyName + '\'' +
 					", excludedNodeIds=" + excludedNodeIds +
-					", geneVariantCount=" + geneVariantCount +
 					'}';
 		}
 	}

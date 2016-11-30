@@ -198,16 +198,16 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 //System.out.println("MA ID: " + ma.getMaId() + " --- MA node id: " + ma.getMaNodeId() + " --- " + ma.getMaTerm());
                 // OntologyBrowser stuff
-                TreeHelper helper = ontologyBrowser.getTreeHelper("ma", anatomyTerm.getAnatomyId(), 0);
+                TreeHelper helper = ontologyBrowser.getTreeHelper("ma", anatomyTerm.getAnatomyId());
                 //helper.setExcludedNodeIds(excludedNodeIds);
 
                 // for  the root node id is 1 (MP is 0)
-                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "1", null, anatomyTerm.getAnatomyId());
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "1", null, anatomyTerm.getAnatomyId(), null);
                 anatomyTerm.setSearchTermJson(searchTree.toString());
 
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
                 anatomyTerm.setScrollNode(scrollNodeId);
-                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(anatomyTerm.getAnatomyId()).get(0), null, anatomyTerm.getAnatomyId());
+                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(anatomyTerm.getAnatomyId()).get(0), null, anatomyTerm.getAnatomyId(), null);
                 anatomyTerm.setChildrenJson(childrenTree.toString());
 
                 // also index all UBERON/EFO ids for intermediate MA ids
@@ -340,17 +340,17 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 //System.out.println("EMAPA ID: " + emapa.getAnatomyId() + " --- EMAPA node id: " + emapa.getAnatomyNodeId() + " --- " + emapa.getAnatomyTerm());
                 // OntologyBrowser stuff
-                TreeHelper helper2 = ontologyBrowser.getTreeHelper("emapa", emapaId, 0);
+                TreeHelper helper2 = ontologyBrowser.getTreeHelper("emapa", emapaId);
                 //helper.setExcludedNodeIds(excludedNodeIds);
 
                 // for MA the root node id is 1 (MP is 0)
-                List<JSONObject> searchTree2 = ontologyBrowser.createTreeJson(helper2, "1", null, emapa.getAnatomyId());
+                List<JSONObject> searchTree2 = ontologyBrowser.createTreeJson(helper2, "1", null, emapa.getAnatomyId(), null);
                 emapa.setSearchTermJson(searchTree2.toString());
                 //System.out.println("JSON: "+ emapa.getSearchTermJson());
                 String scrollNodeId2 = ontologyBrowser.getScrollTo(searchTree2);
                 emapa.setScrollNode(scrollNodeId2);
 
-                List<JSONObject> childrenTree2 = ontologyBrowser.createTreeJson(helper2, "" + emapa.getAnatomyNodeId().get(0), null, emapa.getAnatomyId());
+                List<JSONObject> childrenTree2 = ontologyBrowser.createTreeJson(helper2, "" + emapa.getAnatomyNodeId().get(0), null, emapa.getAnatomyId(), null);
                 emapa.setChildrenJson(childrenTree2.toString());
 
                 count++;

@@ -16,15 +16,17 @@
 
 package org.mousephenotype.cda.loads.common;
 
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.SeriesParameter;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
  * Created by mrelac on 10/11/2016.
  */
-public class DccExperimentRowMapper implements RowMapper<DccExperimentDTO> {
+public class SeriesParameterRowMapper implements RowMapper<SeriesParameter> {
 
         /**
          * Implementations must implement this method to map each row of data
@@ -38,26 +40,15 @@ public class DccExperimentRowMapper implements RowMapper<DccExperimentDTO> {
          *                      column values (that is, there's no need to catch SQLException)
          */
         @Override
-        public DccExperimentDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-            DccExperimentDTO experiment = new DccExperimentDTO();
+        public SeriesParameter mapRow(ResultSet rs, int rowNum) throws SQLException {
+            SeriesParameter row = new SeriesParameter();
 
-            experiment.setDatasourceShortName(rs.getString("datasourceShortName"));
-            experiment.setExperimentId(rs.getString("experimentId"));
-            experiment.setSequenceId(rs.getString("sequenceId"));
-            experiment.setDateOfExperiment(rs.getDate("dateOfExperiment"));
-            experiment.setPhenotypingCenter(rs.getString("phenotypingCenter"));
-            experiment.setPipeline(rs.getString("pipeline"));
-            experiment.setProductionCenter(rs.getString("productionCenter"));
-            experiment.setProject(rs.getString("project"));
-            experiment.setProcedureId(rs.getString("procedureId"));
-            experiment.setDcc_procedure_pk(rs.getLong("dcc_procedure_pk"));
-            experiment.setColonyId(rs.getString("colonyId"));
-            experiment.setSpecimenId(rs.getString("specimenId"));
-            experiment.setSex(rs.getString("gender"));
-            experiment.setRawProcedureStatus(rs.getString("rawProcedureStatus"));
+            row.setHjid(rs.getLong("pk"));
+            row.setParameterID(rs.getString("parameterId"));
+            row.setParameterStatus(rs.getString("parameterStatus"));
+            BigDecimal bd = rs.getBigDecimal("sequenceId");
+            row.setSequenceID(bd == null ? null : bd.toBigInteger());
 
-            experiment.setLineLevel(rs.getInt("isLineLevel") == 1 ? true : false);
-
-            return experiment;
+            return row;
         }
     }

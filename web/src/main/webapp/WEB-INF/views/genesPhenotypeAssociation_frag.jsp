@@ -56,35 +56,9 @@
         <c:if test="${hasVignette}">
             <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a>
         </c:if>
-        <c:if test="${phenotypeStarted}">
-            <a id="heatmap_link" class="btn">Heatmap / Table</a>
-        </c:if>
-        
-        
-        
-        <!-- phenotype heatmap -->
-							<c:if test="${phenotypeStarted}">
+       
 
-								<div id="heatmap_toggle_div" class="section hidden">
-									<h2 class="title" id="heatmap">Phenotype Heatmap of Preliminary Data<span
-											class="documentation"><a href='' id='heatmapSection'
-																	 class="fa fa-question-circle pull-right"></a></span>
-									</h2>
-
-									<!-- <div class="inner">
-										<div class="alert alert-info">
-
-											<p>These are the results of a preliminary statistical analysis. Data are still
-												in the process of being quality controlled and results may change.</p>
-										</div>
-									</div> -->
-									<div class="dcc-heatmap-root">
-										<div class="phenodcc-heatmap"
-											 id="phenodcc-heatmap"></div>
-									</div>
-								</div>
-								<!-- end of Pre-QC phenotype heatmap -->
-							</c:if>
+        <jsp:include page="heatmapFrag.jsp"/>
 							
 				
        
@@ -106,9 +80,9 @@
     
 	    <c:choose>
 	    	<c:when test="${ attemptRegistered && phenotypeStarted }">
-	    	<h5>Phenotyping has started and has preliminary data</h5>
+	    	No results meet the p-value threshold
 	
-	          <p>Preliminary Data Available Need heatmap button here factor out heatmap into frag.jsp</p>
+	         <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
 	    	</c:when>
 	    	<c:when  test="${attemptRegistered}">
 		        <div class="alert alert-info">
