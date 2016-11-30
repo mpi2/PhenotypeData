@@ -387,7 +387,7 @@ private HashSet<String> missingColonyIds = new HashSet<>();
 //                            dccExperimentDTO.getSpecimenId(), dccExperimentDTO.getExperimentId());
 if ( ! missingColonyIds.contains(dccExperimentDTO.getColonyId())) {
     missingColonyIds.add(dccExperimentDTO.getColonyId());
-    logger.warn("Missing sample external_id for colonyId{}", dccExperimentDTO.getColonyId());
+    logger.warn("Missing sample(s) for colonyId {}", dccExperimentDTO.getColonyId());
 }
                 return;
             }
