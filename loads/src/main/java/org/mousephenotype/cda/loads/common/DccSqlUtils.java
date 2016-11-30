@@ -296,6 +296,14 @@ public class DccSqlUtils {
         return centerIds;
     }
 
+    public String getDbName() {
+        String query = "SELECT DATABASE()";
+
+        String dbname = npJdbcTemplate.queryForObject(query, new HashMap<>(), String.class);
+
+        return dbname;
+    }
+
     /**
      * Returns a {@link List} of {@link Dimension} instances associated with parameter association primary key. If
      * there are no associations, an empty list is returned.
