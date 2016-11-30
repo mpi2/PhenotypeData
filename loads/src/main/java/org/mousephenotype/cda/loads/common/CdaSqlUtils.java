@@ -463,6 +463,14 @@ public class CdaSqlUtils {
         return (considerIds == null ? new HashSet<>() : considerIds);
     }
 
+    public String getDbName() {
+        String query = "SELECT DATABASE()";
+
+        String dbname = jdbcCda.queryForObject(query, new HashMap<>(), String.class);
+
+        return dbname;
+    }
+
     /**
      *
      * @param externalDbShortName a name matching the external_db.short_name field
