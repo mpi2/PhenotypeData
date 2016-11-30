@@ -13,6 +13,8 @@
 
     <jsp:attribute name="title">Chord diagram</jsp:attribute>
 
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search">search</a> &raquo; Chord diagram </jsp:attribute>
+
     <jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
 	</jsp:attribute>
