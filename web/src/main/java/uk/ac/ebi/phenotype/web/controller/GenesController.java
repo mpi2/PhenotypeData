@@ -220,7 +220,9 @@ public class GenesController {
 
 	private void processGeneRequest(String acc, Model model, HttpServletRequest request)
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
-
+		boolean postQcTopLevelMPTermsAvailable=false;
+		List<Map<String, String>> dataMapList=new ArrayList<>();
+		int numberOfTopLevelMpTermsWithStatisticalResult = 0;
 		GeneDTO gene = geneService.getGeneById(acc);
 
 		if (gene == null) {
@@ -280,13 +282,15 @@ public class GenesController {
 			System.out.println("NOT SIGNIFICANT " + mpGroupsNotSignificant);
 			
 			// add number of top level terms
-			int total = 0;
+			
 			for (ZygosityType zyg : phenotypeSummaryObjects.keySet()) {
-				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
+				numberOfTopLevelMpTermsWithStatisticalResult += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
-			model.addAttribute("summaryNumber", total);
+			model.addAttribute("summaryNumber", numberOfTopLevelMpTermsWithStatisticalResult);
+			
 
-			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
+			dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
+			
 			model.addAttribute("dataMapList", dataMapList);
 
 			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);//problem is this is only true when we have pvalue significant phenotype data
@@ -349,7 +353,7 @@ public class GenesController {
 			e.printStackTrace();
 		}
 
-		processPhenotypes(acc, model, null, null, request);
+		ArrayList<GenePageTableRow> rowsForPhenotypeTable = processPhenotypes(acc, model, null, null, request);
 
 		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
@@ -358,7 +362,8 @@ public class GenesController {
 		model.addAttribute("request", request);
 		model.addAttribute("acc", acc);
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
+		boolean phenotypeStarted=geneService.checkPhenotypeStarted(acc);
+		model.addAttribute("phenotypeStarted", phenotypeStarted);
 		model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
@@ -383,6 +388,82 @@ public class GenesController {
 		//model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
 		model.addAttribute("creLineAvailable", orderService.crelineAvailable(acc));
 		
+		PhenotypeDisplayStatus phenotypeDisplayStatus=getPhenotypeDisplayStatus(phenotypeStarted, numberOfTopLevelMpTermsWithStatisticalResult, dataMapList , rowsForPhenotypeTable);
+		model.addAttribute("phenotypeDisplayStatus", phenotypeDisplayStatus);
+	}
+	
+	/**
+	 * Encapsulate logic for how we are displaying phenotype information in the gene page here so easy to read through and error check
+	 * @param postQcDataAvailable 
+	 * @param eitherPostQcOrPreQcDataIsAvailable 
+	 * @return
+	 */
+	private PhenotypeDisplayStatus getPhenotypeDisplayStatus(boolean phenotypeStarted, int numberOfTopLevelMpTermsWithStatisticalResult, List<Map<String, String>> dataMapList, ArrayList<GenePageTableRow> rowsForPhenotypeTable){
+		PhenotypeDisplayStatus displayStatus=new PhenotypeDisplayStatus();
+		if(phenotypeStarted){
+			displayStatus.setDisplayHeatmap(true);
+		}
+		
+		if(numberOfTopLevelMpTermsWithStatisticalResult>0){
+			displayStatus.setPostQcTopLevelMPTermsAvailable(true);
+		}
+		
+		
+		
+
+		//dataMap is not empty
+		if(!dataMapList.isEmpty()){
+			displayStatus.setPostQcDataAvailable(true);
+		}
+		if(rowsForPhenotypeTable.size()>0){
+			displayStatus.setEitherPostQcOrPreQcDataIsAvailable(true);
+		}
+		//example of gene with preQc but not postQc Iqgap2
+		//example of gene with preQc but not significant  Stox2, Mast3
+		
+		//System.out.println("phenotypeStarted="+phenotypeStarted+ "  postQcTopLevelMpTermsAvailable="+postQcTopLevelMPTermsAvailable);
+		
+		//if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
+		 //<c:when test="${summaryNumber > 0}">	 show the all data button, embryo button, vignettes and heatmap  -- calling this postQcTopLevelMPTermsAvailable
+//		int total = 0;
+		// add number of top level MP terms
+//		for (ZygosityType zyg : phenotypeSummaryObjects.keySet()) {
+//			total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
+//		}
+		
+		
+//		<c:if test="${empty dataMapList && empty phenotypes}"><!-- no postQC data -->
+//	    
+//	    <c:choose>
+//	    	<c:when test="${ attemptRegistered && phenotypeStarted }">
+//	    	No results meet the p-value threshold
+//	
+//	         <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
+//	    	</c:when>
+//	    	<c:when  test="${attemptRegistered}">
+//		        <div class="alert alert-info">
+//		          <h5>Registered for phenotyping</h5>
+//		
+//		          <p>Phenotyping is planned for a knockout strain of this gene but
+//		            data is not currently available.</p>
+//		        </div>
+//	    
+//	    	</c:when>
+//	    	<c:when test="${!attemptRegistered}">
+//		        <div class="alert alert-info">
+//		          <h5>Not currently registered for phenotyping</h5>
+//		
+//		          <p>Phenotyping is currently not planned for a knockout strain of this gene.
+//		          </p>
+//		        </div>
+//		      
+//		      	<br/>
+//	    	</c:when>
+//	    </c:choose>
+//    </c:if>
+		
+		System.out.println(displayStatus);	
+		return displayStatus;
 	}
 
 	/**
@@ -543,7 +624,7 @@ public class GenesController {
 	}
 
 
-	private void processPhenotypes(String acc, Model model, List<String> topLevelMpTermName, List<String> resourceFullname, HttpServletRequest request)
+	private ArrayList<GenePageTableRow> processPhenotypes(String acc, Model model, List<String> topLevelMpTermName, List<String> resourceFullname, HttpServletRequest request)
 	throws IOException, URISyntaxException, SolrServerException {
 
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
@@ -681,7 +762,7 @@ public class GenesController {
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
-
+		return l;
 	}
 
 
