@@ -371,42 +371,42 @@ public class DccSqlUtils {
     public Map<String, GeneAndAllele> getEurophenomeColonyGeneAlleleMap() {
         Map<String, GeneAndAllele> europhenomeColonyGeneAlleleMap = new HashMap<>();
 
-        BufferedReader br       = null;
-        StringBuilder  sb       = new StringBuilder();
-
-        try {
-            Resource    resource = new ClassPathResource("EurophenomeColonyGeneAlleleMap.tsv");
-            InputStream is       = resource.getInputStream();
-            String      line;
-
-            br = new BufferedReader(new InputStreamReader(is));
-            int lineNumber = 0;
-
-            while ((line = br.readLine()) != null) {
-                if (lineNumber++ == 0)
-                    continue;               // Skip heading.
-
-                String[] cells = line.split("\t");
-                if (cells.length != 3) {
-                    logger.error("EurophenomeColonyGeneAlleleMap.tsv, row {}: Expected 3 cells, found {}. Invalid data: '{}'", lineNumber, cells.length, line);
-                    continue;
-                }
-                GeneAndAllele geneAndAllele = new GeneAndAllele(cells[0], cells[1], cells[2]);
-                europhenomeColonyGeneAlleleMap.put(cells[0], geneAndAllele);
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+//        BufferedReader br       = null;
+//        StringBuilder  sb       = new StringBuilder();
+//
+//        try {
+//            Resource    resource = new ClassPathResource("EurophenomeColonyGeneAlleleMap.tsv");
+//            InputStream is       = resource.getInputStream();
+//            String      line;
+//
+//            br = new BufferedReader(new InputStreamReader(is));
+//            int lineNumber = 0;
+//
+//            while ((line = br.readLine()) != null) {
+//                if (lineNumber++ == 0)
+//                    continue;               // Skip heading.
+//
+//                String[] cells = line.split("\t");
+//                if (cells.length != 3) {
+//                    logger.error("EurophenomeColonyGeneAlleleMap.tsv, row {}: Expected 3 cells, found {}. Invalid data: '{}'", lineNumber, cells.length, line);
+//                    continue;
+//                }
+//                GeneAndAllele geneAndAllele = new GeneAndAllele(cells[0], cells[1], cells[2]);
+//                europhenomeColonyGeneAlleleMap.put(cells[0], geneAndAllele);
+//            }
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (br != null) {
+//                try {
+//                    br.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
 
 //        FlatFileItemReader<GeneAndAllele> europhenomeReader = new FlatFileItemReader<>();

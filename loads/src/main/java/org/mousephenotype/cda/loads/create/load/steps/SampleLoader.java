@@ -234,7 +234,12 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             productionCenterId = colony.getProductionCentre().getId();
         } else {
             // If not found, query Hugh's EurophenomeColonyGeneAlleleMap.
-            Map<String, DccSqlUtils.GeneAndAllele> map = dccSqlUtils.getEurophenomeColonyGeneAlleleMap();
+
+
+            // fixme fixme fixme fixme fixme mrelac
+
+
+//            Map<String, DccSqlUtils.GeneAndAllele> map = dccSqlUtils.getEurophenomeColonyGeneAlleleMap();
 
 
 
