@@ -213,6 +213,16 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     }
 
 
+    /**
+     * The query differs depending on topLevelMpTerms. If at least one term is passed, we need to find out the list of
+     * genes that have the required phenotypes and use them in the query. We can't use the list of MP terms themselves
+     * as t will filter out the other phenotype associations for the genese we're interested in.
+     * @param topLevelMpTerms
+     * @author ilinca
+     * @return Solr query for g-p associations of genes that have all phenotypes passed in topLevelMpTerms.
+     * @throws IOException
+     * @throws SolrServerException
+     */
     private SolrQuery getPleiotropyQuery(List<String> topLevelMpTerms) throws IOException, SolrServerException {
 
         String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
@@ -234,11 +244,14 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
                     .addFilterQuery(topLevelMpTerms.stream().collect(Collectors.joining("\" OR \"", GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"", "\")")));
             interimQuery.add("facet.pivot", interimPivot);
 
+            // Filter out the pivot facets for un-wanted MP top level terms. We can get other top levels in the facets due to multiple parents.
             Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(solr.query(interimQuery), interimPivot).entrySet().stream()
                     .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
                     .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
 
+            // Instantiate commonGenes with itself as it will work as identity on first set intersection (intersection of same sets)
             Set<String> commonGenes = genesByMpTopLevel.values().iterator().next();
+            // Keep only genes that are present in all top level mp groups
             commonGenes = genesByMpTopLevel.values().stream()
                     .reduce(commonGenes, (a, b) -> {
                         a.retainAll(b);
