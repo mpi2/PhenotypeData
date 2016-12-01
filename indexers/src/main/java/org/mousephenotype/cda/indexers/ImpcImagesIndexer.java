@@ -18,7 +18,10 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.PhisService;
@@ -472,14 +475,33 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		return image;
 	}
 
-	private int getHighestObservationId() throws SolrServerException, IOException {
-		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&rows=1&sort=id%20desc&rows=1&fl=id
-		SolrQuery query = new SolrQuery().setQuery(ObservationDTO.OBSERVATION_TYPE + ":image_record")
-				.addFilterQuery(
-						"(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":"
-								+ "*mousephenotype.org*)");
-		int highestObsId= (int)experimentCore.query(query).getResults().get(0).get("id");
-		logger.info("highest observation_id="+highestObsId);
+	/**
+	 * get the largest document ID in the observation core
+	 *
+	 * @return an int representing the largest ID in the observation core, or 1000000000 if the lookup fails to produce a document
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	int getHighestObservationId() throws SolrServerException, IOException {
+
+		// Query should look like:
+		//   http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&rows=1&sort=id%20desc&rows=1&fl=id
+		SolrQuery query = new SolrQuery()
+				.setQuery("*:*")
+				.setFields("id")
+				.addSort("id", SolrQuery.ORDER.desc)
+				.setRows(1);
+
+		int highestObsId = 1000000000; // Default to One BILLION, in case the lookup fails
+
+		// Override with actual highest observation document ID
+		List<ObservationDTO> docs = experimentCore.query(query).getBeans(ObservationDTO.class);
+		if (docs.size() > 0) {
+			highestObsId = docs.get(0).getId();
+		}
+
+		logger.debug("largest observation id = "+highestObsId);
+
 		return highestObsId;
 	}
 

@@ -456,11 +456,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				// Developmental stage must be set after the colony ID, pipeline ID and procedure ID fields are set
 				//
 				BasicBean developmentalStage = getDevelopmentalStage(o.getPipelineStableId(), o.getProcedureStableId(), o.getColonyId());
-				o.setDevelopmentStageAcc(developmentalStage.getId());
-				o.setDevelopmentStageName(developmentalStage.getName());
-
-
-
+				if (developmentalStage != null) {
+					o.setDevelopmentStageAcc(developmentalStage.getId());
+					o.setDevelopmentStageName(developmentalStage.getName());
+				}
 
 				o.setObservationType(r.getString("observation_type"));
 
