@@ -15,17 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONArray;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.impress.Utilities;
@@ -40,16 +31,22 @@ import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -75,6 +72,54 @@ public class OverviewChartsController {
 
 	}
 
+
+	@RequestMapping(value="/chordDiagram", method=RequestMethod.GET)
+	public String getGraph(
+			@RequestParam(required = false, value = "phenotype_name") List<String> phenotypeName,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes){
+
+				model.addAttribute("phenotypeName", (phenotypeName != null) ? new JSONArray(phenotypeName.stream().distinct().collect(Collectors.toList())) : null);
+				return "chordDiagram";
+
+	}
+
+
+	@ResponseBody
+	@RequestMapping(value="/chordDiagram.json", method=RequestMethod.GET)
+	public String getMatrix(
+			@RequestParam(required = false, value = "phenotype_name") List<String> phenotypeName,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) {
+
+		try {
+			return gpService.getPleiotropyMatrix(phenotypeName).toString();
+		} catch (IOException | SolrServerException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+
+	@ResponseBody
+	@RequestMapping(value="/chordDiagram.csv", method=RequestMethod.GET)
+	public String getChordDiagramDownload(
+			@RequestParam(required = false, value = "phenotype_name") List<String> phenotypeName,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) {
+
+		try {
+			return gpService.getPleiotropyDownload(phenotypeName);
+		} catch (IOException | SolrServerException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+
 	@RequestMapping(value="/overviewCharts/{phenotype_id}", method=RequestMethod.GET)
 	public String getGraph(
 		@PathVariable String phenotype_id,
@@ -89,12 +134,14 @@ public class OverviewChartsController {
 			String[] centerArray = (center != null) ? center.split(",") : null;
 			String[] sexArray = (sex != null) ? sex.split(",") : null;
 			String[] allCentersArray = (allCenters != null) ? allCenters.split(",") : null;
-
 			String[] centers = (centerArray != null) ? centerArray : allCentersArray;
 
 			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centers, sexArray));
+
 			return "overviewChart";
+
 	}
+
 
 	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex)
 	throws SolrServerException, IOException , URISyntaxException, SQLException{
@@ -106,7 +153,6 @@ public class OverviewChartsController {
 		ChartData chartRes = null;
 		List<String> genes = null;
 		String[] centerToFilter = center;
-
 
 		// Assuming that different versions of a procedure will keep the same name.
 		String procedureName = p.getProcedures().iterator().next().getName();
@@ -124,10 +170,8 @@ public class OverviewChartsController {
 			if( impressUtilities.checkType(p).equals(ObservationType.categorical) ){
 				CategoricalSet controlSet = os.getCategories(p, null , "control", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
 				controlSet.setName("Control");
-				System.out.println("CONTROL SET " + controlSet);
 				CategoricalSet mutantSet = os.getCategories(p, null, "experimental", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
 				mutantSet.setName("Mutant");
-				System.out.println("MUTANT SET " + mutantSet);
 				List<ChartData> chart = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, procedureName);
 				if (chart.size() > 0){
 					chartRes = chart.get(0);

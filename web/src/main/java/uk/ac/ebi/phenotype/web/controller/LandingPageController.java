@@ -96,12 +96,12 @@ public class LandingPageController {
         resources.add("IMPC");
         List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
 
-        if (page.equalsIgnoreCase("deafness")) {
+        if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpId = "MP:0005377";
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
             model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
-            pageTitle = "Deafness";
+            pageTitle = "Hearing/Vestibular/Ear";
         } else if (page.equalsIgnoreCase("cardiovascular")){
             mpId = "MP:0005385";
             anatomyIds.add("MA:0000010");
