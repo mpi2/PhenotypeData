@@ -11,6 +11,9 @@
         
         <style type="text/css">
 
+			div.region-content {
+				margin-top: 53px;
+			}
             div#tableTool {
                 position: relative;
                 top: -70px;
@@ -282,7 +285,7 @@
        			        tip: {corner: 'center top'}
        			    },
        			    position: {my: 'left top',
-       			    		   adjust: {x: -500, y: 15}
+       			    		   adjust: {x: -500, y: -105}
        			    },
        			 	show: {
        					event: 'click' //override the default mouseover
@@ -714,14 +717,10 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">IMPC Dataset Batch Query</h1>
+						<h1 class="title" id="top">IMPC Dataset Batch Query<a id="bqdoc" class=""><i class="fa fa-question-circle pull-right"></i></a></h1>
 							 
-						<div class="textright">
-							
-							<a id="bqdoc" class=""><i class="fa fa-info-circle"></i></a>					
-						</div>	
-						
 						<div class="section">
+
 							<!--  <h2 id="section-gostats" class="title ">IMPC Dataset Batch Query</h2>-->
 							<div class='inner' id='srchBlock'>
 								
