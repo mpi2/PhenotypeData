@@ -222,9 +222,23 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         BiologicalModel biologicalModel;
         String message;
 
-        // Query iMits first for specimen information. iMits is more up-to-date than the dcc.
+
+        int phenotypingCenterId;
+        int productionCenterId;
+
+        // Query iMits first for specimen phenotyping and production center information. iMits is more up-to-date than the dcc.
+        // If it is missing from imits, query Hugh's EurophenomeColonyGeneAlleleMap.
         PhenotypedColony colony = cdaSqlUtils.getPhenotypedColony(specimen.getColonyID());
-        if (colony == null) {
+        if (colony != null) {
+            phenotypingCenterId = colony.getPhenotypingCentre().getId();
+            productionCenterId = colony.getProductionCentre().getId();
+        } else {
+            // If not found, query Hugh's EurophenomeColonyGeneAlleleMap.
+            Map<String, DccSqlUtils.GeneAndAllele> map = dccSqlUtils.getEurophenomeColonyGeneAlleleMap();
+
+
+
+
             missingColonyIds.add(specimen.getColonyID());
             return counts;
         }
@@ -285,10 +299,6 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             logger.error(message);
             throw new DataLoadException(message);
         }
-
-        int phenotypingCenterId = colony.getPhenotypingCentre().getId();
-
-        int productionCenterId = colony.getProductionCentre().getId();
 
         String sex = specimen.getGender().value();
         try {

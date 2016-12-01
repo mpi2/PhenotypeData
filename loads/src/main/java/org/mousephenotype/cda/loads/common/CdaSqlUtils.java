@@ -2986,7 +2986,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      * @return {@link BiologicalModel} matching the input parameters. Creates it if necessary.
      * @throws DataLoadException
      */
-    public BiologicalModel selectOrInsertBiologicalModel(
+    public BiologicalModel selectOrInsertBiologicalModel (
             String colonyId,
             EuroPhenomeStrainMapper strainMapper,
             String zygosity,
