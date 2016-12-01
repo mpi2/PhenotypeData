@@ -195,7 +195,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			for (Future<List<StatisticalResultDTO>> future : producers) {
 
 				try {
-					future.get();
+					count += future.get().size();
 				} catch (ExecutionException | InterruptedException e) {
 					e.printStackTrace();
 				}
