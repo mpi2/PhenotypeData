@@ -129,73 +129,73 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     }
 
     /**
-     * Used by
+     * Used by chord diagram
      * @param topLevelMpTerms the mp terms are used with AND. If not null returns data for genes that have ALL phenotypes in the passed list.
      * @return
      */
     public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms) throws IOException, SolrServerException {
 
-        TreeMap<String, TreeMap<String, Integer>> matrix = new TreeMap<>();
-        TreeMap<String, Set<String>> genesByTopLevelMp = new TreeMap<>(); // <mp, <genes>>
-        SolrQuery query = getPleiotropyQuery(topLevelMpTerms);
 
         try {
 
+            SolrQuery query = getPleiotropyQuery(topLevelMpTerms);
             QueryResponse queryResponse = solr.query(query, SolrRequest.METHOD.POST);
             Set<String> facets = getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME).keySet();
 
+            Map<String, Set<String>> genesByTopLevelMp = new HashMap<>(); // <mp, <genes>>
+            Integer[][] matrix = new Integer[facets.size()][facets.size()];
+            // initialize labels -> needed to keep track of order for the matrix cells
+            List<String>  matrixLabels = facets.stream().collect(Collectors.toList());
+
             // Fill matrix with 0s
-            for (String facet : facets){
-                TreeMap<String, Integer> row = new TreeMap<>();
-                for (String f : facets) {
-                    row.put(f, 0);
+            for (int i = 0; i < matrixLabels.size(); i++) {
+                for (int j = 0; j< matrixLabels.size(); j++) {
+                    matrix[i][j] = 0;
                 }
-                matrix.put(facet, row);
-                genesByTopLevelMp.put(facet, new HashSet<>());
+                genesByTopLevelMp.put(matrixLabels.get(i), new HashSet<>());
             }
 
-            Map<String, List<String>> facetPivotResults = getFacetPivotResults(queryResponse, query.get("facet.pivot"));
+
+            Map<String, List<String>> facetPivotResults = getFacetPivotResults(queryResponse, query.get("facet.pivot")); // <gene, <top_level_mps>>
+
+            // Count genes associated to each pair of top-level mps. Gene count not g-p doc count, nor allele.
             for (String gene : facetPivotResults.keySet()) {
                 List<String> mpTerms = facetPivotResults.get(gene);
-
-                for (String mpA : mpTerms) {
-                    Set<String> temp = genesByTopLevelMp.containsKey(mpA) ? genesByTopLevelMp.get(mpA) : new HashSet<>();
-                    temp.add(gene);
-                    genesByTopLevelMp.put(mpA, temp);
-
-                    if (mpTerms.size() > 1) { // other phenotypes too
-                        for (String mpB : mpTerms) {
-                            if (!mpA.equalsIgnoreCase(mpB)) {
-                                matrix = add(mpA, mpB, 1, matrix);
+                for (int i = 0; i < matrixLabels.size(); i++){
+                    String mpI = matrixLabels.get(i);
+                    if (mpTerms.contains(mpI)) {
+                        Set<String> temp = genesByTopLevelMp.get(mpI);
+                        temp.add(gene);
+                        genesByTopLevelMp.put(mpI, temp);
+                        if (mpTerms.size() > 1) { // Other phenotypes too
+                            for (int j = 0; j < matrixLabels.size(); j++) {
+                                String mpJ = matrixLabels.get(j);
+                                if (mpTerms.contains(mpJ)) {
+                                    if (!mpI.equalsIgnoreCase(mpJ)) {
+                                        matrix[i][j]++;
+                                    }
+                                }
                             }
+                        } else { // Only one top level mp for this gene; count as self, will display as arch to self
+                            matrix[i][i]++;
                         }
-                    } else { // only one top level mp for this gene. count as self
-                        matrix = add(mpA, mpA, 1, matrix);
                     }
                 }
             }
+
+            List<JSONObject> labelList = genesByTopLevelMp.entrySet().stream().map(entry -> new JSONObject().put("name", entry.getKey()).put("geneCount", entry.getValue().size())).collect(Collectors.toList());
+
+            JSONObject result = new JSONObject();
+            result.put("matrix", new JSONArray(matrix));
+            result.put("labels", labelList);
+
+            return result;
 
         } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
 
-        List<JSONObject> labelList = genesByTopLevelMp.entrySet().stream().map(entry -> new JSONObject().put("name", entry.getKey()).put("geneCount", entry.getValue().size())).collect(Collectors.toList());
-
-        JSONArray jsonMatrix = new JSONArray();
-        for (String keyA : matrix.keySet()){
-            JSONArray row = new JSONArray();
-            for (String keyB : matrix.keySet() ){
-                row.put(matrix.get(keyA).get(keyB));
-            }
-            jsonMatrix.put(row);
-        }
-
-        JSONObject result = new JSONObject();
-        result.put("matrix", jsonMatrix);
-        result.put("labels", labelList);
-
-        return result;
-
+        return new JSONObject();
     }
 
     public String getPleiotropyDownload(List<String> topLevelMpTerms) throws IOException, SolrServerException {
@@ -252,17 +252,6 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         return query;
     }
 
-
-
-    TreeMap<String, TreeMap<String, Integer>> add(String s1, String s2, Integer value,  TreeMap<String, TreeMap<String, Integer>> map){
-
-        Integer val =  map.get(s1).get(s2) + value;
-        TreeMap<String, Integer> row = map.get(s1);
-        row.put(s2,val);
-        map.put(s1, row);
-
-        return map;
-    }
 
     Map<String,Long> getDocumentCountByGene() {
 
