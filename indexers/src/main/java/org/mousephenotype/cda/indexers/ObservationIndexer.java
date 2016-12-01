@@ -32,6 +32,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -436,8 +437,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setGroup(b.sampleGroup);
 					o.setBiologicalSampleId(b.biologicalSampleId);
 					o.setExternalSampleId(b.externalSampleId);
-					o.setDevelopmentStageAcc(b.developmentalStageAcc);
-					o.setDevelopmentStageName(b.developmentalStageName);
 
 					if (b.productionCenterName != null) {
 						o.setProductionCenter(b.productionCenterName);
@@ -450,6 +449,18 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					}
 
 				}
+
+
+				//
+				// NOTE
+				// Developmental stage must be set after the colony ID, pipeline ID and procedure ID fields are set
+				//
+				BasicBean developmentalStage = getDevelopmentalStage(o.getPipelineStableId(), o.getProcedureStableId(), o.getColonyId());
+				o.setDevelopmentStageAcc(developmentalStage.getId());
+				o.setDevelopmentStageName(developmentalStage.getName());
+
+
+
 
 				o.setObservationType(r.getString("observation_type"));
 
@@ -678,8 +689,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.geneticBackground = resultSet.getString("genetic_background");
 				b.allelicComposition = resultSet.getString("allelic_composition");
 				b.zygosity = resultSet.getString("zygosity");
-				b.developmentalStageAcc = resultSet.getString("developmental_stage_acc");
-				b.developmentalStageName = resultSet.getString("developmental_stage_name");
 				b.productionCenterId = resultSet.getInt("production_center_id");
 				b.productionCenterName = resultSet.getString("production_center_name");
 				b.litterId = resultSet.getString("litter_id");
@@ -1194,8 +1203,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		public String geneticBackground;
 		public String allelicComposition;
 		public String zygosity;
-		public String developmentalStageAcc;
-		public String developmentalStageName;
 		public String productionCenterName;
 		public Integer productionCenterId;
 		public String litterId;
