@@ -23,7 +23,7 @@
 
     <jsp:attribute name="header">
 
-    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="//d3js.org/d3.v4.min.js"></script>
     <script type="text/javascript" src="d3/d3.layout.js"></script>
     <script src="//d3js.org/queue.v1.min.js"></script>
 
