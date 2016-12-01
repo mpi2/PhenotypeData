@@ -85,7 +85,9 @@
   <!--    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;-->
   <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Ensembl
     Compara</a>
-  &nbsp;<a href="../genomeBrowser/${acc}" target="new"> IMPC Gene Browser</a><span
+  
+  <%-- &nbsp; <a href="../genomeBrowser/${acc}" target="new"> IMPC Gene Browser</a> --%>
+  <span
         id="enu"></span>
 </p>
 
