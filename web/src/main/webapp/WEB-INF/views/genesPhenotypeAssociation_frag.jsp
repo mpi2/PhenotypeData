@@ -13,13 +13,12 @@
 
 <!-- always show phenotype icons -->
 <%--<jsp:include page="phenotype_icons_frag.jsp"/>--%>
-<c:choose>
+<%-- <c:choose> --%>
 
-  <c:when test="${summaryNumber > 0}">
-
-    <jsp:include page="phenotype_icons_frag.jsp"/>
-
-    <%--<c:if test="${!(empty dataMapList)}">--%>
+  	<c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
+    	<jsp:include page="phenotype_icons_frag.jsp"/>
+	</c:if>
+    <%--<c:if test="${!(empty postQcDataMapList)}">--%>
       <%--<br/>--%>
       <%--<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->--%>
 
@@ -39,13 +38,19 @@
            <%--href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>--%>
       <%--</div>--%>
     <%--</c:if>--%>
-
+	
     <div id="phenoSumDiv">
+    <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
         <h5 class="sectHint">All Phenotypes Summary</h5>
-        <p>Based on automated MP annotations supported by experiments
-      on knockout mouse models. Click on icons to go to all ${gene.markerSymbol} data for that phenotype.</p>
-        <p></p>
-        <c:if test="${!(empty dataMapList)}">
+        <p>Based on automated MP annotations supported by experiments on knockout mouse models. 
+    
+      		Click on icons to go to all ${gene.markerSymbol} data for that phenotype.
+      	</p> 
+      	<p></p>
+        </c:if>
+        
+        
+        <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
             <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All ${gene.markerSymbol} Measurements</a>
         </c:if>
@@ -57,58 +62,68 @@
             <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a>
         </c:if>
        
-
+		<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
         <jsp:include page="heatmapFrag.jsp"/>
+        </c:if>
 							
 				
        
 
        
     </div>
-  </c:when>
+  
 
 
 
-  <c:when test="${summaryNumber == 0}">
+  <%-- <c:when test="${numberOfTopLevelMpTermsWithStatisticalResult == 0}"> --%>
 
 			
 							
 							
 							
 							
-    <c:if test="${empty dataMapList && empty phenotypes}"><!-- no postQC data -->
+    <c:if test="${!phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"><!-- no significant postQC data or preQcData-->
     
-	    <c:choose>
-	    	<c:when test="${ attemptRegistered && phenotypeStarted }">
-	    	No results meet the p-value threshold
-	
+	   <%--  <c:choose> --%>
+	    	<c:if test="${ attemptRegistered && phenotypeStarted }"> 
+	    		No results meet the p-value threshold
+	 		</c:if>
+	 		<%-- <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
+				 		No significant phenotype associations were found with data that has
+			          passed quality control (QC), but you can click
+			          on the "All Adult Data" button to see all phenotype data that has
+			          passed QC. Preliminary phenotype assocations
+			          may appear with new pre-QC phenotype data.
+	 		</c:if> --%>
 	         <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
-	    	</c:when>
-	    	<c:when  test="${attemptRegistered}">
+	         <c:if test="${ attemptRegistered && !phenotypeStarted }"> 
 		        <div class="alert alert-info">
 		          <h5>Registered for phenotyping</h5>
 		
 		          <p>Phenotyping is planned for a knockout strain of this gene but
 		            data is not currently available.</p>
 		        </div>
+		    </c:if>
 	    
-	    	</c:when>
-	    	<c:when test="${!attemptRegistered}">
+	    	
+	    	<c:if test="${!attemptRegistered}"> 
 		        <div class="alert alert-info">
 		          <h5>Not currently registered for phenotyping</h5>
 		
 		          <p>Phenotyping is currently not planned for a knockout strain of this gene.
 		          </p>
 		        </div>
+		    </c:if>
 		      
 		      	<br/>
-	    	</c:when>
-	    </c:choose>
-    </c:if>
+	  </c:if> 
+	    	
+	    	
+   
      
 
      
-    <c:if test="${!(empty dataMapList) && empty phenotypes}">
+    <%-- <c:if test="${phenotypeDisplayStatus.postQcDataAvailable && !phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"> don't think we need this section now??
       <div class="alert alert-info">
         <h5>No Significant Phenotype Associations Found</h5>
 
@@ -124,32 +139,32 @@
         <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
       </div>
         <div class="clear"></div>
-    </c:if>
+    </c:if> --%>
 
-    <c:if
+  <%--   <c:if
             test="${gene.embryoDataAvailable}">
       <div class="floatright marginup"
            style="clear: both">
         <a class="btn"
            href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">3D Imaging</a>
       </div>
-    </c:if>
-  </c:when>
-  <c:when test="${hasPreQcData}">
+    </c:if> --%>
+  <%-- </c:when> --%>
+  <%-- <c:when test="${hasPreQcThatMeetsCutOff}"> --%>
     <!-- Only pre QC data available, suppress post QC phenotype summary -->
-  </c:when>
-  <c:otherwise>
-    <div class="alert alert-info">There are currently no IMPC phenotype associations
+ <%--  </c:when>
+  <c:otherwise> --%>
+   <%--  <div class="alert alert-info">There are currently no IMPC phenotype associations
       for the gene ${gene.markerSymbol} </div>
-    <br/>
-  </c:otherwise>
-</c:choose>
+    <br/> --%>
+ <%--  </c:otherwise> --%>
+<%-- </c:choose> --%>
 
 <div id="phenotypes"></div> <!-- Empty anchor for links, used for disease paper. Don't remove.  -->
 
 
 <c:if
-        test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
+        test='${hasPreQcThatMeetsCutOff || numberOfTopLevelMpTermsWithStatisticalResult > 0 || rowsForPhenotypeTable.size() > 0}'>
   <!-- Associations table -->
   <div id="phenotypeTableDiv" class="inner-division">
   <h5>Significant Phenotypes</h5>
@@ -163,7 +178,7 @@
 
         <div class="container span12">
  
-          <c:if test="${not empty phenotypes}">
+          <c:if test="${not empty rowsForPhenotypeTable}">
             <form class="tablefiltering no-style" id="target" action="destination.html">
            
               <c:forEach
@@ -185,7 +200,7 @@
 
             <c:set var="count" value="0" scope="page"/>
             <c:forEach
-                    var="phenotype" items="${phenotypes}"
+                    var="phenotype" items="${rowsForPhenotypeTable}"
                     varStatus="status">
               <c:forEach
                       var="sex" items="${phenotype.sexes}">
@@ -201,7 +216,7 @@
 
           <!-- if no data to show -->
           <c:if
-                  test="${empty phenotypes}">
+                  test="${empty rowsForPhenotypeTable}">
             <div
                     class="alert alert-info">Pre QC data has been submitted
               for this gene. Once the QC process is finished phenotype
