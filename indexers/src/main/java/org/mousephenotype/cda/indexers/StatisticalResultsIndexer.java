@@ -532,7 +532,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
 
 				 // mp-anatomy mappings (all MA at the moment)
-                if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase("MmusDv:0000092")) {
+                if (doc.getLifeStageAcc() != null && doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
 					if (mpOntologyService.getAnatomyMappings(mpId) != null) {
 						List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
 						for (String id : anatomyIds) {

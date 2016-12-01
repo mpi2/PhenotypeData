@@ -121,9 +121,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             // Override the EFO db_id with the current term from the database
             EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
 
-            // prepare a live stage lookup
-            doLiveStageLookup();
-
             count = populateGenotypePhenotypeSolrCore(runStatus);
 
         } catch (SQLException | IOException | SolrServerException ex) {
@@ -266,6 +263,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
 
+                BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
+                if (stage != null) {
+                    doc.setLifeStageAcc(stage.getId());
+                    doc.setLifeStageName(stage.getName());
+                }
+
                 // MP association
                 if (r.getString("ontology_term_id").startsWith("MP:")) {
                     // some hard-coded stuff
@@ -280,19 +283,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                     }
 
-                    BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
-                    if (stage != null) {
-                        doc.setLifeStageAcc(stage.getId());
-                        doc.setLifeStageName(stage.getName());
-                    }
-
-
                     String mpId = r.getString("ontology_term_id");
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    // mp-ma mappings, only add to adult (MmusDv:0000092) as mapping if to MA
-                    if (doc.getLifeStageAcc().equalsIgnoreCase("MmusDv:0000092")) {
+                    // mp-ma mappings, only add to adult (POSTPARTUM_STAGE) (MmusDv:0000092) as mapping if to MA
+                    if (doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
                         if (mpOntologyService.getAnatomyMappings(mpId) != null) {
                             List<String> anatomyIds = mpOntologyService.getAnatomyMappings(mpId);
                             for (String id : anatomyIds) {
