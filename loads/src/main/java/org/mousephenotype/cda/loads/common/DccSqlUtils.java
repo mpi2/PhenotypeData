@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.loads.common;
 
+import org.mousephenotype.cda.loads.create.extract.cdabase.steps.PhenotypedColonyLoader;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
@@ -23,6 +25,14 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.mapping.FieldSetMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -32,8 +42,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.util.Assert;
+import org.springframework.validation.BindException;
 
 import javax.inject.Inject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
@@ -320,6 +335,130 @@ public class DccSqlUtils {
         dimensions = npJdbcTemplate.query(query, parameterMap, new DimensionRowMapper());
 
         return dimensions;
+    }
+
+
+
+
+//    private final String[] europhenomeMapColumnNames = new String[] {
+//              "colony"
+//            , "gene"
+//            , "allele"
+//        };
+//
+//    public class GeneAndAlleleFieldSetMapper implements FieldSetMapper<GeneAndAllele> {
+//
+//        /**
+//         * Method used to map data obtained from a {@link FieldSet} into an object.
+//         *
+//         * @param fs the {@link FieldSet} to map
+//         * @throws BindException if there is a problem with the binding
+//         */
+//        @Override
+//        public GeneAndAllele mapFieldSet(FieldSet fs) throws BindException {
+//
+//            GeneAndAllele geneAndAllele = new GeneAndAllele();
+//            geneAndAllele.setColonyId(fs.readString("colony"));
+//            geneAndAllele.setGene(fs.readString("gene"));
+//            geneAndAllele.setAllele(fs.readString("allele"));
+//
+//            return geneAndAllele;
+//        }
+//    }
+
+
+
+    public Map<String, GeneAndAllele> getEurophenomeColonyGeneAlleleMap() {
+        Map<String, GeneAndAllele> europhenomeColonyGeneAlleleMap = new HashMap<>();
+
+        BufferedReader br       = null;
+        StringBuilder  sb       = new StringBuilder();
+
+        try {
+            Resource    resource = new ClassPathResource("EurophenomeColonyGeneAlleleMap.tsv");
+            InputStream is       = resource.getInputStream();
+            String      line;
+
+            br = new BufferedReader(new InputStreamReader(is));
+            int lineNumber = 0;
+
+            while ((line = br.readLine()) != null) {
+                if (lineNumber++ == 0)
+                    continue;               // Skip heading.
+
+                String[] cells = line.split("\t");
+                if (cells.length != 3) {
+                    logger.error("EurophenomeColonyGeneAlleleMap.tsv, row {}: Expected 3 cells, found {}. Invalid data: '{}'", lineNumber, cells.length, line);
+                    continue;
+                }
+                GeneAndAllele geneAndAllele = new GeneAndAllele(cells[0], cells[1], cells[2]);
+                europhenomeColonyGeneAlleleMap.put(cells[0], geneAndAllele);
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+//        FlatFileItemReader<GeneAndAllele> europhenomeReader = new FlatFileItemReader<>();
+//        europhenomeReader.setResource(new FileSystemResource("classpath:EurophenomeColonyGeneAlleleMap.tsv"));
+//        europhenomeReader.setComments(new String[] {"#" });
+//        europhenomeReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
+//        DefaultLineMapper<GeneAndAllele> lineMapperPhenotypedColony = new DefaultLineMapper<>();
+//        DelimitedLineTokenizer              tokenizerPhenotypedColony  = new DelimitedLineTokenizer("\t");
+//        tokenizerPhenotypedColony.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
+//        tokenizerPhenotypedColony.setNames(europhenomeMapColumnNames);
+//        lineMapperPhenotypedColony.setLineTokenizer(tokenizerPhenotypedColony);
+//        lineMapperPhenotypedColony.setFieldSetMapper(new PhenotypedColonyLoader.PhenotypedColonyFieldSetMapper());
+//        europhenomeReader.setLineMapper(lineMapperPhenotypedColony);
+
+
+        return europhenomeColonyGeneAlleleMap;
+    }
+
+    public class GeneAndAllele {
+        private String colonyId;
+        private String gene;
+        private String allele;
+
+        public GeneAndAllele(String colonyId, String gene, String allele) {
+            this.colonyId = colonyId;
+            this.gene = gene;
+            this.allele = allele;
+        }
+
+        public String getColonyId() {
+            return colonyId;
+        }
+
+        public void setColonyId(String colonyId) {
+            this.colonyId = colonyId;
+        }
+
+        public String getGene() {
+            return gene;
+        }
+
+        public void setGene(String gene) {
+            this.gene = gene;
+        }
+
+        public String getAllele() {
+            return allele;
+        }
+
+        public void setAllele(String allele) {
+            this.allele = allele;
+        }
     }
 
 //    /**
