@@ -198,7 +198,7 @@
             <div class="block">
                 <div class='content'>
                     <div class="node node-gene">
-                        <h1 class="title" id="top">References using IKMC and IMPC resources</h1>
+                        <h1 class="title" id="top">Publications using IKMC and IMPC resources</h1>
                         <div class="section">
                             <div class="inner">
                                 <div class="clear"></div>
