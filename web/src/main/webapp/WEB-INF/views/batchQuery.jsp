@@ -285,7 +285,7 @@
        			        tip: {corner: 'center top'}
        			    },
        			    position: {my: 'left top',
-       			    		   adjust: {x: -500, y: -105}
+       			    		   adjust: {x: 0, y: 0}
        			    },
        			 	show: {
        					event: 'click' //override the default mouseover
