@@ -16,8 +16,6 @@
 
 package org.mousephenotype.cda.loads.common;
 
-import org.mousephenotype.cda.loads.create.extract.cdabase.steps.PhenotypedColonyLoader;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
@@ -25,14 +23,6 @@ import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.mapping.FieldSetMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.FieldSet;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -42,13 +32,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.util.Assert;
-import org.springframework.validation.BindException;
 
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
@@ -71,6 +56,60 @@ public class DccSqlUtils {
         Assert.notNull(npJdbcTemplate, "Named parameter npJdbcTemplate cannot be null");
         this.npJdbcTemplate = npJdbcTemplate;
         loadUtils = new LoadUtils();
+    }
+
+
+    // These colonies are EuroPhenome colonies that have duplicated work on a cell line.  Disambiguation
+   	// is by including a trailing ID (the rightmost numerical string, separated by underscore).  Most
+   	// of the EuroPhenome colonies have the trailing ID stripped for translation, but these need to
+   	// be uniquely identified.
+   	//
+   	// Records have been added into iMits (2016-01-25) to handle these cases, so do not strip the trailing ID
+   	// from these legacy colony IDs.
+   	List<String> DO_NOT_TRUNCATE = Arrays.asList(
+   		"EPD0013_1_G11_10613", "EPD0019_1_A05_10494", "EPD0023_1_F07_10481", "EPD0033_3_F04_10955",
+   		"EPD0037_1_E07_10471", "EPD0037_3_G01_10533", "EPD0039_1_B01_10470", "EPD0057_2_C02_10474",
+   		"EPD0065_2_E04_10968", "EPD0089_4_F11_10538", "EPD0100_4_A06_10472", "EPD0135_1_A05_10967",
+   		"EPD0156_1_B01_10970", "EPD0242_4_B03_10958", "EPD0011_3_B08_10331",
+   		"EPD0017_3_E02_71",    "EPD0019_1_A05_10574", "EPD0023_1_F07_10553", "EPD0033_3_F04_10514",
+   		"EPD0037_1_B03_10395", "EPD0037_1_E07_10554", "EPD0038_2_B10_10557", "EPD0057_1_H01_10556",
+   		"EPD0057_2_C02_10549", "EPD0065_2_E04_10515", "EPD0065_5_A04_10523", "EPD0089_4_F11_320",
+   		"EPD0100_4_A06_10380", "EPD0135_1_A05_10581", "EPD0145_4_B09_10343", "EPD0156_1_B01_10099",
+   		"EPD0242_4_B03_10521", "EPD0023_1_F07_10594", "EPD0037_1_B03_10632", "EPD0037_1_E07_10595",
+   		"EPD0038_2_B10_10026", "EPD0046_2_F02_216",   "EPD0057_1_H01_134",   "EPD0057_2_C02_10630",
+   		"EPD0065_2_E04_10028", "EPD0065_5_A04_141",   "EPD0089_4_F11_10578", "EPD0100_4_A06_10519",
+   		"EPD0135_1_A05_10631", "EPD0156_1_B01_10517", "EPD0242_4_B03_10579", "EPD0011_3_B08_28",
+   		"EPD0013_1_G11_10560", "EPD0017_3_E02_10220", "EPD0019_1_A05_73",    "EPD0033_3_F04_10232",
+   		"EPD0037_1_B03_10234", "EPD0037_3_G01_10649", "EPD0039_1_B01_157",   "EPD0046_2_F02_10658",
+   		"EPD0135_1_A05_10562", "EPD0145_4_B09_10826", "EPD0242_4_B03_10233");
+
+    /**
+     * Most of the EuroPhenome colony ids provided by the DCC have a number appended to them that must be removed in order to match
+     * the colony id as known by imits. There are a few cases that require the colony id to be left untouched, as they
+     * are needed to disambiguate between colonies with duplicated work on a cell line.
+     *
+     * This method corrects the colony id according to the rules above: If the colony id has an underscore AND IT IS
+     * NOT IN THE 'DO_NOT_TRUNCATE' LIST, truncate the colony id by removing the trailing underscore and all the
+     * characters after it.
+     *
+     * If the colony id does not contain an underscore, or the colony id is in the DO_NOT_TRUNCATE list, simply return
+     * it unmodified.
+     *
+     * @param colonyId
+     *
+     * @return the colony id, corrected if necessary
+     */
+    public String correctEurophenomeColonyId(String colonyId) {
+        String retVal = colonyId;
+
+        if ( ! DO_NOT_TRUNCATE.contains(colonyId)) {
+            int idx = colonyId.lastIndexOf("_");
+            if (idx > 0) {
+                retVal = colonyId.substring(0, idx);
+            }
+        }
+
+        return retVal;
     }
 
 
@@ -336,203 +375,6 @@ public class DccSqlUtils {
 
         return dimensions;
     }
-
-
-
-
-//    private final String[] europhenomeMapColumnNames = new String[] {
-//              "colony"
-//            , "gene"
-//            , "allele"
-//        };
-//
-//    public class GeneAndAlleleFieldSetMapper implements FieldSetMapper<GeneAndAllele> {
-//
-//        /**
-//         * Method used to map data obtained from a {@link FieldSet} into an object.
-//         *
-//         * @param fs the {@link FieldSet} to map
-//         * @throws BindException if there is a problem with the binding
-//         */
-//        @Override
-//        public GeneAndAllele mapFieldSet(FieldSet fs) throws BindException {
-//
-//            GeneAndAllele geneAndAllele = new GeneAndAllele();
-//            geneAndAllele.setColonyId(fs.readString("colony"));
-//            geneAndAllele.setGene(fs.readString("gene"));
-//            geneAndAllele.setAllele(fs.readString("allele"));
-//
-//            return geneAndAllele;
-//        }
-//    }
-
-
-
-    public Map<String, GeneAndAllele> getEurophenomeColonyGeneAlleleMap() {
-        Map<String, GeneAndAllele> europhenomeColonyGeneAlleleMap = new HashMap<>();
-
-//        BufferedReader br       = null;
-//        StringBuilder  sb       = new StringBuilder();
-//
-//        try {
-//            Resource    resource = new ClassPathResource("EurophenomeColonyGeneAlleleMap.tsv");
-//            InputStream is       = resource.getInputStream();
-//            String      line;
-//
-//            br = new BufferedReader(new InputStreamReader(is));
-//            int lineNumber = 0;
-//
-//            while ((line = br.readLine()) != null) {
-//                if (lineNumber++ == 0)
-//                    continue;               // Skip heading.
-//
-//                String[] cells = line.split("\t");
-//                if (cells.length != 3) {
-//                    logger.error("EurophenomeColonyGeneAlleleMap.tsv, row {}: Expected 3 cells, found {}. Invalid data: '{}'", lineNumber, cells.length, line);
-//                    continue;
-//                }
-//                GeneAndAllele geneAndAllele = new GeneAndAllele(cells[0], cells[1], cells[2]);
-//                europhenomeColonyGeneAlleleMap.put(cells[0], geneAndAllele);
-//            }
-//
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (br != null) {
-//                try {
-//                    br.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-
-
-//        FlatFileItemReader<GeneAndAllele> europhenomeReader = new FlatFileItemReader<>();
-//        europhenomeReader.setResource(new FileSystemResource("classpath:EurophenomeColonyGeneAlleleMap.tsv"));
-//        europhenomeReader.setComments(new String[] {"#" });
-//        europhenomeReader.setRecordSeparatorPolicy(new BlankLineRecordSeparatorPolicy());
-//        DefaultLineMapper<GeneAndAllele> lineMapperPhenotypedColony = new DefaultLineMapper<>();
-//        DelimitedLineTokenizer              tokenizerPhenotypedColony  = new DelimitedLineTokenizer("\t");
-//        tokenizerPhenotypedColony.setStrict(false);     // Relax token count. Some lines have more tokens; others, less, causing a parsing exception.
-//        tokenizerPhenotypedColony.setNames(europhenomeMapColumnNames);
-//        lineMapperPhenotypedColony.setLineTokenizer(tokenizerPhenotypedColony);
-//        lineMapperPhenotypedColony.setFieldSetMapper(new PhenotypedColonyLoader.PhenotypedColonyFieldSetMapper());
-//        europhenomeReader.setLineMapper(lineMapperPhenotypedColony);
-
-
-        return europhenomeColonyGeneAlleleMap;
-    }
-
-    public class GeneAndAllele {
-        private String colonyId;
-        private String gene;
-        private String allele;
-
-        public GeneAndAllele(String colonyId, String gene, String allele) {
-            this.colonyId = colonyId;
-            this.gene = gene;
-            this.allele = allele;
-        }
-
-        public String getColonyId() {
-            return colonyId;
-        }
-
-        public void setColonyId(String colonyId) {
-            this.colonyId = colonyId;
-        }
-
-        public String getGene() {
-            return gene;
-        }
-
-        public void setGene(String gene) {
-            this.gene = gene;
-        }
-
-        public String getAllele() {
-            return allele;
-        }
-
-        public void setAllele(String allele) {
-            this.allele = allele;
-        }
-    }
-
-//    /**
-//     *
-//     * @return all line-level experiments. No sample-level experiments are included.
-//     */
-//    public List<Experiment> getLineLevelExperiments() {
-//
-//        if (lineLevelExperiments == null) {
-//            final String query =
-//                "SELECT\n" +
-//                "  l.datasourceShortName,\n" +
-//                "  e.experimentId,\n" +
-//                "  e.sequenceId,\n" +
-//                "  e.dateOfExperiment,\n" +
-//                "  c.centerId,\n" +
-//                "  c.pipeline,\n" +
-//                "  c.project,\n" +
-//                "  p.procedureId,\n" +
-//                "  l.colonyId\n" +
-//                "  1    AS isLineLevel\n" +
-//                "FROM experiment e\n" +
-//                "JOIN center_procedure            cp  ON cp .pk                  = e  .center_procedure_pk\n" +
-//                "JOIN center                      c   ON c  .pk                  = cp .center_pk\n" +
-//                "JOIN procedure_                  p   ON p  .pk                  = cp .procedure_pk\n" +
-//                "JOIN line                        l   ON l  .center_procedure_pk = e  .pk";
-//
-//            lineLevelExperiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentRowMapper());
-//            lineLevelExperimentIds = new ArrayList<>();
-//            for (Experiment experiment : lineLevelExperiments) {
-//                lineLevelExperimentIds.add(experiment.getExperimentID());
-//            }
-//        }
-//
-//        return lineLevelExperiments;
-//    }
-//    private List<Experiment> lineLevelExperiments;
-//    private List<String> lineLevelExperimentIds;
-
-//    public List<Experiment> getSampleLevelExperiments() {
-//
-//        if (sampleLevelExperiments == null) {
-//            final String query =
-//                "SELECT\n" +
-//                "  s.datasourceShortName,\n" +
-//                "  e.experimentId,\n" +
-//                "  e.sequenceId,\n" +
-//                "  e.dateOfExperiment,\n" +
-//                "  c.centerId,\n" +
-//                "  c.pipeline,\n" +
-//                "  c.project,\n" +
-//                "  p.procedureId,\n" +
-//                "  null AS colonyId,\n" +
-//                "  0    AS isLineLevel\n" +
-//                "FROM experiment e\n" +
-//                "JOIN center_procedure    cp  ON cp .pk = e  .center_procedure_pk\n" +
-//                "JOIN center              c   ON c  .pk = cp .center_pk\n" +
-//                "JOIN procedure_          p   ON p  .pk = cp .procedure_pk\n" +
-//                "JOIN experiment_specimen es  ON es .pk = e  .pk\n" +
-//                "JOIN specimen            s   ON s  .pk = es .specimen_pk";
-//
-//            List<ExperimentDccToCda> tmpSampleLevelExperiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentDccToCdaRowMapper());
-//
-//            // Add sample-level experiments. Exclude experiment if it is line-level.
-//            for (Experiment sampleLevelExperiment : tmpSampleLevelExperiments) {
-//                if ( ! lineLevelExperimentIds.contains(sampleLevelExperiment.getExperimentID())) {
-//                    sampleLevelExperiments.add(tmpSampleLevelExperiments);
-//                }
-//            }
-//        }
-//
-//        return sampleLevelExperiments;
-//    }
-//    private List<Experiment> sampleLevelExperiments;
 
     /**
      * Returns the line primary key matching {@code colonyId} and {@code center_procedurePk}, if found; 0 otherwise.

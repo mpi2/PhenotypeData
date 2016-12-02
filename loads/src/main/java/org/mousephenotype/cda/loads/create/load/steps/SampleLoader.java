@@ -74,6 +74,8 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private OntologyTerm sampleTypeMouseEmbryoStage;
     private OntologyTerm sampleTypeWholeOrganism;
 
+    private Map<String, PhenotypedColony> phenotypedColonyMap;
+
     private int efoDbId;
 
 
@@ -95,6 +97,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     public void afterPropertiesSet() throws Exception {
 
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
+        phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
         sampleTypeWholeOrganism = cdaSqlUtils.getOntologyTermByName("whole organism");
         allelesBySymbol = cdaSqlUtils.getAllelesBySymbol();
@@ -102,6 +105,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         this.efoDbId = cdaSqlUtils.getExternalDbId("EFO");
 
         Assert.notNull(developmentalStageMouse, "developmentalStageMouse must be set");
+        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
         Assert.notNull(sampleTypeMouseEmbryoStage, "xsampleTypeMouseEmbryoStagex must be set");
         Assert.notNull(sampleTypeWholeOrganism, "sampleTypeWholeOrganism must be set");
         Assert.notNull(allelesBySymbol, "allelesBySymbol must be set");
@@ -222,30 +226,16 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         BiologicalModel biologicalModel;
         String message;
 
-
         int phenotypingCenterId;
         int productionCenterId;
-
-        // Query iMits first for specimen phenotyping and production center information. iMits is more up-to-date than the dcc.
-        // If it is missing from imits, query Hugh's EurophenomeColonyGeneAlleleMap.
-        PhenotypedColony colony = cdaSqlUtils.getPhenotypedColony(specimen.getColonyID());
-        if (colony != null) {
-            phenotypingCenterId = colony.getPhenotypingCentre().getId();
-            productionCenterId = colony.getProductionCentre().getId();
-        } else {
-            // If not found, query Hugh's EurophenomeColonyGeneAlleleMap.
-
-
-            // fixme fixme fixme fixme fixme mrelac
-
-
-//            Map<String, DccSqlUtils.GeneAndAllele> map = dccSqlUtils.getEurophenomeColonyGeneAlleleMap();
-
-
-
-
+        PhenotypedColony phenotypedColony = phenotypedColonyMap.get(specimen.getColonyID());
+        if (phenotypedColony == null) {
+            logger.error("Skipping specimen {}: colony id not found: {}", specimen.getSpecimenID(), specimen.getColonyID());
             missingColonyIds.add(specimen.getColonyID());
             return counts;
+        } else {
+            phenotypingCenterId = phenotypedColony.getPhenotypingCentre().getId();
+            productionCenterId = phenotypedColony.getProductionCentre().getId();
         }
 
         String zygosity;
@@ -270,7 +260,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         String sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
 
         try {
-            biologicalModel = cdaSqlUtils.selectOrInsertBiologicalModel(specimen.getColonyID(), euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbol);
+            biologicalModel = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbol);
         } catch (DataLoadException e) {
             System.err.println("Unable to get/create biological model for colonyId '" + specimen.getColonyID() + "'.");
             return counts;
