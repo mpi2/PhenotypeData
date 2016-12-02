@@ -170,31 +170,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
         phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
-System.out.println("missing colonyIds:");
+
         for (DccExperimentDTO dccExperiment : dccExperiments) {
-
-
-
-
-
-
-
-BiologicalSample bs = samplesMap.get(dccExperiment.getSpecimenId());
-if (bs == null) {
-    if (!missingColonyIds.contains(dccExperiment.getColonyId())) {
-        missingColonyIds.add(dccExperiment.getColonyId());
-        System.out.println(dccExperiment.getColonyId());
-    }
-}
-if (1 == 1)
-
-
-
-    continue;
-
-
-
-            experiment = insertExperiment(dccExperiment);
+            insertExperiment(dccExperiment);
         }
 
         Iterator<String> missingCentersIt = missingCenters.iterator();
