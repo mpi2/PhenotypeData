@@ -11,35 +11,16 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<!-- always show phenotype icons -->
-<%--<jsp:include page="phenotype_icons_frag.jsp"/>--%>
-<%-- <c:choose> --%>
-
   	<c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
     	<jsp:include page="phenotype_icons_frag.jsp"/>
 	</c:if>
-    <%--<c:if test="${!(empty postQcDataMapList)}">--%>
-      <%--<br/>--%>
-      <%--<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->--%>
-
-      <%--<div class="floatleft marginup"--%>
-           <%--style="clear: both">--%>
-        <%--<p>--%>
-          <%--<a class="btn"--%>
-             <%--href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Phenotype</a>--%>
-        <%--</p>--%>
-      <%--</div>--%>
-    <%--</c:if>--%>
-
-    <%--<c:if test="${gene.embryoDataAvailable}">--%>
-      <%--<div class="floatleft marginup"--%>
-           <%--style="clear: both">--%>
-        <%--<a class="btn"--%>
-           <%--href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>--%>
-      <%--</div>--%>
-    <%--</c:if>--%>
-	
-    <div id="phenoSumDiv">
+   
+	<c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
+    	<div id="phenoSumDiv">
+    </c:if>
+    <c:if test="${!phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}"> <!-- only display a normal div if no phenotype icons displayed -->
+    	<div id="phenoSumSmallDiv">
+    </c:if>
     <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
         <h5 class="sectHint">All Phenotypes Summary</h5>
         <p>Based on automated MP annotations supported by experiments on knockout mouse models. 
@@ -63,7 +44,7 @@
         </c:if>
        
 		<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
-        <jsp:include page="heatmapFrag.jsp"/>
+        	<jsp:include page="heatmapFrag.jsp"/>
         </c:if>
 							
 				
@@ -73,15 +54,7 @@
     </div>
   
 
-
-
-  <%-- <c:when test="${numberOfTopLevelMpTermsWithStatisticalResult == 0}"> --%>
-
-			
-							
-							
-							
-							
+						
     <c:if test="${!phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"><!-- no significant postQC data or preQcData-->
     
 	   <%--  <c:choose> --%>
