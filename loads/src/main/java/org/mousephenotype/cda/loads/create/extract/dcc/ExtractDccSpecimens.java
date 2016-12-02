@@ -173,6 +173,11 @@ public class ExtractDccSpecimens implements CommandLineRunner {
             dccSqlUtils.selectOrInsertStatuscode(specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
         }
 
+        // Correct the europhenome specimen colony id
+        if (datasourceShortName.equals("EuroPhenome")) {
+            specimen.setColonyID(dccSqlUtils.correctEurophenomeColonyId(specimen.getColonyID()));
+        }
+
         // specimen
         specimen = dccSqlUtils.insertSpecimen(specimen, datasourceShortName);
         specimenPk = specimen.getHjid();
