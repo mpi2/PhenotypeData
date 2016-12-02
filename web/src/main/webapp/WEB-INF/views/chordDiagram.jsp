@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: ilinca
-  Date: 24/11/2016
-  Time: 16:51
-  To change this template use File | Settings | File Templates.
---%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -54,8 +47,11 @@
         </div>
 
         <script>
+            var mpTopLevelTerms = [];
+            <c:if test="${phenotypeName != null}">
+                mpTopLevelTerms = ${phenotypeName};
+            </c:if>
 
-            var mpTopLevelTerms = ${(phenotypeName != null) ? phenotypeName : []};
             var jsonSource      = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? "chordDiagram.json?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : "chordDiagram.json";
             var url             = (window.location.href.indexOf("chordDiagram?") >= 0) ? window.location.href : window.location.href.replace("chordDiagram", "chordDiagram?") ;
 
