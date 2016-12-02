@@ -80,8 +80,8 @@ public class OverviewChartsController {
 			HttpServletRequest request,
 			RedirectAttributes attributes){
 
-				model.addAttribute("phenotypeName", (phenotypeName != null) ? new JSONArray(phenotypeName.stream().distinct().collect(Collectors.toList())) : null);
-				return "chordDiagram";
+		model.addAttribute("phenotypeName", (phenotypeName != null) ? new JSONArray(phenotypeName.stream().distinct().collect(Collectors.toList())) : null);
+		return "chordDiagram";
 
 	}
 

@@ -164,7 +164,7 @@
                                 return d3.rgb(color(d.target.index)).darker();
                             })
                             .append("title").text(function (d) {
-                        return d.source.value + " genes present " + labels[d.source.index].name + " phenotype and " + labels[d.target.index].name + " phenotype, " + mpTopLevelTerms.join(", ");
+                        return d.source.value + " genes present " + labels[d.source.index].name + " and " + labels[d.target.index].name + ", " + mpTopLevelTerms.join(", ");
                     });
 
                     // Returns an array of tick angles and values for a given group and step.
