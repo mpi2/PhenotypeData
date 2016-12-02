@@ -200,7 +200,6 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
     public String getPleiotropyDownload(List<String> topLevelMpTerms) throws IOException, SolrServerException {
 
-        TreeMap<String, TreeMap<String, Integer>> matrix = new TreeMap<>();
         SolrQuery query = getPleiotropyQuery(topLevelMpTerms);
         query.add("wt", "xslt");
         query.add("tr", "pivot.xsl");
