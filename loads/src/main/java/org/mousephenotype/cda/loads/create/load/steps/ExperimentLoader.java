@@ -64,10 +64,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private EuroPhenomeStrainMapper    euroPhenomeStrainMapper;
     private NamedParameterJdbcTemplate jdbcCda;
 
-    private Logger logger                                 = LoggerFactory.getLogger(this.getClass());
-    private StepBuilderFactory   stepBuilderFactory;
-    private Set<String>          unsupportedParametersMap = new HashSet<>();
-    private Map<String, Integer> written                  = new HashMap<>();
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private StepBuilderFactory            stepBuilderFactory;
+    private Set<String>                   unsupportedParametersMap = new HashSet<>();
 
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
@@ -141,6 +140,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, Integer> cdaProcedure_idMap;
     private Map<String, Integer> cdaParameter_idMap;
     private Map<String, BiologicalSample> samplesMap;   // keyed by external_id
+    private Map<String, PhenotypedColony> phenotypedColonyMap;
 
     // lookup maps returning specified parameter type list given cda procedure primary key
     private ConcurrentHashMap<String, Allele> allelesBySymbolMap;
@@ -168,6 +168,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
+        phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
 System.out.println("missing colonyIds:");
         for (DccExperimentDTO dccExperiment : dccExperiments) {
@@ -304,7 +305,7 @@ if (1 == 1)
         //  - null biological_model_id
         if (dccExperiment.isLineLevel()) {
 
-            PhenotypedColony phenotypedColony = cdaSqlUtils.getPhenotypedColony(dccExperiment.getColonyId());
+            PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
                 logger.error("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
                 return null;
@@ -313,7 +314,7 @@ if (1 == 1)
             dateOfExperiment = null;
             sequenceId = null;
             List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
-            biologicalModelPk = getBiologicalModelId(colonyId, simpleParameters);
+            biologicalModelPk = getBiologicalModelId(phenotypedColony, simpleParameters);
 
         } else {
             colonyId = null;
@@ -521,13 +522,13 @@ if ( ! missingColonyIds.contains(dccExperimentDTO.getColonyId())) {
     }
 
     private int getBiologicalModelId(
-            String colony_id,
+            PhenotypedColony phenotypedColony,
             List<SimpleParameter> simpleParameters) throws DataLoadException {
         int biological_model_id = 0;
 
         String zygosity = getZygosity(simpleParameters);
         String sampleGroup = "experimental";
-        biological_model_id = cdaSqlUtils.selectOrInsertBiologicalModel(colony_id, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbolMap).getId();
+        biological_model_id = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbolMap).getId();
 
         return biological_model_id;
     }
