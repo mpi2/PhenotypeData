@@ -31,15 +31,10 @@
                     <h1 class="title" id="top">IMPC Phenotype Diagram</h1>
 
                     <div class="section">
-                        <div class="inner" id="chordContainer">
-
-                            <c:if test="${phenotypeName != null}">
-                                <p> Phenotype associations for genes with ${phenotypeName}</p>
-                            </c:if>
+                        <div class="inner" >
+                            <div id="chordContainer"></div>
                             <svg width="960" height="960"></svg>
-
                         </div>
-                        <!--end of node wrapper should be after all secions  -->
                     </div>
                 </div>
             </div>
@@ -56,7 +51,10 @@
             var url             = (window.location.href.indexOf("chordDiagram?") >= 0) ? window.location.href : window.location.href.replace("chordDiagram", "chordDiagram?") ;
 
             // Attach download action
-            $('#chordContainer').append("<a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" + ((mpTopLevelTerms && mpTopLevelTerms.length > 0) ? "genes with " + mpTopLevelTerms.join(" ") : "genes_by_top_level_phenotype_associations.csv")+ "'>Download</a>");
+            if(mpTopLevelTerms && mpTopLevelTerms.length > 0){
+                $('#chordContainer').append("<p>Genes with at least on phenotype association in: " + mpTopLevelTerms.join(",") + "</p><p><a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" +  "genes with " + mpTopLevelTerms.join(" ") +
+                        "genes_by_top_level_phenotype_associations.csv" + "'>Get gene list</a> </p>");
+            }
 
             queue().defer(d3.json, jsonSource)
                     .await(ready);
