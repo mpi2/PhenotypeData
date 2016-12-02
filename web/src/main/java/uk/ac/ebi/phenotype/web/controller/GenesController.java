@@ -398,6 +398,10 @@ public class GenesController {
 	 * @return
 	 */
 	private PhenotypeDisplayStatus getPhenotypeDisplayStatus(boolean phenotypeStarted, int numberOfTopLevelMpTermsWithStatisticalResult, List<Map<String, String>> postQcDataMapList, ArrayList<GenePageTableRow> rowsForPhenotypeTable){
+		//example of gene with preQc but not postQc Iqgap2
+				//example of gene with preQc but not significant  Stox2, Mast3
+				//example with lots of phenotype data http://localhost:8080/phenotype-archive/genes/MGI:109331
+				
 		PhenotypeDisplayStatus displayStatus=new PhenotypeDisplayStatus();
 		if(phenotypeStarted){
 			displayStatus.setDisplayHeatmap(true);
@@ -417,50 +421,7 @@ public class GenesController {
 		if(rowsForPhenotypeTable.size()>0){
 			displayStatus.setEitherPostQcOrPreQcSignificantDataIsAvailable(true);
 		}
-		//example of gene with preQc but not postQc Iqgap2
-		//example of gene with preQc but not significant  Stox2, Mast3
-		
-		//System.out.println("phenotypeStarted="+phenotypeStarted+ "  postQcTopLevelMpTermsAvailable="+postQcTopLevelMPTermsAvailable);
-		
-		//if($('#heatmap_toggle_div').length){//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
-		 //<c:when test="${numberOfTopLevelMpTermsWithStatisticalResult > 0}">	 show the all data button, embryo button, vignettes and heatmap  -- calling this postQcTopLevelMPTermsAvailable
-//		int total = 0;
-		// add number of top level MP terms
-//		for (ZygosityType zyg : phenotypeSummaryObjects.keySet()) {
-//			total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
-//		}
-		
-		
-//		<c:if test="${empty dataMapList && empty phenotypes}"><!-- no postQC data -->
-//	    
-//	    <c:choose>
-//	    	<c:when test="${ attemptRegistered && phenotypeStarted }">
-//	    	No results meet the p-value threshold
-//	
-//	         <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
-//	    	</c:when>
-//	    	<c:when  test="${attemptRegistered}">
-//		        <div class="alert alert-info">
-//		          <h5>Registered for phenotyping</h5>
-//		
-//		          <p>Phenotyping is planned for a knockout strain of this gene but
-//		            data is not currently available.</p>
-//		        </div>
-//	    
-//	    	</c:when>
-//	    	<c:when test="${!attemptRegistered}">
-//		        <div class="alert alert-info">
-//		          <h5>Not currently registered for phenotyping</h5>
-//		
-//		          <p>Phenotyping is currently not planned for a knockout strain of this gene.
-//		          </p>
-//		        </div>
-//		      
-//		      	<br/>
-//	    	</c:when>
-//	    </c:choose>
-//    </c:if>
-		
+
 		System.out.println(displayStatus);	
 		return displayStatus;
 	}
