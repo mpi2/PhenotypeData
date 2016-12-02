@@ -8,7 +8,7 @@
 <c:set var="maleCount" value="0" scope="page"/>
 <c:set var="femaleCount" value="0" scope="page"/>
 <c:set var="noSexCount" value="0" scope="page"/>
-<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
+<c:forEach var="phenotype" items="${rowsForPhenotypeTable}" varStatus="status">
     <c:forEach var="sex" items="${phenotype.sexes}">
         <c:set var="count" value="${count + 1}" scope="page"/>
         <c:if test='${sex.equalsIgnoreCase("male")}'>
@@ -51,7 +51,7 @@
     </tr>
     </thead>
     <tbody>
-    <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
+    <c:forEach var="phenotype" items="${rowsForPhenotypeTable}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
         <tr>
         	<td>
