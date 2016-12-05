@@ -105,6 +105,9 @@ public class LandingPageController {
         } else if (page.equalsIgnoreCase("cardiovascular")){
             mpId = "MP:0005385";
             anatomyIds.add("MA:0000010");
+            List<String> mpTopLevelTerms = new ArrayList<>();
+            mpTopLevelTerms.add("Cardiovascular system phenotype");
+            model.addAttribute("mpTopLevelTerms", mpTopLevelTerms);
             anatomyIds.add("EMAPA:16104");
             pageTitle = "Cardiovascular";
         } else if (page.equalsIgnoreCase("metabolism")){

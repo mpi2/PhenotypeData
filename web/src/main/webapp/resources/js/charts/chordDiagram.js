@@ -11,7 +11,7 @@ console.log(mpTopLevelTerms);
 
     // Attach download action
     if (mpTopLevelTerms && mpTopLevelTerms.length > 0) {
-        $('#chordContainer').html("<p>Genes with at least on phenotype association in each of the following systems: " + mpTopLevelTerms.join(",") + "</p><p><a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" + "genes with " + mpTopLevelTerms.join(" ") +
+        $('#chordContainer').html("<p>Genes with at least on phenotype association in each of the following systems: <b>" + mpTopLevelTerms.join(",") + "</b></p><p><a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" + "genes with " + mpTopLevelTerms.join(" ") +
             "genes_by_top_level_phenotype_associations.csv" + "'>Get gene list</a> </p>");
     }
 
@@ -29,7 +29,7 @@ console.log(mpTopLevelTerms);
             var svg = d3.select("#chordDiagramSvg"),
                 width = +svg.attr("width"),
                 height = +svg.attr("height"),
-                outerRadius = Math.min(width, height) * 0.5 - 100,
+                outerRadius = Math.min(width, height) * 0.5 - 200,
                 innerRadius = outerRadius - 30;
 
             var chord = d3.chord()
