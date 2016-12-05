@@ -460,7 +460,7 @@ public class PhenotypePage {
         final Integer[] pageColumns = {
                   PhenotypeTable.COL_INDEX_PHENOTYPES_GENE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_ALLELE
-                , PhenotypeTable.COL_INDEX_PHENOTYPES_ZYGOSITY
+               // , PhenotypeTable.COL_INDEX_PHENOTYPES_ZYGOSITY
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_SEX
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_LIFE_STAGE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPE
@@ -474,7 +474,7 @@ public class PhenotypePage {
 
                   DownloadPhenotypeMap.COL_INDEX_GENE
                 , DownloadPhenotypeMap.COL_INDEX_ALLELE
-                , DownloadPhenotypeMap.COL_INDEX_ZYGOSITY
+                //, DownloadPhenotypeMap.COL_INDEX_ZYGOSITY jw set this to not being used until fixed as homozygous vs hom which is just annoying! :)
                 , DownloadPhenotypeMap.COL_INDEX_SEX
                 , DownloadPhenotypeMap.COL_INDEX_LIFE_STAGE
                 , DownloadPhenotypeMap.COL_INDEX_PHENOTYPE
