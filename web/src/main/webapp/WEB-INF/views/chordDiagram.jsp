@@ -101,8 +101,8 @@
                             })
                             .enter().append("g")
                             .attr("class", "group")
-                            .on("mouseover", fade(.02))
-                            .on("mouseout", fade(.80))
+                            .on("mouseover",  fade(.02))
+                            .on("mouseout",  fade(.80))
                             .on("click", function(d){
                                 window.open(url + "&phenotype_name=" + labels[d.index].name , "_self" );
                             });
@@ -178,7 +178,7 @@
                         return function (d, i) {
                             svg.selectAll("path.chord")
                                     .filter(function (d) {
-                                        return d.source.index != i && d.target.index != i;
+                                        return d.source.index != i && d.target.index != i && (mpTopLevelTerms.indexOf(labels[d.source.index].name) < 0 && mpTopLevelTerms.indexOf(labels[d.target.index].name) < 0);
                                     })
                                     .transition()
                                     .style("stroke-opacity", opacity)
