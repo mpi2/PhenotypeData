@@ -52,7 +52,7 @@
 
             // Attach download action
             if(mpTopLevelTerms && mpTopLevelTerms.length > 0){
-                $('#chordContainer').append("<p>Genes with at least on phenotype association in: " + mpTopLevelTerms.join(",") + "</p><p><a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" +  "genes with " + mpTopLevelTerms.join(" ") +
+                $('#chordContainer').append("<p>Genes with at least on phenotype association in each of the following systems: " + mpTopLevelTerms.join(",") + "</p><p><a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" +  "genes with " + mpTopLevelTerms.join(" ") +
                         "genes_by_top_level_phenotype_associations.csv" + "'>Get gene list</a> </p>");
             }
 
