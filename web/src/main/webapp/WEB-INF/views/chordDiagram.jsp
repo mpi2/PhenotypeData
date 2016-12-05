@@ -101,8 +101,8 @@
                             })
                             .enter().append("g")
                             .attr("class", "group")
-//                            .on("mouseover",  fade(.02, "visible"))
-//                            .on("mouseout",  fade(.80, "hidden"))
+                            .on("mouseover",  fade(.02))
+                            .on("mouseout",  fade(.80))
                             .on("click", function(d){
                                 window.open(url + "&phenotype_name=" + labels[d.index].name , "_self" );
                             });
@@ -162,8 +162,12 @@
                                 return d3.rgb(color(d.target.index)).darker();
                             })
                             .style("visibility", function(d){
-                                if (mpTopLevelTerms.indexOf(labels[d.source.index].name) < 0 && mpTopLevelTerms.indexOf(labels[d.target.index].name) < 0) {
-                                    return "hidden";
+                                if (mpTopLevelTerms && mpTopLevelTerms.length > 0 ){
+                                    if (mpTopLevelTerms.indexOf(labels[d.source.index].name) < 0 && mpTopLevelTerms.indexOf(labels[d.target.index].name) < 0) {
+                                        return "hidden";
+                                    } else {
+                                        return "visible";
+                                    }
                                 } else {
                                     return "visible";
                                 }
@@ -182,28 +186,17 @@
 
                     // Returns an event handler for fading a given chord group.
                     // Display parameter for the group hovering over
-                    function fade(opacity, display) {
+                    function fade(opacity) {
                         return function (d, i) {
                             // hide other chords on mose over
                             svg.selectAll("path.chord")
                                     .filter(function (d) {
-                                        return d.source.index != i && d.target.index != i && (mpTopLevelTerms.indexOf(labels[d.source.index].name) < 0 && mpTopLevelTerms.indexOf(labels[d.target.index].name) < 0);
+                                        return d.source.index != i && d.target.index != i;
                                     })
                                     .transition()
                                     .style("stroke-opacity", opacity)
                                     .style("fill-opacity", opacity);
 
-                            // hide/display current chords if not one of the selected top levels
-                            svg.selectAll("path.chord")
-                                    .filter(function (d) {
-                                        //return d.source.index != i && d.target.index != i && (mpTopLevelTerms.indexOf(labels[d.source.index].name) < 0 && mpTopLevelTerms.indexOf(labels[d.target.index].name) < 0);
-                                        return (d.source.index == i || d.target.index == i ) && (mpTopLevelTerms.indexOf(labels[d.source.index].name) < 0 && mpTopLevelTerms.indexOf(labels[d.target.index].name) < 0);
-                                    })
-                                    .transition()
-                                    .style("visibility", function(d){
-                                        console.log("Filtered " + (d.source.index == i || d.target.index == i) + d.source.index + " " + d.target.index + " display " + display);
-                                        return display;
-                                    });
                         };
                     }
                 }
