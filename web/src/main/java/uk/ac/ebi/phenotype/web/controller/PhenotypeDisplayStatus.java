@@ -10,8 +10,16 @@ public class PhenotypeDisplayStatus {
 	boolean displayHeatmap=false;
 	boolean postQcTopLevelMPTermsAvailable=false;
 	boolean postQcDataAvailable=false;
-	boolean eitherPostQcOrPreQcDataIsAvailable=false;
+	boolean eitherPostQcOrPreQcSignificantDataIsAvailable=false;
 	
+	public boolean isEitherPostQcOrPreQcSignificantDataIsAvailable() {
+		return eitherPostQcOrPreQcSignificantDataIsAvailable;
+	}
+
+	public void setEitherPostQcOrPreQcSignificantDataIsAvailable(boolean eitherPostQcOrPreQcSignificantDataIsAvailable) {
+		this.eitherPostQcOrPreQcSignificantDataIsAvailable = eitherPostQcOrPreQcSignificantDataIsAvailable;
+	}
+
 	public boolean isDisplayHeatmap() {
 		return displayHeatmap;
 	}
@@ -43,22 +51,16 @@ public class PhenotypeDisplayStatus {
 		this.postQcDataAvailable=b;
 		
 	}
-	
-	public void setEitherPostQcOrPreQcDataIsAvailable(boolean b) {
-		this.eitherPostQcOrPreQcDataIsAvailable=b;
-		
-	}
-
-	public boolean isEitherPostQcOrPreQcDataIsAvailable() {
-		return eitherPostQcOrPreQcDataIsAvailable;
-	}
 
 	@Override
 	public String toString() {
 		return "PhenotypeDisplayStatus [displayHeatmap=" + displayHeatmap + ", postQcTopLevelMPTermsAvailable="
 				+ postQcTopLevelMPTermsAvailable + ", postQcDataAvailable=" + postQcDataAvailable
-				+ ", eitherPostQcOrPreQcDataIsAvailable=" + eitherPostQcOrPreQcDataIsAvailable + "]";
+				+ ", eitherPostQcOrPreQcSignificantDataIsAvailable=" + eitherPostQcOrPreQcSignificantDataIsAvailable
+				+ "]";
 	}
+	
+	
 
 	
 	
