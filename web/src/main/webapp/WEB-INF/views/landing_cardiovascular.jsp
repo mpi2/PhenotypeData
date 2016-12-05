@@ -13,10 +13,13 @@
 
     <jsp:attribute name="header">
 
-	<!-- CSS Local Imports -->
-	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
-    <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
-    <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+        <!-- JS Imports -->
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+        <script src="//d3js.org/d3.v4.min.js"></script>
+        <script src="//d3js.org/queue.v1.min.js"></script>
+        <script type="text/javascript" src="${baseUrl}/js/charts/chordDiagram.js?v=${version}"></script>
 
 	</jsp:attribute>
 
@@ -61,11 +64,21 @@
 
 
                         <div class="section">
+
                             <h2 class="title">Phenotypes distribution</h2>
                             <div class="inner">
                                 <div id="phenotypeChart">
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
                                 </div>
+
+
+                                <div id="chordContainer"></div>
+                                <svg id="chordDiagramSvg" width="960" height="960"></svg>
+                                <script>
+                                    var mpTopLevelTerms = [];
+                                    drawChords(false, mpTopLevelTerms);
+                                </script>
+
                             </div>
                         </div>
 
