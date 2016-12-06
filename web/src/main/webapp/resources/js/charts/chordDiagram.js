@@ -9,7 +9,7 @@ var drawChords = function (openNewPage, mpTopLevelTerms) {
     var jsonSource = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? baseUrl + "/chordDiagram.json?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : baseUrl+ "/chordDiagram.json";
     console.log(jsonSource);
 
-    var url = (window.location.href.indexOf("chordDiagram?") >= 0) ? baseUrl + "/chordDiagram?" : window.location.href.replace("chordDiagram", "chordDiagram?");
+    var url = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? baseUrl + "/chordDiagram?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : baseUrl+ "/chordDiagram";
 
     // Attach download action
     if (mpTopLevelTerms && mpTopLevelTerms.length > 0) {
