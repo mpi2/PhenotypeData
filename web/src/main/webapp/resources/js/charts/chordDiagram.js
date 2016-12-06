@@ -5,8 +5,10 @@
 
 var drawChords = function (openNewPage, mpTopLevelTerms) {
 
-console.log(mpTopLevelTerms);
+    console.log(mpTopLevelTerms);
     var jsonSource = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? baseUrl + "/chordDiagram.json?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : baseUrl+ "/chordDiagram.json";
+    console.log(jsonSource);
+
     var url = (window.location.href.indexOf("chordDiagram?") >= 0) ? baseUrl + "/chordDiagram?" : window.location.href.replace("chordDiagram", "chordDiagram?");
 
     // Attach download action
@@ -24,8 +26,10 @@ console.log(mpTopLevelTerms);
 
         else {
             var labels = json.labels;
+
             var matrix = json.matrix;
-            d3.select("#chordDiagramSvg").selectAll("*").remove();
+
+            d3.select("#chordDiagramSvg").selectAll("*").remove(); // clear svg for in-place filters
             var svg = d3.select("#chordDiagramSvg"),
                 width = +svg.attr("width"),
                 height = +svg.attr("height"),
