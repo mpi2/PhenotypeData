@@ -75,10 +75,7 @@
                                 <div id="chordContainer"></div>
                                 <svg id="chordDiagramSvg" width="960" height="960"></svg>
                                 <script>
-                                    var mpTopLevelTerms = [];
-                                    <c:if test="${phenotypeName != null}">
-                                        mpTopLevelTerms = ${phenotypeName};
-                                    </c:if>
+                                    var mpTopLevelTerms = ["cardiovascular system phenotype"];
                                     drawChords(false, mpTopLevelTerms);
                                 </script>
 
