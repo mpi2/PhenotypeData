@@ -81,7 +81,8 @@ public class DccSqlUtils {
    		"EPD0135_1_A05_10631", "EPD0156_1_B01_10517", "EPD0242_4_B03_10579", "EPD0011_3_B08_28",
    		"EPD0013_1_G11_10560", "EPD0017_3_E02_10220", "EPD0019_1_A05_73",    "EPD0033_3_F04_10232",
    		"EPD0037_1_B03_10234", "EPD0037_3_G01_10649", "EPD0039_1_B01_157",   "EPD0046_2_F02_10658",
-   		"EPD0135_1_A05_10562", "EPD0145_4_B09_10826", "EPD0242_4_B03_10233");
+   		"EPD0135_1_A05_10562", "EPD0145_4_B09_10826", "EPD0242_4_B03_10233",
+        "Dll1_C3H_113",        "Dll1_C3H_10333");
 
     /**
      * Most of the EuroPhenome colony ids provided by the DCC have a number appended to them that must be removed in order to match
