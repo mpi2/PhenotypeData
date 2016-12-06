@@ -555,7 +555,7 @@ public class GenePage {
         if ( ! elements.isEmpty()) {
             String text = elements.get(0).getText().toLowerCase();
             hasImages = text.contains("legacy");
-            hasImpcImages = text.contains("Associated Images");
+            hasImpcImages = text.contains("associated images");
         }
 
         // Check for disease models.
