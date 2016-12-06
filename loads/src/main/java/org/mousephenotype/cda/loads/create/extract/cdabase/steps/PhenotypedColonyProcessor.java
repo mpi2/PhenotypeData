@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony, PhenotypedColony> {
 
-//    private int                           addedAllelesCount = 0;
     private int                           addedGenesCount = 0;
     private int                           addedPhenotypedColoniesCount = 0;
     private Map<String, GenomicFeature>   genes;                                        // Genes mapped by marker accession id
