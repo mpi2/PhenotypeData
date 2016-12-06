@@ -6,10 +6,10 @@
 
 <t:genericpage>
 
-    <jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
+    <jsp:attribute name="title">${systemName} landing page | IMPC Phenotype Information</jsp:attribute>
 
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/landing">Landing
-        Pages</a> &nbsp;&raquo; ${pageTitle}</jsp:attribute>
+        Pages</a> &nbsp;&raquo; ${systemName}</jsp:attribute>
 
     <jsp:attribute name="header">
 
@@ -37,7 +37,7 @@
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">${pageTitle} </h1>
+                        <h1 class="title" id="top">${systemName} </h1>
 
                         <c:import url="landing_overview_frag.jsp"/>
                         <br/><br/>
@@ -48,7 +48,7 @@
                              <div class="inner">
 
                                 <p> To measure cardiovascular function in the mouse, IMPC uses a series of standardised protolcols. These protocols are described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). </p>
-                                <p>Heart and vascular function/physiology are measured through several procedures like echocardiography and electrocardiogram, Non-Invasive blood pressure for example. Cardiovascular system morphology is assessed through macroscopic and microscopic assessments, like heart weight, gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are presented in the table below. Links to impress are provided for more details on the procedure. </p>
+                                <p>Heart and vascular function/physiology are measured through several procedures like echocardiography and electrocardiogram, Non-Invasive blood pressure for example. Cardiovascular system morphology is assessed through macroscopic and microscopic measurements, like heart weight, gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are presented in the table below. Links to impress are provided for more details on the procedure. </p>
                                 <br/><br/>
                                 <c:import url="landing_procedures_frag.jsp"/>
                             </div>
