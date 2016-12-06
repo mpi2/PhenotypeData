@@ -40,14 +40,20 @@
                         <h1 class="title" id="top">${pageTitle} </h1>
 
                         <c:import url="landing_overview_frag.jsp"/>
-                        <div class="clear"></div>
+                        <br/><br/>
+
 
                         <div class="section">
                             <h2 class="title">Approach</h2>
-                            <div class="inner">
+                             <div class="inner">
+
+                                <p> To measure cardiovascular function in the mouse, IMPC uses a series of standardised protolcols. These protocols are described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). </p>
+                                <p>Heart and vascular function/physiology are measured through several procedures like echocardiography and electrocardiogram, Non-Invasive blood pressure for example. Cardiovascular system morphology is assessed through macroscopic and microscopic assessments, like heart weight, gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are presented in the table below. Links to impress are provided for more details on the procedure. </p>
+                                <br/><br/>
                                 <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
+
 
                         <div class="section">
                             <%--IMPC images--%>
@@ -59,7 +65,6 @@
                                     </div>
                                 </div>
                             </c:if>
-
                         </div>
 
 
@@ -67,11 +72,17 @@
 
                             <h2 class="title">Phenotypes distribution</h2>
                             <div class="inner">
+                                <p>The following graph represents the distribution of genes according to their phenotypes. Genes have at least one phenotype linked to cardiovascular system.
+                                    Show the test graph – change the phenotype count to match the gene page (collapse numbers).
+                                </p>
+                                <br/> <br/>
                                 <div id="phenotypeChart">
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
                                 </div>
 
-
+                                <br/><br/>
+                                <p>The following diagram represents the various biological system phenotypes associations for genes linked to cardiovascular system phenotypes. The line thickness is correlated with the strength of the association. Gene lists can be downloaded. </p>
+                                <br/>
                                 <div id="chordContainer"></div>
                                 <svg id="chordDiagramSvg" width="960" height="960"></svg>
                                 <script>
