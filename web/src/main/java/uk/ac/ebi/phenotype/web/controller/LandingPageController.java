@@ -153,6 +153,7 @@ public class LandingPageController {
         model.addAttribute("phenotypes", gpService.getAssociationsCount(mpDTO.getMpId(), resources));
         model.addAttribute("mpId", mpDTO.getMpId());
         model.addAttribute("mpDTO", mpDTO);
+        model.addAttribute("systemName", mpDTO.getMpTerm().replace(" phenotype", "" ));
         model.addAttribute("procedures", procedures);
 
 

@@ -1,8 +1,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <div class="section">
     <div class="inner">
         <p> ${shortDescription} </p>
-        <p><b>Definition: </b> ${mpDTO.getMpDefinition()}</p>
+        <p><b>${systemName}</b> refers to ${mpDTO.getMpDefinition()}</p>
+        <p>This page aims to present ${systemName} related phenotypes lines which have been produced by IMPC. </p>
         <br/> <br/>
 
         <c:if test="${genePercentage.getDisplay()}">
