@@ -7,6 +7,7 @@ import org.codehaus.jackson.map.type.TypeFactory;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
@@ -50,6 +51,9 @@ public class LandingPageController {
     ImageService imageService;
 
     @Autowired
+    MpService mpService;
+
+    @Autowired
     ImpressService is;
 
     @RequestMapping("/landing")
@@ -90,43 +94,44 @@ public class LandingPageController {
     public String loadDeafnessPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
-        String mpId = "";
         String pageTitle = "";
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
         List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
+        MpDTO mpDTO = null;
+
 
         if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
-            mpId = "MP:0005377";
+            mpDTO = mpService.getPhenotype("MP:0005377");
             anatomyIds.add("MA:0002443");
             anatomyIds.add("EMAPA:36002");
             model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
             pageTitle = "Hearing/Vestibular/Ear";
         } else if (page.equalsIgnoreCase("cardiovascular")){
-            mpId = "MP:0005385";
+            mpDTO = mpService.getPhenotype("MP:0005385");
             anatomyIds.add("MA:0000010");
             anatomyIds.add("EMAPA:16104");
             pageTitle = "Cardiovascular";
         } else if (page.equalsIgnoreCase("metabolism")){
-            mpId = "MP:0005376";
+            mpDTO = mpService.getPhenotype("MP:0005376");
             pageTitle = "Metabolism";
         } else if (page.equalsIgnoreCase("vision")){
-            mpId = "MP:0005391";
+            mpDTO = mpService.getPhenotype("MP:0005391");
             anatomyIds.add("EMAPA:36003");
             anatomyIds.add("MA:0002444");
             pageTitle = "Vision";
         } else if (page.equalsIgnoreCase("nervous")){
-            mpId = "MP:0003631";
+            mpDTO = mpService.getPhenotype("MP:0003631");
             anatomyIds.add("MA:0000016");
             anatomyIds.add("EMAPA:16469");
             pageTitle = "Nervous phenotypes";
         } else if (page.equalsIgnoreCase("neurological")){
-            mpId = "MP:0005386";
+            mpDTO = mpService.getPhenotype("MP:0005386");
             pageTitle = "Behavioural/neurological phenotypes";
         }
 
         // IMPC image display at the bottom of the page
-        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, mpId, anatomyIds, true, 1);
+        List<Group> groups = imageService.getPhenotypeAssociatedImages(null, mpDTO.getMpId(), anatomyIds, true, 1);
         Map<String, String> paramToNumber=new HashMap<>();
         for(Group group: groups){
             if(!paramToNumber.containsKey(group.getGroupValue())){
@@ -134,19 +139,20 @@ public class LandingPageController {
             }
         }
         ArrayList<ImpressDTO> procedures = new ArrayList<>();
-        procedures.addAll(is.getProceduresByMpTerm(mpId, true));
+        procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
 
 
-        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpId), "Gene pleiotropy",
+        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",
             "for genes with at least one " + pageTitle + " phenotype", "Number of associations to " + pageTitle , "Number of associations to other phenotypes",
                 "Other phenotype calls: ", pageTitle + " phenotype calls: "));
         model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("paramToNumber", paramToNumber);
         model.addAttribute("impcImageGroups",groups);
-        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpId, srService, gpService));
-        model.addAttribute("phenotypes", gpService.getAssociationsCount(mpId, resources));
-        model.addAttribute("mpId", mpId);
+        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpDTO.getMpId(), srService, gpService));
+        model.addAttribute("phenotypes", gpService.getAssociationsCount(mpDTO.getMpId(), resources));
+        model.addAttribute("mpId", mpDTO.getMpId());
+        model.addAttribute("mpDTO", mpDTO);
         model.addAttribute("procedures", procedures);
 
 
