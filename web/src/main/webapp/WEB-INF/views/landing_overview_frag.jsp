@@ -2,6 +2,7 @@
 <div class="section">
     <div class="inner">
         <p> ${shortDescription} </p>
+        <p><b>Definition: </b> ${mpDTO.getMpDefinition()}</p>
         <br/> <br/>
 
         <c:if test="${genePercentage.getDisplay()}">

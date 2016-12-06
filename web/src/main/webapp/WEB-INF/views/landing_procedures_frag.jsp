@@ -13,11 +13,23 @@
         <h4>Procedures that can lead to relevant phenotype associations</h4>
         <ul>
             <c:set var="count" value="0" scope="page"/>
+            <c:set var="lastProcedure" value="" scope="page"/>
             <c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
-                <li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">
-                        ${procedure.procedureName} (${procedure.procedureStableId.split("_")[0]},
-                    v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())})
-                </a></li>
+                <c:if test="${lastProcedure.equalsIgnoreCase(procedure.getProcedureName())}">
+                    <a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">
+                            , ${procedure.procedureStableId.split("_")[0]} v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())}
+                    </a>
+                </c:if>
+                <c:if test="${!lastProcedure.equalsIgnoreCase(procedure.getProcedureName())}">
+                    </li>
+                    <li>
+                        ${procedure.procedureName}
+                        <a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">
+                             ${procedure.procedureStableId.split("_")[0]} v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())}
+                        </a>
+
+                </c:if>
+                <c:set var="lastProcedure" value="${procedure.getProcedureName()}" scope="page"/>
             </c:forEach>
         </ul>
     </c:if>
