@@ -63,7 +63,7 @@ public class SearchPage {
     public static final String GENE_FACET = "gene";
     public static final String PHENOTYPE_FACET = "mp";
     public static final String DISEASE_FACET = "disease";
-    public static final String ANATOMY_FACET = "ma";
+    public static final String ANATOMY_FACET = "anatomy";
     public static final String IMPC_IMAGES_FACET = "impc_images";
     public static final String IMAGES_FACET = "images";
 
