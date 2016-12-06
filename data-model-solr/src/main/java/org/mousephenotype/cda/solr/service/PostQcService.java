@@ -207,7 +207,8 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         HttpURLConnection connection = (HttpURLConnection) new URL(SolrUtils.getBaseURL(solr) + "/select?" + query).openConnection();
         BufferedReader br = new BufferedReader( new InputStreamReader(connection.getInputStream()));
 
-        return br.lines().collect(Collectors.joining("\n"));
+        // Return list of genes, uniue entrie only. The splitting is based on the order of pivot facets.
+        return br.lines().map(line -> line.split(",")[0]).distinct().collect(Collectors.joining("\n"));
 
     }
 
