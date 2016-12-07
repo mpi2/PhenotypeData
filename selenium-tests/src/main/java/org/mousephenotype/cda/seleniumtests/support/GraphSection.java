@@ -239,7 +239,7 @@ public abstract class GraphSection {
      */
     public class MoreStatisticsLink {
         private final WebElement chartElement;
-        private final String moreStatisticsIXpath   = ".//p/a/i[starts-with(@id, 'toggle_table_buttondivChart_')]"; // xpath to this section's 'more statistics' link.
+        private final String moreStatisticsIXpath   = ".//p/a/i[starts-with(@id, 'more_statistics')]"; // xpath to this section's 'more statistics' link.
         // xpath to this section's 'more statistics' link contents.
         private final String moreStatisticsDivXpath = ".//div[starts-with(@id, 'toggle_tabledivChart_')] | .//div[starts-with(@id, 'toggle_timetabledivChart_')]";
 

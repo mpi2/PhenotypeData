@@ -91,12 +91,12 @@ public class GraphSectionTimeSeries extends GraphSection {
         }
 
         // Validate that there is a 'More statistics' link, click it and validate it.
-        GraphSection.MoreStatisticsLink moreStatisticsLink = getMoreStatisticsLink();
-        if (moreStatisticsLink == null) {
-            status.addError("ERROR: unidimensional graph expected 'More statistics' link. URL: " + graphUrl);
-        } else {
-            status.add(moreStatisticsLink.validate());
-        }
+//        GraphSection.MoreStatisticsLink moreStatisticsLink = getMoreStatisticsLink();
+//        if (moreStatisticsLink == null) {
+//            status.addError("ERROR: time series graph expected 'More statistics' link. URL: " + graphUrl);
+//        } else {
+//            status.add(moreStatisticsLink.validate());
+//        }
 
         status.add(validateDownload());                                         // Validate download streams.
 
