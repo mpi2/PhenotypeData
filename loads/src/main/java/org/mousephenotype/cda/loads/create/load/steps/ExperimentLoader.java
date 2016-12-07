@@ -199,6 +199,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             logger.error("Missing project '" + projectId + "'. Skipping...");
         }
 
+        Iterator<String> missingSamplesIt = missingSamples.iterator();
+        while (missingSamplesIt.hasNext()) {
+            String parameterStableId = missingSamplesIt.next();
+            logger.error("Missing samples for parameter stable id '" + parameterStableId + "'. Skipping...");
+        }
+
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
         logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
 
@@ -221,6 +227,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Set<String> missingProjects   = new HashSet<>();
     private Set<String> missingPipelines  = new HashSet<>();
     private Set<String> missingProcedures = new HashSet<>();
+    private Set<String> missingSamples    = new HashSet<>();        // value = parameterStableId
 
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
@@ -608,7 +615,14 @@ if ( ! missingColonyIds.contains(dccExperimentDTO.getColonyId())) {
         int missing = ((procedureStatus != null) || parameterStatus != null ||
                 (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : 0);
         int populationId = 0;
-        int samplePk = samplesMap.get(parameterPk).getId();
+        BiologicalSample sample = samplesMap.get(parameterPk);
+        if (sample == null) {
+            missingSamples.add(parameterStableId);
+            return;
+        }
+
+        int samplePk = sample.getId();
+
         int organisationPk = cdaOrganisation_idMap.get(parameterPk);
 
         int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
@@ -712,7 +726,13 @@ if ( ! missingColonyIds.contains(dccExperimentDTO.getColonyId())) {
         }
         int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
-        int samplePk = samplesMap.get(parameterPk).getId();
+        BiologicalSample sample = samplesMap.get(parameterPk);
+        if (sample == null) {
+            missingSamples.add(parameterStableId);
+            return;
+        }
+
+        int samplePk = sample.getId();
         int organisationPk = cdaOrganisation_idMap.get(parameterPk);
 
         for (SeriesMediaParameterValue value : seriesMediaParameter.getValue()) {
