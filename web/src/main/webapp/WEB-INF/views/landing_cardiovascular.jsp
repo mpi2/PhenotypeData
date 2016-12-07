@@ -73,7 +73,6 @@
                             <h2 class="title">Phenotypes distribution</h2>
                             <div class="inner">
                                 <p>The following graph represents the distribution of genes according to their phenotypes. Genes have at least one phenotype linked to cardiovascular system.
-                                    Show the test graph – change the phenotype count to match the gene page (collapse numbers).
                                 </p>
                                 <br/> <br/>
                                 <div id="phenotypeChart">
