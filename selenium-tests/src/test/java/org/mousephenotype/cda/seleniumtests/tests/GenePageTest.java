@@ -738,7 +738,7 @@ public class GenePageTest {
         }
 
         //test that the order mouse and es cells content from viveks team exists on the page
-        WebElement orderAlleleDiv = driver.findElement(By.id("allele2"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
+        WebElement orderAlleleDiv = driver.findElement(By.id("order2"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
         // This used to be called id="allele". That id still exists but is empty and causes the test to fail here. Now they use id="allele2".
         String text = orderAlleleDiv.getText();
         if (text.length() < 100) {
@@ -882,7 +882,7 @@ public class GenePageTest {
         status = new RunStatus();
 
         //test that the order mouse and es cells content from viveks team exists on the page
-        WebElement orderAlleleDiv = driver.findElement(By.id("allele2"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
+        WebElement orderAlleleDiv = driver.findElement(By.id("order2"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
         // This used to be called id="allele". That id still exists but is empty and causes the test to fail here. Now they use id="allele2".
         String text = orderAlleleDiv.getText();
         if (text.length() < 100) {
