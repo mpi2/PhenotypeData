@@ -113,6 +113,7 @@ public class ChartsPageTest {
         logger.info("Target: " + target);
         driver.get(target);
         String title  = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("title"))).getText();
+        System.out.println("title="+title);
         if ( ! title.contains(geneSymbol)) {
             status.addError("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + target + "'");
         } else {
