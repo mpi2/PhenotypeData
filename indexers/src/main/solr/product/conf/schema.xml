@@ -32,17 +32,17 @@
         <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
 
 
-        <fieldType name="pint" class="solr.IntField" omitNorms="true"/>
-        <fieldType name="plong" class="solr.LongField" omitNorms="true"/>
-        <fieldType name="pfloat" class="solr.FloatField" omitNorms="true"/>
-        <fieldType name="pdouble" class="solr.DoubleField" omitNorms="true"/>
-        <fieldType name="pdate" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="pint" class="solr.TrieIntField" omitNorms="true"/>
+        <fieldType name="plong" class="solr.TrieLongField" omitNorms="true"/>
+        <fieldType name="pfloat" class="solr.TrieFloatField" omitNorms="true"/>
+        <fieldType name="pdouble" class="solr.TrieDoubleField" omitNorms="true"/>
+        <fieldType name="pdate" class="solr.TrieDateField" sortMissingLast="true" omitNorms="true"/>
 
 
-        <fieldType name="sint" class="solr.SortableIntField" sortMissingLast="true" omitNorms="true"/>
-        <fieldType name="slong" class="solr.SortableLongField" sortMissingLast="true" omitNorms="true"/>
-        <fieldType name="sfloat" class="solr.SortableFloatField" sortMissingLast="true" omitNorms="true"/>
-        <fieldType name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="sint" class="solr.TrieIntField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="slong" class="solr.TrieLongField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="sfloat" class="solr.TrieFloatField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="sdouble" class="solr.TrieDoubleField" sortMissingLast="true" omitNorms="true"/>
 
 
         <fieldType name="random" class="solr.RandomSortField" indexed="true"/>

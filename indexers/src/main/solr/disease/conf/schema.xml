@@ -573,11 +573,11 @@
           value verbatim (and hence don't correctly support range queries, since the
           lexicographic ordering isn't equal to the numeric ordering)
         -->
-        <fieldType name="pint" class="solr.IntField"/>
-        <fieldType name="plong" class="solr.LongField"/>
-        <fieldType name="pfloat" class="solr.FloatField"/>
-        <fieldType name="pdouble" class="solr.DoubleField"/>
-        <fieldType name="pdate" class="solr.DateField" sortMissingLast="true"/>
+        <fieldType name="pint" class="solr.TrieIntField"/>
+        <fieldType name="plong" class="solr.TrieLongField"/>
+        <fieldType name="pfloat" class="solr.TrieFloatField"/>
+        <fieldType name="pdouble" class="solr.TrieDoubleField"/>
+        <fieldType name="pdate" class="solr.TrieDateField" sortMissingLast="true"/>
 
         <!-- The "RandomSortField" is not used to store or search any
              data.  You can declare fields of this type it in your schema
@@ -884,7 +884,7 @@
           http://wiki.apache.org/solr/SolrAdaptersForLuceneSpatial4
         -->
         <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType"
-                   geo="true" distErrPct="0.025" maxDistErr="0.000009" units="degrees" />
+                   geo="true" distErrPct="0.025" maxDistErr="0.000009"  />
 
         <!-- Money/currency field type. See http://wiki.apache.org/solr/MoneyFieldType
              Parameters:
@@ -1270,14 +1270,19 @@
         </fieldType>
 
         <!-- Thai -->
-        <fieldType name="text_th" class="solr.TextField" positionIncrementGap="100">
+        <!-- <fieldType name="text_th" class="solr.TextField" positionIncrementGap="100">
             <analyzer>
                 <tokenizer class="solr.StandardTokenizerFactory"/>
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.ThaiWordFilterFactory"/>
                 <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_th.txt" />
             </analyzer>
-        </fieldType>
+        </fieldType> -->
+        <fieldType name="text_thai" class="solr.TextField" positionIncrementGap="100">
+   			<analyzer>
+     		<tokenizer class="solr.ThaiTokenizerFactory"/>
+   			</analyzer>
+ 		</fieldType>
 
         <!-- Turkish -->
         <fieldType name="text_tr" class="solr.TextField" positionIncrementGap="100">

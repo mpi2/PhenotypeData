@@ -923,12 +923,12 @@
   </requestHandler>
 
 	<!-- Need this for dataimporthandler to work -->  
-  <requestHandler name="/dataimport" 
+ <!--  <requestHandler name="/dataimport" 
      class="org.apache.solr.handler.dataimport.DataImportHandler">
     <lst name="defaults">
       <str name="config">data-config.xml</str>
     </lst>
-  </requestHandler>
+  </requestHandler> -->
  
   <!-- A Robust Example 
        
