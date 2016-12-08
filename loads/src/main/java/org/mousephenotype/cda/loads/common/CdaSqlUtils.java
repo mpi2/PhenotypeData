@@ -3019,6 +3019,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         if (allele == null) {
             try {
                 allele = createAndInsertAllele(colony.getAlleleSymbol());
+                if (allele == null) {
+                    message = "Unable to create allele for " + colony.getAlleleSymbol() + ". Skipping...";
+                    logger.error(message);
+                    throw new DataLoadException(message);
+                }
 
             } catch (DataLoadException e) {
                 message = "Missing allele information for dcc-supplied colony " + colony.getColonyName() + ". Skipping...";
