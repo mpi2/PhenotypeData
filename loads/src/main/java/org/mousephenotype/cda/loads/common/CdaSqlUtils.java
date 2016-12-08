@@ -2918,12 +2918,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
    		// Create the allele based on the symbol
    		// e.g. allele symbol Lama4<tm1.1(KOMP)Vlcg>
+        // Alleles are not required to have "<" and ">". If missing, just use the name for both the gene and the allele.
 
    		// Create the gene symbol
-   		String alleleGeneSymbol = alleleSymbol.substring(0, alleleSymbol.indexOf('<'));
+        int index = alleleSymbol.indexOf('<');
+   		String alleleGeneSymbol = (index >= 0 ? alleleSymbol.substring(0, index)  : alleleSymbol);
 
    		// get the gene
         GenomicFeature gene = getGeneBySymbol(alleleGeneSymbol);
+        if (gene == null) {
+            logger.error("No gene for allele {}", alleleSymbol);
+            return null;
+        }
 
    		// Create the allele acc
    		String alleleAccession = "NULL-" + DigestUtils.md5Hex(alleleSymbol).substring(0, 9).toUpperCase();
