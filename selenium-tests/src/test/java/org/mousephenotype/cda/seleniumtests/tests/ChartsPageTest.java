@@ -55,7 +55,7 @@ public class ChartsPageTest {
     protected WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int TIMEOUT_IN_SECONDS = 220;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
     private final int THREAD_WAIT_IN_MILLISECONDS = 20;
 
     private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
@@ -113,6 +113,7 @@ public class ChartsPageTest {
         logger.info("Target: " + target);
         driver.get(target);
         String title  = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("title"))).getText();
+        System.out.println("title="+title);
         if ( ! title.contains(geneSymbol)) {
             status.addError("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + target + "'");
         } else {

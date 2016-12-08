@@ -810,6 +810,11 @@ div#phenoSumDiv {
     min-height: 190px;
     margin-bottom: 10px;
 }
+
+div#phenoSumSmallDiv {
+    min-height: 50px;
+    margin-bottom: 10px;
+}
 div#phenoSumDiv > p {
     display: block;
     width: 70%;

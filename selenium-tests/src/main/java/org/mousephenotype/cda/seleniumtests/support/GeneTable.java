@@ -73,8 +73,8 @@ public class GeneTable {
     public static final int COL_INDEX_GENES_PARAMETER                  =   6;
     public static final int COL_INDEX_GENES_PHENOTYPING_CENTER         =   7;
     public static final int COL_INDEX_GENES_SOURCE                     =   8;
-    public static final int COL_INDEX_GENES_P_VALUE                    =   9;
-    public static final int COL_INDEX_GENES_GRAPH_LINK                 =  10;
+    public static final int COL_INDEX_GENES_P_VALUE                    =   6;
+    public static final int COL_INDEX_GENES_GRAPH_LINK                 =  7;
 
     public static final String COL_GENES_PHENOTYPE                  = "Phenotype";
     public static final String COL_GENES_ALLELE                     = "Allele";
