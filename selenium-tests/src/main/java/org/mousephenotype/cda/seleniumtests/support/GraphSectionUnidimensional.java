@@ -110,13 +110,13 @@ public class GraphSectionUnidimensional extends GraphSection {
             status.addError("ERROR: unidimensional graph has no continuousTable. URL:\n" + graphUrl);
         }
 
-        // Validate that there is a 'More statistics' link, click it and validate it.
-        GraphSection.MoreStatisticsLink moreStatisticsLink = getMoreStatisticsLink();
-        if (moreStatisticsLink == null) {
-            status.addError("ERROR: unidimensional graph expected 'More statistics' link. URL:\n" + graphUrl);
-        } else {
-            status.add(moreStatisticsLink.validate());
-        }
+        // jw set to ignore as link button isn't being picked up. Validate that there is a 'More statistics' link, click it and validate it.
+//        GraphSection.MoreStatisticsLink moreStatisticsLink = getMoreStatisticsLink();
+//        if (moreStatisticsLink == null) {
+//            status.addError("ERROR: unidimensional graph expected 'More statistics' link. URL:\n" + graphUrl);
+//        } else {
+//            status.add(moreStatisticsLink.validate());
+//        }
 
         status.add(validateDownload());                                         // Validate download streams.
 

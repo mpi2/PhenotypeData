@@ -540,6 +540,25 @@ public class CdaSqlUtils {
     }
 
     /**
+     * Return the list of <code>GenomicFeature</code>s
+     *
+     * @return the list of <code>GenomicFeature</code>s, mapped by gene symbol
+     */
+    public Map<String, GenomicFeature> getGenesBySymbol() {
+        Map<String, GenomicFeature> genes = new ConcurrentHashMap<>();
+
+        logger.info("Loading genes mapped by symbol");
+        List<GenomicFeature> geneList = jdbcCda.query("SELECT * FROM genomic_feature", new GenomicFeatureRowMapper());
+
+        for (GenomicFeature gene : geneList) {
+            genes.put(gene.getSymbol(), gene);
+        }
+        logger.info("Loading genes by symbol complete.");
+
+        return genes;
+    }
+
+    /**
      * Insert {@link BiologicalModelAggregator} doesn't exist, insert it into the database.
      *
      * @param bioModels the {@link BiologicalModelAggregator} instance to be inserted
@@ -1510,34 +1529,19 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     }
 
     /**
-     * Return a {@link PhenotypedColony} given a colony name (aka colony id). This method is built to correctly work
-     * for that set of EuroPhenome colonies that have duplicated work on a cell line by truncating the characters
-     * from the trailing underscore (inclusive) and re-trying.
-     * @param originalColonyId the colony name/colony id
-     * @return a {@link PhenotypedColony} instance, if found; null otherwise
+     * @return the full list of {@link }PhenotypedColony}, indexed by colonyId
      */
-    public PhenotypedColony getPhenotypedColony(String originalColonyId) {
-        String query = "SELECT * FROM phenotyped_colony WHERE colony_name = :colony_name";
+    public Map<String, PhenotypedColony> getPhenotypedColonies() {
 
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("colony_name", originalColonyId);
+        Map<String, PhenotypedColony> list = new HashMap<>();
+        String query = "SELECT * FROM phenotyped_colony";
 
-        List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, parameterMap, new PhenotypedColonyRowMapper());
-
-        if (phenotypedColonies.isEmpty()) {
-            // NOTE: A certain set of EuroPhenome colonies that have duplicated work on a cell line must have their colony
-            //       ids filtered in order to match the iMits colony to which they belong.
-            // Try looking up the colony id after removing the characters after the trailing underscore.
-            int lastUnderscoreIndex = originalColonyId.lastIndexOf("_");
-            if (lastUnderscoreIndex >= 0) {
-                String truncatedColonyId = originalColonyId.substring(0, lastUnderscoreIndex);
-                parameterMap.put("colony_name", truncatedColonyId);
-
-                phenotypedColonies = jdbcCda.query(query, parameterMap, new PhenotypedColonyRowMapper());
-            }
+        List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<String, Object>(), new PhenotypedColonyRowMapper());
+        for (PhenotypedColony phenotypedColony : phenotypedColonies) {
+            list.put(phenotypedColony.getColonyName(), phenotypedColony);
         }
 
-        return (phenotypedColonies.isEmpty() ? null : phenotypedColonies.get(0));
+        return list;
     }
 
     public Map<String, Project> getProjects() {
@@ -2914,12 +2918,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
    		// Create the allele based on the symbol
    		// e.g. allele symbol Lama4<tm1.1(KOMP)Vlcg>
+        // Alleles are not required to have "<" and ">". If missing, just use the name for both the gene and the allele.
 
    		// Create the gene symbol
-   		String alleleGeneSymbol = alleleSymbol.substring(0, alleleSymbol.indexOf('<'));
+        int index = alleleSymbol.indexOf('<');
+   		String alleleGeneSymbol = (index >= 0 ? alleleSymbol.substring(0, index)  : alleleSymbol);
 
    		// get the gene
         GenomicFeature gene = getGeneBySymbol(alleleGeneSymbol);
+        if (gene == null) {
+            logger.error("No gene for allele {}", alleleSymbol);
+            return null;
+        }
 
    		// Create the allele acc
    		String alleleAccession = "NULL-" + DigestUtils.md5Hex(alleleSymbol).substring(0, 9).toUpperCase();
@@ -2978,7 +2988,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      * Returns a biological model. First queries for an existing one matching input parameters. If not found, creates
      * one and returns it.
      *
-     * @param colonyId
+     * @param colony
      * @param strainMapper
      * @param zygosity
      * @param sampleGroup
@@ -2986,8 +2996,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      * @return {@link BiologicalModel} matching the input parameters. Creates it if necessary.
      * @throws DataLoadException
      */
-    public BiologicalModel selectOrInsertBiologicalModel(
-            String colonyId,
+    public BiologicalModel selectOrInsertBiologicalModel (
+            PhenotypedColony colony,
             EuroPhenomeStrainMapper strainMapper,
             String zygosity,
             String sampleGroup,
@@ -3000,10 +3010,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         String backgroundStrainName;
         Strain backgroundStrain;
 
-        // Query iMits first for specimen information. iMits is more up-to-date than the dcc.
-        PhenotypedColony colony = getPhenotypedColony(colonyId);
         if (colony == null) {
-            throw new DataLoadException("No such colonyId '" + colonyId + "' exists.");
+            throw new DataLoadException("No such colonyId '" + colony.getColonyName() + "' exists.");
         }
 
         // Get the allele by symbol.
@@ -3011,9 +3019,14 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         if (allele == null) {
             try {
                 allele = createAndInsertAllele(colony.getAlleleSymbol());
+                if (allele == null) {
+                    message = "Unable to create allele for " + colony.getAlleleSymbol() + ". Skipping...";
+                    logger.error(message);
+                    throw new DataLoadException(message);
+                }
 
             } catch (DataLoadException e) {
-                message = "Missing allele information for dcc-supplied colony " + colonyId + ". Skipping...";
+                message = "Missing allele information for dcc-supplied colony " + colony.getColonyName() + ". Skipping...";
                 logger.error(message);
                 throw new DataLoadException(message, e);
             }
@@ -3022,7 +3035,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         // Get the gene. Mark as error and skip if no gene.
         gene = colony.getGene();
         if (gene == null) {
-            message = "Missing gene information for dcc-supplied colony " + colonyId + " for allele " + allele.toString() + ". Skipping...";
+            message = "Missing gene information for dcc-supplied colony " + colony.getColonyName() + " for allele " + allele.toString() + ". Skipping...";
             logger.error(message);
             throw new DataLoadException(message);
         }
@@ -3043,7 +3056,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         } catch (DataLoadException e) {
 
-            message = "Insert strain " + colony.getBackgroundStrainName() + " for dcc-supplied colony " + colonyId + " failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
+            message = "Insert strain " + colony.getBackgroundStrainName() + " for dcc-supplied colony " + colony.getColonyName() + " failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
             logger.error(message);
             throw new DataLoadException(message, e);
         }
@@ -3067,7 +3080,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             biologicalModel = getBiologicalModel(allelicComposition, backgroundStrainName);
             if (biologicalModel == null) {
-                throw new DataLoadException("Attempt to create biological model for colony " + colonyId + " failed.");
+                throw new DataLoadException("Attempt to create biological model for colony " + colony.getColonyName() + " failed.");
             }
         }
 

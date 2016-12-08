@@ -59,6 +59,61 @@ public class DccSqlUtils {
     }
 
 
+    // These colonies are EuroPhenome colonies that have duplicated work on a cell line.  Disambiguation
+   	// is by including a trailing ID (the rightmost numerical string, separated by underscore).  Most
+   	// of the EuroPhenome colonies have the trailing ID stripped for translation, but these need to
+   	// be uniquely identified.
+   	//
+   	// Records have been added into iMits (2016-01-25) to handle these cases, so do not strip the trailing ID
+   	// from these legacy colony IDs.
+   	List<String> DO_NOT_TRUNCATE = Arrays.asList(
+   		"EPD0013_1_G11_10613", "EPD0019_1_A05_10494", "EPD0023_1_F07_10481", "EPD0033_3_F04_10955",
+   		"EPD0037_1_E07_10471", "EPD0037_3_G01_10533", "EPD0039_1_B01_10470", "EPD0057_2_C02_10474",
+   		"EPD0065_2_E04_10968", "EPD0089_4_F11_10538", "EPD0100_4_A06_10472", "EPD0135_1_A05_10967",
+   		"EPD0156_1_B01_10970", "EPD0242_4_B03_10958", "EPD0011_3_B08_10331",
+   		"EPD0017_3_E02_71",    "EPD0019_1_A05_10574", "EPD0023_1_F07_10553", "EPD0033_3_F04_10514",
+   		"EPD0037_1_B03_10395", "EPD0037_1_E07_10554", "EPD0038_2_B10_10557", "EPD0057_1_H01_10556",
+   		"EPD0057_2_C02_10549", "EPD0065_2_E04_10515", "EPD0065_5_A04_10523", "EPD0089_4_F11_320",
+   		"EPD0100_4_A06_10380", "EPD0135_1_A05_10581", "EPD0145_4_B09_10343", "EPD0156_1_B01_10099",
+   		"EPD0242_4_B03_10521", "EPD0023_1_F07_10594", "EPD0037_1_B03_10632", "EPD0037_1_E07_10595",
+   		"EPD0038_2_B10_10026", "EPD0046_2_F02_216",   "EPD0057_1_H01_134",   "EPD0057_2_C02_10630",
+   		"EPD0065_2_E04_10028", "EPD0065_5_A04_141",   "EPD0089_4_F11_10578", "EPD0100_4_A06_10519",
+   		"EPD0135_1_A05_10631", "EPD0156_1_B01_10517", "EPD0242_4_B03_10579", "EPD0011_3_B08_28",
+   		"EPD0013_1_G11_10560", "EPD0017_3_E02_10220", "EPD0019_1_A05_73",    "EPD0033_3_F04_10232",
+   		"EPD0037_1_B03_10234", "EPD0037_3_G01_10649", "EPD0039_1_B01_157",   "EPD0046_2_F02_10658",
+   		"EPD0135_1_A05_10562", "EPD0145_4_B09_10826", "EPD0242_4_B03_10233",
+        "Dll1_C3H_113",        "Dll1_C3H_10333");
+
+    /**
+     * Most of the EuroPhenome colony ids provided by the DCC have a number appended to them that must be removed in order to match
+     * the colony id as known by imits. There are a few cases that require the colony id to be left untouched, as they
+     * are needed to disambiguate between colonies with duplicated work on a cell line.
+     *
+     * This method corrects the colony id according to the rules above: If the colony id has an underscore AND IT IS
+     * NOT IN THE 'DO_NOT_TRUNCATE' LIST, truncate the colony id by removing the trailing underscore and all the
+     * characters after it.
+     *
+     * If the colony id does not contain an underscore, or the colony id is in the DO_NOT_TRUNCATE list, simply return
+     * it unmodified.
+     *
+     * @param colonyId
+     *
+     * @return the colony id, corrected if necessary
+     */
+    public String correctEurophenomeColonyId(String colonyId) {
+        String retVal = colonyId;
+
+        if ( ! DO_NOT_TRUNCATE.contains(colonyId)) {
+            int idx = colonyId.lastIndexOf("_");
+            if (idx > 0) {
+                retVal = colonyId.substring(0, idx);
+            }
+        }
+
+        return retVal;
+    }
+
+
     public String dumpSpecimen(long centerPk, long specimenPk) {
         String retVal = "";
 
@@ -321,79 +376,6 @@ public class DccSqlUtils {
 
         return dimensions;
     }
-
-//    /**
-//     *
-//     * @return all line-level experiments. No sample-level experiments are included.
-//     */
-//    public List<Experiment> getLineLevelExperiments() {
-//
-//        if (lineLevelExperiments == null) {
-//            final String query =
-//                "SELECT\n" +
-//                "  l.datasourceShortName,\n" +
-//                "  e.experimentId,\n" +
-//                "  e.sequenceId,\n" +
-//                "  e.dateOfExperiment,\n" +
-//                "  c.centerId,\n" +
-//                "  c.pipeline,\n" +
-//                "  c.project,\n" +
-//                "  p.procedureId,\n" +
-//                "  l.colonyId\n" +
-//                "  1    AS isLineLevel\n" +
-//                "FROM experiment e\n" +
-//                "JOIN center_procedure            cp  ON cp .pk                  = e  .center_procedure_pk\n" +
-//                "JOIN center                      c   ON c  .pk                  = cp .center_pk\n" +
-//                "JOIN procedure_                  p   ON p  .pk                  = cp .procedure_pk\n" +
-//                "JOIN line                        l   ON l  .center_procedure_pk = e  .pk";
-//
-//            lineLevelExperiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentRowMapper());
-//            lineLevelExperimentIds = new ArrayList<>();
-//            for (Experiment experiment : lineLevelExperiments) {
-//                lineLevelExperimentIds.add(experiment.getExperimentID());
-//            }
-//        }
-//
-//        return lineLevelExperiments;
-//    }
-//    private List<Experiment> lineLevelExperiments;
-//    private List<String> lineLevelExperimentIds;
-
-//    public List<Experiment> getSampleLevelExperiments() {
-//
-//        if (sampleLevelExperiments == null) {
-//            final String query =
-//                "SELECT\n" +
-//                "  s.datasourceShortName,\n" +
-//                "  e.experimentId,\n" +
-//                "  e.sequenceId,\n" +
-//                "  e.dateOfExperiment,\n" +
-//                "  c.centerId,\n" +
-//                "  c.pipeline,\n" +
-//                "  c.project,\n" +
-//                "  p.procedureId,\n" +
-//                "  null AS colonyId,\n" +
-//                "  0    AS isLineLevel\n" +
-//                "FROM experiment e\n" +
-//                "JOIN center_procedure    cp  ON cp .pk = e  .center_procedure_pk\n" +
-//                "JOIN center              c   ON c  .pk = cp .center_pk\n" +
-//                "JOIN procedure_          p   ON p  .pk = cp .procedure_pk\n" +
-//                "JOIN experiment_specimen es  ON es .pk = e  .pk\n" +
-//                "JOIN specimen            s   ON s  .pk = es .specimen_pk";
-//
-//            List<ExperimentDccToCda> tmpSampleLevelExperiments = npJdbcTemplate.query(query, new HashMap<>(), new ExperimentDccToCdaRowMapper());
-//
-//            // Add sample-level experiments. Exclude experiment if it is line-level.
-//            for (Experiment sampleLevelExperiment : tmpSampleLevelExperiments) {
-//                if ( ! lineLevelExperimentIds.contains(sampleLevelExperiment.getExperimentID())) {
-//                    sampleLevelExperiments.add(tmpSampleLevelExperiments);
-//                }
-//            }
-//        }
-//
-//        return sampleLevelExperiments;
-//    }
-//    private List<Experiment> sampleLevelExperiments;
 
     /**
      * Returns the line primary key matching {@code colonyId} and {@code center_procedurePk}, if found; 0 otherwise.
