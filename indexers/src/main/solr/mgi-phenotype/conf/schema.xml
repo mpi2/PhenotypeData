@@ -35,7 +35,7 @@
 
         <!-- use KeywordTokenizerFactory so that no work splitting on punctuation, hyphen. Ie, does not split the input at all -->
         <tokenizer class="solr.KeywordTokenizerFactory" /> 
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"  />
         <!-- in this example, we will only use synonyms at query time
         <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
 
@@ -48,7 +48,7 @@
 
                 <!-- use KeywordTokenizerFactory so that no work splitting on punctuation, hyphen. Ie, does not split the input at all -->
                 <tokenizer class="solr.KeywordTokenizerFactory" /> 
-                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"  />
                 <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> <!-- added -->
@@ -60,7 +60,7 @@
         <fieldType name="text_general_rev" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
-                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"  />
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true"
                 maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
@@ -68,7 +68,7 @@
             <analyzer type="query">
                 <tokenizer class="solr.StandardTokenizerFactory"/>
                 <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"  />
                 <filter class="solr.LowerCaseFilterFactory"/>
             </analyzer>
         </fieldType>
@@ -78,7 +78,7 @@
                 <tokenizer class="solr.WhitespaceTokenizerFactory"/>
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>         
-                <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>        
+                <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" />        
                 <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />
             </analyzer>
             <analyzer type="query"> 
