@@ -18,7 +18,7 @@ import java.util.*;
  */
 @RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@Import(TestConfig.class)
+@Import(CdaSqlUtilsTestConfig.class)
 public class CdaSqlUtilsTest {
 
     @Autowired

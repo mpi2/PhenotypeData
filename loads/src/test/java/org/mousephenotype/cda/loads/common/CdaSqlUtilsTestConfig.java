@@ -33,16 +33,16 @@ import java.util.Properties;
  * Created by mrelac on 27/09/16.
  */
 @Configuration
-public class TestConfig {
+public class CdaSqlUtilsTestConfig {
 
 	@Bean(name = "cdaSqlUtils")
  	public CdaSqlUtils cdaSqlUtils() {
-     return new CdaSqlUtils(jdbc());
+     return new CdaSqlUtils(jdbcCdaBase());
  }
 
-	@Bean(name = "cdaBaseDataSource")
+	@Bean(name = "cdaBaseDataSourceH2")
 	@Primary
-	public DataSource h2DataSource() {
+	public DataSource cdaBaseDataSourceH2() {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
                                             .ignoreFailedDrops(true)
                                             .setName("cda_base_test")
@@ -50,15 +50,15 @@ public class TestConfig {
 	}
 
 	@Bean
-	public NamedParameterJdbcTemplate jdbc() {
-		return new NamedParameterJdbcTemplate(h2DataSource());
+	public NamedParameterJdbcTemplate jdbcCdaBase() {
+		return new NamedParameterJdbcTemplate(cdaBaseDataSourceH2());
 	}
 
 
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactoryDcc1() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-		em.setDataSource(h2DataSource());
+		em.setDataSource(cdaBaseDataSourceH2());
 		em.setPackagesToScan("org.mousephenotype.cda.db.dao", "org.mousephenotype.cda.db.pojo");
 
 		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -72,7 +72,7 @@ public class TestConfig {
 		Properties hibernateProperties = new Properties();
 
 		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-		hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/cda_base_test.sql");
+		hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/CdaSqlUtilsTest.sql");
 		hibernateProperties.setProperty("hibernate.show_sql", "false");
 		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
 		hibernateProperties.setProperty("hibernate.format_sql", "true");
