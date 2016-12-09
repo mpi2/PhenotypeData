@@ -25,6 +25,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
+import java.text.ParseException;
 import java.util.*;
 
 
@@ -144,7 +145,7 @@ public class SeriesParameterObservationUtilsTest extends TestCase {
    	}
 
    	@Test
-   	public void testGetLightsOut() {
+   	public void testGetLightsOut() throws ParseException {
 
    		// Date of experiment
    		Calendar dateOfExperimentCal = Calendar.getInstance();
@@ -165,9 +166,14 @@ public class SeriesParameterObservationUtilsTest extends TestCase {
 		dccExperiment.setPhenotypingCenter("TCP");
 		dccExperiment.setExperimentId("testGetLightsOut");
 
-   		Long lightsOut = utils.getLightsOut(dccExperiment, procedureMetadataList);
-   		System.out.println("Should be 1459796400000 which is GMT Mon, 04 Apr 2016 19:00:00 GMT : " + lightsOut);
-   		assertTrue(lightsOut == 1459796400000L);
+        Long lightsOut = utils.getLightsOut(dccExperiment, procedureMetadataList);
+      		System.out.println("Should be 1459796400000 which is GMT Mon, 04 Apr 2016 19:00:00 GMT : " + lightsOut);
+      		assertTrue(lightsOut == 1459796400000L);
+
+        dccExperiment.setPhenotypingCenter("HMGU");
+        lightsOut = utils.getLightsOut(dccExperiment, procedureMetadataList);
+      		System.out.println("Should be 1459796400000 which is GMT Mon, 04 Apr 2016 19:00:00 GMT : " + lightsOut);
+      		assertTrue(lightsOut == 1459796400000L);
 
 		float v = utils.convertTimepoint("2016-04-04T13:42:46+00:00", dccExperiment, procedureMetadataList);
 		System.out.println("2016-04-04T13:42:46+00:00 Should be between -6 and -5 : " + v);
@@ -176,5 +182,30 @@ public class SeriesParameterObservationUtilsTest extends TestCase {
 		v = utils.convertTimepoint("2016-04-04T19:34:46+00:00", dccExperiment, procedureMetadataList);
    		System.out.println("2016-04-04T19:34:46+00:00 Should be between 0 and 1 : " + v);
    		assertTrue(v > 0.0f && v < 1.0f);
-   	}
+
+
+//        dccExperiment.setDatasourceShortName("EuroPhenome");
+//        dccExperiment.setPhenotypingCenter("WTSI");
+//        lightsOut = utils.getLightsOut(dccExperiment, procedureMetadataList);
+//        System.out.println("Should be 1459796400000 which is GMT Mon, 04 Apr 2016 19:00:00 GMT : " + lightsOut);
+//        assertTrue(lightsOut == 1459796400000L);
+//
+//        dccExperiment.setDatasourceShortName("EuroPhenome");
+//        dccExperiment.setPhenotypingCenter("HMGU");
+//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm");
+//        dccExperiment.setDateOfExperiment(format.parse("2016-04-04 00:00"));
+//
+//        lightsOut = utils.getLightsOut(dccExperiment, procedureMetadataList);
+//        System.out.println("Should be 1459796400000 which is GMT Mon, 04 Apr 2016 19:00:00 GMT : " + lightsOut);
+//        assertTrue(lightsOut == 1459796400000L);
+//
+//
+//        v = utils.convertTimepoint("2016-04-04T13:42:46+00:00", dccExperiment, procedureMetadataList);
+//        System.out.println("2016-04-04T13:42:46+00:00 Should be between -6 and -5 : " + v);
+//        assertTrue(v > -6.0f && v < -5.0f);
+//
+//        v = utils.convertTimepoint("2016-04-04T19:34:46+00:00", dccExperiment, procedureMetadataList);
+//        System.out.println("2016-04-04T19:34:46+00:00 Should be between 0 and 1 : " + v);
+//        assertTrue(v > 0.0f && v < 1.0f);
+    }
 }
