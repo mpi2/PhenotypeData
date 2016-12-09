@@ -782,62 +782,42 @@ if ( ! missingColonyIds.contains(dccExperimentDTO.getColonyId())) {
 
             // time_series_observation variables
             Float dataPoint     = null;
-            Date  timePoint     = null;
+            Date  timePoint     = dccExperimentDTO.getDateOfExperiment();                                               // timePoint for all cases. Default is dateOfExperiment.
             Float discretePoint = null;
 
             if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.equals(""))) {
                 try {
-                    dataPoint = Float.parseFloat(simpleValue);                                                          // dataPoint
+                    dataPoint = Float.parseFloat(simpleValue);                                                          // dataPoint for all cases.
                 } catch (NumberFormatException e) {
                     missing = 1;
                 }
             }
 
+            // Test increment value to see if it represents a date.
             if (incrementValue.contains("-") && (incrementValue.contains(" ") || incrementValue.contains("T"))) {
 
                 // Time series (increment is a datetime or time) - e.g. IMPC_CAL_003_001
                 SeriesParameterObservationUtils utils = new SeriesParameterObservationUtils();
 
-                String discreteTimepoint = Float.toString(utils.convertTimepoint(incrementValue, dccExperimentDTO,      // timePoint
-                                                                                 dccMetadataList));
+                discretePoint = utils.convertTimepoint(incrementValue, dccExperimentDTO, dccMetadataList);              // discretePoint if increment value represents a date.
 
                 // Parse value into correct format
                 String parsedIncrementValue = utils.getParsedIncrementValue(incrementValue);
-                Date   actualTimePoint      = dccExperimentDTO.getDateOfExperiment();
                 if (parsedIncrementValue.contains("-")) {
-                    SimpleDateFormat pStatMap = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                     try {
-                        actualTimePoint = pStatMap.parse(parsedIncrementValue);
-                    } catch (ParseException e) {
-                        actualTimePoint = dccExperimentDTO.getDateOfExperiment();
-                    }
-//                    throw new DataLoadException("DEBUG THIS.");
-//
-//
-//                    try {
-//                        timePoint = pStatMap.parse(parsedIncrementValue);
-//                    } catch (ParseException e) {
-//                        timePoint = dccExperimentDTO.getDateOfExperiment();
-//                    }
-//                    discretePoint = Float.parseFloat(simpleValue);                                                     // discretePoint
-                    try {
-                        logger.error("observationPk:{} parameterPk:{} simpleValue:{} dataPoint:{} discreteTimePoint:{} discretePoint:{}",
-                                     observationPk, parameterPk, simpleValue, dataPoint, discreteTimepoint, discretePoint);
-                    } catch (Exception e) {
+                        timePoint = simpleDateFormat.parse(parsedIncrementValue);                                       // timePoint (overridden if increment value represents a date.
 
-                    }
-
+                    } catch (ParseException e) { }
                 }
-
 
             } else {
 
                 // Not time series (increment is not a timestamp) - e.g. IMPC_GRS_004_001
-                timePoint = dccExperimentDTO.getDateOfExperiment();                                                     // timePoint
 
                 try {
-                    discretePoint = Float.parseFloat(incrementValue);                                                   // discretePoint
+                    discretePoint = Float.parseFloat(incrementValue);                                                   // discretePoint if increment value does not represent a date.
                 } catch (NumberFormatException e) {
                     missing = 1;
                 }

@@ -26,7 +26,7 @@ import java.util.*;
 
 /**
  * Created by mrelac on 25/11/2016 from AdminTools code.
- *
+ * <p/>
  * Discussion:
  * This class encapsulates code required to process time series data received from centers.
  * Sometimes centers send us data with a proper date and time stamp; other times they send just the time stamp. In the
@@ -39,219 +39,236 @@ public class SeriesParameterObservationUtils {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-	/**
-	 * Convert a time unit from absolute date to "time since lights out" as required
-	 * by the SOP.
-	 * <p/>
-	 * input comes in as a full time stamp string like 2009-01-22 14:05:00
-	 *
-* @param input             the absolute date/time to convert
-* @param dccExperimentDTO the dcc experiment instance
-	 * @param procedureMetadataList the procedure metadata list
-	 * @return float representing the converted time between -5 hours and +23 hours
-	 */
-	public float convertTimepoint(String input, DccExperimentDTO dccExperimentDTO, List<ProcedureMetadata> procedureMetadataList) {
-		float retFloat=0.0f;
+    /**
+     * Convert a time unit from absolute date to "time since lights out" as required
+     * by the SOP.
+     * <p/>
+     * input comes in as a full time stamp string like 2009-01-22 14:05:00
+     *
+     * @param input                 the absolute date/time to convert
+     * @param dccExperimentDTO      the dcc experiment instance. The following components are required:
+     *                              <ul>
+     *                              <li>datasourceShortName</li>
+     *                              <li>dateOfExperiment</li>
+     *                              <li>procedureId</li>
+     *                              <li>phenotypingCenter</li>
+     *                              <li>experimentId (for use in logging messages only)</li>
+     *                              </ul>
+     * @param procedureMetadataList the procedure metadata list
+     * @return float representing the converted time between -5 hours and +23 hours
+     */
+    public float convertTimepoint(String input, DccExperimentDTO dccExperimentDTO, List<ProcedureMetadata> procedureMetadataList) {
+        float retFloat = 0.0f;
 
-		// If there is a +0000 at the end of the timestamp, we need to put it
-		// into +00:00 expected format
-		String[] parts = input.split("\\+");
-		if (parts.length>1) {
-			if ( ! parts[1].contains(":")) {
-				String newTimezone = parts[1].substring(0,2) + ":" + parts[1].substring(2, 4);
-				input = parts[0] + "+" + newTimezone;
-			}
-		}
+        // If there is a +0000 at the end of the timestamp, we need to put it
+        // into +00:00 expected format
+        String[] parts = input.split("\\+");
+        if (parts.length > 1) {
+            if (!parts[1].contains(":")) {
+                String newTimezone = parts[1].substring(0, 2) + ":" + parts[1].substring(2, 4);
+                input = parts[0] + "+" + newTimezone;
+            }
+        }
 
-		try {
-			switch (dccExperimentDTO.getDatasourceShortName()) {
-				case "IMPC":
+        try {
+            switch (dccExperimentDTO.getDatasourceShortName()) {
+                case "IMPC":
 
-					// Calculate the date difference between the measured value and lights out cycle
+                    // Calculate the date difference between the measured value and lights out cycle
                     Date d = parseIncrementValue(input);
                     Long measuredAt = d.getTime();
-		Long startOfDay = dccExperimentDTO.getDateOfExperiment().getTime();
-		Long lightsOut = dccExperimentDTO.getProcedureId().contains("IMPC_CAL") ? getLightsOut(dccExperimentDTO, procedureMetadataList) : null;
+                    Long startOfDay = dccExperimentDTO.getDateOfExperiment().getTime();
+                    Long lightsOut = dccExperimentDTO.getProcedureId().contains("IMPC_CAL") ? getLightsOut(dccExperimentDTO, procedureMetadataList) : null;
 
-					Long normalizedMillis = measuredAt - startOfDay;
-					if(lightsOut != null) {
-						normalizedMillis = measuredAt - lightsOut;
-					}
+                    Long normalizedMillis = measuredAt - startOfDay;
+                    if (lightsOut != null) {
+                        normalizedMillis = measuredAt - lightsOut;
+                    }
 
-					retFloat = normalizedMillis / 1000.0f / 60.0f / 60.0f;
+                    retFloat = normalizedMillis / 1000.0f / 60.0f / 60.0f;
 
-					break;
+                    break;
 
-				case "EuroPhenome":
-					retFloat = convertEurophenomeTimepoint(dccExperimentDTO, input);
-					break;
-			}
-		} catch (Exception e) {
-			logger.warn("Unable to convert IMPC timepoint for exp {} proc {}", dccExperimentDTO.getExperimentId(), dccExperimentDTO.getProcedureId(), e);
-		}
-		return retFloat;
-	}
-
-	/**
-	 * Gets the lights out cycle start time of the passed in experiment
-	 * the lights out cycle for IMPC Calorimetry is one of three procedureMetadata
-	 * IMPC_CAL_003_001,2,3 with three different date/time formats
-	 * See:
-	 *   https://www.mousephenotype.org/impress/parameters/86/7
-	 *   https://www.mousephenotype.org/impress/parameters/153/7
-	 *   https://www.mousephenotype.org/impress/parameters/240/7
-	 */
-	public Long getLightsOut(DccExperimentDTO dccExperimentDTO, List<ProcedureMetadata> procedureMetadataList) {
-
-		Long lightsOut = null;
-
-		Map<String, SimpleDateFormat> knownPatterns = new HashMap<>();
-		knownPatterns.put("IMPC_CAL_010_001", new SimpleDateFormat("HH:mm' 'a"));
-		knownPatterns.put("IMPC_CAL_010_002", new SimpleDateFormat("HH:mm:ss"));
-		knownPatterns.put("IMPC_CAL_010_003", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
-
-		final List<String> lightsOutParameters = new ArrayList<>(knownPatterns.keySet());
-
-		try {
-			for (ProcedureMetadata metadata : procedureMetadataList) {
-
-				// Find the lights out metadata parameter
-				if (lightsOutParameters.contains(metadata.getParameterID())) {
-
-					// This is the paramter "Time of dark cycle start"
-
-					SimpleDateFormat format = knownPatterns.get(metadata.getParameterID());
-					String           value  = metadata.getValue();
-
-					if (metadata.getParameterID().equals("IMPC_CAL_010_003")) {
-						Date d = parseIncrementValue(value);
-						lightsOut = d.getTime();
-					} else {
-						try {
-							lightsOut = format.parse(value).getTime();
-						} catch (ParseException pe) {
-							logger.warn("Unknown pattern parsing date string {}", value);
-							return null;
-						}
-					}
-
-					if (!metadata.getParameterID().equals("IMPC_CAL_010_003")) {
-						// Need to add the date of experiment to the time
-						Long dateOfExperiment = dccExperimentDTO.getDateOfExperiment().getTime();
-						lightsOut += dateOfExperiment;
-					}
-
-					break;
-				}
-
-			}
-		} catch (Exception e) {
-			logger.debug("Unable to determine lights out cycle start for experiment {}, procedure {}",
-						 dccExperimentDTO.getExperimentId(), dccExperimentDTO.getProcedureId());
-		}
-
-		// Calculate the lights out metadata procedure
-		return lightsOut;
-	}
-
-	/**
-	 * Parse a date string
-	 * @param value the date time value to try to parse
-	 * @return string representing the date time
-	 */
-	public String getParsedIncrementValue(String value) {
-		String parsedValue = value;
-
-		Date d = parseIncrementValue(value);
-		if (d != null) {
-			// Process the date into the expected format
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
-			parsedValue = format.format(d);
-		}
-
-		return parsedValue;
-	}
-
-
-	// PRIVATE METHODS
-
-
-	/**
-	 * Get the decimal number representing the (fractional) number of hours before/after lights out
-	 * Lights out for Europhenome is defined as
-	 *   7PM (19:00:00) for MRC, WTSI, ICS,
-	 *   6PM (18:00:00) for HMGU
-	 *
-	 * Calculate the appropriate lights out time, then date diff the timepoint to determine the relative
-	 * time interval, then convert that to decimal hours
-	 *
-	 */
-	public float convertEurophenomeTimepoint(DccExperimentDTO dccExperimentDTO, String input) throws ParseException {
-
-		Long lightsOut = dccExperimentDTO.getDateOfExperiment().getTime();
-		switch (dccExperimentDTO.getPhenotypingCenter()) {
-			case "HMGU"://1: // HMGU
-				// Lights out for EUMODIC HMGU  is 18:00
-				lightsOut += 18 * 60 * 60 * 1000;
-				break;
-			case "MRC"://2: // MRC
-			case "WTSI"://3: // WTSI
-			case "ICS"://4: // ICS
-				// Lights out for EUMODIC MRC, WTSI, ICS  is 19:00
-				lightsOut += 19 * 60 * 60 * 1000;
-				break;
-			default: // CMHD never sent calorimetry, so this should never happen
-				break;
-		}
-
-		SimpleDateFormat format     = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm");
-		Long             measuredAt = format.parse(input).getTime();
-
-		return (measuredAt - lightsOut) / 1000.0f / 60.0f / 60.0f;
-	}
+                case "EuroPhenome":
+                    retFloat = convertEurophenomeTimepoint(dccExperimentDTO, input);
+                    break;
+            }
+        } catch (Exception e) {
+            logger.warn("Unable to convert IMPC timepoint for exp {} proc {}", dccExperimentDTO.getExperimentId(), dccExperimentDTO.getProcedureId(), e);
+        }
+        return retFloat;
+    }
 
     /**
-   	 * Method to parse various increment value date time formats
-   	 * Supported formats:
-   	 *   2012-12-12T12:12:12+00:00
-   	 *   2012-12-12T12:12:12+0000
-   	 *   2012-12-12T12:12:12Z
-   	 *   2012-12-12 12:12:12Z
-   	 *   2012-12-12T12:12:12
-   	 *   2012-12-12 12:12:12
-   	 *
-   	 *   Unsuccessful parse returns null
-   	 * @param value date, or null if parse unsuccessful
-   	 * @return
-   	 */
-	private Date parseIncrementValue(String value) {
-		Date                   d                = null;
-		List<SimpleDateFormat> supportedFormats = new ArrayList<>();
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssZ"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss"));
-		supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm"));
+     * Gets the lights out cycle start time of the passed in experiment
+     * the lights out cycle for IMPC Calorimetry is one of three procedureMetadata
+     * IMPC_CAL_003_001,2,3 with three different date/time formats
+     * See:
+     * https://www.mousephenotype.org/impress/parameters/86/7
+     * https://www.mousephenotype.org/impress/parameters/153/7
+     * https://www.mousephenotype.org/impress/parameters/240/7
+     *
+     * @param dccExperimentDTO      the dcc experiment instance. The following components are required:
+     *                              <ul>
+     *                              <li>dateOfExperiment</li>
+     *                              <li>procedureId  (for use in logging messages only)</li>
+     *                              <li>experimentId (for use in logging messages only)</li>
+     *                              </ul>
+     * @param procedureMetadataList the procedure metadata list
+     * @return lightsOut as long
+     */
+    public Long getLightsOut(DccExperimentDTO dccExperimentDTO, List<ProcedureMetadata> procedureMetadataList) {
 
-		for (SimpleDateFormat format : supportedFormats) {
-			try {
-				logger.debug("Testing format: {}", format.toPattern());
-				d = format.parse(value);
-			} catch (ParseException e) {
-				// Not this format, try the next one
-				continue;
-			}
-			// If the parse is successful, stop processing the rest
-			logger.debug("Parsed datestring {} using format {}: {}", value, format.toPattern(), d.toString());
+        Long lightsOut = null;
 
-			break;
-		}
+        Map<String, SimpleDateFormat> knownPatterns = new HashMap<>();
+        knownPatterns.put("IMPC_CAL_010_001", new SimpleDateFormat("HH:mm' 'a"));
+        knownPatterns.put("IMPC_CAL_010_002", new SimpleDateFormat("HH:mm:ss"));
+        knownPatterns.put("IMPC_CAL_010_003", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
 
-		return d;
-	}
+        final List<String> lightsOutParameters = new ArrayList<>(knownPatterns.keySet());
+
+        try {
+            for (ProcedureMetadata metadata : procedureMetadataList) {
+
+                // Find the lights out metadata parameter
+                if (lightsOutParameters.contains(metadata.getParameterID())) {
+
+                    // This is the paramter "Time of dark cycle start"
+
+                    SimpleDateFormat format = knownPatterns.get(metadata.getParameterID());
+                    String           value  = metadata.getValue();
+
+                    if (metadata.getParameterID().equals("IMPC_CAL_010_003")) {
+                        Date d = parseIncrementValue(value);
+                        lightsOut = d.getTime();
+                    } else {
+                        try {
+                            lightsOut = format.parse(value).getTime();
+                        } catch (ParseException pe) {
+                            logger.warn("Unknown pattern parsing date string {}", value);
+                            return null;
+                        }
+                    }
+
+                    if ( ! metadata.getParameterID().equals("IMPC_CAL_010_003")) {
+                        // Need to add the date of experiment to the time
+                        Long dateOfExperiment = dccExperimentDTO.getDateOfExperiment().getTime();
+                        lightsOut += dateOfExperiment;
+                    }
+
+                    break;
+                }
+
+            }
+        } catch (Exception e) {
+            logger.debug("Unable to determine lights out cycle start for experiment {}, procedure {}",
+                         dccExperimentDTO.getExperimentId(), dccExperimentDTO.getProcedureId());
+        }
+
+        // Calculate the lights out metadata procedure
+        return lightsOut;
+    }
+
+    /**
+     * Parse a date string
+     *
+     * @param value the date time value to try to parse
+     * @return string representing the date time
+     */
+    public String getParsedIncrementValue(String value) {
+        String parsedValue = value;
+
+        Date d = parseIncrementValue(value);
+        if (d != null) {
+            // Process the date into the expected format
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+            parsedValue = format.format(d);
+        }
+
+        return parsedValue;
+    }
+
+
+    // PRIVATE METHODS
+
+
+    /**
+     * Get the decimal number representing the (fractional) number of hours before/after lights out
+     * Lights out for Europhenome is defined as
+     * 7PM (19:00:00) for MRC, WTSI, ICS,
+     * 6PM (18:00:00) for HMGU
+     * <p/>
+     * Calculate the appropriate lights out time, then date diff the timepoint to determine the relative
+     * time interval, then convert that to decimal hours
+     */
+    public float convertEurophenomeTimepoint(DccExperimentDTO dccExperimentDTO, String input) throws ParseException {
+
+        Long lightsOut = dccExperimentDTO.getDateOfExperiment().getTime();
+        switch (dccExperimentDTO.getPhenotypingCenter()) {
+            case "HMGU"://1: // HMGU
+                // Lights out for EUMODIC HMGU  is 18:00
+                lightsOut += 18 * 60 * 60 * 1000;
+                break;
+            case "MRC"://2: // MRC
+            case "WTSI"://3: // WTSI
+            case "ICS"://4: // ICS
+                // Lights out for EUMODIC MRC, WTSI, ICS  is 19:00
+                lightsOut += 19 * 60 * 60 * 1000;
+                break;
+            default: // CMHD never sent calorimetry, so this should never happen
+                break;
+        }
+
+        SimpleDateFormat format     = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm");
+        Long             measuredAt = format.parse(input).getTime();
+
+        return (measuredAt - lightsOut) / 1000.0f / 60.0f / 60.0f;
+    }
+
+    /**
+     * Method to parse various increment value date time formats
+     * Supported formats:
+     * 2012-12-12T12:12:12+00:00
+     * 2012-12-12T12:12:12+0000
+     * 2012-12-12T12:12:12Z
+     * 2012-12-12 12:12:12Z
+     * 2012-12-12T12:12:12
+     * 2012-12-12 12:12:12
+     * <p/>
+     * Unsuccessful parse returns null
+     *
+     * @param value date, or null if parse unsuccessful
+     * @return
+     */
+    public Date parseIncrementValue(String value) {
+        Date                   d                = null;
+        List<SimpleDateFormat> supportedFormats = new ArrayList<>();
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssZ"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm"));
+
+        for (SimpleDateFormat format : supportedFormats) {
+            try {
+                logger.debug("Testing format: {}", format.toPattern());
+                d = format.parse(value);
+            } catch (ParseException e) {
+                // Not this format, try the next one
+                continue;
+            }
+            // If the parse is successful, stop processing the rest
+            logger.debug("Parsed datestring {} using format {}: {}", value, format.toPattern(), d.toString());
+
+            break;
+        }
+
+        return d;
+    }
 }
