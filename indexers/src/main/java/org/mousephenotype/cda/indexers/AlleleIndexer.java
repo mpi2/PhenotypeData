@@ -260,6 +260,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             alleleCore.commit();
 
         } catch (SQLException | SolrServerException | IOException | ClassNotFoundException e) {
+        	e.printStackTrace();
             throw new IndexerException(e);
         }
 
