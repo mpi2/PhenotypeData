@@ -20,6 +20,9 @@ import org.apache.solr.client.solrj.beans.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mousephenotype.cda.solr.service.dto.AlleleDTO.CHR_END;
+import static org.mousephenotype.cda.solr.service.dto.AlleleDTO.CHR_START;
+
 public class GeneDTO {
 
 	public static final String DATA_TYPE = "dataType";
@@ -161,6 +164,10 @@ public class GeneDTO {
 	private static final String CCDS_IDS = "ccds_id";
 	private static final String EMBRYO_MODALITIES = "embryo_modalities";
 
+	public static final String CHR_NAME = "chr_name";
+	public static final String CHR_start = "chr_start";
+	public static final String CHR_end = "chr_end";
+
 	@Field(VEGA_IDS)
 	private List<String> vegaIds;
 	public List<String> getVegaIds() {
@@ -234,6 +241,15 @@ public class GeneDTO {
 	@Field(SEQ_REGION_END)
 	private int seqRegionEnd;
 
+	@Field(CHR_NAME)
+	private String chrName;
+
+	@Field(CHR_START)
+	private Integer chrStart;
+
+	@Field(CHR_END)
+	private Integer chrEnd;
+
 	@Field(XREF)
 	List<String> xrefs;
 
@@ -247,6 +263,30 @@ public class GeneDTO {
 
 	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String>selectedTopLevelMaTermSynonym;
+
+	public String getChrName() {
+		return chrName;
+	}
+
+	public void setChrName(String chrName) {
+		this.chrName = chrName;
+	}
+
+	public Integer getChrStart() {
+		return chrStart;
+	}
+
+	public void setChrStart(Integer chrStart) {
+		this.chrStart = chrStart;
+	}
+
+	public Integer getChrEnd() {
+		return chrEnd;
+	}
+
+	public void setChrEnd(Integer chrEnd) {
+		this.chrEnd = chrEnd;
+	}
 
 	public List<String> getSelectedTopLevelMaTermSynonym() {
 
@@ -2052,6 +2092,9 @@ public class GeneDTO {
 		if (ncbiIds != null ? !ncbiIds.equals(geneDTO.ncbiIds) : geneDTO.ncbiIds != null) return false;
 		if (ccdsIds != null ? !ccdsIds.equals(geneDTO.ccdsIds) : geneDTO.ccdsIds != null) return false;
 		if (seqRegionId != null ? !seqRegionId.equals(geneDTO.seqRegionId) : geneDTO.seqRegionId != null) return false;
+		if (chrName != null ? !chrName.equals(geneDTO.chrName) : geneDTO.chrName != null) return false;
+		if (chrStart != null ? !chrStart.equals(geneDTO.chrStart) : geneDTO.chrStart != null) return false;
+		if (chrEnd != null ? !chrEnd.equals(geneDTO.chrEnd) : geneDTO.chrEnd != null) return false;
 		if (xrefs != null ? !xrefs.equals(geneDTO.xrefs) : geneDTO.xrefs != null) return false;
 		if (impcNovelPredictedInLocus != null ? !impcNovelPredictedInLocus.equals(geneDTO.impcNovelPredictedInLocus) : geneDTO.impcNovelPredictedInLocus != null)
 			return false;
@@ -2241,8 +2284,9 @@ public class GeneDTO {
 			return false;
 		if (pfama_go_terms != null ? !pfama_go_terms.equals(geneDTO.pfama_go_terms) : geneDTO.pfama_go_terms != null)
 			return false;
-		return !(pfama_go_cats != null ? !pfama_go_cats.equals(geneDTO.pfama_go_cats) : geneDTO.pfama_go_cats != null);
-
+		if (pfama_go_cats != null ? !pfama_go_cats.equals(geneDTO.pfama_go_cats) : geneDTO.pfama_go_cats != null)
+			return false;
+		return embryoModalities != null ? embryoModalities.equals(geneDTO.embryoModalities) : geneDTO.embryoModalities == null;
 	}
 
 	@Override
@@ -2253,6 +2297,9 @@ public class GeneDTO {
 		result = 31 * result + (seqRegionId != null ? seqRegionId.hashCode() : 0);
 		result = 31 * result + seqRegionStart;
 		result = 31 * result + seqRegionEnd;
+		result = 31 * result + (chrName != null ? chrName.hashCode() : 0);
+		result = 31 * result + (chrStart != null ? chrStart.hashCode() : 0);
+		result = 31 * result + (chrEnd != null ? chrEnd.hashCode() : 0);
 		result = 31 * result + (xrefs != null ? xrefs.hashCode() : 0);
 		result = 31 * result + (impcNovelPredictedInLocus != null ? impcNovelPredictedInLocus.hashCode() : 0);
 		result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
@@ -2369,6 +2416,7 @@ public class GeneDTO {
 		result = 31 * result + (pfama_go_terms != null ? pfama_go_terms.hashCode() : 0);
 		result = 31 * result + (pfama_go_cats != null ? pfama_go_cats.hashCode() : 0);
 		result = 31 * result + (isEmbryoDataAvailable ? 1 : 0);
+		result = 31 * result + (embryoModalities != null ? embryoModalities.hashCode() : 0);
 		return result;
 	}
 
@@ -2381,6 +2429,9 @@ public class GeneDTO {
 				", seqRegionId='" + seqRegionId + '\'' +
 				", seqRegionStart=" + seqRegionStart +
 				", seqRegionEnd=" + seqRegionEnd +
+				", chrName='" + chrName + '\'' +
+				", chrStart=" + chrStart +
+				", chrEnd=" + chrEnd +
 				", xrefs=" + xrefs +
 				", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
 				", selectedTopLevelMaId=" + selectedTopLevelMaId +
@@ -2497,6 +2548,7 @@ public class GeneDTO {
 				", pfama_go_terms=" + pfama_go_terms +
 				", pfama_go_cats=" + pfama_go_cats +
 				", isEmbryoDataAvailable=" + isEmbryoDataAvailable +
+				", embryoModalities=" + embryoModalities +
 				'}';
 	}
 
