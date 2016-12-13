@@ -333,7 +333,7 @@
 	<!-- field for the QueryParser to use when an explicit fieldname is absent -->
 	<defaultSearchField>text</defaultSearchField>
 
-	<copyField source="*" dest="text"/>
+	<!-- <copyField source="*" dest="text"/> -->
 	<copyField source="mgi_accession_id" dest="auto_suggest"/>
 	<copyField source="marker_symbol" dest="auto_suggest"/>
 	<copyField source="marker_name" dest="auto_suggest"/>
