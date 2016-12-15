@@ -119,7 +119,7 @@ $(document).ready(function () {
 	// generic search input autocomplete javascript
 	var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75 disease_term:*^70 anatomy_term:*^60 anatomy_term_synonym:*^50";
 
-	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
+	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":").replace("\\-", "-");
     srchkw = srchkw.replace(/%22/g, '');
     srchkw = srchkw.replace('*', '');
 	$("input#s").val(decodeURI(srchkw));
@@ -355,6 +355,9 @@ $('input#s').keyup(function (e) {
 
 				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
 			}
+			// else if (input.match(/^chr)){
+			//
+			// }
 			else {
 			    if ( window.location.search == ""){
 			        // when url lookes like .../search at end

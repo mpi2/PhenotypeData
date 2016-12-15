@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -94,6 +96,24 @@ public class SearchController {
 
 		if (StringUtils.isEmpty(dataType)) {
 			dataType = "gene";
+		}
+
+		String pattern = "(?i:^\"(chr)(.*)\\\\:(\\d+)\\\\-(\\d+)\"$)";
+
+		if (query.matches(pattern)) {
+
+			// Create a Pattern object
+			Pattern r = Pattern.compile(pattern);
+
+			// Now create matcher object.
+			Matcher m = r.matcher(query);
+			if (m.find()) {
+				String chrName = m.group(2).toUpperCase();
+				String range = "[" + m.group(3).toUpperCase() + " TO " + m.group(4) + "]";
+				String rangeQry = "(chr_name:" + chrName + ") AND (seq_region_start:"+range +") AND (seq_region_end:" + range + ")";
+				fqStr = fqStr == null ? rangeQry : fqStr + " AND " + rangeQry;
+				query = "*:*";
+			}
 		}
 
 		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
