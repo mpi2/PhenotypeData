@@ -582,7 +582,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				// 60 seconds between commits
 				documentCount++;
-				observationCore.addBean(o, 30000);
+				observationCore.addBean(o, 240000);
 
 				count++;
 
