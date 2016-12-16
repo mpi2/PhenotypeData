@@ -67,7 +67,7 @@ public class LandingPageController {
         return "landing";
     }
 
-    @RequestMapping(value="/landing/embryo", method = RequestMethod.GET)
+    @RequestMapping(value="embryo", method = RequestMethod.GET)
     public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
@@ -86,7 +86,7 @@ public class LandingPageController {
     }
 
 
-    @RequestMapping(value="/landing/{page}",  method = RequestMethod.GET)
+    @RequestMapping(value="/biological-system/{page}",  method = RequestMethod.GET)
     public String loadDeafnessPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
@@ -156,12 +156,12 @@ public class LandingPageController {
 
 
 
-    @RequestMapping(value = "/embryo", method = RequestMethod.GET)
-    public String redirectEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
-
-        return "redirect:/landing/embryo";
-    }
+//    @RequestMapping(value = "/embryo", method = RequestMethod.GET)
+//    public String redirectEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
+//            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+//
+//        return "redirect:/landing/embryo";
+//    }
 
     @RequestMapping(value = "/embryo/vignettes", method = RequestMethod.GET)
     public String loadVignettes(Model model, HttpServletRequest request, RedirectAttributes attributes)
