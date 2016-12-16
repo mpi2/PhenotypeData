@@ -130,7 +130,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
             geneCore.deleteByQuery("*:*");
 
             for (AlleleDTO allele : alleles) {
-                //System.out.println("allele="+allele.getMarkerSymbol());
+                //System.out.println("gene="+allele.getMarkerSymbol());
                 GeneDTO gene = new GeneDTO();
                 gene.setMgiAccessionId(allele.getMgiAccessionId());
                 gene.setDataType(allele.getDataType());
@@ -244,7 +244,12 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 		gene.setSeqRegionId(coordsMap.get(GeneDTO.SEQ_REGION_ID));
                 		gene.setSeqRegionStart(Integer.valueOf(coordsMap.get(GeneDTO.SEQ_REGION_START)));
                 		gene.setSeqRegionEnd(Integer.valueOf(coordsMap.get(GeneDTO.SEQ_REGION_END)));
-                		List<String> ensemblIds = new ArrayList<String>();
+
+                        gene.setChrName(allele.getChrName());
+//                        gene.setChrStart(allele.getChrStart());
+//                        gene.setChrEnd(allele.getChrEnd());
+
+                        List<String> ensemblIds = new ArrayList<String>();
         				List<String> vegaIds = new ArrayList<String>();
         				List<String> ncbiIds = new ArrayList<String>();
         				List<String> ccdsIds = new ArrayList<String>();
@@ -727,7 +732,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 rowMap.put(GeneDTO.SEQ_REGION_ID, resultSet.getString("gf.seq_region_id"));
                 rowMap.put(GeneDTO.SEQ_REGION_START, resultSet.getString("gf.seq_region_start"));
                 rowMap.put(GeneDTO.SEQ_REGION_END, resultSet.getString("gf.seq_region_end"));
-
 
                 if (localGenomicFeatureCoordinates.containsKey(gf_acc)) {
                 	System.err.println("Error: Genomic Feature exists in map already!!!!!");
