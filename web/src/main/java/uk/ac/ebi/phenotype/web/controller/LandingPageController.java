@@ -71,7 +71,7 @@ public class LandingPageController {
         return "landing";
     }
 
-    @RequestMapping(value="/landing/embryo", method = RequestMethod.GET)
+    @RequestMapping(value="/embryo", method = RequestMethod.GET)
     public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
