@@ -58,6 +58,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Latest version pulled in 2015/07/07
  * @author tudose
@@ -1014,10 +1016,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
      * @throws SolrServerException, IOException
      * @author ilinca
      */
-    public HashMap<String, SolrDocumentList> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity)
+    public HashMap<String, List<StatisticalResultDTO>> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity)
     throws SolrServerException, IOException  {
 
-		HashMap<String, SolrDocumentList> res = new HashMap<>();
+		HashMap<String, List<StatisticalResultDTO>> res = new HashMap<>();
 		String query = "*:*";
 		
 		if (gene.equalsIgnoreCase("*")) {
@@ -1030,12 +1032,14 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		solrQuery.setQuery(query);
 		solrQuery.setRows(Integer.MAX_VALUE);
 		solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
-		solrQuery.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*");
+		solrQuery.addFilterQuery(StringUtils.join(Arrays.asList(StatisticalResultDTO.MP_TERM_ID + ":*", StatisticalResultDTO.FEMALE_MP_TERM_ID+":*", StatisticalResultDTO.MALE_MP_TERM_ID+":*"), " OR "));
 		solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
-		solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
+		solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
 				StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.MARKER_SYMBOL,
 				StatisticalResultDTO.MP_TERM_ID, StatisticalResultDTO.MP_TERM_NAME,
-				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
+				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME,
+				StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_NAME,
+				StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_NAME,
 				StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME,
 				StatisticalResultDTO.PROCEDURE_STABLE_ID, StatisticalResultDTO.SIGNIFICANT);
 
@@ -1043,25 +1047,33 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
 		}
 
-		SolrDocumentList result = solr.query(solrQuery).getResults();
+		List<StatisticalResultDTO> dtos = solr.query(solrQuery).getBeans(StatisticalResultDTO.class);
 
-		for (SolrDocument doc : result) {
-			if (doc.containsKey(StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID)) {
-				for (Object topLevelMp : doc.getFieldValues(StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID)) {
-					String id = topLevelMp.toString();
+		for (StatisticalResultDTO dto : dtos) {
+
+			if (dto.getTopLevelMpTermId()!=null || dto.getFemaleTopLevelMpTermId()!=null || dto.getMaleTopLevelMpTermId()!=null) {
+
+				// Collect all the top level terms into a single list
+				List<String> topLevelTermIds = Stream.of(dto.getTopLevelMpTermId(), dto.getFemaleTopLevelMpTermId(), dto.getMaleTopLevelMpTermId())
+						.filter(Objects::nonNull)
+						.flatMap(Collection::stream)
+						.collect(Collectors.toList());
+
+				for (String id : topLevelTermIds ) {
 					if (!res.containsKey(id)) {
-						res.put(id, new SolrDocumentList());
+						res.put(id, new ArrayList<>());
 					}
-					res.get(id).add(doc);
+					res.get(id).add(dto);
 				}
-			} else if (doc.containsKey(StatisticalResultDTO.MP_TERM_ID)) {
-				for (Object topLevelMp : doc.getFieldValues(StatisticalResultDTO.MP_TERM_ID)) {
-					String id = topLevelMp.toString();
-					if (!res.containsKey(id)) {
-						res.put(id, new SolrDocumentList());
-					}
-					res.get(id).add(doc);
+
+			} else if (dto.getMpTermId()!=null) {
+
+				String id = dto.getMpTermId();
+				if (!res.containsKey(id)) {
+					res.put(id, new ArrayList<>());
 				}
+				res.get(id).add(dto);
+
 			}
 		}
 
