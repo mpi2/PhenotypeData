@@ -75,7 +75,7 @@ public class SearchController {
 
 	//	System.out.println("path: /search");
 
-		return processSearch("gene", "*", null, null, null, false, request, model);
+		return processSearch("gene", "*", null, null, null, false, request, model, null, null);
 	}
 
 	@RequestMapping("/search/{dataType}")
@@ -94,6 +94,10 @@ public class SearchController {
 			query = "*:*";
 		}
 
+		String oriQuery = query;
+		String oriFqStr = fqStr;
+		String chrQuery = null;
+
 		if (StringUtils.isEmpty(dataType)) {
 			dataType = "gene";
 		}
@@ -111,15 +115,23 @@ public class SearchController {
 				String chrName = m.group(2).toUpperCase();
 				String range = "[" + m.group(3).toUpperCase() + " TO " + m.group(4) + "]";
 				String rangeQry = "(chr_name:" + chrName + ") AND (seq_region_start:"+range +") AND (seq_region_end:" + range + ")";
-				fqStr = fqStr == null ? rangeQry : fqStr + " AND " + rangeQry;
+
+				chrQuery = fqStr == null ? rangeQry : fqStr + " AND " + rangeQry;
+			}
+
+			if (dataType.equals("gene")){
 				query = "*:*";
 			}
+			else {
+				fqStr = oriFqStr;
+			}
+
 		}
 
-		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
+		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model, oriQuery, chrQuery);
 	}
 
-	private String processSearch(String dataType, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
+	private String processSearch(String dataType, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
 		iDisplayStart =  iDisplayStart == null ? 0 : iDisplayStart;
 		request.setAttribute("iDisplayStart", iDisplayStart);
 		iDisplayLength = iDisplayLength == null ? 10 : iDisplayLength;
@@ -129,7 +141,7 @@ public class SearchController {
 
 		String paramString = request.getQueryString();
 		//System.out.println("paramString " + paramString);
-		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model);
+		JSONObject facetCountJsonResponse = fetchAllFacetCounts(dataType, query, fqStr, request, model, oriQuery, chrQuery);
 
 		model.addAttribute("facetCount", facetCountJsonResponse);
 		model.addAttribute("searchQuery", query.replaceAll("\\\\",""));
@@ -217,14 +229,13 @@ public class SearchController {
 		return solrParamStr;
 	}
 
-	public JSONObject fetchAllFacetCounts(String dataType, String query, String fqStr, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
+	public JSONObject fetchAllFacetCounts(String dataType, String query, String fqStr, HttpServletRequest request, Model model, String oriQuery, String chrQuery) throws IOException, URISyntaxException {
 
 		JSONObject qryBrokerJson = new JSONObject();
 
 		if ( query.equals("*") ){
 			query = "*:*";
 		}
-		String qStr = "q=" + query;
 
 		String qfDefTypeWt = null;
 
@@ -252,7 +263,16 @@ public class SearchController {
 				}
 			}
 
-			qryBrokerJson.put(thisCore, qStr + "&fq="+thisFqStr + qfDefTypeWt);
+			if (chrQuery != null && thisCore.equals("gene")){
+				query = "*:*";
+				thisFqStr = chrQuery;
+			}
+			else if (chrQuery != null && ! thisCore.equals("gene")){
+				query = oriQuery;
+			}
+
+
+			qryBrokerJson.put(thisCore, "q=" + query + "&fq="+thisFqStr + qfDefTypeWt);
 		}
 
 		// test
