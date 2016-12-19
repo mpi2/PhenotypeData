@@ -304,7 +304,7 @@ public class GenesController {
 
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("ERROR: ", e);
 		}
 
 		// GWAS Gene to IMPC gene mapping
