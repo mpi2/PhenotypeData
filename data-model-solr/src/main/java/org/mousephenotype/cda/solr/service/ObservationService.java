@@ -1946,7 +1946,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 	@Override
 	public String getServiceName(){
-		return "Obesrvation Service (experiment core)";
+		return "Observation Service (experiment core)";
 	}
 
 
