@@ -75,9 +75,6 @@ public class WebStatusController {
 	@Autowired
 	PhenodigmService phenodigmService;
 
-	@Autowired
-	OmeroStatusService omeroStatusService;
-
 	List<WebStatus> webStatusObjects;
 
 	// imits solr services
@@ -114,7 +111,6 @@ public class WebStatusController {
 		webStatusObjects.add(phenodigmService);
 				
 		nonEssentialWebStatusObjects = new ArrayList<>();
-		nonEssentialWebStatusObjects.add(omeroStatusService);//omero status service is just for checking the status of omero and nothing else. uses internalImpcMediaBaseUrl app.prop should point to corresponding vm to where this is hosted
 		nonEssentialWebStatusObjects.add(allele2);
 		nonEssentialWebStatusObjects.add(productService);
 	}
