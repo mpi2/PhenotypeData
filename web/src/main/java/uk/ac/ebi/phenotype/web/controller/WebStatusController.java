@@ -133,8 +133,6 @@ public class WebStatusController {
 			long number = 0;
 			try {
 
-				//				number = status.getWebStatus();
-
 				// This block causes the method reference getWebStatus to be submitted to the executor
 				// And then "get"ted from the future.  If the request is not complete in 2 seconds (more than enough time)
 				// then timeout and throw an exception
@@ -148,6 +146,7 @@ public class WebStatusController {
 				if (future!=null) {future.cancel(true);}
 
 				ok = false;
+				logger.error("Essential service {} is not available", name);
 				e.printStackTrace();
 			}
 
