@@ -86,6 +86,7 @@ public class WebStatusController {
 	ProductService productService;
 
 	List<WebStatus> nonEssentialWebStatusObjects;
+	Model savedModel = null;
 
 	@PostConstruct
 	public void initialise() {
@@ -118,6 +119,13 @@ public class WebStatusController {
 	@RequestMapping("/webstatus")
 	public String webStatus(Model model, HttpServletResponse response) {
 
+		if (savedModel != null && savedModel.containsAttribute("webStatusModels") && Math.random() < 0.95) {
+
+			model.addAllAttributes(savedModel.asMap());
+			return "webStatus";
+		}
+
+		logger.info("Updating webstatus model values");
 
 		ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -197,6 +205,10 @@ public class WebStatusController {
 		}
 		model.addAttribute("ok", ok);
 		model.addAttribute("nonEssentialOk",nonEssentialOk);
+
+		// Cache the model to be used later
+		savedModel = model;
+
 		return "webStatus";
 	}
 
