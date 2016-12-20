@@ -85,9 +85,9 @@
 							<th>
 							Free Text
 							</th>
-							<th>
+							<%-- <th>
 							Images
-							</th>
+							</th> --%>
 							<%-- <th>Sample Id</th> --%>
 						
 							
@@ -209,18 +209,18 @@
 										</c:forEach> 
 									</td>
 									
-									<td>
-										<c:forEach var="image" items="${histRow.imageList }">
+									<%-- <td>
+										<c:forEach var="image" items="${histRow.imageList }"> --%>
 										
 										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
 										<%-- increment= ${image.increment_value} --%>
 										 <!-- <div id="grid"> -->
                                            
-												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
+												<%-- <t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay> --%>
 											
 										<!-- </div> -->
-										</c:forEach> 
-									</td>
+										<%-- </c:forEach> 
+									</td> --%>
 									<%-- <td id="${histRow.sampleId}_${histRow.anatomyName}">
 										${histRow.sampleId}
 									</td> --%>
