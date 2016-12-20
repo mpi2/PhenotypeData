@@ -15,20 +15,16 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.ontology;
 
-import java.net.MalformedURLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.net.MalformedURLException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PhenotypeSummaryDAO  {
@@ -39,92 +35,60 @@ public class PhenotypeSummaryDAO  {
 	public PhenotypeSummaryDAO() throws MalformedURLException {
 	}
 
-	public String getSexesRepresentationForPhenotypesSet(SolrDocumentList resp) {
+	public String getSexesRepresentationForPhenotypesSet(List<StatisticalResultDTO> resp) {
 		
 		String resume = "";
-		if (resp.size() > 0) {
 
-			for (int i = 0; i < resp.size(); i++) {
-				
-				SolrDocument doc = resp.get(i);
-				
-				if (isSignificant(doc)){
-					if (doc.containsKey(StatisticalResultDTO.PHENOTYPE_SEX)){
-						Collection<Object> sexes = doc.getFieldValues(StatisticalResultDTO.PHENOTYPE_SEX);
-						if (sexes.size() == 2){
-							resume += "mf";
-						} else {
-							if (sexes.iterator().next().toString().equals("female")){
-								resume += "f";
-							} else if (sexes.iterator().next().toString().equals("male")){
-								resume += "m";
-							}
-						}	
-						if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
-							return "both sexes";
-					} else if (doc.containsKey(StatisticalResultDTO.SEX)){
-						String sex = doc.getFieldValue(StatisticalResultDTO.SEX).toString();
-						if (sex.equals("female")){
-							resume += "f";
-						} else if (sex.equals("male")){
-							resume += "m";
-						}
-							
-						if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
-							return "both sexes";
-					}
-				} else {
-					break; // they're sorted so the significant ones will only be at the top
-				}
-			}
+		// Collect the sexes from the significant documents
+		Set<String> sexes = resp.stream()
+				.filter(this::isSignificant)
+				.map(x -> x.getPhenotypeSex() != null ? x.getPhenotypeSex() : Arrays.asList(x.getSex()))
+				.flatMap(Collection::stream)
+				.collect(Collectors.toSet());
 
-			if (resume.contains("m") && !resume.contains("f"))
-				return "male";
+		String sex = null;
 
-			if (resume.contains("f") && !resume.contains("m"))
-				return "female";
+		if (sexes.size() == 2) {
+			sex = "both sexes";
+		} else if (sexes.contains(SexType.female) && !sexes.contains(SexType.male)) {
+			sex = SexType.female.toString();
+		} else if (sexes.contains(SexType.male) && !sexes.contains(SexType.female)) {
+			sex = SexType.male.toString();
 		}
-		return null;
+
+		return sex;
+
 	}
 
 	
-	public Set<String> getDataSourcesForPhenotypesSet(SolrDocumentList resp) {
+	public Set<String> getDataSourcesForPhenotypesSet(List<StatisticalResultDTO> resp) {
 		
-		Set <String> data = new HashSet <String> ();
-		if (resp.size() > 0) {
-			for (int i = 0; i < resp.size(); i++) {
-				SolrDocument doc = resp.get(i);
-				data.add((String) doc.getFieldValue(StatisticalResultDTO.RESOURCE_NAME));
-			}
+		Set <String> data = new HashSet <> ();
+		for (StatisticalResultDTO doc : resp) {
+			data.add(doc.getResourceName());
 		}
 		return data;
 		
 	}
 
 	
-	private long getNumSignificantCalls (SolrDocumentList res){
+	private long getNumSignificantCalls (List<StatisticalResultDTO> res){
 		
 		long n = 0; 
 		if (res != null && res.size() > 0 && res.get(0) != null){ 
-			for (SolrDocument doc: res){
+			for (StatisticalResultDTO doc: res){
 				if (isSignificant(doc)){
-					n += doc.containsKey(StatisticalResultDTO.PHENOTYPE_SEX) ? doc.getFieldValues(StatisticalResultDTO.PHENOTYPE_SEX).size() : 2;
+					n += doc.getPhenotypeSex()!=null ? doc.getPhenotypeSex().size() : 2;
 				} 
 			}
 		}
+
 		return n;
-		
 	}
 
 	
-	private boolean isSignificant (SolrDocument res){
-		
-		boolean significant = false;
-		if ( res.containsKey(StatisticalResultDTO.SIGNIFICANT)){
-			significant = res.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true");
-		}
-		return significant;
-		
+	private boolean isSignificant (StatisticalResultDTO res){
+		return res.getSignificant()!=null ? res.getSignificant() : false;
 	}
 
 
@@ -136,11 +100,11 @@ public class PhenotypeSummaryDAO  {
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
 			Map<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
-			Map<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
+			Map<String, List<StatisticalResultDTO>> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
 						
 			for (String id: summary.keySet()){
 				
-				SolrDocumentList resp = summary.get(id);
+				List<StatisticalResultDTO> resp = summary.get(id);
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
 				Set<String> ds = getDataSourcesForPhenotypesSet(resp);
 				String mpName = mps.get(id);
