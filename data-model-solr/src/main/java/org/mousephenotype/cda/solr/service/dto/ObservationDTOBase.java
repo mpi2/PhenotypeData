@@ -107,6 +107,9 @@ public class ObservationDTOBase {
 	public static final String INTERMEDIATE_ANATOMY_ID = "intermediate_anatomy_id";
 	public static final String INTERMEDIATE_ANATOMY_TERM = "intermediate_anatomy_term";
 	public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM = "intermediate_anatomy_term_synonym";
+	
+	public static final String AGE_IN_DAYS= "age_in_days";
+	public static final String AGE_IN_WEEKS= "age_in_weeks";
 
 
 	@Field(ID)
@@ -336,7 +339,30 @@ public class ObservationDTOBase {
 
 	@Field(SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM)
 	List<String> selectedTopLevelAnatomyTermSynonym;
+	
+	@Field(AGE_IN_DAYS)
+	private Long ageInDays;
+	
+	@Field(AGE_IN_WEEKS)
+	private Long ageInWeeks;
+	
 
+
+	public Long getAgeInDays() {
+		return ageInDays;
+	}
+
+	public void setAgeInDays(Long ageInDays) {
+		this.ageInDays = ageInDays;
+	}
+
+	public Long getAgeInWeeks() {
+		return ageInWeeks;
+	}
+
+	public void setAgeInWeeks(Long ageInWeeks) {
+		this.ageInWeeks = ageInWeeks;
+	}
 
 	public List<String> getAnatomyId() {
 		return anatomyId;

@@ -84,7 +84,7 @@ public class HistopathService {
 					} else {
 						//System.out.println("sequence_id is null");
 					}
-
+					
 					if (this.getAnatomyStringFromObservation(obs) != null
 							&& this.getAnatomyStringFromObservation(obs).equals(anatomyName)) {
 

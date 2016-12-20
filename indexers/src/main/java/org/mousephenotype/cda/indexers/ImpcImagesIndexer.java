@@ -204,16 +204,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			
 			for (ImageDTO imageDTO : imageList) {
 				int omeroId=0;
-				
-				if(imageDTO.getDateOfBirth()!=null && imageDTO.getDateOfExperiment() !=null ){
-					Date dateOfExperiment=imageDTO.getDateOfExperiment();
-					Date dateOfBirth=imageDTO.getDateOfBirth();
-					Instant dob=dateOfBirth.toInstant();
-					Instant expDate=dateOfExperiment.toInstant();
-					long ageInDays = Duration.between(dob, expDate).toDays();
-					imageDTO.setAgeInDays(ageInDays);
-				}
-				
+
 				// "stage" field is needed for search, stage facet on image seach
 				if (imageDTO.getDevelopmentalStageAcc() != null && imageDTO.getDevelopmentalStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) { // postnatal stage
 					imageDTO.setStage("adult");
