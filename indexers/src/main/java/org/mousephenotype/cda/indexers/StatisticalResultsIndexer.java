@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -22,11 +23,9 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +52,8 @@ import java.util.stream.Collectors;
 public class StatisticalResultsIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexer.class);
+	private Boolean SAVE = Boolean.TRUE;
+	private Map<String, ImpressDTO> impressAbnormals = new HashMap<>();
 
 	private Double SIGNIFICANCE_THRESHOLD = AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD;
 	final double REPORT_INTERVAL = 100000;
@@ -80,6 +81,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	@Autowired
 	EmapaOntologyDAO emapaOntologyService;
+
+	@Autowired
+	ImpressService impressService;
 
 	private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
 	private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
@@ -154,8 +158,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		try {
 
-			statisticalResultCore.deleteByQuery("*:*");
-			statisticalResultCore.commit();
+			if (SAVE) statisticalResultCore.deleteByQuery("*:*");
+			if (SAVE) statisticalResultCore.commit();
 
 			List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
 				getViabilityResults(),
@@ -206,7 +210,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			pool.shutdown();
 
 
-			statisticalResultCore.commit();
+			if (SAVE) statisticalResultCore.commit();
 			checkSolrCount(count);
 
 			logger.info(" Added {} statistical result documents", count);
@@ -272,7 +276,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 
 
-	private StatisticalResultDTO parseResultCommonFields(ResultSet r) throws SQLException {
+	private StatisticalResultDTO parseResultCommonFields(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 		StatisticalResultDTO doc = new StatisticalResultDTO();
 
@@ -366,7 +370,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	 * @return a solr document
 	 * @throws SQLException
 	 */
-	private StatisticalResultDTO parseLineResult(ResultSet r) throws SQLException {
+	private StatisticalResultDTO parseLineResult(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 		StatisticalResultDTO doc = new StatisticalResultDTO();
 
@@ -582,11 +586,51 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	 * @param doc the solr document to update
 	 * @throws SQLException if the query fields do not exist
 	 */
-	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
+	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException, IOException, SolrServerException {
+
+
+		String mpTerm = r.getString("mp_acc");
+
+		// For reference range plus results only, test that the MP term has been set, if not, try to set the abnormal term
+		if (doc.getStatisticalMethod().equals("Reference Ranges Plus framework")) {
+
+			// Sometimes, the stats result generator doesn't set the MP term (also not for either sex), in that case,
+			// try to set the abnormal term for the parameter
+
+			if (r.wasNull()) {
+
+				// If there is a not male MP term set
+				r.getString("male_mp_acc");
+				if (r.wasNull()) {
+
+					// And, If there is a not female MP term set
+					r.getString("female_mp_acc");
+					if (r.wasNull()) {
+
+						// Lookup and cache the impress object corresponding to the parameter in question
+						if (!impressAbnormals.containsKey(doc.getParameterStableId())) {
+							ImpressDTO parameter = impressService.getParameterByStableIdSpecifyFields(doc.getParameterStableId(), Arrays.asList(ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.ABNORMAL_MP_ID));
+							impressAbnormals.put(doc.getParameterStableId(), parameter);
+						}
+
+						// Get the first abnormal term ID as that is likely the "abnormal" term
+						if (impressAbnormals.containsKey(doc.getParameterStableId())) {
+							ImpressDTO parameter = impressAbnormals.get(doc.getParameterStableId());
+							if (parameter != null && parameter.getAbnormalMpId() != null) {
+								List<String> abnormalMPTermIds = parameter.getAbnormalMpId();
+								if (CollectionUtils.isNotEmpty(abnormalMPTermIds)) {
+									mpTerm = abnormalMPTermIds.get(0);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 
 		// Add the appropriate fields for the global MP term
-		String mpTerm = r.getString("mp_acc");
-		if (!r.wasNull()) {
+		if (mpTerm != null) {
 
 			addMpTermData(mpTerm, doc);
 
@@ -931,7 +975,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseCategoricalResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 					if (docs.size()% REPORT_INTERVAL ==0) {
 						logger.info("Added {} categorical doucments", docs.size());
@@ -944,7 +988,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			return docs;
 		}
 
-		private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException {
+		private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 			StatisticalResultDTO doc = parseResultCommonFields(r);
 			if (sexesMap.containsKey("categorical-" + doc.getDbId())) {
@@ -1021,7 +1065,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseUnidimensionalResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 					if (docs.size()% REPORT_INTERVAL ==0) {
 						logger.info("Added {} unidimensional doucments", docs.size());
@@ -1034,7 +1078,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			return docs;
 		}
 
-		private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
+		private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 			StatisticalResultDTO doc = parseResultCommonFields(r);
 			if (sexesMap.containsKey("unidimensional-" + doc.getDbId())) {
@@ -1134,7 +1178,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	class ReferenceRangePlusResults implements  Callable<List<StatisticalResultDTO>> {
 
 		String query = "SELECT CONCAT(dependent_variable, '_RR_', sr.id) as doc_id, "
-			+ "  'unidimensional' AS data_type, "
+			+ "  'unidimensional-ReferenceRange' AS data_type, "
 			+ "  sr.id AS db_id, control_id, experimental_id, experimental_zygosity, "
 			+ "  external_db_id, organisation_id, "
 			+ "  pipeline_id, procedure_id, parameter_id, colony_id, "
@@ -1166,7 +1210,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseReferenceRangeResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 			} catch (Exception e) {
@@ -1176,7 +1220,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			return docs;
 		}
 
-		private StatisticalResultDTO parseReferenceRangeResult(ResultSet r) throws SQLException {
+		private StatisticalResultDTO parseReferenceRangeResult(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 			List<Double> mins = new ArrayList<>();
 
@@ -1389,7 +1433,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 
@@ -1452,7 +1496,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 
@@ -1513,7 +1557,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 					}
 
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 
 				}
@@ -1566,7 +1610,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 			} catch (Exception e) {
@@ -1622,7 +1666,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 					doc.setDocId(doc.getDocId()+"-"+(i++));
 
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 
@@ -1636,4 +1680,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	}
 
+	public Boolean getSAVE() {
+		return SAVE;
+	}
+
+	public void setSAVE(Boolean SAVE) {
+		this.SAVE = SAVE;
+	}
 }

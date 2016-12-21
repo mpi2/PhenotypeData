@@ -199,6 +199,29 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
 	}
 
+	@Test
+	public void getImmResultsForMpExistenceTest() throws Exception {
+
+		statisticalResultIndexer.setSAVE(Boolean.FALSE);
+		StatisticalResultsIndexer.ReferenceRangePlusResults r = statisticalResultIndexer.getReferenceRangePlusResults();
+
+		System.out.println("Assessing result of type " + r.getClass().getSimpleName());
+		List<StatisticalResultDTO> results = r.call();
+
+		StatisticalResultDTO theOneImLookingFor = null;
+
+		for (StatisticalResultDTO result : results) {
+
+			if (result.getColonyId().equals("JR24517") && result.getParameterStableId().equals("IMPC_IMM_006_001")) {
+				theOneImLookingFor = result;
+			}
+
+		}
+
+		System.out.println(theOneImLookingFor);
+		assert(results.size() > 1000);
+
+	}
 
 	@Test
 	@Ignore
