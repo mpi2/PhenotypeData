@@ -81,6 +81,9 @@
 							Free Text
 							</th>
 							<th>
+							Zygosity
+							</th>
+							<th>
 							SampleId
 							</th>
 							<%-- <th>
@@ -203,6 +206,9 @@
 										${parameter.textValue }
 										
 										</c:forEach> 
+									</td>
+									<td>
+									${histRow.zygosity}
 									</td>
 									<td>
 									${histRow.sampleId}
