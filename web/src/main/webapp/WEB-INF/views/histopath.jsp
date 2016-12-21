@@ -71,9 +71,9 @@
 							Observation
 							</th>
 					
-							<th>
+							<%-- <th>
 							Diagnostic
-							</th>
+							</th> --%>
 							<th>
 							Description
 							</th>
@@ -169,7 +169,7 @@
 									
 									
 									
-									<c:choose>
+									<%-- <c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
 										<td>
 										</td>
@@ -180,14 +180,14 @@
 											
 										<td>
 										<c:forEach var="value" items="${parameter.value }">
-										<%-- <td title="${value.description }"> --%>
+										<td title="${value.description }">
 											${value.name }										
-											<%-- </td> --%>
+											</td>
 										</c:forEach>
 										</td>
 									</c:forEach>
 									</c:otherwise>
-									</c:choose> 
+									</c:choose>  --%>
 									
 									
 									<td>
@@ -233,9 +233,28 @@
 							
 							</table>	
 							
-							
-							</div>
-						
+						</div>
+					</div>
+					
+					
+					
+					
+					
+					
+					<div  class="section">
+								<div class="inner">
+									<div class="accordion-body" style="display: block">
+										<div id="grid">
+										<ul>
+											<c:forEach var="image" items="${histopathImagesForGene }">
+												
+													<t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> 
+															 
+											</c:forEach> 
+										</ul>
+										</div>
+									</div>
+								</div>
 					</div>
                     
                     

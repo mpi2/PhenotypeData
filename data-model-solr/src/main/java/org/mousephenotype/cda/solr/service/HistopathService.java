@@ -62,10 +62,6 @@ public class HistopathService {
 			// just for images here as no anatomy currently
 
 			for (String anatomyName : anatomyNames) {
-
-				System.out.println("anatomyName=" + anatomyName);
-	
-				//System.out.println("sample id ="+sampleId);
 				Set<String> parameterNames = new TreeSet<>();
 				
 				Map<Integer, List<ObservationDTO>> uniqueSequenceIdsToObservations=this.getSequenceIds(sampleToObservations.get(sampleId));

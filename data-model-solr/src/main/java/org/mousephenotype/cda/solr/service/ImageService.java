@@ -1021,7 +1021,7 @@ public class ImageService implements WebStatus{
 
 	public SolrDocument getImageByDownloadFilePath(String downloadFilePath) throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
-
+		SolrDocument img=null;
 		query.setQuery(ImageDTO.DOWNLOAD_FILE_PATH+":\""+downloadFilePath+"\"").setRows(1);
 		//query.addField(ImageDTO.OMERO_ID);
 		//query.addField(ImageDTO.INCREMENT_VALUE);
@@ -1030,7 +1030,9 @@ public class ImageService implements WebStatus{
 		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
-		SolrDocument img = response.getResults().get(0);
+		if(response.getResults().getNumFound()>0){
+			img = response.getResults().get(0);
+		}
 		//ImageDTO image = response.get(0);
 		//System.out.println("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
 		return img;
