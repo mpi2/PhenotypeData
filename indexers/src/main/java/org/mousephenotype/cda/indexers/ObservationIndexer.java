@@ -54,6 +54,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -433,6 +435,16 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setColonyId(b.colonyId);
 					o.setZygosity(b.zygosity);
 					o.setDateOfBirth(b.dateOfBirth);
+					if(b.dateOfBirth!=null && dateOfExperiment !=null ){
+						
+						Instant dob=b.dateOfBirth.toInstant();
+						Instant expDate=dateOfExperiment.toInstant();
+						long ageInDays = Duration.between(dob, expDate).toDays();
+						long daysInWeek=7;
+						long ageInWeeks = ageInDays % daysInWeek;
+						o.setAgeInDays(ageInDays);
+						o.setAgeInWeeks(ageInWeeks);
+					}
 					o.setSex(b.sex);
 					o.setGroup(b.sampleGroup);
 					o.setBiologicalSampleId(b.biologicalSampleId);

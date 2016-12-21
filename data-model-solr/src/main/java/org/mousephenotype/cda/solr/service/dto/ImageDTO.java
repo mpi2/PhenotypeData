@@ -330,9 +330,6 @@ public class ImageDTO extends ObservationDTO {
 		this.topLevelMpId = add(this.topLevelMpId, topLevelMpId, uniqueOnly);
 	}
 
-	@Field(AGE_IN_DAYS)
-	private Long ageInDays;
-	
 	@Field(THUMBNAIL_URL)
 	private String thumbnailUrl;
 
@@ -348,13 +345,9 @@ public class ImageDTO extends ObservationDTO {
 		return thumbnailUrl;
 	}
 
-	public Long getAgeInDays() {
-		return ageInDays;
-	}
+	
 
-	public void setAgeInDays(Long ageInDays) {
-		this.ageInDays = ageInDays;
-	}
+	
 
 	public List<String> getMarkerSynonymSymbolGene() {
 		return markerSynonymSymbolGene;
