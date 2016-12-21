@@ -88,17 +88,20 @@ public class ImpcPValuesReport extends AbstractReport {
             RowKey rowKey = new RowKey(result);
 
             if ( ! matrixValues.containsKey(rowKey)) {
-                matrixValues.put(rowKey, new HashMap<String, Double>());
+                matrixValues.put(rowKey, new HashMap<>());
             }
 
-            if ( ! matrixValues.get(rowKey).containsKey(parameter)) {
-
+            if (!matrixValues.get(rowKey).containsKey(parameter)) {
                 matrixValues.get(rowKey).put(parameter, pvalue);
 
-            } else if (pvalue < matrixValues.get(rowKey).get(parameter)) {
+            } else if (pvalue != null && matrixValues.get(rowKey).get(parameter) != null && pvalue < matrixValues.get(rowKey).get(parameter)) {
                 matrixValues.get(rowKey).put(parameter, pvalue);
+
+            } else {
+                matrixValues.get(rowKey).putIfAbsent(parameter, null);
 
             }
+
             allParameters.add(parameter.replace("\r\n", " ").replace("\n", " "));
         }
 
