@@ -56,7 +56,7 @@
 			table.dataTable th:first-child {
 				min-width: 180px;
 			}
-			form#pmidbox{
+			form#pmidbox, form#pmidAllelebox{
 				/*padding: 0;*/
 				/*width: 200px;*/
 				display: none;
@@ -147,9 +147,18 @@
 					<%-- inputbox to add pmid --%>
 					<form id="pmidbox">
 						<fieldset>
-							<legend>Add paper containing EUCOMM/KOMP allele(s) by pmid.<br>Separate by comma for multiple papers.</legend>
+							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID.<br>Separate by comma for multiple papers.</legend>
 							<textarea></textarea>
-							<input type="button" value="Submit papers for curation"/>
+							<input type="button" value="Submit papers"/>
+							<input type="reset" value="Clear">
+						</fieldset>
+					</form>
+
+					<form id="pmidAllelebox">
+						<fieldset>
+							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID and alleles.<br>Separate by tab or space for PMID and alleles.<br>Use comma or semicolon as separator for multiple alleles.</legend>
+							<textarea></textarea>
+							<input type="button" value="Submit papers"/>
 							<input type="reset" value="Clear">
 						</fieldset>
 					</form>
@@ -185,6 +194,7 @@
 					$('#passBox span').text("You are now out of editing mode...");
 
 					$('form#pmidbox').hide();
+                    $('form#pmidAlleleboxbox').hide();
 					document.location.href = baseUrl + '/allelerefedit';
 				}
         	});
@@ -220,6 +230,7 @@
                 			$('#passBox span').text("You are now in editing mode...");
 
 			                $('form#pmidbox').show();
+                            $('form#pmidAllelebox').show();
 
 			                addPaperFormJs();
 
@@ -280,6 +291,58 @@
 					});
 				}
 	        });
+
+
+            $('form#pmidAllelebox input[type=button]').click(function(){
+                console.log($(this).siblings('textarea').val().split("\n"))
+                var idAlleleStrList = $(this).siblings('textarea').val().split("\n");
+				var idAlleleStrParam = [];
+                // validate pmid str
+                var badIds = [];
+                var goodIds = [];
+
+                var idAlleleSep = "__";
+                var itemSep = "___";
+
+                for ( var i=0; i<idAlleleStrList.length; i++){
+                    var idAllele = idAlleleStrList[i].split(/\s+/);
+                    var id = idAllele[0].trim();
+                    var alleleStr = idAllele[1].trim().replace(/;/g, ",");
+
+                    //console.log(id + " --- " + alleleStr);
+
+                    if ( (!id.match(/^\d+$/)) || id == ""){
+                        badIds.push(id);
+                    }
+                    else {
+                        goodIds.push(id);
+                        idAlleleStrParam.push(id + idAlleleSep + alleleStr);
+                    }
+                }
+
+                if (badIds.length > 0) {
+                    alert("Sorry, your submission contains invalid paper id(s): " + badIds.join(", "));
+                }
+                else if (goodIds.length > 0){
+                    $('body').addClass("loading");
+                    $.ajax({
+                        method: "post",
+                        url: baseUrl + "/addpmidAllele?idAlleleStr=" + idAlleleStrParam.join(itemSep),
+                        success: function (response) {
+                            $('body').removeClass("loading");
+                            alert(response);
+
+                        },
+                        error: function () {
+                            $('body').removeClass("loading");
+                            alert('AJAX error trying to add pmid and allele to database');
+                        }
+                    });
+                }
+                else {
+                    alert("Sorry, your submission contains no valid paper id");;
+				}
+            });
         };
 
         function fetchAlleleRefDataTable(oConf) {
