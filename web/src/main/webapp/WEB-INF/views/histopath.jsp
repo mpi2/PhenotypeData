@@ -63,12 +63,7 @@
 							<th class="headerSort">
 							Histopathology
 							</th>
-							<th>
-							SampleId
-							</th>
-							<th>
-							SeqId
-							</th>
+							
 							<th>
 							Severity
 							</th>
@@ -84,6 +79,9 @@
 							</th>
 							<th>
 							Free Text
+							</th>
+							<th>
+							SampleId
 							</th>
 							<%-- <th>
 							Images
@@ -136,12 +134,10 @@
 										
 										
 									</td>
-									<td>
-									${histRow.sampleId}
-									</td>
-									<td>
+									
+									<%-- <td>
 									${histRow.sequenceId}
-									</td>
+									</td> --%>
 									
 									<td>
 									<c:forEach var="parameter" items="${histRow.severity }">
@@ -207,6 +203,9 @@
 										${parameter.textValue }
 										
 										</c:forEach> 
+									</td>
+									<td>
+									${histRow.sampleId}
 									</td>
 									
 									<%-- <td>
