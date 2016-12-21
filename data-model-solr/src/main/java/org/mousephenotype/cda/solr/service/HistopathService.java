@@ -141,10 +141,11 @@ public class HistopathService {
 						if (obs.getObservationType().equals("image_record")) {
 							SolrDocument image = null;
 							if (downloadToImgMap.containsKey(obs.getDownloadFilePath())) {
-								image = downloadToImgMap.get(obs.getDownloadFilePath());
+								//image = downloadToImgMap.get(obs.getDownloadFilePath());
 							} else {
-								image = imageService.getImageByDownloadFilePath(obs.getDownloadFilePath());
-								downloadToImgMap.put(obs.getDownloadFilePath(), image);
+								//removed the images as they have no useful information with them. group them under the table.
+								//image = imageService.getImageByDownloadFilePath(obs.getDownloadFilePath());
+								//downloadToImgMap.put(obs.getDownloadFilePath(), image);
 							}
 
 							//System.out.println("image omero id=" + image.get(ImageDTO.OMERO_ID));
