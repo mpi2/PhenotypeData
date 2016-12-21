@@ -505,6 +505,38 @@ public class ImpressService extends BasicService implements WebStatus {
 
 
 	/**
+	 * Return an ImpressDTO object representing the IMPReSS parameter requested with the stableId parameter
+	 * The ImpressDTO object with bew populated with only those attributes specified in the "fields" parameter, or
+	 * if "fields" is null, the whold object will be populated
+	 *
+	 * see https://www.mousephenotype.org/impress
+	 *
+	 * @param stableId the IMPReSS ID of the parameter to return
+	 *                 @param fields List of ImpressDTO
+	 *
+	 * @return parameterDTO object populated with the attributes indicated by the "fields" parameter, or all attributes if "fields" is null
+	 *
+	 * @throws SolrServerException, IOException
+	 *
+	 */
+	public ImpressDTO getParameterByStableIdSpecifyFields(String stableId, List<String> fields)
+			throws SolrServerException, IOException {
+
+		SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId)
+				.setRows(1);
+
+		// Specify fields if set
+		if (fields != null) {
+			query.setFields(fields.toArray(new String[]{}));
+		}
+
+		List<ImpressDTO> parameters = solr.query(query).getBeans(ImpressDTO.class);
+		return (parameters.size() > 0) ? parameters.get(0) : null;
+	}
+
+
+	/**
 	 * @author tudose
 	 * @since 2015/08/20
 	 * @param stableId
