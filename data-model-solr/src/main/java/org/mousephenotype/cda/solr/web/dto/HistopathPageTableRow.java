@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -21,9 +22,23 @@ public class HistopathPageTableRow{
 
 	private String sampleId;
 	private String anatomyName;
+	private String zygosity;
+	private long ageInDays;
 	
 	
 	
+	public String getZygosity() {
+		return zygosity;
+	}
+	public void setZygosity(String zygosity) {
+		this.zygosity = zygosity;
+	}
+	public long getAgeInDays() {
+		return ageInDays;
+	}
+	public void setAgeInDays(long ageInDays) {
+		this.ageInDays = ageInDays;
+	}
 	public String getAnatomyName() {
 		return anatomyName;
 	}
