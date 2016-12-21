@@ -66,6 +66,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Controller
@@ -132,7 +134,7 @@ public class PaperController {
 
 	@RequestMapping(value = "/addpmid", method = RequestMethod.POST)
 	public @ResponseBody
-	String addPaper(
+	String addPaperByPmid(
 			@RequestParam(value = "idStr", required = true) String idStr,
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -231,6 +233,183 @@ public class PaperController {
 		return status;
 	}
 
+	@RequestMapping(value = "/addpmidAllele", method = RequestMethod.POST)
+	public @ResponseBody
+	String addPaperByPmidAllele(
+			@RequestParam(value = "idAlleleStr", required = true) String idAlleleStr,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException {
+
+		Connection connkomp2 = komp2DataSource.getConnection();
+		Connection conn = admintoolsDataSource.getConnection();
+
+		// make sure do not insert duplicate pmid
+		PreparedStatement insertStatement = conn.prepareStatement("REPLACE INTO allele_ref "
+				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)");
+
+		String status = "";
+		String failStatus = "";
+		String successStatus = "";
+		String notFoundStatus = "";
+		String ignoreStatus = "";
+		int ignoredCount = 0;
+
+		int pmidSubmittedCount = 0;
+		List<String> failedPmids = new ArrayList<>();
+		List<String> failedPmidsMsg = new ArrayList<>();
+		List<String> foundPmids = new ArrayList<>();
+		List<String> allPmids = new ArrayList<>();
+
+		List<String> pmidAlleleStrs = Arrays.asList(idAlleleStr.split("___"));
+
+		//System.out.println("param: "+idAlleleStr);
+		for( String pmidAlleleStr : pmidAlleleStrs) {
+
+			List<String> alleles = new ArrayList<>();
+			List<String> pmidQrys = new ArrayList<>();
+
+			String[] vals = pmidAlleleStr.split("__");
+			String pmid = vals[0];
+			pmidQrys.add("ext_id:" + pmid);
+			allPmids.add(pmid);
+			pmidSubmittedCount++;
+
+			String alleleStr = vals[1];
+
+			// look for multiple alleles
+			if (alleleStr.contains(",")) {
+				alleles.addAll(Arrays.asList(alleleStr.split(",")));
+			} else {
+				alleles.add(alleleStr);
+			}
+			// verify allele name exists in komp2 database
+
+			List<String> geneAccs = new ArrayList<>();
+			List<String> alleleAccs = new ArrayList<>();
+			List<String> goodAlleleSymbols = new ArrayList<>();
+
+			for (String allelename : alleles) {
+				Map<String, String> ag = isImpcAllele(allelename, connkomp2);
+				if (ag.size() > 0) {
+					// add to allele_ref database
+					geneAccs.add(ag.get("geneAcc"));
+					alleleAccs.add(ag.get("alleleAcc"));
+					goodAlleleSymbols.add(allelename);
+				}
+			}
+
+			String geneAccStr = "";
+			String alleleAccStr = "";
+			String alleleSymbols = "";
+			if (geneAccs.size() != 0) {
+				geneAccStr = StringUtils.join(geneAccs, "|||");
+			}
+			if (alleleAccs.size() != 0) {
+				alleleAccStr = StringUtils.join(alleleAccs, "|||");
+			}
+
+			if (goodAlleleSymbols.size() != 0) {
+				alleleSymbols = StringUtils.join(goodAlleleSymbols, "|||");
+			}
+			else {
+				alleleSymbols = "N/A";
+			}
+
+			Map<Integer, Pubmed> pubmeds = fetchEuropePubmedData(pmidQrys);
+
+			if (pubmeds.size() == 0) {
+				status = pmid + " not found in pubmed database";
+			}
+			else {
+
+				Iterator it = pubmeds.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					String pmidStr = pair.getKey().toString();
+
+					foundPmids.add(pmidStr);
+
+					Pubmed pub = (Pubmed) pair.getValue();
+
+					pub.setGeneAccs(geneAccStr);
+					pub.setAlleleAccs(alleleAccStr);
+					pub.setAlleleSymbols(alleleSymbols);
+					pub.setReviewed("yes");
+
+					//System.out.println("found paper: "+pmidStr);
+
+					String msg = savePmidData(pub, insertStatement);
+
+					//System.out.println("insert status: "+msg);
+					if (msg.contains("duplicate ")) {
+						ignoreStatus += pub.getPmid() + "\n";
+						ignoredCount++;
+					} else if (!msg.equals("success")) {
+						//System.out.println("failed: "+ msg);
+						msg = msg.replace(" for key 'pmid'", "");
+						failedPmids.add(pmidStr);
+						failedPmidsMsg.add(msg);
+					} else {
+						successStatus += pmidStr + " added to database\n";
+					}
+
+					it.remove(); // avoids a ConcurrentModificationException
+				}
+			}
+
+		}
+
+		String submitted = pmidSubmittedCount + " PMID(s) submitted\n";
+		status += submitted;
+
+		if (failedPmids.size() == 0 && foundPmids.size() == pmidSubmittedCount && ignoreStatus.isEmpty()) {
+			status += pmidSubmittedCount + " PMID(s) added successfully";
+		} else if (failedPmids.size() == 0 && foundPmids.size() == pmidSubmittedCount && !ignoreStatus.isEmpty()) {
+			status += ignoredCount + " PMID(s) ignored  - already in database:\n" + ignoreStatus;
+		} else {
+			failStatus += fetchNotFoundMsg(allPmids, failedPmids);
+			if (!successStatus.equals("")) {
+				status += "Success:\n" + successStatus;
+			}
+
+			notFoundStatus = fetchNotFoundMsg(allPmids, foundPmids);
+			if (!notFoundStatus.equals("")) {
+				status += "Not Found:\n" + notFoundStatus;
+			}
+
+			status += "Error:\n" + StringUtils.join(failedPmidsMsg, "\n");
+
+		}
+
+		conn.close();
+		connkomp2.close();
+		return status;
+
+	}
+
+	public Map<String, String> isImpcAllele(String allelename, Connection conn){
+
+		Map<String, String> alleleGene = new HashMap<>();
+
+		String query = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
+		try (PreparedStatement p = conn.prepareStatement(query)) {
+			p.setString(1,allelename);
+
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				alleleGene.put("alleleAcc", resultSet.getString("acc"));
+				alleleGene.put("geneAcc", resultSet.getString("gf_acc"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return alleleGene;
+	}
+
 	public String fetchNotFoundMsg(List<String> pmidStrs, List<String> failedPmids ){
 		String msg = "";
 		for (String pmid : pmidStrs){
@@ -250,13 +429,13 @@ public class PaperController {
 		final String delimiter = "|||";
 		int pmid = pub.getPmid();
 
-		insertStatement.setString(1, "");
-		insertStatement.setString(2, "");
-		insertStatement.setString(3, "");
+		insertStatement.setString(1, pub.getGeneAccs().isEmpty() ? "" : pub.getGeneAccs());
+		insertStatement.setString(2, pub.getAlleleAccs().isEmpty() ? "" : pub.getAlleleAccs());
+		insertStatement.setString(3, pub.getAlleleSymbols().isEmpty() ? "" : pub.getAlleleSymbols());
 		insertStatement.setString(4, "");
 		insertStatement.setInt(5, pmid);
 		insertStatement.setString(6, pub.getDateOfPublication());
-		insertStatement.setString(7, "no"); // reviewed, default is no
+		insertStatement.setString(7, pub.getReviewed().isEmpty() ? "no" : "yes"); // reviewed, default is no
 
 		// grant info: we can have multiple grants for a paper
 
@@ -500,6 +679,34 @@ public class PaperController {
 		List<Grant> grants;
 		List<Paperurl> paperurls;
 		List<MeshTerm> meshTerms;
+		String geneAccs;
+		String alleleAccs;
+		String alleleSymbols;
+		String reviewed;
+
+		public String getGeneAccs() {
+			return geneAccs;
+		}
+
+		public void setGeneAccs(String geneAccs) {
+			this.geneAccs = geneAccs;
+		}
+
+		public String getAlleleAccs() {
+			return alleleAccs;
+		}
+
+		public void setAlleleAccs(String alleleAccs) {
+			this.alleleAccs = alleleAccs;
+		}
+
+		public String getAlleleSymbols() {
+			return alleleSymbols;
+		}
+
+		public void setAlleleSymbols(String alleleSymbols) {
+			this.alleleSymbols = alleleSymbols;
+		}
 
 		public Integer getPmid() {
 			return pmid;
@@ -557,6 +764,14 @@ public class PaperController {
 			this.meshTerms = meshTerms;
 		}
 
+		public String getReviewed() {
+			return reviewed;
+		}
+
+		public void setReviewed(String reviewed) {
+			this.reviewed = reviewed;
+		}
+
 		@Override
 		public String toString() {
 			return "Pubmed{" +
@@ -566,6 +781,11 @@ public class PaperController {
 					", dateOfPublication='" + dateOfPublication + '\'' +
 					", grants=" + grants +
 					", paperurls=" + paperurls +
+					", meshTerms=" + meshTerms +
+					", geneAccs='" + geneAccs + '\'' +
+					", alleleAccs='" + alleleAccs + '\'' +
+					", alleleSymbols='" + alleleSymbols + '\'' +
+					", reviewed='" + reviewed + '\'' +
 					'}';
 		}
 	}
