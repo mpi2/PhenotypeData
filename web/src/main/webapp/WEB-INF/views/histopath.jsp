@@ -63,12 +63,7 @@
 							<th class="headerSort">
 							Histopathology
 							</th>
-							<th>
-							SampleId
-							</th>
-							<th>
-							SeqId
-							</th>
+							
 							<th>
 							Severity
 							</th>
@@ -86,8 +81,11 @@
 							Free Text
 							</th>
 							<th>
-							Images
+							SampleId
 							</th>
+							<%-- <th>
+							Images
+							</th> --%>
 							<%-- <th>Sample Id</th> --%>
 						
 							
@@ -136,12 +134,10 @@
 										
 										
 									</td>
-									<td>
-									${histRow.sampleId}
-									</td>
-									<td>
+									
+									<%-- <td>
 									${histRow.sequenceId}
-									</td>
+									</td> --%>
 									
 									<td>
 									<c:forEach var="parameter" items="${histRow.severity }">
@@ -208,19 +204,22 @@
 										
 										</c:forEach> 
 									</td>
-									
 									<td>
-										<c:forEach var="image" items="${histRow.imageList }">
+									${histRow.sampleId}
+									</td>
+									
+									<%-- <td>
+										<c:forEach var="image" items="${histRow.imageList }"> --%>
 										
 										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
 										<%-- increment= ${image.increment_value} --%>
 										 <!-- <div id="grid"> -->
                                            
-												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
+												<%-- <t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay> --%>
 											
 										<!-- </div> -->
-										</c:forEach> 
-									</td>
+										<%-- </c:forEach> 
+									</td> --%>
 									<%-- <td id="${histRow.sampleId}_${histRow.anatomyName}">
 										${histRow.sampleId}
 									</td> --%>

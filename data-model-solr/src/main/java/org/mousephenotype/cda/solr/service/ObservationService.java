@@ -110,8 +110,8 @@ public class ObservationService extends BasicService implements WebStatus {
 
         q.setFields(ObservationDTO.DATA_POINT, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.DATE_OF_EXPERIMENT,
                 ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.COLONY_ID, ObservationDTO.ALLELE_ACCESSION_ID,
-                ObservationDTO.PIPELINE_ID, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
-                ObservationDTO.PARAMETER_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
+                ObservationDTO.PIPELINE_STABLE_ID, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
+                ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
         q.setRows(10000);
 
         logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + SolrUtils.getBaseURL(solr) + "/select?" + q);
@@ -1946,7 +1946,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 	@Override
 	public String getServiceName(){
-		return "Obesrvation Service (experiment core)";
+		return "Observation Service (experiment core)";
 	}
 
 
