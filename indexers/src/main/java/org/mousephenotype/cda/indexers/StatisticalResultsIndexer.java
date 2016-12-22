@@ -592,7 +592,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		String mpTerm = r.getString("mp_acc");
 
 		// For reference range plus results only, test that the MP term has been set, if not, try to set the abnormal term
-		if (doc.getStatisticalMethod().equals("Reference Ranges Plus framework")) {
+		if (doc.getStatisticalMethod() != null && doc.getStatisticalMethod().equals("Reference Ranges Plus framework")) {
 
 			// Sometimes, the stats result generator doesn't set the MP term (also not for either sex), in that case,
 			// try to set the abnormal term for the parameter
