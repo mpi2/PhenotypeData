@@ -18,14 +18,18 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
-import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +57,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	private final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexer.class);
 	private Boolean SAVE = Boolean.TRUE;
-	private Map<String, ImpressDTO> impressAbnormals = new HashMap<>();
+	private Map<String, List<String>> impressAbnormals = new HashMap<>();
 
 	private Double SIGNIFICANCE_THRESHOLD = AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD;
 	final double REPORT_INTERVAL = 100000;
@@ -83,7 +87,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	EmapaOntologyDAO emapaOntologyService;
 
 	@Autowired
-	ImpressService impressService;
+	PhenotypePipelineDAO phenotypePipelineDAO;
 
 	private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
 	private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
@@ -591,37 +595,40 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		String mpTerm = r.getString("mp_acc");
 
-		// For reference range plus results only, test that the MP term has been set, if not, try to set the abnormal term
-		if (doc.getStatisticalMethod() != null && doc.getStatisticalMethod().equals("Reference Ranges Plus framework")) {
+		// For reference range plus results only, test that the MP term has been set, if not, try to set the abnormal termif (doc.getStatisticalMethod() != null && doc.getStatisticalMethod().equals("Reference Ranges Plus framework")) {
 
 			// Sometimes, the stats result generator doesn't set the MP term (also not for either sex), in that case,
 			// try to set the abnormal term for the parameter
 
+		if (r.wasNull()) {
+
+			// If there is a not male MP term set
+			r.getString("male_mp_acc");
 			if (r.wasNull()) {
 
-				// If there is a not male MP term set
-				r.getString("male_mp_acc");
+				// And, If there is a not female MP term set
+				r.getString("female_mp_acc");
 				if (r.wasNull()) {
 
-					// And, If there is a not female MP term set
-					r.getString("female_mp_acc");
-					if (r.wasNull()) {
+					// Lookup and cache the impress object corresponding to the parameter in question
+					if (!impressAbnormals.containsKey(doc.getParameterStableId())) {
 
-						// Lookup and cache the impress object corresponding to the parameter in question
-						if (!impressAbnormals.containsKey(doc.getParameterStableId())) {
-							ImpressDTO parameter = impressService.getParameterByStableIdSpecifyFields(doc.getParameterStableId(), Arrays.asList(ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.ABNORMAL_MP_ID));
-							impressAbnormals.put(doc.getParameterStableId(), parameter);
-						}
+						Parameter parameter = phenotypePipelineDAO.getParameterByStableId(doc.getParameterStableId());
 
-						// Get the first abnormal term ID as that is likely the "abnormal" term
-						if (impressAbnormals.containsKey(doc.getParameterStableId())) {
-							ImpressDTO parameter = impressAbnormals.get(doc.getParameterStableId());
-							if (parameter != null && parameter.getAbnormalMpId() != null) {
-								List<String> abnormalMPTermIds = parameter.getAbnormalMpId();
-								if (CollectionUtils.isNotEmpty(abnormalMPTermIds)) {
-									mpTerm = abnormalMPTermIds.get(0);
-								}
-							}
+						List<String> abnormalMpIds = parameter.getAnnotations()
+								.stream()
+								.filter(x -> x.getType().equals(PhenotypeAnnotationType.abnormal))
+								.map(x -> x.getOntologyTerm().getId().getAccession())
+								.collect(Collectors.toList());
+
+						impressAbnormals.put(doc.getParameterStableId(), abnormalMpIds);
+					}
+
+					// Get the first abnormal term ID as that is likely the real "abnormal" term
+					if (impressAbnormals.containsKey(doc.getParameterStableId())) {
+						List<String> abnormals = impressAbnormals.get(doc.getParameterStableId());
+						if (CollectionUtils.isNotEmpty(abnormals)) {
+							mpTerm = abnormals.get(0);
 						}
 					}
 				}
