@@ -200,7 +200,7 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 	}
 
 	@Test
-	public void getImmResultsForMpExistenceTest() throws Exception {
+	public void getIMMResultsForMpExistenceTest() throws Exception {
 
 		statisticalResultIndexer.setSAVE(Boolean.FALSE);
 		StatisticalResultsIndexer.ReferenceRangePlusResults r = statisticalResultIndexer.getReferenceRangePlusResults();
@@ -219,6 +219,7 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 		}
 
 		System.out.println(theOneImLookingFor);
+		assert(theOneImLookingFor.getMpTermId()!=null);
 		assert(results.size() > 1000);
 
 	}
