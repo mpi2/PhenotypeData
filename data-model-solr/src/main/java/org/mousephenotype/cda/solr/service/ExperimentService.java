@@ -315,7 +315,7 @@ public class ExperimentService{
 
                                     controls = potentialControls;
                                     experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-                                    LOG.info("Setting concurrent controls for sex: " + s.name());
+                                    LOG.debug("Setting concurrent controls for sex: " + s.name());
 
                                 } else {
 
