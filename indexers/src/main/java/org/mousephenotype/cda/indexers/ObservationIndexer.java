@@ -439,9 +439,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						
 						Instant dob=b.dateOfBirth.toInstant();
 						Instant expDate=dateOfExperiment.toInstant();
-						long ageInDays = Duration.between(dob, expDate).toDays();
-						long daysInWeek=7;
-						long ageInWeeks = ageInDays % daysInWeek;
+						int ageInDays = (int) Duration.between(dob, expDate).toDays();
+						int daysInWeek = 7;
+						int ageInWeeks = ageInDays / daysInWeek;
 						o.setAgeInDays(ageInDays);
 						o.setAgeInWeeks(ageInWeeks);
 					}
