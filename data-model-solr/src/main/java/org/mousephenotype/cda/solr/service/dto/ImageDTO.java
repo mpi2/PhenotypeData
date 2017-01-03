@@ -81,6 +81,7 @@ public class ImageDTO extends ObservationDTO {
     public final static String WEIGHT_DATE = ObservationDTO.WEIGHT_DATE;
     public final static String WEIGHT_DAYS_OLD = ObservationDTO.WEIGHT_DAYS_OLD;
     public final static String WEIGHT = ObservationDTO.WEIGHT;
+    public static final String AGE_IN_DAYS = ObservationDTO.AGE_IN_DAYS;
 
     public static final String FULL_RESOLUTION_FILE_PATH = "full_resolution_file_path";
 
@@ -137,19 +138,10 @@ public class ImageDTO extends ObservationDTO {
     public static final String INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM = "intermediate_anatomy_term_anatomy_id_term";
     public static final String INTERMEDIATE_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "intermediate_anatomy_term_synonym_anatomy_id_term";
     public static final String ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM = "anatomy_term_synonym_anatomy_id_term";
-    public static final String AGE_IN_DAYS = ObservationDTO.AGE_IN_DAYS;
     public static final String THUMBNAIL_URL = "thumbnail_url";
 
     @Field(PARAMETER_ASSOCIATION_VALUE)
     private List<String> parameterAssociationValues;
-
-    public List<String> getParameterAssociationValues() {
-        return parameterAssociationValues;
-    }
-
-    public void setParameterAssociationValues(List<String> parameterAssociationValues) {
-        this.parameterAssociationValues = parameterAssociationValues;
-    }
 
     @Field(MP_ID)
     private List<String> mpId;
@@ -202,8 +194,9 @@ public class ImageDTO extends ObservationDTO {
     @Field(UBERON_ID)
     private List<String> uberonId;
 
+    //for search and annotation view
     @Field(SYMBOL_GENE)
-    private String symbolGene;//for search and annotation view
+    private String symbolGene;
 
     @Field(STATUS)
     private List<String> status;
@@ -259,22 +252,39 @@ public class ImageDTO extends ObservationDTO {
     // used for lexical match on search page
     @Field(MARKER_SYNONYM_SYMBOL_GENE)
     private List<String> markerSynonymSymbolGene;
+
     @Field(PARAMETER_ASSOCIATION_NAME_PROCEDURE_NAME)
     private List<String> parameterAssociationNameProcedureName;
+
     @Field(SELECTED_TOP_LEVEL_ANATOMY_ID_ANATOMY_ID_TERM)
     private List<String> selectedTopLevelAnatomyIdAnatomyIdTerm;
+
     @Field(SELECTED_TOP_LEVEL_ANATOMY_TERM_ANATOMY_ID_TERM)
     private List<String> selectedTopLevelAnatomyTermAnatomyIdTerm;
+
     @Field(SELECTED_TOP_LEVEL_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM)
     private List<String> selectedTopLevelAnatomyTermSynonymAnatomyIdTerm;
+
     @Field(INTERMEDIATE_ANATOMY_ID_ANATOMY_ID_TERM)
     private List<String> intermediateAnatomyIdAnatomyIdTerm;
+
     @Field(INTERMEDIATE_ANATOMY_TERM_ANATOMY_ID_TERM)
     private List<String> intermediateAnatomyTermAnatomyIdTerm;
+
     @Field(INTERMEDIATE_ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM)
     private List<String> intermediateAnatomyTermSynonymAnatomyIdTerm;
+
     @Field(ANATOMY_TERM_SYNONYM_ANATOMY_ID_TERM)
     private List<String> anatomyTermSynonymAnatomyIdTerm;
+
+
+    public List<String> getParameterAssociationValues() {
+        return parameterAssociationValues;
+    }
+
+    public void setParameterAssociationValues(List<String> parameterAssociationValues) {
+        this.parameterAssociationValues = parameterAssociationValues;
+    }
 
     public List<String> getIntermediateMpId() {
         return intermediateMpId;
@@ -743,7 +753,7 @@ public class ImageDTO extends ObservationDTO {
     public void addStatus(String status1) {
 
         if (this.status == null) {
-            status = new ArrayList<String>();
+            status = new ArrayList<>();
         }
         status.add(status1);
     }
@@ -751,7 +761,7 @@ public class ImageDTO extends ObservationDTO {
     public void addImitsPhenotypeStarted(String imitsPhenotypeStarted1) {
 
         if (this.imitsPhenotypeStarted == null) {
-            this.imitsPhenotypeStarted = new ArrayList<String>();
+            this.imitsPhenotypeStarted = new ArrayList<>();
         }
         this.imitsPhenotypeStarted.add(imitsPhenotypeStarted1);
     }
@@ -759,7 +769,7 @@ public class ImageDTO extends ObservationDTO {
     public void addImitsPhenotypeComplete(String imitsPhenotypeComplete1) {
 
         if (this.imitsPhenotypeComplete == null) {
-            this.imitsPhenotypeComplete = new ArrayList<String>();
+            this.imitsPhenotypeComplete = new ArrayList<>();
         }
         this.imitsPhenotypeComplete.add(imitsPhenotypeComplete1);
     }
@@ -767,7 +777,7 @@ public class ImageDTO extends ObservationDTO {
     public void addImitsPhenotypeStatus(String imitsPhenotypeStatus1) {
 
         if (this.imitsPhenotypeStatus == null) {
-            this.imitsPhenotypeStatus = new ArrayList<String>();
+            this.imitsPhenotypeStatus = new ArrayList<>();
         }
         this.imitsPhenotypeStatus.add(imitsPhenotypeStatus1);
     }
@@ -819,7 +829,7 @@ public class ImageDTO extends ObservationDTO {
     public void addHumanGeneSymbol(List<String> humanGeneSymbol) {
 
         if (this.humanGeneSymbol == null) {
-            this.humanGeneSymbol = new ArrayList<String>();
+            this.humanGeneSymbol = new ArrayList<>();
         }
         this.humanGeneSymbol.addAll(humanGeneSymbol);
     }
@@ -842,7 +852,6 @@ public class ImageDTO extends ObservationDTO {
     }
 
     public String getSymbol() {
-        // TODO Auto-generated method stub
         return symbol;
     }
 
