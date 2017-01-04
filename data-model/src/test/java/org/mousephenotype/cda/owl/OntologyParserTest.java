@@ -96,7 +96,7 @@ public class OntologyParserTest {
                 targetTemp = target + "." + outputAppender;
                 try {
                     url = new URL(UrlUtils.getRedirectedUrl(download.url));
-                    System.out.println("DOWNLOADING " + url.toString() + " to " + download.target);
+                    System.out.println("(AFTER) DOWNLOADING " + url.toString() + " to " + download.target);
                     rbc = Channels.newChannel(url.openStream());
                     fos = new FileOutputStream(targetTemp);
                     fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
