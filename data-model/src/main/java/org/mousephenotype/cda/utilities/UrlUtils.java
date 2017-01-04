@@ -180,13 +180,17 @@ public class UrlUtils {
         String        newSource;
 
         try {
+
+ System.out.println("source = '" + source + "'");
             urlConnection = (new URL(source).openConnection());
+ System.out.println("Got urlConnection.");
             urlConnection.connect();
         } catch (IOException e) {
             return source;
         }
 
         newSource = urlConnection.getHeaderField("Location");
+  System.out.println("newSource = '" + newSource + "'");
 
         return ((newSource != null) && ( ! newSource.isEmpty()) ? newSource : source);
     }
