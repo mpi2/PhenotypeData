@@ -1,5 +1,18 @@
 /* Additional styling written at EBI */
 
+.venntooltip {
+	position: absolute;
+	text-align: center;
+	width: 128px;
+	height: 16px;
+	background: #333;
+	color: #ddd;
+	padding: 2px;
+	border: 0px;
+	border-radius: 8px;
+	opacity: 0;
+}
+
 .twocolumns{
 	-webkit-column-count: 2; /* Chrome, Safari, Opera */
 	-moz-column-count: 2; /* Firefox */
