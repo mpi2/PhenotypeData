@@ -350,6 +350,7 @@
         <field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/>
         <field name="age_in_days" type="int" indexed="true" stored="true"/>
+        <field name="age_in_weeks" type="int" indexed="true" stored="true" multiValued="false"/>
 
 
     </fields>
