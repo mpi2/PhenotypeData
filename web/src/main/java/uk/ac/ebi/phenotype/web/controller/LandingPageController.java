@@ -175,29 +175,14 @@ public class LandingPageController {
     @ResponseBody
     @RequestMapping(value = "/orthology.jsonp", method = RequestMethod.GET)
     public String getOrthologyJson(
-            @RequestParam(required = false, value = "mpId") String mpId,
+            @RequestParam(required = true, value = "mpId") String mpId,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
         return "var sets =  " + getOrtologyDiseaseModelVennDiagram(mpId, null, null) + ";";
-//        return "var sets = [{sets : [0], label : 'IMPC disease model', size : 513,}, \n" +
-//                "            {sets : [1], label : 'MGI disease model', size: 564},\n" +
-//                "            {sets : [2], label : 'With orthologs', size : 248}, \n" +
-//                "            {sets : [3], label : 'No orthologs', size: 14},\n" +
-//                "            {sets : [0,1], size:1},\n" +
-//                "            {sets : [0,2], size:1},\n" +
-//                "            {sets : [0,3], size:14},\n" +
-//                "            {sets : [1,2], size:6},\n" +
-//                "            {sets : [1,3], size:0},\n" +
-//                "            {sets : [2,3], size:0},\n" +
-//                "            {sets : [0,2,3], size:1},\n" +
-//                "            {sets : [0,1,2], size:0},\n" +
-//                "            {sets : [0,1,3], size:0},\n" +
-//                "            {sets : [1,2,3], size:0},\n" +
-//                "            {sets : [0,1,2,3], size:0}\n" +
-//                "            ];";
+
     }
 
 
@@ -216,7 +201,6 @@ public class LandingPageController {
         diseaseClasses.add("cardiac malformations");
         diseaseClasses.add("circulatory system");
         allSets.putAll(phenodigmService.getGenesWithDisease(diseaseClasses));
-
 
         // get counts for intersections
         JSONArray sets = new JSONArray();
@@ -265,7 +249,7 @@ public class LandingPageController {
                 CollectionUtils.intersection(allSets.get(keysIndex.get(1)), CollectionUtils.intersection(allSets.get(keysIndex.get(2)),allSets.get(keysIndex.get(3))))).size();
         sets.add(getSetVennFormat(null, currentSets, intersectionSize));
 
-//        System.out.println("SETS HERE :::: " + sets);
+        System.out.println("SETS HERE :::: " + sets);
 
         // return in right format for venn diagram http://benfred.github.io/venn.js/examples/styled.html
         JSONArray result = new JSONArray();
