@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
-import java.util.Date;
 
 /**
  * This class encapsulates the code and data necessary to manage the composition of url strings.
@@ -176,26 +175,20 @@ public class UrlUtils {
      * @return the redirected url source string, if redirected; the original source string otherwise
      */
     public static String getRedirectedUrl(String source) {
+        String result;
 
         URLConnection urlConnection;
         String        newSource;
-Date date;
+
         try {
-date = new Date();
-System.out.println("source = '" + source + "'. calling openConnection() at " + date.toString());
             urlConnection = (new URL(source).openConnection());
-date = new Date();
-System.out.println("Got URLConnection. calling connect() at " + date.toString());
             urlConnection.connect();
+            newSource = urlConnection.getHeaderField("Location");
+            result = ((newSource != null) && ( ! newSource.isEmpty()) ? newSource : source);
         } catch (IOException e) {
             return source;
         }
-date = new Date();
-System.out.println("Connected. calling connect() at " + date.toString());
-        newSource = urlConnection.getHeaderField("Location");
-date = new Date();
-System.out.println("got newSource at " + date.toString());
 
-        return ((newSource != null) && ( ! newSource.isEmpty()) ? newSource : source);
+        return result;
     }
 }
