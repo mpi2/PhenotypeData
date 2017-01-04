@@ -1561,6 +1561,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
 						addMpTermData(embryoSignificantResults.get(r.getString("significant_id")), doc);
+					} else {
+						doc.setSignificant(false);
 					}
 
 					docs.add(doc);
@@ -1635,6 +1637,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', o.id, '_', term, '_', ls.sex, '_grosspath') as doc_id, " +
 			"'adult-gross-path' AS data_type, db.id AS db_id, " +
+			"CONCAT(o.parameter_stable_id, '_', ls.colony_id, exp.organisation_id) AS significant_id, " +
 			"ls.zygosity as experimental_zygosity, ls.id, bs.sample_group, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, " +
 			"parameter.id as parameter_id, ls.colony_id, ls.sex as sex, " +
 			"parameter.stable_id as dependent_variable, " +
@@ -1671,6 +1674,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					StatisticalResultDTO doc = parseLineResult(r);
 					doc.setDocId(doc.getDocId()+"-"+(i++));
+
+					if ( ! embryoSignificantResults.containsKey(r.getString("significant_id"))) {
+						doc.setSignificant(false);
+					}
+
 
 					docs.add(doc);
 					if (SAVE) statisticalResultCore.addBean(doc, 30000);
