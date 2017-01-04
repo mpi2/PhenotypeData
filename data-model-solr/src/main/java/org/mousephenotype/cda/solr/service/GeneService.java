@@ -999,8 +999,8 @@ public class GeneService extends BasicService implements WebStatus{
 		}
 
 		Map<String, Set<String>> result = new HashMap<>();
-		result.put("humanOrtholog", withHumanOrtholog);
-		result.put("noOrtholog", noHumanOrtholog);
+		result.put("Genes with human ortholog and cardiovascular phenotypes", withHumanOrtholog);
+		result.put("Genes cardiovascular phenotypes, no human ortholog", noHumanOrtholog);
 //
 //		System.out.println("HUMAN ORTHOLOG " + withHumanOrtholog);
 //		System.out.println("NO HUMAN ORTHOLOG " + noHumanOrtholog);
