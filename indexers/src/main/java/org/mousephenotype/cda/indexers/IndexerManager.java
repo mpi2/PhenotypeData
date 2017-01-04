@@ -51,6 +51,7 @@ public class IndexerManager  {
 
     // core names.
     //      These are built only for a new data release.
+    static final String PIPELINE_CORE = "pipeline";
     static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
     static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
     static final String STATSTICAL_RESULT_CORE = "statistical-result";
@@ -66,7 +67,6 @@ public class IndexerManager  {
     static final String IMPC_IMAGES_CORE = "impc_images";
     static final String MP_CORE = "mp";
     static final String ANATOMY_CORE = "anatomy";
-    static final String PIPELINE_CORE = "pipeline";
     static final String GENE_CORE = "gene";
     static final String DISEASE_CORE = "disease";
     static final String AUTOSUGGEST_CORE = "autosuggest";
@@ -101,7 +101,8 @@ public class IndexerManager  {
 
     static final String[] allCoresArray = new String[] {      // In dependency order.
           // In dependency order. These are built only for a new data release.
-          OBSERVATION_CORE
+          PIPELINE_CORE
+        , OBSERVATION_CORE
         , GENOTYPE_PHENOTYPE_CORE
 	    , STATSTICAL_RESULT_CORE
 	    , MGI_PHENOTYPE_CORE
@@ -116,7 +117,6 @@ public class IndexerManager  {
         , IMPC_IMAGES_CORE
         , MP_CORE
         , ANATOMY_CORE
-        , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
         , AUTOSUGGEST_CORE
@@ -125,7 +125,7 @@ public class IndexerManager  {
 
     static final String[] allDailyCoresArray = new String[] {
           // In dependency order. These are built daily.
-            ALLELE2_CORE
+          ALLELE2_CORE
         , PRODUCT_CORE
         , PREQC_CORE
         , ALLELE_CORE
@@ -133,7 +133,6 @@ public class IndexerManager  {
         , IMPC_IMAGES_CORE
         , MP_CORE
         , ANATOMY_CORE
-        , PIPELINE_CORE
         , GENE_CORE
         , DISEASE_CORE
         , AUTOSUGGEST_CORE
@@ -143,6 +142,7 @@ public class IndexerManager  {
     public static final int RETRY_SLEEP_IN_MS = 60000;                          // If any core fails, sleep this long before reattempting to build the core.
     public static final String STAGING_SUFFIX = "_staging";                     // This snippet is appended to core names meant to be staging core names.
 
+    private Class pipelineClass = PipelineIndexer.class;
 	private Class observationClass = ObservationIndexer.class;
 	private Class genotypePhenotypeClass = GenotypePhenotypeIndexer.class;
 	private Class statisticalResultClass = StatisticalResultsIndexer.class;
@@ -154,7 +154,6 @@ public class IndexerManager  {
 	private Class impcImagesClass = ImpcImagesIndexer.class;
 	private Class mpClass = MPIndexer.class;
 	private Class anatomyClass = AnatomyIndexer.class;
-	private Class pipelineClass = PipelineIndexer.class;
 	private Class geneClass = GeneIndexer.class;
 	private Class diseaseClass = DiseaseIndexer.class;
     private Class autosuggestClass = AutosuggestIndexer.class;
@@ -372,6 +371,7 @@ public class IndexerManager  {
 
 	    for (String core : cores) {
 		    switch (core) {
+                case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineClass));                       break;
 			    case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationClass));                 break;
 			    case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeClass));    break;
 			    case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultClass));     break;
@@ -386,7 +386,6 @@ public class IndexerManager  {
 			    case IMPC_IMAGES_CORE:          indexerItemList.add(new IndexerItem(IMPC_IMAGES_CORE, impcImagesClass));                  break;
 			    case MP_CORE:                   indexerItemList.add(new IndexerItem(MP_CORE, mpClass));                                   break;
 			    case ANATOMY_CORE:              indexerItemList.add(new IndexerItem(ANATOMY_CORE, anatomyClass));                         break;
-			    case PIPELINE_CORE:             indexerItemList.add(new IndexerItem(PIPELINE_CORE, pipelineClass));                       break;
 			    case GENE_CORE:                 indexerItemList.add(new IndexerItem(GENE_CORE, geneClass));                               break;
 			    case DISEASE_CORE:              indexerItemList.add(new IndexerItem(DISEASE_CORE, diseaseClass));                         break;
 			    case AUTOSUGGEST_CORE:          indexerItemList.add(new IndexerItem(AUTOSUGGEST_CORE, autosuggestClass));                 break;
@@ -728,6 +727,7 @@ public class IndexerManager  {
                     "         as nodeps is the default for this case.\n" +
                     "\n" +
                     "Core list (in priority build order):\n" +
+                    "   pipeline\n" +
                     "   experiment\n" +
                     "   genotype-phenotype\n" +
 	                "   statistical-result\n" +
@@ -741,7 +741,6 @@ public class IndexerManager  {
                     "   impc_images\n" +
                     "   mp\n" +
                     "   anatomy\n" +
-                    "   pipeline\n" +
                     "   gene\n" +
                     "   disease\n" +
                     "   autosuggest\n";
