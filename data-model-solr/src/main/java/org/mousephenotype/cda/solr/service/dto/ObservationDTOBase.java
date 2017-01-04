@@ -341,26 +341,26 @@ public class ObservationDTOBase {
 	List<String> selectedTopLevelAnatomyTermSynonym;
 	
 	@Field(AGE_IN_DAYS)
-	private Long ageInDays;
+	private Integer ageInDays;
 	
 	@Field(AGE_IN_WEEKS)
-	private Long ageInWeeks;
+	private Integer ageInWeeks;
 	
 
 
-	public Long getAgeInDays() {
+	public Integer getAgeInDays() {
 		return ageInDays;
 	}
 
-	public void setAgeInDays(Long ageInDays) {
+	public void setAgeInDays(Integer ageInDays) {
 		this.ageInDays = ageInDays;
 	}
 
-	public Long getAgeInWeeks() {
+	public Integer getAgeInWeeks() {
 		return ageInWeeks;
 	}
 
-	public void setAgeInWeeks(Long ageInWeeks) {
+	public void setAgeInWeeks(Integer ageInWeeks) {
 		this.ageInWeeks = ageInWeeks;
 	}
 
