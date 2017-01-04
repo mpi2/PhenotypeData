@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.util.Date;
 
 /**
  * This class encapsulates the code and data necessary to manage the composition of url strings.
@@ -178,19 +179,22 @@ public class UrlUtils {
 
         URLConnection urlConnection;
         String        newSource;
-
+Date date;
         try {
-
- System.out.println("source = '" + source + "'");
+date = new Date();
+System.out.println("source = '" + source + "'. calling openConnection() at " + date.toString());
             urlConnection = (new URL(source).openConnection());
- System.out.println("Got urlConnection.");
+date = new Date();
+System.out.println("Got URLConnection. calling connect() at " + date.toString());
             urlConnection.connect();
         } catch (IOException e) {
             return source;
         }
-
+date = new Date();
+System.out.println("Connected. calling connect() at " + date.toString());
         newSource = urlConnection.getHeaderField("Location");
-  System.out.println("newSource = '" + newSource + "'");
+date = new Date();
+System.out.println("got newSource at " + date.toString());
 
         return ((newSource != null) && ( ! newSource.isEmpty()) ? newSource : source);
     }
