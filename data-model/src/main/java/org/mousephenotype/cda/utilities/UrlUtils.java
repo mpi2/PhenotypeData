@@ -175,6 +175,7 @@ public class UrlUtils {
      * @return the redirected url source string, if redirected; the original source string otherwise
      */
     public static String getRedirectedUrl(String source) {
+        String result;
 
         URLConnection urlConnection;
         String        newSource;
@@ -182,12 +183,12 @@ public class UrlUtils {
         try {
             urlConnection = (new URL(source).openConnection());
             urlConnection.connect();
+            newSource = urlConnection.getHeaderField("Location");
+            result = ((newSource != null) && ( ! newSource.isEmpty()) ? newSource : source);
         } catch (IOException e) {
             return source;
         }
 
-        newSource = urlConnection.getHeaderField("Location");
-
-        return ((newSource != null) && ( ! newSource.isEmpty()) ? newSource : source);
+        return result;
     }
 }

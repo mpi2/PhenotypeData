@@ -83,7 +83,6 @@ public class OntologyParserTest {
         if (doDownload) {
             for (Download download : downloads.values()) {
                 // Download the owl files.
-                System.out.println("DOWNLOADING " + download.url + " to " + download.target);
 
                 FileOutputStream    fos;
                 ReadableByteChannel rbc;
@@ -97,6 +96,11 @@ public class OntologyParserTest {
                 targetTemp = target + "." + outputAppender;
                 try {
                     url = new URL(UrlUtils.getRedirectedUrl(download.url));
+                    if (download.url.equals(url.toString())) {
+                        System.out.println("DOWNLOADING " + url.toString() + " to " + download.target);
+                    } else {
+                        System.out.println("DOWNLOADING " + download.url + " (remapped to " + url.toString() + ") to " + download.target);
+                    }
                     rbc = Channels.newChannel(url.openStream());
                     fos = new FileOutputStream(targetTemp);
                     fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
