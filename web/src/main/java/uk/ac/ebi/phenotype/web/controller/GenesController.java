@@ -40,7 +40,6 @@ import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,6 +67,8 @@ import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -127,9 +128,16 @@ public class GenesController {
 	@Autowired
 	OrderService orderService;
 
-	@Value("drupalBaseUrl")
+	@Resource(name = "globalConfiguration")
+	Map<String, String> config;
+
 	private String drupalBaseUrl;
-	
+
+	@PostConstruct
+	private void postConstruct() {
+		drupalBaseUrl = config.get("drupalBaseUrl");
+	}
+
 	HttpProxy proxy = new HttpProxy();
 	
 	private static final List<String> genesWithVignettes=Arrays.asList(new String[]{"MGI:1913761","MGI:97491" , "MGI:1922814","MGI:3039593" ,"MGI:1915138" , "MGI:1915138","MGI:1195985" ,"MGI:102806", "MGI:1195985","MGI:1915138", "MGI:1337104", "MGI:3039593","MGI:1922814", "MGI:97491","MGI:1928849","MGI:2151064","MGI:104606","MGI:103226","MGI:1920939","MGI:95698","MGI:1915091","MGI:1924285","MGI:1914797","MGI:1351614","MGI:2147810" });

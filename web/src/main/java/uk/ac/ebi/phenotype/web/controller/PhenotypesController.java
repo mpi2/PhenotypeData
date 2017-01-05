@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +48,8 @@ import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -94,8 +95,15 @@ public class PhenotypesController {
     @Autowired
     ImageService imageService;
 
-    @Value("drupalBaseUrl")
+    @Resource(name = "globalConfiguration")
+    Map<String, String> config;
+
     private String drupalBaseUrl;
+
+    @PostConstruct
+    private void postConstruct() {
+        drupalBaseUrl = config.get("drupalBaseUrl");
+    }
 
     /**
      * Phenotype controller loads information required for displaying the
