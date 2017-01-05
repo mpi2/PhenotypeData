@@ -62,7 +62,7 @@
                                     <h2 class="title">Associated Images </h2>
                                     <div class="inner">
                                         <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-                                    </div>s
+                                    </div>
                                 </div>
                             </c:if>
                         </div>
@@ -92,6 +92,9 @@
 
                             </div>
                         </div>
+
+                        <jsp:include page="gene_orthologs_frag.jsp" ></jsp:include>
+
 
                     </div>
                 </div>
