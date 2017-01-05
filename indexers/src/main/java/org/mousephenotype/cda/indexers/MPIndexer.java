@@ -172,6 +172,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Override
     public RunStatus run ()
             throws IndexerException, SQLException, IOException, SolrServerException, URISyntaxException {
+
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -893,7 +894,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
-        String q = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where p_value <= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
+        String q = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
         PreparedStatement ps = komp2DbConnection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
