@@ -83,7 +83,8 @@ public class PhenodigmService implements WebStatus {
 		SolrQuery query = new SolrQuery();
 		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
 		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
-		query.addFilterQuery(String.format("(" + PhenodigmDTO.HUMAN_CURATED + ":true OR " + PhenodigmDTO.MOUSE_CURATED + ":true OR "+ PhenodigmDTO.RAW_MOD_SCORE + ":[%s TO *])", MIN_RAW_SCORE_CUTOFF));
+//		query.addFilterQuery(String.format("(" + PhenodigmDTO.HUMAN_CURATED + ":true OR " + PhenodigmDTO.MOUSE_CURATED + ":true OR "+ PhenodigmDTO.RAW_MOD_SCORE + ":[%s TO *])", MIN_RAW_SCORE_CUTOFF));
+		query.addFilterQuery(String.format(PhenodigmDTO.RAW_MOD_SCORE + ":[%s TO *]", MIN_RAW_SCORE_CUTOFF));
 		query.addFilterQuery(PhenodigmDTO.MGI_PREDICTED + ":true");
 		query.setRows(Integer.MAX_VALUE);
 		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED);
@@ -100,7 +101,8 @@ public class PhenodigmService implements WebStatus {
 		query = new SolrQuery();
 		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
 		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
-		query.addFilterQuery(String.format("(" + PhenodigmDTO.HUMAN_CURATED + ":true OR " + PhenodigmDTO.MOUSE_CURATED + ":true OR "+ PhenodigmDTO.RAW_HTPC_SCORE + ":[%s TO *])", MIN_RAW_SCORE_CUTOFF));
+//		query.addFilterQuery(String.format("(" + PhenodigmDTO.HUMAN_CURATED + ":true OR " + PhenodigmDTO.MOUSE_CURATED + ":true OR "+ PhenodigmDTO.RAW_HTPC_SCORE + ":[%s TO *])", MIN_RAW_SCORE_CUTOFF));
+		query.addFilterQuery(String.format(PhenodigmDTO.RAW_HTPC_SCORE + ":[%s TO *]", MIN_RAW_SCORE_CUTOFF));
 		query.addFilterQuery(PhenodigmDTO.IMPC_PREDICTED + ":true");
 		query.setRows(Integer.MAX_VALUE);
 		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED);
@@ -114,8 +116,8 @@ public class PhenodigmService implements WebStatus {
 		}
 
 		Map<String, Set<String>> result = new HashMap<>();
-		result.put("mgiPredictedDisease", mgiPredicted);
-		result.put("impcPredictedDisease", impcPredicted);
+		result.put("Genes with MGI predicted cardiovascular disease", mgiPredicted);
+		result.put("Genes with IMPC predicted cardiovascular disease", impcPredicted);
 
 		return result;
 
