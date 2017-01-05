@@ -928,7 +928,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<String>> beans = new HashMap<>();
 
-        String q = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value < 0.0001 and external_db_id = 22";
+        String q = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where external_db_id = 22";
         PreparedStatement ps = komp2DbConnection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
@@ -951,7 +951,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<String>> beans = new HashMap<>();
 
-        String q = "select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value < 0.0001 and external_db_id = 12";
+        String q = "select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where external_db_id = 12";
         PreparedStatement ps = komp2DbConnection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
