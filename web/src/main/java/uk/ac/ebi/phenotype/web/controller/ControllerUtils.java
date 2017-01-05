@@ -135,6 +135,28 @@ public class ControllerUtils {
 	}
 
 
+	public static List<Double> getBitMask(List<Boolean> truthValues){
+
+		List<Double> masks = new ArrayList<>();
+		Double currentMask = new Double(0);
+		int maskIndex = 0;
+
+		for (int i = 0; i < truthValues.size(); i++ ){
+			if (i % 32 == 0 && i != 0){
+				masks.add(new Double(currentMask));
+				currentMask = new Double(0);
+				maskIndex ++;
+			}
+			if (truthValues.get(i)){
+				currentMask += Math.pow(new Double(2), new Double(i - 32*maskIndex));
+			}
+		}
+
+		masks.add(currentMask);
+
+		return masks;
+
+	}
 
 
 }
