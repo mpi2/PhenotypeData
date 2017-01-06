@@ -40,17 +40,21 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -64,13 +68,14 @@ import static org.junit.Assert.assertTrue;
  *
  * Selenium test for graph page query coverage ensuring each page works as expected.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@SpringBootTest(classes = TestConfig.class)
 public class GraphPageTest {
 
-    private CommonUtils commonUtils = new CommonUtils();
-    protected TestUtils testUtils = new TestUtils();
+    private CommonUtils   commonUtils = new CommonUtils();
+    private WebDriver     driver;
+    private TestUtils     testUtils   = new TestUtils();
     private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -82,53 +87,52 @@ public class GraphPageTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @NotNull
-    @Value("${baseUrl}")
-    protected String baseUrl;
 
     @Autowired
-    WebDriver driver;
+    private DesiredCapabilities desiredCapabilities;
 
     @Autowired
-    Environment env;
+    private Environment env;
 
     @Autowired
-    protected GeneService geneService;
+    private GeneService geneService;
 
     @Autowired
     @Qualifier("postqcService")
     protected PostQcService genotypePhenotypeService;
 
     @Autowired
-    protected MpService mpService;
+    private MpService mpService;
 
     @Autowired
-    ObservationService observationService;
+    private ObservationService observationService;
 
     @Autowired
     private PhenotypePipelineDAO phenotypePipelineDAO;
 
     @Autowired
-    PostQcService postQcService;
+    private PostQcService postQcService;
 
     @Autowired
-    PreQcService preQcService;
+    private PreQcService preQcService;
+
+    @NotNull
+    @Value("${baseUrl}")
+    private String baseUrl;
 
     @Value("${seleniumUrl}")
-    protected String seleniumUrl;
+    private String seleniumUrl;
 
 
     @Before
-    public void setup() {
+    public void setup() throws MalformedURLException {
+        driver = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
         wait = new WebDriverWait(driver, timeoutInSeconds);
-
-        driver.navigate().refresh();
-        commonUtils.sleep(thread_wait_in_ms);
     }
 
     @After
