@@ -223,15 +223,13 @@ public class GenePage {
     }
 
     /**
-     * Return a list of this page's graph urls matching the given procedure, parameter, and graph url type.
+     * Return a list of this page's graph urls matching the given graph url type.
      *
-     * @param procedureName desired procedure name
-     * @param parameterName desired parametr name
      * @param graphUrlType the graph url type desired: preqc, postqc, or both
      *
-     * @return a list of this page's graph urls matching the given procedure, parameter, and graph url type.
+     * @return a list of this page's graph urls matching the given graph url type.
      */
-    public List<String> getGraphUrls(String procedureName, String parameterName, GraphUrlType graphUrlType) {
+    public List<String> getGraphUrls(GraphUrlType graphUrlType) {
         List<String> urls = new ArrayList();
         List<List<String>> graphUrlList;
 
@@ -250,10 +248,7 @@ public class GenePage {
                 }
 
                 for (List<String> row : graphUrlList) {
-                    String rawRow = row.get(GeneTable.COL_INDEX_GENES_PROCEDURE) + " | " + row.get(GeneTable.COL_INDEX_GENES_PARAMETER);
-                    if (rawRow.equals(procedureName + " | " + parameterName)) {
-                        urls.add(row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK));
-                    }
+                    urls.add(row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK));
                 }
             }
         }
@@ -660,26 +655,26 @@ public class GenePage {
 
         // Test the TSV.
         //jw set to ignore so tests pass - these fail if any largish number of calls is made to these - we need to refactore the code that generates the tables and the files  or use solr to give a tab delim file of the data....
-//        GridMap downloadData = getDownloadTsv(baseUrl, status);
-//        if (status.hasErrors()) {
-//            return status;
-//        }
-//
-//        status = validateDownload(pageMap, downloadData, DownloadType.TSV);
-//        if (status.hasErrors()) {
-//            return status;
-//        }
-//
-//        // Test the XLS.
-//        downloadData = getDownloadXls(baseUrl, status);
-//        if (status.hasErrors()) {
-//            return status;
-//        }
-//
-//        status = validateDownload(pageMap, downloadData, DownloadType.XLS);
-//        if (status.hasErrors()) {
-//            return status;
-//        }
+        GridMap downloadData = getDownloadTsv(baseUrl, status);
+        if (status.hasErrors()) {
+            return status;
+        }
+
+        status = validateDownload(pageMap, downloadData, DownloadType.TSV);
+        if (status.hasErrors()) {
+            return status;
+        }
+
+        // Test the XLS.
+        downloadData = getDownloadXls(baseUrl, status);
+        if (status.hasErrors()) {
+            return status;
+        }
+
+        status = validateDownload(pageMap, downloadData, DownloadType.XLS);
+        if (status.hasErrors()) {
+            return status;
+        }
 
         return status;
     }
@@ -699,6 +694,9 @@ public class GenePage {
         pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), GeneTable.COL_INDEX_GENES_GRAPH_LINK), pageData.getTarget());
         downloadData = new GridMap(urlUtils.urlEncodeColumn(downloadData.getData(), DownloadGeneMap.COL_INDEX_GRAPH_LINK), downloadData.getTarget());
 
+        // The page zygosity string is the first three characters of the zygosity: het, hom, hem, etc. Truncate the download zygosity string to match to avoid set difference failure.
+        downloadData = testUtils.convertZygosityToShortName(downloadData, DownloadGeneMap.COL_INDEX_ZYGOSITY);
+
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
@@ -709,11 +707,7 @@ public class GenePage {
                 , GeneTable.COL_INDEX_GENES_ZYGOSITY
                 , GeneTable.COL_INDEX_GENES_SEX
                 , GeneTable.COL_INDEX_GENES_LIFE_STAGE
-                , GeneTable.COL_INDEX_GENES_PROCEDURE
-                , GeneTable.COL_INDEX_GENES_PARAMETER
-                , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER
-                , GeneTable.COL_INDEX_GENES_SOURCE
-                , GeneTable.COL_INDEX_GENES_GRAPH_LINK
+//                , GeneTable.COL_INDEX_GENES_GRAPH_LINK
         };
         final Integer[] downloadColumns = {
                   DownloadGeneMap.COL_INDEX_PHENOTYPE
@@ -721,11 +715,7 @@ public class GenePage {
                 , DownloadGeneMap.COL_INDEX_ZYGOSITY
                 , DownloadGeneMap.COL_INDEX_SEX
                 , DownloadGeneMap.COL_INDEX_LIFE_STAGE
-                , DownloadGeneMap.COL_INDEX_PROCEDURE
-                , DownloadGeneMap.COL_INDEX_PARAMETER
-                , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER
-                , DownloadGeneMap.COL_INDEX_SOURCE
-                , DownloadGeneMap.COL_INDEX_GRAPH_LINK
+//                , DownloadGeneMap.COL_INDEX_GRAPH_LINK    // Can't check these anymore because the page collapses center, procedure, parameter, and pipeline whereas, the download does not.
         };
         final Integer[] decodeColumns = {
                 DownloadGeneMap.COL_INDEX_GRAPH_LINK
@@ -734,6 +724,7 @@ public class GenePage {
         // Create a pair of sets: one from the page, the other from the download.
         Set<String> pageSet = testUtils.createSet(pageData, pageColumns);
         Set<String> downloadSet = testUtils.createSet(downloadData, downloadColumns);
+
 
         Set difference = testUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
