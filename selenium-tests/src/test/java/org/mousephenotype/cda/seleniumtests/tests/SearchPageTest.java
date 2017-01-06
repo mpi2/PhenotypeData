@@ -38,19 +38,23 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -65,18 +69,19 @@ import static org.junit.Assert.fail;
  *
  * Selenium test for search coverage ensuring each page works as expected.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@SpringBootTest(classes = TestConfig.class)
 public class SearchPageTest {
 
-    protected CommonUtils commonUtils = new CommonUtils();
-    protected TestUtils testUtils = new TestUtils();
-    protected UrlUtils urlUtils = new UrlUtils();
+    private CommonUtils   commonUtils = new CommonUtils();
+    private WebDriver     driver;
+    private TestUtils     testUtils   = new TestUtils();
+    private UrlUtils      urlUtils    = new UrlUtils();
     private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int TIMEOUT_IN_SECONDS = 120;
     private final int THREAD_WAIT_IN_MILLISECONDS = 20;
 
     private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
@@ -84,10 +89,10 @@ public class SearchPageTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final HashMap<String, String> params = new HashMap();
-    private final List<String> paramList = new ArrayList();
-    private final List<String> cores = new ArrayList();
-    protected Connection komp2Connection;
+    private final HashMap<String, String> params    = new HashMap();
+    private final List<String>            paramList = new ArrayList();
+    private final List<String>            cores     = new ArrayList();
+    private Connection                    komp2Connection;
 
     private final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
     private final Map<SearchFacetTable.TableComponent, By> impcImageMap = new HashMap();
@@ -100,63 +105,60 @@ public class SearchPageTest {
         , Facet.PHENOTYPES
     };
 
-    @NotNull
-    @Value("${baseUrl}")
-    protected String baseUrl;
 
     @Autowired
-    WebDriver driver;
+    private DesiredCapabilities desiredCapabilities;
 
     @Autowired
-    protected GeneService geneService;
-
-    @NotNull
-    @Value("${internalSolrUrl}")
-    protected String solrUrl;
+    private GeneService geneService;
 
     @Autowired
     @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
+    private DataSource komp2DataSource;
 
     @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
+    private PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @NotNull
+    @Value("${baseUrl}")
+    private String baseUrl;
 
     @Value("${seleniumUrl}")
-    protected String seleniumUrl;
+    private String seleniumUrl;
+
+    @NotNull
+    @Value("${internalSolrUrl}")
+    private String solrUrl;
 
 
     @PostConstruct
     public void initialise() throws TestException {
 
-        try {
-            komp2Connection = komp2DataSource.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-
-        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
-        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
-        imageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
-
-        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
-        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
-        impcImageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
-
-
+//        try {
+//            komp2Connection = komp2DataSource.getConnection();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            throw new RuntimeException(e);
+//        }
+//
+//        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
+//        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
+//        imageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
+//
+//        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
+//        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
+//        impcImageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
     }
 
     @Before
-    public void setup() {
+    public void setup() throws MalformedURLException {
+        driver = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
         wait = new WebDriverWait(driver, timeoutInSeconds);
-
-        driver.navigate().refresh();
-        commonUtils.sleep(threadWaitInMilliseconds);
 
         params.put("gene","fq=*:*");
         params.put("mp", "fq=top_level_mp_term:*");
@@ -810,7 +812,7 @@ public class SearchPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testFilter() throws TestException {
         String testName = "testFilter";
         Date start = new Date();
