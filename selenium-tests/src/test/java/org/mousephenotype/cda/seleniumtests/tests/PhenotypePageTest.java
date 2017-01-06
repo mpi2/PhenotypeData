@@ -18,7 +18,9 @@ package org.mousephenotype.cda.seleniumtests.tests;
 
  import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
@@ -30,20 +32,24 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
- import java.io.IOException;
- import java.util.ArrayList;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -54,13 +60,14 @@ import java.util.List;
   *
   * Selenium test for phenotype page coverage ensuring each page works as expected.
   */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@SpringBootTest(classes = TestConfig.class)
 public class PhenotypePageTest {
 
-    private CommonUtils commonUtils = new CommonUtils();
-    protected TestUtils testUtils = new TestUtils();
+    private CommonUtils   commonUtils = new CommonUtils();
+    private WebDriver     driver;
+    private TestUtils     testUtils   = new TestUtils();
     private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -72,40 +79,40 @@ public class PhenotypePageTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-     @NotNull
-     @Value("${baseUrl}")
-     protected String baseUrl;
-
-     @Autowired
-     WebDriver driver;
 
     @Autowired
-    Environment env;
+    private DesiredCapabilities desiredCapabilities;
+
+    @Autowired
+    private Environment env;
 
     @Autowired
     @Qualifier("postqcService")
-    protected PostQcService genotypePhenotypeService;
+    private PostQcService genotypePhenotypeService;
 
     @Autowired
-    protected MpService mpService;
+    private MpService mpService;
 
     @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
+    private PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @NotNull
+    @Value("${baseUrl}")
+    private String baseUrl;
 
      @Value("${seleniumUrl}")
      protected String seleniumUrl;
 
 
     @Before
-    public void setup() {
+    public void setup() throws MalformedURLException {
+        driver = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeoutInSeconds = 60;                                            // Use 1 minute rather than the default 4 seconds, as some of the pages take a long time to load.
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
         wait = new WebDriverWait(driver, timeoutInSeconds);
-
-        try { Thread.sleep(threadWaitInMilliseconds); } catch (Exception e) { }
     }
 
     @After
@@ -115,13 +122,6 @@ public class PhenotypePageTest {
         }
     }
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
 
     /**
      * Checks the MGI links for the first MAX_MGI_LINK_CHECK_COUNT phenotype ids
