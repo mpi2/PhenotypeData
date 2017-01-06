@@ -45,12 +45,8 @@ public class GraphValidatorPreqc {
         RunStatus status = new RunStatus();
         String message;
 
-        List<String> urls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), GenePage.GraphUrlType.PREQC);
+        List<String> urls = genePage.getGraphUrls(GenePage.GraphUrlType.PREQC);
         for (String url : urls) {
-            if ( ! testUtils.isPreQcLink(url)) {
-                logger.info("Not a preqc graph. Continuing...: Gene Page URL: " + genePage.getTarget() + ". Graph URL: " + url);
-                continue;
-            }
 
             // If the graph page doesn't load, log it.
             driver.get(url);
