@@ -80,8 +80,12 @@ public class GenePageTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     @Autowired
-    Environment env;
+    private DesiredCapabilities desiredCapabilities;
+
+    @Autowired
+    private Environment env;
 
     @Autowired
     private GeneService geneService;
@@ -89,18 +93,12 @@ public class GenePageTest {
     @Autowired
     private PhenotypePipelineDAO phenotypePipelineDAO;
 
-    @Autowired
-    private DesiredCapabilities desiredCapabilities;
-
     @NotNull
     @Value("${baseUrl}")
     private String baseUrl;
 
-    @Value("${browserName}")
-    private String browserName;
-
     @Value("${seleniumUrl}")
-    protected String seleniumUrl;
+    private String seleniumUrl;
 
 
     @Before
