@@ -43,13 +43,23 @@ public class GridMap {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * Creates a <code>GridMap</code> instance
+     * Creates a <code>GridMap</code> deep copy instance
      *
      * @param data the data store
      * @param target the target url of the page containing the data
      */
     public GridMap(String[][] data, String target) {
-        this.data = data;
+        if (data.length == 0) {
+            this.data = new String[0][0];
+        } else {
+            this.data = new String[data.length][data[0].length];
+            for (int rowIndex = 0; rowIndex < data.length; rowIndex++) {
+                for (int colIndex = 0; colIndex < data[0].length; colIndex++) {
+                    this.data[rowIndex][colIndex] = data[rowIndex][colIndex];
+                }
+            }
+        }
+
         this.target = target;
 
         int i = 0;
@@ -59,7 +69,7 @@ public class GridMap {
     }
 
     /**
-     * Creates a <code>GridMap</code> instance
+     * Creates a <code>GridMap</code> deep copy instance
      *
      * @param dataList the data store
      * @param target the target URL of the page containing the data

@@ -25,10 +25,8 @@ package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -42,8 +40,6 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
@@ -59,7 +55,7 @@ import java.net.URL;
 
 @Configuration
 @ComponentScan(value = "org.mousephenotype.cda",
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
+               excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.dao.*OntologyDAO"})
 )
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @EnableAutoConfiguration
@@ -69,7 +65,6 @@ public class TestConfig {
 
     @Value("${datasource.komp2.url}")
     private String datasourceKomp2Url;
-
 
     @Value("${solr.host}")
     private String solrHost;
@@ -86,23 +81,22 @@ public class TestConfig {
 	@Value("${browserName}")
  	private String browserName;
 
-    private boolean isPostConstruct = false;
 
     @PostConstruct
-    private void initialise() {
-        isPostConstruct = true;
+    private void initialise() throws TestException {
+        logParameters();
     }
 
-    private void logParameters(RemoteWebDriver privateDriver) throws TestException {
+    private void logParameters()  throws TestException {
         logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
         logger.info("solr.host:            " + solrHost);
         logger.info("baseUrl:              " + baseUrl);
         logger.info("internalSolrUrl:      " + internalSolrUrl);
 		logger.info("seleniumUrl:          " + seleniumUrl);
 
-        logger.info("browserName:          " + privateDriver.getCapabilities().getBrowserName());
-        logger.info("version:              " + privateDriver.getCapabilities().getVersion());
-        logger.info("platform:             " + privateDriver.getCapabilities().getPlatform().name());
+        logger.info("browserName:          " + desiredCapabilities().getBrowserName());
+        logger.info("version:              " + desiredCapabilities().getVersion());
+        logger.info("platform:             " + desiredCapabilities().getPlatform().name());
     }
 
 	@Bean
@@ -137,10 +131,8 @@ public class TestConfig {
 		return new DataSourceTransactionManager(komp2DataSource());
 	}
 
-    @Bean(name = "driver")
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public RemoteWebDriver driver() throws TestException {
-        RemoteWebDriver retVal = null;
+    @Bean
+    public DesiredCapabilities desiredCapabilities() throws TestException {
 
         DesiredCapabilities desiredCapabilities;
 
@@ -175,17 +167,7 @@ public class TestConfig {
             default:
                 throw new TestException("Unknown browserName '" + browserName + "'");
         }
-
-        try {
-            retVal = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
-            if (isPostConstruct) {
-                logParameters(retVal);
-            }
-        } catch (MalformedURLException e) {
-            throw new TestException("Unable to get driver from wrapper. Reason: " + e.getLocalizedMessage());
-        }
-
-        return retVal;
+        return desiredCapabilities;
     }
 
 	@Bean
