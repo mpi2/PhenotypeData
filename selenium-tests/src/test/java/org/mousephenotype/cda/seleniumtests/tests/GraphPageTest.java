@@ -211,7 +211,7 @@ public class GraphPageTest {
             try {
                 GenePage genePage = new GenePage(driver, wait, genePageTarget, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
 
-                List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), graphUrlType);
+                List<String> graphUrls = genePage.getGraphUrls(graphUrlType);
 
                 // Skip gene pages without graphs.
                 if ((graphUrls.isEmpty()) || (!genePage.hasGraphs()))
