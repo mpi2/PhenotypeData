@@ -19,7 +19,6 @@ package org.mousephenotype.cda.seleniumtests.tests;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -29,18 +28,22 @@ import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,18 +61,19 @@ import static com.thoughtworks.selenium.SeleneseTestNgHelper.assertEquals;
  * Selenium test for gene page query coverage ensuring each page works as expected.
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@SpringBootTest(classes = TestConfig.class)
 public class GenePageTest {
 
-    private CommonUtils commonUtils = new CommonUtils();
-    protected TestUtils testUtils = new TestUtils();
+    private CommonUtils   commonUtils = new CommonUtils();
+    private WebDriver     driver;
+    private TestUtils     testUtils   = new TestUtils();
     private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
-    private final int THREAD_WAIT_IN_MILLISECONDS = 20;
+    private final int    TIMEOUT_IN_SECONDS = 120;
+    private final int    THREAD_WAIT_IN_MILLISECONDS = 20;
 
     private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
     private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
@@ -80,33 +84,34 @@ public class GenePageTest {
     Environment env;
 
     @Autowired
-    protected GeneService geneService;
+    private GeneService geneService;
 
     @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
+    private PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @Autowired
+    private DesiredCapabilities desiredCapabilities;
 
     @NotNull
     @Value("${baseUrl}")
-    protected String baseUrl;
+    private String baseUrl;
 
-    @Autowired
-    WebDriver driver;
+    @Value("${browserName}")
+    private String browserName;
 
     @Value("${seleniumUrl}")
     protected String seleniumUrl;
 
 
     @Before
-    public void setup() {
+    public void setup() throws MalformedURLException {
+        driver = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
         wait = new WebDriverWait(driver, timeoutInSeconds);
-
-        driver.navigate().refresh();
-        commonUtils.sleep(threadWaitInMilliseconds);
     }
 
     @After
@@ -230,7 +235,7 @@ public class GenePageTest {
         WebElement filterCountElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//li[@id='gene']/span[contains(@class, 'fcount')]")));
         String filterCount = filterCountElement.getText();
         Integer i = commonUtils.tryParseInt(filterCount);
-        
+
         return (i == null ? 0 : i);
     }
 
@@ -292,7 +297,7 @@ public class GenePageTest {
 
         if (( ! geneIds.isEmpty()) && ( ! status.hasErrors()))
             status.successCount++;
-        
+
         testUtils.printEpilogue(testName, start, status, targetCount, geneIds.size());
     }
 
@@ -307,7 +312,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore("jw set ignore so we can get a clean working set. download comparison issues seem to plague these tests??")
+//@Ignore
     public void testPageForGeneIds() throws SolrServerException, IOException {
         String testName = "testPageForGeneIds";
         List<String> geneIds = new ArrayList<>(geneService.getAllGenes());
@@ -354,7 +359,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore("jw set as failing with new webapp")
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException, IOException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -381,7 +386,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore("jw set ignore as fails on download data") 
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException, IOException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -408,7 +413,7 @@ public class GenePageTest {
      * @throws SolrServerException [
      */
     @Test
-    @Ignore("jw set temporarily as columns don't match up as we removed a couple on the gene page phenotypes table.")
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException, IOException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -599,18 +604,7 @@ public class GenePageTest {
                 status.addError(message);
             }
         }
-//        for (String actualButtonLabel : actualButtonLabels) {
-//            if ( ! expectedButtonLabels.contains(actualButtonLabel)) {
-//                message = "\tERROR: Mismatch: Found button named '" + actualButtonLabel + "' but wasn't expected.";
-//                status.addError(message);
-//            } else {
-//                numOccurrences = TestUtils.count(actualButtonLabels, actualButtonLabel);
-//                if (numOccurrences > 1) {
-//                    message = "\tERROR: " + numOccurrences + " occurrences of '" + actualButtonLabel + "' were found.";
-//                    status.addError(message);
-//                }
-//            }
-//        }
+
         if (status.hasErrors()) {
             // Dump out all buttons.
             for (int i = 0; i < actualButtonLabels.size(); i++) {
@@ -788,7 +782,7 @@ public class GenePageTest {
         } catch (Exception e) {
             status.addError("ERROR: Failed to load gene page URL: " + target + ". Reason: '" + e.getLocalizedMessage() + "'.");
         }
-        
+
         if ( ! status.hasErrors())
             status.successCount++;
 
@@ -901,11 +895,10 @@ public class GenePageTest {
     }
 
     // Tests gene page with more than one Production Status [blue] order button.
-    //@Test
-    @Ignore("jw set to ignore as getProductionStatusOrderButtons seems to be returning more elements with the class than I can find in the source code???")
+    @Test
+//@Ignore
     public void testOrderButtons() throws SolrServerException {
         String testName = "testOrderButtons";
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         int targetCount = 1;
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
@@ -930,8 +923,8 @@ public class GenePageTest {
         }
 
         List<WebElement> buttonElements = genePage.getProductionStatusOrderButtons();
-        if (buttonElements.size() != 2) {
-            status.addError("This test expects two production status order buttons. Number of buttons found: " + buttonElements.size());
+        if (buttonElements.size() < 3) {
+            status.addError("This test expects at least three production status order buttons. Number of buttons found: " + buttonElements.size());
         } else {
             for (WebElement buttonElement : buttonElements) {
                 buttonElement.click();
@@ -947,8 +940,8 @@ public class GenePageTest {
         }
 
         buttonElements = genePage.getphenotypingStatusOrderButtons();
-        if (buttonElements.size() != 1) {
-            status.addError("This test expects one phenotyping status order button. Number of buttons found: " + buttonElements.size());
+        if (buttonElements.size() < 1) {
+            status.addError("This test expects at least one phenotyping status order button. Number of buttons found: " + buttonElements.size());
         }
 
         if ( ! status.hasErrors())
