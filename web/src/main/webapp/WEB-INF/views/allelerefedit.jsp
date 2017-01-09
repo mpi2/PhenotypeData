@@ -307,7 +307,7 @@
                 for ( var i=0; i<idAlleleStrList.length; i++){
                     var idAllele = idAlleleStrList[i].split(/\s+/);
                     var id = idAllele[0].trim();
-                    var alleleStr = idAllele[1].trim().replace(/;/g, ",");
+                    var alleleStr = idAllele[1].trim().replace(/;|\|/g, ",");
 
                     //console.log(id + " --- " + alleleStr);
 
