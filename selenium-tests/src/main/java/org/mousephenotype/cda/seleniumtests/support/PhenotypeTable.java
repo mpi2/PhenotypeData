@@ -200,7 +200,8 @@ public class PhenotypeTable {
                 } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_PHENOTYPE) {
                     value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
                 } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
-                    // NOTE: Graph links are disabled if there is no supporting data.
+
+                    isPreQcLink = (testUtils.isPreQcLink(cell));
                     List<WebElement> graphLinks = cell.findElements(By.cssSelector("a"));
                     value = "";
                     if ( ! graphLinks.isEmpty()) {
@@ -214,8 +215,6 @@ public class PhenotypeTable {
                             }
                         }
                     }
-
-                    isPreQcLink = testUtils.isPreQcLink(value);
                 } else {
                     value = cell.getText();
 
