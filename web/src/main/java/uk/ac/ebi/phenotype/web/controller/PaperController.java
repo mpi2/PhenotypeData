@@ -267,6 +267,7 @@ public class PaperController {
 		//System.out.println("param: "+idAlleleStr);
 		for( String pmidAlleleStr : pmidAlleleStrs) {
 
+			System.out.println("pmidAlleleStr: " + pmidAlleleStr);
 			List<String> alleles = new ArrayList<>();
 			List<String> pmidQrys = new ArrayList<>();
 
@@ -291,6 +292,7 @@ public class PaperController {
 			List<String> goodAlleleSymbols = new ArrayList<>();
 
 			for (String allelename : alleles) {
+				//System.out.println("checking allele: " + allelename);
 				Map<String, String> ag = isImpcAllele(allelename, connkomp2);
 				if (ag.size() > 0) {
 					// add to allele_ref database
