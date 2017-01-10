@@ -28,7 +28,7 @@ public class WebStatusController {
 
 	private final Logger logger = LoggerFactory.getLogger(WebStatusController.class);
 
-	public static final Integer TIMEOUT_INTERVAL = 1;
+	public static final Integer TIMEOUT_INTERVAL = 2;
 
 	@Autowired
 	ObservationService observationService;
@@ -207,7 +207,10 @@ public class WebStatusController {
 		model.addAttribute("nonEssentialOk",nonEssentialOk);
 
 		// Cache the model to be used later
-		savedModel = model;
+		synchronized (this) {
+			savedModel = model;
+		}
+		
 
 		return "webStatus";
 	}

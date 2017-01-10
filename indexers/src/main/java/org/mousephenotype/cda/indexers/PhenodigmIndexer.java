@@ -497,12 +497,10 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 "  novel_mod_predicted_in_locus         AS novel_mod_predicted_in_locus, " +
                 "  htpc_predicted                       AS htpc_predicted, " +
                 "  htpc_predicted_known_gene            AS htpc_predicted_known_gene, " +
-                "  novel_htpc_predicted_in_locus        AS novel_htpc_predicted_in_locus, " +
-                "  mdma.mp_matched_terms " +
+                "  novel_htpc_predicted_in_locus        AS novel_htpc_predicted_in_locus " +
                 "FROM " +
                 "  mouse_disease_gene_summary_high_quality mdgshq " +
                 "  LEFT JOIN disease d ON d.disease_id = mdgshq.disease_id" +
-                "  LEFT JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id " +
                 "  JOIN mouse_gene_ortholog mgo ON mgo.model_gene_id = mdgshq.model_gene_id ";
 
 
@@ -565,41 +563,6 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setMgiNovelPredictedInLocus(r.getBoolean("novel_mod_predicted_in_locus"));
                 doc.setImpcNovelPredictedInLocus(r.getBoolean("novel_htpc_predicted_in_locus"));
 
-
-                // add matched id/term for an MP and its intermediates and toplevels
-                List<String> mpMatchedIds = Arrays.asList(r.getString("mp_matched_terms").split(","));
-
-                doc.setMpMatchedIds(mpMatchedIds);
-
-                List<String> names = new ArrayList<>();
-                List<String> topIds = new ArrayList<>();
-                List<String> topNames = new ArrayList<>();
-                List<String> intermediateIds = new ArrayList<>();
-                List<String> intermediateNames = new ArrayList<>();
-
-                for(String mpId : mpMatchedIds){
-
-                    OntologyTermBean term =  mpOntologyService.getTerm(mpId);
-
-                    if (term != null) {  // some phenodigm MPs are not in IMPC slim
-                        names.add(term.getName());
-
-                        for (OntologyTermBean topTerm : mpOntologyService.getTopLevel(mpId)) {
-                            topIds.add(topTerm.getId());
-                            topNames.add(topTerm.getName());
-                        }
-                        for (OntologyTermBean iterm : mpOntologyService.getIntermediates(mpId)) {
-                            intermediateIds.add(iterm.getId());
-                            intermediateNames.add(iterm.getName());
-                        }
-                    }
-                }
-                doc.setMpMatchedTerms(names);
-                doc.setTopLevelMpMatchedIds(topIds);
-                doc.setTopLevelMpMatchedTerms(topNames);
-                doc.setIntermediateMpMatchedIds(intermediateIds);
-                doc.setIntermediateMpMatchedTerms(intermediateNames);
-
                 phenodigmCore.addBean(doc);
                 count++;
 
@@ -628,15 +591,13 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 "  mdma.raw_score, " +
                 "  mdma.hp_matched_terms, " +
                 "  mdma.mp_matched_terms, " +
-                "  mds.mod_predicted, " +
-                "  mds.htpc_predicted, " +
+                "  mdgshq.mod_predicted, " +
+                "  mdgshq.htpc_predicted, " +
                 "  d.disease_classes " +
                 "FROM mouse_disease_gene_summary_high_quality mdgshq " +
                 "  JOIN mouse_model_gene_ortholog mmgo ON mdgshq.model_gene_id = mmgo.model_gene_id " +
-                "  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id " +
-                "  JOIN mouse_disease_summary mds ON mds.disease_id = mdgshq.disease_id " +
-                "  JOIN disease d ON d.disease_id = mdgshq.disease_id " +
-                "  AND mmgo.model_id = mdma.model_id";
+                "  JOIN mouse_disease_model_association mdma ON mdgshq.disease_id = mdma.disease_id AND mmgo.model_id = mdma.model_id " +
+                "  JOIN disease d ON d.disease_id = mdgshq.disease_id " ;
 
         //System.out.println("DISEASE MODEL ASSOC QUERY: " + query);
         try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {

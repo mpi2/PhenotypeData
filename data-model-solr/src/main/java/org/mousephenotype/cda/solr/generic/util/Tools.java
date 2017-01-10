@@ -162,6 +162,10 @@ public class Tools {
 
 		corename = (corename == null) ? "gene" : corename;
 
+		if ( corename.contains("marker_symbol")){
+			corename = "marker_symbol";
+		}
+
 		String htmlStr1 = "";
 		String htmlStr2 = "";
 
@@ -180,7 +184,7 @@ public class Tools {
 		defaultOffset.put("anatomy", 5);
 		defaultOffset.put("hp", 8);
 
-		if ( corename.equals("gene") || corename.equals("marker_symbol")){
+		if ( corename.equals("gene") || corename.equals("marker_symbol") ){
 
 			// gene attr fields
 

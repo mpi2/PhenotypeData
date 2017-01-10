@@ -149,56 +149,56 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			connection = komp2DataSource.getConnection();
 
-			logger.info("populating supporting maps");
+			logger.info("  populating supporting maps");
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
 			procedureMap = IndexerMap.getImpressProcedures(connection);
 			parameterMap = IndexerMap.getImpressParameters(connection);
 			logger.debug(" IMPReSS maps\n  Pipeline: {}, Procedure: {}, Parameter: {} " + pipelineMap.size(), procedureMap.size(), parameterMap.size());
 
-			logger.debug("populating ontology entity map");
+			logger.debug("  populating ontology entity map");
 			ontologyEntityMap = IndexerMap.getOntologyParameterSubTerms(connection);
 			logger.debug(" ontology entity map size: " + ontologyEntityMap.size());
 
-			logger.debug("populating datasource map");
+			logger.debug("  populating datasource map");
 			populateDatasourceDataMap();
 
-			logger.debug("populating experimenter map");
+			logger.debug("  populating experimenter map");
 			populateExperimenterDataMap();
 			logger.debug("  map size: " + experimenterData.size());
 
-			logger.debug("populating categorynames map");
+			logger.debug("  populating categorynames map");
 			populateCategoryNamesDataMap();
 			logger.debug("  map size: " + translateCategoryNames.size());
 
-			logger.debug("populating biological data map");
+			logger.debug("  populating biological data map");
 			populateBiologicalDataMap();
 			logger.debug("  map size: " + biologicalData.size());
 
-			logger.debug("populating line data map");
+			logger.debug("  populating line data map");
 			populateLineBiologicalDataMap();
 			logger.debug("  map size: " + lineBiologicalData.size());
 
-			logger.debug("populating parameter association map");
+			logger.debug("  populating parameter association map");
 			populateParameterAssociationMap();
 			logger.debug("  map size: " + parameterAssociationMap.size());
 
-			logger.debug("populating weight map");
+			logger.debug("  populating weight map");
 			populateWeightMap();
 			logger.debug("  map size: " + weightMap.size());
 
-			logger.debug("populating ipgt map");
+			logger.debug("  populating ipgt map");
 			populateIpgttWeightMap();
 			logger.debug("  map size: " + ipgttWeightMap.size());
 
-			logger.debug("populating emap to emapa map");
+			logger.debug("  populating emap to emapa map");
 			populateEmap2EmapaMap();
 			logger.debug(" map size: "+ emap2emapaIdMap.size());
 
-			logger.debug("populating anatomy map");
+			logger.debug("  populating anatomy map");
 			populateAnatomyMap();
 			logger.debug("  map size: " + anatomyMap.size());
 
-			logger.info("maps populated");
+			logger.info("  maps populated");
 
 
 			count = populateObservationSolrCore(runStatus);
@@ -270,7 +270,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 					o.setDateOfExperiment(dateOfExperiment);
 				} catch (NullPointerException e) {
-					logger.debug("No date of experiment set for experiment external ID: {}", r.getString("external_id"));
+					logger.debug("  No date of experiment set for experiment external ID: {}", r.getString("external_id"));
 					o.setDateOfExperiment(null);
 				}
 
@@ -441,7 +441,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						Instant expDate=dateOfExperiment.toInstant();
 						int ageInDays = (int) Duration.between(dob, expDate).toDays();
 						int daysInWeek = 7;
-						int ageInWeeks = ageInDays / daysInWeek;
+						int ageInWeeks = ageInDays % daysInWeek;
 						o.setAgeInDays(ageInDays);
 						o.setAgeInWeeks(ageInWeeks);
 					}
@@ -684,7 +684,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 				} catch (NullPointerException e) {
 					b.dateOfBirth = null;
-					logger.debug("No date of birth set for specimen external ID: {}",
+					logger.debug("  No date of birth set for specimen external ID: {}",
 							resultSet.getString("external_sample_id"));
 				}
 
@@ -811,7 +811,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			while (resultSet.next()) {
 
 				String stableId = resultSet.getString("stable_id");
-				logger.debug(" parameter_stable_id for numeric category: {}", stableId);
+				logger.debug("  parameter_stable_id for numeric category: {}", stableId);
 
 				if (!translateCategoryNames.containsKey(stableId)) {
 					translateCategoryNames.put(stableId, new HashMap<>());
@@ -828,7 +828,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					name += ".0";
 					translateCategoryNames.get(stableId).put(name, description);
 				} else {
-					logger.debug(" Not translating non alphabetical category for parameter: " + stableId + ", name: "
+					logger.debug("  Not translating non alphabetical category for parameter: " + stableId + ", name: "
 							+ name + ", desc:" + description);
 				}
 
@@ -997,7 +997,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 					b.date = null;
-					logger.debug("No date of experiment set for sample id {} parameter {}",
+					logger.debug("  No date of experiment set for sample id {} parameter {}",
 							resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
 				}
 
@@ -1045,7 +1045,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 					b.date = null;
-					logger.debug("No date of experiment set for sample id {} parameter {}",
+					logger.debug("  No date of experiment set for sample id {} parameter {}",
 							resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
 
 				}
@@ -1093,7 +1093,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 							ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc).getEmapaId() : ontoAcc);
 				}
 				else {
-					logger.warn("Parameter {} missing ontology association.", resultSet.getString("stable_id"));
+					logger.warn(" Parameter {} missing ontology association.", resultSet.getString("stable_id"));
 				}
 			}
 		}

@@ -6,6 +6,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +27,8 @@ import java.util.Map;
  * Created by ilinca on 26/09/2016.
  */
 public class ProductIndexer  extends AbstractIndexer implements CommandLineRunner {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("productCore")
@@ -48,7 +52,7 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
         productCore.deleteByQuery("*:*");
         productCore.commit();
 
-        long time = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
 
         RunStatus runStatus = new RunStatus();
         BufferedReader in = new BufferedReader(new FileReader(new File(pathToProductFile)));
@@ -108,7 +112,8 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
 
         productCore.commit();
         productDocCount = index;
-        System.out.println("Indexing took " + (System.currentTimeMillis() - time));
+
+        logger.info(" Added {} total beans in {}", productDocCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
     }
@@ -117,7 +122,7 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
     public RunStatus validateBuild() throws IndexerException {
 
         RunStatus runStatus = new RunStatus();
-        Long actualSolrDocumentCount = getDocumentCount(productCore);
+        Long actualSolrDocumentCount = getImitsDocumentCount(productCore);
 
         if (actualSolrDocumentCount < productDocCount) {
             runStatus.addError("Expected " + productDocCount + " documents. Actual count: " + actualSolrDocumentCount + ".");

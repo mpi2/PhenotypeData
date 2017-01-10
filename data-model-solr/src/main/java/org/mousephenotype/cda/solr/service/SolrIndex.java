@@ -204,7 +204,7 @@ public class SolrIndex {
 
 			server = getSolrServer("mp");
 		}
-		else if ( dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")){
+		else if ( dataTypeName.equals("ensembl") || dataTypeName.contains("marker_symbol")){
 			server = getSolrServer("gene");
 		}
 		else {
@@ -215,9 +215,12 @@ public class SolrIndex {
 		String[] idList = StringUtils.split(idlist, ",");
 		String querystr = null;
 		
-		if (dataTypeName.equals("marker_symbol")){
+		if (dataTypeName.equals("mouse_marker_symbol")){
 			querystr = "marker_symbol_lowercase:(" + StringUtils.join(idList, " OR ") + ")"
 					+ " OR marker_synonym_lowercase:(" + StringUtils.join(idList, " OR ") + ")";
+		}
+		else if (dataTypeName.equals("human_marker_symbol")){
+			querystr = "human_gene_symbol:(" + StringUtils.join(idList, " OR ") + ")";
 		}
 		else {
 			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
