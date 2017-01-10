@@ -635,6 +635,7 @@
             	               	}).submit();
                     		}
                     		else if ( formId == 'pastedIds' ){
+                    		    alert("here");
                     			idList = parsePastedList($('textarea#pastedList').val(), currDataType);
                     			doExport(currDataType, fileType, fllist, idList, isForm);
                     		}
@@ -742,7 +743,9 @@
 										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
 										  	<input type="radio" id="anatomy" value="MA:0000141 or EMAPA:16246 (ok to mix)" name="dataType" class='bq'>ANATOMY</td></tr>
 										  	<tr><td><span class='cat'>Symbol:</span></td>
-										  	<td><input type="radio" id="marker_symbol" value="Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>Marker Symbol</td>
+										  	<td><input type="radio" id="human_marker_symbol" value="Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>Human Marker Symbol
+												<input type="radio" id="mouse_marker_symbol" value="Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>Mouse Marker Symbol
+											</td>
 										  	<tr><td><span class='cat'>Example:</span></td><td class='note idnote'>MGI:106209</td></tr>
 										  	</table>
 										  	
