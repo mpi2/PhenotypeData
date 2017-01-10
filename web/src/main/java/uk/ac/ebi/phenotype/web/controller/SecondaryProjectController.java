@@ -277,7 +277,7 @@ public class SecondaryProjectController {
             }
             System.out.println("returning to idg");
             return "idg";
-        } else if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name())) {
+        } else if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name()) || id.equalsIgnoreCase("3I")) {
             System.out.println("returning to threeI");
             return "threeI";
         }
