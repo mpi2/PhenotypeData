@@ -30,7 +30,7 @@ import java.util.Map;
 @EnableAutoConfiguration
 public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunner {
 
-    private final Logger logger = LoggerFactory.getLogger(Allele2Indexer.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     @NotNull
@@ -52,7 +52,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
         allele2Core.deleteByQuery("*:*");
         allele2Core.commit();
 
-        long time = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
         BufferedReader in = new BufferedReader(new FileReader(new File(pathToAlleleFile)));
         String[] header = in.readLine().split("\t");
         for (int i = 0; i < header.length; i++){
@@ -130,8 +130,9 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
 
         allele2Core.commit();
         alleleDocCount = index;
-        System.out.println("Indexing took " + (System.currentTimeMillis() - time));
-        logger.info("Added {} documents", alleleDocCount);
+
+        logger.info("  Added {} total beans in {}", alleleDocCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+
         return runStatus;
 
     }
