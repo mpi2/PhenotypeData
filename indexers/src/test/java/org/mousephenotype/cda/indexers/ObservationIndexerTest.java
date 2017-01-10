@@ -5,9 +5,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.indexers.ObservationIndexer.BiologicalDataBean;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -241,5 +245,16 @@ public class ObservationIndexerTest {
 
 
 	}
+	
+//	@Test
+//	public void testAges(){
+//		
+//		ZonedDateTime dob=ZonedDateTime.now();
+//		Instant dob=dob.to
+//		Instant expDate=dateOfExperiment.toInstant();
+//		int ageInDays = (int) Duration.between(dob, expDate).toDays();
+//		int daysInWeek = 7;
+//		int ageInWeeks = ageInDays % daysInWeek;
+//	}
 
 }
