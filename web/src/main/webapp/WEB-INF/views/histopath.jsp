@@ -81,6 +81,9 @@
 							Free Text
 							</th>
 							<th>
+							Age in Days
+							</th>
+							<th>
 							Zygosity
 							</th>
 							<th>
@@ -206,6 +209,9 @@
 										${parameter.textValue }
 										
 										</c:forEach> 
+									</td>
+									<td>
+									${histRow.ageInDays}
 									</td>
 									<td>
 									${histRow.zygosity}
