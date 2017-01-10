@@ -419,7 +419,7 @@
             
             function refreshResult(){
             	$('div#infoBlock, div#errBlock, div#bqResult').html(''); // refresh first
-	            var sampleData = "<p><span id='sample'>Showing maximum of 10 records for how your data looks like</span>";
+	            var sampleData = "<p><span id='sample'>Showing maximum of 10 records for how your data looks like.<br>For complete dataset of your search, please use export buttons.</span>";
             	$('div#infoBlock').html("Your datatype of search: " + $('input.bq:checked').attr('id').toUpperCase() + sampleData);
             }
             
@@ -567,7 +567,7 @@
 
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
-                    "bSort": true, // true is default 
+                    "bSort": true, // true is default
                     "processing": true,
                     "paging": false,
                     //"serverSide": false,  // do not want sorting to be processed from server, false by default
@@ -635,7 +635,6 @@
             	               	}).submit();
                     		}
                     		else if ( formId == 'pastedIds' ){
-                    		    alert("here");
                     			idList = parsePastedList($('textarea#pastedList').val(), currDataType);
                     			doExport(currDataType, fileType, fllist, idList, isForm);
                     		}
@@ -739,7 +738,7 @@
 										  	<td><input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
 										  	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
-										  	<input type="radio" id="hp" value="HP:0003119" name="dataType" class='bq'>HP<br>
+										  	<input type="radio" id="hp" value="HP:0000400" name="dataType" class='bq'>HP<br>
 										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
 										  	<input type="radio" id="anatomy" value="MA:0000141 or EMAPA:16246 (ok to mix)" name="dataType" class='bq'>ANATOMY</td></tr>
 										  	<tr><td><span class='cat'>Symbol:</span></td>

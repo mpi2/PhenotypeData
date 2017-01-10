@@ -267,9 +267,9 @@ public class DataTableController {
 
     	String NA = "Info not available";
 
-    	String[] flList = StringUtils.split(fllist, ",");
+    	List<String> flList = Arrays.asList(StringUtils.split(fllist, ","));
 
-    	Set<String> foundIds = new HashSet<>();
+		Set<String> foundIds = new HashSet<>();
 
     	//System.out.println("responses: " + solrResponses.size());
 
@@ -286,7 +286,7 @@ public class DataTableController {
     	dataTypeId.put("ensembl", "mgi_accession_id");
 
     	dataTypeId.put("mp", "mp_id");
-    	dataTypeId.put("anatomy", "id");
+    	dataTypeId.put("anatomy", "anatomy_id");
     	dataTypeId.put("hp", "hp_id");
     	dataTypeId.put("disease", "disease_id");
 
@@ -313,7 +313,6 @@ public class DataTableController {
 			List<String> rowData = new ArrayList<String>();
 
 			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap();  // Note getFieldValueMap() returns only String
-			//System.out.println("DOCMAP: "+docMap.toString());
 
 			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
 			List<String> orthologousDiseaseTermAssociations = new ArrayList<>();
@@ -357,8 +356,9 @@ public class DataTableController {
 			fieldCount = 0; // reset
 
 			//for (String fieldName : doc.getFieldNames()) {
-			for ( int k=0; k<flList.length; k++ ){
-				String fieldName = flList[k];
+			//for ( int k=0; k<flList.length; k++ ){
+			for (String fieldName : flList){
+				//String fieldName = flList[k];
 				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
 				if ( fieldName.equals("images_link") ){
@@ -372,7 +372,7 @@ public class DataTableController {
 						imgQryField = "gene_accession_id";
 					}
 					else if (dataTypeName.equals("anatomy") ){
-						qryField = "id";
+						qryField = "anatomy_id";
 						imgQryField = "ma_id";
 					}
 
@@ -426,6 +426,7 @@ public class DataTableController {
 							Collection<Object> vals =  docMap.get(fieldName);
 							Set<Object> valSet = new HashSet<>(vals);
 							value = StringUtils.join(valSet, ", ");
+
 							if ( !dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
 								//String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
 								String coreName = null;
@@ -435,7 +436,8 @@ public class DataTableController {
 									Set<Object> mvalSet = new HashSet<>(mvals);
 									for (Object mval : mvalSet) {
 										// so that we can compare
-										foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
+										//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
+										foundIds.add("\"" + mval.toString() + "\"");
 									}
 								}
 								else if (dataTypeName.equals("ensembl") ){
@@ -487,20 +489,39 @@ public class DataTableController {
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
 		//System.out.println("Found ids: "+ new ArrayList(foundIds));
 		//System.out.println("non found ids: " + nonFoundIds);
+		int fieldIndex = 0;
+		if ( nonFoundIds.size() > 0){
+			int fc = 0;
+			for(String fn : flList){
+				if (dataTypeName.equals(fn)){
+					fieldIndex = fc;
+					break;
+				}
+				fc++;
+			}
+		}
 
 		int resultsCount = 0;
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
+			String thisVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
 			List<String> rowData = new ArrayList<String>();
 			for ( int l=0; l<fieldCount; l++ ){
-				rowData.add( l==0 ? nonFoundIds.get(i).toString().replaceAll("\"", "") : NA);
+
+				//System.out.println("check exists for " + thisVal + " : "+ queryIds.contains(thisVal) );
+				if ( queryIds.contains(thisVal)) {
+					rowData.add(l == fieldIndex ? thisVal : NA);
+				}
 			}
-			j.getJSONArray("aaData").add(rowData);
-			resultsCount = rowData.size();
+			if (rowData.size() != 0) {
+				j.getJSONArray("aaData").add(rowData);
+			}
+			resultsCount += rowData.size();
 		}
 
-		//System.out.println("OUTPUT: " + j.toString());
-		//System.out.println("SIZE: "+ resultsCount);
-		if ( resultsCount == 0 && nonFoundIds.size() != 0 ){
+
+//		System.out.println("OUTPUT: " + j.toString());
+//		System.out.println("SIZE: "+ resultsCount);
+		if ( resultsCount == 0 && nonFoundIds.size() != 0 && foundIds.size() == 0){
 			// cases where id is not found in our database
 			return "";
 		}

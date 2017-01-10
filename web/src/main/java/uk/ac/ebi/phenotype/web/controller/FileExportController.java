@@ -1481,7 +1481,7 @@ public class FileExportController {
 
 		if (batchIdList.size() > 0) {
 			// do the rest
-
+			System.out.println("size: "+ batchIdList.size());
 			// batch solr query
 			batchIdListStr = StringUtils.join(batchIdList, ",");
 			solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
@@ -1504,6 +1504,10 @@ public class FileExportController {
 
 		for (QueryResponse solrResponse : solrResponses) {
 			results.addAll(solrResponse.getResults());
+		}
+
+		if ( dataTypeName.contains("marker_symbol")){
+			dataTypeName = "marker_symbol";
 		}
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
@@ -1549,6 +1553,7 @@ public class FileExportController {
 			colList.add(cols[i]);
 		}
 
+		Map<String,List<String>> idRowData = new HashMap<>();
 		List<String> rowData = new ArrayList<>();
 		rowData.add(StringUtils.join(colList, "\t"));
 
@@ -1730,6 +1735,7 @@ public class FileExportController {
 				}
 			}
 			rowData.add(StringUtils.join(data, "\t"));
+			//idRowData.put()
 		}
 
 		// find the ids that are not found and displays them to users
