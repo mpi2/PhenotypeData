@@ -21,17 +21,14 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-
 /**
  *
  * @author jwarren
  */
 public class HeatMapCell {
-    
 
-	public static final String THREE_I_COULD_NOT_ANALYSE = "Could not analyse";
 	public static final String THREE_I_NO_DATA = "No data";
+	public static final String THREE_I_COULD_NOT_ANALYSE = "Could not analyse";
 	public static final String THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT = "Data analysed, no significant call";
 	public static final String THREE_I_DEVIANCE_SIGNIFICANT = "Deviance Significant";
 		
@@ -40,14 +37,45 @@ public class HeatMapCell {
     private String label="";//label to display possibly in the cell
     private String mouseOver="";
     private String status="";//use to give a status of a cell e.g. In progress or complete etc
-   
+
+
+	public HeatMapCell(String xAxisKey, String status){
+		this.xAxisKey = xAxisKey;
+		addStatus(status);
+	}
+
+	public HeatMapCell(){
+	}
 
     public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	/**
+	 *
+	 * @param status
+	 * updates the status but only overwrites less successful states. So "No data" is overwritten by "Data analyzed, no significant call" but not the other way.
+	 */
+	public void addStatus(String status) {
+		if (this.status.equalsIgnoreCase("")) {
+			this.status = status;
+		} else {
+			if (status.equals(THREE_I_NO_DATA)){
+				this.status = status;
+			} else  if (status.equals(THREE_I_COULD_NOT_ANALYSE)){
+				if (this.status.equals(THREE_I_NO_DATA)) {
+					this.status = status;
+				}
+			} else if (status.equals(THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT)){
+				if (this.status.equals(THREE_I_NO_DATA) || this.status.equals(THREE_I_COULD_NOT_ANALYSE)){
+					this.status = status;
+				}
+			} else if (status.equals(THREE_I_DEVIANCE_SIGNIFICANT)){
+				this.status = status;
+			} else {
+				System.out.println("ERROR : Unknown status!! " + status);
+			}
+		}
 	}
 
 	public String getMouseOver() {
@@ -90,5 +118,5 @@ public class HeatMapCell {
 
 		return "HeatMapCell [floatValue=" + floatValue + ", xAxisKey=" + xAxisKey + ", label=" + label + ", mouseOver=" + mouseOver + ", status=" + status + "]";
 	}    
-   
+
 }
