@@ -348,12 +348,12 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     o.setId(count ++);
                     o.setSex(SexType.female.getName());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcCore.addBean(o, 30000);
 
                     o.setId(count ++);
                     o.setSex(SexType.male.getName());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcCore.addBean(o, 30000);
 
                 } else {
 
@@ -364,13 +364,13 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                         SexType.valueOf(sex.toLowerCase());
 
                     } catch (IllegalArgumentException se) {
-                        runStatus.addError(" Got unexpected sex value '" + se + "' from PreQC file. Not loading");
+                        runStatus.addError(" Got unexpected sex value '" + sex.toLowerCase() + "' from PreQC file. Not loading");
                         continue;
                     }
 
                     o.setSex(sex.toLowerCase());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcCore.addBean(o, 30000);
                 }
             }
 

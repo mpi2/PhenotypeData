@@ -219,8 +219,10 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 		}
 
 		System.out.println(theOneImLookingFor);
-		assert(theOneImLookingFor.getMpTermId()!=null);
-		assert(results.size() > 1000);
+
+		assert theOneImLookingFor != null;
+		assert theOneImLookingFor.getMpTermId()!=null;
+		assert results.size() > 1000;
 
 	}
 

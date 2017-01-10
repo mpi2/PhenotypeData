@@ -26,21 +26,25 @@ package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -50,17 +54,18 @@ import java.util.Date;
  * Selenium test for release page tests.
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@SpringBootTest(classes = TestConfig.class)
 public class ReleasePageTest {
 
-    private CommonUtils commonUtils = new CommonUtils();
-    protected TestUtils testUtils = new TestUtils();
+    private CommonUtils   commonUtils = new CommonUtils();
+    private WebDriver     driver;
+    private TestUtils     testUtils   = new TestUtils();
     private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int TIMEOUT_IN_SECONDS = 120;
     private final int THREAD_WAIT_IN_MILLISECONDS = 20;
 
     private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
@@ -68,31 +73,30 @@ public class ReleasePageTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
+    @Autowired
+    private DesiredCapabilities desiredCapabilities;
+
+    @Autowired
+    private Environment env;
+
     @NotNull
     @Value("${baseUrl}")
-    protected String baseUrl;
-
-    @Autowired
-    WebDriver driver;
-
-    @Autowired
-    Environment env;
+    private String baseUrl;
 
     @Value("${seleniumUrl}")
-    protected String seleniumUrl;
+    private String seleniumUrl;
 
 
     @Before
-    public void setup() {
+    public void setup() throws MalformedURLException {
+        driver = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
         wait = new WebDriverWait(driver, timeoutInSeconds);
-
-        driver.navigate().refresh();
-        commonUtils.sleep(thread_wait_in_ms);
     }
 
     @After

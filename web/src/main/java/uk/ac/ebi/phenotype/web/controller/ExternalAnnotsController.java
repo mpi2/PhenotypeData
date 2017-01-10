@@ -541,9 +541,10 @@ public class ExternalAnnotsController {
 			builder.append("<tbody>");
 
 			String phenoCount = " : " + stats.get(key).get("allPheno").get(key).get(0);
+			String countInfo = "&nbsp;<a class='geneCountInfo'><i class='fa fa-info'></i></a>";
 
 			builder.append("<tr>");
-			builder.append("<td class='phenoStatus' colspan=4>" + key + " genes" + phenoCount + "</td>");
+			builder.append("<td class='phenoStatus' colspan=4>" + key + " genes" + phenoCount + countInfo + "</td>");
 			builder.append("</tr>");
 
 			for (String goMode : stats.get(key).keySet()) {
