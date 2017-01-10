@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.web.controller;
+package org.mousephenotype.cda.utilities;
 
 import org.junit.Test;
 
@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by ilinca on 05/01/2017.
+ * Created by ilinca on 06/01/2017.
  */
-public class ControllerUtilsTest {
+public class CommonUtilsTest {
 
     @Test
     public void testGetBitMask() {
@@ -22,7 +22,7 @@ public class ControllerUtilsTest {
         truthValues.add(false);
         truthValues.add(true);
 
-        Double mask = ControllerUtils.getBitMask(truthValues).get(0);
+        Double mask = CommonUtils.getBitMask(truthValues).get(0);
 
         assert (mask != null);
         assert (mask == 37 );
@@ -35,9 +35,10 @@ public class ControllerUtilsTest {
         truthValues.add(false);
         truthValues.add(true);
 
-        assert (ControllerUtils.getBitMask(truthValues).get(0) == 37);
-        assert (ControllerUtils.getBitMask(truthValues).get(1) == 5);
+        assert (CommonUtils.getBitMask(truthValues).get(0) == 37);
+        assert (CommonUtils.getBitMask(truthValues).get(1) == 10);
 
     }
+
 
 }

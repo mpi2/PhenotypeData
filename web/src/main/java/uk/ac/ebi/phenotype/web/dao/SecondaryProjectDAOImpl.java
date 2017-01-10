@@ -24,24 +24,20 @@ package uk.ac.ebi.phenotype.web.dao;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.web.controller.GeneHeatmapController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -56,10 +52,14 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 
 	@Autowired
 	private GenomicFeatureDAO genesDao;
+//
+//	@Autowired
+//	@Qualifier("postqcService")
+//	private PostQcService genotypePhenotypeService;
+
 
 	@Autowired
-	@Qualifier("postqcService")
-	private PostQcService genotypePhenotypeService;
+	private StatisticalResultService statisticalResultService;
 
 	@Autowired
 	private MpService mpService;
@@ -76,63 +76,49 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 
 
 	@Override
-	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException {
+	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException, SQLException {
+
 		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
 		List<BasicBean> parameters = this.getXAxisForHeatMap();
 
-		try {
-			System.out.println("getGeneHeatMap called");
-			// get a list of genes for the project - which will be the row
-			// headers
-			Set<String> accessions = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg");
-			String url = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl");
-			Map<String, String> geneToMouseStatusMap = geneService.getProductionStatusForGeneSet(accessions, url);
-			Map<String, List<String>> geneToTopLevelMpMap = geneService.getTopLevelMpForGeneSet(accessions);
-			// for(String key: geneToMouseStatusMap.keySet()){
-			// System.out.println("key="+key+"  value="+geneToMouseStatusMap.get(key));
-			// }
-			for (String accession : accessions) {
-				// System.out.println("accession="+accession);
-				GenomicFeature gene = genesDao.getGenomicFeatureByAccession(accession);
-				// get a data structure with the gene accession,with parameter
-				// associated with a Value or status ie. not phenotyped, not
-				// significant
-				GeneRowForHeatMap row = genotypePhenotypeService.getResultsForGeneHeatMap(accession, gene, parameters, geneToTopLevelMpMap);
-				if (geneToMouseStatusMap.containsKey(accession)) {
-					row.setMiceProduced(geneToMouseStatusMap.get(accession));
-					//System.out.println("Mice produced=|"+row.getMiceProduced()+"|");
-					if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
-						for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
-							// set all the cells to No Data Available
-							cell.setStatus("No Data Available");
-						}
-					}
-				} else {
-					row.setMiceProduced("No");// if not contained in map just
-					// set no to mice produced
-				}
-				geneRows.add(row);
-			}
-			// model.addAttribute("heatmapCode", fillHeatmap(hdto));
+		// get a list of genes for the project - which will be the row headers
+		Set<String> accessions = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg");
+		String url = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl");
+		List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions);
+		Map<String, GeneRowForHeatMap> rows = statisticalResultService.getSecondaryProjectMapForGeneList(accessions, parameters);
 
-		} catch (SQLException | IOException ex) {
-			Logger.getLogger(GeneHeatmapController.class.getName()).log(Level.SEVERE, null, ex);
+		for (GeneDTO gene : geneToMouseStatus) {
+			// get a data structure with the gene accession, parameter associated with a value or status ie. not phenotyped, not significant
+			String accession = gene.getMgiAccessionId();
+			GeneRowForHeatMap row = rows.containsKey(accession) ? rows.get(accession) : new GeneRowForHeatMap(accession, gene.getMarkerSymbol() , parameters);
+			// Mouse production status
+
+			String prodStatusIcons = "Neither production nor phenotyping status available ";
+			Map<String, String> prod = geneService.getProductionStatus(accession, url);
+			prodStatusIcons = ( prod.get("productionIcons").equalsIgnoreCase("") || prod.get("phenotypingIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons") + prod.get("phenotypingIcons");
+			row.setMiceProduced(prodStatusIcons);
+
+			if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
+				for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
+					cell.addStatus(HeatMapCell.THREE_I_NO_DATA); // set all the cells to No Data Available
+				}
+			}
+
+			geneRows.add(row);
 		}
+
 		Collections.sort(geneRows);
 		return geneRows;
+
 	}
 
-
 	@Override
-	public List<BasicBean> getXAxisForHeatMap() {
+	public List<BasicBean> getXAxisForHeatMap() throws IOException, SolrServerException {
+
 		List<BasicBean> mp = new ArrayList<>();
-		try {
-			Set<BasicBean> topLevelPhenotypes = mpService.getAllTopLevelPhenotypesAsBasicBeans();
-			mp.addAll(topLevelPhenotypes);
-		} catch (SolrServerException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Set<BasicBean> topLevelPhenotypes = mpService.getAllTopLevelPhenotypesAsBasicBeans();
+		mp.addAll(topLevelPhenotypes);
+
 		return mp;
 	}
 }
