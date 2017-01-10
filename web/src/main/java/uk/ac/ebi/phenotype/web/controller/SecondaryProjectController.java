@@ -282,7 +282,7 @@ public class SecondaryProjectController {
             return "threeI";
         }
 
-        return "idg";
+        return "";
     }
 
 }
