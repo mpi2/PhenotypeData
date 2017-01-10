@@ -238,11 +238,13 @@ public class GeneTable {
 
             // If the graph link is a postQc link, increment the index and return when we have the number of requested rows.
             if (isPreQcLink) {
-                preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
+                preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));                // Add the row to the preQc list.
+                preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preAndPostQc list.
                 if (maleRow != null) {
                     preQcList.add(Arrays.asList(maleRow));
                 }
             } else {
+                preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preAndPostQc list.
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));   // Add the row to the preQc list.
                     if (maleRow != null) {
@@ -254,7 +256,6 @@ public class GeneTable {
                 }
             }
 
-            preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
             if (maleRow != null) {
                 preAndPostQcList.add(Arrays.asList(maleRow));
             }

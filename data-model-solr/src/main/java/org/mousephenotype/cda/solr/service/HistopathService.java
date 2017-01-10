@@ -71,6 +71,7 @@ public class HistopathService {
 					row.setAnatomyName(anatomyName);
 					row.setSampleId(sampleId);
 					
+					
 					//System.out.println("uniqueSequenceId="+sequenceId);
 				for (ObservationDTO obs : uniqueSequenceIdsToObservations.get(sequenceId)) {
 					row.setZygosity(obs.getZygosity());
@@ -79,6 +80,10 @@ public class HistopathService {
 						//System.out.println("sequenceId in observation="+obs.getSequenceId());
 						row.setSequenceId(obs.getSequenceId());
 						sequenceString=Integer.toString(obs.getSequenceId());
+						if(obs.getAgeInDays()!=null){
+							row.setAgeInDays(obs.getAgeInDays());
+						}
+						
 					} else {
 						//System.out.println("sequence_id is null");
 					}

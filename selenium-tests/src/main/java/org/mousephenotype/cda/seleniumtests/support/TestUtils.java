@@ -574,8 +574,9 @@ public class TestUtils {
      * @return true if this is a preQC link; false otherwise.
      */
     public boolean isPreQcLink(WebElement tdUrlElement) {
-        List<WebElement> preQcGraphLinks = tdUrlElement.findElements(By.xpath("//td[@class='preQcLink']"));
-        return ( ! preQcGraphLinks.isEmpty());
+        String urlCssClass = tdUrlElement.getAttribute("class");
+
+        return (urlCssClass.contains("preQcLink"));
     }
 
 

@@ -98,7 +98,7 @@ public class GenePage {
     public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) throws TestException {
         this.driver = driver;
         this.wait = wait;
-        this.target = target;
+        this.target = urlUtils.urlEncode(target);
         this.geneId = geneId;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
@@ -231,7 +231,7 @@ public class GenePage {
      */
     public List<String> getGraphUrls(GraphUrlType graphUrlType) {
         List<String> urls = new ArrayList();
-        List<List<String>> graphUrlList;
+        List<List<String>> graphUrlList = new ArrayList<>();
 
         if (hasGraphs()) {
             if (geneTable.genesTableIsNotEmpty()) {
@@ -247,7 +247,11 @@ public class GenePage {
                     default:            graphUrlList = geneTable.getPreAndPostQcList();
                 }
 
+                // Don't include the heading (first) row in the urls returned.
+                int i = 0;
                 for (List<String> row : graphUrlList) {
+                    if (i++ == 0)
+                        continue;
                     urls.add(row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK));
                 }
             }
