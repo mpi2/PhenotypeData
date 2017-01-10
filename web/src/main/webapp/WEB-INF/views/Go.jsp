@@ -89,6 +89,10 @@
 			float: right;
 			margin-right: 5px;
 		}
+		a.geneCountInfo i.fa-info {
+			font-size: 12px;
+			padding: 5px 5px 0 5px;
+		}
 		div.qtip-content {
 			background-color: white;
 			border: 1px solid gray !important;
@@ -239,6 +243,21 @@
 	   					}
    					}); 
    		        });
+
+                $("a.geneCountInfo i.fa-info").each(function(){
+                    var status = $(this).parent().parent().text().indexOf("Complete") != -1 ? "'Complete'" : "'Started'";
+                    $(this).qtip({
+                        content: {
+                            text: "IMPC genes that have phenotyping status " + status + " and have mammalian phenotype (MP) association(s)",
+                            //title: {'button': 'close'}
+                        },
+                        style: {
+                            classes: 'qtipimpc',
+                            tip: {corner: 'top left'}
+                        }
+                    });
+                });
+
        			
        	      	var conf = {
 					externalDbId: 1,

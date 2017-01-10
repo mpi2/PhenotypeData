@@ -110,28 +110,34 @@ public class GraphPage {
     private void load() throws TestException {
         String message;
         List<WebElement> chartElements;
+        List<WebElement> tableElements;
 
-        String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
-        try {
-            chartElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
-        } catch (Exception e) {
-            message = "EXCEPTION loading GraphPage. Reason: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl();
-            throw new TestException(message, e);
+        // The wait is dependent on the chart icon type: postQcTable, postQcGraph, preqc
+        String postQcXpathTable = "//div[@class='inner']/div[@id='histopath_wrapper']";
+        String postQcXpathChart = "//div[@class='chart']";
+        String preqcXpathOk = "//div[@class='viz-tools']";
+        String preqcXpathHung = "//div[@id='loading-app']";
+        List<WebElement> postQcTableElementList = driver.findElements(By.xpath(postQcXpathTable));
+        List<WebElement> postQcGraphElementList = driver.findElements(By.xpath(postQcXpathChart));
+        List<WebElement> preQcOkElementList = driver.findElements(By.xpath(preqcXpathOk));
+        List<WebElement> preQcHungElementList = driver.findElements(By.xpath(preqcXpathHung));
+
+        chartElements = new ArrayList<>();
+        tableElements = new ArrayList<>();
+        if ( ! postQcTableElementList.isEmpty()) {
+            System.out.println("WAITING FOR postQcTable");
+            tableElements.addAll(wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(postQcXpathTable))));
+        }
+        if ( ! postQcGraphElementList.isEmpty()) {
+            System.out.println("WAITING FOR postQcGraph");
+            chartElements.addAll(wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(postQcXpathChart))));
+        }
+        if ( ! preQcOkElementList.isEmpty()) {
+            System.out.println("WAITING FOR preQcOk");
+            chartElements.addAll(wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(preqcXpathOk))));
         }
 
-        // Wait for page to load. Sometimes the chart isn't loaded when the 'wait()' ends, so try a few times.
-        for (int i = 0; i < 10; i++) {
-            try {
-                WebElement titleElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='section-associations']")));
-                if (titleElement != null)
-                    break;
-            } catch (Exception e) {
-//                    System.out.println("Waiting " + ((i * 10) + 10) + " milliseconds.");
-                commonUtils.sleep(10);
-            }
-        }
-
-        // Load the GraphSections.
+        // If the page is a chart, load the GraphSections.
         for (WebElement chartElement : chartElements) {
             GraphSection graphSection = GraphSectionFactory.createGraphSection(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
             graphSections.add(graphSection);

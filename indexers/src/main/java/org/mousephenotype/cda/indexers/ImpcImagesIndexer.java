@@ -45,9 +45,10 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * class to load the image data into the solr core - use for impc data first
@@ -147,18 +148,18 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		try {
-			logger.info("Building parameter to abnormal mp map");
+			logger.info("  Building parameter to abnormal mp map");
 			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
-			logger.info("Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
+			logger.info("  Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
 			//System.out.println("parameterStableIdToMpTermIdMap"+parameterStableIdToMpTermIdMap);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 		try {
-			logger.info("Started emap mapping...");
+			logger.info("  Started emap mapping...");
 			emap2EmapaMap = emapaOntologyService.populateEmap2EmapaMap();
-			logger.info("Done {} EMAP to EMAPA mappings", emap2EmapaMap.size());
+			logger.info("  Done {} EMAP to EMAPA mappings", emap2EmapaMap.size());
 			parameterStableIdToEmapaTermIdMap = this.populateParameterStableIdToEmapaIdMap();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -171,7 +172,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		imageBeans = populateImageUrls();
-		logger.info("Added {} total Image URL beans", imageBeans.size());
+		logger.info(" Added {} total Image URL beans", imageBeans.size());
 
 		if (imageBeans.size() < 100) {
 			runStatus.addError(
@@ -179,10 +180,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		}
 
 		this.alleles = populateAlleles();
-		logger.info("Added {} total allele beans", alleles.size());
+		logger.info(" Added {} total allele beans", alleles.size());
 
 
-		// logger.info(" omeroRootUrl=" + impcMediaBaseUrl);
+		// logger.info("  omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl = impcMediaBaseUrl.replace("webgateway", "webclient");
 
 		try {
@@ -194,7 +195,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		try {
 			List<ImageDTO> imageList=new ArrayList<>();
 			//populate image DTOs from phis solr dto objects
-			logger.info("Starting indexing.....");
+			logger.info("  Starting indexing.....");
 			impcImagesCore.deleteByQuery("*:*");
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 			List<ImageDTO> imagePrimaryList = experimentCore.query(query).getBeans(ImageDTO.class);
@@ -239,7 +240,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					// e.g.
 					// https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
 					if (omeroId != 0 && downloadFilePath != null) { //phis images have no omero_id but already have these paths set
-						// logger.info(" Setting
+						// logger.info("  Setting
 						// downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
 						// /webgateway/archived_files/download/
 						if (downloadFilePath.endsWith(".pdf")) {
@@ -301,7 +302,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			throw new IndexerException(e);
 		}
 
-		logger.info("Added {} total beans in {}", documentCount,
+		logger.info(" Added {} total beans in {}", documentCount,
 				commonUtils.msToHms(System.currentTimeMillis() - start));
 
 		return runStatus;
@@ -338,7 +339,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
 
 		if (termBean == null) {
-			logger.info("  Cannot find MP ontology term for ID \"{}\",\n   OMERO ID: {},\n   URL: {}", termId, imageDTO.getOmeroId(), imageDTO.getFullResolutionFilePath());
+			logger.warn(" Cannot find MP ontology term for ID \"{}\",\n   OMERO ID: {},\n   URL: {}", termId, imageDTO.getOmeroId(), imageDTO.getFullResolutionFilePath());
 			return imageDTO;
 		}
 
@@ -612,7 +613,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				// />
 				//
 				if (allele.getStatus() != null) {
-					// logger.info(" Adding status="+allele.getStatus());
+					// logger.info("  Adding status="+allele.getStatus());
 					img.addStatus(allele.getStatus());
 				}
 				// <!-- latest project status (ES cells/mice production status)
@@ -737,7 +738,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					counter++;
 				}
 			}
-			logger.info("MISSED: " + counter);
+			logger.info("  MISSED: " + counter);
 		}
 		logger.debug(" paramToMa size = " + paramToEmapa.size());
 		return paramToEmapa;

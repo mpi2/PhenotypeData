@@ -263,11 +263,13 @@ public class SecondaryProjectController {
                 e.printStackTrace();
             }
             return "idg";
+        } else if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name()) || id.equalsIgnoreCase("3I")) {
+            System.out.println("returning to threeI");
         } else if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name())) {
             return "threeI";
         }
 
-        return "idg";
+        return "";
     }
 
 }
