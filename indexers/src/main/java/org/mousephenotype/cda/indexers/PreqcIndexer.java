@@ -142,13 +142,13 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             populateResourceMap();
 
 
-            logger.info("Truncating existing PreQC index");
+            logger.info("  Truncating existing PreQC index");
             preqcCore.deleteByQuery("*:*");
             preqcCore.commit();
 
-            logger.info("Start reading the file");
+            logger.info("  Start reading the file");
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new BufferedInputStream(new FileInputStream(preqcXmlFilename)));
-            logger.info("Done reading the file");
+            logger.info("  Done reading the file");
 
             Element rootElement = document.getDocumentElement();
             NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
@@ -390,6 +390,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
         return runStatus;
     }
 
