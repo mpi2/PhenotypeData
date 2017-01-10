@@ -258,6 +258,10 @@ public class DataTableController {
 
     public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) {
 
+    	if ( dataTypeName.contains("marker_symbol")){
+    		dataTypeName = "marker_symbol";
+		}
+
     	String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	String baseUrl = request.getAttribute("baseUrl").toString();
 
