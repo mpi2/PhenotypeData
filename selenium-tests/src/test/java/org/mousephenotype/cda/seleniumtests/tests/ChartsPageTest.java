@@ -18,6 +18,7 @@ package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
@@ -99,6 +100,7 @@ public class ChartsPageTest {
 
 
     @Test
+//@Ignore
     public void testExampleCategorical() throws Exception {
         String testName = "testExampleCategorical";
         RunStatus status = new RunStatus();
@@ -127,6 +129,7 @@ public class ChartsPageTest {
     }
 
     @Test
+@Ignore
     public void testExampleCategorical2() throws Exception {
         String testName = "testExampleCategorical2";
         RunStatus status = new RunStatus();
