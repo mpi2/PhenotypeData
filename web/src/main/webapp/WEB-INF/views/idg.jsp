@@ -57,6 +57,9 @@
 									<div class="floatright">
 										<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
 									</div>
+									<h4 style="color:red;">
+										The IMPC Illuminating the Druggable Genome landing page will be updated for the second phase of IDG by Monday 23rd of January
+									</h4>
 									<p>
 									<b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
 									</p>	
