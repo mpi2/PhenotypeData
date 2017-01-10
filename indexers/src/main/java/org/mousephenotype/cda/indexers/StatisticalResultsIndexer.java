@@ -533,8 +533,19 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				doc.setMpTermId(mpTerm.getId());
 				doc.setMpTermName(mpTerm.getName());
 
-				doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
-				doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+				// if the mpId itself is a top level, add itself as a top level
+				if (mpOntologyService.getTopLevelDetail(mpId).getIds().size() == 0 ){
+					// if the mpId itself is a top level, add itself as a top level
+					List<String> ids = new ArrayList<>(); ids.add(mpId);
+					List<String> names = new ArrayList<>(); names.add(doc.getMpTermName());
+
+					doc.setTopLevelMpTermId(ids);
+					doc.setTopLevelMpTermName(names);
+				}
+				else {
+					doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
+					doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+				}
 
 				doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
 				doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
