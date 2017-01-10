@@ -329,7 +329,7 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
