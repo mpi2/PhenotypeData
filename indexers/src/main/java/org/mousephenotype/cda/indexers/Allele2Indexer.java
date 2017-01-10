@@ -141,7 +141,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
     public RunStatus validateBuild() throws IndexerException {
 
         RunStatus runStatus = new RunStatus();
-        Long actualSolrDocumentCount = getDocumentCount(allele2Core);
+        Long actualSolrDocumentCount = getImitsDocumentCount(allele2Core);
 
         if (actualSolrDocumentCount < alleleDocCount) {
            runStatus.addError("Expected " + alleleDocCount + " documents. Actual count: " + actualSolrDocumentCount + ".");

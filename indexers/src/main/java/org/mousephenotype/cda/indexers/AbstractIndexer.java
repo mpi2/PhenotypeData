@@ -101,6 +101,19 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         return numFound;
     }
 
+    public long getImitsDocumentCount(SolrClient solrClient) throws IndexerException {
+        Long numFound = getDocumentCount(solrClient);
+        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
+        query.setRequestHandler("selectCre");
+        try {
+            numFound += solrClient.query(query).getResults().getNumFound();
+        } catch (SolrServerException | IOException e) {
+            throw new IndexerException(e);
+        }
+        logger.debug("number found = " + numFound);
+        return numFound;
+    }
+
 
     public long getFacetCountTwoLevelPivot(SolrClient solr, SolrQuery q, String pivot) throws IOException, SolrServerException {
 
