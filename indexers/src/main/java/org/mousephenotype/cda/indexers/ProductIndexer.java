@@ -117,7 +117,7 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
     public RunStatus validateBuild() throws IndexerException {
 
         RunStatus runStatus = new RunStatus();
-        Long actualSolrDocumentCount = getDocumentCount(productCore);
+        Long actualSolrDocumentCount = getImitsDocumentCount(productCore);
 
         if (actualSolrDocumentCount < productDocCount) {
             runStatus.addError("Expected " + productDocCount + " documents. Actual count: " + actualSolrDocumentCount + ".");
