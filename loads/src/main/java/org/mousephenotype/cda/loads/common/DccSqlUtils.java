@@ -84,6 +84,20 @@ public class DccSqlUtils {
    		"EPD0135_1_A05_10562", "EPD0145_4_B09_10826", "EPD0242_4_B03_10233",
         "Dll1_C3H_113",        "Dll1_C3H_10333");
 
+
+    /**
+     * This is a list of known bad colony ids. specimens and experiments that reference colony ids in this list may
+     * be safely ignored/skipped. Criteria for entry into this list are:
+     * - The colonyId must not already exist
+     * - There is not enough information (e.g. gene, strain) information to hand-curate a phenotyped_colony record
+     */
+    public static List<String> knownBadColonyIds = Arrays.asList(
+            new String[] {
+                    "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG"
+            }
+    );
+
+
     /**
      * Most of the EuroPhenome colony ids provided by the DCC have a number appended to them that must be removed in order to match
      * the colony id as known by imits. There are a few cases that require the colony id to be left untouched, as they

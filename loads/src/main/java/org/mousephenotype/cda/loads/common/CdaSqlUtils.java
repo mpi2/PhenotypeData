@@ -2924,11 +2924,10 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         int index = alleleSymbol.indexOf('<');
    		String alleleGeneSymbol = (index >= 0 ? alleleSymbol.substring(0, index)  : alleleSymbol);
 
-   		// get the gene
+   		// Try to get the gene. If it's not found, throw an exception.
         GenomicFeature gene = getGeneBySymbol(alleleGeneSymbol);
         if (gene == null) {
-            logger.error("No gene for allele {}", alleleSymbol);
-            return null;
+            throw new DataLoadException("No gene for allele " + alleleSymbol, DataLoadException.DETAIL.NO_GENE_FOR_ALLELE);
         }
 
    		// Create the allele acc
@@ -3011,31 +3010,19 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         Strain backgroundStrain;
 
         if (colony == null) {
-            throw new DataLoadException("No such colonyId '" + colony.getColonyName() + "' exists.");
+            throw new DataLoadException("colonyId is null");
         }
 
         // Get the allele by symbol.
         Allele allele = allelesBySymbol.get(colony.getAlleleSymbol());
         if (allele == null) {
-            try {
-                allele = createAndInsertAllele(colony.getAlleleSymbol());
-                if (allele == null) {
-                    message = "Unable to create allele for " + colony.getAlleleSymbol() + ". Skipping...";
-                    logger.error(message);
-                    throw new DataLoadException(message);
-                }
-
-            } catch (DataLoadException e) {
-                message = "Missing allele information for dcc-supplied colony " + colony.getColonyName() + ". Skipping...";
-                logger.error(message);
-                throw new DataLoadException(message, e);
-            }
+            allele = createAndInsertAllele(colony.getAlleleSymbol());
         }
 
         // Get the gene. Mark as error and skip if no gene.
         gene = colony.getGene();
         if (gene == null) {
-            message = "Missing gene information for dcc-supplied colony " + colony.getColonyName() + " for allele " + allele.toString() + ". Skipping...";
+            message = "Missing gene information for dcc-supplied colony " + colony.getColonyName() + " for allele '" + allele.toString() + "'. Skipping...";
             logger.error(message);
             throw new DataLoadException(message);
         }
@@ -3056,7 +3043,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         } catch (DataLoadException e) {
 
-            message = "Insert strain " + colony.getBackgroundStrainName() + " for dcc-supplied colony " + colony.getColonyName() + " failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
+            message = "Insert strain " + colony.getBackgroundStrainName() + " for dcc-supplied colony '" + colony.getColonyName() + "' failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
             logger.error(message);
             throw new DataLoadException(message, e);
         }
@@ -3080,7 +3067,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             biologicalModel = getBiologicalModel(allelicComposition, backgroundStrainName);
             if (biologicalModel == null) {
-                throw new DataLoadException("Attempt to create biological model for colony " + colony.getColonyName() + " failed.");
+                throw new DataLoadException("Attempt to create biological model for colony '" + colony.getColonyName() + "' failed.");
             }
         }
 
