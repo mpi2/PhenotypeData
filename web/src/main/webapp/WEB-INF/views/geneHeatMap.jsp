@@ -21,7 +21,7 @@
    <thead>
      <tr> 
         <th class="gene-heatmap-header"><span>Gene</span></th>
-        <th><span>Mice Produced</span></th>
+        <th><span>Availability</span></th>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" >
           	<th title="${xAxisBean.name}"><span class="vertical">${xAxisBean.name}</span></th>
         </c:forEach>
