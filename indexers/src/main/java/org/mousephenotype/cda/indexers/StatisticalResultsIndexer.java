@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -17,6 +18,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -53,6 +56,8 @@ import java.util.stream.Collectors;
 public class StatisticalResultsIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexer.class);
+	private Boolean SAVE = Boolean.TRUE;
+	private Map<String, List<String>> impressAbnormals = new HashMap<>();
 
 	private Double SIGNIFICANCE_THRESHOLD = AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD;
 	final double REPORT_INTERVAL = 100000;
@@ -80,6 +85,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	@Autowired
 	EmapaOntologyDAO emapaOntologyService;
+
+	@Autowired
+	PhenotypePipelineDAO phenotypePipelineDAO;
 
 	private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
 	private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
@@ -154,8 +162,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		try {
 
-			statisticalResultCore.deleteByQuery("*:*");
-			statisticalResultCore.commit();
+			if (SAVE) statisticalResultCore.deleteByQuery("*:*");
+			if (SAVE) statisticalResultCore.commit();
 
 			List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
 				getViabilityResults(),
@@ -206,7 +214,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			pool.shutdown();
 
 
-			statisticalResultCore.commit();
+			if (SAVE) statisticalResultCore.commit();
 			checkSolrCount(count);
 
 			logger.info(" Added {} statistical result documents", count);
@@ -256,7 +264,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				.filter(e -> ! uniques.add(e))
 				.collect(Collectors.toSet());
 
-			logger.warn("Should have added these {} doc IDs, but missing from solr {}", diff.size(), StringUtils.join(diff, ", "));
+			logger.warn(" Should have added these {} doc IDs, but missing from solr {}", diff.size(), StringUtils.join(diff, ", "));
 		}
 
 	}
@@ -272,7 +280,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 
 
-	private StatisticalResultDTO parseResultCommonFields(ResultSet r) throws SQLException {
+	private StatisticalResultDTO parseResultCommonFields(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 		StatisticalResultDTO doc = new StatisticalResultDTO();
 
@@ -352,7 +360,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			doc.setLifeStageAcc(stage.getId());
 			doc.setLifeStageName(stage.getName());
 		} else {
-			logger.info("Stage is NULL for doc id" + doc.getDocId());
+			logger.info("  Stage is NULL for doc id" + doc.getDocId());
 		}
 
 		return doc;
@@ -366,7 +374,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	 * @return a solr document
 	 * @throws SQLException
 	 */
-	private StatisticalResultDTO parseLineResult(ResultSet r) throws SQLException {
+	private StatisticalResultDTO parseLineResult(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 		StatisticalResultDTO doc = new StatisticalResultDTO();
 
@@ -525,8 +533,19 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				doc.setMpTermId(mpTerm.getId());
 				doc.setMpTermName(mpTerm.getName());
 
-				doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
-				doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+				// if the mpId itself is a top level, add itself as a top level
+				if (mpOntologyService.getTopLevelDetail(mpId).getIds().size() == 0 ){
+					// if the mpId itself is a top level, add itself as a top level
+					List<String> ids = new ArrayList<>(); ids.add(mpId);
+					List<String> names = new ArrayList<>(); names.add(doc.getMpTermName());
+
+					doc.setTopLevelMpTermId(ids);
+					doc.setTopLevelMpTermName(names);
+				}
+				else {
+					doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
+					doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+				}
 
 				doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
 				doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
@@ -582,11 +601,54 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	 * @param doc the solr document to update
 	 * @throws SQLException if the query fields do not exist
 	 */
-	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
+	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException, IOException, SolrServerException {
+
+
+		String mpTerm = r.getString("mp_acc");
+
+		// For reference range plus results only, test that the MP term has been set, if not, try to set the abnormal termif (doc.getStatisticalMethod() != null && doc.getStatisticalMethod().equals("Reference Ranges Plus framework")) {
+
+			// Sometimes, the stats result generator doesn't set the MP term (also not for either sex), in that case,
+			// try to set the abnormal term for the parameter
+
+		if (r.wasNull()) {
+
+			// If there is a not male MP term set
+			r.getString("male_mp_acc");
+			if (r.wasNull()) {
+
+				// And, If there is a not female MP term set
+				r.getString("female_mp_acc");
+				if (r.wasNull()) {
+
+					// Lookup and cache the impress object corresponding to the parameter in question
+					if (!impressAbnormals.containsKey(doc.getParameterStableId())) {
+
+						Parameter parameter = phenotypePipelineDAO.getParameterByStableId(doc.getParameterStableId());
+
+						List<String> abnormalMpIds = parameter.getAnnotations()
+								.stream()
+								.filter(x -> x.getType().equals(PhenotypeAnnotationType.abnormal))
+								.map(x -> x.getOntologyTerm().getId().getAccession())
+								.collect(Collectors.toList());
+
+						impressAbnormals.put(doc.getParameterStableId(), abnormalMpIds);
+					}
+
+					// Get the first abnormal term ID as that is likely the real "abnormal" term
+					if (impressAbnormals.containsKey(doc.getParameterStableId())) {
+						List<String> abnormals = impressAbnormals.get(doc.getParameterStableId());
+						if (CollectionUtils.isNotEmpty(abnormals)) {
+							mpTerm = abnormals.get(0);
+						}
+					}
+				}
+			}
+		}
+
 
 		// Add the appropriate fields for the global MP term
-		String mpTerm = r.getString("mp_acc");
-		if (!r.wasNull()) {
+		if (mpTerm != null) {
 
 			addMpTermData(mpTerm, doc);
 
@@ -688,7 +750,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 			String p = doc.getParameterStableId();
 			if ( ! alreadyReported.contains(p)) {
 				alreadyReported.add(p);
-				logger.debug("Cannot find MP terms for parameter {}", p);
+				logger.debug(" Cannot find MP terms for parameter {}", p);
 			}
 
 		}
@@ -701,7 +763,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		BiologicalDataBean b = biologicalDataMap.get(biologicalModelId);
 
 		if (b == null) {
-			logger.error("Cannot find genomic information for biological_model_id {}", biologicalModelId);
+			logger.error(" Cannot find genomic information for biological_model_id {}", biologicalModelId);
 			return;
 		}
 
@@ -931,20 +993,20 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseCategoricalResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 					if (docs.size()% REPORT_INTERVAL ==0) {
-						logger.info("Added {} categorical doucments", docs.size());
+						logger.info(" Added {} categorical doucments", docs.size());
 					}
 				}
 			} catch (Exception e) {
-				logger.warn("Error occurred getting unidimensional results", e);
+				logger.warn(" Error occurred getting unidimensional results", e);
 			}
 			logger.info(" Added {} categorical documents", docs.size());
 			return docs;
 		}
 
-		private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException {
+		private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 			StatisticalResultDTO doc = parseResultCommonFields(r);
 			if (sexesMap.containsKey("categorical-" + doc.getDbId())) {
@@ -1012,7 +1074,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 		@Override
 		public List<StatisticalResultDTO> call() {
 
-			logger.info(" Starting unidimensional documents generation");
+			logger.info("  Starting unidimensional documents generation");
 
 			List<StatisticalResultDTO> docs = new ArrayList<>();
 			try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
@@ -1021,20 +1083,20 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseUnidimensionalResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 					if (docs.size()% REPORT_INTERVAL ==0) {
-						logger.info("Added {} unidimensional doucments", docs.size());
+						logger.info(" Added {} unidimensional doucments", docs.size());
 					}
 				}
 			} catch (Exception e) {
-				logger.warn("Error occurred getting unidimensional results", e);
+				logger.warn(" Error occurred getting unidimensional results", e);
 			}
 			logger.info(" Added {} unidimensional documents", docs.size());
 			return docs;
 		}
 
-		private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
+		private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 			StatisticalResultDTO doc = parseResultCommonFields(r);
 			if (sexesMap.containsKey("unidimensional-" + doc.getDbId())) {
@@ -1134,7 +1196,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 	class ReferenceRangePlusResults implements  Callable<List<StatisticalResultDTO>> {
 
 		String query = "SELECT CONCAT(dependent_variable, '_RR_', sr.id) as doc_id, "
-			+ "  'unidimensional' AS data_type, "
+			+ "  'unidimensional-ReferenceRange' AS data_type, "
 			+ "  sr.id AS db_id, control_id, experimental_id, experimental_zygosity, "
 			+ "  external_db_id, organisation_id, "
 			+ "  pipeline_id, procedure_id, parameter_id, colony_id, "
@@ -1166,17 +1228,17 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseReferenceRangeResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 			} catch (Exception e) {
-				logger.warn("Error occurred getting RR plus results", e);
+				logger.warn(" Error occurred getting RR plus results", e);
 			}
 			logger.info(" Added {} RR plus documents", docs.size());
 			return docs;
 		}
 
-		private StatisticalResultDTO parseReferenceRangeResult(ResultSet r) throws SQLException {
+		private StatisticalResultDTO parseReferenceRangeResult(ResultSet r) throws SQLException, IOException, SolrServerException {
 
 			List<Double> mins = new ArrayList<>();
 
@@ -1389,12 +1451,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 
 			} catch (Exception e) {
-				logger.warn("Error occurred getting fertility results", e);
+				logger.warn(" Error occurred getting fertility results", e);
 			}
 
 			logger.info(" Added {} fertility parameter documents", docs.size());
@@ -1452,12 +1514,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 
 			} catch (Exception e) {
-				logger.warn("Error occurred getting viability results", e);
+				logger.warn(" Error occurred getting viability results", e);
 			}
 
 			logger.info(" Added {} viability parameter documents", docs.size());
@@ -1510,19 +1572,21 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 					if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
 						addMpTermData(embryoSignificantResults.get(r.getString("significant_id")), doc);
+					} else {
+						doc.setSignificant(false);
 					}
 
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 
 				}
 
 			} catch (Exception e) {
-				logger.warn("Error occurred getting embryo results", e);
+				logger.warn(" Error occurred getting embryo results", e);
 			}
 
-			logger.info(" Generated {} embryo parameter documents", docs.size());
+			logger.info("  Generated {} embryo parameter documents", docs.size());
 			return docs;
 		}
 	}
@@ -1566,11 +1630,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 				while (r.next()) {
 					StatisticalResultDTO doc = parseLineResult(r);
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 			} catch (Exception e) {
-				logger.warn("Error occurred getting embryo results", e);
+				logger.warn(" Error occurred getting embryo results", e);
 			}
 
 			logger.info(" Added {} viability parameter documents", docs.size());
@@ -1584,6 +1648,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 		String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', o.id, '_', term, '_', ls.sex, '_grosspath') as doc_id, " +
 			"'adult-gross-path' AS data_type, db.id AS db_id, " +
+			"CONCAT(o.parameter_stable_id, '_', ls.colony_id, exp.organisation_id) AS significant_id, " +
 			"ls.zygosity as experimental_zygosity, ls.id, bs.sample_group, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, " +
 			"parameter.id as parameter_id, ls.colony_id, ls.sex as sex, " +
 			"parameter.stable_id as dependent_variable, " +
@@ -1621,13 +1686,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 					StatisticalResultDTO doc = parseLineResult(r);
 					doc.setDocId(doc.getDocId()+"-"+(i++));
 
+					if ( ! embryoSignificantResults.containsKey(r.getString("significant_id"))) {
+						doc.setSignificant(false);
+					}
+
+
 					docs.add(doc);
-					statisticalResultCore.addBean(doc, 30000);
+					if (SAVE) statisticalResultCore.addBean(doc, 30000);
 					shouldHaveAdded.add(doc.getDocId());
 				}
 
 			} catch (Exception e) {
-				logger.warn("Error occurred getting gross pathology results", e);
+				logger.warn(" Error occurred getting gross pathology results", e);
 			}
 
 			logger.info(" Added {} gross pathology parameter documents", docs.size());
@@ -1636,4 +1706,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 	}
 
+	public Boolean getSAVE() {
+		return SAVE;
+	}
+
+	public void setSAVE(Boolean SAVE) {
+		this.SAVE = SAVE;
+	}
 }

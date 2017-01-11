@@ -20,21 +20,24 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
+import java.net.URL;
 import java.util.Date;
 
 
@@ -45,17 +48,18 @@ import java.util.Date;
  * Selenium test for graph query coverage ensuring each graph display works as expected.
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
+@SpringBootTest(classes = TestConfig.class)
 public class ChartsPageTest {
 
-    CommonUtils commonUtils = new CommonUtils();
-    protected TestUtils testUtils = new TestUtils();
-    protected WebDriverWait wait;
+    private CommonUtils   commonUtils = new CommonUtils();
+    private WebDriver     driver;
+    private TestUtils     testUtils   = new TestUtils();
+    private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final int TIMEOUT_IN_SECONDS = 220;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int TIMEOUT_IN_SECONDS = 220;
     private final int THREAD_WAIT_IN_MILLISECONDS = 20;
 
     private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
@@ -63,29 +67,27 @@ public class ChartsPageTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @NotNull
-    @Value("${baseUrl}")
-    protected String baseUrl;
 
     @Autowired
-    WebDriver driver;
+    private DesiredCapabilities desiredCapabilities;
+
+    @NotNull
+    @Value("${baseUrl}")
+    private String baseUrl;
 
     @Value("${seleniumUrl}")
-    protected String seleniumUrl;
+    private String seleniumUrl;
 
 
     @Before
     public void setUp() throws Exception {
+        driver = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
         wait = new WebDriverWait(driver, timeoutInSeconds);
-
-        driver.navigate().refresh();
-        commonUtils.sleep(threadWaitInMilliseconds);
-
     }
 
     @After
@@ -97,6 +99,7 @@ public class ChartsPageTest {
 
 
     @Test
+//@Ignore
     public void testExampleCategorical() throws Exception {
         String testName = "testExampleCategorical";
         RunStatus status = new RunStatus();
@@ -125,6 +128,7 @@ public class ChartsPageTest {
     }
 
     @Test
+//@Ignore
     public void testExampleCategorical2() throws Exception {
         String testName = "testExampleCategorical2";
         RunStatus status = new RunStatus();
@@ -151,5 +155,4 @@ public class ChartsPageTest {
         testUtils.printEpilogue(testName, start, status, targetCount, targetCount);
         System.out.println();
     }
-
 }

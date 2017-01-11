@@ -271,6 +271,16 @@ public class TestUtils {
         return false;
     }
 
+    public static GridMap convertZygosityToShortName(GridMap downloadData, int zygosityColumnIndex) {
+        GridMap gridMap = new GridMap(downloadData.getData(), downloadData.getTarget());
+
+        for (String[] row : gridMap.getData()) {
+            row[zygosityColumnIndex] = row[zygosityColumnIndex].substring(0, 3);
+        }
+
+        return gridMap;
+    }
+
     /**
      * Searches <code>list</code> for <code>searchToken</code>, returning the
      * number of times <code>searchToken</code> appears in <code>list</code>.
@@ -546,17 +556,29 @@ public class TestUtils {
 //        return true;
 //    }
 
+//    /**
+//     *
+//     * @param graphUrl The graph URL being tested
+//     * @return true if this is a preQC link; false otherwise.
+//     */
+//    public boolean isPreQcLink(String graphUrl) {
+//        if (graphUrl == null)
+//            return false;
+//
+//        return graphUrl.contains("/phenoview/");
+//    }
+
     /**
      *
-     * @param graphUrl The graph URL being tested
+     * @param tdUrlElement The td {@code WebElement} of the 'Data' url
      * @return true if this is a preQC link; false otherwise.
      */
-    public boolean isPreQcLink(String graphUrl) {
-        if (graphUrl == null)
-            return false;
+    public boolean isPreQcLink(WebElement tdUrlElement) {
+        String urlCssClass = tdUrlElement.getAttribute("class");
 
-        return graphUrl.contains("/phenoview/");
+        return (urlCssClass.contains("preQcLink"));
     }
+
 
     /**
      * Converts a <code>List&lt;List&lt;String&gt;&gt;&gt;</code> to a two-

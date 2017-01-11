@@ -62,8 +62,7 @@ public class GrossPathService {
 			ArrayList<String> textValuesForSampleId = new ArrayList<String>();
 
 			for (String anatomyName : anatomyNames) {
-
-				//System.out.println("anatomyName=" + anatomyName);
+				
 				GrossPathPageTableRow row = new GrossPathPageTableRow();
 				row.setAnatomyName(anatomyName);
 				row.setSampleId(sampleId);

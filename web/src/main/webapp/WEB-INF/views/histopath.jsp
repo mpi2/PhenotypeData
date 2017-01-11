@@ -63,12 +63,7 @@
 							<th class="headerSort">
 							Histopathology
 							</th>
-							<th>
-							SampleId
-							</th>
-							<th>
-							SeqId
-							</th>
+							
 							<th>
 							Severity
 							</th>
@@ -76,9 +71,9 @@
 							Observation
 							</th>
 					
-							<th>
+							<%-- <th>
 							Diagnostic
-							</th>
+							</th> --%>
 							<th>
 							Description
 							</th>
@@ -86,8 +81,17 @@
 							Free Text
 							</th>
 							<th>
-							Images
+							Age in Days
 							</th>
+							<th>
+							Zygosity
+							</th>
+							<th>
+							SampleId
+							</th>
+							<%-- <th>
+							Images
+							</th> --%>
 							<%-- <th>Sample Id</th> --%>
 						
 							
@@ -136,12 +140,10 @@
 										
 										
 									</td>
-									<td>
-									${histRow.sampleId}
-									</td>
-									<td>
+									
+									<%-- <td>
 									${histRow.sequenceId}
-									</td>
+									</td> --%>
 									
 									<td>
 									<c:forEach var="parameter" items="${histRow.severity }">
@@ -173,7 +175,7 @@
 									
 									
 									
-									<c:choose>
+									<%-- <c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
 										<td>
 										</td>
@@ -184,14 +186,14 @@
 											
 										<td>
 										<c:forEach var="value" items="${parameter.value }">
-										<%-- <td title="${value.description }"> --%>
+										<td title="${value.description }">
 											${value.name }										
-											<%-- </td> --%>
+											</td>
 										</c:forEach>
 										</td>
 									</c:forEach>
 									</c:otherwise>
-									</c:choose> 
+									</c:choose>  --%>
 									
 									
 									<td>
@@ -208,19 +210,28 @@
 										
 										</c:forEach> 
 									</td>
-									
 									<td>
-										<c:forEach var="image" items="${histRow.imageList }">
+									${histRow.ageInDays}
+									</td>
+									<td>
+									${histRow.zygosity}
+									</td>
+									<td>
+									${histRow.sampleId}
+									</td>
+									
+									<%-- <td>
+										<c:forEach var="image" items="${histRow.imageList }"> --%>
 										
 										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
 										<%-- increment= ${image.increment_value} --%>
 										 <!-- <div id="grid"> -->
                                            
-												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
+												<%-- <t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay> --%>
 											
 										<!-- </div> -->
-										</c:forEach> 
-									</td>
+										<%-- </c:forEach> 
+									</td> --%>
 									<%-- <td id="${histRow.sampleId}_${histRow.anatomyName}">
 										${histRow.sampleId}
 									</td> --%>
@@ -234,9 +245,28 @@
 							
 							</table>	
 							
-							
-							</div>
-						
+						</div>
+					</div>
+					
+					
+					
+					
+					
+					
+					<div  class="section">
+								<div class="inner">
+									<div class="accordion-body" style="display: block">
+										<div id="grid">
+										<ul>
+											<c:forEach var="image" items="${histopathImagesForGene }">
+												
+													<t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> 
+															 
+											</c:forEach> 
+										</ul>
+										</div>
+									</div>
+								</div>
 					</div>
                     
                     

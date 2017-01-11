@@ -239,10 +239,10 @@ public class SolrUtils {
         QueryResponse response = null;
         response = alleleCore.query(query);
         total = response.getResults().getNumFound();
-        logger.info("total alleles=" + total);
+        logger.info("  total alleles=" + total);
         alleleList = response.getBeans(AlleleDTO.class);
 
-        logger.debug("Loaded {} alleles", alleleList.size());
+        logger.debug("  Loaded {} alleles", alleleList.size());
 
         return alleleList;
     }
@@ -278,7 +278,7 @@ public class SolrUtils {
             }
             pos += BATCH_SIZE;
         }
-        logger.debug("Loaded {} alleles", alleles.size());
+        logger.debug("  Loaded {} alleles", alleles.size());
 
         return alleles;
     }
@@ -438,7 +438,7 @@ public class SolrUtils {
         Iterator<Entry<String, List<SangerImageDTO>>> it = map.entrySet().iterator();
         while ((it.hasNext()) && (maxIterations-- > 0)) {
             Entry<String, List<SangerImageDTO>> entry = it.next();
-            logger.info("KEY: " + entry.getKey());
+            logger.info("  KEY: " + entry.getKey());
             List<SangerImageDTO> dtoList = entry.getValue();
             for (SangerImageDTO dto : dtoList) {
                 printItemList("procedure_name:", dto.getProcedureName());

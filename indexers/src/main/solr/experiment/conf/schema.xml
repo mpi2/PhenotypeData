@@ -138,7 +138,8 @@
         <field name="sub_term_name" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="sub_term_description" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="sequence_id" type="int" indexed="true" stored="true" multiValued="false"/>
-
+        <field name="age_in_days" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="age_in_weeks" type="int" indexed="true" stored="true" multiValued="false"/>
     </fields>
 
     <uniqueKey>id</uniqueKey>

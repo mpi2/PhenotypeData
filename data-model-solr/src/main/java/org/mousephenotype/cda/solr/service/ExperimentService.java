@@ -284,7 +284,7 @@ public class ExperimentService{
                         }
 
                     }
-                    LOG.info("Number of batches: " + allBatches.size());
+                    LOG.debug("Number of batches: " + allBatches.size());
 
                     // If there is only 1 batch, the selection strategy is to
                     // try to use concurrent controls. If there is more than one
@@ -309,25 +309,25 @@ public class ExperimentService{
                                 // concurrent controls
 
                                 List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, experimentDate, s.name(), experiment.getMetadataGroup());
-                                LOG.info("Number of potential controls for sex: " + s.name() + ": " + potentialControls.size());
+                                LOG.debug("Number of potential controls for sex: " + s.name() + ": " + potentialControls.size());
 
                                 if (potentialControls.size() >= MIN_CONTROLS) {
 
                                     controls = potentialControls;
                                     experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-                                    LOG.info("Setting concurrent controls for sex: " + s.name());
+                                    LOG.debug("Setting concurrent controls for sex: " + s.name());
 
                                 } else {
 
                                     controls = os.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, s.name(), experiment.getMetadataGroup());
-                                    LOG.info("Using baseline controls for sex: " + s.name() + ", num controls: " + controls.size());
+                                    LOG.debug("Using baseline controls for sex: " + s.name() + ", num controls: " + controls.size());
 
                                 }
 
                             } else {
 
                                 controls = os.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, s.name(), experiment.getMetadataGroup());
-                                LOG.info("Using baseline controls for sex: " + s.name() + ", num controls: " + controls.size());
+                                LOG.debug("Using baseline controls for sex: " + s.name() + ", num controls: " + controls.size());
                             }
                         }
 
@@ -342,8 +342,8 @@ public class ExperimentService{
                             List<ObservationDTO> potentialMaleControls = os.getConcurrentControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, experimentDate, SexType.male.name(), experiment.getMetadataGroup());
                             List<ObservationDTO> potentialFemaleControls = os.getConcurrentControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, experimentDate, SexType.female.name(), experiment.getMetadataGroup());
 
-                            LOG.info("Number of potential controls for males: " + potentialMaleControls.size());
-                            LOG.info("Number of potential controls for females: " + potentialFemaleControls.size());
+                            LOG.debug("Number of potential controls for males: " + potentialMaleControls.size());
+                            LOG.debug("Number of potential controls for females: " + potentialFemaleControls.size());
 
                             // Only if BOTH counts of male and
                             // female controls are equal or more than
@@ -355,19 +355,19 @@ public class ExperimentService{
                                 controls = potentialMaleControls;
                                 controls.addAll(potentialFemaleControls);
                                 experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-                                LOG.info("Setting concurrent controls");
+                                LOG.debug("Setting concurrent controls");
 
                             } else {
 
                                 controls = os.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, null, experiment.getMetadataGroup());
-                                LOG.info("Using baseline controls, num controls: " + controls.size());
+                                LOG.debug("Using baseline controls, num controls: " + controls.size());
 
                             }
 
                         } else {
 
                             controls = os.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, null, experiment.getMetadataGroup());
-                            LOG.info("Using baseline controls, num controls: " + controls.size());
+                            LOG.debug("Using baseline controls, num controls: " + controls.size());
                         }
 
                     }

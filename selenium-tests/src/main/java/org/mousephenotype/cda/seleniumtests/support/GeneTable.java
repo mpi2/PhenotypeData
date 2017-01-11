@@ -53,41 +53,33 @@ public class GeneTable {
     protected WebDriverWait wait;
 
     // These are used to parse the page. Keep them private. Callers should be using the public definitions below this group.
-    private static final int COL_INDEX_GENES_PAGE_PHENOTYPE                  =  0;
-    private static final int COL_INDEX_GENES_PAGE_ALLELE                     =  1;
-    private static final int COL_INDEX_GENES_PAGE_ZYGOSITY                   =  2;
-    private static final int COL_INDEX_GENES_PAGE_SEX                        =  3;
-    private static final int COL_INDEX_GENES_PAGE_LIFE_STAGE                 =  4;
-    private static final int COL_INDEX_GENES_PAGE_PROCEDURE_PARAMETER        =  5;
-    private static final int COL_INDEX_GENES_PAGE_PHENOTYPING_CENTER_SOURCE  =  6;
-    private static final int COL_INDEX_GENES_PAGE_P_VALUE                    =  7;
-    private static final int COL_INDEX_GENES_PAGE_GRAPH_LINK                 =  8;
+    private static final int COL_INDEX_GENES_PAGE_SYSTEM                     =  0;
+    private static final int COL_INDEX_GENES_PAGE_PHENOTYPE                  =  1;
+    private static final int COL_INDEX_GENES_PAGE_ALLELE                     =  2;
+    private static final int COL_INDEX_GENES_PAGE_ZYGOSITY                   =  3;
+    private static final int COL_INDEX_GENES_PAGE_SEX                        =  4;
+    private static final int COL_INDEX_GENES_PAGE_LIFE_STAGE                 =  5;
+    private static final int COL_INDEX_GENES_PAGE_P_VALUE                    =  6;
+    private static final int COL_INDEX_GENES_PAGE_GRAPH_LINK                 =  7;
 
     // These are used to parameterise the page after the compound columns have been split out (for comparison against the download files).
-    public static final int COL_INDEX_GENES_PHENOTYPE                  =   0;
-    public static final int COL_INDEX_GENES_ALLELE                     =   1;
-    public static final int COL_INDEX_GENES_ZYGOSITY                   =   2;
-    public static final int COL_INDEX_GENES_SEX                        =   3;
-    public static final int COL_INDEX_GENES_LIFE_STAGE                 =   4;
-    public static final int COL_INDEX_GENES_PROCEDURE                  =   5;
-    public static final int COL_INDEX_GENES_PARAMETER                  =   6;
-    public static final int COL_INDEX_GENES_PHENOTYPING_CENTER         =   7;
-    public static final int COL_INDEX_GENES_SOURCE                     =   8;
+    public static final int COL_INDEX_GENES_SYSTEM                     =   0;
+    public static final int COL_INDEX_GENES_PHENOTYPE                  =   1;
+    public static final int COL_INDEX_GENES_ALLELE                     =   2;
+    public static final int COL_INDEX_GENES_ZYGOSITY                   =   3;
+    public static final int COL_INDEX_GENES_SEX                        =   4;
+    public static final int COL_INDEX_GENES_LIFE_STAGE                 =   5;
     public static final int COL_INDEX_GENES_P_VALUE                    =   6;
-    public static final int COL_INDEX_GENES_GRAPH_LINK                 =  7;
+    public static final int COL_INDEX_GENES_GRAPH_LINK                 =   7;
 
+    public static final String COL_GENES_SYSTEM                     = "System";
     public static final String COL_GENES_PHENOTYPE                  = "Phenotype";
     public static final String COL_GENES_ALLELE                     = "Allele";
-    public static final String COL_GENES_ZYGOSITY                   = "Zygosity";
+    public static final String COL_GENES_ZYGOSITY                   = "Zyg";
     public static final String COL_GENES_SEX                        = "Sex";
     public static final String COL_GENES__LIFE_STAGE                = "Life Stage";
-    public static final String COL_GENES_PROCEDURE_PARAMETER        = "Procedure | Parameter";
-    public static final String COL_GENES_PHENOTYPING_CENTER_SOURCE  = "Phenotyping Center | Source";
     public static final String COL_GENES_P_VALUE                    = "P Value";
-    public static final String COL_GENES_GRAPH                      = "Graph";
-
-    public static final List<Integer> expandColumnList = new ArrayList<>(
-        Arrays.asList(new Integer[] { COL_INDEX_GENES_PAGE_PROCEDURE_PARAMETER, COL_INDEX_GENES_PAGE_PHENOTYPING_CENTER_SOURCE }));
+    public static final String COL_GENES_GRAPH                      = "Data";
 
     public static final String NO_SUPPORTING_DATA                   = "No supporting data supplied.";
 
@@ -212,10 +204,13 @@ public class GeneTable {
                         }
                     }
                 } else if (sourceColIndex == COL_INDEX_GENES_PAGE_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
-                    // NOTE: Graph links are disabled if there is no supporting data.
+
+                    isPreQcLink = (testUtils.isPreQcLink(cell));
+
                     List<WebElement> graphLinks = cell.findElements(By.cssSelector("a"));
                     value = "";
                     if ( ! graphLinks.isEmpty()) {
+
                         value = graphLinks.get(0).getAttribute("href");
                     } else {
                         graphLinks = cell.findElements(By.cssSelector("i"));
@@ -227,7 +222,6 @@ public class GeneTable {
                         }
                     }
 
-                    isPreQcLink = testUtils.isPreQcLink(value);
                 } else {
                     value = cell.getText();
                 }
@@ -244,11 +238,13 @@ public class GeneTable {
 
             // If the graph link is a postQc link, increment the index and return when we have the number of requested rows.
             if (isPreQcLink) {
-                preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
+                preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));                // Add the row to the preQc list.
+                preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preAndPostQc list.
                 if (maleRow != null) {
                     preQcList.add(Arrays.asList(maleRow));
                 }
             } else {
+                preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preAndPostQc list.
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));   // Add the row to the preQc list.
                     if (maleRow != null) {
@@ -260,16 +256,15 @@ public class GeneTable {
                 }
             }
 
-            preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
             if (maleRow != null) {
                 preAndPostQcList.add(Arrays.asList(maleRow));
             }
             sourceRowIndex++;
         }
 
-        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnList, "|");
-        postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnList, "|");
-        preAndPostQcList = commonUtils.expandCompoundColumns(preAndPostQcList, expandColumnList, "|");
+//        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnList, "|");
+//        postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnList, "|");
+//        preAndPostQcList = commonUtils.expandCompoundColumns(preAndPostQcList, expandColumnList, "|");
         data = new GridMap(postQcList, target);
         return data;
     }

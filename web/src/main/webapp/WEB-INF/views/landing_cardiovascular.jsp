@@ -80,7 +80,8 @@
                                 </div>
 
                                 <br/><br/>
-                                <p>The following diagram represents the various biological system phenotypes associations for genes linked to cardiovascular system phenotypes. The line thickness is correlated with the strength of the association. Gene lists can be downloaded. </p>
+                                    <p>The following diagram represents the various biological system phenotypes associations for genes linked to cardiovascular system phenotypes. The line thickness is correlated with the strength of the association.</p>
+                                    <p>Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>
                                 <br/>
                                 <div id="chordContainer"></div>
                                 <svg id="chordDiagramSvg" width="960" height="960"></svg>
@@ -91,6 +92,9 @@
 
                             </div>
                         </div>
+
+                        <jsp:include page="gene_orthologs_frag.jsp" ></jsp:include>
+
 
                     </div>
                 </div>

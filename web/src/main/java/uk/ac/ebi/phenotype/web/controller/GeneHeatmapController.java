@@ -26,11 +26,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl;
 import uk.ac.ebi.phenotype.web.dao.SecondaryProjectService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 
@@ -55,30 +56,30 @@ public class GeneHeatmapController {
          * @param project is the external project for example a secondary screen e.g. IDG or 3I
          * @param model
          * @param request
-         * @param attributes
          * @return
 	 * @throws SolrServerException, IOException
          */
 	@RequestMapping("/geneHeatMap")
 	public String getHeatmapJS(@RequestParam(required = true, value = "project") String project,
                 Model model,
-                HttpServletRequest request,
-                RedirectAttributes attributes) throws SolrServerException {
-
-		System.out.println("calling heatmap controller method for " + project);
+                HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
 		if (project.equalsIgnoreCase("idg")){
+			Long time = System.currentTimeMillis();
 			SecondaryProjectService secondaryProjectService = this.getSecondaryProjectDao(project);
 			List<GeneRowForHeatMap> geneRows = secondaryProjectService.getGeneRowsForHeatMap(request);
-		    List<BasicBean> xAxisBeans = secondaryProjectService.getXAxisForHeatMap();
+			List<BasicBean> xAxisBeans = secondaryProjectService.getXAxisForHeatMap();
 		    model.addAttribute("geneRows", geneRows);
 		    model.addAttribute("xAxisBeans", xAxisBeans);
+			System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
 		}
         return "geneHeatMap";
 	}
+
+
 	@RequestMapping("/threeIMap")
-	public String getThreeIMap(Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws SolrServerException {
+	public String getThreeIMap(Model model, HttpServletRequest request)
+			throws SolrServerException, IOException, SQLException {
 
 		System.out.println("calling heatmap controller method for 3i");
 		String project="threeI";

@@ -142,13 +142,13 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             populateResourceMap();
 
 
-            logger.info("Truncating existing PreQC index");
+            logger.info("  Truncating existing PreQC index");
             preqcCore.deleteByQuery("*:*");
             preqcCore.commit();
 
-            logger.info("Start reading the file");
+            logger.info("  Start reading the file");
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new BufferedInputStream(new FileInputStream(preqcXmlFilename)));
-            logger.info("Done reading the file");
+            logger.info("  Done reading the file");
 
             Element rootElement = document.getDocumentElement();
             NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
@@ -348,12 +348,12 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     o.setId(count ++);
                     o.setSex(SexType.female.getName());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcCore.addBean(o, 30000);
 
                     o.setId(count ++);
                     o.setSex(SexType.male.getName());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcCore.addBean(o, 30000);
 
                 } else {
 
@@ -364,13 +364,13 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                         SexType.valueOf(sex.toLowerCase());
 
                     } catch (IllegalArgumentException se) {
-                        runStatus.addError(" Got unexpected sex value '" + se + "' from PreQC file. Not loading");
+                        runStatus.addError(" Got unexpected sex value '" + sex.toLowerCase() + "' from PreQC file. Not loading");
                         continue;
                     }
 
                     o.setSex(sex.toLowerCase());
                     documentCount++;
-                    preqcCore.addBean(o);
+                    preqcCore.addBean(o, 30000);
                 }
             }
 
@@ -390,6 +390,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
         return runStatus;
     }
 

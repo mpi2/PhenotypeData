@@ -623,7 +623,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public Map<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg)
         throws SolrServerException, IOException  {
 
-        Map<String, String> tl = new HashMap<String, String>();
+        Map<String, String> tl = new HashMap<>();
 
         SolrQuery query = new SolrQuery();
         if (gene.equalsIgnoreCase("*")) {
@@ -631,30 +631,42 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         } else {
             query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
         }
-        query.setRows(10000000);
+        query.setRows(Integer.MAX_VALUE);
         if (zyg != null) {
             query.setFilterQueries(GenotypePhenotypeDTO.ZYGOSITY + ":" + zyg.getName());
         }
-        query.setFields(GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-               
-        SolrDocumentList result = solr.query(query).getResults();
+        query.setFields(
+                GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME,
+                GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
+                StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_NAME,
+                StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_NAME);
 
-        if (result.size() > 0) {
-            for (int i = 0; i < result.size(); i ++) {
-                SolrDocument doc = result.get(i);
-                if (doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID) != null) {
-                    List<String> tlTermIDs = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID));
-                    List<String> tlTermNames = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
-                    int len = tlTermIDs.size();
-                    for (int k = 0; k < len; k ++) {
-                        tl.put(tlTermIDs.get(k), tlTermNames.get(k));
+        List<StatisticalResultDTO> dtos = solr.query(query).getBeans(StatisticalResultDTO.class);
+
+        for (StatisticalResultDTO dto : dtos) {
+            if (dto.getTopLevelMpTermId()!=null || dto.getFemaleTopLevelMpTermId()!=null || dto.getMaleTopLevelMpTermId()!=null) {
+
+                if (dto.getTopLevelMpTermId() != null) {
+                    for (int i = 0; i < dto.getTopLevelMpTermId().size(); i++) {
+                        tl.put(dto.getTopLevelMpTermId().get(i), dto.getTopLevelMpTermName().get(i));
                     }
-                } else {// it seems that when the term id is a top level term
-                    // itself the top level term field
-                    tl.put((String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_ID), (String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_NAME));
                 }
+
+                if (dto.getFemaleTopLevelMpTermId() != null) {
+                    for (int i = 0; i < dto.getFemaleTopLevelMpTermId().size(); i++) {
+                        tl.put(dto.getFemaleTopLevelMpTermId().get(i), dto.getFemaleTopLevelMpTermName().get(i));
+                    }
+                }
+                if (dto.getMaleTopLevelMpTermId() != null) {
+                    for (int i = 0; i < dto.getMaleTopLevelMpTermId().size(); i++) {
+                        tl.put(dto.getMaleTopLevelMpTermId().get(i), dto.getMaleTopLevelMpTermName().get(i));
+                    }
+                }
+            } else {
+                tl.put(dto.getMpTermId(), dto.getMpTermName());
             }
         }
+
         return tl;
     }
 
@@ -1296,6 +1308,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     }
 
+
     /*
      * End of method for PhenotypeCallSummarySolrImpl
      */
@@ -1311,6 +1324,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
         for (BasicBean xAxisBean : xAxisBeans) {
             HeatMapCell cell = new HeatMapCell();
+
             if (geneToTopLevelMpMap.containsKey(accession)) {
 
                 List<String> mps = geneToTopLevelMpMap.get(accession);
@@ -1319,21 +1333,23 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                     if (mps.contains(xAxisBean.getId())) {
                         cell.setxAxisKey(xAxisBean.getId());
                         cell.setLabel("Data Available");
-                        cell.setStatus("Data Available");
+                        cell.addStatus("Data Available");
                     } else {
-                        cell.setStatus("No MP");
+                        cell.addStatus("No MP");
                     }
                 } else {
                     // System.err.println("mps are null or empty");
-                    cell.setStatus("No MP");
+                    cell.addStatus("No MP");
                 }
             } else {
                 // if no doc found for the gene then no data available
-                cell.setStatus("No Data Available");
+                cell.addStatus("No Data Available");
             }
             xAxisToCellMap.put(xAxisBean.getId(), cell);
         }
         row.setXAxisToCellMap(xAxisToCellMap);
+
+        System.out.println("---ROW " + row);
 
         return row;
     }

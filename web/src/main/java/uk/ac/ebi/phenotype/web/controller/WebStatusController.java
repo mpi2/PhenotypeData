@@ -28,7 +28,7 @@ public class WebStatusController {
 
 	private final Logger logger = LoggerFactory.getLogger(WebStatusController.class);
 
-	public static final Integer TIMEOUT_INTERVAL = 1;
+	public static final Integer TIMEOUT_INTERVAL = 2;
 
 	@Autowired
 	ObservationService observationService;
@@ -75,9 +75,6 @@ public class WebStatusController {
 	@Autowired
 	PhenodigmService phenodigmService;
 
-	@Autowired
-	OmeroStatusService omeroStatusService;
-
 	List<WebStatus> webStatusObjects;
 
 	// imits solr services
@@ -89,6 +86,7 @@ public class WebStatusController {
 	ProductService productService;
 
 	List<WebStatus> nonEssentialWebStatusObjects;
+	Model savedModel = null;
 
 	@PostConstruct
 	public void initialise() {
@@ -114,7 +112,6 @@ public class WebStatusController {
 		webStatusObjects.add(phenodigmService);
 				
 		nonEssentialWebStatusObjects = new ArrayList<>();
-		nonEssentialWebStatusObjects.add(omeroStatusService);//omero status service is just for checking the status of omero and nothing else. uses internalImpcMediaBaseUrl app.prop should point to corresponding vm to where this is hosted
 		nonEssentialWebStatusObjects.add(allele2);
 		nonEssentialWebStatusObjects.add(productService);
 	}
@@ -122,6 +119,13 @@ public class WebStatusController {
 	@RequestMapping("/webstatus")
 	public String webStatus(Model model, HttpServletResponse response) {
 
+		if (savedModel != null && savedModel.containsAttribute("webStatusModels") && Math.random() < 0.95) {
+
+			model.addAllAttributes(savedModel.asMap());
+			return "webStatus";
+		}
+
+		logger.info("Updating webstatus model values");
 
 		ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -137,8 +141,6 @@ public class WebStatusController {
 			long number = 0;
 			try {
 
-				//				number = status.getWebStatus();
-
 				// This block causes the method reference getWebStatus to be submitted to the executor
 				// And then "get"ted from the future.  If the request is not complete in 2 seconds (more than enough time)
 				// then timeout and throw an exception
@@ -152,6 +154,7 @@ public class WebStatusController {
 				if (future!=null) {future.cancel(true);}
 
 				ok = false;
+				logger.error("Essential service {} is not available", name);
 				e.printStackTrace();
 			}
 
@@ -202,6 +205,13 @@ public class WebStatusController {
 		}
 		model.addAttribute("ok", ok);
 		model.addAttribute("nonEssentialOk",nonEssentialOk);
+
+		// Cache the model to be used later
+		synchronized (this) {
+			savedModel = model;
+		}
+		
+
 		return "webStatus";
 	}
 

@@ -737,37 +737,21 @@ public class GeneService extends BasicService implements WebStatus{
 	/**
 	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
 	 * @param geneIds
-     * @param url the host name
 	 * @return
 	 * @throws SolrServerException, IOException
 	 */
-	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, String url)
-			throws SolrServerException, IOException {
+	public List<GeneDTO> getProductionStatusForGeneSet(Set<String> geneIds)
+	throws SolrServerException, IOException {
 			
-		Map<String, String> geneToStatusMap = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("*:*");
 		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
 		solrQuery.setRows(100000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS);
-		
-		//System.out.println("getProductionStatusForGeneSet solr url " + SolrUtils.getBaseURL(solr) + "/select?" + solrQuery);
-		
+		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS, GeneDTO.MARKER_SYMBOL);
+
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
-		//System.out.println("solr query in basicbean=" + solrQuery);
-		SolrDocumentList res = rsp.getResults();
-		for (SolrDocument doc : res) {
-			
-			String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
-			if (doc.containsKey(GeneDTO.LATEST_MOUSE_STATUS)) {
-				String prodStatusIcons = "Neither production nor phenotyping status available ";				
-				Map<String, String> prod = this.getProductionStatus(accession, url);
-				prodStatusIcons = ( prod.get("productionIcons").equalsIgnoreCase("") || prod.get("phenotypingIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons") + prod.get("phenotypingIcons");
-				geneToStatusMap.put(accession,prodStatusIcons);
-							
-			}
-		}
-		return geneToStatusMap;
+
+		return rsp.getBeans(GeneDTO.class);
 	}
 	
 	
@@ -973,6 +957,41 @@ public class GeneService extends BasicService implements WebStatus{
 		return geneToHumanOrthologMap;
 	}
 
+	public Map<String, Set<String>> getGenesByOrthology(String mpId) throws IOException, SolrServerException {
+
+		if (mpId == null) {
+			return null;
+		}
+
+		Set<String> withHumanOrtholog = new HashSet<>();
+		Set<String> noHumanOrtholog = new HashSet<>();
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery("(" + GeneDTO.MP_ID + ":\"" + mpId + "\" OR " + GeneDTO.TOP_LEVEL_MP_ID + ":\"" + mpId + "\")");
+		query.setRows(Integer.MAX_VALUE);
+		query.setFields(GeneDTO.MARKER_SYMBOL, GeneDTO.HUMAN_GENE_SYMBOL);
+
+		QueryResponse rsp = solr.query(query);
+		List<GeneDTO> dtos = rsp.getBeans(GeneDTO.class);
+//		System.out.println("DTOS " + dtos.size());
+		for (GeneDTO dto : dtos) {
+			if (dto.getHumanGeneSymbol() != null){
+				withHumanOrtholog.add(dto.getMarkerSymbol());
+			} else {
+				noHumanOrtholog.add(dto.getMarkerSymbol());
+			}
+		}
+
+		Map<String, Set<String>> result = new HashMap<>();
+		result.put("Genes with human ortholog and cardiovascular phenotypes", withHumanOrtholog);
+		result.put("Genes cardiovascular phenotypes, no human ortholog", noHumanOrtholog);
+//
+//		System.out.println("HUMAN ORTHOLOG " + withHumanOrtholog);
+//		System.out.println("NO HUMAN ORTHOLOG " + noHumanOrtholog);
+
+		return result;
+
+	}
 	
 	@Override
 	public long getWebStatus() throws SolrServerException, IOException {

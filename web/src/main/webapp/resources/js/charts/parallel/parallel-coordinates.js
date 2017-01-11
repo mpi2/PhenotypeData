@@ -3,7 +3,7 @@
 	// Example for hover-over lines 
 	// http://bl.ocks.org/mbostock/3709000
 
-	window.parallel = function(model, colors, defaults, highlighter) {
+	window.parallel = function(model, colors, defaults, highlighter, axes) {
 		
 		var labelColorList = [
 		      				'rgb(36, 139, 75)',
@@ -22,7 +22,7 @@
 		var inactiveGroups = [];
 		var geneList = [];
 		model.get('filtered').map(function(d,i){geneList.push(d.gene);});
-		
+
 		for (var key in groups){
 			if (!axisColors[groups[key]]){
 				axisColors[groups[key]] = labelColorList[i];
@@ -126,7 +126,7 @@
 			
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
-				return d != "gene" && d != "group" && d != "accession" && d != "id" && inactiveGroups.indexOf(groups[d]) < 0 && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
+				return d != "gene" && d != "significantMask" && d != "group" && d != "accession" && d != "id" && inactiveGroups.indexOf(groups[d]) < 0 && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
 					return +p[d];
 				})).range([ h, 0 ]));
 			}));
@@ -263,6 +263,38 @@
 				return 0;
 			}
 
+			function arrayFromMaskArray(masksArray, coulmnCount){
+
+                var aFromMask = [];
+				if (masksArray.length == 0){
+					return aFromMask;
+				} else if (masksArray.length == 1){
+                    aFromMask = arrayFromMask(masksArray[0]);
+					if (coulmnCount > aFromMask.length){
+						// pad falses for the positions not visible in the mask
+						var needPadding = Math.min(coulmnCount, 31) - aFromMask.length;
+						for (i = 0; i < needPadding; i++){
+							aFromMask.push(false);
+						}
+					}
+				} else {
+					alert("WRITE ME!! " );
+				}
+				return aFromMask;
+			}
+
+            function arrayFromMask (nMask) {
+            	var aFromMask;
+                // nMask must be between -2147483648 and 2147483647
+                if (nMask > 0x7fffffff || nMask < -0x80000000) {
+                    throw new TypeError("arrayFromMask - out of range");
+                }
+                for (var nShifted = nMask, aFromMask = []; nShifted;
+                     aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1);
+                return aFromMask;
+            }
+
+
 			self.highlight = function(i) {
 
 				if (typeof i == "undefined") {
@@ -292,6 +324,9 @@
 						text.remove();
 					}
 					highlighted = svg.append("svg:g").attr("class", "highlight").selectAll("path").data([ model.get('filtered')[i] ]).enter().append("svg:path").attr("d", path).attr("style", function(d) {
+						console.log(d.significantMask);
+						console.log(arrayFromMaskArray(d.significantMask, axes.length - 1));
+						console.log(axes);
 						return "stroke:" + colors[d.group] + ";"; + getStyles(d,"foreground");
 					});
 
