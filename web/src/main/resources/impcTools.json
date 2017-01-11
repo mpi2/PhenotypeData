@@ -1,5 +1,11 @@
 [
-
+  {
+    "urlPath": "batchQuery",
+    "toolName": "IMPC dataset batch query",
+    "imagePath": "/img/batchquery.jpg",
+    "description": "This is a tool to allow querying a list of unique IDs or symbols via cut-and-paste or file upload. The columns in results can be customized. The resulting dataset can be exported as TSV or Excel format.",
+    "site":"internal"
+  },
   {
     "urlPath": "gene2go",
     "toolName": "GO annotations to phenotyped IMPC genes",
