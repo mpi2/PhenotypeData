@@ -66,7 +66,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private StepBuilderFactory            stepBuilderFactory;
-    private Set<String>                   unsupportedParametersMap = new HashSet<>();
+
+    private Set<String> missingColonyIds         = new HashSet<>();
+    private Set<String> noGeneForAllele          = new HashSet<>();
+    private Set<String> unsupportedParametersMap = new HashSet<>();
 
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
@@ -173,6 +176,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         for (DccExperimentDTO dccExperiment : dccExperiments) {
             insertExperiment(dccExperiment);
+        }
+
+        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
+        while (missingColonyIdsIt.hasNext()) {
+            String colonyId = missingColonyIdsIt.next();
+            logger.error("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'. Skipping...");
         }
 
         Iterator<String> missingCentersIt = missingCenters.iterator();
@@ -379,7 +388,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     // PRIVATE METHODS
 
-private HashSet<String> missingColonyIds = new HashSet<>();
     private void createObservations( DccExperimentDTO dccExperimentDTO, int dbId, int experimentPk) throws DataLoadException {
 
         Integer         biologicalSamplePk;
@@ -390,12 +398,10 @@ private HashSet<String> missingColonyIds = new HashSet<>();
         } else {
             BiologicalSample bs = samplesMap.get(dccExperimentDTO.getSpecimenId());
             if (bs == null) {
-//                logger.warn("Missing sample external id {} for experiment id {}. Skipping sample ...",
-//                            dccExperimentDTO.getSpecimenId(), dccExperimentDTO.getExperimentId());
-if ( ! missingColonyIds.contains(dccExperimentDTO.getColonyId())) {
-    missingColonyIds.add(dccExperimentDTO.getColonyId());
-    logger.warn("Missing sample(s) for colonyId {}", dccExperimentDTO.getColonyId());
-}
+                if ( ! DccSqlUtils.knownBadColonyIds.contains(dccExperimentDTO.getColonyId())) {
+                    missingColonyIds.add(dccExperimentDTO.getColonyId());
+                }
+
                 return;
             }
             biologicalSamplePk = bs.getId();

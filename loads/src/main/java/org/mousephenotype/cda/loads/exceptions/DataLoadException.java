@@ -21,6 +21,14 @@ package org.mousephenotype.cda.loads.exceptions;
  */
 public class DataLoadException extends Exception {
 
+    public enum DETAIL {
+        GENERAL_ERROR,
+        NONEXISTENT_COLONY_ID,
+        NO_GENE_FOR_ALLELE
+    }
+
+    private DETAIL detail = DETAIL.GENERAL_ERROR;
+
     public DataLoadException() {
         super();
     }
@@ -43,5 +51,25 @@ public class DataLoadException extends Exception {
 
     public DataLoadException(String message, Throwable cause, boolean enableSuppression, boolean writeableStackTrace) {
         super(message, cause, enableSuppression, writeableStackTrace);
+    }
+
+
+
+    public DataLoadException(DETAIL detail) {
+        super();
+        this.detail = detail;
+    }
+
+    public DataLoadException(String message, DETAIL detail) {
+        super(message);
+        this.detail = detail;
+    }
+
+    public DETAIL getDetail() {
+        return detail;
+    }
+
+    public void setDetail(DETAIL detail) {
+        this.detail = detail;
     }
 }
