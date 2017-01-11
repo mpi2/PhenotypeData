@@ -1308,6 +1308,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     }
 
+
     /*
      * End of method for PhenotypeCallSummarySolrImpl
      */
@@ -1323,6 +1324,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
         for (BasicBean xAxisBean : xAxisBeans) {
             HeatMapCell cell = new HeatMapCell();
+
             if (geneToTopLevelMpMap.containsKey(accession)) {
 
                 List<String> mps = geneToTopLevelMpMap.get(accession);
@@ -1331,21 +1333,23 @@ public class AbstractGenotypePhenotypeService extends BasicService {
                     if (mps.contains(xAxisBean.getId())) {
                         cell.setxAxisKey(xAxisBean.getId());
                         cell.setLabel("Data Available");
-                        cell.setStatus("Data Available");
+                        cell.addStatus("Data Available");
                     } else {
-                        cell.setStatus("No MP");
+                        cell.addStatus("No MP");
                     }
                 } else {
                     // System.err.println("mps are null or empty");
-                    cell.setStatus("No MP");
+                    cell.addStatus("No MP");
                 }
             } else {
                 // if no doc found for the gene then no data available
-                cell.setStatus("No Data Available");
+                cell.addStatus("No Data Available");
             }
             xAxisToCellMap.put(xAxisBean.getId(), cell);
         }
         row.setXAxisToCellMap(xAxisToCellMap);
+
+        System.out.println("---ROW " + row);
 
         return row;
     }

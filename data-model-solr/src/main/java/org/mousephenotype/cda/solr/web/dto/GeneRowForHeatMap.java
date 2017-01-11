@@ -21,8 +21,11 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,10 +51,18 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
         this.xAxisToCellMap = paramToCellMap;
     }
 
-    public GeneRowForHeatMap(String accession){
+    public GeneRowForHeatMap(String accession, String symbol, List<BasicBean> xAxis){
         this.accession=accession;
+        this.symbol = symbol;
+        for (BasicBean bean : xAxis){
+        	xAxisToCellMap.put(bean.getName(), new HeatMapCell(bean.getName(), HeatMapCell.THREE_I_NO_DATA));
+		}
     }
-    
+
+	public GeneRowForHeatMap(String accession){
+		this.accession=accession;
+	}
+
     public String getAccession() {
         return this.accession;
     }
