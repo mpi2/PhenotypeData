@@ -3,14 +3,14 @@
     "urlPath": "batchQuery",
     "toolName": "IMPC dataset batch query",
     "imagePath": "/img/batchquery.jpg",
-    "description": "This is a tool to allow querying a list of unique IDs or symbols via cut-and-paste or file upload. The columns in results can be customized. The resulting dataset can be exported as TSV or Excel format.",
+    "description": "A tool to allow querying a list of unique IDs or symbols via cut-and-paste or file upload. The columns in results can be customized. The resulting dataset can be exported as TSV or Excel format.",
     "site":"internal"
   },
   {
     "urlPath": "gene2go",
     "toolName": "GO annotations to phenotyped IMPC genes",
     "imagePath": "/img/go_logo.png",
-    "description": "This is a tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms. It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. The dataset can be exported as TSV or Excel format.",
+    "description": "A tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms. It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. The dataset can be exported as TSV or Excel format.",
     "site":"internal"
   },
   {
