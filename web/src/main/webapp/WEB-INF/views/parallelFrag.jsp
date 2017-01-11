@@ -38,7 +38,8 @@
 <script type="text/javascript">
 	
 	var selectedProcedures =  ${selectedProcedures};
-	
+	var significanceMap; // <gene, <booleanTruthValues>>
+
 	$(function() {
 				
 		$('#parallel-title').html("Gene KO effect comparator ");
@@ -69,8 +70,8 @@
 			'defaultValues' : defaults
 		});
 
-		var columns = _(foods[0]).keys().filter(function(d,i){ return (d != "group");}); // don't show group column in table
-		var axes = _(columns).without('name', 'accession', 'group');
+		var columns = _(foods[0]).keys().filter(function(d,i){ return (d != "group" && d!= "significantMask");}); // don't show group column in table
+		var axes = _(columns).without('name', 'accession', 'group', 'significantMask');
 		var foodgroups = [ "Mutant", "Mean"];
 		var colors = {
 		    "Mutant" : '#0978A1',
@@ -91,7 +92,7 @@
 //			$('#legend').append("<div class='item'><div class='color' style='background: " + colors[group] + "';></div><div class='key'>" + group + "</div></div>");
 //		});
 
-		var pc = parallel(dimensions, colors, defaults, highlighter);
+		var pc = parallel(dimensions, colors, defaults, highlighter, axes);
 //		var pie = piegroups(foods, foodgroups, colors, 'group');
 //		var totals = pietotals([ 'in', 'out' ], [ _(foods).size(), 0 ]);
 
@@ -235,7 +236,8 @@
 			.replace(/\0/g, "\\0"); // replace nulls with 0
 		};
 
-	});
+
+    });
 </script>
 	
     

@@ -107,7 +107,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		addAbnormalMaOntology();
 		addAbnormalEmapOntology();
 		mpIdToMp = populateMpIdToMp();
-		logger.info("Populated {} mp terms to map", mpIdToMp.size());
+		logger.info("  Populated {} mp terms to map", mpIdToMp.size());
 	}
 
 
@@ -206,7 +206,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								try {
 									doc.addAbnormalMpTerm(mpIdToMp.get(mpId).getMpTerm());
 								} catch (NullPointerException e) {
-									logger.warn("Cannot get information from mpIdToMp map for id {}", mpId);
+									logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
 								}
 							}
 						}
@@ -216,7 +216,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								try {
 									doc.addIncreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
 								} catch (NullPointerException e) {
-									logger.warn("Cannot get information from mpIdToMp map for id {}", mpId);
+									logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
 								}
 							}
 						}
@@ -227,10 +227,10 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 									try {
 										doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
 									} catch (NullPointerException e) {
-										logger.warn("Cannot get information from mpIdToMp map for id {}", mpId);
+										logger.warn(" Cannot get information from mpIdToMp map for id {}", mpId);
 									}
 								} else {
-									logger.warn("Cannot find MP term for MP ID {}", mpId);
+									logger.warn(" Cannot find MP term for MP ID {}", mpId);
 								}
 							}
 						}
@@ -251,7 +251,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								}
 							}
 							else {
-								logger.debug("EMAP Id {} is not mapped to an EMAPA Id", emapId);
+								logger.debug(" EMAP Id {} is not mapped to an EMAPA Id", emapId);
 							}
 						}
 						pipelineCore.addBean(doc);
@@ -747,7 +747,7 @@ protected void addAbnormalEmapOntology(){
 					 */
 					// Do not use the Service here because it has likely not been loaded yet (or is pointing to the wrong context
 					// ObservationType obs = os.getObservationTypeForParameterStableId(parameter.getStableId());
-//					logger.info("Getting type from observations for parameter {}: Got {}", parameter.getStableId(), parameterToObservationTypeMap.get(parameter.getStableId()));
+//					logger.info("  Getting type from observations for parameter {}: Got {}", parameter.getStableId(), parameterToObservationTypeMap.get(parameter.getStableId()));
 					ObservationType obs = parameterToObservationTypeMap.get(parameter.getStableId());
 					if (obs != null){
 						observationType = obs;

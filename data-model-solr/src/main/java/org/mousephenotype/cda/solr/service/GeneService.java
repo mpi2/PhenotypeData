@@ -737,37 +737,21 @@ public class GeneService extends BasicService implements WebStatus{
 	/**
 	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
 	 * @param geneIds
-     * @param url the host name
 	 * @return
 	 * @throws SolrServerException, IOException
 	 */
-	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, String url)
-			throws SolrServerException, IOException {
+	public List<GeneDTO> getProductionStatusForGeneSet(Set<String> geneIds)
+	throws SolrServerException, IOException {
 			
-		Map<String, String> geneToStatusMap = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("*:*");
 		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
 		solrQuery.setRows(100000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS);
-		
-		//System.out.println("getProductionStatusForGeneSet solr url " + SolrUtils.getBaseURL(solr) + "/select?" + solrQuery);
-		
+		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS, GeneDTO.MARKER_SYMBOL);
+
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
-		//System.out.println("solr query in basicbean=" + solrQuery);
-		SolrDocumentList res = rsp.getResults();
-		for (SolrDocument doc : res) {
-			
-			String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
-			if (doc.containsKey(GeneDTO.LATEST_MOUSE_STATUS)) {
-				String prodStatusIcons = "Neither production nor phenotyping status available ";				
-				Map<String, String> prod = this.getProductionStatus(accession, url);
-				prodStatusIcons = ( prod.get("productionIcons").equalsIgnoreCase("") || prod.get("phenotypingIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons") + prod.get("phenotypingIcons");
-				geneToStatusMap.put(accession,prodStatusIcons);
-							
-			}
-		}
-		return geneToStatusMap;
+
+		return rsp.getBeans(GeneDTO.class);
 	}
 	
 	

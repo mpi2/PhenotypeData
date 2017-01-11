@@ -375,4 +375,38 @@ public class CommonUtils {
 
         return retVal;
     }
+
+
+    /**
+     * @param truthValues
+     * @return List of "integer" bit mask representation of the truth values.
+     * Only 31 bits are set even though Doubles are returned from Math.pow as we plan to use these masks in javascript
+     * which handles signed int.
+     *
+     * This was written for the parallel coordinates tool.
+     */
+    public static List<Double> getBitMask(List<Boolean> truthValues){
+
+        List<Double> masks = new ArrayList<>();
+        Double currentMask = new Double(0);
+        int maskIndex = 0;
+
+        for (int i = 0; i < truthValues.size(); i++ ){
+            if (i % 31 == 0 && i != 0){ // only 31 bits as they're signed
+                masks.add(new Double(currentMask));
+                currentMask = new Double(0);
+                maskIndex ++;
+            }
+            if (truthValues.get(i)){
+                currentMask += Math.pow(new Double(2), new Double(i - 31*maskIndex));
+            }
+        }
+
+        masks.add(currentMask);
+
+        return masks;
+
+    }
+
+
 }

@@ -204,6 +204,7 @@ public class LandingPageController {
 
         // get counts for intersections
         JSONArray sets = new JSONArray();
+        JSONArray wholeSets = new JSONArray();
         List<String> keysIndex = new ArrayList<>(allSets.keySet()); // need this to get the index of each key
 
         // Add whole sets to the object
@@ -211,6 +212,7 @@ public class LandingPageController {
             JSONArray currentSets = new JSONArray();
             currentSets.add(i);
             sets.add(getSetVennFormat(keysIndex.get(i), currentSets, allSets.get(keysIndex.get(i)).size()));
+            wholeSets.add(getSetJSON(keysIndex.get(i), currentSets, allSets.get(keysIndex.get(i))));
         }
 
         // Intersections of 2 sets at a time
@@ -219,8 +221,9 @@ public class LandingPageController {
                 JSONArray currentSets = new JSONArray();
                 currentSets.add(i);
                 currentSets.add(j);
-                int intersectionSize = CollectionUtils.intersection(allSets.get(keysIndex.get(i)), allSets.get(keysIndex.get(j))).size();
-                sets.add(getSetVennFormat(null, currentSets, intersectionSize));
+                Set<String> intersection = new HashSet<>(CollectionUtils.intersection(allSets.get(keysIndex.get(i)), allSets.get(keysIndex.get(j))));
+                sets.add(getSetVennFormat(null, currentSets, intersection.size()));
+                wholeSets.add(getSetJSON(keysIndex.get(i), currentSets, intersection));
             }
         }
 
@@ -232,9 +235,10 @@ public class LandingPageController {
                     currentSets.add(i);
                     currentSets.add(j);
                     currentSets.add(k);
-                    int intersectionSize = CollectionUtils.intersection(allSets.get(keysIndex.get(i)),
-                            CollectionUtils.intersection(allSets.get(keysIndex.get(j)), allSets.get(keysIndex.get(k)))).size();
-                    sets.add(getSetVennFormat(null, currentSets, intersectionSize));
+                    Set<String> intersection = new HashSet<>(CollectionUtils.intersection(allSets.get(keysIndex.get(i)),
+                            CollectionUtils.intersection(allSets.get(keysIndex.get(j)), allSets.get(keysIndex.get(k)))));
+                    sets.add(getSetVennFormat(null, currentSets, intersection.size()));
+                    wholeSets.add(getSetJSON(keysIndex.get(i), currentSets, intersection));
                 }
             }
         }
@@ -249,7 +253,8 @@ public class LandingPageController {
                 CollectionUtils.intersection(allSets.get(keysIndex.get(1)), CollectionUtils.intersection(allSets.get(keysIndex.get(2)),allSets.get(keysIndex.get(3))))).size();
         sets.add(getSetVennFormat(null, currentSets, intersectionSize));
 
-        System.out.println("SETS HERE :::: " + sets);
+        System.out.println("SIZES HERE :::: " + sets);
+        System.out.println("SETS HERE :::: " + wholeSets);
 
         // return in right format for venn diagram http://benfred.github.io/venn.js/examples/styled.html
         JSONArray result = new JSONArray();
@@ -275,6 +280,19 @@ public class LandingPageController {
         set.put("size", size);
 
         return set;
+
+    }
+
+    private JSONObject getSetJSON(String label, JSONArray sets, Set<String> set) {
+
+        JSONObject obj = new JSONObject();
+        obj.put("sets", sets);
+        if (label != null) {
+            obj.put("label", label);
+        }
+        obj.put("set", set);
+
+        return obj;
 
     }
 
