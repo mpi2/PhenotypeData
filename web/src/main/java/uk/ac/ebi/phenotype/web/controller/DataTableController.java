@@ -436,8 +436,10 @@ public class DataTableController {
 									Set<Object> mvalSet = new HashSet<>(mvals);
 									for (Object mval : mvalSet) {
 										// so that we can compare
-										//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
-										foundIds.add("\"" + mval.toString() + "\"");
+										String valstr = "\"" + mval.toString() + "\"";
+
+											//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
+											foundIds.add(valstr);
 									}
 								}
 								else if (dataTypeName.equals("ensembl") ){
@@ -445,7 +447,9 @@ public class DataTableController {
 									Collection<Object> gvals = docMap.get("ensembl_gene_id");
 									Set<Object> gvalSet = new HashSet<>(gvals);
 									for (Object gval : gvalSet) {
-										foundIds.add("\"" + gval + "\"");
+										if (gval.toString().startsWith("ENSMUSG")) {
+											foundIds.add("\"" + gval + "\"");
+										}
 									}
 								}
 								else {
@@ -503,13 +507,12 @@ public class DataTableController {
 
 		int resultsCount = 0;
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
-			String thisVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
+			String thisVal = nonFoundIds.get(i).toString();
+			String displayVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
 			List<String> rowData = new ArrayList<String>();
 			for ( int l=0; l<fieldCount; l++ ){
-
-				//System.out.println("check exists for " + thisVal + " : "+ queryIds.contains(thisVal) );
 				if ( queryIds.contains(thisVal)) {
-					rowData.add(l == fieldIndex ? thisVal : NA);
+					rowData.add(l == fieldIndex ? displayVal : NA);
 				}
 			}
 			if (rowData.size() != 0) {
@@ -519,8 +522,6 @@ public class DataTableController {
 		}
 
 
-//		System.out.println("OUTPUT: " + j.toString());
-//		System.out.println("SIZE: "+ resultsCount);
 		if ( resultsCount == 0 && nonFoundIds.size() != 0 && foundIds.size() == 0){
 			// cases where id is not found in our database
 			return "";
