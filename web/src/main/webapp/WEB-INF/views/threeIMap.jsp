@@ -4,8 +4,7 @@
 
 
 	<!-- link type='text/css' rel='stylesheet' href='${baseUrl}/css/geneHeatmapStyling.css'  /-->
-	<script type='text/javascript'  src="http://code.highcharts.com/modules/heatmap.js"></script><!-- this will need to be local as https causes highcharts to fail otherwise as insecure content error-->
-  	
+
  	<table class="hitMap">
  	
    <thead>

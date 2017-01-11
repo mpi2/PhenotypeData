@@ -256,21 +256,21 @@ public class MpService extends BasicService implements WebStatus{
 		solrQuery.addFacetField("top_level_mp_term_id");
 		solrQuery.setRows(0);
 		QueryResponse rsp = solr.query(solrQuery);
-		System.out.println("solr query in basicbean="+solrQuery);
 
 		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff:rsp.getFacetFields()){
 			for(Count count: ff.getValues()){
 				String mpArray[]=count.getName().split("__");
 				BasicBean bean=new BasicBean();
-				bean.setName(mpArray[0]);
-				bean.setId(mpArray[1]);
+				bean.setName(mpArray[1]);
+				bean.setId(mpArray[0]);
 				allTopLevelPhenotypes.add(bean);
 			}
-
 		}
+
 		return allTopLevelPhenotypes;
 	}
+
 
     public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException, IOException{
 

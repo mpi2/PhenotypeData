@@ -419,7 +419,7 @@
             
             function refreshResult(){
             	$('div#infoBlock, div#errBlock, div#bqResult').html(''); // refresh first
-	            var sampleData = "<p><span id='sample'>Showing maximum of 10 records for how your data looks like</span>";
+	            var sampleData = "<p><span id='sample'>Showing maximum of 10 records for how your data looks like.<br>For complete dataset of your search, please use export buttons.</span>";
             	$('div#infoBlock').html("Your datatype of search: " + $('input.bq:checked').attr('id').toUpperCase() + sampleData);
             }
             
@@ -518,36 +518,37 @@
             		if ( aVals[i] == "" ){
             			continue;
             		}
-            		var currId = aVals[i].toUpperCase().trim();
-            		var errMsg = "ERROR - " + currId + " is not an expected " + dataType + " identifier. Please try changing the datatype input.";
+            		var oriId = aVals[i].trim();
+            		var uppercaseId = aVals[i].toUpperCase().trim();
+            		var errMsg = "ERROR - " + uppercaseId + " is not an expected " + dataType + " identifier. Please try changing the datatype input.";
             		
             		if ( dataType == 'disease' ){
-            			if ( ! (currId.indexOf('OMIM') == 0 ||  
-            				 currId.indexOf('ORPHANET') == 0 || 
-            				 currId.indexOf('DECIPHER') == 0) ){
+            			if ( ! (uppercaseId.indexOf('OMIM') == 0 ||
+            				 uppercaseId.indexOf('ORPHANET') == 0 ||
+            				 uppercaseId.indexOf('DECIPHER') == 0) ){
             			
                 			alert(errMsg);
                 			return false;
                 		}
             		}
-            		else if ( dataType == 'gene' && currId.indexOf('MGI:') != 0 ){
+            		else if ( dataType == 'gene' && uppercaseId.indexOf('MGI:') != 0 ){
             			alert(errMsg);
             			return false;
             		}
-            		else if ( dataType == 'ensembl' && currId.indexOf('ENSMUSG') != 0 ){
+            		else if ( dataType == 'ensembl' && uppercaseId.indexOf('ENSMUSG') != 0 ){
             			alert(errMsg);
             			return false;
             		}
-            		else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && currId.indexOf(dataType.toUpperCase()) !== 0 ){
+            		else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && uppercaseId.indexOf(dataType.toUpperCase()) !== 0 ){
             			
                 		alert(errMsg);
                 		return false;
             		}
-            		
-            		aVals2.push('"' + currId + '"');
+            		var thisId = dataType=="human_marker_symbol" ? uppercaseId : oriId;
+            		aVals2.push('"' + thisId + '"');
             	}
-            	
-        		return aVals2.join(",");
+
+            	return aVals2.join(",");
         	}
         	
             function getUniqIdsStr(inputIdListStr) {
@@ -567,7 +568,7 @@
 
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
-                    "bSort": true, // true is default 
+                    "bSort": true, // true is default
                     "processing": true,
                     "paging": false,
                     //"serverSide": false,  // do not want sorting to be processed from server, false by default
@@ -635,7 +636,6 @@
             	               	}).submit();
                     		}
                     		else if ( formId == 'pastedIds' ){
-                    		    alert("here");
                     			idList = parsePastedList($('textarea#pastedList').val(), currDataType);
                     			doExport(currDataType, fileType, fllist, idList, isForm);
                     		}
@@ -739,7 +739,7 @@
 										  	<td><input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' checked="checked" >IMPC Gene
 										  	<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Gene
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
-										  	<input type="radio" id="hp" value="HP:0003119" name="dataType" class='bq'>HP<br>
+										  	<input type="radio" id="hp" value="HP:0000400" name="dataType" class='bq'>HP<br>
 										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
 										  	<input type="radio" id="anatomy" value="MA:0000141 or EMAPA:16246 (ok to mix)" name="dataType" class='bq'>ANATOMY</td></tr>
 										  	<tr><td><span class='cat'>Symbol:</span></td>

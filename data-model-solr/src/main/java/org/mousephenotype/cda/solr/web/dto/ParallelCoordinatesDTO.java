@@ -18,8 +18,10 @@ package org.mousephenotype.cda.solr.web.dto;
 
 import net.sf.json.JSONObject;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.utilities.CommonUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @since 2015/07
@@ -50,16 +52,21 @@ public class ParallelCoordinatesDTO {
 
 		for (ParameterDTO parameter: allColumns){
 			if (getSortValue(parameter.getStableId()) % 100 != 0){
-				values.put(parameter.getName(), new MeanBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
+				values.put(parameter.getName(), new MeanBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null, false));
 			}
 		}
 	}
 
-	public void addValue( ParameterDTO parameter, Double mean){
+	public void addValue( ParameterDTO parameter, Double mean, Boolean significant){
 
-		if (getSortValue(parameter.getStableId()) % 100 != 0){ // we want to display the param
+		boolean overalllSignificant = significant;
+		if (values.containsKey(parameter.getName())){
+			overalllSignificant = overalllSignificant || values.get(parameter.getName()).getSignificant();
+		}
+
+		if (getSortValue(parameter.getStableId()) % 100 != 0){ // we want to display the param, convention in sort IDs
 			if (!values.containsKey(parameter.getName()) || (values.containsKey(parameter.getName()) && (values.get(parameter.getName()).mean == null || Math.abs(values.get(parameter.getName()).mean) > Math.abs(mean)))){
-				values.put(parameter.getName(), new MeanBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), mean));
+				values.put(parameter.getName(), new MeanBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), mean, overalllSignificant));
 			}
 		}
 
@@ -74,6 +81,7 @@ public class ParallelCoordinatesDTO {
 			res += "\"gene\": \"" + geneSymbol + "(" + geneAccession + ")\",";
 			res += "\"group\": \"" + group + "\",";
 			int i = 0;
+			List<Boolean> significant = new ArrayList<>();
 
 			if (this.values.values().size() > 0){
 
@@ -87,12 +95,17 @@ public class ParallelCoordinatesDTO {
 					if (i < this.values.size()){
 						res +=", ";
 					}
+					significant.add(mean.getSignificant());
 				}
 			}
+
+			res += ", \"significantMask\": [" + CommonUtils.getBitMask(significant).stream().map(item -> item.toString()).collect(Collectors.joining(",")) + "]";
+//			System.out.println("---" + res);
 		}
 		
 		return res;
 	}
+
 
 
 	public boolean isComplete(){
@@ -130,14 +143,16 @@ public class ParallelCoordinatesDTO {
 		String parameterName;
 		Integer parameterStableKey;
 		Double mean;
+		Boolean significant;
 
 		public MeanBean(String unit, String parameterStableId,
-		String parameterName, Integer parameterStableKey, Double mean){
+		String parameterName, Integer parameterStableKey, Double mean, Boolean significant){
 			this.unit = unit;
 			this.parameterName = parameterName;
 			this.parameterStableId = parameterStableId;
 			this.parameterStableKey = parameterStableKey;
 			this.mean = mean;
+			this.significant = significant;
 		}
 		public Double getMean(){
 			return mean;
@@ -168,6 +183,14 @@ public class ParallelCoordinatesDTO {
 		}
 		public void setMean(Double mean) {
 			this.mean = mean;
+		}
+
+		public Boolean getSignificant() {
+			return significant;
+		}
+
+		public void setSignificant(Boolean significant) {
+			this.significant = significant;
 		}
 
 		/**

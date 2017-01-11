@@ -4,8 +4,8 @@
 
 
 	<link type='text/css' rel='stylesheet' href='${baseUrl}/css/geneHeatmapStyling.css'  />
-	<script type='text/javascript'  src="http://code.highcharts.com/modules/heatmap.js"></script><!-- this will need to be local as https causes highcharts to fail otherwise as insecure content error-->
- 	<script>
+
+	<script>
  		$(function() {
 	    var header_height = 0;
 	    $('table th span').each(function() {
@@ -21,25 +21,26 @@
    <thead>
      <tr> 
         <th class="gene-heatmap-header"><span>Gene</span></th>
-        <th><span>Mice Produced</span></th>
+        <th><span>Availability</span></th>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" >
-          	<th title="${xAxisBean.name}"><span class="vertical">${xAxisBean.name}</span></th>
+            <th title="${xAxisBean.name}"><span class="vertical"><a href="${baseUrl}/phenotypes/${xAxisBean.id}">${xAxisBean.name}</a></span></th>
         </c:forEach>
      </tr>
    </thead>
    
 	 <c:forEach items="${geneRows}" var="row">
      	<tr>
-     		<td>${row.symbol}</td>
+            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a></td>
       	<td>${row.miceProduced}</td>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" > 
-          <td  
+          <td
            	<c:choose>
-            	
-             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'Data Available'}">style="background-color:rgb(191, 75, 50)"</c:when>
-             	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'No MP'}">style="background-color: rgb(247, 157, 70)"</c:when>
-           		<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'No Data Available' }">style="background-color: rgb(230, 242, 246)"</c:when>
-     
+
+                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Deviance Significant'}">style="background-color:rgb(191, 75, 50)"</c:when>
+                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Could not analyse'}">style="background-color: rgb(119, 119, 119)"</c:when>
+                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Data analysed, no significant call'}">style="background-color: rgb(247, 157, 70)"</c:when>
+                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'No data' }">style="background-color: rgb(230, 242, 246)"</c:when>
+
             </c:choose>
             title="${xAxisBean.name}"></td>
         </c:forEach>
