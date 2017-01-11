@@ -1513,7 +1513,7 @@ public class FileExportController {
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String NA = "Info not available";
-		String oriDataTypeNAme = dataTypeName;
+		String oriDataTypeName = dataTypeName;
 
 		if (dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")) {
 			dataTypeName = "gene";
@@ -1620,7 +1620,7 @@ public class FileExportController {
 					}
 					// System.out.println("idlink id: " + accStr);
 
-					if (!oriDataTypeNAme.equals("ensembl") && !oriDataTypeNAme.equals("marker_symbol")) {
+					if (!oriDataTypeName.equals("ensembl") && !oriDataTypeName.equals("marker_symbol")) {
 						foundIds.add("\"" + accStr + "\"");
 					}
 
@@ -1685,14 +1685,21 @@ public class FileExportController {
 							Collection<Object> vals = docMap.get(fieldName);
 							Set<Object> valSet = new HashSet<>(vals);
 
-							if (oriDataTypeNAme.equals("ensembl") && fieldName.equals("ensembl_gene_id")) {
+							if (oriDataTypeName.equals("ensembl") && fieldName.equals("ensembl_gene_id")) {
 								for (Object val : valSet) {
-									foundIds.add("\"" + val + "\"");
+									if (val.toString().startsWith("ENSMUSG")) {
+										foundIds.add("\"" + val + "\"");
+									}
 								}
 							}
-							if (oriDataTypeNAme.equals("marker_symbol") && fieldName.equals("marker_symbol")) {
+							if (oriDataTypeName.equals("marker_symbol") && fieldName.equals("marker_symbol")) {
 								for (Object val : valSet) {
-									foundIds.add("\"" + val.toString().toUpperCase() + "\"");
+									String lstr = val.toString().toLowerCase();
+									for(String qid : queryIds) {
+										if (qid.replaceAll("\"", "").toLowerCase().equals(lstr)) {
+											foundIds.add("\"" + val.toString() + "\"");
+										}
+									}
 								}
 							}
 							else if (dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName)) {
@@ -1739,15 +1746,35 @@ public class FileExportController {
 		}
 
 		// find the ids that are not found and displays them to users
+		//System.out.println("found ids: " + foundIds);
 		List<String> nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
+		//System.out.println("non found ids: " + nonFoundIds);
 
+		int fieldIndex = 0;
+		if ( nonFoundIds.size() > 0){
+			int fc = 0;
+			for(String colstr : colList){
+				if (oriDataTypeName.equals(colstr)){
+					fieldIndex = fc;
+					break;
+				}
+				fc++;
+			}
+		}
 
+		// query goes to the right column
 		for (int i = 0; i < nonFoundIds.size(); i++) {
 			List<String> data = new ArrayList<String>();
-			for (int l = 0; l < cols.length; l++) {
-				data.add(l == 0 ? nonFoundIds.get(i).toString().replaceAll("\"", "") : NA);
+			String thisVal = nonFoundIds.get(i).toString();
+			String displayVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
+			for (int l = 0; l < colList.size(); l++) {
+				if ( queryIds.contains(thisVal)) {
+					data.add(l == fieldIndex ? displayVal : NA);
+				}
 			}
-			rowData.add(StringUtils.join(data, "\t"));
+			if (data.size() != 0) {
+				rowData.add(StringUtils.join(data, "\t"));
+			}
 		}
 
 		return rowData;

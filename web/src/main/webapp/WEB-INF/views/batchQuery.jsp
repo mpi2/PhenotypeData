@@ -518,6 +518,7 @@
             		if ( aVals[i] == "" ){
             			continue;
             		}
+            		var oriId = aVals[i].trim();
             		var currId = aVals[i].toUpperCase().trim();
             		var errMsg = "ERROR - " + currId + " is not an expected " + dataType + " identifier. Please try changing the datatype input.";
             		
@@ -544,7 +545,7 @@
                 		return false;
             		}
             		
-            		aVals2.push('"' + currId + '"');
+            		aVals2.push('"' + oriId + '"');
             	}
             	
         		return aVals2.join(",");
