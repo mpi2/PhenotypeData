@@ -2,9 +2,13 @@
 
 td{
 	border:1px solid #efefef;
-	padding: 0.5em 0.7em 0.5em 0.2em; word-wrap: break-word;
-	width: 10px;
+	word-wrap: break-word;
 }
+
+#geneHeatmap td, th {
+    padding: 0.5em 0.7em 0.3em 0.3em;
+}
+
 table, tr, td, th {
  border:1px solid #efefef;
  word-wrap: break-word;

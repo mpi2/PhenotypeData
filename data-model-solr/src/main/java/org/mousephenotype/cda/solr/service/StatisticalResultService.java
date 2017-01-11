@@ -21,6 +21,7 @@ import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -438,7 +439,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	query.addField(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE);
     	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
     	query.addField(StatisticalResultDTO.PROCEDURE_NAME);
-    	query.addField(StatisticalResultDTO.MARKER_SYMBOL);
+		query.addField(StatisticalResultDTO.MARKER_SYMBOL);
+		query.addField(StatisticalResultDTO.SIGNIFICANT);
     	query.setRows(Integer.MAX_VALUE);
 
     	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
@@ -471,7 +473,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, "Normal", allParameterNames);
 
 	    for (ParameterDTO param : allParameterNames){
-	        currentBean.addValue(param, 0.0);
+	        currentBean.addValue(param, 0.0, false);
 	    }
 
 	    beans.put(ParallelCoordinatesDTO.DEFAULT, currentBean);
@@ -489,7 +491,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		for (ParameterDTO param : allParameterNames){
 	        sum.put(param.getName(), new Double(0.0));
-	        n.put(param.getName(), 0);
+			n.put(param.getName(), 0);
 	    }
 
 		for (ParallelCoordinatesDTO pc : beans.values()){
@@ -501,7 +503,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	    for (ParameterDTO param : allParameterNames){
 	    	Double mean = sum.get(param.getName()) / n.get(param.getName());
-	        currentBean.addValue(param, mean);
+	        currentBean.addValue(param, mean, false);
 	    }
 
 	    beans.put(ParallelCoordinatesDTO.MEAN, currentBean);
@@ -536,7 +538,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	         String group = (gene == null) ? "WT " : "Mutant";
 	         ParameterDTO p = parameters.get(doc.getParameterStableId());
 		     ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group) ? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  geneAccession, group, parameters.values());
-		     currentBean.addValue(p, val);
+		     currentBean.addValue(p, val, doc.getSignificant());
 		     beans.put(gene + " " + group, currentBean);
 	    }
 
@@ -1243,54 +1245,56 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     }
 
 
-    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, Map<String, Set<String>> map, String resourceName) {
+    public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(Set<String> geneAccessions, List<BasicBean> topLevelMps) throws IOException, SolrServerException {
 
-        GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
-        Map<String, HeatMapCell> paramPValueMap = new HashMap<>();
 
-        if (gene != null) {
-            row.setSymbol(gene.getSymbol());
-        } else {
-            System.err.println("error no symbol for gene " + accession);
-        }
+		HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
 
-        for (String procedure : map.get(accession)) {
-        	paramPValueMap.put(procedure, null);
-        }
+		SolrQuery q = new SolrQuery()
+				.setQuery(geneAccessions.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.MARKER_ACCESSION_ID + ":(\"", "\")")))
+				.addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+				.addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+				.addField(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME)
+				.addField(StatisticalResultDTO.MARKER_SYMBOL)
+				.addField(StatisticalResultDTO.STATUS)
+				.addField(StatisticalResultDTO.SIGNIFICANT)
+				.setRows(Integer.MAX_VALUE);
 
-        SolrQuery q = new SolrQuery()
-                .setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"")
-                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
-                .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
-                .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-                .addField(StatisticalResultDTO.STATUS)
-                .addField(StatisticalResultDTO.P_VALUE)
-                .setRows(10000000);
-        q.add("group", "true");
-        q.add("group.field", StatisticalResultDTO.PROCEDURE_STABLE_ID);
-        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
+		q.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*"); // Ignore MPATH or other types of associations
+		q.add("group", "true");
+		q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
+		q.set("group.limit", Integer.MAX_VALUE);
 
-        try {
-        	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
-            for (Group group:  groups.getValues()){
-            	HeatMapCell cell = new HeatMapCell();
-            	SolrDocument doc = group.getResult().get(0);
-            	cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
-            	if(doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")){
-            		cell.setStatus("Significant call");
-            	} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
-            			cell.setStatus("Data analysed, no significant call");
-            		} else {
-            			cell.setStatus("Could not analyse");
-            		}
-            	paramPValueMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
-            }
-            row.setXAxisToCellMap(paramPValueMap);
-        } catch (SolrServerException | IOException ex) {
-            logger.error(ex.getMessage());
-        }
-        return row;
+		GroupCommand groups = solr.query(q, SolrRequest.METHOD.POST).getGroupResponse().getValues().get(0);
+
+		for (Group group:  groups.getValues()){
+           	// Each group contains data for a different gene
+           	String geneAcc = group.getGroupValue();
+			SolrDocumentList docs = group.getResult();
+			GeneRowForHeatMap row = new GeneRowForHeatMap(geneAcc, docs.get(0).getFieldValue(StatisticalResultDTO.MARKER_SYMBOL).toString(), topLevelMps); // Fill row with default values for all mp top levels
+
+			for (SolrDocument doc : docs) {
+				List<String> currentTopLevelMps = (ArrayList<String>)doc.get(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME);
+				for (String mp : currentTopLevelMps) {
+					HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
+					if (doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")) {
+						cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
+					} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
+						cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
+					} else {
+						cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
+					}
+
+					row.add(cell);
+				}
+			}
+			geneRowMap.put(geneAcc,row);
+		}
+
+        return geneRowMap;
     }
+
+
 
     public List<GeneRowForHeatMap> getSecondaryProjectMapForResource(String resourceName) {
 
@@ -1333,11 +1337,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		        	}
 		            cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
 		            if(doc.getFieldValue(StatisticalResultDTO.P_VALUE)!=null && Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
-		            	cell.setStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
+		            	cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
 		            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
-		            		cell.setStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
+		            		cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
 		            } else {
-		            	cell.setStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
+		            	cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
 		            }
 		            xAxisToCellMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
 			        row.setXAxisToCellMap(xAxisToCellMap);
@@ -1445,17 +1449,17 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 					if (mps.contains(xAxisBean.getId())) {
 						cell.setxAxisKey(xAxisBean.getId());
 						cell.setLabel("Data Available");
-						cell.setStatus("Data Available");
+						cell.addStatus("Data Available");
 					} else {
-						cell.setStatus("No MP");
+						cell.addStatus("No MP");
 					}
 				} else {
 					// System.err.println("mps are null or empty");
-					cell.setStatus("No MP");
+					cell.addStatus("No MP");
 				}
 			} else {
 				// if no doc found for the gene then no data available
-				cell.setStatus("No Data Available");
+				cell.addStatus("No Data Available");
 			}
 			xAxisToCellMap.put(xAxisBean.getId(), cell);
 		}

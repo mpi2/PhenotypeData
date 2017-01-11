@@ -122,7 +122,7 @@ public class SolrIndex {
 		map.put("gene", "mgi_accession_id");
 		map.put("ensembl", "ensembl_gene_id");
 		map.put("mp", "mp_id");
-		map.put("anatomy", "id");
+		map.put("anatomy", "anatomy_id");
 		map.put("disease", "disease_id");
 		map.put("hp", "hp_id");
 		map.put("phenodigm", "hp_id");
@@ -225,7 +225,7 @@ public class SolrIndex {
 		else {
 			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
 		}
-		//System.out.println("queryStr: " + querystr);
+//		System.out.println("queryStr: " + querystr);
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
@@ -239,9 +239,9 @@ public class SolrIndex {
 
 		// retrieves wanted fields
 		query.setFields(fllist);
-		System.out.println("QUERY: " + query);
+		//System.out.println(dataTypeName + " - BATCHQUERY: " + query);
 		QueryResponse response = server.query(query, METHOD.POST);
-		System.out.println("response: "+ response);
+		//System.out.println("response: "+ response);
 
 		return response;
 	}
