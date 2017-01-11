@@ -519,36 +519,36 @@
             			continue;
             		}
             		var oriId = aVals[i].trim();
-            		var currId = aVals[i].toUpperCase().trim();
-            		var errMsg = "ERROR - " + currId + " is not an expected " + dataType + " identifier. Please try changing the datatype input.";
+            		var uppercaseId = aVals[i].toUpperCase().trim();
+            		var errMsg = "ERROR - " + uppercaseId + " is not an expected " + dataType + " identifier. Please try changing the datatype input.";
             		
             		if ( dataType == 'disease' ){
-            			if ( ! (currId.indexOf('OMIM') == 0 ||  
-            				 currId.indexOf('ORPHANET') == 0 || 
-            				 currId.indexOf('DECIPHER') == 0) ){
+            			if ( ! (uppercaseId.indexOf('OMIM') == 0 ||
+            				 uppercaseId.indexOf('ORPHANET') == 0 ||
+            				 uppercaseId.indexOf('DECIPHER') == 0) ){
             			
                 			alert(errMsg);
                 			return false;
                 		}
             		}
-            		else if ( dataType == 'gene' && currId.indexOf('MGI:') != 0 ){
+            		else if ( dataType == 'gene' && uppercaseId.indexOf('MGI:') != 0 ){
             			alert(errMsg);
             			return false;
             		}
-            		else if ( dataType == 'ensembl' && currId.indexOf('ENSMUSG') != 0 ){
+            		else if ( dataType == 'ensembl' && uppercaseId.indexOf('ENSMUSG') != 0 ){
             			alert(errMsg);
             			return false;
             		}
-            		else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && currId.indexOf(dataType.toUpperCase()) !== 0 ){
+            		else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && uppercaseId.indexOf(dataType.toUpperCase()) !== 0 ){
             			
                 		alert(errMsg);
                 		return false;
             		}
-            		
-            		aVals2.push('"' + oriId + '"');
+            		var thisId = dataType=="human_marker_symbol" ? uppercaseId : oriId;
+            		aVals2.push('"' + thisId + '"');
             	}
-            	
-        		return aVals2.join(",");
+
+            	return aVals2.join(",");
         	}
         	
             function getUniqIdsStr(inputIdListStr) {

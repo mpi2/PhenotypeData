@@ -1481,7 +1481,6 @@ public class FileExportController {
 
 		if (batchIdList.size() > 0) {
 			// do the rest
-			System.out.println("size: "+ batchIdList.size());
 			// batch solr query
 			batchIdListStr = StringUtils.join(batchIdList, ",");
 			solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
@@ -1506,6 +1505,8 @@ public class FileExportController {
 			results.addAll(solrResponse.getResults());
 		}
 
+		String oriDataTypeName = dataTypeName;
+
 		if ( dataTypeName.contains("marker_symbol")){
 			dataTypeName = "marker_symbol";
 		}
@@ -1513,21 +1514,21 @@ public class FileExportController {
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String NA = "Info not available";
-		String oriDataTypeName = dataTypeName;
-
-		if (dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")) {
-			dataTypeName = "gene";
-		}
 
 		Map<String, String> dataTypeId = new HashMap<>();
-		dataTypeId.put("gene", "mgi_accession_id");
-		dataTypeId.put("mp", "mp_id");
-		dataTypeId.put("anatomy", AnatomyDTO.ANATOMY_ID);
+		dataTypeId.put("gene", GeneDTO.MGI_ACCESSION_ID);
+		dataTypeId.put("marker_symbol", GeneDTO.MGI_ACCESSION_ID);
+		dataTypeId.put("ensembl", GeneDTO.MGI_ACCESSION_ID);
+
+		dataTypeId.put("mp", MpDTO.MP_ID);
+		dataTypeId.put("anatomy", "anatomy_id");
 		dataTypeId.put("hp", "hp_id");
 		dataTypeId.put("disease", "disease_id");
 
 		Map<String, String> dataTypePath = new HashMap<>();
 		dataTypePath.put("gene", "genes");
+		dataTypePath.put("marker_symbol", "genes");
+		dataTypePath.put("ensembl", "genes");
 		dataTypePath.put("mp", "phenotypes");
 		dataTypePath.put("anatomy", "anatomy");
 		dataTypePath.put("hp", "");
@@ -1573,7 +1574,7 @@ public class FileExportController {
 			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
 
 			if (docMap.get("mgi_accession_id") != null
-					&& !(dataTypeName.equals("anatomy") || dataTypeName.equals("disease"))) {
+					&& !(oriDataTypeName.equals("anatomy") || oriDataTypeName.equals("disease"))) {
 				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
 
 				for (Object acc : mgiGeneAccs) {
@@ -1620,7 +1621,7 @@ public class FileExportController {
 					}
 					// System.out.println("idlink id: " + accStr);
 
-					if (!oriDataTypeName.equals("ensembl") && !oriDataTypeName.equals("marker_symbol")) {
+					if (!oriDataTypeName.equals("ensembl") && !dataTypeName.equals("marker_symbol")) {
 						foundIds.add("\"" + accStr + "\"");
 					}
 
@@ -1692,14 +1693,19 @@ public class FileExportController {
 									}
 								}
 							}
-							if (oriDataTypeName.equals("marker_symbol") && fieldName.equals("marker_symbol")) {
+							if (oriDataTypeName.equals("mouse_marker_symbol") && fieldName.equals("marker_symbol")) {
 								for (Object val : valSet) {
-									String lstr = val.toString().toLowerCase();
+									String lstr = "\"" +val.toString().toLowerCase() + "\"";
 									for(String qid : queryIds) {
-										if (qid.replaceAll("\"", "").toLowerCase().equals(lstr)) {
-											foundIds.add("\"" + val.toString() + "\"");
+										if ( qid.toLowerCase().equals(lstr)){
+											foundIds.add(qid);
 										}
 									}
+								}
+							}
+							else if (oriDataTypeName.equals("human_marker_symbol") && fieldName.equals("human_gene_symbol")) {
+								for (Object val : valSet) {
+									foundIds.add("\"" + val.toString() + "\"");
 								}
 							}
 							else if (dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName)) {
@@ -1746,15 +1752,17 @@ public class FileExportController {
 		}
 
 		// find the ids that are not found and displays them to users
+		//System.out.println("query ids: " + queryIds);
 		//System.out.println("found ids: " + foundIds);
 		List<String> nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
 		//System.out.println("non found ids: " + nonFoundIds);
 
 		int fieldIndex = 0;
 		if ( nonFoundIds.size() > 0){
+			String fname = oriDataTypeName.equals("human_marker_symbol") ? "human_gene_symbol" : dataTypeName;
 			int fc = 0;
 			for(String colstr : colList){
-				if (oriDataTypeName.equals(colstr)){
+				if (fname.equals(colstr)){
 					fieldIndex = fc;
 					break;
 				}

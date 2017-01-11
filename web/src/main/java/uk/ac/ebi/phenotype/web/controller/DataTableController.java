@@ -258,6 +258,7 @@ public class DataTableController {
 
     public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) {
 
+    	String oriDataTypeName = dataTypeName;
     	if ( dataTypeName.contains("marker_symbol")){
     		dataTypeName = "marker_symbol";
 		}
@@ -281,17 +282,18 @@ public class DataTableController {
     	int totalDocs = results.size();
 
 		Map<String, String> dataTypeId = new HashMap<>();
-    	dataTypeId.put("gene", "mgi_accession_id");
-    	dataTypeId.put("marker_symbol", "mgi_accession_id");
-    	dataTypeId.put("ensembl", "mgi_accession_id");
+		dataTypeId.put("gene", GeneDTO.MGI_ACCESSION_ID);
+		dataTypeId.put("marker_symbol", GeneDTO.MGI_ACCESSION_ID);
+		dataTypeId.put("ensembl", GeneDTO.MGI_ACCESSION_ID);
 
-    	dataTypeId.put("mp", "mp_id");
+		dataTypeId.put("mp", MpDTO.MP_ID);
     	dataTypeId.put("anatomy", "anatomy_id");
     	dataTypeId.put("hp", "hp_id");
     	dataTypeId.put("disease", "disease_id");
 
     	Map<String, String> dataTypePath = new HashMap<>();
     	dataTypePath.put("gene", "genes");
+		dataTypePath.put("marker_symbol", "genes");
     	dataTypePath.put("mp", "phenotypes");
     	dataTypePath.put("anatomy", "anatomy");
     	dataTypePath.put("disease", "disease");
@@ -319,7 +321,7 @@ public class DataTableController {
 			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
 			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
 
-			if ( docMap.get("mgi_accession_id") != null && !( dataTypeName.equals("anatomy") || dataTypeName.equals("disease") ) ) {
+			if ( docMap.get("mgi_accession_id") != null && !( oriDataTypeName.equals("anatomy") || oriDataTypeName.equals("disease") ) ) {
 				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
 
 				for( Object acc : mgiGeneAccs ){
@@ -367,11 +369,11 @@ public class DataTableController {
 
 					String qryField = null;
 					String imgQryField = null;
-					if ( dataTypeName.equals("gene") || dataTypeName.equals("ensembl") ){
+					if ( oriDataTypeName.equals("gene") || oriDataTypeName.equals("ensembl") ){
 						qryField = "mgi_accession_id";
 						imgQryField = "gene_accession_id";
 					}
-					else if (dataTypeName.equals("anatomy") ){
+					else if (oriDataTypeName.equals("anatomy") ){
 						qryField = "anatomy_id";
 						imgQryField = "ma_id";
 					}
@@ -427,22 +429,39 @@ public class DataTableController {
 							Set<Object> valSet = new HashSet<>(vals);
 							value = StringUtils.join(valSet, ", ");
 
-							if ( !dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
+							if ( !oriDataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
 								//String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
 								String coreName = null;
-								if ( dataTypeName.equals("marker_symbol") ){
+								if ( oriDataTypeName.equals("mouse_marker_symbol") ){
 									coreName = "gene";
 									Collection<Object> mvals = docMap.get("marker_symbol");
+									Set<Object> mvalSet = new HashSet<>(mvals);
+									for (Object mval : mvalSet) {
+
+										// so that we can compare
+										String valstr = "\"" + mval.toString().toLowerCase() + "\"";
+
+										for(String qid : queryIds){
+											if ( qid.toLowerCase().equals(valstr)){
+												foundIds.add(qid);
+											}
+										}
+									}
+								}
+								else if (oriDataTypeName.equals("human_marker_symbol") ){
+									coreName = "gene";
+									Collection<Object> mvals = docMap.get("human_gene_symbol");
 									Set<Object> mvalSet = new HashSet<>(mvals);
 									for (Object mval : mvalSet) {
 										// so that we can compare
 										String valstr = "\"" + mval.toString() + "\"";
 
-											//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
-											foundIds.add(valstr);
+										//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
+										foundIds.add(valstr);
 									}
+
 								}
-								else if (dataTypeName.equals("ensembl") ){
+								else if (oriDataTypeName.equals("ensembl") ){
 									coreName = "gene";
 									Collection<Object> gvals = docMap.get("ensembl_gene_id");
 									Set<Object> gvalSet = new HashSet<>(gvals);
@@ -460,7 +479,7 @@ public class DataTableController {
 								value = "<a target='_blank' href='" + hostName + baseUrl + "/" + dataTypePath.get(coreName) + "/" + value + "'>" + value + "</a>";
 
 							}
-							else if ( dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
+							else if ( oriDataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
 								foundIds.add("\"" + value + "\"");
 							}
 						} catch ( ClassCastException c) {
@@ -495,9 +514,11 @@ public class DataTableController {
 		//System.out.println("non found ids: " + nonFoundIds);
 		int fieldIndex = 0;
 		if ( nonFoundIds.size() > 0){
+
+			String fname = oriDataTypeName.equals("human_marker_symbol") ? "human_gene_symbol" : dataTypeName;
 			int fc = 0;
 			for(String fn : flList){
-				if (dataTypeName.equals(fn)){
+				if (fname.equals(fn)){
 					fieldIndex = fc;
 					break;
 				}

@@ -225,7 +225,7 @@ public class SolrIndex {
 		else {
 			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
 		}
-		System.out.println("queryStr: " + querystr);
+//		System.out.println("queryStr: " + querystr);
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
@@ -239,9 +239,9 @@ public class SolrIndex {
 
 		// retrieves wanted fields
 		query.setFields(fllist);
-		System.out.println(dataTypeName + " - BATCHQUERY: " + query);
+		//System.out.println(dataTypeName + " - BATCHQUERY: " + query);
 		QueryResponse response = server.query(query, METHOD.POST);
-		System.out.println("response: "+ response);
+		//System.out.println("response: "+ response);
 
 		return response;
 	}
