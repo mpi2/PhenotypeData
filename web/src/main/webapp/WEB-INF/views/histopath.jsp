@@ -81,7 +81,7 @@
 							Free Text
 							</th>
 							<th>
-							Age in Days
+							Age in Weeks
 							</th>
 							<th>
 							Zygosity
@@ -211,7 +211,7 @@
 										</c:forEach> 
 									</td>
 									<td>
-									${histRow.ageInDays}
+									${histRow.ageInWeeks}
 									</td>
 									<td>
 									${histRow.zygosity}
