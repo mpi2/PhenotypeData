@@ -298,8 +298,22 @@ public class DataTableController {
     	dataTypePath.put("anatomy", "anatomy");
     	dataTypePath.put("disease", "disease");
 
+    	// for sorting by user query list
+		Map<String, Integer> sortCol = new HashMap<>();
+		sortCol.put("gene", 0);
+		sortCol.put("mouse_marker_symbol", 1);
+		sortCol.put("human_marker_symbol", 2);
+		sortCol.put("ensembl", 1);
+		sortCol.put("hp", 0);
+		sortCol.put("mp", 0);
+		sortCol.put("anatomy", 0);
+		sortCol.put("disease", 0);
+
+
+    	Map<String, List<String>> idRow = new HashMap<>();
+
     	JSONObject j = new JSONObject();
-        j.put("aaData", new Object[0]);
+		j.put("aaData", new Object[0]);
 
 		j.put("iTotalRecords", totalDocs);
 		j.put("iTotalDisplayRecords", totalDocs);
@@ -457,7 +471,10 @@ public class DataTableController {
 										String valstr = "\"" + mval.toString() + "\"";
 
 										//foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
-										foundIds.add(valstr);
+										if ( queryIds.contains(valstr)) {
+											foundIds.add(valstr);
+										}
+										//System.out.println("Found human symbol: " + mval);
 									}
 
 								}
@@ -504,14 +521,18 @@ public class DataTableController {
 					}
 				}
 			}
-			j.getJSONArray("aaData").add(rowData);
-
+			//j.getJSONArray("aaData").add(rowData);
+			for (Object s : docMap.get(flList.get(sortCol.get(oriDataTypeName)))){
+				String qStr = s.toString();
+				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
+				//System.out.println(oriDataTypeName + " - SEARCH: " + qStr);
+				idRow.put("\"" + qStr + "\"", rowData);
+			}
 		}
 
 		// find the ids that are not found and displays them to users
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
 		//System.out.println("Found ids: "+ new ArrayList(foundIds));
-		//System.out.println("non found ids: " + nonFoundIds);
 		int fieldIndex = 0;
 		if ( nonFoundIds.size() > 0){
 
@@ -528,16 +549,24 @@ public class DataTableController {
 
 		int resultsCount = 0;
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
-			String thisVal = nonFoundIds.get(i).toString();
+			String thisVal = oriDataTypeName.equals("mouse_marker_symbol") ? nonFoundIds.get(i).toString().toLowerCase() : nonFoundIds.get(i).toString();
 			String displayVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
 			List<String> rowData = new ArrayList<String>();
 			for ( int l=0; l<fieldCount; l++ ){
-				if ( queryIds.contains(thisVal)) {
-					rowData.add(l == fieldIndex ? displayVal : NA);
+				if (oriDataTypeName.equals("mouse_marker_symbol")){
+					if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds,","), thisVal)) {
+						rowData.add(l == fieldIndex ? displayVal : NA);
+					}
+				}
+				else {
+					if (queryIds.contains(thisVal)) {
+						rowData.add(l == fieldIndex ? displayVal : NA);
+					}
 				}
 			}
 			if (rowData.size() != 0) {
-				j.getJSONArray("aaData").add(rowData);
+				//j.getJSONArray("aaData").add(rowData);
+				idRow.put(thisVal, rowData);
 			}
 			resultsCount += rowData.size();
 		}
@@ -547,6 +576,18 @@ public class DataTableController {
 			// cases where id is not found in our database
 			return "";
 		}
+
+		// output result as the order of users query list
+		for(String q : queryIds){
+			if ( oriDataTypeName.equals("mouse_marker_symbol")){
+				j.getJSONArray("aaData").add(idRow.get(q.toLowerCase()));
+			}
+			else {
+				j.getJSONArray("aaData").add(idRow.get(q));
+			}
+		}
+
+
 		return j.toString();
     }
 
