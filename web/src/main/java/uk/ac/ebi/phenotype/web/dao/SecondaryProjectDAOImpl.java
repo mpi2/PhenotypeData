@@ -22,6 +22,7 @@
 package uk.ac.ebi.phenotype.web.dao;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
 import org.mousephenotype.cda.solr.service.GeneService;
@@ -69,7 +70,7 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 
 
 	@Override
-	public Set<String> getAccessionsBySecondaryProjectId(String projectId) throws SQLException {
+	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId) throws SQLException {
 
 		return secondaryProjectDAO.getAccessionsBySecondaryProjectId(projectId);
 	}
@@ -82,7 +83,10 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 		List<BasicBean> parameters = this.getXAxisForHeatMap();
 
 		// get a list of genes for the project - which will be the row headers
-		Set<String> accessions = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg");
+		Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg");
+		Set<String>accessions=SecondaryProjectBean.getAccessionsFromBeans(projectBeans);
+        Map<String,String>accessionToGroupLabelMap=SecondaryProjectBean.getAccessionsToLabelMapFromBeans(projectBeans);
+		
 		String url = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl");
 		List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions);
 		Map<String, GeneRowForHeatMap> rows = statisticalResultService.getSecondaryProjectMapForGeneList(accessions, parameters);
@@ -103,7 +107,9 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 					cell.addStatus(HeatMapCell.THREE_I_NO_DATA); // set all the cells to No Data Available
 				}
 			}
-
+			if(accessionToGroupLabelMap.containsKey(accession)){
+				row.setGroupLabel(accessionToGroupLabelMap.get(accession));
+			}
 			geneRows.add(row);
 		}
 
@@ -111,6 +117,7 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 		return geneRows;
 
 	}
+
 
 	@Override
 	public List<BasicBean> getXAxisForHeatMap() throws IOException, SolrServerException {
@@ -121,4 +128,6 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 
 		return mp;
 	}
+	
+	
 }
