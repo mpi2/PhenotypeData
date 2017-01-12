@@ -75,8 +75,8 @@ public class FileExportUtils {
             }
             String[] titles = dataRows.get(0).split("\t");
 
-            wb = new ExcelWorkBook(titles, noTitleRows, fileName).fetchWorkBook();
-            wb.write(output);
+			wb = new ExcelWorkBook(titles, noTitleRows, fileName).fetchWorkBook();
+			wb.write(output);
             output.close();
             System.out.println(outfile + " written successfully");
         }

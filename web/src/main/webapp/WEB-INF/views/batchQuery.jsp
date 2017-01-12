@@ -568,7 +568,7 @@
 
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
-                    "bSort": true, // true is default
+                    "bSort": false, // true is default
                     "processing": true,
                     "paging": false,
                     //"serverSide": false,  // do not want sorting to be processed from server, false by default
@@ -584,7 +584,7 @@
                    /*  "columnDefs": [                
                         { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
                     ], */
-                    "aaSorting": [[ 0, "asc" ]],  // default sort column order
+                    "aaSorting": [[ 0, "asc" ]],  // default sort column order, won't work if bSort is false
                     /*"aoColumns": [
                         {"bSearchable": true, "sType": "html", "bSortable": true},
                         {"bSearchable": true, "sType": "string", "bSortable": true},

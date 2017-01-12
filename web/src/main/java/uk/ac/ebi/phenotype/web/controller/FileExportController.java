@@ -1534,6 +1534,18 @@ public class FileExportController {
 		dataTypePath.put("hp", "");
 		dataTypePath.put("disease", "disease");
 
+		// for sorting by user query list
+		Map<String, Integer> sortCol = new HashMap<>();
+		sortCol.put("gene", 0);
+		sortCol.put("mouse_marker_symbol", 1);
+		sortCol.put("human_marker_symbol", 2);
+		sortCol.put("ensembl", 1);
+		sortCol.put("hp", 0);
+		sortCol.put("mp", 0);
+		sortCol.put("anatomy", 0);
+		sortCol.put("disease", 0);
+
+
 		// column names
 		// String idLinkColName = dataTypeId.get(dataType) + "_link";
 		String idLinkColName = "id_link";
@@ -1554,7 +1566,8 @@ public class FileExportController {
 			colList.add(cols[i]);
 		}
 
-		Map<String,List<String>> idRowData = new HashMap<>();
+		Map<String,List<String>> idRow = new HashMap<>();
+
 		List<String> rowData = new ArrayList<>();
 		rowData.add(StringUtils.join(colList, "\t"));
 
@@ -1705,7 +1718,9 @@ public class FileExportController {
 							}
 							else if (oriDataTypeName.equals("human_marker_symbol") && fieldName.equals("human_gene_symbol")) {
 								for (Object val : valSet) {
-									foundIds.add("\"" + val.toString() + "\"");
+									if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds, ","), val.toString())) {
+										foundIds.add("\"" + val.toString() + "\"");
+									}
 								}
 							}
 							else if (dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName)) {
@@ -1747,8 +1762,17 @@ public class FileExportController {
 					}
 				}
 			}
-			rowData.add(StringUtils.join(data, "\t"));
-			//idRowData.put()
+			//rowData.add(StringUtils.join(data, "\t"));
+			//idRow.put("\"" + docMap.get(colList.get(sortCol.get(oriDataTypeName)+1)).toArray()[0] + "\"", data);
+			for (Object s : docMap.get(colList.get(sortCol.get(oriDataTypeName)+1))) {
+				String qStr = s.toString();
+				//String qStr = docMap.get(colList.get(sortCol.get(oriDataTypeName) + 1)).toArray()[0].toString();
+				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
+				//System.out.println(oriDataTypeName + " - SEARCH: " + qStr);
+				//System.out.println(data);
+				idRow.put("\"" + qStr + "\"", data);
+			}
+
 		}
 
 		// find the ids that are not found and displays them to users
@@ -1773,17 +1797,36 @@ public class FileExportController {
 		// query goes to the right column
 		for (int i = 0; i < nonFoundIds.size(); i++) {
 			List<String> data = new ArrayList<String>();
-			String thisVal = nonFoundIds.get(i).toString();
+			String thisVal = oriDataTypeName.equals("mouse_marker_symbol") ? nonFoundIds.get(i).toString().toLowerCase() : nonFoundIds.get(i).toString();
 			String displayVal = nonFoundIds.get(i).toString().replaceAll("\"", "");
 			for (int l = 0; l < colList.size(); l++) {
-				if ( queryIds.contains(thisVal)) {
-					data.add(l == fieldIndex ? displayVal : NA);
+				if (oriDataTypeName.equals("mouse_marker_symbol")){
+					if ( StringUtils.containsIgnoreCase(StringUtils.join(queryIds,","), thisVal)) {
+						data.add(l == fieldIndex ? displayVal : NA);
+					}
+				}
+				else {
+					if (queryIds.contains(thisVal)) {
+						data.add(l == fieldIndex ? displayVal : NA);
+					}
 				}
 			}
 			if (data.size() != 0) {
-				rowData.add(StringUtils.join(data, "\t"));
+				//rowData.add(StringUtils.join(data, "\t"));
+				idRow.put(thisVal, data);
 			}
 		}
+		// output result as the order of users query list
+		for(String q : queryIds){
+			if ( oriDataTypeName.equals("mouse_marker_symbol")){
+				rowData.add(StringUtils.join(idRow.get(q.toLowerCase()), "\t"));
+			}
+			else {
+				//System.out.println(q + " -- " + idRow.get(q));
+				rowData.add(StringUtils.join(idRow.get(q), "\t"));
+			}
+		}
+
 
 		return rowData;
 	}
