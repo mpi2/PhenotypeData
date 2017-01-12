@@ -93,9 +93,9 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 			GeneRowForHeatMap row = rows.containsKey(accession) ? rows.get(accession) : new GeneRowForHeatMap(accession, gene.getMarkerSymbol() , parameters);
 			// Mouse production status
 
-			String prodStatusIcons = "Neither production nor phenotyping status available ";
 			Map<String, String> prod = geneService.getProductionStatus(accession, url);
-			prodStatusIcons = ( prod.get("productionIcons").equalsIgnoreCase("") || prod.get("phenotypingIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons") + prod.get("phenotypingIcons");
+			String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
+			prodStatusIcons = prodStatusIcons.equals("") ? "No" : prodStatusIcons;
 			row.setMiceProduced(prodStatusIcons);
 
 			if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums

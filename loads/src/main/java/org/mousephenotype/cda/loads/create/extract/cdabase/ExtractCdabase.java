@@ -118,7 +118,6 @@ public class ExtractCdabase implements CommandLineRunner {
         try {
             boolean exists = sqlUtils.columnInSchemaMysql(cdabaseDataSource.getConnection(), "BATCH_JOB_INSTANCE", "JOB_INSTANCE_ID");
             if ( ! exists) {
-                logger.info("Creating SPRING BATCH tables");
                 sqlUtils.createSpringBatchTables(cdabaseDataSource);
             }
 
