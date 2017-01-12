@@ -108,7 +108,9 @@ public class DccSqlUtils {
      * characters after it.
      *
      * If the colony id does not contain an underscore, or the colony id is in the DO_NOT_TRUNCATE list, simply return
-     * it unmodified.
+     * it.
+     *
+     * NOTE: Some colony ids have leading and/or trailing spaces. Always trim them before returning them.
      *
      * @param colonyId
      *
@@ -124,7 +126,7 @@ public class DccSqlUtils {
             }
         }
 
-        return retVal;
+        return retVal.trim();
     }
 
 
@@ -1595,7 +1597,7 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given {@link Specimen} into the specimen table. Duplicates are ignored.
+     * Inserts the given {@link Specimen} into the specimen table. Duplicates are ignored. ColonyIds are trimmed first.
      *
      * @param specimen the specimen to be inserted
      * @param datasourceShortName the data source short name (e.g. EuroPhenome, IMPC, 3I, etc.)
@@ -1610,7 +1612,7 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap();
 
         try {
-            parameterMap.put("colonyId", specimen.getColonyID());
+            parameterMap.put("colonyId", specimen.getColonyID().trim());
             parameterMap.put("datasourceShortName", datasourceShortName);
             parameterMap.put("gender", specimen.getGender().value());
             parameterMap.put("isBaseline", specimen.isIsBaseline() ? 1 : 0);
