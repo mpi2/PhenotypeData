@@ -24,9 +24,16 @@ public class HistopathPageTableRow{
 	private String anatomyName;
 	private String zygosity;
 	private long ageInDays;
+	private long ageInWeeks;
 	
 	
 	
+	public long getAgeInWeeks() {
+		return ageInWeeks;
+	}
+	public void setAgeInWeeks(long ageInWeeks) {
+		this.ageInWeeks = ageInWeeks;
+	}
 	public String getZygosity() {
 		return zygosity;
 	}

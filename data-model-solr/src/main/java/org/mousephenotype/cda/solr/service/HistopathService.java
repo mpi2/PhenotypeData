@@ -76,14 +76,14 @@ public class HistopathService {
 				for (ObservationDTO obs : uniqueSequenceIdsToObservations.get(sequenceId)) {
 					row.setZygosity(obs.getZygosity());
 					String sequenceString="";
+					if(obs.getAgeInWeeks()!=null){
+						row.setAgeInWeeks(obs.getAgeInWeeks());
+					}
 					if (obs.getSequenceId() != null) {
 						//System.out.println("sequenceId in observation="+obs.getSequenceId());
 						row.setSequenceId(obs.getSequenceId());
 						sequenceString=Integer.toString(obs.getSequenceId());
-						if(obs.getAgeInDays()!=null){
-							row.setAgeInDays(obs.getAgeInDays());
-						}
-						
+
 					} else {
 						//System.out.println("sequence_id is null");
 					}
