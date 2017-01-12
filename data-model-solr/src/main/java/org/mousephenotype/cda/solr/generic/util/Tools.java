@@ -311,8 +311,8 @@ public class Tools {
 			additionalInfos.add("disease_term");
 		}
 		else if ( corename.equals("anatomy") ) {
-			mainAttrs.add("id");
-			mainAttrs.add("term");
+			mainAttrs.add("anatomy_id");
+			mainAttrs.add("anatomy_term");
 
 			// gene core stuff
 			mainAttrs.add("mgi_accession_id");
