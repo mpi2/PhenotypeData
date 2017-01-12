@@ -591,7 +591,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         // Check for null/empty values. Values are not required - sometimes there is a parameterStatus instead.
         String value = simpleParameter.getValue();
         if ((value == null) || value.trim().isEmpty()) {
-            if (simpleParameter.getParameterStatus().trim().isEmpty()) {
+            if ((simpleParameter.getParameterStatus() == null) || (simpleParameter.getParameterStatus().trim().isEmpty())) {
                 logger.warn("Null/empty value and status found for simple parameter {}, dcc experiment {}. Skipping parameter ...",
                             simpleParameter.getParameterID(), dccExperimentDTO);
             }
