@@ -24,6 +24,7 @@ package org.mousephenotype.cda.db.dao;
  */
 
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -55,9 +57,9 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 
 	@Transactional(readOnly = true)
 	@Override
-	public Set<String> getAccessionsBySecondaryProjectId(String projectId)
+	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId)
 		throws SQLException {
-		Set<String> accessions = new TreeSet<>();
+		Set<SecondaryProjectBean> projectBeans = new LinkedHashSet<>();
 
 		String query = "select * from genes_secondary_project where secondary_project_id="
 			+ "\"" + projectId + "\"";// +" limit 10";
@@ -66,14 +68,17 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-				String result = resultSet.getString(1);
-				accessions.add(result);
+				String acc = resultSet.getString("acc");
+				String groupLabel=resultSet.getString("group_label");
+				SecondaryProjectBean bean=new SecondaryProjectBean(acc, groupLabel);
+				
+				projectBeans.add(bean);
 			}
 		}
 		// accessions.add("MGI:104874");//just for testing as no others seem to
 		// have mice produced so far for idg
 		// accessions.add("MGI:2683087");
-		return accessions;
+		return projectBeans;
 	}
 
 }

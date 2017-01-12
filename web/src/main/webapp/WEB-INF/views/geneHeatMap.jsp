@@ -21,6 +21,7 @@
    <thead>
      <tr> 
         <th class="gene-heatmap-header"><span>Gene</span></th>
+        <th><span>Family</span></th>
         <th><span>Availability</span></th>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" >
             <th title="${xAxisBean.name}"><span class="vertical"><a href="${baseUrl}/phenotypes/${xAxisBean.id}">${xAxisBean.name}</a></span></th>
@@ -30,7 +31,7 @@
    
 	 <c:forEach items="${geneRows}" var="row">
      	<tr>
-            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a></td>
+            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a></td><td>${row.groupLabel}</td>
       	<td>${row.miceProduced}</td>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" > 
           <td

@@ -22,6 +22,7 @@
 package uk.ac.ebi.phenotype.web.dao;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 
@@ -43,7 +44,7 @@ public interface SecondaryProjectService {
         threeI
     }
 
-    Set<String> getAccessionsBySecondaryProjectId(String projectId)throws SQLException;
+    Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId)throws SQLException;
 
     List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException, SQLException;
 

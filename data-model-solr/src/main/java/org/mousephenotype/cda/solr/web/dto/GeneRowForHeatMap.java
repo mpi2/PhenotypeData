@@ -40,10 +40,18 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     private Boolean primaryPhenotype=false;
 	Map<String, HeatMapCell> xAxisToCellMap=new HashMap<>();
 	private Float lowestPValue=new Float(1000000);//just large number so we don't get null pointers
+	private String groupLabel;
+	
+	
+    public String getGroupLabel() {
+		return groupLabel;
+	}
 
-	
-	
-    public Map<String, HeatMapCell> getXAxisToCellMap() {
+	public void setGroupLabel(String groupLabel) {
+		this.groupLabel = groupLabel;
+	}
+
+	public Map<String, HeatMapCell> getXAxisToCellMap() {
         return xAxisToCellMap;
     }
 
@@ -97,45 +105,19 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 	}
     
     public int compareTo(GeneRowForHeatMap compareRow) {
-		int compareNumberOfMps =  0;
-		Collection<HeatMapCell> compareValues = compareRow.getXAxisToCellMap().values();
-		for(HeatMapCell cell:compareValues){
-			if(cell.getStatus().equals("Data Available")){
-				compareNumberOfMps++;
-			}
-		}
-		Collection<HeatMapCell> values = this.xAxisToCellMap.values();
-		int thisNumberOfMps=0;
-		for(HeatMapCell cell:values){
-			if(cell.getStatus().equals("Data Available")){
-				thisNumberOfMps++;
-			}
-		}
-		if(thisNumberOfMps>compareNumberOfMps){
-			return -1;
-		}
-		if(thisNumberOfMps<compareNumberOfMps){
-			return 1;
-		}
-		if(thisNumberOfMps==0 && compareNumberOfMps==0){
-			//compare if they have No Data Available as there first result
-			HeatMapCell compareCell = compareRow.getXAxisToCellMap().entrySet().iterator().next().getValue();
-			HeatMapCell thisCell = (HeatMapCell)this.getXAxisToCellMap().entrySet().iterator().next().getValue();
-			if(!thisCell.getStatus().equals("No Data Available") && compareCell.getStatus().equals("No Data Available")){
-				return -1;
-			}
-			if(thisCell.getStatus().equals("No Data Available") && !compareCell.getStatus().equals("No Data Available")){
-				return 1;
-			}
-		}
-//		Float compareQuantity =  compareRow.getLowestPValue(); 
-//		if(this.lowestPValue>compareQuantity){
-//			return 1;
-//		}
-//		if(this.lowestPValue<compareQuantity){
-//			return -1;
-//		}
-		return 0;
+    	String thisGroupLabel="";
+    	String thatGroupLabel="";
+    	if(this.getGroupLabel()!=null){
+    		thisGroupLabel=this.getGroupLabel();
+    	}
+    	if(compareRow.getGroupLabel()!=null){
+    		thatGroupLabel=compareRow.getGroupLabel();
+    		
+    	}
+    	if(thisGroupLabel.compareTo(thatGroupLabel)==0){
+    		return this.getSymbol().compareTo(compareRow.getSymbol());
+    	}
+		return thisGroupLabel.compareTo(thatGroupLabel);
 	}
 
 	public Float getLowestPValue() {
