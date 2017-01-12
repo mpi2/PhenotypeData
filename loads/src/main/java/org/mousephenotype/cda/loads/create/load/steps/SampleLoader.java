@@ -64,6 +64,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private LoadUtils                  loadUtils = new LoadUtils();
 
     private Set<String> missingColonyIds = new HashSet<>();
+    private Set<String> noGeneForAllele = new HashSet<>();
     private Set<String> unexpectedStage  = new HashSet<>();
 
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
@@ -189,7 +190,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {
             String colonyId = missingColonyIdsIt.next();
-            logger.error("Missing phenotyped_colony information for dcc-supplied colony " + colonyId + ". Skipping...");
+            logger.error("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'. Skipping...");
         }
 
         Iterator<String> unexpectedStageIt = unexpectedStage.iterator();
@@ -230,8 +231,9 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         int productionCenterId;
         PhenotypedColony phenotypedColony = phenotypedColonyMap.get(specimen.getColonyID());
         if (phenotypedColony == null) {
-            logger.error("Skipping specimen {}: colony id not found: {}", specimen.getSpecimenID(), specimen.getColonyID());
-            missingColonyIds.add(specimen.getColonyID());
+            if ( ! DccSqlUtils.knownBadColonyIds.contains(specimen.getColonyID())) {
+                missingColonyIds.add(specimen.getColonyID());
+            }
             return counts;
         } else {
             phenotypingCenterId = phenotypedColony.getPhenotypingCentre().getId();
@@ -262,7 +264,20 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         try {
             biologicalModel = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbol);
         } catch (DataLoadException e) {
-            System.err.println("Unable to get/create biological model for colonyId '" + specimen.getColonyID() + "'.");
+            switch (e.getDetail()) {
+                case NO_GENE_FOR_ALLELE:
+                    noGeneForAllele.add(specimen.getColonyID());
+                    break;
+
+                case NONEXISTENT_COLONY_ID:
+                    missingColonyIds.add(specimen.getColonyID());
+                    break;
+
+                default:
+                    logger.error("Unable to get/create biological model for colonyId '" + specimen.getColonyID() + "'.");
+                    break;
+            }
+
             return counts;
         }
 
