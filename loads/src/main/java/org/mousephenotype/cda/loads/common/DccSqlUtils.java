@@ -483,73 +483,329 @@ public class DccSqlUtils {
         return parameterAssociation;
     }
 
-    public List<MediaParameter> getMediaParameters(long procedure_pk) {
-        final String query = "SELECT * FROM mediaParameter WHERE procedure_pk = :procedure_pk";
 
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("procedure_pk", procedure_pk);
+    private class MediaParameterEx {
+        private long procedure_pk;
+        private MediaParameter mediaParameter;
 
-        List<MediaParameter> list = npJdbcTemplate.query(query, parameterMap, new MediaParameterRowMapper());
+        public long getProcedure_pk() {
+            return procedure_pk;
+        }
 
-        return list;
+        public void setProcedure_pk(long procedure_pk) {
+            this.procedure_pk = procedure_pk;
+        }
+
+        public MediaParameter getMediaParameter() {
+            return mediaParameter;
+        }
+
+        public void setMediaParameter(MediaParameter mediaParameter) {
+            this.mediaParameter = mediaParameter;
+        }
+    }
+    private class MediaParameterExRowMapper implements RowMapper<MediaParameterEx> {
+
+        @Override
+        public MediaParameterEx mapRow(ResultSet rs, int rowNum) throws SQLException {
+            MediaParameterEx mediaParameterEx = new MediaParameterEx();
+
+            mediaParameterEx.setProcedure_pk(rs.getLong("procedure_pk"));
+            mediaParameterEx.setMediaParameter(new MediaParameterRowMapper().mapRow(rs, rowNum));
+
+            return mediaParameterEx;
+        }
     }
 
-    public List<MediaSampleParameter> getMediaSampleParameters(long procedure_pk) {
-        final String query = "SELECT * FROM mediaSampleParameter WHERE procedure_pk = :procedure_pk";
+    public Map<Long, List<MediaParameter>> getMediaParameters() {
+        Map<Long, List<MediaParameter>> retVal = new HashMap<>();
+
+        final String query =
+                "SELECT * FROM mediaParameter";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("procedure_pk", procedure_pk);
 
-        List<MediaSampleParameter> list = npJdbcTemplate.query(query, parameterMap, new MediaSampleParameterRowMapper());
+        List<MediaParameterEx> list = npJdbcTemplate.query(query, parameterMap, new MediaParameterExRowMapper());
+        for (MediaParameterEx mpEx : list) {
+            List<MediaParameter> mpList = retVal.get(mpEx.getProcedure_pk());
+            if (mpList == null) {
+                mpList = new ArrayList<>();
+                retVal.put(mpEx.getProcedure_pk(), mpList);
+            }
+            mpList.add(mpEx.getMediaParameter());
+        }
 
-        return list;
+        return retVal;
     }
-    
-    public List<OntologyParameter> getOntologyParameters(long procedure_pk) {
-        final String query = "SELECT * FROM ontologyParameter WHERE procedure_pk = :procedure_pk";
+
+    private class MediaSampleParameterEx {
+        private long procedure_pk;
+        private MediaSampleParameter mediaSampleParameter;
+
+        public long getProcedure_pk() {
+            return procedure_pk;
+        }
+
+        public void setProcedure_pk(long procedure_pk) {
+            this.procedure_pk = procedure_pk;
+        }
+
+        public MediaSampleParameter getMediaSampleParameter() {
+            return mediaSampleParameter;
+        }
+
+        public void setMediaSampleParameter(MediaSampleParameter mediaSampleParameter) {
+            this.mediaSampleParameter = mediaSampleParameter;
+        }
+    }
+    private class MediaSampleParameterExRowMapper implements RowMapper<MediaSampleParameterEx> {
+
+        @Override
+        public MediaSampleParameterEx mapRow(ResultSet rs, int rowNum) throws SQLException {
+            MediaSampleParameterEx mediaSampleParameterEx = new MediaSampleParameterEx();
+
+            mediaSampleParameterEx.setProcedure_pk(rs.getLong("procedure_pk"));
+            mediaSampleParameterEx.setMediaSampleParameter(new MediaSampleParameterRowMapper().mapRow(rs, rowNum));
+
+            return mediaSampleParameterEx;
+        }
+    }
+
+    public Map<Long, List<MediaSampleParameter>> getMediaSampleParameters() {
+        Map<Long, List<MediaSampleParameter>> retVal = new HashMap<>();
+
+        final String query =
+                "SELECT * FROM mediaSampleParameter";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("procedure_pk", procedure_pk);
 
-        List<OntologyParameter> list = npJdbcTemplate.query(query, parameterMap, new OntologyParameterRowMapper());
+        List<MediaSampleParameterEx> list = npJdbcTemplate.query(query, parameterMap, new MediaSampleParameterExRowMapper());
+        for (MediaSampleParameterEx mpEx : list) {
+            List<MediaSampleParameter> mpList = retVal.get(mpEx.getProcedure_pk());
+            if (mpList == null) {
+                mpList = new ArrayList<>();
+                retVal.put(mpEx.getProcedure_pk(), mpList);
+            }
+            mpList.add(mpEx.getMediaSampleParameter());
+        }
 
-        return list;
+        return retVal;
     }
-    
-    public List<SeriesMediaParameter> getSeriesMediaParameters(long procedure_pk) {
-        final String query = "SELECT * FROM seriesMediaParameter WHERE procedure_pk = :procedure_pk";
+
+    private class OntologyParameterEx {
+        private long procedure_pk;
+        private OntologyParameter ontologyParameter;
+
+        public long getProcedure_pk() {
+            return procedure_pk;
+        }
+
+        public void setProcedure_pk(long procedure_pk) {
+            this.procedure_pk = procedure_pk;
+        }
+
+        public OntologyParameter getOntologyParameter() {
+            return ontologyParameter;
+        }
+
+        public void setOntologyParameter(OntologyParameter ontologyParameter) {
+            this.ontologyParameter = ontologyParameter;
+        }
+    }
+    private class OntologyParameterExRowMapper implements RowMapper<OntologyParameterEx> {
+
+        @Override
+        public OntologyParameterEx mapRow(ResultSet rs, int rowNum) throws SQLException {
+            OntologyParameterEx ontologyParameterEx = new OntologyParameterEx();
+
+            ontologyParameterEx.setProcedure_pk(rs.getLong("procedure_pk"));
+            ontologyParameterEx.setOntologyParameter(new OntologyParameterRowMapper().mapRow(rs, rowNum));
+
+            return ontologyParameterEx;
+        }
+    }
+
+    public Map<Long, List<OntologyParameter>> getOntologyParameters() {
+        Map<Long, List<OntologyParameter>> retVal = new HashMap<>();
+
+        final String query =
+                "SELECT * FROM ontologyParameter";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("procedure_pk", procedure_pk);
 
-        List<SeriesMediaParameter> list = npJdbcTemplate.query(query, parameterMap, new SeriesMediaParameterRowMapper());
+        List<OntologyParameterEx> list = npJdbcTemplate.query(query, parameterMap, new OntologyParameterExRowMapper());
+        for (OntologyParameterEx mpEx : list) {
+            List<OntologyParameter> mpList = retVal.get(mpEx.getProcedure_pk());
+            if (mpList == null) {
+                mpList = new ArrayList<>();
+                retVal.put(mpEx.getProcedure_pk(), mpList);
+            }
+            mpList.add(mpEx.getOntologyParameter());
+        }
 
-        return list;
+        return retVal;
     }
-    
-    public List<SeriesParameter> getSeriesParameters(long procedure_pk) {
-        final String query = "SELECT * FROM seriesParameter WHERE procedure_pk = :procedure_pk";
+
+    private class SeriesMediaParameterEx {
+        private long procedure_pk;
+        private SeriesMediaParameter seriesMediaParameter;
+
+        public long getProcedure_pk() {
+            return procedure_pk;
+        }
+
+        public void setProcedure_pk(long procedure_pk) {
+            this.procedure_pk = procedure_pk;
+        }
+
+        public SeriesMediaParameter getSeriesMediaParameter() {
+            return seriesMediaParameter;
+        }
+
+        public void setSeriesMediaParameter(SeriesMediaParameter seriesMediaParameter) {
+            this.seriesMediaParameter = seriesMediaParameter;
+        }
+    }
+    private class SeriesMediaParameterExRowMapper implements RowMapper<SeriesMediaParameterEx> {
+
+        @Override
+        public SeriesMediaParameterEx mapRow(ResultSet rs, int rowNum) throws SQLException {
+            SeriesMediaParameterEx seriesMediaParameterEx = new SeriesMediaParameterEx();
+
+            seriesMediaParameterEx.setProcedure_pk(rs.getLong("procedure_pk"));
+            seriesMediaParameterEx.setSeriesMediaParameter(new SeriesMediaParameterRowMapper().mapRow(rs, rowNum));
+
+            return seriesMediaParameterEx;
+        }
+    }
+
+    public Map<Long, List<SeriesMediaParameter>> getSeriesMediaParameters() {
+        Map<Long, List<SeriesMediaParameter>> retVal = new HashMap<>();
+
+        final String query =
+                "SELECT * FROM seriesMediaParameter";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("procedure_pk", procedure_pk);
 
-        List<SeriesParameter> list = npJdbcTemplate.query(query, parameterMap, new SeriesParameterRowMapper());
+        List<SeriesMediaParameterEx> list = npJdbcTemplate.query(query, parameterMap, new SeriesMediaParameterExRowMapper());
+        for (SeriesMediaParameterEx mpEx : list) {
+            List<SeriesMediaParameter> mpList = retVal.get(mpEx.getProcedure_pk());
+            if (mpList == null) {
+                mpList = new ArrayList<>();
+                retVal.put(mpEx.getProcedure_pk(), mpList);
+            }
+            mpList.add(mpEx.getSeriesMediaParameter());
+        }
 
-        return list;
+        return retVal;
     }
-    
-    public List<SimpleParameter> getSimpleParameters(long procedure_pk) {
-        final String query = "SELECT * FROM simpleParameter WHERE procedure_pk = :procedure_pk";
+
+    private class SeriesParameterEx {
+        private long procedure_pk;
+        private SeriesParameter seriesParameter;
+
+        public long getProcedure_pk() {
+            return procedure_pk;
+        }
+
+        public void setProcedure_pk(long procedure_pk) {
+            this.procedure_pk = procedure_pk;
+        }
+
+        public SeriesParameter getSeriesParameter() {
+            return seriesParameter;
+        }
+
+        public void setSeriesParameter(SeriesParameter seriesParameter) {
+            this.seriesParameter = seriesParameter;
+        }
+    }
+    private class SeriesParameterExRowMapper implements RowMapper<SeriesParameterEx> {
+
+        @Override
+        public SeriesParameterEx mapRow(ResultSet rs, int rowNum) throws SQLException {
+            SeriesParameterEx seriesParameterEx = new SeriesParameterEx();
+
+            seriesParameterEx.setProcedure_pk(rs.getLong("procedure_pk"));
+            seriesParameterEx.setSeriesParameter(new SeriesParameterRowMapper().mapRow(rs, rowNum));
+
+            return seriesParameterEx;
+        }
+    }
+
+    public Map<Long, List<SeriesParameter>> getSeriesParameters() {
+        Map<Long, List<SeriesParameter>> retVal = new HashMap<>();
+
+        final String query =
+                "SELECT * FROM seriesParameter";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("procedure_pk", procedure_pk);
 
-        List<SimpleParameter> list = npJdbcTemplate.query(query, parameterMap, new SimpleParameterRowMapper());
+        List<SeriesParameterEx> list = npJdbcTemplate.query(query, parameterMap, new SeriesParameterExRowMapper());
+        for (SeriesParameterEx mpEx : list) {
+            List<SeriesParameter> mpList = retVal.get(mpEx.getProcedure_pk());
+            if (mpList == null) {
+                mpList = new ArrayList<>();
+                retVal.put(mpEx.getProcedure_pk(), mpList);
+            }
+            mpList.add(mpEx.getSeriesParameter());
+        }
 
-        return list;
+        return retVal;
     }
-    
-    
+
+    private class SimpleParameterEx {
+        private long procedure_pk;
+        private SimpleParameter simpleParameter;
+
+        public long getProcedure_pk() {
+            return procedure_pk;
+        }
+
+        public void setProcedure_pk(long procedure_pk) {
+            this.procedure_pk = procedure_pk;
+        }
+
+        public SimpleParameter getSimpleParameter() {
+            return simpleParameter;
+        }
+
+        public void setSimpleParameter(SimpleParameter simpleParameter) {
+            this.simpleParameter = simpleParameter;
+        }
+    }
+    private class SimpleParameterExRowMapper implements RowMapper<SimpleParameterEx> {
+
+        @Override
+        public SimpleParameterEx mapRow(ResultSet rs, int rowNum) throws SQLException {
+            SimpleParameterEx simpleParameterEx = new SimpleParameterEx();
+
+            simpleParameterEx.setProcedure_pk(rs.getLong("procedure_pk"));
+            simpleParameterEx.setSimpleParameter(new SimpleParameterRowMapper().mapRow(rs, rowNum));
+
+            return simpleParameterEx;
+        }
+    }
+    public Map<Long, List<SimpleParameter>> getSimpleParameters() {
+        Map<Long, List<SimpleParameter>> retVal = new HashMap<>();
+
+        final String query =
+                "SELECT * FROM simpleParameter";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        List<SimpleParameterEx> list = npJdbcTemplate.query(query, parameterMap, new SimpleParameterExRowMapper());
+        for (SimpleParameterEx spEx : list) {
+            List<SimpleParameter> spList = retVal.get(spEx.getProcedure_pk());
+            if (spList == null) {
+                spList = new ArrayList<>();
+                retVal.put(spEx.getProcedure_pk(), spList);
+            }
+            spList.add(spEx.getSimpleParameter());
+        }
+
+        return retVal;
+    }
 
     /**
      * Returns the {@code ProcedureMetadata} matching {@code parameterId} and {@code sequenceId} if found; null
@@ -600,25 +856,62 @@ public class DccSqlUtils {
         return results;
     }
 
-    /**
-     *
-     * @param procedurePk the dcc procedure primary key for the desired metadata
-     * @return a list of this procedure's metadata
-     */
-    public List<ProcedureMetadata> getProcedureMetadata(long procedurePk) {
+    // This is a container to hold the procedure_pk matching the associated ProcedureMetadata.
+    public class ProcedureMetadataEx {
+        private long              procedure_pk;
+        private ProcedureMetadata procedureMetadata;
+
+        public long getProcedure_pk() {
+            return procedure_pk;
+        }
+
+        public void setProcedure_pk(long procedure_pk) {
+            this.procedure_pk = procedure_pk;
+        }
+
+        public ProcedureMetadata getProcedureMetadata() {
+            return procedureMetadata;
+        }
+
+        public void setProcedureMetadata(ProcedureMetadata procedureMetadata) {
+            this.procedureMetadata = procedureMetadata;
+        }
+    }
+    public class ProcedureMetadataExRowMapper implements RowMapper<ProcedureMetadataEx> {
+
+        @Override
+        public ProcedureMetadataEx mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ProcedureMetadataEx procedureMetadataEx = new ProcedureMetadataEx();
+
+            procedureMetadataEx.setProcedure_pk(rs.getLong("procedure_pk"));
+            procedureMetadataEx.setProcedureMetadata(new ProcedureMetadataRowMapper().mapRow(rs, rowNum));
+
+            return procedureMetadataEx;
+        }
+    }
+    public Map<Long, List<ProcedureMetadata>> getProcedureMetadata() {
+        Map<Long, List<ProcedureMetadata>> retVal = new HashMap<>();
+
         final String query =
                 "SELECT\n" +
+                "  ppm.procedure_pk,\n" +
                 "  pm.*\n" +
                 "FROM procedureMetadata pm\n" +
-                "JOIN procedure_procedureMetadata ppm ON ppm.procedureMetadata_pk = pm.pk\n" +
-                "where ppm.procedure_pk = :procedurePk";
+                "JOIN procedure_procedureMetadata ppm on ppm.procedureMetadata_pk = pm.pk";
 
         Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("procedurePk", procedurePk);
 
-        List<ProcedureMetadata> list = npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+        List<ProcedureMetadataEx> list = npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataExRowMapper());
+        for (ProcedureMetadataEx pmEx : list) {
+            List<ProcedureMetadata> pmdList = retVal.get(pmEx.getProcedure_pk());
+            if (pmdList == null) {
+                pmdList = new ArrayList<>();
+                retVal.put(pmEx.getProcedure_pk(), pmdList);
+            }
+            pmdList.add(pmEx.getProcedureMetadata());
+        }
 
-        return list;
+        return retVal;
     }
 
     /**
