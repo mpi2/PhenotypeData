@@ -2857,9 +2857,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
      * @return A set of required parameters
      */
     public HashSet<String> getRequiredImpressParameters() {
-        HashSet<String> set;
-
-        Map<String, Object> parameterMap = new HashMap<>();
 
         String query = "SELECT stable_id FROM phenotype_parameter WHERE metadata = 1 AND data_analysis = 1";
         List<String> results = jdbcCda.queryForList(query, new HashMap(), String.class);
