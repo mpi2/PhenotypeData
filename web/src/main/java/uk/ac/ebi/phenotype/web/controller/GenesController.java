@@ -401,8 +401,6 @@ public class GenesController {
 	
 	/**
 	 * Encapsulate logic for how we are displaying phenotype information in the gene page here so easy to read through and error check
-	 * @param postQcDataAvailable 
-	 * @param eitherPostQcOrPreQcDataIsAvailable 
 	 * @return
 	 */
 	private PhenotypeDisplayStatus getPhenotypeDisplayStatus(boolean phenotypeStarted, int numberOfTopLevelMpTermsWithStatisticalResult, List<Map<String, String>> postQcDataMapList, ArrayList<GenePageTableRow> rowsForPhenotypeTable){
