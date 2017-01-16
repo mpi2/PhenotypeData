@@ -17,7 +17,6 @@ package uk.ac.ebi.phenotype.web.controller;
 
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
@@ -34,8 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 
@@ -67,15 +64,16 @@ public class GeneHeatmapController {
                 Model model,
                 HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
-		if (project.equalsIgnoreCase("idg")){
+		if (project.equalsIgnoreCase("idg")) {
+
 			Long time = System.currentTimeMillis();
 			SecondaryProjectService secondaryProjectService = this.getSecondaryProjectDao(project);
-			
 			List<GeneRowForHeatMap> geneRows = secondaryProjectService.getGeneRowsForHeatMap(request);
 			List<BasicBean> xAxisBeans = secondaryProjectService.getXAxisForHeatMap();
 		    model.addAttribute("geneRows", geneRows);
 		    model.addAttribute("xAxisBeans", xAxisBeans);
 			System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
+			
 		}
         return "geneHeatMap";
 	}
