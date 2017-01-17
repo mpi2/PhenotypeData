@@ -42,7 +42,6 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     private String symbol="";
     private String groupLabel;
     private String miceProduced="No";//not boolean as 3 states No, Yes, In progress - could have an enum I guess?
-    private Boolean primaryPhenotype=false;
 	Map<String, HeatMapCell> xAxisToCellMap=new HashMap<>();
 	private Float lowestPValue=new Float(1000000);//just large number so we don't get null pointers
 	
@@ -93,14 +92,6 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 		this.miceProduced = miceProduced;
 	}
 
-	public Boolean getPrimaryPhenotype() {
-		return primaryPhenotype;
-	}
-
-	public void setPrimaryPhenotype(Boolean primaryPhenotype) {
-		this.primaryPhenotype = primaryPhenotype;
-	}
-
 	public String getSymbol() {
 		return symbol;
 	}
@@ -140,19 +131,14 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 	
 
 	public String toTabbedString() {
-		
-		for(String key: xAxisToCellMap.keySet()){
-			System.out.println("key="+key + " "+xAxisToCellMap.get(key));
-		}
-		return  accession + "\t" + symbol + "\t" + groupLabel + "\t" + this.tabbedStatus(miceProduced).replace("<br>", " ") + "\t" + primaryPhenotype
-				+ "\t" ;
+		return  accession + "\t" + symbol + "\t" + groupLabel + "\t" + this.statusStringForExport(miceProduced).replace("<br>", " ") + "\t";
 	}
 
 	
 
-	private String tabbedStatus(String status){
+	private String statusStringForExport(String status){
 		List<String> values = getTagValues(status);
-		return StringUtils.join(values, "\t");
+		return StringUtils.join(values, "|");
 	}
 	private static final Pattern TAG_REGEX = Pattern.compile("<span>(.+?)</span>");
 
