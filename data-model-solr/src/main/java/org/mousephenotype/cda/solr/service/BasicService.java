@@ -223,7 +223,7 @@ public class BasicService {
 	 * @param collection
 	 * @return List representation of the collection using toString on individual objects.
 	 */
-	public List<String> getListFromCollection(Collection<Object> collection){
+	public static List<String> getListFromCollection(Collection<Object> collection){
 		
 		List<String> list = new ArrayList<>();
 		if (collection != null){

@@ -16,11 +16,12 @@
 		});
  	</script>
   	
- 	<table>
+ 	<table id="secondaryGeneHeatmap">
  	
    <thead>
      <tr> 
         <th class="gene-heatmap-header"><span>Gene</span></th>
+        <th><span>Family</span></th>
         <th><span>Availability</span></th>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" >
             <th title="${xAxisBean.name}"><span class="vertical"><a href="${baseUrl}/phenotypes/${xAxisBean.id}">${xAxisBean.name}</a></span></th>
@@ -30,7 +31,7 @@
    
 	 <c:forEach items="${geneRows}" var="row">
      	<tr>
-            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a></td>
+            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a></td><td>${row.groupLabel}</td>
       	<td>${row.miceProduced}</td>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" > 
           <td
@@ -52,3 +53,41 @@
   </table>
                 
 
+
+<script>
+		$(document).ready(function() {
+			console.log("calling doc ready on secondary heatmap");
+			 function initGenePhenotypesTable(){
+					
+				 
+				 
+				 $('#secondaryGeneHeatmap').DataTable();
+				 
+				/*  var aDataTblCols = [0,1,2,3,4,5,6,7];
+					//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
+				    $('#secondaryGeneHeatmap').dataTable( {
+						"aoColumns": [{ "sType": "string",  "bSortable" : true},
+						              { "sType": "html", "mRender":function( data, type, full ) {
+						            	  return (type === "filter") ? $(data).text() : data;
+						              }},
+						              { "sType": "html", "mRender":function( data, type, full ) {
+						            	  return (type === "filter") ? $(data).text() : data;
+						              }},
+						              { "sType": "string"},
+						              { "sType": "string"},
+						              { "sType": "string"},
+//						              { "sType": "string"},
+//						              { "sType": "html"},
+				                      { "sType": "allnumeric"},
+						              { "sType": "string", "bSortable" : false }
+				
+						              ],
+					    "aaSorting": [[ 28, 'asc' ]],//sort on pValue first
+						"bDestroy": true,
+						"bFilter":false,
+						"bPaginate":true,
+				        "sPaginationType": "bootstrap"
+					}); */
+			    } 
+		});
+	</script>

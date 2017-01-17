@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
@@ -112,8 +113,8 @@ public class SecondaryProjectController {
         List<String> resp = new ArrayList<>();
 
         try {
-            Set<String> accessions = idg.getAccessionsBySecondaryProjectId(id);
-
+            Set<SecondaryProjectBean> secondaryProjectBeans = idg.getAccessionsBySecondaryProjectId(id);
+            Set<String> accessions = SecondaryProjectBean.getAccessionsFromBeans(secondaryProjectBeans);
             Map<String, List<Map<String, String>>> getMpToHpTerms = org.mousephenotype.cda.solr.SolrUtils.populateMpToHpTermsMap(phenodigmCore);
             Map<String, GeneDTO> genes = geneService.getHumanOrthologsForGeneSet(accessions);
 
@@ -125,7 +126,8 @@ public class SecondaryProjectController {
                 }
                 pcss.get(pcs.getGene().getAccessionId()).add(pcs);
             }
-
+         
+			
             for (String MGIID : accessions) {
 
                 if ( ! mpterms.containsKey(MGIID)) {
@@ -250,10 +252,11 @@ public class SecondaryProjectController {
     public String loadSecondaryProjectPage(@PathVariable String id, Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws SolrServerException, IOException , URISyntaxException {
 
-        Set<String> accessions;
+       
         if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.IDG.name())) {
             try {
-                accessions = idg.getAccessionsBySecondaryProjectId(id);
+                Set<SecondaryProjectBean> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
+                Set<String> accessions=SecondaryProjectBean.getAccessionsFromBeans(secondaryProjects);
                 model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart"));
                 model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
                 List<PhenotypeCallSummaryDTO> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();

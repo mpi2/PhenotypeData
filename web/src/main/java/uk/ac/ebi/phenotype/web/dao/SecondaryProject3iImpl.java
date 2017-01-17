@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.dao;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -33,6 +34,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 
 /**
@@ -62,13 +64,17 @@ public class SecondaryProject3iImpl implements SecondaryProjectService {
 	@Autowired
 	private MpService mpService;
 
-	public Set<String> getAccessionsBySecondaryProjectId(String projectId)
+	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId)
 	throws SQLException {
-
+		Set<SecondaryProjectBean> secondaryProjectBeans=new TreeSet<>();
 		if (projectId.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name())){
-			return srs.getAccessionsByResourceName("3i");
+			Set<String> accessions = srs.getAccessionsByResourceName("3i");
+			for(String accession: accessions){
+				SecondaryProjectBean bean=new SecondaryProjectBean(accession);
+				secondaryProjectBeans.add(bean);
+			}
 		}
-		return null;
+		return secondaryProjectBeans;
 	}
 
 

@@ -64,7 +64,8 @@ public class GeneHeatmapController {
                 Model model,
                 HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
-		if (project.equalsIgnoreCase("idg")){
+		if (project.equalsIgnoreCase("idg")) {
+
 			Long time = System.currentTimeMillis();
 			SecondaryProjectService secondaryProjectService = this.getSecondaryProjectDao(project);
 			List<GeneRowForHeatMap> geneRows = secondaryProjectService.getGeneRowsForHeatMap(request);
@@ -72,6 +73,7 @@ public class GeneHeatmapController {
 		    model.addAttribute("geneRows", geneRows);
 		    model.addAttribute("xAxisBeans", xAxisBeans);
 			System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
+			
 		}
         return "geneHeatMap";
 	}

@@ -238,7 +238,7 @@ public class GeneService extends BasicService implements WebStatus{
 	 * @return the latest status (Complete or Started or Phenotype Attempt
 	 *         Registered) as appropriate for this gene
 	 */
-	public String getPhenotypingStatus(String statusField, Integer hasQc, Integer legacyPhenotypeStatus, String genePageUrl, 
+	public static String  getPhenotypingStatus(String statusField, Integer hasQc, Integer legacyPhenotypeStatus, String genePageUrl,
 	boolean toExport, boolean legacyOnly) {
 		
 		String phenotypeStatusHTMLRepresentation = "";
@@ -315,7 +315,7 @@ public class GeneService extends BasicService implements WebStatus{
 	 * 
 	 * @return the latest status at the gene level for ES cells as a string
 	 */
-	public String getEsCellStatus( String latestEsCellStatus, String genePageUrl, boolean toExport){
+	private static String getEsCellStatus( String latestEsCellStatus, String genePageUrl, boolean toExport){
 		
 		String esCellStatus = "";	
 		String exportEsCellStatus = "";	
@@ -429,7 +429,7 @@ public class GeneService extends BasicService implements WebStatus{
 	 * @param url
 	 * @return
 	 */
-	private String getDetailedMouseProductionStatusButtons(List<String> alleleNames, List<String> mouseStatus, String url) {
+	private static String getDetailedMouseProductionStatusButtons(List<String> alleleNames, List<String> mouseStatus, String url) {
 		
 		String miceStatus = "";	
 		Pattern tmAlleleNamePattern = Pattern.compile("(tm.*)\\(.+\\).+");
@@ -499,7 +499,7 @@ public class GeneService extends BasicService implements WebStatus{
 	 * @param doc a SOLR Document
 	 * @return
 	 */
-	private Map<String, String> getStatusFromDoc(SolrDocument doc, String url) {
+	public static Map<String, String> getStatusFromDoc(SolrDocument doc, String url) {
 		
 		String miceStatus = "";
 		String esCellStatusHTMLRepresentation = "";
@@ -542,13 +542,13 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 	
 	
-	public boolean checkOrderProducts(SolrDocument doc) {
+	public static boolean checkOrderProducts(SolrDocument doc) {
 		
 		return checkOrderMice(doc) || checkOrderESCells(doc);
 	}
 	
 	
-	public boolean checkOrderESCells(SolrDocument doc) {
+	public static boolean checkOrderESCells(SolrDocument doc) {
 
 		String status = null;
 		boolean order = false;
@@ -574,7 +574,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 	
 
-	public boolean checkOrderMice(SolrDocument doc) {
+	public static boolean checkOrderMice(SolrDocument doc) {
 		
 		boolean order = false;
 
@@ -628,9 +628,9 @@ public class GeneService extends BasicService implements WebStatus{
 			// check we have results before we try and access them
 		
 			SolrDocument doc = response.getResults().get(0);
-			if (doc.containsKey(GeneDTO.PHENOTYPE_STATUS)) {
+			if (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) {
 			
-				List<String> statuses = getListFromCollection(doc.getFieldValues(GeneDTO.PHENOTYPE_STATUS));
+				List<String> statuses = getListFromCollection(doc.getFieldValues(GeneDTO.LATEST_PHENOTYPE_STATUS));
 				for (String status : statuses) {
 				
 					if (status.equalsIgnoreCase(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || status.equalsIgnoreCase(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE)) {
@@ -737,21 +737,20 @@ public class GeneService extends BasicService implements WebStatus{
 	/**
 	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
 	 * @param geneIds
-	 * @return
+	 * @return Returns SolrDocument because that;s what the method to produce the status icons gets.
 	 * @throws SolrServerException, IOException
 	 */
-	public List<GeneDTO> getProductionStatusForGeneSet(Set<String> geneIds)
+	public List<SolrDocument> getProductionStatusForGeneSet(Set<String> geneIds)
 	throws SolrServerException, IOException {
 			
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("*:*");
 		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
-		solrQuery.setRows(100000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS, GeneDTO.MARKER_SYMBOL);
+		solrQuery.setRows(Integer.MAX_VALUE);
 
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
 
-		return rsp.getBeans(GeneDTO.class);
+		return rsp.getResults();
 	}
 	
 	

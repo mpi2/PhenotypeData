@@ -27,27 +27,27 @@ import java.sql.SQLException;
  */
 public class MediaParameterRowMapper implements RowMapper<MediaParameter> {
 
-        /**
-         * Implementations must implement this method to map each row of data
-         * in the ResultSet. This method should not call {@code next()} on
-         * the ResultSet; it is only supposed to map values of the current row.
-         *
-         * @param rs     the ResultSet to map (pre-initialized for the current row)
-         * @param rowNum the number of the current row
-         * @return the result object for the current row
-         * @throws SQLException if a SQLException is encountered getting
-         *                      column values (that is, there's no need to catch SQLException)
-         */
-        @Override
-        public MediaParameter mapRow(ResultSet rs, int rowNum) throws SQLException {
-            MediaParameter row = new MediaParameter();
+    /**
+     * Implementations must implement this method to map each row of data
+     * in the ResultSet. This method should not call {@code next()} on
+     * the ResultSet; it is only supposed to map values of the current row.
+     *
+     * @param rs     the ResultSet to map (pre-initialized for the current row)
+     * @param rowNum the number of the current row
+     * @return the result object for the current row
+     * @throws SQLException if a SQLException is encountered getting
+     *                      column values (that is, there's no need to catch SQLException)
+     */
+    @Override
+    public MediaParameter mapRow(ResultSet rs, int rowNum) throws SQLException {
+        MediaParameter row = new MediaParameter();
 
-            row.setHjid(rs.getLong("pk"));
-            row.setFileType(rs.getString("filetype"));
-            row.setParameterID(rs.getString("parameterId"));
-            row.setParameterStatus(rs.getString("parameterStatus"));
-            row.setURI(rs.getString("URI"));
+        row.setHjid(rs.getLong("pk"));
+        row.setFileType(rs.getString("filetype"));
+        row.setParameterID(rs.getString("parameterId"));
+        row.setParameterStatus(rs.getString("parameterStatus"));
+        row.setURI(rs.getString("URI"));
 
-            return row;
-        }
+        return row;
     }
+}
