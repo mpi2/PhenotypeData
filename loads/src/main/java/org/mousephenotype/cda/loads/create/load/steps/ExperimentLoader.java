@@ -252,7 +252,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     @Transactional
-    private Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
+    public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
         Experiment experiment = createExperiment(dccExperiment);
 

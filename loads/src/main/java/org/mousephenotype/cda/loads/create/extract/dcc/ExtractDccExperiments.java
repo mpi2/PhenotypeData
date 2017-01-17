@@ -229,7 +229,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertExperiment(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
+    public void insertExperiment(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
 
         Long procedurePk, center_procedurePk;
 
@@ -416,7 +416,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertLine(Line line, String datasourceShortName, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
+    public void insertLine(Line line, String datasourceShortName, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
 
         Long procedurePk, center_procedurePk;
 
