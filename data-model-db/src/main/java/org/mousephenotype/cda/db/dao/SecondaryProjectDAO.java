@@ -27,9 +27,12 @@ package org.mousephenotype.cda.db.dao;
 import java.sql.SQLException;
 import java.util.Set;
 
+import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
+
+
 
 public interface SecondaryProjectDAO extends HibernateDAO {
 
-	public Set<String> getAccessionsBySecondaryProjectId(String projectId) throws SQLException;
+	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId) throws SQLException;
 
 }
