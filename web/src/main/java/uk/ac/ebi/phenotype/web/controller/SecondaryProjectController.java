@@ -318,7 +318,7 @@ public class SecondaryProjectController {
 			tableHeaders.add("Gene Accession");
 			tableHeaders.add("Gene Symbol");
 			tableHeaders.add("Family");
-	        tableHeaders.add("Availability\t\t\t\t");//and 4 tabs to cover all availability options - no I don't like this either JW
+	        tableHeaders.add("Availability");//and 4 tabs to cover all availability options - no I don't like this either JW
 			 List<String> dataRows = new ArrayList<>();
 			 List<BasicBean> xAxisBeans = idg.getXAxisForHeatMap();
 			 List<String> phenotypeHeaders=new ArrayList<>();
