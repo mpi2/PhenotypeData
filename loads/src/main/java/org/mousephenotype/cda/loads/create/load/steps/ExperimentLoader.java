@@ -42,7 +42,6 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.text.ParseException;
@@ -251,7 +250,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return RepeatStatus.FINISHED;
     }
 
-    @Transactional
+//    @Transactional
     public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
         Experiment experiment = createExperiment(dccExperiment);
@@ -419,7 +418,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     private void createObservations( DccExperimentDTO dccExperimentDTO, int dbId, int experimentPk) throws DataLoadException {
 
-        Integer         biologicalSamplePk;
+        Integer biologicalSamplePk;
 
         // For all parameter types:
         if (dccExperimentDTO.isLineLevel()) {
