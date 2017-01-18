@@ -171,6 +171,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Map<String, Integer>   counts;
 
         // Initialise maps.
+        logger.info("Loading lookup maps started");
         euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
         allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
 
@@ -193,6 +194,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         seriesParameterMap = dccSqlUtils.getSeriesParameters();
         seriesMediaParameterMap = dccSqlUtils.getSeriesMediaParameters();
         mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
+        logger.info("Loading lookup maps finished");
 
 
         int experimentCount = 0;
@@ -255,12 +257,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
 
 
-        if (dccExperiment.getExperimentId().equals("8852_1943")) {
-            int mm = 17;
-            System.out.println();
-        } else {
-            return new Experiment();
-        }
+//        if (dccExperiment.getExperimentId().equals("8852_1943")) {
+//            int mm = 17;
+//            System.out.println();
+//        } else {
+//            return new Experiment();
+//        }
         Experiment experiment = createExperiment(dccExperiment);
 
         return experiment;
