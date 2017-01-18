@@ -41,7 +41,6 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -213,7 +212,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         return RepeatStatus.FINISHED;
     }
 
-    @Transactional
+//    @Transactional
     public Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
         Specimen specimen = specimenExtended.getSpecimen();
 
@@ -377,7 +376,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         return backgroundStrain;
     }
 
-    @Transactional
+//    @Transactional
     public Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
 
         Specimen specimen = specimenExtended.getSpecimen();
