@@ -107,7 +107,7 @@ public class DataSourcesConfigApp {
                 .password(password)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(1);
+        ((BasicDataSource) ds).setInitialSize(4);
 
 
         ((BasicDataSource) ds).setLogAbandoned(false);
@@ -139,7 +139,7 @@ public class DataSourcesConfigApp {
                 .password(password)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(1);
+        ((BasicDataSource) ds).setInitialSize(4);
 
 
         ((BasicDataSource) ds).setLogAbandoned(false);
@@ -168,7 +168,7 @@ public class DataSourcesConfigApp {
                 .password(password)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(1);
+        ((BasicDataSource) ds).setInitialSize(4);
 
 
         ((BasicDataSource) ds).setLogAbandoned(false);
