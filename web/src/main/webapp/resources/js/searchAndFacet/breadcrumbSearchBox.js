@@ -133,7 +133,8 @@ $(document).ready(function () {
 		$("input#s").val('');
 	});
 
-	
+    var qRe = new RegExp(" in (Genes|Phenotypes|Diseases|Anatomy|Images|Products)$");
+
 	$( "input#s" ).autocomplete({
 		source: function( request, response ) {
 			var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
@@ -216,7 +217,6 @@ $(document).ready(function () {
 		focus: function (event, ui) {
 			var thisInput = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
 			//this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
-
             // assign value to input box
             this.value = thisInput.trim();
 
@@ -241,7 +241,6 @@ $(document).ready(function () {
 			// }
 			// else {
 				var qVal = this.value;
-				var qRe = new RegExp(" in (Genes|Phenotypes|Diseases|Anatomy|Images|Products)$");
 				q = qVal.replace(qRe, "");
 
 			//}
@@ -325,7 +324,8 @@ $('input#s').keyup(function (e) {
 
 		// no need to escape space - looks cleaner to the users
 		// and it is not essential to escape space
-		input = input.replace(/\\?%20/g, ' ');
+
+		input = input.replace(/\\?%20/g, ' ').replace(qRe, "");
 
 		// check for current datatype (tab) and use this as default core
 		// instead of figuring this out for the user

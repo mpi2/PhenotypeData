@@ -214,7 +214,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     }
 
     @Transactional
-    private Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
+    public Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
         Specimen specimen = specimenExtended.getSpecimen();
 
         int externalDbId = cdaSqlUtils.getExternalDbId(specimenExtended.getDatasourceShortName());
@@ -378,7 +378,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     }
 
     @Transactional
-    private Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
+    public Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
 
         Specimen specimen = specimenExtended.getSpecimen();
 
