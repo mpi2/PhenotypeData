@@ -158,7 +158,7 @@ public class ExtractDccSpecimens implements CommandLineRunner {
     }
 
     @Transactional
-    private void insertSpecimen(Specimen specimen, String datasourceShortName, CentreSpecimen centerSpecimen) throws DataLoadException {
+    public void insertSpecimen(Specimen specimen, String datasourceShortName, CentreSpecimen centerSpecimen) throws DataLoadException {
 
         Long specimenPk;
 

@@ -168,7 +168,7 @@
 			}));
 
 			// Add an axis and title.
-			g.append("svg:g").attr("class", "axis").each(function(d) {
+			var barTitles = g.append("svg:g").attr("class", "axis").each(function(d) {
 				d3.select(this).call(axis.scale(y[d]));
 			}).append("a").attr("xlink:href", function(d) {
 				return links[d];
@@ -176,7 +176,7 @@
 				return "rotate(-90)";
 			}).text(String).style("fill", function(d) { return axisColors[groups[d]]; }).classed("axis-label", true).attr("class", function(d) {
 				return groups[d].replace(/ /g, "_");
-			}).append("svg:title").text(String);
+			}).attr("id", function(d){ return "id"+d.replace(/ /g, "_");}).append("svg:title").text(String);
 
 			// Add and store a brush for each axis.
 			g.append("svg:g").attr("class", "brush").each(function(d) {
@@ -306,6 +306,7 @@
 					});
 					highlighted.remove();
 					highlighted2.remove();
+                    d3.selectAll("text").style("font-weight", "normal");
 					text.remove();
 				} else {
 					d3.select("#parallel .foreground").style("opacity", function(d, j) {
@@ -323,15 +324,19 @@
 					if (text != null) {
 						text.remove();
 					}
+                    d3.selectAll("text").style("font-weight", "normal");
+
 					highlighted = svg.append("svg:g").attr("class", "highlight").selectAll("path").data([ model.get('filtered')[i] ]).enter().append("svg:path").attr("d", path).attr("style", function(d) {
-						console.log(d.significantMask);
-						console.log(arrayFromMaskArray(d.significantMask, axes.length - 1));
-						console.log(axes);
+                        axes.forEach(function(axis){
+                            if(axis != "gene" && isSignificant(d,axes.indexOf(axis)-1)){ // first column is actually the gene, therefore also substract 1 otherwise bitmask will be offset
+                                d3.select("#id" + axis.replace(/ /g, "_")).style("font-weight", "bold");
+                            }
+						});
 						return "stroke:" + colors[d.group] + ";"; + getStyles(d,"foreground");
 					});
 
 					highlighted2 = svg.append("svg:g").attr("class", "highlight2").selectAll(".serie").data(dimensions).enter().append("svg:circle").filter(function(d) {
-						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "N/A";
+						return !hasData(d,i);
 					}).attr("cx", function(d) {
 						return x(d);
 					}).attr("cy", function(d) {
@@ -342,15 +347,25 @@
 					});
 
 					text = svg.append("svg:g").attr("class", "label").selectAll("text").data(dimensions).enter().append("text").filter(function(d) {
-						return model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "N/A";
+						return !hasData(d,i);
 					});
+
 
 					text.attr("x", function(d) {
 						return x(d) + 5;
 					}).attr("y", function(d) {
 						return y[d](defaults[d]) - 5;
-					}).text("No data");
+					}).text(function(d){
+						return "No data";
+					});
 
+					function hasData(d,i){
+                        return !(model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "N/A");
+					}
+					
+					function isSignificant(d,i){
+                        return arrayFromMaskArray(d.significantMask, axes.length - 1)[i];
+					}
 				}
 			};
 		};
