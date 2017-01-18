@@ -162,9 +162,9 @@ public class LoadFromDcc implements CommandLineRunner {
 
         return jobBuilderFactory.get("samplesJob")
                 .incrementer(new RunIdIncrementer())
-                .start(samplesFlow)
-                .next(experimentsFlow)
-//                .start(experimentsFlow)
+//                .start(samplesFlow)
+//                .next(experimentsFlow)
+                .start(experimentsFlow)
                 .end()
                 .build();
     }

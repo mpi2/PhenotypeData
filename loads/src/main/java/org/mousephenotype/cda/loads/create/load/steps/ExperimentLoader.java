@@ -253,6 +253,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 //    @Transactional
     public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
+
+
+        if (dccExperiment.getExperimentId().equals("8852_1943")) {
+            int mm = 17;
+            System.out.println();
+        } else {
+            return new Experiment();
+        }
         Experiment experiment = createExperiment(dccExperiment);
 
         return experiment;
@@ -355,7 +363,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         * metadataGroup - An md5 hash of only the required parameters. The hash source is the required metadata
         * parameters in the same format as <i>metadataCombined</i> above.</ul>
         */
-
         List<ProcedureMetadata> dccMetadataList = procedureMetadataMap.get(dccExperiment.getDcc_procedure_pk());
         if (dccMetadataList == null)
             dccMetadataList = new ArrayList<>();
