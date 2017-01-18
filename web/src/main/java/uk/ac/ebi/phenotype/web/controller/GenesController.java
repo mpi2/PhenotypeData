@@ -416,9 +416,6 @@ public class GenesController {
 		if(numberOfTopLevelMpTermsWithStatisticalResult>0){
 			displayStatus.setPostQcTopLevelMPTermsAvailable(true);
 		}
-		
-		
-		
 
 		//dataMap is not empty
 		if(!postQcDataMapList.isEmpty()){
