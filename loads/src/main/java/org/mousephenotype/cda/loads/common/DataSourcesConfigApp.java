@@ -109,6 +109,11 @@ public class DataSourcesConfigApp {
                 .driverClassName("com.mysql.jdbc.Driver").build();
         ((BasicDataSource) ds).setInitialSize(1);
 
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
+
+
         try {
             logger.info("Using cda database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
 
@@ -136,6 +141,10 @@ public class DataSourcesConfigApp {
                 .driverClassName("com.mysql.jdbc.Driver").build();
         ((BasicDataSource) ds).setInitialSize(1);
 
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
+
         try {
             logger.info("Using dcc database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
 
@@ -160,6 +169,10 @@ public class DataSourcesConfigApp {
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
         ((BasicDataSource) ds).setInitialSize(1);
+
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
 
         try {
             logger.info("Using dcc europhenome database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
