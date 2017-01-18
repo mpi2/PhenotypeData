@@ -79,7 +79,11 @@ public class DataSourcesConfigApp {
                 .password(password)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(1);
+        ((BasicDataSource) ds).setInitialSize(4);
+
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
 
         try {
             logger.info("Using cdasource database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
@@ -107,7 +111,12 @@ public class DataSourcesConfigApp {
                 .password(password)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(1);
+        ((BasicDataSource) ds).setInitialSize(4);
+
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
+
 
         try {
             logger.info("Using cda database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
@@ -134,7 +143,11 @@ public class DataSourcesConfigApp {
                 .password(password)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(1);
+        ((BasicDataSource) ds).setInitialSize(4);
+
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
 
         try {
             logger.info("Using dcc database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
@@ -159,7 +172,11 @@ public class DataSourcesConfigApp {
                 .password(password)
                 .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(1);
+        ((BasicDataSource) ds).setInitialSize(4);
+
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
 
         try {
             logger.info("Using dcc europhenome database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());

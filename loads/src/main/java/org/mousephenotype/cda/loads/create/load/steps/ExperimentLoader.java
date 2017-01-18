@@ -42,7 +42,6 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.text.ParseException;
@@ -172,6 +171,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Map<String, Integer>   counts;
 
         // Initialise maps.
+        logger.info("Loading lookup maps started");
         euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
         allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
 
@@ -194,7 +194,16 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         seriesParameterMap = dccSqlUtils.getSeriesParameters();
         seriesMediaParameterMap = dccSqlUtils.getSeriesMediaParameters();
         mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
+        logger.info("Loading lookup maps finished");
 
+        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.DISABLE);
 
         int experimentCount = 0;
         for (DccExperimentDTO dccExperiment : dccExperiments) {
@@ -204,6 +213,31 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 logger.info("Processed {} experiments", experimentCount);
             }
         }
+
+        logger.info("Enabling indexes for observation");
+        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for observation");
+
+        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for unidimensional_observation");
+
+        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for categorical_observation");
+
+        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for procedure_meta_data");
+
+        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for experiment");
+
+        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for text_observation");
+
+        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for datetime_observation");
+
+        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for image_record_observation");
 
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {
@@ -251,9 +285,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return RepeatStatus.FINISHED;
     }
 
-    @Transactional
+//    @Transactional
     public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
+
+
+//        if (dccExperiment.getExperimentId().equals("8852_1943")) {
+//            int mm = 17;
+//            System.out.println();
+//        } else {
+//            return new Experiment();
+//        }
         Experiment experiment = createExperiment(dccExperiment);
 
         return experiment;
@@ -356,7 +398,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         * metadataGroup - An md5 hash of only the required parameters. The hash source is the required metadata
         * parameters in the same format as <i>metadataCombined</i> above.</ul>
         */
-
         List<ProcedureMetadata> dccMetadataList = procedureMetadataMap.get(dccExperiment.getDcc_procedure_pk());
         if (dccMetadataList == null)
             dccMetadataList = new ArrayList<>();
@@ -419,7 +460,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     private void createObservations( DccExperimentDTO dccExperimentDTO, int dbId, int experimentPk) throws DataLoadException {
 
-        Integer         biologicalSamplePk;
+        Integer biologicalSamplePk;
 
         // For all parameter types:
         if (dccExperimentDTO.isLineLevel()) {
