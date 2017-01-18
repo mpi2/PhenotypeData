@@ -196,6 +196,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
         logger.info("Loading lookup maps finished");
 
+        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.DISABLE);
 
         int experimentCount = 0;
         for (DccExperimentDTO dccExperiment : dccExperiments) {
@@ -205,6 +213,31 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 logger.info("Processed {} experiments", experimentCount);
             }
         }
+
+        logger.info("Enabling indexes for observation");
+        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for observation");
+
+        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for unidimensional_observation");
+
+        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for categorical_observation");
+
+        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for procedure_meta_data");
+
+        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for experiment");
+
+        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for text_observation");
+
+        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for datetime_observation");
+
+        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for image_record_observation");
 
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {

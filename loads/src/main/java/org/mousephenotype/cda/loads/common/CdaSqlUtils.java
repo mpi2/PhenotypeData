@@ -2981,6 +2981,19 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    	}
 
     /**
+     * Enables/disables mysql table indexes.
+     */
+    public enum IndexAction {
+        DISABLE,
+        ENABLE
+    }
+    public void manageIndexes(String tableName, IndexAction action) {
+        String query = "ALTER TABLE " + tableName + " " + action.toString() + " KEYS";
+
+        jdbcCda.getJdbcOperations().execute(query);
+    }
+
+    /**
      * Returns a biological model. First queries for an existing one matching input parameters. If not found, creates
      * one and returns it.
      *
