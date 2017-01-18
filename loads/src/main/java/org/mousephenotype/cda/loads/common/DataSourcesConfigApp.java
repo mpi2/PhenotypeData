@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.common;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -31,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 
@@ -69,6 +69,30 @@ public class DataSourcesConfigApp {
     @Value("${datasource.cdabase.password}")
     String password;
 
+//    @Bean(name = "cdabaseDataSource", destroyMethod = "close")
+//    public DataSource cdabaseDataSource() {
+//
+//        DataSource ds = DataSourceBuilder
+//                .create()
+//                .url(cdabaseUrl)
+//                .username(username)
+//                .password(password)
+//                .type(BasicDataSource.class)
+//                .driverClassName("com.mysql.jdbc.Driver").build();
+//        ((BasicDataSource) ds).setInitialSize(4);
+//
+//
+//        ((BasicDataSource) ds).setLogAbandoned(false);
+//        ((BasicDataSource) ds).setRemoveAbandoned(false);
+//
+//        try {
+//            logger.info("Using cdasource database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+//
+//        } catch (Exception e) { }
+//
+//        return ds;
+//    }
+
     @Bean(name = "cdabaseDataSource", destroyMethod = "close")
     public DataSource cdabaseDataSource() {
 
@@ -77,16 +101,11 @@ public class DataSourcesConfigApp {
                 .url(cdabaseUrl)
                 .username(username)
                 .password(password)
-                .type(BasicDataSource.class)
+                .type(DriverManagerDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(4);
-
-
-        ((BasicDataSource) ds).setLogAbandoned(false);
-        ((BasicDataSource) ds).setRemoveAbandoned(false);
 
         try {
-            logger.info("Using cdasource database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+            logger.info("Using cdasource database {}", ds.getConnection().getCatalog());
 
         } catch (Exception e) { }
 
@@ -100,6 +119,32 @@ public class DataSourcesConfigApp {
 
 
 
+//    @Bean(name = "cdaDataSource", destroyMethod = "close")
+//    @Primary
+//    public DataSource cdaDataSource() {
+//
+//        DataSource ds = DataSourceBuilder
+//                .create()
+//                .url(cdaUrl)
+//                .username(username)
+//                .password(password)
+//                .type(BasicDataSource.class)
+//                .driverClassName("com.mysql.jdbc.Driver").build();
+//        ((BasicDataSource) ds).setInitialSize(4);
+//
+//
+//        ((BasicDataSource) ds).setLogAbandoned(false);
+//        ((BasicDataSource) ds).setRemoveAbandoned(false);
+//
+//
+//        try {
+//            logger.info("Using cda database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+//
+//        } catch (Exception e) { }
+//
+//        return ds;
+//    }
+
     @Bean(name = "cdaDataSource", destroyMethod = "close")
     @Primary
     public DataSource cdaDataSource() {
@@ -109,17 +154,11 @@ public class DataSourcesConfigApp {
                 .url(cdaUrl)
                 .username(username)
                 .password(password)
-                .type(BasicDataSource.class)
+                .type(DriverManagerDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(4);
-
-
-        ((BasicDataSource) ds).setLogAbandoned(false);
-        ((BasicDataSource) ds).setRemoveAbandoned(false);
-
 
         try {
-            logger.info("Using cda database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+            logger.info("Using cda database {}", ds.getConnection().getCatalog());
 
         } catch (Exception e) { }
 
@@ -133,6 +172,29 @@ public class DataSourcesConfigApp {
 
 
 
+//    @Bean(name = "dccDataSource", destroyMethod = "close")
+//    public DataSource dccDataSource() {
+//
+//        DataSource ds = DataSourceBuilder
+//                .create()
+//                .url(dccUrl)
+//                .username(username)
+//                .password(password)
+//                .type(BasicDataSource.class)
+//                .driverClassName("com.mysql.jdbc.Driver").build();
+//
+//
+//        ((BasicDataSource) ds).setLogAbandoned(false);
+//        ((BasicDataSource) ds).setRemoveAbandoned(false);
+//
+//        try {
+//            logger.info("Using dcc database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+//
+//        } catch (Exception e) { }
+//
+//        return ds;
+//    }
+
     @Bean(name = "dccDataSource", destroyMethod = "close")
     public DataSource dccDataSource() {
 
@@ -141,16 +203,11 @@ public class DataSourcesConfigApp {
                 .url(dccUrl)
                 .username(username)
                 .password(password)
-                .type(BasicDataSource.class)
+                .type(DriverManagerDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(4);
-
-
-        ((BasicDataSource) ds).setLogAbandoned(false);
-        ((BasicDataSource) ds).setRemoveAbandoned(false);
 
         try {
-            logger.info("Using dcc database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+            logger.info("Using dcc database {}", ds.getConnection().getCatalog());
 
         } catch (Exception e) { }
 
@@ -162,6 +219,30 @@ public class DataSourcesConfigApp {
         return new NamedParameterJdbcTemplate(dccDataSource());
     }
 
+//    @Bean(name = "dccEurophenomeDataSource", destroyMethod = "close")
+//    public DataSource dccEurophenomeDataSource() {
+//
+//        DataSource ds = DataSourceBuilder
+//                .create()
+//                .url(dccEurophenomeFinalUrl)
+//                .username(username)
+//                .password(password)
+//                .type(BasicDataSource.class)
+//                .driverClassName("com.mysql.jdbc.Driver").build();
+//        ((BasicDataSource) ds).setInitialSize(4);
+//
+//
+//        ((BasicDataSource) ds).setLogAbandoned(false);
+//        ((BasicDataSource) ds).setRemoveAbandoned(false);
+//
+//        try {
+//            logger.info("Using dcc europhenome database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+//
+//        } catch (Exception e) { }
+//
+//        return ds;
+//    }
+
     @Bean(name = "dccEurophenomeDataSource", destroyMethod = "close")
     public DataSource dccEurophenomeDataSource() {
 
@@ -170,16 +251,11 @@ public class DataSourcesConfigApp {
                 .url(dccEurophenomeFinalUrl)
                 .username(username)
                 .password(password)
-                .type(BasicDataSource.class)
+                .type(DriverManagerDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
-        ((BasicDataSource) ds).setInitialSize(4);
-
-
-        ((BasicDataSource) ds).setLogAbandoned(false);
-        ((BasicDataSource) ds).setRemoveAbandoned(false);
 
         try {
-            logger.info("Using dcc europhenome database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
+            logger.info("Using dcc europhenome database {}", ds.getConnection().getCatalog());
 
         } catch (Exception e) { }
 
