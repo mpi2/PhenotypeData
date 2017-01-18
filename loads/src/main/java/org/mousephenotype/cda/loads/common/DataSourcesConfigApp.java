@@ -93,7 +93,8 @@ public class DataSourcesConfigApp {
 //        return ds;
 //    }
 
-    @Bean(name = "cdabaseDataSource", destroyMethod = "close")
+//    @Bean(name = "cdabaseDataSource", destroyMethod = "close")
+    @Bean(name = "cdabaseDataSource")
     public DataSource cdabaseDataSource() {
 
         DataSource ds = DataSourceBuilder
@@ -145,7 +146,8 @@ public class DataSourcesConfigApp {
 //        return ds;
 //    }
 
-    @Bean(name = "cdaDataSource", destroyMethod = "close")
+//    @Bean(name = "cdaDataSource", destroyMethod = "close")
+    @Bean(name = "cdaDataSource")
     @Primary
     public DataSource cdaDataSource() {
 
@@ -195,7 +197,8 @@ public class DataSourcesConfigApp {
 //        return ds;
 //    }
 
-    @Bean(name = "dccDataSource", destroyMethod = "close")
+//    @Bean(name = "dccDataSource", destroyMethod = "close")
+    @Bean(name = "dccDataSource")
     public DataSource dccDataSource() {
 
         DataSource ds = DataSourceBuilder
@@ -243,7 +246,8 @@ public class DataSourcesConfigApp {
 //        return ds;
 //    }
 
-    @Bean(name = "dccEurophenomeDataSource", destroyMethod = "close")
+//    @Bean(name = "dccEurophenomeDataSource", destroyMethod = "close")
+    @Bean(name = "dccEurophenomeDataSource")
     public DataSource dccEurophenomeDataSource() {
 
         DataSource ds = DataSourceBuilder
