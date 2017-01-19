@@ -278,13 +278,23 @@
 						}
 					}
 				} else {
-					alert("WRITE ME!! " );
+					masksArray.forEach(function(mask){
+						var tempBooleanArray = arrayFromMask(mask);
+                        if (tempBooleanArray.length < 31){
+                            var needPadding = 31 - tempBooleanArray.length;
+                            for (i = 0; i < needPadding; i++){
+                                tempBooleanArray.push(false);
+                            }
+                        }
+                        aFromMask.push(...tempBooleanArray);
+					});
 				}
+
 				return aFromMask;
 			}
 
             function arrayFromMask (nMask) {
-            	var aFromMask;
+            	var aFromMask = [];
                 // nMask must be between -2147483648 and 2147483647
                 if (nMask > 0x7fffffff || nMask < -0x80000000) {
                     throw new TypeError("arrayFromMask - out of range");
@@ -327,8 +337,9 @@
                     d3.selectAll("text").style("font-weight", "normal");
 
 					highlighted = svg.append("svg:g").attr("class", "highlight").selectAll("path").data([ model.get('filtered')[i] ]).enter().append("svg:path").attr("d", path).attr("style", function(d) {
+                        var significanceArray = arrayFromMaskArray(d.significantMask, axes.length - 1);
                         axes.forEach(function(axis){
-                            if(axis != "gene" && isSignificant(d,axes.indexOf(axis)-1)){ // first column is actually the gene, therefore also substract 1 otherwise bitmask will be offset
+                            if(axis != "gene" && isSignificant(significanceArray,axes.indexOf(axis)-1)){ // first column is actually the gene, therefore also substract 1 otherwise bitmask will be offset
                                 d3.select("#id" + axis.replace(/ /g, "_")).style("font-weight", "bold");
                             }
 						});
@@ -363,8 +374,8 @@
                         return !(model.get('filtered')[i][d] == null || model.get('filtered')[i][d] == "N/A");
 					}
 					
-					function isSignificant(d,i){
-                        return arrayFromMaskArray(d.significantMask, axes.length - 1)[i];
+					function isSignificant(array,i){
+                        return array[i];
 					}
 				}
 			};
