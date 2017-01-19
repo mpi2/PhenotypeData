@@ -174,6 +174,8 @@ public class Tools {
 		// additional information
 		List<String> additionalInfos = new ArrayList<>();
 
+		Map<String, String> friendlyNameMap = new HashMap<>();
+
 		// first n fields checked by default
 		Map<String, Integer> defaultOffset = new HashMap<>();
 		defaultOffset.put("gene", 8);
@@ -190,8 +192,14 @@ public class Tools {
 
 			// these first 6 ones are checked by default
 			mainAttrs.add("mgi_accession_id");
+			friendlyNameMap.put("mgi_accession_id", "MGI gene id");
+
 			mainAttrs.add("marker_symbol");
+			friendlyNameMap.put("marker_symbol", "MGI gene symbol");
+
 			mainAttrs.add("human_gene_symbol");
+			friendlyNameMap.put("human_gene_symbol", "HGNC gene symbol");
+
 			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_synonym");
 			mainAttrs.add("marker_type");
@@ -346,6 +354,9 @@ public class Tools {
 			additionalInfos.add("disease_id");
 			additionalInfos.add("disease_term");
 		}
+
+
+
 
 
 		String dataType = corename.toUpperCase().replaceAll("_"," ");

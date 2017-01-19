@@ -400,6 +400,7 @@ $('input#s').keyup(function (e) {
 				});
 			}
 		}
+        $(".ui-menu-item").hide();
 	}
 });
 
