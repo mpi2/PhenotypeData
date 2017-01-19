@@ -175,9 +175,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
         allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
 
-        List<String> dccCenterIds = dccSqlUtils.getCenterIds();
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
-        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId(dccCenterIds);
+        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
