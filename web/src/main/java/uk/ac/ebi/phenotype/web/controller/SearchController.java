@@ -315,23 +315,26 @@ public class SearchController {
 		return "batchQuery";
 	}
 
+	@RequestMapping(value="/batchQuery2", method=RequestMethod.GET)
+	public String loadBatchQueryPage2(
+			@RequestParam(value = "core", required = false) String core,
+			@RequestParam(value = "fllist", required = false) String fllist,
+			@RequestParam(value = "idlist", required = false) String idlist,
+			HttpServletRequest request,
+			Model model) {
 
-//	@RequestMapping(value="/batchQuery", method=RequestMethod.GET)
-//	public String loadBatchQueryPage(
-//			@RequestParam(value = "core", required = false) String core,
-//			@RequestParam(value = "fllist", required = false) String fllist,
-//			@RequestParam(value = "idlist", required = false) String idlist,
-//			HttpServletRequest request,
-//			Model model) {
-//
-//		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
-//		model.addAttribute("outputFields", outputFieldsHtml);
-//		if ( !idlist.isEmpty()) {
-//			model.addAttribute("core", core);
-//			model.addAttribute("fllist", fllist);
-//			model.addAttribute("idlist", idlist);
-//		}
-//		return "batchQuery";
-//	}
+		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+		model.addAttribute("outputFields", outputFieldsHtml);
+
+		if ( idlist != null) {
+			model.addAttribute("core", core);
+			model.addAttribute("fllist", fllist);
+			model.addAttribute("idlist", idlist);
+		}
+
+		return "batchQuery2";
+	}
+
+
 
 }
