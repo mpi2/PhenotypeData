@@ -2,6 +2,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
@@ -99,22 +100,7 @@ public class GrossPathService {
 
 					} else {
 						// should be image here
-						if (obs.getObservationType().equals("image_record")) {
-							SolrDocument image = null;
-							if (downloadToImgMap.containsKey(obs.getDownloadFilePath())) {
-								image = downloadToImgMap.get(obs.getDownloadFilePath());
-							} else {
-								image = imageService.getImageByDownloadFilePath(obs.getDownloadFilePath());
-								downloadToImgMap.put(obs.getDownloadFilePath(), image);
-							}
-
-							//System.out.println("image omero id=" + image.get(ImageDTO.OMERO_ID));
-							parameterNames.add(obs.getParameterName());
-							
-								row.addImage(image);
-							
-
-						}
+						
 						
 					}
 					if (obs.getObservationType().equalsIgnoreCase("text")) {
@@ -216,6 +202,11 @@ public class GrossPathService {
 	public Map<String, List<ObservationDTO>> getObservations() {
 		return this.extSampleIdToObservations;
 
+	}
+	
+	public List<ImageDTO> getGrossPathImagesForGene(String accession) throws SolrServerException, IOException{
+		return imageService.getImagesForGrossPathForGene(accession);
+			
 	}
 
 }

@@ -1087,4 +1087,17 @@ public class ImageService implements WebStatus{
 	}
 
 
+	public List<ImageDTO> getImagesForGrossPathForGene(String accession) throws SolrServerException, IOException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + accession + "\"").setRows(100000000)
+				.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + "Gross Pathology and Tissue Collection" + "\"");
+
+		List<ImageDTO> images = solr.query(query).getBeans(ImageDTO.class);
+
+		return images;
+
+	}
+
+
 }
