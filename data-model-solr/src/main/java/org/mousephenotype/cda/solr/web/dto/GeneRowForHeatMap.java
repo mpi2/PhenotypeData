@@ -21,12 +21,16 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
+import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -36,11 +40,11 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 	
     private String accession="";
     private String symbol="";
+    private String groupLabel;
     private String miceProduced="No";//not boolean as 3 states No, Yes, In progress - could have an enum I guess?
-    private Boolean primaryPhenotype=false;
 	Map<String, HeatMapCell> xAxisToCellMap=new HashMap<>();
 	private Float lowestPValue=new Float(1000000);//just large number so we don't get null pointers
-	private String groupLabel;
+	
 	
 	
     public String getGroupLabel() {
@@ -88,14 +92,6 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 		this.miceProduced = miceProduced;
 	}
 
-	public Boolean getPrimaryPhenotype() {
-		return primaryPhenotype;
-	}
-
-	public void setPrimaryPhenotype(Boolean primaryPhenotype) {
-		this.primaryPhenotype = primaryPhenotype;
-	}
-
 	public String getSymbol() {
 		return symbol;
 	}
@@ -128,16 +124,33 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 	public void setLowestPValue(Float getpValue) {
 		this.lowestPValue=getpValue;
 	}
+	
+	
+	
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
+	
 
-		return "GeneRowForHeatMap [accession=" + accession + ", symbol=" + symbol + ", miceProduced=" + miceProduced + ", primaryPhenotype=" + primaryPhenotype + ", xAxisToCellMap=" + xAxisToCellMap + ", lowestPValue=" + lowestPValue + "]";
-	}	
-    
+	public String toTabbedString() {
+		return  accession + "\t" + symbol + "\t" + groupLabel + "\t" + this.statusStringForExport(miceProduced).replace("<br>", " ") + "\t";
+	}
+
+	
+
+	private String statusStringForExport(String status){
+		List<String> values = getTagValues(status);
+		return StringUtils.join(values, "|");
+	}
+	private static final Pattern TAG_REGEX = Pattern.compile("<span>(.+?)</span>");
+
+	private static List<String> getTagValues(final String str) {
+	    final List<String> tagValues = new ArrayList<String>();
+	    final Matcher matcher = TAG_REGEX.matcher(str);
+	    while (matcher.find()) {
+	        tagValues.add(matcher.group(1));
+	    }
+	    return tagValues;
+	}
+	
     
     
 }
