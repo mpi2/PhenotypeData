@@ -137,7 +137,7 @@
 
 
 <c:if
-        test='${hasPreQcThatMeetsCutOff || numberOfTopLevelMpTermsWithStatisticalResult > 0 || rowsForPhenotypeTable.size() > 0}'>
+        test='${hasPreQcThatMeetsCutOff || rowsForPhenotypeTable.size() > 0}'>
   <!-- Associations table -->
   <div id="phenotypeTableDiv" class="inner-division">
   <h5>Significant Phenotypes</h5>
@@ -184,30 +184,20 @@
             <jsp:include page="PhenoFrag.jsp"></jsp:include>
             <br/>
 
-            <div id="exportIconsDiv"></div>
-          </c:if>
+              <div id="export">
+                  <p class="textright">
+                      Download data as:
+                      <a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">TSV</a>
+                      <a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">XLS</a>
+                  </p>
+              </div>
 
-          <!-- if no data to show -->
-          <c:if
-                  test="${empty rowsForPhenotypeTable}">
-            <div
-                    class="alert alert-info">Pre QC data has been submitted
-              for this gene. Once the QC process is finished phenotype
-              associations stats will be made available.
-            </div>
           </c:if>
 
         </div>
       </div>
     </div>
   </div>
-  
-  <div id="export">
-	<p class="textright"> 
-		Download data as: 
-		<a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">TSV</a> 
-		<a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">XLS</a>
-	</p>
- </div>
+
 </div><!-- end of div for mini section line -->
 </c:if>

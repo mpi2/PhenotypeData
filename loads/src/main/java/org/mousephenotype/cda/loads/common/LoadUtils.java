@@ -17,14 +17,11 @@
 package org.mousephenotype.cda.loads.common;
 
 
-import org.mousephenotype.cda.db.pojo.Organisation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -56,47 +53,24 @@ public class LoadUtils {
 
 
     /**
-     * Maps external input names to Organisation.name. Lookups are case-insensitive.
+     * Maps external dcc center, dcc project, and cda phenotyped_colony names to cda organisation.name and project.name.
+     *
+     * All dcc (and dcc_europhenome_final) center names should be in this list, even if the lookup is the same.
      */
-    public static final Map<String, String> mappedOrganisationNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
-        //   External name          Organisation.name
-        put("CDTA",                 "CDTA");
-        put("Bcm",                  "BCM");
-        put("EUMODIC",              "EUCOMM-EUMODIC");
-        put("Gmc",                  "HMGU");
-        put("Hmgu",                 "HMGU");
-        put("H",                    "MRC Harwell");
-        put("Ics",                  "ICS");
-        put("J",                    "JAX");
-        put("Krb",                  "KMPC");
-        put("MGP",                  "MGP Legacy");
-        put("Ning",                 "NING");
-        put("Ncom",                 "CMHD");
-        put("Rbrc",                 "RBRC");
-        put("RIKEN BRC",            "RBRC");
-        put("Tcp",                  "TCP");
-        put("Ucd",                  "UC Davis");
-        put("Wtsi",                 "WTSI");
+    public static final Map<String, String> mappedExternalCenterNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+        put("Bcm",                      "BCM");                         // center.centerId -> organisation.name
+        put("Gmc",                      "HMGU");                        // center.centerId -> organisation.name
+        put("H",                        "MRC Harwell");                 // center.centerId -> organisation.name
+        put("Hmgu",                     "HMGU");                        // center.centerId -> organisation.name
+        put("Ics",                      "ICS");                         // center.centerId -> organisation.name
+        put("J",                        "JAX");                         // center.centerId -> organisation.name
+        put("Ncom",                     "CMHD");                        // center.centerId -> organisation.name
+        put("Ning",                     "NING");                        // center.centerId -> organisation.name
+        put("Rbrc",                     "RBRC");                        // center.centerId -> organisation.name
+        put("Tcp",                      "TCP");                         // center.centerId -> organisation.name
+        put("Ucd",                      "UC Davis");                    // center.centerId -> organisation.name
+        put("Wtsi",                     "WTSI");                        // center.centerId -> organisation.name
     }};
-    /**
-     * @param ilarValue (e.g. J for Jax)
-     * @return {@link Organisation} instance matching {@code ilarValue}, if found; null otherwise
-     */
-    public Organisation translateILAR(NamedParameterJdbcTemplate jdbcCda, String ilarValue) {
-        String query = "SELECT * FROM organisation WHERE name = :name";
-        String organisationName = mappedOrganisationNames.get(ilarValue);
-        if (organisationName == null)
-            return null;
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("name", organisationName);
-        List<Organisation> organisations = jdbcCda.query(query, parameterMap,new OrganisationRowMapper());
-
-        if (organisations.isEmpty())
-            return null;
-
-        return organisations.get(0);
-    }
 
     public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
         return sourceMap.entrySet().stream().collect(
@@ -106,22 +80,21 @@ public class LoadUtils {
     }
 
     /**
-     * Maps external input names to cda project.name. Lookups are case-insensitive.
+     * Maps external dcc project names to cda project.name.
      */
-    public static final Map<String, String> mappedProjectNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
-        //   External name          Organisation.name
-        put("BaSH",                 "BaSH");
-        put("DTCC",                 "DTCC");
-        put("Eumodic",              "EUMODIC");
-//        put("EUCOMM-EUMODIC",       "???EUCOMM-EUMODIC???");
-        put("Helmholtz GMC",        "HMGU");
-        put("JAX",                  "JAX");
-        put("MARC",                 "MARC");
-        put("MGP",                  "MGP");
-//        put("MGP Legacy",           "???MGP Legacy???");
-        put("MRC",                  "MRC");
-        put("NorCOMM2",             "NorCOMM2");
-        put("Phenomin",             "Phenomin");
-        put("RIKEN BRC",            "RBRC");
+    public static final Map<String, String> mappedExternalProjectNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+        put("BaSH",                     "BaSH");                        // center.project -> project.name
+        put("DTCC",                     "DTCC");                        // center.project -> project.name
+        put("EUCOMM-EUMODIC",           "EUMODIC");                     // center.project -> project.name
+        put("Eumodic",                  "EUMODIC");                     // center.project -> project.name
+        put("Helmholtz GMC",            "Helmholtz GMC");               // center.project -> project.name
+        put("JAX",                      "JAX");                         // center.project -> project.name
+        put("MARC",                     "MARC");                        // center.project -> project.name
+        put("MGP",                      "MGP");                         // center.project -> project.name
+        put("MGP Legacy",               "MGP");                         // center.project -> project.name
+        put("MRC",                      "MRC");                         // center.project -> project.name
+        put("NorCOMM2",                 "NorCOMM2");                    // center.project -> project.name
+        put("Phenomin",                 "Phenomin");                    // center.project -> project.name
+        put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
     }};
 }

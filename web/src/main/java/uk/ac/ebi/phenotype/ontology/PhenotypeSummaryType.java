@@ -15,25 +15,18 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.ontology;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
-
 public class PhenotypeSummaryType {
 	private String id; // mp top level term id
 	private String name;
 	private String sex;
 	private long  numberOfEntries;
-	private Set <String> dataSources;
 	boolean significant;
 	
-	public PhenotypeSummaryType (String mpId, String mpName, String sex, long numberOfEntries, Set <String> dataSources, Boolean significant){
+	public PhenotypeSummaryType (String mpId, String mpName, String sex, long numberOfEntries, Boolean significant){
 		this.id = mpId;
 		this.name = mpName;
 		this.sex = sex;
 		this.numberOfEntries = numberOfEntries;
-		this.dataSources = dataSources;
 		this.significant = significant;
 	}
 
@@ -57,9 +50,6 @@ public class PhenotypeSummaryType {
 		return numberOfEntries;
 	}
 
-	public ArrayList<String> getDataSources() {
-		return new ArrayList<String>(dataSources);
-	}
 	
 	public String getGroup(){
 		return getGroup(this.name);
@@ -130,7 +120,7 @@ public class PhenotypeSummaryType {
 	@Override
 	public String toString() {
 		return "PhenotypeSummaryType [id=" + id + ", name=" + name + ", sex=" + sex + ", numberOfEntries="
-				+ numberOfEntries + ", dataSources=" + dataSources + ", significant=" + significant + "]";
+				+ numberOfEntries + ", significant=" + significant + "]";
 	}
 
 	
