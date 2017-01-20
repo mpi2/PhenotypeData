@@ -110,13 +110,21 @@ public class HeatMapCell {
 		this.floatValue = floatValue;
 	}
 
+	
+	public String toString() {
+		return " [" + xAxisKey + ", " + status + "]";
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
-	@Override
-	public String toString() {
-
-		return "HeatMapCell [floatValue=" + floatValue + ", xAxisKey=" + xAxisKey + ", label=" + label + ", mouseOver=" + mouseOver + ", status=" + status + "]";
-	}    
+//	@Override
+//	public String toString() {
+//
+//		return "HeatMapCell [floatValue=" + floatValue + ", xAxisKey=" + xAxisKey + ", label=" + label + ", mouseOver=" + mouseOver + ", status=" + status + "]";
+//	}  
+	
+	
+	
 
 }

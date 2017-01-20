@@ -16,6 +16,13 @@
 		});
  	</script>
   	
+  	<div id="export">
+										<p class="textright">
+											Download data as:
+											<a id="tsvDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=tsv&fileName=idgData" target="_blank" class="button fa fa-download">TSV</a>
+											<a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank" class="button fa fa-download">XLS</a>
+										</p>
+									</div>     
  	<table id="secondaryGeneHeatmap">
  	
    <thead>
@@ -51,43 +58,5 @@
     
     
   </table>
-                
-
-
-<script>
-		$(document).ready(function() {
-			console.log("calling doc ready on secondary heatmap");
-			 function initGenePhenotypesTable(){
-					
-				 
-				 
-				 $('#secondaryGeneHeatmap').DataTable();
-				 
-				/*  var aDataTblCols = [0,1,2,3,4,5,6,7];
-					//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-				    $('#secondaryGeneHeatmap').dataTable( {
-						"aoColumns": [{ "sType": "string",  "bSortable" : true},
-						              { "sType": "html", "mRender":function( data, type, full ) {
-						            	  return (type === "filter") ? $(data).text() : data;
-						              }},
-						              { "sType": "html", "mRender":function( data, type, full ) {
-						            	  return (type === "filter") ? $(data).text() : data;
-						              }},
-						              { "sType": "string"},
-						              { "sType": "string"},
-						              { "sType": "string"},
-//						              { "sType": "string"},
-//						              { "sType": "html"},
-				                      { "sType": "allnumeric"},
-						              { "sType": "string", "bSortable" : false }
-				
-						              ],
-					    "aaSorting": [[ 28, 'asc' ]],//sort on pValue first
-						"bDestroy": true,
-						"bFilter":false,
-						"bPaginate":true,
-				        "sPaginationType": "bootstrap"
-					}); */
-			    } 
-		});
-	</script>
+           
+          

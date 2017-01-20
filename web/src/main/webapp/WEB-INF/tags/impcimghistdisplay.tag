@@ -14,43 +14,43 @@ allele = allele.replaceAll("##", "</sup>");
 
 <%= allele %> --%>
 <%--<jsp:doBody var="theBody"/>--%>
-<%@ attribute name="img" required="true" type="java.util.Map"%>
+<%@ attribute name="img" required="true" type="org.mousephenotype.cda.solr.service.dto.ImageDTO"%>
 <%@ attribute name="impcMediaBaseUrl" required="true" %>
      
         
          <!-- used for lacz expression pages -->
-         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
-         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omero_id}/" class="thumbnailStyle"></a>
+         		<a href="${impcMediaBaseUrl}/render_image/${img.omeroId}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omeroId}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omeroId}/">
+         		<img  src="${impcMediaBaseUrl}/render_birds_eye_view/${img.omeroId}/" class="thumbnailStyle"></a>
          		<div class="caption" style="height:100px;width:100px; overflow:auto;word-wrap: break-word;">
      
-                                                <c:if test="${not empty img.gene_symbol}"><a href="${baseUrl}/genes/${img.gene_accession_id}">${img.gene_symbol}</a><br/></c:if>
+                                                <c:if test="${not empty img.geneSymbol}"><a href="${baseUrl}/genes/${img.geneAccession}">${img.geneSymbol}</a><br/></c:if>
                                                 <c:if test="${not empty category}"><a href="${href}">${category}</a><br/></c:if>
-                                                <c:if test="${not empty img.image_link}"><a href="${img.image_link}" target="_blank">Original Image</a><br/></c:if>
+                                                <c:if test="${not empty img.imageLink}"><a href="${img.imageLink}" target="_blank">Original Image</a><br/></c:if>
                                                 <c:if test="${not empty img.zygosity}">${img.zygosity}<br/></c:if>
                                                 <c:if test="${not empty count}">${count} Images<br/></c:if>
-                                                <c:if test="${not empty img.parameter_association_name}">
-                                                	<c:forEach items="${img.parameter_association_name}" varStatus="status">
-                                                		<c:out value="${img.parameter_association_name[status.index]}"/>
-                                                		<c:out value="${img.parameter_association_value[status.index]}"/>
+                                                <c:if test="${not empty img.parameterAssociationName}">
+                                                	<c:forEach items="${img.parameterAssociationName}" varStatus="status">
+                                                		<c:out value="${img.parameterAssociationName[status.index]}"/>
+                                                		<c:out value="${img.parameterAssociationValue[status.index]}"/>
                                                 		<br/>
                                                 	</c:forEach>
                                                 </c:if>
-                                                <c:if test="${not empty img.ma_id}">
-                                                	<c:forEach items="${img.ma_id}" varStatus="status">
-                                                		<c:out value="${img.ma_id[status.index]}"/>
-                                                		<c:out value="${img.ma_term[status.index]}"/>
+                                                <c:if test="${not empty img.anatomyId}">
+                                                	<c:forEach items="${img.anatomyId}" varStatus="status">
+                                                		<c:out value="${img.anatomyId[status.index]}"/>
+                                                		<c:out value="${img.anatomyId[status.index]}"/>
                                                 		<br/>
                                                 	</c:forEach>
                                                 </c:if>
                                              
-                                                 <c:if test="${not empty img.emap_id}">
-                                                	<c:forEach items="${img.emap_id}" varStatus="status">
-                                                		<c:out value="${img.emap_id[status.index]}"/>
-                                                		<c:out value="${img.emap_term[status.index]}"/>
+                                                <%--  <c:if test="${not empty img.emapId}">
+                                                	<c:forEach items="${img.emapId}" varStatus="status">
+                                                		<c:out value="${img.emapId[status.index]}"/>
+                                                		<c:out value="${img.emapTerm[status.index]}"/>
                                                 		<br/>
                                                 	</c:forEach>
-                                                </c:if>
-                                                <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
+                                                </c:if> --%>
+                                                <c:if test="${not empty img.alleleSymbol}"><t:formatAllele>${img.alleleSymbol}</t:formatAllele><br/></c:if>
 
                                                 </div>
 

@@ -36,6 +36,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -313,7 +314,12 @@ public class UnidimensionalChartAndTableProvider {
 			// custom statuses to show + custom order
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED) + "], ";
-			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) + "], ";
+			
+			
+			
+			Long genotypeConfirmed= values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) + values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED) + values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE);
+			
+			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  genotypeConfirmed + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE) + "], ";
 		}

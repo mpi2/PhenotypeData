@@ -803,12 +803,12 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         for (String line : lines) {
             String[] pieces = line.trim().split("\t");
 
-            if (pieces.length < 5) {
+            if (pieces.length < 6) {
                 continue;
             }
 
             String humanSymbol = pieces[0];
-            String mgiId = pieces[4].trim();
+            String mgiId = pieces[5].trim();
             if ( ! mgiId.startsWith("MGI:")) {
                 continue;
             }
