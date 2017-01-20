@@ -44,7 +44,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Loads the specimens from a database with a dcc schema into the cda database.
@@ -75,6 +74,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private OntologyTerm sampleTypeMouseEmbryoStage;
     private OntologyTerm sampleTypeWholeOrganism;
 
+    private Map<String, Integer>          cdaOrganisation_idMap;
     private Map<String, PhenotypedColony> phenotypedColonyMap;
 
     private int efoDbId;
@@ -97,6 +97,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
+        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
         phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
@@ -174,20 +175,15 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             String sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
             boolean isControl = (sampleGroup.equals("control"));
 
-            PhenotypedColony phenotypedColony = phenotypedColonyMap.get(specimen.getColonyID());
-            if (phenotypedColony == null) {
-                if ( ! DccSqlUtils.knownBadColonyIds.contains(specimen.getColonyID())) {
-                    missingColonyIds.add(specimen.getColonyID());
-                }
 
-                continue;
-            }
+            // NOTE: control specimens don't have unique colony ids, so don't use iMits as they won't be found.
+
 
             if (isControl) {
-                counts = insertSampleControlSpecimen(specimenExtended, phenotypedColony);
+                counts = insertSampleControlSpecimen(specimenExtended);
                 written.put("controlSample", written.get("controlSample") + 1);
             } else {
-                counts = insertSampleExperimentalSpecimen(specimenExtended, phenotypedColony);
+                counts = insertSampleExperimentalSpecimen(specimenExtended);
                 written.put("experimentalSample", written.get("experimentalSample") + 1);
             }
 
@@ -196,11 +192,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             written.put("liveSample", written.get("liveSample") + counts.get("liveSample"));
         }
 
-        missingColonyIds = missingColonyIds.stream().sorted().collect(Collectors.toSet());
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {
             String colonyId = missingColonyIdsIt.next();
-            logger.error("Skipping missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'");
+            logger.warn("Skipping missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'");
         }
 
         Iterator<String> unexpectedStageIt = unexpectedStage.iterator();
@@ -223,7 +218,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         return RepeatStatus.FINISHED;
     }
 
-    public Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended, PhenotypedColony phenotypedColony) throws DataLoadException {
+    public Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
         Specimen specimen = specimenExtended.getSpecimen();
 
         int externalDbId = cdaSqlUtils.getExternalDbId(specimenExtended.getDatasourceShortName());
@@ -236,9 +231,18 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         BiologicalModel biologicalModel;
         String message;
 
-        // phenotypingCenterId and productionCenterId are validated before insertSampleExperimentalSpecimen is entered.
-        int phenotypingCenterId = phenotypedColony.getPhenotypingCentre().getId();
-        int productionCenterId = phenotypedColony.getProductionCentre().getId();
+        int phenotypingCenterId;
+        int productionCenterId;
+        PhenotypedColony phenotypedColony = phenotypedColonyMap.get(specimen.getColonyID());
+        if (phenotypedColony == null) {
+            if ( ! DccSqlUtils.knownBadColonyIds.contains(specimen.getColonyID())) {
+                missingColonyIds.add(specimen.getColonyID());
+            }
+            return counts;
+        } else {
+            phenotypingCenterId = phenotypedColony.getPhenotypingCentre().getId();
+            productionCenterId = phenotypedColony.getProductionCentre().getId();
+        }
 
         String zygosity;
         switch (specimen.getZygosity().value()) {
@@ -377,7 +381,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         return backgroundStrain;
     }
 
-    public Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended, PhenotypedColony phenotypedColony) throws DataLoadException {
+    public Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended) throws DataLoadException {
 
         Specimen specimen = specimenExtended.getSpecimen();
 
@@ -386,14 +390,13 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         String allelicComposition;
         Strain backgroundStrain;
         int biologicalSampleId;
-        String colonyId;
         Date dateOfBirth;
         OntologyTerm developmentalStage;
         String externalId;
         String litterId;
         String message;
-        int phenotypingCenterId;
-        int productionCenterId;
+        int phenotypingCenterId;        // This is always supplied by the dcc.
+        int productionCenterId;         // If this is missing, use the productionCenterId.
         String sampleGroup;
         OntologyTerm sampleType;
         String sex;
@@ -436,11 +439,13 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         sampleType = (specimen instanceof Mouse ? sampleTypeWholeOrganism : sampleTypeMouseEmbryoStage);
         sampleGroup = "control";
 
-        // phenotypingCenterId and productionCenterId are validated before insertSampleExperimentalSpecimen is entered.
-        phenotypingCenterId = phenotypedColony.getPhenotypingCentre().getId();
-        productionCenterId = phenotypedColony.getProductionCentre().getId();
+        phenotypingCenterId = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());
+        try {
+            productionCenterId = cdaOrganisation_idMap.get(specimen.getProductionCentre().value());     // production center may be null.
+        } catch (Exception e) {
+            productionCenterId = phenotypingCenterId;
+        }
 
-        colonyId = phenotypedColony.getColonyName();
         if (specimen instanceof Mouse) {
             dateOfBirth = ((Mouse) specimen).getDOB().getTime();
             developmentalStage = developmentalStageMouse;
@@ -509,7 +514,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         biologicalSampleId = results.get("biologicalSampleId");
 
         // live_sample
-        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, colonyId, dateOfBirth, developmentalStage, litterId, sex, zygosity);
+        int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSampleId, specimen.getColonyID(), dateOfBirth, developmentalStage, litterId, sex, zygosity);
         if (liveSampleId > 0) {
             counts.put("liveSample", counts.get("liveSample") + 1);
         }
