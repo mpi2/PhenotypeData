@@ -137,7 +137,7 @@
 
 
 <c:if
-        test='${hasPreQcThatMeetsCutOff || numberOfTopLevelMpTermsWithStatisticalResult > 0 || rowsForPhenotypeTable.size() > 0}'>
+        test='${hasPreQcThatMeetsCutOff || rowsForPhenotypeTable.size() > 0}'>
   <!-- Associations table -->
   <div id="phenotypeTableDiv" class="inner-division">
   <h5>Significant Phenotypes</h5>
