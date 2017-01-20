@@ -25,7 +25,6 @@ public class PhenotypeSummaryBySex {
 	private ArrayList <PhenotypeSummaryType> significantMalePhens;
 	private ArrayList <PhenotypeSummaryType> significantFemalePhens;
 	private ArrayList <PhenotypeSummaryType> significantBothPhens;
-	int total = 0;
 	
 	public PhenotypeSummaryBySex(){
 
@@ -70,7 +69,7 @@ public class PhenotypeSummaryBySex {
 					notSignificantBothPhens.add(obj);
 				}
 			} else { 
-				throw (new Exception("Object of type PhenotypeSummaryTuype recieved without valid sex field."));
+				throw (new Exception("Object of type PhenotypeSummaryType recieved without valid sex field."));
 			}
 		}
 	}
@@ -98,14 +97,32 @@ public class PhenotypeSummaryBySex {
 			return notSignificantBothPhens;
 		}
 	}
-	
+
+
 	public int getTotalPhenotypesNumber(){
-		for (PhenotypeSummaryType entry: significantMalePhens)
-			total += entry.getNumberOfEntries();		
-		for (PhenotypeSummaryType entry: significantFemalePhens)
-			total += entry.getNumberOfEntries();		
-		for (PhenotypeSummaryType entry: significantBothPhens)
+
+		int total = 0;
+
+		for (PhenotypeSummaryType entry: significantMalePhens) {
 			total += entry.getNumberOfEntries();
+		}
+		for (PhenotypeSummaryType entry: significantFemalePhens) {
+			total += entry.getNumberOfEntries();
+		}
+		for (PhenotypeSummaryType entry: significantBothPhens) {
+			total += entry.getNumberOfEntries();
+		}
+
+		for (PhenotypeSummaryType entry: notSignificantMalePhens) {
+			total += entry.getNumberOfEntries();
+		}
+		for (PhenotypeSummaryType entry: notSignificantFemalePhens) {
+			total += entry.getNumberOfEntries();
+		}
+		for (PhenotypeSummaryType entry: notSignificantBothPhens) {
+			total += entry.getNumberOfEntries();
+		}
+
 		return total;
 	}
 	

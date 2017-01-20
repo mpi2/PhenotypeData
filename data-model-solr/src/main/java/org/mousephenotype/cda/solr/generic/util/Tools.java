@@ -171,8 +171,30 @@ public class Tools {
 
 		// main attrs.
 		List<String> mainAttrs = new ArrayList<>();
+		List<String> geneAttrs = new ArrayList<>();
+		List<String> alleleAttrs = new ArrayList<>();
+		List<String> phenotypeAttrs = new ArrayList<>();
+		List<String> anatomyAttrs = new ArrayList<>();
+		List<String> diseaseAttrs = new ArrayList<>();
+		List<String> koDataFlowAttrs = new ArrayList<>();
+
 		// additional information
 		List<String> additionalInfos = new ArrayList<>();
+
+		Map<String, String> friendlyNameMap = new HashMap<>();
+		friendlyNameMap.put("mgi_accession_id", "MGI gene id");
+		friendlyNameMap.put("marker_symbol", "MGI gene symbol");
+		friendlyNameMap.put("human_gene_symbol", "HGNC gene symbol");
+		friendlyNameMap.put("marker_name", "MGI marker name");
+		friendlyNameMap.put("marker_synonym", "MGI marker synonym");
+		friendlyNameMap.put("marker_type", "MGI marker type");
+		friendlyNameMap.put("p_value", "p value (phenotyping significance)");
+		friendlyNameMap.put("mp_id", "MP id");
+		friendlyNameMap.put("mp_term", "MP term");
+		friendlyNameMap.put("mp_term_synonym", "MP term synonym");
+		friendlyNameMap.put("mp_term_definition", "MP term definition");
+		friendlyNameMap.put("hp_id", "HP id");
+		friendlyNameMap.put("hp_term", "HP term");
 
 		// first n fields checked by default
 		Map<String, Integer> defaultOffset = new HashMap<>();
@@ -187,6 +209,33 @@ public class Tools {
 		if ( corename.equals("gene") || corename.equals("marker_symbol") ){
 
 			// gene attr fields
+			geneAttrs.add("mgi_accession_id");
+			geneAttrs.add("marker_symbol");
+			geneAttrs.add("human_gene_symbol");
+			geneAttrs.add("marker_name");
+			geneAttrs.add("marker_synonym");
+			geneAttrs.add("marker_type");
+			geneAttrs.add("latest_es_cell_status");
+			geneAttrs.add("latest_mouse_status");
+			geneAttrs.add("latest_phenotype_status");
+			geneAttrs.add("legacy_phenotype_status");
+			geneAttrs.add("latest_project_status");
+			geneAttrs.add("latest_production_centre");
+			geneAttrs.add("latest_phenotyping_centre");
+
+			alleleAttrs.add("allele_mgi_accession_id");
+			alleleAttrs.add("allele_name");
+			alleleAttrs.add("es_cell_status");
+			alleleAttrs.add("mouse_status");
+			alleleAttrs.add("phenotype_status");
+			alleleAttrs.add("allele_type");
+			alleleAttrs.add("mutation_type");
+			alleleAttrs.add("allele_description");
+
+			diseaseAttrs.add("disease_id");
+			diseaseAttrs.add("disease_term");
+
+
 
 			// these first 6 ones are checked by default
 			mainAttrs.add("mgi_accession_id");
@@ -197,7 +246,6 @@ public class Tools {
 			mainAttrs.add("marker_type");
 			mainAttrs.add("latest_mouse_status");
 			mainAttrs.add("latest_phenotype_status");
-
 			mainAttrs.add("legacy_phenotype_status");
 			mainAttrs.add("latest_es_cell_status");
 			mainAttrs.add("latest_project_status");
@@ -210,6 +258,8 @@ public class Tools {
 
 			// annotated mp term
 			additionalInfos.add("p_value");
+
+
 			additionalInfos.add("mp_id");
 			additionalInfos.add("mp_term");
 			additionalInfos.add("mp_term_synonym");
@@ -347,7 +397,6 @@ public class Tools {
 			additionalInfos.add("disease_term");
 		}
 
-
 		String dataType = corename.toUpperCase().replaceAll("_"," ");
 
 		htmlStr1 += "<div class='cat'>" + dataType + " attributes</div>";
@@ -365,7 +414,7 @@ public class Tools {
 
 			}
 
-			String friendlyFieldName = mainAttrs.get(i).replaceAll("_", " ");
+			String friendlyFieldName = friendlyNameMap.get(mainAttrs.get(i)) != null ? friendlyNameMap.get(mainAttrs.get(i)) : mainAttrs.get(i).replaceAll("_", " ");
 			htmlStr1 += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + friendlyFieldName;
 			if ( (i+1) % 3 == 0 ){
 				htmlStr1 += "<br>";
@@ -374,7 +423,7 @@ public class Tools {
 
 		htmlStr2 += "<div class='cat'>Additional annotations to " + dataType + "</div>";
 		for ( int i=0; i<additionalInfos.size(); i++ ){
-			String friendlyFieldName = additionalInfos.get(i).replaceAll("_", " ");
+			String friendlyFieldName = friendlyNameMap.get(additionalInfos.get(i)) != null ? friendlyNameMap.get(additionalInfos.get(i)) : additionalInfos.get(i).replaceAll("_", " ");
 			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + friendlyFieldName;
 			if ( (i+1) % 3 == 0 ){
 				htmlStr2 += "<br>";
