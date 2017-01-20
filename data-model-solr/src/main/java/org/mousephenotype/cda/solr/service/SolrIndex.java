@@ -197,11 +197,10 @@ public class SolrIndex {
 		Map<String, String> coreIdQMap = coreIdQMap();
 		String qField = coreIdQMap.get(dataTypeName);
 
-		if ( dataTypeName.equals("phenodigm") ){
-			//server = getSolrServer("disease");
-		}
-		else if ( dataTypeName.equals("hp") ){
-
+//		if ( dataTypeName.equals("phenodigm") ){
+//			//server = getSolrServer("disease");
+//		}
+		if ( dataTypeName.equals("hp") ){
 			server = getSolrServer("mp");
 		}
 		else if ( dataTypeName.equals("ensembl") || dataTypeName.contains("marker_symbol")){
@@ -210,7 +209,6 @@ public class SolrIndex {
 		else {
 			server = getSolrServer(dataTypeName);
 		}
-		//System.out.println("solrurl: " + server.toString());
 
 		String[] idList = StringUtils.split(idlist, ",");
 		String querystr = null;
@@ -239,7 +237,8 @@ public class SolrIndex {
 
 		// retrieves wanted fields
 		query.setFields(fllist);
-		//System.out.println(dataTypeName + " - BATCHQUERY: " + query);
+		System.out.println("BATCHQUERY " + dataTypeName + " : " + query);
+
 		QueryResponse response = server.query(query, METHOD.POST);
 		//System.out.println("response: "+ response);
 
