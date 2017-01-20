@@ -277,91 +277,120 @@ $(document).ready(function () {
 			.append( $( "<a></a>" ).html( item.label ) )
 			.appendTo( ul );
 	};
-});
 
-// search via ENTER
-$('input#s').keyup(function (e) {
-	if (e.keyCode == 13) { // user hits enter
-		$(".ui-menu-item").hide();
-		//$('ul#ul-id-1').remove();
 
-		//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
-		var input = $('input#s').val().trim();
 
-		//alert(input + ' ' + solrUrl)
-		input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
+    // search via ENTER
+    $('input#s').keyup(function (e) {
+        if (e.keyCode == 13) { // user hits enter
+            $(".ui-menu-item").hide();
+            //$('ul#ul-id-1').remove();
 
-		var re = new RegExp("^'(.*)'$");
-		input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
+            //alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
+            var input = $('input#s').val().trim();
 
-		// NOTE: solr special characters to escape
-		// + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+            //alert(input + ' ' + solrUrl)
+            input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
 
-		input = encodeURIComponent(input);
+            var re = new RegExp("^'(.*)'$");
+            input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
 
-		input = input.replace("%5B", "\\[");
-		input = input.replace("%5D", "\\]");
-		input = input.replace("%7B", "\\{");
-		input = input.replace("%7D", "\\}");
-		input = input.replace("%7C", "\\|");
-		input = input.replace("%5C", "\\\\");
-		input = input.replace("%3C", "\\<");
-		input = input.replace("%3E", "\\>");
-		input = input.replace(".", "\\.");
-		input = input.replace("(", "\\(");
-		input = input.replace(")", "\\)");
-		input = input.replace("%2F", "\\/");
-		input = input.replace("%60", "\\`");
-		input = input.replace("~", "\\~");
-		input = input.replace("%", "\\%");
-		input = input.replace("!", "\\!");
-		input = input.replace("%21", "\\!");
-		input = input.replace("-", "\\-");
+            // NOTE: solr special characters to escape
+            // + - && || ! ( ) { } [ ] ^ " ~ * ? : \
 
-		if (/^\\%22.+%22$/.test(input)) {
-			input = input.replace(/\\/g, ''); //remove starting \ before double quotes
-		}
+            input = encodeURIComponent(input);
 
-		// no need to escape space - looks cleaner to the users
-		// and it is not essential to escape space
+            input = input.replace("%5B", "\\[");
+            input = input.replace("%5D", "\\]");
+            input = input.replace("%7B", "\\{");
+            input = input.replace("%7D", "\\}");
+            input = input.replace("%7C", "\\|");
+            input = input.replace("%5C", "\\\\");
+            input = input.replace("%3C", "\\<");
+            input = input.replace("%3E", "\\>");
+            input = input.replace(".", "\\.");
+            input = input.replace("(", "\\(");
+            input = input.replace(")", "\\)");
+            input = input.replace("%2F", "\\/");
+            input = input.replace("%60", "\\`");
+            input = input.replace("~", "\\~");
+            input = input.replace("%", "\\%");
+            input = input.replace("!", "\\!");
+            input = input.replace("%21", "\\!");
+            input = input.replace("-", "\\-");
 
-		input = input.replace(/\\?%20/g, ' ').replace(qRe, "");
+            if (/^\\%22.+%22$/.test(input)) {
+                input = input.replace(/\\/g, ''); //remove starting \ before double quotes
+            }
 
-		// check for current datatype (tab) and use this as default core
-		// instead of figuring this out for the user
-		var facet = null;
+            // no need to escape space - looks cleaner to the users
+            // and it is not essential to escape space
+            input = input.replace(/\\?%20/g, ' ').replace(qRe, "");
 
-		if ($('ul.tabLabel').size() > 0) {
-			// is on search page
-			$('ul.tabLabel li').each(function () {
-				if ($(this).hasClass('currDataType')) {
-					facet = $(this).attr('id').replace("T", "");
-				}
-			});
+            // check for current datatype (tab) and use this as default core
+            // instead of figuring this out for the user
+            var facet = null;
 
-			if (input == '') {
-				document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
-			}
-			else if (input.match(/HP\\\%3A\d+/i)) {
-				// work out the mapped mp_id and fire off the query
-				_convertHp2MpAndSearch(input, facet);
-			}
-			else if (input.match(/MP%3A\d+ - (.+)/i)) {
-				// hover over hp mp mapping but not selecting
-				// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
-				var matched = input.match(/MP%3A\d+ - (.+)/i);
-				var mpTerm = '"' + matched[1] + '"';
-				var fqStr = $.fn.getCurrentFq('mp');
+            if ($('ul.tabLabel').size() > 0) {
+                // is on search page
+                $('ul.tabLabel li').each(function () {
+                    if ($(this).hasClass('currDataType')) {
+                        facet = $(this).attr('id').replace("T", "");
+                    }
+                });
 
-				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
-			}
-			// else if (input.match(/^chr)){
-			//
-			// }
-			else {
-			    if ( window.location.search == ""){
-			        // when url lookes like .../search at end
-                    // need to figure out the default datatype tab
+                if (input == '') {
+                    document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
+                }
+                else if (input.match(/HP\\\%3A\d+/i)) {
+                    // work out the mapped mp_id and fire off the query
+                    _convertHp2MpAndSearch(input, facet);
+                }
+                else if (input.match(/MP%3A\d+ - (.+)/i)) {
+                    // hover over hp mp mapping but not selecting
+                    // eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
+                    var matched = input.match(/MP%3A\d+ - (.+)/i);
+                    var mpTerm = '"' + matched[1] + '"';
+                    var fqStr = $.fn.getCurrentFq('mp');
+
+                    document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
+                }
+                // else if (input.match(/^chr)){
+                //
+                // }
+                else {
+                    if ( window.location.search == ""){
+                        // when url lookes like .../search at end
+                        // need to figure out the default datatype tab
+                        $.ajax({
+                            url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
+                            type: 'get',
+                            success: function (defaultCore) {
+                                document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
+                            }
+                        });
+                    }
+                    else {
+                        // default to search by quotes
+                        var fqStr = $.fn.fetchUrlParams("fq");
+                        if (fqStr != undefined) {
+                            document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
+                        }
+                        else {
+                            document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
+                        }
+                    }
+                }
+
+            }
+            else {
+
+                // is on non-search page
+                // user typed something and hit ENTER: need to figure out default core to load on search page
+                if ( input == ""){
+                    document.location.href = baseUrl + '/search/gene' + '?kw=*';
+                }
+                else {
                     $.ajax({
                         url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
                         type: 'get',
@@ -370,83 +399,57 @@ $('input#s').keyup(function (e) {
                         }
                     });
                 }
-                else {
-                    // default to search by quotes
-                    var fqStr = $.fn.fetchUrlParams("fq");
-                    if (fqStr != undefined) {
-                        document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"&fq=' + fqStr;
+            }
+
+        }
+    });
+
+    function _getDropdownList(corename, facet2Label, input) {
+        var catLabel = "<span class='category'>" + facet2Label[corename] + "</span>";
+        return "<span class='" + corename + " sugList'>" + input + " in " + catLabel + "</span>"; // so that we know it is category search
+    }
+
+    function _convertHp2MpAndSearch(input, facet){
+        input = input.toUpperCase();
+        $.ajax({
+            url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
+            dataType: "jsonp",
+            jsonp: 'json.wrf',
+            type: 'post',
+            async: false,
+            success: function( json ) {
+                var mpid = json.response.docs[0].hpmp_id;
+                document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
+            }
+        });
+    }
+
+    function _convertInputForSearch(input){
+        $.ajax({
+            url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",
+            dataType: "jsonp",
+            jsonp: 'json.wrf',
+            type: 'post',
+            async: false,
+            success: function( json ) {
+                var doc = json.response.docs[0];
+                var facet, q;
+
+                for( var field in doc ) {
+                    if ( field != 'docType' ){
+                        q = doc[field];
                     }
                     else {
-                        document.location.href = baseUrl + '/search/' + facet + '?kw="' + input + '"';
+                        facet = doc[field];
                     }
                 }
-			}
 
-		}
-		else {
+                document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
+            }
+        });
+    }
 
-			// is on non-search page
-			// user typed something and hit ENTER: need to figure out default core to load on search page
-			if ( input == ""){
-				document.location.href = baseUrl + '/search/gene' + '?kw=*';
-			}
-			else {
-				$.ajax({
-					url: baseUrl + '/fetchDefaultCore?q="' + input + '"',
-					type: 'get',
-					success: function (defaultCore) {
-						document.location.href = baseUrl + '/search/' + defaultCore + '?kw="' + input + '"';
-					}
-				});
-			}
-		}
-        $(".ui-menu-item").hide();
-	}
 });
 
-function _getDropdownList(corename, facet2Label, input) {
-	var catLabel = "<span class='category'>" + facet2Label[corename] + "</span>";
-	return "<span class='" + corename + " sugList'>" + input + " in " + catLabel + "</span>"; // so that we know it is category search
-}
-
-function _convertHp2MpAndSearch(input, facet){
-	input = input.toUpperCase();
-	$.ajax({
-		url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
-		dataType: "jsonp",
-		jsonp: 'json.wrf',
-		type: 'post',
-		async: false,
-		success: function( json ) {
-				var mpid = json.response.docs[0].hpmp_id;
-				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
-		}
-	});
-}
-
-function _convertInputForSearch(input){
-	$.ajax({
-		url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",
-		dataType: "jsonp",
-		jsonp: 'json.wrf',
-		type: 'post',
-		async: false,
-		success: function( json ) {
-			var doc = json.response.docs[0];
-			var facet, q;
-
-			for( var field in doc ) {
-				if ( field != 'docType' ){
-					q = doc[field];
-				}
-				else {
-					facet = doc[field];
-				}
-			}
-
-			document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
-		}
-	});
-}
 
  	
