@@ -44,6 +44,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Loads the specimens from a database with a dcc schema into the cda database.
@@ -195,10 +196,11 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             written.put("liveSample", written.get("liveSample") + counts.get("liveSample"));
         }
 
+        missingColonyIds = missingColonyIds.stream().sorted().collect(Collectors.toSet());
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {
             String colonyId = missingColonyIdsIt.next();
-            logger.error("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'. Skipping...");
+            logger.error("Skipping missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'");
         }
 
         Iterator<String> unexpectedStageIt = unexpectedStage.iterator();
