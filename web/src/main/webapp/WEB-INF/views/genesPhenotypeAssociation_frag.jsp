@@ -194,16 +194,6 @@
 
           </c:if>
 
-          <!-- if no data to show -->
-          <c:if
-                  test="${empty rowsForPhenotypeTable}">
-            <div
-                    class="alert alert-info">Pre QC data has been submitted
-              for this gene. Once the QC process is finished phenotype
-              associations stats will be made available.
-            </div>
-          </c:if>
-
         </div>
       </div>
     </div>
