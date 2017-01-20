@@ -329,27 +329,19 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda organisation_id primary keys, keyed by dcc center.centerId
      */
-    public Map<String, Integer> getCdaOrganisation_idsByDccCenterId(List<String> dccCenterIds) {
+    public Map<String, Integer> getCdaOrganisation_idsByDccCenterId() {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Organisation>                  organisations             = jdbcCda.query("SELECT * FROM organisation", new BeanPropertyRowMapper(Organisation.class));
-        Map<String, String>                 mappedOrganisationNames   = LoadUtils.mappedOrganisationNames;
+        Map<String, Organisation> organisations = getOrganisations();
 
-        for (Organisation result : organisations) {
-            Iterator<Map.Entry<String, String>> mappedOrganisationNamesIt = mappedOrganisationNames.entrySet().iterator();
-            String organisationName = result.getName();
-            String centerId = null;
-            while (mappedOrganisationNamesIt.hasNext()) {
-                Map.Entry<String, String> entry = mappedOrganisationNamesIt.next();
-                if (entry.getValue().equals(organisationName)) {
-                    centerId = entry.getKey();
-                    break;
-                }
-            }
+        Iterator<Map.Entry<String, String>> entrySetIt = LoadUtils.mappedExternalCenterNames.entrySet().iterator();
+        while (entrySetIt.hasNext()) {
+            Map.Entry<String, String> entry = entrySetIt.next();
+            // key = external (e.g. dcc) name.  value = cda organisation.name.
+            String dccName = entry.getKey();
+            String cdaName = entry.getValue();
 
-            if (centerId != null) {
-                map.put(centerId, result.getId());
-            }
+            map.put(dccName, organisations.get(cdaName).getId());
         }
 
         return map;
@@ -362,13 +354,16 @@ public class CdaSqlUtils {
     public Map<String, Integer> getCdaProject_idsByDccProject() {
         Map<String, Integer> map = new ConcurrentHashMap<>();
 
-        List<Project>       results                     = jdbcCda.query("SELECT * FROM project", new BeanPropertyRowMapper(Project.class));
-        Map<String, String> cdaProject_idToDccProjectMap = LoadUtils.inverseMap(LoadUtils.mappedProjectNames);
-        for (Project result : results) {
-            String dccKey = cdaProject_idToDccProjectMap.get(result.getName());
-            if (dccKey != null) {
-                map.put(dccKey, result.getId());
-            }
+        Map<String, Project> projects = getProjects();
+
+        Iterator<Map.Entry<String, String>> entrySetIt = LoadUtils.mappedExternalProjectNames.entrySet().iterator();
+        while (entrySetIt.hasNext()) {
+            Map.Entry<String, String> entry = entrySetIt.next();
+            // key = external (e.g. dcc) name.  value = cda project.name.
+            String dccName = entry.getKey();
+            String cdaName = entry.getValue();
+
+            map.put(dccName, projects.get(cdaName).getId());
         }
 
         return map;

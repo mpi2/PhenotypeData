@@ -175,9 +175,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
         allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
 
-        List<String> dccCenterIds = dccSqlUtils.getCenterIds();
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
-        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId(dccCenterIds);
+        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
@@ -480,6 +479,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         // simpleParameters
         List<SimpleParameter> simpleParameterList = simpleParameterMap.get(dccExperimentDTO.getDcc_procedure_pk());
+        if (simpleParameterList == null)
+            simpleParameterList = new ArrayList<>();
         for (SimpleParameter simpleParameter : simpleParameterList) {
             insertSimpleParameter(dccExperimentDTO, simpleParameter, experimentPk, dbId, biologicalSamplePk);
         }
