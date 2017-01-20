@@ -107,18 +107,7 @@
 										
 									</td>
 									
-									<%-- <td>
-										<c:forEach var="image" items="${histRow.imageList }">
-										
-										<img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/> 
-										increment= ${image.increment_value}
-										 <!-- <div id="grid"> -->
-                                           
-												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
-											
-										<!-- </div> -->
-										</c:forEach> 
-									</td> --%>
+									
 	
 								</tr>
 								
@@ -128,9 +117,8 @@
 							</table>	
 							
 							
-							</div>
-						
-					</div>
+							
+                    
                     
                     
                     
@@ -142,6 +130,38 @@
 						
                     </div>
                 </div>
+                
+                
+                
+               <%--  <div  class="section">
+								<div class="inner">
+									<div class="accordion-body" style="display: block">
+										<div id="grid">
+										<ul>
+										<c:forEach var="image" items="${images }">
+										
+										
+										
+										 <!-- <div id="grid"> -->
+                                           
+												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
+											
+										<!-- </div> -->
+										</c:forEach> 
+							</ul>
+										</div>
+									</div>
+								</div>
+					</div> --%>
+					
+					
+					
+					
+					
+					
+					
+					
+					
             </div>
         </div>
       <script> 
