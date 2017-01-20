@@ -479,6 +479,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         // simpleParameters
         List<SimpleParameter> simpleParameterList = simpleParameterMap.get(dccExperimentDTO.getDcc_procedure_pk());
+        if (simpleParameterList == null)
+            simpleParameterList = new ArrayList<>();
         for (SimpleParameter simpleParameter : simpleParameterList) {
             insertSimpleParameter(dccExperimentDTO, simpleParameter, experimentPk, dbId, biologicalSamplePk);
         }
