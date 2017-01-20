@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.GrossPathService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
 import org.slf4j.Logger;
@@ -36,9 +37,11 @@ public class GrossPathController {
 		model.addAttribute("gene", gene);
 		
 		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
+		List<ImageDTO> images = grossPathService.getGrossPathImagesForGene(acc);
 		List<GrossPathPageTableRow> grossPathRows = grossPathService.getTableData(allObservations);
 		model.addAttribute("histopathRows", grossPathRows);
 		model.addAttribute("extSampleIdToObservations", allObservations);
+		model.addAttribute("images", images);
 		return "grosspath";	
 	}
 }
