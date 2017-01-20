@@ -412,8 +412,6 @@
 
 								<div class="inner">
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
-									
-									
 								</div>
 
 							</div>
