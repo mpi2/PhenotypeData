@@ -375,7 +375,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         doc.setExternalDbId(r.getInt("external_db_id"));
         doc.setDbId(r.getInt("db_id"));
         doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
-        doc.setCategories(Arrays.asList(r.getString("category")));
 
         doc.setStatisticalMethod("Supplied as data");
         doc.setColonyId(r.getString("colony_id"));
@@ -1493,6 +1492,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     }
 
                     StatisticalResultDTO doc = parseLineResult(r);
+                    doc.setCategories(Arrays.asList(r.getString("category")));
                     docs.add(doc);
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
                     shouldHaveAdded.add(doc.getDocId());
@@ -1556,6 +1556,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseLineResult(r);
+                    doc.setCategories(Arrays.asList(r.getString("category")));
                     docs.add(doc);
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
                     shouldHaveAdded.add(doc.getDocId());
