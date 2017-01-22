@@ -65,11 +65,22 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     static final String RESOURCE_3I = "3i";
     private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
 
-    private final DataSource komp2DataSource;
-    private final SolrClient statisticalResultCore;
-    private final MpOntologyDAO mpOntologyService;
-    private final MaOntologyDAO maOntologyService;
-    private final PhenotypePipelineDAO phenotypePipelineDAO;
+    @Autowired
+    @Qualifier("komp2DataSource")
+    private DataSource komp2DataSource;
+
+    @Autowired
+    @Qualifier("statisticalResultCore")
+    private SolrClient statisticalResultCore;
+
+    @Autowired
+    private MpOntologyDAO mpOntologyService;
+
+    @Autowired
+    private MaOntologyDAO maOntologyService;
+
+    @Autowired
+    private PhenotypePipelineDAO phenotypePipelineDAO;
 
     private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
@@ -81,21 +92,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
     private Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
     private Map<String, String> embryoSignificantResults = new HashMap<>();
-    protected Set<String> VIA_SIGNIFICANT;
-    protected Set<String> MALE_FER_SIGNIFICANT;
-    protected Set<String> FEMALE_FER_SIGNIFICANT;
+    protected Set<String> VIA_SIGNIFICANT = new HashSet<>();
+    protected Set<String> MALE_FER_SIGNIFICANT = new HashSet<>();
+    protected Set<String> FEMALE_FER_SIGNIFICANT = new HashSet<>();
 
     private List<String> shouldHaveAdded = new ArrayList<>();
-
-    @Autowired
-    public StatisticalResultsIndexer(@Qualifier("komp2DataSource") DataSource komp2DataSource, @Qualifier("statisticalResultCore") SolrClient statisticalResultCore, MpOntologyDAO mpOntologyService, MaOntologyDAO maOntologyService, PhenotypePipelineDAO phenotypePipelineDAO) {
-
-        this.komp2DataSource = komp2DataSource;
-        this.statisticalResultCore = statisticalResultCore;
-        this.mpOntologyService = mpOntologyService;
-        this.maOntologyService = maOntologyService;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
-    }
 
     void setPipelineMap(Map<Integer, ImpressBaseDTO> pipelineMap) {
         this.pipelineMap = pipelineMap;
@@ -159,29 +160,15 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             if (SAVE) statisticalResultCore.commit();
 
             List<Callable<List<StatisticalResultDTO>>> resultGenerators = Arrays.asList(
-                    getViabilityResults(),
-                    getFertilityResults(),
-                    getReferenceRangePlusResults(),
-                    getEmbryoViabilityResults(),
-                    getEmbryoResults(),
-                    getGrossPathologyResults(),
-                    getUnidimensionalResults(),
-                    getCategoricalResults()
+                    getViabilityResults()
+                    , getFertilityResults()
+                    , getReferenceRangePlusResults()
+                    , getEmbryoViabilityResults()
+                    , getEmbryoResults()
+                    , getGrossPathologyResults()
+                    , getUnidimensionalResults()
+                    , getCategoricalResults()
             );
-
-//			for (Callable<List<StatisticalResultDTO>> r : resultGenerators) {
-//
-//				try {
-//
-//					List<StatisticalResultDTO> documents = r.call();
-//					count += documents.size();
-////					statisticalResultCore.addBeans(documents, 30000);
-//
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//
-//			}
 
             ExecutorService pool = Executors.newFixedThreadPool(4);
             List<Future<List<StatisticalResultDTO>>> producers = new ArrayList<>();
@@ -388,6 +375,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         doc.setExternalDbId(r.getInt("external_db_id"));
         doc.setDbId(r.getInt("db_id"));
         doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
+        doc.setCategories(Arrays.asList(r.getString("category")));
 
         doc.setStatisticalMethod("Supplied as data");
         doc.setColonyId(r.getString("colony_id"));
@@ -1464,7 +1452,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     class FertilityResults implements Callable<List<StatisticalResultDTO>> {
 
-        String query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', IF(sex IS NULL,'both',sex)) as doc_id, " +
+        String query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', IF(sex IS NULL,'both',sex)) as doc_id, co.category, " +
                 "'line' AS data_type, db.id AS db_id, " +
                 "zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
                 "parameter.stable_id as dependent_variable, " +
@@ -1476,6 +1464,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 "org.name as phenotyping_center, org.id as phenotyping_center_id " +
                 "FROM phenotype_parameter parameter " +
                 "INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id IN ('IMPC_FER_001_001', 'IMPC_FER_019_001') " +
+                "INNER JOIN categorical_observation co ON co.id=obs.id " +
                 "INNER JOIN experiment_observation eo ON eo.observation_id=obs.id " +
                 "INNER JOIN experiment exp ON eo.experiment_id=exp.id " +
                 "INNER JOIN external_db db ON db.id=obs.db_id " +
