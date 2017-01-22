@@ -1616,6 +1616,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                     if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
                         addMpTermData(embryoSignificantResults.get(r.getString("significant_id")), doc);
+                        doc.setSignificant(false);
                     } else {
                         doc.setSignificant(false);
                     }
