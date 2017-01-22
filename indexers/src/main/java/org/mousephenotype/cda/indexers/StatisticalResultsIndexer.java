@@ -1728,6 +1728,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                     StatisticalResultDTO doc = parseLineResult(r);
                     doc.setDocId(doc.getDocId()+"-"+(i++));
+                    doc.setSignificant(true);
                     docs.add(doc);
 
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
