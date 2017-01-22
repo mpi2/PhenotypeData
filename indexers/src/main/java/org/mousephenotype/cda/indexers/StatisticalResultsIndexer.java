@@ -911,36 +911,48 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     void populateAdultLineLevelSignificanceMap() throws SQLException {
 
-        Map<String, Set<String>> queries = new HashMap<>();
+        class SignificantQuery {
+            private String label;
+            private String query;
+            private Set<String> set;
+
+            private SignificantQuery(String label, String query, Set<String> set) {
+                this.label = label;
+                this.query = query;
+                this.set = set;
+            }
+        }
+
+        List<SignificantQuery> sigQueries = new ArrayList<>();
 
         String query = "SELECT colony_id " +
                 "FROM phenotype_call_summary pcs " +
                 "INNER JOIN phenotype_parameter parameter ON parameter.id = pcs.parameter_id " +
                 "WHERE parameter.stable_id = 'IMPC_VIA_001_001' ";
-        queries.put(query, VIA_SIGNIFICANT);
+        sigQueries.add(new SignificantQuery("Viability", query, VIA_SIGNIFICANT));
 
         query = "SELECT colony_id " +
                 "FROM phenotype_call_summary pcs " +
                 "INNER JOIN phenotype_parameter parameter ON parameter.id = pcs.parameter_id " +
                 "WHERE parameter.stable_id = 'IMPC_FER_001_001' ";
-        queries.put(query, MALE_FER_SIGNIFICANT);
+        sigQueries.add(new SignificantQuery("Male fertility", query, MALE_FER_SIGNIFICANT));
 
         query = "SELECT colony_id " +
                 "FROM phenotype_call_summary pcs " +
                 "INNER JOIN phenotype_parameter parameter ON parameter.id = pcs.parameter_id " +
                 "WHERE parameter.stable_id = 'IMPC_FER_019_001' ";
-        queries.put(query, FEMALE_FER_SIGNIFICANT);
+        sigQueries.add(new SignificantQuery("Female fertility", query, FEMALE_FER_SIGNIFICANT));
 
-        for (String setQuery : queries.keySet()) {
+        for (SignificantQuery sq : sigQueries) {
 
-            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(setQuery)) {
+            try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(sq.query)) {
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
-                    queries.get(query).add(r.getString("colony_id"));
+                    sq.set.add(r.getString("colony_id"));
                 }
             }
 
-            logger.info(" Mapped {} line level significant data entries", queries.get(query).size());
+            logger.info(" Mapped {} {} significant data entries", sq.set.size(), sq.label);
 
         }
 
