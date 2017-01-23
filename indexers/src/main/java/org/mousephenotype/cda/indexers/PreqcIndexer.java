@@ -495,29 +495,19 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
     public void doAlleleSymbol2NameIdMapping() {
 
-        ResultSet rs;
-        Statement statement;
 
-        String query = "select acc, symbol, name from allele";
         try {
-            statement = conn_komp2.createStatement();
-            rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                // Retrieve by column name
-                String acc = rs.getString("acc");
-                String symbol = rs.getString("symbol");
-                String name = rs.getString("name");
-                // logger.error(acc + " -- "+ symbol);
-
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments(Allele2DTO.ALLELE_NAME, Allele2DTO.ALLELE_MGI_ACCESSION_ID, Allele2DTO.ALLELE_SYMBOL);
+            for (Allele2DTO allele: allele2Docs){
                 AlleleDTO al = new AlleleDTO();
-                al.acc = acc;
-                al.name = name;
-                alleleSymbol2NameIdMapping.put(symbol, al);
+                al.acc = allele.getAlleleMgiAccessionId();
+                al.name = allele.getAlleleName();
+                alleleSymbol2NameIdMapping.put(allele.getAlleleSymbol(), al);
             }
-        } catch (SQLException e) {
+        } catch (IOException | SolrServerException e) {
             e.printStackTrace();
         }
+
     }
 
     public void doStrainId2NameMapping() {
