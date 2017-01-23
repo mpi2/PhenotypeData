@@ -664,12 +664,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
 
-        // Check for null/empty values. Values are not required - sometimes there is a parameterStatus instead.
+        // Check for null/empty values. Values are not required - sometimes there is a parameterStatus instead, and sometimes an optional, empty or null value is provided. Ignore in all such cases.
         String value = simpleParameter.getValue();
         if ((value == null) || value.trim().isEmpty()) {
             if ((simpleParameter.getParameterStatus() == null) || (simpleParameter.getParameterStatus().trim().isEmpty())) {
-                logger.warn("Null/empty value and status found for simple parameter {}, dcc experiment {}. Skipping parameter ...",
-                            simpleParameter.getParameterID(), dccExperimentDTO);
+                if (requiredImpressParameters.contains(simpleParameter.getParameterID())) {
+                    logger.warn("Null/empty value and status found for required simple parameter {}, dcc experiment {}. Skipping parameter ...",
+                                simpleParameter.getParameterID(), dccExperimentDTO);
+                }
             }
             return;
         }
