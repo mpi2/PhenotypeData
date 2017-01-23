@@ -75,17 +75,18 @@ public class PhenodigmService implements WebStatus {
 	}
 
 
-	public Map<String, Set<String>> getGenesWithDisease(Set<String> diseaseClasses) throws IOException, SolrServerException {
+	public Map<String, Set<String>> getGenesWithDisease(Set<String> diseaseClasses, Boolean humanCurated) throws IOException, SolrServerException {
 
 		Set<String> mgiPredicted = new HashSet<>();
 		Set<String> impcPredicted = new HashSet<>();
+		Set<String> orthologyOnly = new HashSet<>(); // for predictions by orthology it's possible that neither IMPC nor MGI have good scores
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
 		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
-//		query.addFilterQuery(String.format("(" + PhenodigmDTO.HUMAN_CURATED + ":true OR " + PhenodigmDTO.MOUSE_CURATED + ":true OR "+ PhenodigmDTO.RAW_MOD_SCORE + ":[%s TO *])", MIN_RAW_SCORE_CUTOFF));
-		query.addFilterQuery(String.format(PhenodigmDTO.RAW_MOD_SCORE + ":[%s TO *]", MIN_RAW_SCORE_CUTOFF));
-		query.addFilterQuery(PhenodigmDTO.MGI_PREDICTED + ":true");
+		if (humanCurated != null) {
+			query.addFilterQuery(PhenodigmDTO.HUMAN_CURATED + ":true");
+		}
 		query.setRows(Integer.MAX_VALUE);
 		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED);
 
@@ -96,28 +97,21 @@ public class PhenodigmService implements WebStatus {
 			if (dto.getMgiPredicted()) {
 				mgiPredicted.add(dto.getMarkerSymbol());
 			}
-		}
-
-		query = new SolrQuery();
-		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
-		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
-//		query.addFilterQuery(String.format("(" + PhenodigmDTO.HUMAN_CURATED + ":true OR " + PhenodigmDTO.MOUSE_CURATED + ":true OR "+ PhenodigmDTO.RAW_HTPC_SCORE + ":[%s TO *])", MIN_RAW_SCORE_CUTOFF));
-		query.addFilterQuery(String.format(PhenodigmDTO.RAW_HTPC_SCORE + ":[%s TO *]", MIN_RAW_SCORE_CUTOFF));
-		query.addFilterQuery(PhenodigmDTO.IMPC_PREDICTED + ":true");
-		query.setRows(Integer.MAX_VALUE);
-		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED);
-
-		rsp = solr.query(query);
-		dtos = rsp.getBeans(PhenodigmDTO.class);
-		for (PhenodigmDTO dto : dtos) {
 			if (dto.getImpcPredicted()) {
 				impcPredicted.add(dto.getMarkerSymbol());
+			}
+			if (!dto.getMgiPredicted() && !dto.getImpcPredicted()){
+				orthologyOnly.add(dto.getMarkerSymbol());
 			}
 		}
 
 		Map<String, Set<String>> result = new HashMap<>();
+
 		result.put("Genes with MGI predicted cardiovascular disease", mgiPredicted);
 		result.put("Genes with IMPC predicted cardiovascular disease", impcPredicted);
+		if (orthologyOnly.size() > 0) {
+			result.put("Orthology only", impcPredicted);
+		}
 
 		return result;
 

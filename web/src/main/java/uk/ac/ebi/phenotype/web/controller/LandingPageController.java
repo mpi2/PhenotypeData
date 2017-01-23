@@ -163,10 +163,6 @@ public class LandingPageController {
         model.addAttribute("systemName", mpDTO.getMpTerm().replace(" phenotype", ""));
         model.addAttribute("procedures", procedures);
 
-        //TODO add to model counts in json for venn diagram
-        getOrtologyDiseaseModelVennDiagram(mpDTO.getMpId(), null, null);
-
-
         return "landing_" + page;
 
     }
@@ -181,26 +177,29 @@ public class LandingPageController {
             RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
-        return "var sets =  " + getOrtologyDiseaseModelVennDiagram(mpId, null, null) + ";";
 
-    }
-
-
-    private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, String diseaseSystem, Set<String> geneSymbols) throws IOException, SolrServerException {
-
-        Map<String, Set<String>> allSets = new HashMap<>();
-
-        // get gene sets for human orthology (with/without)
-        allSets.putAll(geneService.getGenesByOrthology(mpId));
-        System.out.println(geneService.getGenesByOrthology(mpId));
-
-        // get gene sets for IMPC and MGI disease models
-         // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/phenodigm/select?q=*:*&facet=true&facet.field=type&fq=type:disease_gene_summary&fq=impc_predicted:true&fq=raw_htpc_score:[1.79%20TO%20*]&fq=disease_classes:cardiac*&group=true&group.field=marker_symbol&group.ngroups=true
         Set<String> diseaseClasses = new HashSet<>();
         diseaseClasses.add("cardiac");
         diseaseClasses.add("cardiac malformations");
         diseaseClasses.add("circulatory system");
-        allSets.putAll(phenodigmService.getGenesWithDisease(diseaseClasses));
+
+        return "var sets =  " + getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, null) + ";";
+
+    }
+
+
+    private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, Set<String> diseaseClasses, Set<String> geneSymbols) throws IOException, SolrServerException {
+
+        Map<String, Set<String>> allSets = new HashMap<>();
+
+        // get gene sets for human orthology (with/without)
+        allSets.put("IMPC phenotype", geneService.getGenesSumbolsBy(mpId));
+        System.out.println("Gene count : " + geneService.getGenesSumbolsBy(mpId).size());
+
+        // get gene sets for IMPC and MGI disease models
+         // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/phenodigm/select?q=*:*&facet=true&facet.field=type&fq=type:disease_gene_summary&fq=impc_predicted:true&fq=raw_htpc_score:[1.79%20TO%20*]&fq=disease_classes:cardiac*&group=true&group.field=marker_symbol&group.ngroups=true
+
+        allSets.putAll(phenodigmService.getGenesWithDisease(diseaseClasses, true));
 
         // get counts for intersections
         JSONArray sets = new JSONArray();
