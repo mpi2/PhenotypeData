@@ -1053,7 +1053,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		for (StatisticalResultDTO dto : dtos) {
 
-			if (dto.getTopLevelMpTermId()!=null || dto.getFemaleTopLevelMpTermId()!=null || dto.getMaleTopLevelMpTermId()!=null) {
+			if (dto.getTopLevelMpTermId() != null || dto.getFemaleTopLevelMpTermId() != null || dto.getMaleTopLevelMpTermId() != null) {
 
 				// Collect all the top level terms into a single list
 				List<String> topLevelTermIds = Stream.of(dto.getTopLevelMpTermId(), dto.getFemaleTopLevelMpTermId(), dto.getMaleTopLevelMpTermId())
@@ -1078,7 +1078,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 			}
 		}
-
 		return res;
     }
 

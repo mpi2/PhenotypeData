@@ -15,25 +15,18 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.ontology;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
-
 public class PhenotypeSummaryType {
 	private String id; // mp top level term id
 	private String name;
 	private String sex;
 	private long  numberOfEntries;
-	private Set <String> dataSources;
 	boolean significant;
 	
-	public PhenotypeSummaryType (String mpId, String mpName, String sex, long numberOfEntries, Set <String> dataSources, Boolean significant){
+	public PhenotypeSummaryType (String mpId, String mpName, String sex, long numberOfEntries, Boolean significant){
 		this.id = mpId;
 		this.name = mpName;
 		this.sex = sex;
 		this.numberOfEntries = numberOfEntries;
-		this.dataSources = dataSources;
 		this.significant = significant;
 	}
 
@@ -57,9 +50,6 @@ public class PhenotypeSummaryType {
 		return numberOfEntries;
 	}
 
-	public ArrayList<String> getDataSources() {
-		return new ArrayList<String>(dataSources);
-	}
 	
 	public String getGroup(){
 		return getGroup(this.name);
@@ -88,7 +78,7 @@ public class PhenotypeSummaryType {
 			else if ( mpTopLevel.equalsIgnoreCase("muscle phenotype") || mpTopLevel.equalsIgnoreCase("renal/urinary system phenotype") || mpTopLevel.equalsIgnoreCase("reproductive system phenotype") ||
 			mpTopLevel.equalsIgnoreCase("respiratory system phenotype") || mpTopLevel.equalsIgnoreCase("craniofacial phenotype") || mpTopLevel.equalsIgnoreCase("hearing/vestibular/ear phenotype") ||
 			mpTopLevel.equalsIgnoreCase("limbs/digits/tail phenotype") || mpTopLevel.equalsIgnoreCase("cardiovascular system phenotype") || mpTopLevel.equalsIgnoreCase("mortality/aging") ||
-			mpTopLevel.equalsIgnoreCase("skeleton phenotype") || mpTopLevel.equalsIgnoreCase("growth/size/body region phenotype") || mpTopLevel.equalsIgnoreCase("vision/eye phenotype")){
+			mpTopLevel.equalsIgnoreCase("endocrine/exocrine gland phenotype") || mpTopLevel.equalsIgnoreCase("skeleton phenotype") || mpTopLevel.equalsIgnoreCase("growth/size/body region phenotype") || mpTopLevel.equalsIgnoreCase("vision/eye phenotype")){
 				return mpTopLevel;			
 			}
 					
@@ -120,7 +110,7 @@ public class PhenotypeSummaryType {
 			else if ( this.name.equalsIgnoreCase("muscle phenotype") || this.name.equalsIgnoreCase("renal/urinary system phenotype") || this.name.equalsIgnoreCase("reproductive system phenotype") ||
 			this.name.equalsIgnoreCase("respiratory system phenotype") || this.name.equalsIgnoreCase("craniofacial phenotype") || this.name.equalsIgnoreCase("hearing/vestibular/ear phenotype") ||
 			this.name.equalsIgnoreCase("limbs/digits/tail phenotype") || this.name.equalsIgnoreCase("cardiovascular system phenotype") || this.name.equalsIgnoreCase("mortality/aging") ||
-			this.name.equalsIgnoreCase("skeleton phenotype") || this.name.equalsIgnoreCase("growth/size/body region phenotype") || this.name.equalsIgnoreCase("vision/eye phenotype")){
+			this.name.equalsIgnoreCase("endocrine/exocrine gland phenotype") || this.name.equalsIgnoreCase("skeleton phenotype") || this.name.equalsIgnoreCase("growth/size/body region phenotype") || this.name.equalsIgnoreCase("vision/eye phenotype")){
 				return "mpTermId=" + this.id + "";			
 			}
 		}
@@ -130,7 +120,7 @@ public class PhenotypeSummaryType {
 	@Override
 	public String toString() {
 		return "PhenotypeSummaryType [id=" + id + ", name=" + name + ", sex=" + sex + ", numberOfEntries="
-				+ numberOfEntries + ", dataSources=" + dataSources + ", significant=" + significant + "]";
+				+ numberOfEntries + ", significant=" + significant + "]";
 	}
 
 	

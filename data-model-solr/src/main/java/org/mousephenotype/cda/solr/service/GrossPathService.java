@@ -2,6 +2,7 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -204,7 +205,7 @@ public class GrossPathService {
 
 	}
 	
-	public List<ImageDTO> getGrossPathImagesForGene(String accession) throws SolrServerException, IOException{
+	public SolrDocumentList getGrossPathImagesForGene(String accession) throws SolrServerException, IOException{
 		return imageService.getImagesForGrossPathForGene(accession);
 			
 	}
