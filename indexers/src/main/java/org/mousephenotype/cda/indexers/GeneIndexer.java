@@ -409,62 +409,62 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>());
 
                 // Add all ontology information from images associated to this gene
-                if (sangerImages.containsKey(allele.getMgiAccessionId())) {
-
-                    List<SangerImageDTO> list = sangerImages.get(allele.getMgiAccessionId());
-                    for (SangerImageDTO image : list) {
-
-                        if (image.getMp_id() != null &&  ! gene.getMpId().contains(image.getMp_id())) {
-
-                            gene.getMpId().addAll(image.getMp_id());
-                            gene.getMpTerm().addAll(image.getMpTerm());
-                            if (image.getMpSyns() != null) {
-                                gene.getMpTermSynonym().addAll(image.getMpSyns());
-                            }
-
-                            if (image.getAnnotatedHigherLevelMpTermId() != null) {
-                                gene.getTopLevelMpId().addAll(image.getAnnotatedHigherLevelMpTermId());
-                            }
-                            if (image.getAnnotatedHigherLevelMpTermName() != null) {
-                                gene.getTopLevelMpTerm().addAll(image.getAnnotatedHigherLevelMpTermName());
-                            }
-                            if (image.getTopLevelMpTermSynonym() != null) {
-                                gene.getTopLevelMpTermSynonym().addAll(image.getTopLevelMpTermSynonym());
-                            }
-
-                            if (image.getIntermediateMpId() != null) {
-                                gene.getIntermediateMpId().addAll(image.getIntermediateMpId());
-                            }
-                            if (image.getIntermediateMpTerm() != null) {
-                                gene.getIntermediateMpTerm().addAll(image.getIntermediateMpTerm());
-                            }
-                            if (image.getIntermediateMpTermSyn() != null) {
-                                gene.getIntermediateMpTermSynonym().addAll(image.getIntermediateMpTermSyn());
-                            }
-
-                        }
-
-                        if (image.getMaId() != null) {
-
-                            gene.getMaId().addAll(image.getMaId());
-                            gene.getMaTerm().addAll(image.getMaTerms());
-                            if (image.getMaTermSynonym() != null) {
-                                gene.getMaTermSynonym().addAll(image.getMaTermSynonym());
-                            }
-
-                            if (image.getSelectedTopLevelMaTermId() != null) {
-                                gene.setSelectedTopLevelMaId(image.getSelectedTopLevelMaTermId());
-                            }
-                            if (image.getSelectedTopLevelMaTerm() != null) {
-                                gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
-                            }
-                            if (image.getSelectedTopLevelMaTermSynonym() != null) {
-                                gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
-                            }
-
-                        }
-                    }
-                }
+//                if (sangerImages.containsKey(allele.getMgiAccessionId())) {
+//
+//                    List<SangerImageDTO> list = sangerImages.get(allele.getMgiAccessionId());
+//                    for (SangerImageDTO image : list) {
+//
+//                        if (image.getMp_id() != null &&  ! gene.getMpId().contains(image.getMp_id())) {
+//
+//                            gene.getMpId().addAll(image.getMp_id());
+//                            gene.getMpTerm().addAll(image.getMpTerm());
+//                            if (image.getMpSyns() != null) {
+//                                gene.getMpTermSynonym().addAll(image.getMpSyns());
+//                            }
+//
+//                            if (image.getAnnotatedHigherLevelMpTermId() != null) {
+//                                gene.getTopLevelMpId().addAll(image.getAnnotatedHigherLevelMpTermId());
+//                            }
+//                            if (image.getAnnotatedHigherLevelMpTermName() != null) {
+//                                gene.getTopLevelMpTerm().addAll(image.getAnnotatedHigherLevelMpTermName());
+//                            }
+//                            if (image.getTopLevelMpTermSynonym() != null) {
+//                                gene.getTopLevelMpTermSynonym().addAll(image.getTopLevelMpTermSynonym());
+//                            }
+//
+//                            if (image.getIntermediateMpId() != null) {
+//                                gene.getIntermediateMpId().addAll(image.getIntermediateMpId());
+//                            }
+//                            if (image.getIntermediateMpTerm() != null) {
+//                                gene.getIntermediateMpTerm().addAll(image.getIntermediateMpTerm());
+//                            }
+//                            if (image.getIntermediateMpTermSyn() != null) {
+//                                gene.getIntermediateMpTermSynonym().addAll(image.getIntermediateMpTermSyn());
+//                            }
+//
+//                        }
+//
+//                        if (image.getMaId() != null) {
+//
+//                            gene.getMaId().addAll(image.getMaId());
+//                            gene.getMaTerm().addAll(image.getMaTerms());
+//                            if (image.getMaTermSynonym() != null) {
+//                                gene.getMaTermSynonym().addAll(image.getMaTermSynonym());
+//                            }
+//
+//                            if (image.getSelectedTopLevelMaTermId() != null) {
+//                                gene.setSelectedTopLevelMaId(image.getSelectedTopLevelMaTermId());
+//                            }
+//                            if (image.getSelectedTopLevelMaTerm() != null) {
+//                                gene.setSelectedTopLevelMaTerm(image.getSelectedTopLevelMaTerm());
+//                            }
+//                            if (image.getSelectedTopLevelMaTermSynonym() != null) {
+//                                gene.setSelectedTopLevelMaTermSynonym(image.getSelectedTopLevelMaTermSynonym());
+//                            }
+//
+//                        }
+//                    }
+//                }
 
                 // Add all ontology information directly associated from MP to this gene
                 if (StringUtils.isNotEmpty(allele.getMgiAccessionId())) {
@@ -606,11 +606,10 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
     private void initialiseSupportingBeans() throws IndexerException {
-
         phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
-//        logger.info(" mgiAccessionToMP size=" + mgiAccessionToMP.size());
+        logger.info(" mgiAccessionToMP size=" + mgiAccessionToMP.size());
         embryoRestData=IndexerMap.populateEmbryoData(embryoRestUrl);
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
