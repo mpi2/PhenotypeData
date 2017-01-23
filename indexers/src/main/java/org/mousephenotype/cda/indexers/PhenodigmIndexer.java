@@ -128,7 +128,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
             documentCount += count;
 
             count = populateDiseaseGeneSummary();
-            logger.info("  Added {} disease summary documents", count);
+            logger.info("  Added {} disease gene summary documents", count);
             documentCount += count;
 
             count = populateDiseaseModelAssociation();
@@ -286,7 +286,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setPhenotypes(new ArrayList<>(diseasePhenotypeMap.get(diseaseId)));
 
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
@@ -342,7 +342,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setHtpcModel(r.getBoolean("htpc_model"));
                 doc.setHtpcPhenotype(r.getBoolean("htpc_phenotype"));
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
@@ -396,7 +396,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                     doc.setPhenotypes(new ArrayList<>(mousePhenotypeMap.get(mouseId)));
                 }
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
@@ -430,7 +430,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 if (humanSynonymMap.containsKey(hpId))
                     doc.setHpSynonym(new ArrayList<>(humanSynonymMap.get(hpId)));
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
@@ -460,7 +460,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setMpID(mpId);
                 doc.setMpTerm(r.getString("term"));
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
@@ -481,8 +481,8 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 "  disease_classes                      AS disease_classes, " +
                 "  mgo.model_gene_id                    AS model_gene_id, " +
                 "  mgo.model_gene_symbol                AS model_gene_symbol, " +
-                "  hgnc_id AS hgnc_gene_id, " +
-                "  hgnc_gene_symbol, " +
+                "  mgo.hgnc_id AS hgnc_gene_id, " +
+                "  mgo.hgnc_gene_symbol, " +
                 "  human_curated, " +
                 "  mod_curated                          AS mod_curated, " +
                 "  in_locus, " +
@@ -501,7 +501,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 "FROM " +
                 "  mouse_disease_gene_summary_high_quality mdgshq " +
                 "  LEFT JOIN disease d ON d.disease_id = mdgshq.disease_id" +
-                "  JOIN mouse_gene_ortholog mgo ON mgo.model_gene_id = mdgshq.model_gene_id ";
+                "  JOIN (SELECT DISTINCT model_gene_id, model_gene_symbol, hgnc_id, hgnc_gene_symbol FROM mouse_gene_ortholog) mgo ON mgo.model_gene_id = mdgshq.model_gene_id ";
 
 
         try (Connection connection = phenodigmDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
@@ -563,7 +563,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setMgiNovelPredictedInLocus(r.getBoolean("novel_mod_predicted_in_locus"));
                 doc.setImpcNovelPredictedInLocus(r.getBoolean("novel_htpc_predicted_in_locus"));
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
@@ -665,7 +665,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setIntermediateMpMatchedTerms(intermediateNames);
 
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
@@ -702,7 +702,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                     doc.setHpSynonym(new ArrayList<>(humanSynonymMap.get(hpId)));
                 }
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
@@ -732,7 +732,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
                 doc.setMpID(r.getString("mp_id"));
                 doc.setMpTerm(r.getString("mp_term"));
 
-                phenodigmCore.addBean(doc);
+                phenodigmCore.addBean(doc, 30000);
                 count++;
 
             }
