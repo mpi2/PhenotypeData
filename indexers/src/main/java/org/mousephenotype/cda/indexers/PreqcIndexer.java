@@ -348,12 +348,12 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                     o.setId(count ++);
                     o.setSex(SexType.female.getName());
                     documentCount++;
-                    preqcCore.addBean(o, 30000);
+                    preqcCore.addBean(o, 5000);
 
                     o.setId(count ++);
                     o.setSex(SexType.male.getName());
                     documentCount++;
-                    preqcCore.addBean(o, 30000);
+                    preqcCore.addBean(o, 5000);
 
                 } else {
 
@@ -370,7 +370,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
                     o.setSex(sex.toLowerCase());
                     documentCount++;
-                    preqcCore.addBean(o, 30000);
+                    preqcCore.addBean(o, 5000);
                 }
             }
 
