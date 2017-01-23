@@ -145,7 +145,7 @@ public class Allele2DTO {
 	private String alleleImage;
 
 	@Field(ALLELE_SYMBOL)
-	private List<String> alleleSymbol;
+	private String alleleSymbol;
 
 	@Field(ALLELE_SIMPLE_IMAGE)
 	private String alleleSimpleImage;
@@ -497,11 +497,11 @@ public class Allele2DTO {
 		this.alleleImage = alleleImage;
 	}
 
-	public List<String> getAlleleSymbol() {
+	public String getAlleleSymbol() {
 		return alleleSymbol;
 	}
 
-	public void setAlleleSymbol(List<String> alleleSymbol) {
+	public void setAlleleSymbol(String alleleSymbol) {
 		this.alleleSymbol = alleleSymbol;
 	}
 
