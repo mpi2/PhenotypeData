@@ -22,6 +22,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -1087,15 +1088,15 @@ public class ImageService implements WebStatus{
 	}
 
 
-	public List<ImageDTO> getImagesForGrossPathForGene(String accession) throws SolrServerException, IOException {
+	public SolrDocumentList getImagesForGrossPathForGene(String accession) throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
 
-		query.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + accession + "\"").setRows(100000000)
+		query.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + accession + "\"").setRows(Integer.MAX_VALUE)
 				.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + "Gross Pathology and Tissue Collection" + "\"");
 
-		List<ImageDTO> images = solr.query(query).getBeans(ImageDTO.class);
+		return solr.query(query).getResults();
 
-		return images;
+	
 
 	}
 
