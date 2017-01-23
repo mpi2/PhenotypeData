@@ -60,18 +60,6 @@ public class PhenotypeSummaryDAO  {
 
 	}
 
-	
-	public Set<String> getDataSourcesForPhenotypesSet(List<StatisticalResultDTO> resp) {
-		
-		Set <String> data = new HashSet <> ();
-		for (StatisticalResultDTO doc : resp) {
-			data.add(doc.getResourceName());
-		}
-		return data;
-		
-	}
-
-	
 	private long getNumSignificantCalls (List<StatisticalResultDTO> res){
 		
 		long n = 0; 
@@ -88,7 +76,7 @@ public class PhenotypeSummaryDAO  {
 
 	
 	private boolean isSignificant (StatisticalResultDTO res){
-		return res.getSignificant()!=null ? res.getSignificant() : false;
+		return res.getSignificant() != null ? res.getSignificant() : false;
 	}
 
 
@@ -103,14 +91,18 @@ public class PhenotypeSummaryDAO  {
 			Map<String, List<StatisticalResultDTO>> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
 						
 			for (String id: summary.keySet()){
-				
 				List<StatisticalResultDTO> resp = summary.get(id);
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
-				Set<String> ds = getDataSourcesForPhenotypesSet(resp);
 				String mpName = mps.get(id);
 				long n = getNumSignificantCalls(resp);
 				boolean significant = (n > 0) ? true : false;
-				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, mpName, sex, n, ds, significant);
+				PhenotypeSummaryType phen;
+				if (significant) {
+					 phen = new PhenotypeSummaryType(id, mpName, sex, n, significant);
+				} else {
+					// only record info about non significant calls if there is no significant one as that's how the icon map needs this
+					phen = new PhenotypeSummaryType(id, mpName, sex, resp.size(), significant);
+				}
 				resSummary.addPhenotye(phen);
 			}
 			
@@ -118,6 +110,7 @@ public class PhenotypeSummaryDAO  {
 				res.put(zyg, resSummary);
 			}
 		}
+
 		return res;
 	}
 	

@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.GrossPathService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
@@ -37,7 +38,7 @@ public class GrossPathController {
 		model.addAttribute("gene", gene);
 		
 		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
-		List<ImageDTO> images = grossPathService.getGrossPathImagesForGene(acc);
+		List<SolrDocument> images = grossPathService.getGrossPathImagesForGene(acc);
 		List<GrossPathPageTableRow> grossPathRows = grossPathService.getTableData(allObservations);
 		model.addAttribute("histopathRows", grossPathRows);
 		model.addAttribute("extSampleIdToObservations", allObservations);

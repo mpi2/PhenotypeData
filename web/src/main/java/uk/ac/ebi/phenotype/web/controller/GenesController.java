@@ -284,9 +284,6 @@ public class GenesController {
 					mpGroupsNotSignificant.remove(str);
 				}
 			}
-
-			System.out.println("SIGNIFICANT " + mpGroupsSignificant);
-			System.out.println("NOT SIGNIFICANT " + mpGroupsNotSignificant);
 			
 			// add number of top level terms
 			
@@ -294,7 +291,6 @@ public class GenesController {
 				numberOfTopLevelMpTermsWithStatisticalResult += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("numberOfTopLevelMpTermsWithStatisticalResult", numberOfTopLevelMpTermsWithStatisticalResult);
-			
 
 			postQcDataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			
@@ -375,7 +371,6 @@ public class GenesController {
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		if(genesWithVignettes.contains(acc)){
-			System.out.println("hasVignette="+true);
 			model.addAttribute("hasVignette", true);
 		}
 		// add in the disease predictions from phenodigm
@@ -395,7 +390,7 @@ public class GenesController {
 		//model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
 		model.addAttribute("creLineAvailable", orderService.crelineAvailable(acc));
 		
-		PhenotypeDisplayStatus phenotypeDisplayStatus=getPhenotypeDisplayStatus(phenotypeStarted, numberOfTopLevelMpTermsWithStatisticalResult, postQcDataMapList , rowsForPhenotypeTable);
+		PhenotypeDisplayStatus phenotypeDisplayStatus = getPhenotypeDisplayStatus(phenotypeStarted, numberOfTopLevelMpTermsWithStatisticalResult, postQcDataMapList , rowsForPhenotypeTable);
 		model.addAttribute("phenotypeDisplayStatus", phenotypeDisplayStatus);
 	}
 	
@@ -413,7 +408,7 @@ public class GenesController {
 			displayStatus.setDisplayHeatmap(true);
 		}
 		
-		if(numberOfTopLevelMpTermsWithStatisticalResult>0){
+		if(numberOfTopLevelMpTermsWithStatisticalResult > 0){
 			displayStatus.setPostQcTopLevelMPTermsAvailable(true);
 		}
 
@@ -425,7 +420,6 @@ public class GenesController {
 			displayStatus.setEitherPostQcOrPreQcSignificantDataIsAvailable(true);
 		}
 
-		System.out.println(displayStatus);	
 		return displayStatus;
 	}
 
@@ -486,7 +480,6 @@ public class GenesController {
 
 		GeneDTO gene = geneService.getGeneById(acc);
 
-		System.out.println("Gene is null? " + (gene == null) + " for " + acc);
 		UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
 
 		Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
@@ -712,7 +705,6 @@ public class GenesController {
 				 if(colonyIds.contains(row.getColonyId())){
 					 EvidenceLink imageLink=new EvidenceLink();
 					 imageLink.setDisplay(true);
-					 System.out.println("Bingo image found for phenotype!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 					 imageLink.setIconType(EvidenceLink.IconType.IMAGE);
 					 String url=request.getAttribute("baseUrl").toString()+"/imageComparator?acc="+row.getGene().getAccessionId()+"&mp_id="+row.getPhenotypeTerm().getId()+"&colony_id="+row.getColonyId();
 					 imageLink.setUrl(url);

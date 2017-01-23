@@ -133,7 +133,7 @@
                 
                 
                 
-               <%--  <div  class="section">
+                <div  class="section">
 								<div class="inner">
 									<div class="accordion-body" style="display: block">
 										<div id="grid">
@@ -144,7 +144,7 @@
 										
 										 <!-- <div id="grid"> -->
                                            
-												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
+												<t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
 											
 										<!-- </div> -->
 										</c:forEach> 
@@ -152,7 +152,7 @@
 										</div>
 									</div>
 								</div>
-					</div> --%>
+					</div> 
 					
 					
 					
@@ -167,7 +167,7 @@
       <script> 
         $(document).ready(function() {
     $('#histopath').DataTable(
-    		{"paging":   false, "searching": false, "order": [[ 2, "desc" ]]});
+    		{"paging":   false, "searching": false, "order": [[ 2, "asc" ]]});
 } );
         </script> 
     </jsp:body>
