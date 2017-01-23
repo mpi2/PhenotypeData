@@ -578,6 +578,7 @@ CREATE TABLE experiment (
 
 	PRIMARY KEY(id),
 	KEY external_db_idx(db_id),
+	KEY external_id_idx(external_id),
 	KEY organisation_idx(organisation_id),
 	KEY pipeline_idx(pipeline_id),
 	KEY pipeline_stable_idx(pipeline_stable_id),
