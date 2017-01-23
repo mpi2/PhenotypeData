@@ -176,7 +176,7 @@ public class Tools {
 		List<String> phenotypeAttrs = new ArrayList<>();
 		List<String> anatomyAttrs = new ArrayList<>();
 		List<String> diseaseAttrs = new ArrayList<>();
-		List<String> koDataFlowAttrs = new ArrayList<>();
+		List<String> humanAttrs = new ArrayList<>();
 
 		// additional information
 		List<String> additionalInfos = new ArrayList<>();
@@ -204,7 +204,7 @@ public class Tools {
 		defaultOffset.put("disease", 5);
 		defaultOffset.put("mp", 6);
 		defaultOffset.put("anatomy", 5);
-		defaultOffset.put("hp", 8);
+		defaultOffset.put("phenodigm", 8);
 
 		if ( corename.equals("gene") || corename.equals("marker_symbol") ){
 
@@ -215,25 +215,48 @@ public class Tools {
 			geneAttrs.add("marker_name");
 			geneAttrs.add("marker_synonym");
 			geneAttrs.add("marker_type");
-			geneAttrs.add("latest_es_cell_status");
-			geneAttrs.add("latest_mouse_status");
-			geneAttrs.add("latest_phenotype_status");
-			geneAttrs.add("legacy_phenotype_status");
-			geneAttrs.add("latest_project_status");
-			geneAttrs.add("latest_production_centre");
-			geneAttrs.add("latest_phenotyping_centre");
 
 			alleleAttrs.add("allele_mgi_accession_id");
 			alleleAttrs.add("allele_name");
 			alleleAttrs.add("es_cell_status");
 			alleleAttrs.add("mouse_status");
 			alleleAttrs.add("phenotype_status");
-			alleleAttrs.add("allele_type");
 			alleleAttrs.add("mutation_type");
 			alleleAttrs.add("allele_description");
 
 			diseaseAttrs.add("disease_id");
 			diseaseAttrs.add("disease_term");
+			diseaseAttrs.add("disease_classes");
+			diseaseAttrs.add("disease_locus");
+			diseaseAttrs.add("human_curated");  // ortholog
+			diseaseAttrs.add("mouse_curated");  // ortholog
+			diseaseAttrs.add("mgi_predicted");  // pheno sim
+			diseaseAttrs.add("impc_predicted"); // pheno sim
+			diseaseAttrs.add("mgi_predicted_known_gene");
+			diseaseAttrs.add("impc_predicted_known_gene");
+			diseaseAttrs.add("mgi_novel_predicted_in_locus");
+			diseaseAttrs.add("impc_novel_predicted_in_locus");
+			diseaseAttrs.add("impc_novel_predicted_in_locus");
+
+			phenotypeAttrs.add("mp_id");
+			phenotypeAttrs.add("mp_term");
+			phenotypeAttrs.add("mp_definition");
+			phenotypeAttrs.add("top_level_mp_id");
+			phenotypeAttrs.add("top_level_mp_term");
+			phenotypeAttrs.add("p_value");
+			phenotypeAttrs.add("hasQc");
+
+
+			anatomyAttrs.add("ma_id");
+			anatomyAttrs.add("ma_term");
+			anatomyAttrs.add("selected_top_level_ma_id");
+			anatomyAttrs.add("selected_top_level_ma_term");
+
+
+			humanAttrs.add("hp_id");
+			humanAttrs.add("hp_term");
+			humanAttrs.add("human_gene_symbol");
+
 
 
 
@@ -374,7 +397,7 @@ public class Tools {
 			// impc images link
             //additionalInfos.add("images_link");
 		}
-		else if ( corename.equals("hp") ) {
+		else if ( corename.equals("phenodigm") ) {
 
 			mainAttrs.add("hp_id");
 			mainAttrs.add("hp_term");
