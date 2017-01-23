@@ -191,7 +191,6 @@ public class ReleaseController {
 		List<AggregateCountXYBean> beans = analyticsDAO.getAllProcedureLines();
 		String lineProcedureChart =
 				chartsProvider.generateAggregateCountByProcedureChart(
-						metaInfo.get("data_release_version"),
 						beans,
 						"Lines per procedure",
 						"Center by center",
@@ -202,7 +201,6 @@ public class ReleaseController {
 		List<AggregateCountXYBean> callBeans = analyticsDAO.getAllProcedurePhenotypeCalls();
 		String callProcedureChart =
 				chartsProvider.generateAggregateCountByProcedureChart(
-						metaInfo.get("data_release_version"),
 						callBeans,
 						"Phenotype calls per procedure",
 						"Center by center",
@@ -222,7 +220,6 @@ public class ReleaseController {
 			for (String statisticalMethod: statisticalMethods.get(dataType)) {
 				List<AggregateCountXYBean> distribution = analyticsDAO.getPValueDistribution(dataType, statisticalMethod);
 				String chart = chartsProvider.generateAggregateCountByProcedureChart(
-						metaInfo.get("data_release_version"),
 						distribution,
 						"P-value distribution",
 						statisticalMethod,
@@ -286,8 +283,7 @@ public class ReleaseController {
 		annotationDistribution.put(ZygosityType.heterozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.heterozygote, null));
 		annotationDistribution.put(ZygosityType.homozygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.homozygote, null));
 		annotationDistribution.put(ZygosityType.hemizygote.getName(), gpService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote, null));
-		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-			gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of Lines", 
+		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart(gpService.getAggregateCountXYBean(annotationDistribution), "Distribution of Phenotype Associations in IMPC", "", "Number of genotype-phenotype associations",
 			" lines", "distribution", null, null);
 
 		Set<String> allPhenotypingCenters = as.getFacets(AlleleDTO.PHENOTYPING_CENTRE);
@@ -297,8 +293,7 @@ public class ReleaseController {
 				phenotypingDistribution.put(center, as.getStatusCountByPhenotypingCenter(center, AlleleDTO.PHENOTYPE_STATUS));
 			}
 		}
-		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-				gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes", 
+		String phenotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart(gpService.getAggregateCountXYBean(phenotypingDistribution), "Phenotyping Status by Center", "", "Number of Genes", " genes",
 				"phenotypeStatusByCenterChart", "checkAllPhenByCenter", "uncheckAllPhenByCenter");
 
 		Set<String> allGenotypingCenters = as.getFacets(AlleleDTO.PRODUCTION_CENTRE);
@@ -308,8 +303,7 @@ public class ReleaseController {
 				genotypingDistribution.put(center, as.getStatusCountByProductionCenter(center, AlleleDTO.GENE_LATEST_MOUSE_STATUS));
 			}
 		}
-		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart("1.2",
-				gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes", 
+		String genotypingDistributionChart = chartsProvider.generateAggregateCountByProcedureChart(	gpService.getAggregateCountXYBean(genotypingDistribution), "Genotyping Status by Center", "", "Number of Genes", " genes",
 				"genotypeStatusByCenterChart", "checkAllGenByCenter", "uncheckAllGenByCenter");
 
 		HashMap<SignificantType, Integer> sexualDimorphismSummary = statisticalResultDAO.getSexualDimorphismSummary();
