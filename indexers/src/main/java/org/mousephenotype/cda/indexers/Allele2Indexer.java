@@ -60,8 +60,8 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
         }
 
         int index = 0 ;
-
         String line = in.readLine();
+
         while (line != null){
 
             String[] array = line.split("\t", -1);
@@ -77,6 +77,7 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
             doc.setAlleleType(getValueFor(Allele2DTO.ALLELE_TYPE,array, columns, runStatus));
             doc.setAlleleFeatures(getListValueFor(Allele2DTO.ALLELE_FEATURES, array, columns, runStatus));
             doc.setAlleleSymbol(getValueFor(Allele2DTO.ALLELE_SYMBOL, array, columns, runStatus));
+            doc.setAlleleSymbolSearchVariants(getListValueFor(Allele2DTO.ALLELE_SYMBOL_SEARCH_VARIANTS, array, columns, runStatus));
             doc.setCassette(getValueFor(Allele2DTO.CASSETTE,array, columns, runStatus));
             doc.setDesignId(getValueFor(Allele2DTO.DESIGN_ID,array, columns, runStatus));
             doc.setEsCellStatus(getValueFor(Allele2DTO.ES_CELL_STATUS,array, columns, runStatus));
