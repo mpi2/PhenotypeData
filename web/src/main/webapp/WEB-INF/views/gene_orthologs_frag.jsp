@@ -19,8 +19,8 @@
 
     <script>
         var chart = venn.VennDiagram()
-            .width(500)
-            .height(500);
+            .width(400)
+            .height(400);
         var div = d3.select("#${param.divId}").datum(${param.currentSet}).call(chart);
 
         var tooltip = d3.select("body").append("div")
