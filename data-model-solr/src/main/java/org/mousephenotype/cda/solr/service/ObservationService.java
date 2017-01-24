@@ -325,7 +325,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
-    public HashMap<String, Set<String>> getViabilityCategories(List<String> resources) throws SolrServerException, IOException {
+    public HashMap<String, Set<String>> getViabilityCategories(List<String> resources, Boolean adultOnly) throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery();
         HashMap<String, Set<String>> res = new HashMap<>();
@@ -335,7 +335,11 @@ public class ObservationService extends BasicService implements WebStatus {
             query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
                     + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }
-        query.setQuery(Constants.viabilityParameters.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
+        if (adultOnly){
+            query.setQuery(Constants.adultViabilityParameters.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
+        } else {
+            query.setQuery(Constants.viabilityParameters.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
+        }
         query.setRows(0);
         query.setFacet(true);
         query.setFacetMinCount(1);
