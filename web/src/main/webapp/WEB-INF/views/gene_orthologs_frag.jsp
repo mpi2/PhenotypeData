@@ -21,7 +21,7 @@
             .width(500)
             .height(500);
 
-        var div = d3.select("#original").datum(sets).call(chart);
+        var div = d3.select("#original").datum(impcSets).call(chart);
 
         var tooltip = d3.select("body").append("div")
             .attr("class", "venntooltip");
@@ -43,7 +43,7 @@
                 // highlight the current path
                 var selection = d3.select(this).transition("tooltip").duration(400);
                 selection.select("path")
-                    .style("fill-opacity", d.sets.length == 1 ? .4 : .1)
+                    .style("fill-opacity", d.impcSets.length == 1 ? .4 : .1)
                     .style("stroke-opacity", 1);
             })
 
@@ -56,7 +56,7 @@
                 tooltip.transition().duration(400).style("opacity", 0);
                 var selection = d3.select(this).transition("tooltip").duration(400);
                 selection.select("path")
-                    .style("fill-opacity", d.sets.length == 1 ? .25 : .0)
+                    .style("fill-opacity", d.impcSets.length == 1 ? .25 : .0)
                     .style("stroke-opacity", 0);
             });
 
