@@ -486,6 +486,9 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                 AlleleDTO al = new AlleleDTO();
                 al.acc = allele.getAlleleMgiAccessionId();
                 al.name = allele.getAlleleName();
+                if (al.acc == null){
+                    System.out.println("NULL " + allele.getAlleleSymbol());
+                }
                 alleleSymbol2NameIdMapping.put(allele.getAlleleSymbol(), al);
             }
         } catch (IOException | SolrServerException e) {
