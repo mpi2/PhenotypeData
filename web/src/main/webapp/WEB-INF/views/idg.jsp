@@ -61,7 +61,7 @@
 									<b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
 									</p>
 									<p>
-										The gene list on this page was last updated for the second phase of the IDG on Thursday 19th of January 2017.
+										The gene list on this page was last updated for the second phase of the IDG on Tuesday 24th of January 2017.
 									</p>	
 							</div>
 						</div>	<!-- section -->
