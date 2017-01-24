@@ -33,6 +33,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
@@ -61,6 +62,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -323,30 +325,6 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
-    public QueryResponse getViabilityData(List<String> resources, List<String> category)
-            throws SolrServerException, IOException {
-
-        SolrQuery query = new SolrQuery();
-        if (resources != null) {
-            query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
-        }
-        if (category != null && category.size() > 0) {
-            query.setFilterQueries(ObservationDTO.CATEGORY + ":" + StringUtils.join(category, " OR " + ObservationDTO.CATEGORY + ":"));
-        }
-
-        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
-        query.addField(ObservationDTO.GENE_SYMBOL);
-        query.addField(ObservationDTO.GENE_ACCESSION_ID);
-        query.addField(ObservationDTO.COLONY_ID);
-        query.addField(ObservationDTO.CATEGORY);
-        query.setRows(100000);
-
-        logger.info("getViabilityData Url: " + SolrUtils.getBaseURL(solr) + "/select?" + query);
-
-        return solr.query(query);
-    }
-
-    @Deprecated
     public HashMap<String, Set<String>> getViabilityCategories(List<String> resources) throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery();
@@ -357,7 +335,7 @@ public class ObservationService extends BasicService implements WebStatus {
             query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
                     + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }
-        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
+        query.setQuery(Constants.viabilityParameters.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
         query.setRows(0);
         query.setFacet(true);
         query.setFacetMinCount(1);

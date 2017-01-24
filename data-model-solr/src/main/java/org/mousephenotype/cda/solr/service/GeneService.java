@@ -956,14 +956,13 @@ public class GeneService extends BasicService implements WebStatus{
 		return geneToHumanOrthologMap;
 	}
 
-	public Map<String, Set<String>> getGenesByOrthology(String mpId) throws IOException, SolrServerException {
+	public Set<String> getGenesSumbolsBy(String mpId) throws IOException, SolrServerException {
 
 		if (mpId == null) {
 			return null;
 		}
 
-		Set<String> withHumanOrtholog = new HashSet<>();
-		Set<String> noHumanOrtholog = new HashSet<>();
+		Set<String> symbols = new HashSet<>();
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery("(" + GeneDTO.MP_ID + ":\"" + mpId + "\" OR " + GeneDTO.TOP_LEVEL_MP_ID + ":\"" + mpId + "\")");
@@ -972,24 +971,11 @@ public class GeneService extends BasicService implements WebStatus{
 
 		QueryResponse rsp = solr.query(query);
 		List<GeneDTO> dtos = rsp.getBeans(GeneDTO.class);
-//		System.out.println("DTOS " + dtos.size());
 		for (GeneDTO dto : dtos) {
-			if (dto.getHumanGeneSymbol() != null){
-				withHumanOrtholog.add(dto.getMarkerSymbol());
-			} else {
-				noHumanOrtholog.add(dto.getMarkerSymbol());
-			}
+			symbols.add(dto.getMarkerSymbol());
 		}
 
-		Map<String, Set<String>> result = new HashMap<>();
-		result.put("Genes with human ortholog and cardiovascular phenotypes", withHumanOrtholog);
-		result.put("Genes cardiovascular phenotypes, no human ortholog", noHumanOrtholog);
-//
-//		System.out.println("HUMAN ORTHOLOG " + withHumanOrtholog);
-//		System.out.println("NO HUMAN ORTHOLOG " + noHumanOrtholog);
-
-		return result;
-
+		return symbols;
 	}
 	
 	@Override
