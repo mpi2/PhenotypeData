@@ -301,6 +301,11 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                             continue;
                         }
 
+                        if (allele == null || allele.isEmpty()){
+                            logger.warn("Empty allele symbol for  {} {} {} {}", id, colonyId, parameter, phenotypingCenter);
+                            continue;
+                        }
+
                         // Skip if we already have this data postQC
                         phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
                         if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
