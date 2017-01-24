@@ -89,12 +89,12 @@
                                     var mpTopLevelTerms = ["cardiovascular system phenotype"];
                                     drawChords(false, mpTopLevelTerms);
                                 </script>
-
                             </div>
                         </div>
+
                         <div class="section">
 
-                            <h2 class="title">Associations by orthology (human curated)</h2>
+                            <h2 class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>
                             <div class="inner">
 
                             <div class="half">
