@@ -94,16 +94,24 @@
                         </div>
                         <div class="section">
 
+                            <h2 class="title">Associations by orthology (human curated)</h2>
+                            <div class="inner">
 
                             <div class="half">
-                                <h5>Associations by orthology (human curated)</h5>
-                                <jsp:include page="gene_orthologs_frag.jsp" ></jsp:include>
+                                <jsp:include page="gene_orthologs_frag.jsp" >
+                                    <jsp:param name="currentSet" value="impcSets"/>
+                                    <jsp:param name="divId" value="impcVenn"/>
+                                </jsp:include>
                             </div>
                             <div class="half">
-
+                                <jsp:include page="gene_orthologs_frag.jsp" >
+                                    <jsp:param name="currentSet" value="mgiSets"/>
+                                    <jsp:param name="divId" value="mgiVenn"/>
+                                </jsp:include>
                             </div>
-
-
+                            <div class="clear both"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
