@@ -85,7 +85,7 @@ public class LandingPageController {
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
-        Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources);
+        Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources, true);
 
         Map<String, Long> viabilityMap = os.getViabilityCategories(viabilityRes);
         List<CountTableRow> viabilityTable = os.consolidateZygosities(viabilityRes);
