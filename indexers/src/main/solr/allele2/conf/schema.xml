@@ -185,6 +185,7 @@
         <field name="production_centres_str" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="phenotyping_centres_str" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+        <field name="allele_symbol_search_variants" type="string" indexed="true" stored="false" multiValued="true"/>
         
 
     </fields>
@@ -214,7 +215,7 @@
     <copyField source="mgi_accession_id" dest="auto_suggest"/>
     <copyField source="allele_mgi_accession_id" dest="auto_suggest"/>
     <copyField source="ikmc_project" dest="auto_suggest"/>
-    <copyField source="allele_symbol" dest="auto_suggest"/>
+    <copyField source="allele_symbol_search_variants" dest="auto_suggest"/>
     <copyField source="synonym" dest="auto_suggest"/>
 
 
