@@ -165,10 +165,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info("Loading dcc experiments from {}", dccSqlUtils.getDbName());
 
         long startStep = new Date().getTime();
-        Experiment experiment;
-        Observation observation;
-        List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
-        Map<String, Integer>   counts;
+//        List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
+        List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperimentByExperimentId("8852_1943");
 
         // Initialise maps.
         logger.info("Loading lookup maps started");
@@ -206,6 +204,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         int experimentCount = 0;
         for (DccExperimentDTO dccExperiment : dccExperiments) {
+
+
+
+            if ( ! dccExperiment.getExperimentId().equals("8852_1943"))
+                continue;
+
+
+
+
             insertExperiment(dccExperiment);
             experimentCount++;
             if (experimentCount % 100000 == 0) {
@@ -284,17 +291,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return RepeatStatus.FINISHED;
     }
 
-//    @Transactional
     public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
-
-
-//        if (dccExperiment.getExperimentId().equals("8852_1943")) {
-//            int mm = 17;
-//            System.out.println();
-//        } else {
-//            return new Experiment();
-//        }
         Experiment experiment = createExperiment(dccExperiment);
 
         return experiment;

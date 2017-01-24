@@ -2133,6 +2133,69 @@ public class DccSqlUtils {
     }
 
     /**
+     * @return the requested experiment
+     */
+    public List<DccExperimentDTO> getExperimentByExperimentId(String experimentId) {
+
+        final String query =
+                "SELECT\n" +
+                        "  s.datasourceShortName,\n" +
+                        "  e.experimentId,\n" +
+                        "  e.sequenceId,\n" +
+                        "  e.dateOfExperiment,\n" +
+                        "  c.centerId   AS phenotypingCenter,\n" +
+                        "  s.productionCenter,\n" +
+                        "  c.pipeline,\n" +
+                        "  c.project,\n" +
+                        "  p.procedureId,\n" +
+                        "  p.pk         AS dcc_procedure_pk,\n" +
+                        "  s.colonyId   AS colonyId,\n" +
+                        "  s.specimenId AS specimenId,\n" +
+                        "  s.gender     AS gender,\n" +
+                        "  sc.value     AS rawProcedureStatus,\n" +
+                        "  0            AS isLineLevel\n" +
+                        "FROM experiment e\n" +
+                        "JOIN center_procedure                 cp  ON cp .pk            = e  .center_procedure_pk\n" +
+                        "JOIN center                           c   ON c  .pk            = cp .center_pk\n" +
+                        "JOIN procedure_                       p   ON p  .pk            = cp .procedure_pk\n" +
+                        "JOIN experiment_specimen              es  ON es .pk            = e  .pk\n" +
+                        "JOIN specimen                         s   ON s  .pk            = es .specimen_pk\n" +
+                        "LEFT OUTER JOIN experiment_statuscode esc ON esc.experiment_pk = e  .pk\n" +
+                        "LEFT OUTER JOIN statuscode            sc  ON sc .pk            = esc.statuscode_pk\n" +
+                        "WHERE e.experimentId = :experimentId\n" +
+                        "UNION ALL\n" +
+                        "SELECT\n" +
+                        "  l.datasourceShortName,\n" +
+                        "  CONCAT(p.procedureId, '-', l.colonyId) AS experimentId,\n" +
+                        "  null,\n" +
+                        "  null,\n" +
+                        "  c.centerId AS phenotypingCenter,\n" +
+                        "  NULL       AS productionCenter,\n" +
+                        "  c.pipeline,\n" +
+                        "  c.project,\n" +
+                        "  p.procedureId,\n" +
+                        "  p.pk       AS dcc_procedure_pk,\n" +
+                        "  l.colonyId,\n" +
+                        "  NULL       AS specimenId,\n" +
+                        "  NULL       AS gender,\n" +
+                        "  sc.value   AS rawProcedureStatus,\n" +
+                        "  1 AS isLineLevel\n" +
+                        "FROM line l\n" +
+                        "JOIN center_procedure            cp  ON cp .pk            = l  .center_procedure_pk\n" +
+                        "JOIN center                      c   ON c  .pk            = cp .center_pk\n" +
+                        "JOIN procedure_                  p   ON p  .pk            = cp .procedure_pk\n" +
+                        "LEFT OUTER JOIN line_statuscode  lsc ON lsc.line_pk       = l  .pk\n" +
+                        "LEFT OUTER JOIN statuscode       sc  ON sc .pk            = lsc.statuscode_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("experimentId", experimentId);
+
+        List<DccExperimentDTO> experiments = npJdbcTemplate.query(query, parameterMap, new DccExperimentRowMapper());
+
+        return (experiments.isEmpty() ? new ArrayList<>() : experiments);
+    }
+
+    /**
      * @return all line- and procedure-level experiments
      */
     public List<DccExperimentDTO> getExperiments() {
