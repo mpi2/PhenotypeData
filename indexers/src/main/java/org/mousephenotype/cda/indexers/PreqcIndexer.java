@@ -21,6 +21,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
+import org.mousephenotype.cda.solr.service.Allele2Service;
+import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
@@ -61,6 +63,9 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
+
+    @Autowired
+    Allele2Service allele2Service;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -417,22 +422,12 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
     public void doGeneSymbol2IdMapping() {
 
-        ResultSet rs;
-        Statement statement;
-
-        String query = "select acc, symbol from genomic_feature";
         try {
-            statement = conn_komp2.createStatement();
-            rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                // Retrieve by column name
-                String acc = rs.getString("acc");
-                String symbol = rs.getString("symbol");
-                // logger.error(acc + " -- "+ symbol);
-                geneSymbol2IdMapping.put(symbol, acc);
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments(Allele2DTO.MARKER_SYMBOL, Allele2DTO.MGI_ACCESSION_ID);
+            for (Allele2DTO allele: allele2Docs){
+                geneSymbol2IdMapping.put(allele.getMarkerSymbol(), allele.getMgiAccessionId());
             }
-        } catch (SQLException e) {
+        } catch (IOException | SolrServerException e) {
             e.printStackTrace();
         }
     }
@@ -500,29 +495,19 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
     public void doAlleleSymbol2NameIdMapping() {
 
-        ResultSet rs;
-        Statement statement;
 
-        String query = "select acc, symbol, name from allele";
         try {
-            statement = conn_komp2.createStatement();
-            rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                // Retrieve by column name
-                String acc = rs.getString("acc");
-                String symbol = rs.getString("symbol");
-                String name = rs.getString("name");
-                // logger.error(acc + " -- "+ symbol);
-
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments(Allele2DTO.ALLELE_NAME, Allele2DTO.ALLELE_MGI_ACCESSION_ID, Allele2DTO.ALLELE_SYMBOL);
+            for (Allele2DTO allele: allele2Docs){
                 AlleleDTO al = new AlleleDTO();
-                al.acc = acc;
-                al.name = name;
-                alleleSymbol2NameIdMapping.put(symbol, al);
+                al.acc = allele.getAlleleMgiAccessionId();
+                al.name = allele.getAlleleName();
+                alleleSymbol2NameIdMapping.put(allele.getAlleleSymbol(), al);
             }
-        } catch (SQLException e) {
+        } catch (IOException | SolrServerException e) {
             e.printStackTrace();
         }
+
     }
 
     public void doStrainId2NameMapping() {

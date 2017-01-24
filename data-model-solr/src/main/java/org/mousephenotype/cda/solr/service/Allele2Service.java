@@ -4,12 +4,14 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class Allele2Service implements WebStatus{
@@ -29,10 +31,23 @@ public class Allele2Service implements WebStatus{
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();
 	}
-	
+
+	public List<Allele2DTO> getAllDocuments(String... fields) throws IOException, SolrServerException {
+
+		SolrQuery query = new SolrQuery().setQuery("*:*");
+		if (fields != null){
+			query.setFields(fields);
+
+		}
+		query.setRows(Integer.MAX_VALUE);
+
+		return solr.query(query).getBeans(Allele2DTO.class);
+
+	}
+
 	@Override
 	public String getServiceName(){
-		return "Eucomm Cre Product Service";
+		return "Allele2 Product Service";
 	}
 
 }

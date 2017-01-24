@@ -120,7 +120,7 @@
         <field name="mouse_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
 
         <field name="allele_name" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="mutation_type" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="allele_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_category" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_type" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_features" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -132,6 +132,7 @@
         <field name="allele_simple_image" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="vector_genbank_file" type="string" indexed="false" stored="true" multiValued="false"/>
         <field name="vector_allele_image" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="mutation_type" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="type" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="design_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="cassette" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -183,7 +184,6 @@
 
         <field name="production_centres_str" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="phenotyping_centres_str" type="string" indexed="true" stored="false" multiValued="true"/>
-        <field name="allele_symbol" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
         
 
