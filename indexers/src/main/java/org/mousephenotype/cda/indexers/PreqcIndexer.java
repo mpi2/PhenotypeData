@@ -459,7 +459,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     public void doGeneSymbol2IdMapping() {
 
         try {
-            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments(Allele2DTO.MARKER_SYMBOL, Allele2DTO.MGI_ACCESSION_ID);
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments("Gene", Allele2DTO.MARKER_SYMBOL, Allele2DTO.MGI_ACCESSION_ID);
             for (Allele2DTO allele: allele2Docs){
                 geneSymbol2IdMapping.put(allele.getMarkerSymbol(), allele.getMgiAccessionId());
             }
@@ -533,7 +533,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
         try {
-            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments(Allele2DTO.ALLELE_NAME, Allele2DTO.ALLELE_MGI_ACCESSION_ID, Allele2DTO.ALLELE_SYMBOL);
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments("Allele", Allele2DTO.ALLELE_NAME, Allele2DTO.ALLELE_MGI_ACCESSION_ID, Allele2DTO.ALLELE_SYMBOL);
             for (Allele2DTO allele: allele2Docs){
                 AlleleDTO al = new AlleleDTO();
                 al.acc = allele.getAlleleMgiAccessionId();
