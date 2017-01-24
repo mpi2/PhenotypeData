@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -307,13 +308,11 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 o.setZygosity(zygosityMapping.get(zygosity));
 
-                if (alleleSymbol2NameIdMapping.get(allele) == null) {
+                if (alleleSymbol2NameIdMapping.get(allele) == null || alleleSymbol2NameIdMapping.get(allele).acc == null) {
                     // use fake id if we cannot find the symbol from komp2
                     o.setAlleleAccessionId(createFakeIdFromSymbol(allele));
-                    o.setAlleleName(allele);
                 } else {
                     o.setAlleleAccessionId(alleleSymbol2NameIdMapping.get(allele).acc);
-                    o.setAlleleName(alleleSymbol2NameIdMapping.get(allele).name);
                 }
                 o.setAlleleSymbol(allele);
 
@@ -400,24 +399,9 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {
-        String fakeId = null;
 
-        ResultSet rs;
-        Statement statement;
+        return "NULL-" + DigestUtils.md5Hex(alleleSymbol).substring(0,10).toUpperCase();
 
-        String query = "select CONCAT('NULL-', UPPER(SUBSTR(MD5('" + alleleSymbol + "'),1,10))) as fakeId";
-        try {
-            statement = conn_komp2.createStatement();
-            rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                // Retrieve by column name
-                fakeId = rs.getString("fakeId");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return fakeId;
     }
 
     public void doGeneSymbol2IdMapping() {
