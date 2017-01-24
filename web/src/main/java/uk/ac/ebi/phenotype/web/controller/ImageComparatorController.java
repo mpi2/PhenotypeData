@@ -132,7 +132,7 @@ public class ImageComparatorController {
 	
 	private boolean isFederated(List<ImageDTO> filteredMutants) {
 		for(ImageDTO image:filteredMutants){
-			if(image.getImageLink()!=null && image.getImageLink().contains("omero") ){//at the moment only use federated approach on omero served images - bad assumption here unwritten rule
+			if(image.getImageLink()!=null && (image.getImageLink().contains("omero") || image.getImageLink().contains("NDPServe"))){//at the moment only use federated approach on omero served images - bad assumption here unwritten rule
 				return true;
 				
 			}

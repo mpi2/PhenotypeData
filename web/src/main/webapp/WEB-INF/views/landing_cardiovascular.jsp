@@ -92,8 +92,16 @@
 
                             </div>
                         </div>
+                        <div class="section">
 
-                        <jsp:include page="gene_orthologs_frag.jsp" ></jsp:include>
+
+                            <div class="half">
+                                <h5>Associations by orthology (human curated)</h5>
+                                <jsp:include page="gene_orthologs_frag.jsp" ></jsp:include>
+                            </div>
+                            <div class="half">
+
+                            </div>
 
 
                     </div>

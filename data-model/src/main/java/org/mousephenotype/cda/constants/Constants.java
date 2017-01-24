@@ -14,6 +14,10 @@ public class Constants {
             "IMPC_VIA_001_001", "IMPC_VIA_002_001", "IMPC_EVL_001_001",
             "IMPC_EVM_001_001", "IMPC_EVP_001_001", "IMPC_EVO_001_001");
 
+    public static final List<String> adultViabilityParameters = Arrays.asList(
+            "IMPC_VIA_001_001", "IMPC_VIA_002_001");
+
+
     public static final List<String> weightParameters = Arrays.asList(
             "'IMPC_GRS_003_001'", "'IMPC_CAL_001_001'", "'IMPC_DXA_001_001'",
             "'IMPC_HWT_007_001'", "'IMPC_PAT_049_001'", "'IMPC_BWT_001_001'",

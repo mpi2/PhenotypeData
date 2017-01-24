@@ -32,9 +32,12 @@ public class Allele2Service implements WebStatus{
 		return response.getResults().getNumFound();
 	}
 
-	public List<Allele2DTO> getAllDocuments(String... fields) throws IOException, SolrServerException {
+	public List<Allele2DTO> getAllDocuments(String type, String... fields) throws IOException, SolrServerException {
 
 		SolrQuery query = new SolrQuery().setQuery("*:*");
+		if (type != null){
+			query.setFilterQueries(Allele2DTO.TYPE + ":" + type);
+		}
 		if (fields != null){
 			query.setFields(fields);
 

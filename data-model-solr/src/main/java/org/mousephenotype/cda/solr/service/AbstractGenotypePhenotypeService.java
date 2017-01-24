@@ -1048,8 +1048,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	        	String alleleSymbol=phen.getString(GenotypePhenotypeDTO.ALLELE_SYMBOL);
 	        	MarkerBean allele = new MarkerBean();
 	            allele.setSymbol(alleleSymbol);
-	            allele.setAccessionId(phen.getString(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID));
-	            if(alleleSymbol.contains("<")){
+	            if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID)) {
+                    allele.setAccessionId(phen.getString(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID));
+                }
+                if(alleleSymbol.contains("<")){
 		            String superscript=alleleSymbol.substring(alleleSymbol.indexOf("<")+1, alleleSymbol.indexOf(">"));
 		            allele.setSuperScript(superscript);
 	            }
