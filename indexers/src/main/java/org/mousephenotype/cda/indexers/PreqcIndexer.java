@@ -15,12 +15,15 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
+import org.mousephenotype.cda.solr.service.Allele2Service;
+import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
@@ -31,14 +34,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -61,6 +64,9 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
+
+    @Autowired
+    Allele2Service allele2Service;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -146,239 +152,294 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
             preqcCore.deleteByQuery("*:*");
             preqcCore.commit();
 
+            // Read file using StAX parser
             logger.info("  Start reading the file");
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new BufferedInputStream(new FileInputStream(preqcXmlFilename)));
-            logger.info("  Done reading the file");
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+            XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new BufferedInputStream(new FileInputStream(preqcXmlFilename)));
 
-            Element rootElement = document.getDocumentElement();
-            NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
+            int numberProcessed = 0;
 
-            for (int i = 0; i < nodes.getLength();  ++ i) {
-                Element e = (Element) nodes.item(i);
+            Integer id = null;
+            String colonyId = null;
+            Double pValue = null;
+            String sex = null;
+            String phenotypeTerm = null;
+            String externalId = null;
+            String zygosity = null;
+            String datasource = null;
+            String project = null;
+            String gene = null;
+            Double effectSize = null;
+            String strain = null;
+            String allele = null;
+            String pipeline = null;
+            String procedure = null;
+            String parameter = null;
+            String phenotypingCenter = null;
 
-                NodeList childNodes = e.getChildNodes();
+            while(xmlEventReader.hasNext()) {
 
-                Integer id = null;
-                String colonyId = null;
-                Double pValue = null;
-                String sex = null;
-                String phenotypeTerm = null;
-                String externalId = null;
-                String zygosity = null;
-                String datasource = null;
-                String project = null;
-                String gene = null;
-                Double effectSize = null;
-                String strain = null;
-                String allele = null;
-                String pipeline = null;
-                String procedure = null;
-                String parameter = null;
-                String phenotypingCenter = null;
+                XMLEvent xmlEvent = xmlEventReader.nextEvent();
+                if (xmlEvent.isStartElement()) {
+                    StartElement startElement = xmlEvent.asStartElement();
 
-                for (int j = 0; j < childNodes.getLength();  ++ j) {
-                    Node cnode = childNodes.item(j);
-                    if (cnode.getNodeType() == Node.ELEMENT_NODE) {
-                        switch (cnode.getNodeName()) {
+                    if (startElement.getName().getLocalPart().equals("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary")) {
+
+                        // Start of PhenotypeCallSummary element, reset the document values
+
+                        numberProcessed += 1;
+
+                        if (numberProcessed % 100000 == 0) {
+                            logger.info("    Processed {} documents", numberProcessed);
+                        }
+
+                        id = null;
+                        colonyId = null;
+                        pValue = null;
+                        sex = null;
+                        phenotypeTerm = null;
+                        externalId = null;
+                        zygosity = null;
+                        datasource = null;
+                        project = null;
+                        gene = null;
+                        effectSize = null;
+                        strain = null;
+                        allele = null;
+                        pipeline = null;
+                        procedure = null;
+                        parameter = null;
+                        phenotypingCenter = null;
+
+                    } else {
+
+                        // Currently processing PhenotypeCallSummary element, gather the data values
+
+                        // nextEvent() gives the text of the child element
+                        xmlEvent = xmlEventReader.nextEvent();
+                        String data = xmlEvent.asCharacters().getData();
+
+                        switch (startElement.getName().getLocalPart()) {
                             case "id":
-                                id = Integer.parseInt(cnode.getTextContent());
+                                id = Integer.parseInt(data);
                                 break;
                             case "colonyId":
-                                colonyId = cnode.getTextContent();
+                                colonyId = data;
                                 break;
                             case "pValue":
-                                pValue = Double.parseDouble(cnode.getTextContent());
+                                pValue = Double.parseDouble(data);
                                 break;
                             case "sex":
-                                sex = cnode.getTextContent();
+                                sex = data;
                                 break;
                             case "phenotypeTerm":
-                                phenotypeTerm = cnode.getTextContent();
+                                phenotypeTerm = data;
                                 break;
                             case "externalId":
-                                externalId = cnode.getTextContent();
+                                externalId = data;
                                 break;
                             case "zygosity":
-                                zygosity = cnode.getTextContent();
+                                zygosity = data;
                                 break;
                             case "datasource":
-                                datasource = cnode.getTextContent();
+                                datasource = data;
                                 break;
                             case "project":
-                                project = cnode.getTextContent();
+                                project = data;
                                 break;
                             case "gene":
-                                gene = cnode.getTextContent();
+                                gene = data;
                                 break;
                             case "effectSize":
-                                effectSize = Double.parseDouble(cnode.getTextContent());
+                                effectSize = Double.parseDouble(data);
                                 break;
                             case "strain":
-                                strain = cnode.getTextContent();
+                                strain = data;
                                 break;
                             case "allele":
-                                allele = cnode.getTextContent().replace("<sup>", "<").replace("</sup>", ">");
+                                allele = data.replace("<sup>", "<").replace("</sup>", ">");
                                 break;
                             case "pipeline":
-                                pipeline = cnode.getTextContent();
+                                pipeline = data;
                                 break;
                             case "procedure":
-                                procedure = cnode.getTextContent();
+                                procedure = data;
                                 break;
                             case "parameter":
-                                parameter = cnode.getTextContent();
+                                parameter = data;
                                 break;
                             case "phenotypingCenter":
-                                phenotypingCenter = cnode.getTextContent().toUpperCase();
+                                phenotypingCenter = data.toUpperCase();
                                 break;
                         }
                     }
                 }
 
-                // Skip this one: phenotypeTerm is null
-                if (phenotypeTerm == null) {
-                    missingPhenotypeTerm.add(id);
-                    continue;
-                }
+                // if PhenotypeCallSumary end element is reached, generate GenotypePhenotypeDTO object (when appropriate)
+                if (xmlEvent.isEndElement()) {
+                    EndElement endElement = xmlEvent.asEndElement();
+                    if (endElement.getName().getLocalPart().equals("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary")) {
 
-                // Skip this one: pValue not significant OR phenotypeTerm is an anatomy term (MA)
-	            // OR phenotype term is an embronic anatomy term (EMAP)
-                if ((pValue != null && pValue >= 0.0001) || phenotypeTerm.startsWith("MA:") || phenotypeTerm.startsWith("EMAP:")) {
-                    continue;
-                }
+                        if (numberProcessed % 100000 == 0) {
+                            logger.debug("Processing document {} {} {} {}", id, colonyId, parameter, phenotypingCenter);
+                        }
 
-                if (mpId2TermMapping.get(phenotypeTerm) == null) {
-                    bad.add(phenotypeTerm);
-                    continue;
-                }
+                        // Skip this one: phenotypeTerm is null
+                        if (phenotypeTerm == null) {
+                            missingPhenotypeTerm.add(id);
+                            continue;
+                        }
 
-                // Skip if we already have this data postQC
-                phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
-                if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
-                	continue;
-                }
+                        // Skip this one: pValue not significant OR phenotypeTerm is an anatomy term (MA)
+                        // OR phenotype term is an embryonic anatomy term (EMAP)
+                        if ((pValue != null && pValue >= 0.0001) || phenotypeTerm.startsWith("MA:") || phenotypeTerm.startsWith("EMAP:")) {
+                            continue;
+                        }
 
-                GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
+                        if (mpId2TermMapping.get(phenotypeTerm) == null) {
+                            bad.add(phenotypeTerm);
+                            continue;
+                        }
 
-                // Procedure prefix is the first two strings of the parameter after splitting on underscore
-                // i.e. IMPC_BWT_001_001 => IMPC_BWT
-                String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
-                if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
-                    o.setResourceName(StatisticalResultsIndexer.RESOURCE_3I.toUpperCase());
-                    o.setResourceFullname(resourceMap.get(StatisticalResultsIndexer.RESOURCE_3I.toUpperCase()));
+                        if (allele == null || allele.isEmpty()){
+                            logger.warn("Empty allele symbol for  {} {} {} {}", id, colonyId, parameter, phenotypingCenter);
+                            continue;
+                        }
 
-                } else {
-                    o.setResourceName(datasource);
-                    if(resourceMap.containsKey(project.toUpperCase())) {
-                        o.setResourceFullname(resourceMap.get(project.toUpperCase()));
-                    }
-                }
+                        // Skip if we already have this data postQC
+                        phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
+                        if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
+                            continue;
+                        }
 
-                o.setProjectName(project);
-                if(projectMap.containsKey(project.toUpperCase())) {
-                    o.setProjectFullname(projectMap.get(project.toUpperCase()));
-                }
 
-                o.setColonyId(colonyId);
-                o.setExternalId(externalId);
-                o.setStrainAccessionId(strain);
-                o.setStrainName(strainId2NameMapping.get(strain));
-                o.setMarkerSymbol(gene);
-                o.setMarkerAccessionId(geneSymbol2IdMapping.get(gene));
-                o.setPipelineName(pipelineSid2NameMapping.get(pipeline));
-                o.setPipelineStableId(pipeline);
-                o.setProcedureName(procedureSid2NameMapping.get(procedure));
-                o.setProcedureStableId(procedure);
-                o.setParameterName(parameterSid2NameMapping.get(parameter));
-                o.setParameterStableId(parameter);
-                o.setMpTermId(phenotypeTerm);
-                o.setMpTermName(mpId2TermMapping.get(phenotypeTerm));
-                o.setP_value(pValue);
-                o.setEffectSize(effectSize);
+                        // Generate and save the document
+                        GenotypePhenotypeDTO o = new GenotypePhenotypeDTO();
 
-                if ( ! zygosityMapping.containsKey(zygosity)) {
-                    runStatus.addWarning(" Zygosity " + zygosity + " not found for record id " + id);
-                    continue;
-                }
-                o.setZygosity(zygosityMapping.get(zygosity));
+                        // Procedure prefix is the first two strings of the parameter after splitting on underscore
+                        // i.e. IMPC_BWT_001_001 => IMPC_BWT
+                        String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
+                        if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
+                            o.setResourceName(StatisticalResultsIndexer.RESOURCE_3I.toUpperCase());
+                            o.setResourceFullname(resourceMap.get(StatisticalResultsIndexer.RESOURCE_3I.toUpperCase()));
 
-                if (alleleSymbol2NameIdMapping.get(allele) == null) {
+                        } else {
+                            o.setResourceName(datasource);
+                            if (resourceMap.containsKey(project.toUpperCase())) {
+                                o.setResourceFullname(resourceMap.get(project.toUpperCase()));
+                            }
+                        }
+
+                        o.setProjectName(project);
+                        if (projectMap.containsKey(project.toUpperCase())) {
+                            o.setProjectFullname(projectMap.get(project.toUpperCase()));
+                        }
+
+                        o.setColonyId(colonyId);
+                        o.setExternalId(externalId);
+                        o.setStrainAccessionId(strain);
+                        o.setStrainName(strainId2NameMapping.get(strain));
+                        o.setMarkerSymbol(gene);
+                        o.setMarkerAccessionId(geneSymbol2IdMapping.get(gene));
+                        o.setPipelineName(pipelineSid2NameMapping.get(pipeline));
+                        o.setPipelineStableId(pipeline);
+                        o.setProcedureName(procedureSid2NameMapping.get(procedure));
+                        o.setProcedureStableId(procedure);
+                        o.setParameterName(parameterSid2NameMapping.get(parameter));
+                        o.setParameterStableId(parameter);
+                        o.setMpTermId(phenotypeTerm);
+                        o.setMpTermName(mpId2TermMapping.get(phenotypeTerm));
+                        o.setP_value(pValue);
+                        o.setEffectSize(effectSize);
+
+                        if (!zygosityMapping.containsKey(zygosity)) {
+                            runStatus.addWarning(" Zygosity " + zygosity + " not found for record id " + id);
+                            continue;
+                        }
+                        o.setZygosity(zygosityMapping.get(zygosity));
+
+                if (alleleSymbol2NameIdMapping.get(allele) == null || alleleSymbol2NameIdMapping.get(allele).acc == null) {
                     // use fake id if we cannot find the symbol from komp2
                     o.setAlleleAccessionId(createFakeIdFromSymbol(allele));
-                    o.setAlleleName(allele);
                 } else {
                     o.setAlleleAccessionId(alleleSymbol2NameIdMapping.get(allele).acc);
-                    o.setAlleleName(alleleSymbol2NameIdMapping.get(allele).name);
                 }
                 o.setAlleleSymbol(allele);
 
-                if (dccMapping.dccCenterMap.containsKey(phenotypingCenter)) {
-                    o.setPhenotypingCenter(dccMapping.dccCenterMap.get(phenotypingCenter));
-                } else {
-                    o.setPhenotypingCenter(phenotypingCenter);
-                }
+                        if (dccMapping.dccCenterMap.containsKey(phenotypingCenter)) {
+                            o.setPhenotypingCenter(dccMapping.dccCenterMap.get(phenotypingCenter));
+                        } else {
+                            o.setPhenotypingCenter(phenotypingCenter);
+                        }
 
-                // Set the intermediate terms
-                List<String> ids = new ArrayList<>();
-                List<String> names = new ArrayList<>();
+                        // Set the intermediate terms
+                        List<String> ids = new ArrayList<>();
+                        List<String> names = new ArrayList<>();
 
-                for (MpTermDTO mp : getIntermediateMpTerms(phenotypeTerm)) {
-                    ids.add(mp.id);
-                    names.add(mp.name);
-                }
+                        for (MpTermDTO mp : getIntermediateMpTerms(phenotypeTerm)) {
+                            ids.add(mp.id);
+                            names.add(mp.name);
+                        }
 
-                o.setIntermediateMpTermId(ids);
-                o.setIntermediateMpTermName(names);
+                        o.setIntermediateMpTermId(ids);
+                        o.setIntermediateMpTermName(names);
 
-                // Set the top level terms
-                ids = new ArrayList<>();
-                names = new ArrayList<>();
+                        // Set the top level terms
+                        ids = new ArrayList<>();
+                        names = new ArrayList<>();
 
-                for (MpTermDTO mp : getTopMpTerms(phenotypeTerm)) {
-                    ids.add(mp.id);
-                    names.add(mp.name);
-                }
+                        for (MpTermDTO mp : getTopMpTerms(phenotypeTerm)) {
+                            ids.add(mp.id);
+                            names.add(mp.name);
+                        }
 
-                o.setTopLevelMpTermId(ids);
-                o.setTopLevelMpTermName(names);
+                        o.setTopLevelMpTermId(ids);
+                        o.setTopLevelMpTermName(names);
 
-                if (sex.equals("Both")) {
+                        if (sex.equals("Both")) {
 
-                    // use incremental id instead of id field from Harwell
-                    o.setId(count ++);
-                    o.setSex(SexType.female.getName());
-                    documentCount++;
-                    preqcCore.addBean(o, 30000);
+                            // use incremental id instead of id field from Harwell
+                            o.setId(count++);
+                            o.setSex(SexType.female.getName());
+                            documentCount++;
+                            preqcCore.addBean(o, 5000);
 
-                    o.setId(count ++);
-                    o.setSex(SexType.male.getName());
-                    documentCount++;
-                    preqcCore.addBean(o, 30000);
+                            o.setId(count++);
+                            o.setSex(SexType.male.getName());
+                            documentCount++;
+                            preqcCore.addBean(o, 5000);
 
-                } else {
+                        } else {
 
-                    o.setId(count ++);
+                            o.setId(count++);
 
-                    try {
+                            try {
 
-                        SexType.valueOf(sex.toLowerCase());
+                                SexType.valueOf(sex.toLowerCase());
 
-                    } catch (IllegalArgumentException se) {
-                        runStatus.addError(" Got unexpected sex value '" + sex.toLowerCase() + "' from PreQC file. Not loading");
-                        continue;
+                            } catch (IllegalArgumentException se) {
+                                runStatus.addError(" Got unexpected sex value '" + sex.toLowerCase() + "' from PreQC file. Not loading");
+                                continue;
+                            }
+
+                            o.setSex(sex.toLowerCase());
+                            documentCount++;
+                            preqcCore.addBean(o, 5000);
+                        }
                     }
-
-                    o.setSex(sex.toLowerCase());
-                    documentCount++;
-                    preqcCore.addBean(o, 30000);
                 }
             }
+
+            logger.info("    Processed {} documents", numberProcessed);
 
             preqcCore.commit();
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IndexerException(e);
         }
+
+        logger.info("  Done reading the file");
 
         if (missingPhenotypeTerm.size() > 0) {
             runStatus.addWarning(" Phenotype terms are missing for " + missingPhenotypeTerm.size() + " record(s):\n " + StringUtils.join(missingPhenotypeTerm, ", "));
@@ -395,44 +456,19 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {
-        String fakeId = null;
 
-        ResultSet rs;
-        Statement statement;
+        return "NULL-" + DigestUtils.md5Hex(alleleSymbol).substring(0,10).toUpperCase();
 
-        String query = "select CONCAT('NULL-', UPPER(SUBSTR(MD5('" + alleleSymbol + "'),1,10))) as fakeId";
-        try {
-            statement = conn_komp2.createStatement();
-            rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                // Retrieve by column name
-                fakeId = rs.getString("fakeId");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return fakeId;
     }
 
     public void doGeneSymbol2IdMapping() {
 
-        ResultSet rs;
-        Statement statement;
-
-        String query = "select acc, symbol from genomic_feature";
         try {
-            statement = conn_komp2.createStatement();
-            rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                // Retrieve by column name
-                String acc = rs.getString("acc");
-                String symbol = rs.getString("symbol");
-                // logger.error(acc + " -- "+ symbol);
-                geneSymbol2IdMapping.put(symbol, acc);
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments("Gene", Allele2DTO.MARKER_SYMBOL, Allele2DTO.MGI_ACCESSION_ID);
+            for (Allele2DTO allele: allele2Docs){
+                geneSymbol2IdMapping.put(allele.getMarkerSymbol(), allele.getMgiAccessionId());
             }
-        } catch (SQLException e) {
+        } catch (IOException | SolrServerException e) {
             e.printStackTrace();
         }
     }
@@ -500,29 +536,19 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
     public void doAlleleSymbol2NameIdMapping() {
 
-        ResultSet rs;
-        Statement statement;
 
-        String query = "select acc, symbol, name from allele";
         try {
-            statement = conn_komp2.createStatement();
-            rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                // Retrieve by column name
-                String acc = rs.getString("acc");
-                String symbol = rs.getString("symbol");
-                String name = rs.getString("name");
-                // logger.error(acc + " -- "+ symbol);
-
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments("Allele", Allele2DTO.ALLELE_NAME, Allele2DTO.ALLELE_MGI_ACCESSION_ID, Allele2DTO.ALLELE_SYMBOL);
+            for (Allele2DTO allele: allele2Docs){
                 AlleleDTO al = new AlleleDTO();
-                al.acc = acc;
-                al.name = name;
-                alleleSymbol2NameIdMapping.put(symbol, al);
+                al.acc = allele.getAlleleMgiAccessionId();
+                al.name = allele.getAlleleName();
+                alleleSymbol2NameIdMapping.put(allele.getAlleleSymbol(), al);
             }
-        } catch (SQLException e) {
+        } catch (IOException | SolrServerException e) {
             e.printStackTrace();
         }
+
     }
 
     public void doStrainId2NameMapping() {

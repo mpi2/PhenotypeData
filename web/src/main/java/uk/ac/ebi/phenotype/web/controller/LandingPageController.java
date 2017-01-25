@@ -85,7 +85,7 @@ public class LandingPageController {
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
-        Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources);
+        Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources, true);
 
         Map<String, Long> viabilityMap = os.getViabilityCategories(viabilityRes);
         List<CountTableRow> viabilityTable = os.consolidateZygosities(viabilityRes);
@@ -163,10 +163,6 @@ public class LandingPageController {
         model.addAttribute("systemName", mpDTO.getMpTerm().replace(" phenotype", ""));
         model.addAttribute("procedures", procedures);
 
-        //TODO add to model counts in json for venn diagram
-        getOrtologyDiseaseModelVennDiagram(mpDTO.getMpId(), null, null);
-
-
         return "landing_" + page;
 
     }
@@ -181,27 +177,48 @@ public class LandingPageController {
             RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
-        return "var sets =  " + getOrtologyDiseaseModelVennDiagram(mpId, null, null) + ";";
 
-    }
-
-
-    private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, String diseaseSystem, Set<String> geneSymbols) throws IOException, SolrServerException {
-
-        Map<String, Set<String>> allSets = new HashMap<>();
-
-        // get gene sets for human orthology (with/without)
-        allSets.putAll(geneService.getGenesByOrthology(mpId));
-        System.out.println(geneService.getGenesByOrthology(mpId));
-
-        // get gene sets for IMPC and MGI disease models
-         // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/phenodigm/select?q=*:*&facet=true&facet.field=type&fq=type:disease_gene_summary&fq=impc_predicted:true&fq=raw_htpc_score:[1.79%20TO%20*]&fq=disease_classes:cardiac*&group=true&group.field=marker_symbol&group.ngroups=true
         Set<String> diseaseClasses = new HashSet<>();
         diseaseClasses.add("cardiac");
         diseaseClasses.add("cardiac malformations");
         diseaseClasses.add("circulatory system");
-        allSets.putAll(phenodigmService.getGenesWithDisease(diseaseClasses));
 
+        return "var mgiSets =  " + getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, true, false) + ";"
+            + "var impcSets = " +  getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true) + ";";
+
+    }
+
+
+    private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, Set<String> diseaseClasses, Boolean mgi, Boolean impc) throws IOException, SolrServerException {
+
+        Map<String, Set<String>> sets = new HashMap<>();
+
+        // get gene sets for human orthology (with/without)
+        sets.put("IMPC phenotype", geneService.getGenesSumbolsBy(mpId));
+        System.out.println("Gene count : " + geneService.getGenesSumbolsBy(mpId).size());
+
+        // get gene sets for IMPC and MGI disease models
+        // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/phenodigm/select?q=*:*&facet=true&facet.field=type&fq=type:disease_gene_summary&fq=impc_predicted:true&fq=raw_htpc_score:[1.79%20TO%20*]&fq=disease_classes:cardiac*&group=true&group.field=marker_symbol&group.ngroups=true
+
+        Map<String, Set<String>> genesWithDisease = phenodigmService.getGenesWithDisease(diseaseClasses);
+
+        if (mgi && !impc){
+            sets.put("Human curated (orthology)", genesWithDisease.get("Human curated (orthology)"));
+            sets.put("MGI predicted", genesWithDisease.get("MGI predicted"));
+            return getJsonForVenn(sets);
+        }
+        else if (!mgi && impc) {
+            sets.put("IMPC predicted", genesWithDisease.get("IMPC predicted"));
+            sets.put("Human curated (orthology)", genesWithDisease.get("Human curated (orthology)"));
+            return getJsonForVenn(sets);
+        } else {
+            sets.putAll(genesWithDisease);
+            return getJsonForVenn(sets);
+        }
+
+    }
+
+    private JSONArray getJsonForVenn( Map<String, Set<String>> allSets){
         // get counts for intersections
         JSONArray sets = new JSONArray();
         JSONArray wholeSets = new JSONArray();
@@ -243,15 +260,15 @@ public class LandingPageController {
             }
         }
 
-        // Intersections of all sets
-        JSONArray currentSets = new JSONArray();
-        currentSets.add(0);
-        currentSets.add(1);
-        currentSets.add(2);
-        currentSets.add(3);
-        int intersectionSize = CollectionUtils.intersection(allSets.get(keysIndex.get(0)),
-                CollectionUtils.intersection(allSets.get(keysIndex.get(1)), CollectionUtils.intersection(allSets.get(keysIndex.get(2)),allSets.get(keysIndex.get(3))))).size();
-        sets.add(getSetVennFormat(null, currentSets, intersectionSize));
+//        // Intersections of 4 sets
+//        JSONArray currentSets = new JSONArray();
+//        currentSets.add(0);
+//        currentSets.add(1);
+//        currentSets.add(2);
+//        currentSets.add(3);
+//        int intersectionSize = CollectionUtils.intersection(allSets.get(keysIndex.get(0)),
+//                CollectionUtils.intersection(allSets.get(keysIndex.get(1)), CollectionUtils.intersection(allSets.get(keysIndex.get(2)),allSets.get(keysIndex.get(3))))).size();
+//        sets.add(getSetVennFormat(null, currentSets, intersectionSize));
 
         System.out.println("SIZES HERE :::: " + sets);
         System.out.println("SETS HERE :::: " + wholeSets);
@@ -261,7 +278,9 @@ public class LandingPageController {
         result.addAll(sets);
 
         return result;
-    }
+
+        }
+
 
 
     /**
