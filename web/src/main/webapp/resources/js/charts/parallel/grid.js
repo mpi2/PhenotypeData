@@ -97,18 +97,18 @@
       
       if (this.selector) {
         var selected = undefined;
-        this.grid.onMouseEnter.subscribe(function(e,args) {
+        this.grid.onClick.subscribe(function(e,args) {
           selected = self.grid.getCellFromEvent(e).row;
           self.selector.select(selected);
         });
-        this.grid.onMouseLeave.subscribe(function(e,args) {
-          selected = undefined;
-          setTimeout(function() {
-            if (typeof selected == "undefined") {
-              self.selector.deselect(); 
-            }
-          }, 40);
-        });
+        // this.grid.onMouseLeave.subscribe(function(e,args) {
+        //   selected = undefined;
+        //   setTimeout(function() {
+        //     if (typeof selected == "undefined") {
+        //       self.selector.deselect();
+        //     }
+        //   }, 40);
+        // });
       }
     },
     update: function() {
