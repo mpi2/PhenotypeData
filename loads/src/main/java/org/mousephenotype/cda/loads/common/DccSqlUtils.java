@@ -1231,7 +1231,6 @@ public class DccSqlUtils {
 
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 mediaFile.setHjid(keyholder.getKey().longValue());
@@ -1251,11 +1250,9 @@ public class DccSqlUtils {
      *
      * @param mediaFilePk the mediaFile primary key to be inserted
      * @param parameterAssociationPk the parameterAssociation primary key to be inserted
-     *
-     * @return the mediaFile_parameterAssociation primary key
      */
-    public long insertMediaFile_parameterAssociation(long mediaFilePk, long parameterAssociationPk) {
-        long pk = 0L;
+    public void insertMediaFile_parameterAssociation(long mediaFilePk, long parameterAssociationPk) {
+
         String insert = "INSERT INTO mediaFile_parameterAssociation(mediaFile_pk, parameterAssociation_pk) " +
                         "VALUES (:mediaFilePk, :parameterAssociationPk)";
 
@@ -1266,18 +1263,11 @@ public class DccSqlUtils {
 
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-
-            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
-            if (count > 0) {
-                pk = keyholder.getKey().longValue();
-            }
+            npJdbcTemplate.update(insert, parameterSource, keyholder);
 
         } catch (DuplicateKeyException e) {
-            String query = "SELECT pk FROM mediaFile_parameterAssociation WHERE mediaFile_pk = :mediaFilePk AND parameterAssociation_pk = :parameterAssociationPk";
-            pk = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
-        }
 
-        return pk;
+        }
     }
 
     /**
@@ -1335,9 +1325,12 @@ public class DccSqlUtils {
             parameterMap.put("URI", mediaParameter.getURI());
             parameterMap.put("procedurePk", procedurePk);
 
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 mediaParameter.setHjid(pk);
             }
 
@@ -1367,9 +1360,12 @@ public class DccSqlUtils {
             parameterMap.put("mediaParameterPk", mediaParameterPk);
             parameterMap.put("parameterAssociationPk", parameterAssociationPk);
 
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
             int count = npJdbcTemplate.update(insert, parameterMap);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
@@ -1398,9 +1394,11 @@ public class DccSqlUtils {
             parameterMap.put("mediaParameterPk", mediaParameterPk);
             parameterMap.put("procedureMetadataPk", procedureMetadataPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
@@ -1428,9 +1426,11 @@ public class DccSqlUtils {
             parameterMap.put("localId", mediaSample.getLocalId());
             parameterMap.put("mediaSampleParameterPk", mediaSampleParameterPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 mediaSample.setHjid(pk);
             }
 
@@ -1459,9 +1459,11 @@ public class DccSqlUtils {
             parameterMap.put("parameterStatus", mediaSampleParameter.getParameterStatus());
             parameterMap.put("procedurePk", procedurePk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 mediaSampleParameter.setHjid(pk);
             }
 
@@ -1490,9 +1492,11 @@ public class DccSqlUtils {
             parameterMap.put("localId", mediaSection.getLocalId());
             parameterMap.put("mediaSamplePk", mediaSamplePk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 mediaSection.setHjid(pk);
             }
 
@@ -1523,9 +1527,11 @@ public class DccSqlUtils {
             parameterMap.put("sequenceId", ontologyParameter.getSequenceID());
             parameterMap.put("procedurePk", procedurePk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 ontologyParameter.setHjid(pk);
             }
 
@@ -1554,9 +1560,11 @@ public class DccSqlUtils {
             parameterMap.put("term", ontologyParameterTerm);
             parameterMap.put("ontologyParameterPk", ontologyParameterPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 return pk;
             }
 
@@ -1588,9 +1596,11 @@ public class DccSqlUtils {
             parameterMap.put("level", parentalStrain.getLevel());
             parameterMap.put("specimenPk", specimenPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 parentalStrain.setHjid(pk);
             }
 
@@ -1649,9 +1659,11 @@ public class DccSqlUtils {
             parameterMap.put("procedurePk", procedurePk);
             parameterMap.put("procedureMetadataPk", procedureMetadataPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
@@ -1715,9 +1727,11 @@ public class DccSqlUtils {
             parameterMap.put("parameterStatus", seriesMediaParameter.getParameterStatus());
             parameterMap.put("procedurePk", procedurePk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 seriesMediaParameter.setHjid(pk);
             }
 
@@ -1748,9 +1762,11 @@ public class DccSqlUtils {
             parameterMap.put("URI", seriesMediaParameterValue.getURI());
             parameterMap.put("seriesMediaParameterPk", seriesMediaParameterPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 seriesMediaParameterValue.setHjid(pk);
             }
 
@@ -1780,9 +1796,11 @@ public class DccSqlUtils {
             parameterMap.put("seriesMediaParameterValuePk", seriesMediaParameterValuePk);
             parameterMap.put("parameterAssociationPk", parameterAssociationPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
@@ -1811,9 +1829,11 @@ public class DccSqlUtils {
             parameterMap.put("seriesMediaParameterValuePk", seriesMediaParameterValuePk);
             parameterMap.put("procedureMetadataPk", procedureMetadataPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                pk = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
@@ -1843,9 +1863,11 @@ public class DccSqlUtils {
             parameterMap.put("sequenceId", seriesParameter.getSequenceID());
             parameterMap.put("procedurePk", procedurePk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 seriesParameter.setHjid(pk);
             }
 
@@ -1876,9 +1898,11 @@ public class DccSqlUtils {
             parameterMap.put("incrementStatus", seriesParameterValue.getIncrementStatus());
             parameterMap.put("seriesParameterPk", seriesParameterPk);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
+                long pk = keyholder.getKey().longValue();
                 seriesParameterValue.setHjid(pk);
             }
 
@@ -1919,10 +1943,12 @@ public class DccSqlUtils {
             parameterMap.put("zygosity", specimen.getZygosity().value());
             parameterMap.put("statuscodePk", specimen.getStatusCode());
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long specimenPk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
-                specimen.setHjid(specimenPk);
+                long pk = keyholder.getKey().longValue();
+                specimen.setHjid(pk);
             }
         } catch (DuplicateKeyException e ) {
 
@@ -1955,10 +1981,12 @@ public class DccSqlUtils {
             parameterMap.put("unit", simpleParameter.getUnit());
             parameterMap.put("value", simpleParameter.getValue());
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            KeyHolder keyholder = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long simpleParameterPk = npJdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", new HashMap<>(), Long.class);
-                simpleParameter.setHjid(simpleParameterPk);
+                long pk = keyholder.getKey().longValue();
+                simpleParameter.setHjid(pk);
             }
         } catch (Exception e) {
             throw new DataLoadException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
