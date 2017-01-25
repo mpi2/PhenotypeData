@@ -100,15 +100,8 @@
         this.grid.onClick.subscribe(function(e,args) {
           selected = self.grid.getCellFromEvent(e).row;
           self.selector.select(selected);
+          d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;    " + self.grid.getData().getItem(selected).gene.split("(")[0]);
         });
-        // this.grid.onMouseLeave.subscribe(function(e,args) {
-        //   selected = undefined;
-        //   setTimeout(function() {
-        //     if (typeof selected == "undefined") {
-        //       self.selector.deselect();
-        //     }
-        //   }, 40);
-        // });
       }
     },
     update: function() {
