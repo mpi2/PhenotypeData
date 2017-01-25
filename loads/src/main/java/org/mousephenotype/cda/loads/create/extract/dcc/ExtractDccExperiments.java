@@ -189,7 +189,8 @@ public class ExtractDccExperiments implements CommandLineRunner {
                     insertExperiment(experiment, centerProcedure, centerPk);
                     totalExperiments++;
                 } catch (Exception e) {
-                    logger.error("ERROR IMPORTING EXPERIMENT. CENTER: {}. EXPERIMENT: {}. EXPERIMENT SKIPPED. ERROR:\n{}" , centerProcedure.getCentreID(), experiment, e.getLocalizedMessage());
+                    logger.error("ERROR IMPORTING EXPERIMENT FROM FILE {}. CENTER: {}. EXPERIMENT ID: '{}'. EXPERIMENT SKIPPED. ERROR:\n{}" ,
+                                 filename, centerProcedure.getCentreID(), experiment.getExperimentID(), e.getLocalizedMessage());
                     totalExperimentsFailed++;
                 }
             }
