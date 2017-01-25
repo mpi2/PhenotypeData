@@ -219,6 +219,7 @@ public class LandingPageController {
     }
 
     private JSONArray getJsonForVenn( Map<String, Set<String>> allSets){
+
         // get counts for intersections
         JSONArray sets = new JSONArray();
         JSONArray wholeSets = new JSONArray();
@@ -240,7 +241,7 @@ public class LandingPageController {
                 currentSets.add(j);
                 Set<String> intersection = new HashSet<>(CollectionUtils.intersection(allSets.get(keysIndex.get(i)), allSets.get(keysIndex.get(j))));
                 sets.add(getSetVennFormat(null, currentSets, intersection.size()));
-                wholeSets.add(getSetJSON(keysIndex.get(i), currentSets, intersection));
+                wholeSets.add(getSetJSON(null, currentSets, intersection));
             }
         }
 
@@ -255,7 +256,7 @@ public class LandingPageController {
                     Set<String> intersection = new HashSet<>(CollectionUtils.intersection(allSets.get(keysIndex.get(i)),
                             CollectionUtils.intersection(allSets.get(keysIndex.get(j)), allSets.get(keysIndex.get(k)))));
                     sets.add(getSetVennFormat(null, currentSets, intersection.size()));
-                    wholeSets.add(getSetJSON(keysIndex.get(i), currentSets, intersection));
+                    wholeSets.add(getSetJSON(null, currentSets, intersection));
                 }
             }
         }
