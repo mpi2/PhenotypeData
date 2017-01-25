@@ -72,6 +72,9 @@ public class PhisService {
 			if (pImage.getPhenotypeIdBag() != null) {
 				image.setMpId(pImage.getPhenotypeIdBag());
 			}
+			if(pImage.getImageGeneratedBy() !=null){
+				image.setPhenotypingCenter(pImage.getImageGeneratedBy().get(0));//getting the first in the list. will we have a problem with centers that are not in our list/db as centers e.g. for brain histopath - ?
+			}
 			
 			//what about mpath, emap and cmpo? no ids in the list of 163?
 			
