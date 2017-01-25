@@ -61,6 +61,7 @@ public class Allele2DTO {
 	public static final String ALLELE_FEATURES = "allele_features";
 	public static final String WITHOUT_ALLELE_FEATURES = "without_allele_features";
 	public static final String ALLELE_DESIGN_PROJECT="allele_design_project";
+	public static final String ALLELE_SYMBOL_SEARCH_VARIANTS = "allele_symbol_search_variants";
 	
 	@Field(ALLELE_DESIGN_PROJECT)
 	private String alleleDesignProject;
@@ -105,6 +106,9 @@ public class Allele2DTO {
 	@Field(PHENOTYPING_CENTRES)
 	private List<String> phenotypingCentres;
 
+	@Field(ALLELE_SYMBOL_SEARCH_VARIANTS)
+	private List<String> alleleSymbolSearchVariants;
+
 	@Field(LATEST_PRODUCTION_CENTRE)
 	private String latestProductionCentre;
 
@@ -145,7 +149,7 @@ public class Allele2DTO {
 	private String alleleImage;
 
 	@Field(ALLELE_SYMBOL)
-	private List<String> alleleSymbol;
+	private String alleleSymbol;
 
 	@Field(ALLELE_SIMPLE_IMAGE)
 	private String alleleSimpleImage;
@@ -231,6 +235,14 @@ public class Allele2DTO {
 
 	public void setWithoutAlleleFeatures(List<String> withoutAlleleFeatures) {
 		this.withoutAlleleFeatures = withoutAlleleFeatures;
+	}
+
+	public List<String> getAlleleSymbolSearchVariants() {
+		return alleleSymbolSearchVariants;
+	}
+
+	public void setAlleleSymbolSearchVariants(List<String> alleleSymbolSearchVariants) {
+		this.alleleSymbolSearchVariants = alleleSymbolSearchVariants;
 	}
 
 	public Integer getFeatureCoordEnd() {
@@ -497,11 +509,11 @@ public class Allele2DTO {
 		this.alleleImage = alleleImage;
 	}
 
-	public List<String> getAlleleSymbol() {
+	public String getAlleleSymbol() {
 		return alleleSymbol;
 	}
 
-	public void setAlleleSymbol(List<String> alleleSymbol) {
+	public void setAlleleSymbol(String alleleSymbol) {
 		this.alleleSymbol = alleleSymbol;
 	}
 

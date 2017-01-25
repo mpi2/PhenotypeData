@@ -16,9 +16,9 @@ $(".clickable_image_control").click(function() {
 			$('#control_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));
 		}
 		else if($(this).attr('data-imageLink') !== 'undefined'){
-			  console.log('data-imageLink url found='+$(this).attr('data-imageLink'));
+			  console.log('data-imageLink url found='+$(this).attr('data-imageLink').replace('http:','https'));
 			  //$('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
-			  $('#control_frame').attr('src',$(this).attr('data-imageLink'));
+			  $('#control_frame').attr('src',$(this).attr('data-imageLink').replace('http:','https'));//image data links from jax aren't relative https seems to work so default to this
 		 }else{
 			$('#control_frame').attr('src',jpegUrlDetailWithoutId+'/'+this.id);
 		}
@@ -36,7 +36,8 @@ $(".clickable_image_mutant").click(function() {
 	  if(this.src.indexOf('_pdf')>-1){
 		  $('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));//replace the placeholder string with the id string.
 	  }else if($(this).attr('data-imageLink')!=='undefined'){
-		  $('#mutant_frame').attr('src',$(this).attr('data-imageLink'));
+		  console.log('data-imageLink url found='+$(this).attr('data-imageLink').replace('http:','https'));
+		  $('#mutant_frame').attr('src',$(this).attr('data-imageLink').replace('http:','https'));//image data links from jax aren't relative https seems to work so default to this
 	  }else
 	 {
 		  $('#mutant_frame').attr('src',jpegUrlDetailWithoutId+'/'+this.id);
