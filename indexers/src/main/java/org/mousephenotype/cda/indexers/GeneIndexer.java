@@ -409,6 +409,8 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<String>());
 
                 // Add all ontology information from images associated to this gene
+
+                // actually do we need these? We do not know how these MP become associated with an image
 //                if (sangerImages.containsKey(allele.getMgiAccessionId())) {
 //
 //                    List<SangerImageDTO> list = sangerImages.get(allele.getMgiAccessionId());
