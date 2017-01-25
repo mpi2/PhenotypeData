@@ -619,7 +619,7 @@ public class GenePageTest {
         }
 
         // Significant Abnormalities: count and values. As of 15-September-2015, there should be at least:
-        //   8 - tested but not significant (blue)
+        //   9 - tested but not significant (blue)
         //   5 - significant (orange)
         // ... count
         numOccurrences = 0;
@@ -640,6 +640,7 @@ public class GenePageTest {
                         , "Akt2 limbs/digits/tail phenotype measurements"
                         , "Akt2 integument phenotype or pigmentation phenotype measurements"
                         , "Akt2 craniofacial phenotype measurements"
+                        , "Akt2 endocrine/exocrine gland phenotype measurements"
                         , "Akt2 vision/eye phenotype measurements"
                 });
 
