@@ -40,10 +40,6 @@
             #HET Specimens
         </th>
         <th
-                title="If there are images for homozygous specimens this value will be 'Yes'">
-            HOM Images?
-        </th>
-        <th
                 title="Status of expression for Wild Type specimens from any colony with data for this anatomy">
             WT Expr
         </th>
@@ -66,15 +62,7 @@
             <td><span
                     title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span>
             </td>
-            <td
-                    <c:if test="${embryoMutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:${yesColor}"</c:if>>
-                                     			<span
-                                                        title="Homozygote Images are
-                                     			<c:if test="${!embryoMutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available"><c:if
-                                                        test="${embryoMutantImagesAnatomyToRow[mapEntry.key].homImages}">Yes</c:if>
-																<c:if
-                                                                        test="${!embryoMutantImagesAnatomyToRow[mapEntry.key].homImages}">No</c:if></span>
-            </td>
+           
             <td>
                 <c:choose>
                     <c:when
