@@ -870,7 +870,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		// <field column="TERM_ID" name="maTermId" />
 		// <field column="TERM_NAME" name="ma_term" />
 		// <field column="TERM_ID" name="ma_id" />
-		String query = "select * from ANN_ANNOTATION";// where TERM_ID like
+		String query = "select * from ANN_ANNOTATION  and FOREIGN_TABLE_NAME= 'IMA_IMAGE_TAG'";// where TERM_ID like
 		// 'MA%'";// where
 		// FOREIGN_KEY_ID=${tag.ID}
 		// and TERM_ID like
