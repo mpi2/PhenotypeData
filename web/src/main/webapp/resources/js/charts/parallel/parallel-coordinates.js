@@ -5,14 +5,7 @@
 
 	window.parallel = function(model, colors, defaults, highlighter, axes) {
 		
-		var labelColorList = [
-		      				'rgb(36, 139, 75)',
-		      				'rgb(191, 75, 50)',
-		      				'rgb(255, 201, 67)',
-		      				'rgb(191, 151, 50)',
-		      				'rgb(247, 157, 70)',
-		      				'#16532D',  
-		      				'#0978A1'];
+		var labelColorList = ['green','red','forest','blue','yellow','mustard' ];
 		var self = {}, dimensions, dragging = {}, highlighted = null, highlighted2 = null, container = d3.select("#parallel");
 		var text = null;
 		var line = d3.svg.line().interpolate('cardinal').tension(0.85), axis = d3.svg.axis().orient("left"), background, foreground;
@@ -89,7 +82,7 @@
 					redraw();
 				} else { // toggle to active
 					d3.select(this).classed("legendCellInactive", false);
-					d3.select(this).selectAll("rect").style("fill", axisColors[d3.select(this).selectAll("text").text()]);					
+					d3.select(this).selectAll("rect").attr("class", axisColors[d3.select(this).selectAll("text").text()]);
 					inactiveGroups.splice(inactiveGroups.indexOf(d3.select(this).selectAll("text").text()),1);
 					redraw();
 				}
@@ -140,7 +133,7 @@
 			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path)
 				.attr("style", function(d) {return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");})
 				.attr("class", function(d) {return d.gene;})
-				.on("click", function (d,i){ highlighter.deselect(); d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;    " + d.gene.split("(")[0] + ""); highlighter.select(geneList.indexOf(d.gene));})
+				.on("click", function (d,i){ highlighter.deselect(); d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;    <a href='genes/"+d.gene.split("(")[1].replace(/\)/g, "") + "'> " + d.gene.split("(")[0] + "</a>"); highlighter.select(geneList.indexOf(d.gene));})
 				;
 
 			// Add a group element for each dimension.
@@ -174,9 +167,9 @@
 				return links[d];
 			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
 				return "rotate(-90)";
-			}).text(String).style("fill", function(d) { return axisColors[groups[d]]; }).classed("axis-label", true).attr("class", function(d) {
-				return groups[d].replace(/ /g, "_");
-			}).attr("id", function(d){ return "id"+d.replace(/ /g, "_");}).append("svg:title").text(String);
+			}).text(String).classed("axis-label", true).attr("class", function(d) {
+				return groups[d].replace(/ |\(|\)/g, "_") + " " + axisColors[groups[d]];
+			}).attr("id", function(d){ return "id"+d.replace(/ |\(|\)/g, "_");}).append("svg:title").text(String);
 
 			// Add and store a brush for each axis.
 			g.append("svg:g").attr("class", "brush").each(function(d) {
@@ -340,8 +333,12 @@
                         var significanceArray = arrayFromMaskArray(d.significantMask, axes.length - 1);
                         axes.forEach(function(axis){
                             if(axis != "gene" && isSignificant(significanceArray,axes.indexOf(axis)-1)){ // first column is actually the gene, therefore also substract 1 otherwise bitmask will be offset
-                                d3.select("#id" + axis.replace(/ /g, "_")).style("font-weight", "bold");
-                            }
+                                d3.select("#id" + axis.replace(/ |\(|\)/g, "_")).style("font-weight", "bold").attr("class", "significant_pc");
+							} else {
+                                d3.select("#id" + axis.replace(/ |\(|\)/g, "_")).style("font-weight", "normal").attr("class", function(d) {
+                                    return groups[d].replace(/ |\(|\)/g, "_") + " " + axisColors[groups[d]];
+                                });
+							}
 						});
 						return "stroke:" + colors[d.group] + ";"; + getStyles(d,"foreground");
 					});
