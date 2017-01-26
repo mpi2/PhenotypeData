@@ -177,19 +177,27 @@ public class ExtractDccExperiments implements CommandLineRunner {
             // Load experiment info.
             for (Experiment experiment : centerProcedure.getExperiment()) {
 
+                long centerPk = 0;
                 try {
                     // Get centerPk
-                    long centerPk = dccSqlUtils.getCenterPk(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+                    centerPk = dccSqlUtils.getCenterPk(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
                     if (centerPk < 1) {
-                        logger.warn("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
-                                            + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
+                        String center = "<null>";
+                        String pipeline = "<null>";
+                        String project = "<null>";
+                        try { center = centerProcedure.getCentreID().value(); } catch (Exception e) { }
+                        try { pipeline = centerProcedure.getPipeline(); } catch (Exception e) { }
+                        try { project = centerProcedure.getProject(); } catch (Exception e) { }
+                        logger.warn("UNKNOWN CENTER,PIPELINE,PROJECT: '{},{},{}. INSERTING ...", center, pipeline, project);
                         centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
                     }
 
                     insertExperiment(experiment, centerProcedure, centerPk);
                     totalExperiments++;
+
                 } catch (Exception e) {
-                    logger.error("ERROR IMPORTING EXPERIMENT. CENTER: {}. EXPERIMENT: {}. EXPERIMENT SKIPPED. ERROR:\n{}" , centerProcedure.getCentreID(), experiment, e.getLocalizedMessage());
+                    logger.error("ERROR IMPORTING EXPERIMENT FROM FILE {}. experimentID: '{}'. datasourceShortName: {}. centerPk: {}. EXPERIMENT SKIPPED. ERROR:\n{}" ,
+                                 filename, experiment.getExperimentID(), datasourceShortName, centerPk, e.getLocalizedMessage());
                     totalExperimentsFailed++;
                 }
             }

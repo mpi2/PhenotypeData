@@ -93,7 +93,7 @@ public class LoadValidateCdaReport extends AbstractReport {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("ExtractValidateDccReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("LoadValidateCdaReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
