@@ -1049,7 +1049,7 @@ public class DccSqlUtils {
             Map<String, Object> parameterMap = new HashMap<>();
 
             parameterMap.put("stage", embryo.getStage());
-            parameterMap.put("stageUnit", embryo.getStageUnit().value());
+            parameterMap.put("stageUnit", (embryo.getStageUnit() == null ? null : embryo.getStageUnit().value()));
             parameterMap.put("specimenPk", specimenPk);
 
             count = npJdbcTemplate.update(insert, parameterMap);
@@ -1194,10 +1194,15 @@ public class DccSqlUtils {
         int count = 0;
         String insert = "INSERT INTO mouse (DOB, specimen_pk) VALUES (:DOB, :specimenPk)";
 
+        java.sql.Date DOB = null;
+        try {
+            DOB = new java.sql.Date(mouse.getDOB().getTime().getTime());
+        } catch (Exception e) { }
+
         try {
             Map<String, Object> parameterMap = new HashMap<>();
 
-            parameterMap.put("DOB", new java.sql.Date(mouse.getDOB().getTime().getTime()));
+            parameterMap.put("DOB", DOB);
             parameterMap.put("specimenPk", specimenPk);
 
            count = npJdbcTemplate.update(insert, parameterMap);
@@ -1328,7 +1333,7 @@ public class DccSqlUtils {
             KeyHolder          keyholder       = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
 
-            int count = npJdbcTemplate.update(insert, parameterMap);
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
                 mediaParameter.setHjid(pk);
@@ -1592,7 +1597,7 @@ public class DccSqlUtils {
 
             parameterMap.put("percentage", parentalStrain.getPercentage());
             parameterMap.put("mgiStrainId", parentalStrain.getMGIStrainID());
-            parameterMap.put("gender", parentalStrain.getGender().value());
+            parameterMap.put("gender", (parentalStrain.getGender() == null ? null : parentalStrain.getGender().value()));
             parameterMap.put("level", parentalStrain.getLevel());
             parameterMap.put("specimenPk", specimenPk);
 
@@ -1929,18 +1934,18 @@ public class DccSqlUtils {
         Map<String, Object> parameterMap = new HashMap();
 
         try {
-            parameterMap.put("colonyId", specimen.getColonyID().trim());
+            parameterMap.put("colonyId", (specimen.getColonyID() == null ? null : specimen.getColonyID().trim()));
             parameterMap.put("datasourceShortName", datasourceShortName);
-            parameterMap.put("gender", specimen.getGender().value());
+            parameterMap.put("gender", (specimen.getGender() == null ? null : specimen.getGender().value()));
             parameterMap.put("isBaseline", specimen.isIsBaseline() ? 1 : 0);
             parameterMap.put("litterId", specimen.getLitterId());
-            parameterMap.put("phenotypingCenter", specimen.getPhenotypingCentre().value());
+            parameterMap.put("phenotypingCenter", (specimen.getPhenotypingCentre() == null ? null : specimen.getPhenotypingCentre().value()));
             parameterMap.put("pipeline", specimen.getPipeline());
             parameterMap.put("productionCenter", (specimen.getProductionCentre() == null ? null : specimen.getProductionCentre().value()));
             parameterMap.put("project", specimen.getProject());
             parameterMap.put("specimenId", specimen.getSpecimenID());
             parameterMap.put("strainId", specimen.getStrainID());
-            parameterMap.put("zygosity", specimen.getZygosity().value());
+            parameterMap.put("zygosity", specimen.getZygosity() == null ? null : specimen.getZygosity().value());
             parameterMap.put("statuscodePk", specimen.getStatusCode());
 
             KeyHolder keyholder = new GeneratedKeyHolder();
@@ -1952,8 +1957,6 @@ public class DccSqlUtils {
             }
         } catch (DuplicateKeyException e ) {
 
-        } catch (Exception e) {
-            throw new DataLoadException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
         }
         
         return specimen;
@@ -2159,6 +2162,113 @@ public class DccSqlUtils {
 
         return pk;
     }
+
+    /**
+     * Queries line level experiments for an experiment matching {@code procedureId}, {@code colonyId} and {@code centerId}.
+     *
+     * @param procedureId the dcc procedure id
+     * @param colonyId the colony id
+     * @param centerId the dcc center id (name)
+     * @return the experiment, if found; null if not found. If more than 1 row is found, an error is logged and null
+     *          is returned.
+     */
+    public DccExperimentDTO getExperimentLineLevel(String procedureId, String colonyId, String centerId) {
+
+        final String query =
+                "SELECT\n" +
+                        "  l.datasourceShortName,\n" +
+                        "  CONCAT(p.procedureId, '-', l.colonyId) AS experimentId,\n" +
+                        "  null,\n" +
+                        "  null,\n" +
+                        "  c.centerId AS phenotypingCenter,\n" +
+                        "  NULL       AS productionCenter,\n" +
+                        "  c.pipeline,\n" +
+                        "  c.project,\n" +
+                        "  p.procedureId,\n" +
+                        "  p.pk       AS dcc_procedure_pk,\n" +
+                        "  l.colonyId,\n" +
+                        "  NULL       AS specimenId,\n" +
+                        "  NULL       AS gender,\n" +
+                        "  sc.value   AS rawProcedureStatus,\n" +
+                        "  1 AS isLineLevel\n" +
+                        "FROM line l\n" +
+                        "JOIN center_procedure            cp  ON cp .pk            = l  .center_procedure_pk\n" +
+                        "JOIN center                      c   ON c  .pk            = cp .center_pk\n" +
+                        "JOIN procedure_                  p   ON p  .pk            = cp .procedure_pk\n" +
+                        "LEFT OUTER JOIN line_statuscode  lsc ON lsc.line_pk       = l  .pk\n" +
+                        "LEFT OUTER JOIN statuscode       sc  ON sc .pk            = lsc.statuscode_pk\n" +
+                        "WHERE p.procedureId = :procedureId AND l.colonyId = :colonyId AND c.centerId = :centerId";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedureId", procedureId);
+        parameterMap.put("colonyId", colonyId);
+        parameterMap.put("centerId", centerId);
+
+        List<DccExperimentDTO> experiments = npJdbcTemplate.query(query, parameterMap, new DccExperimentRowMapper());
+
+        if (experiments.isEmpty()) {
+            return null;
+        } else if (experiments.size() > 1) {
+            logger.error("Expected exactly 1 row for line-level query. Found {} rows. Query:\n\t{}", experiments.size(), query);
+            return null;
+        }
+
+        return experiments.get(0);
+    }
+
+    /**
+     * Queries specimen experiments for an experiment matching {@code experimentId} and {@code centerId}.
+     *
+     * @param experimentId the dcc experiment id
+     * @param centerId the dcc center id (name)
+     * @return the experiment, if found; null if not found. If more than 1 row is found, an error is logged and null
+     *          is returned.
+     */
+    public DccExperimentDTO getExperimentSpecimen(String experimentId, String centerId) {
+
+        final String query =
+                "SELECT\n" +
+                        "  s.datasourceShortName,\n" +
+                        "  e.experimentId,\n" +
+                        "  e.sequenceId,\n" +
+                        "  e.dateOfExperiment,\n" +
+                        "  c.centerId   AS phenotypingCenter,\n" +
+                        "  s.productionCenter,\n" +
+                        "  c.pipeline,\n" +
+                        "  c.project,\n" +
+                        "  p.procedureId,\n" +
+                        "  p.pk         AS dcc_procedure_pk,\n" +
+                        "  s.colonyId   AS colonyId,\n" +
+                        "  s.specimenId AS specimenId,\n" +
+                        "  s.gender     AS gender,\n" +
+                        "  sc.value     AS rawProcedureStatus,\n" +
+                        "  0            AS isLineLevel\n" +
+                        "FROM experiment e\n" +
+                        "JOIN center_procedure                 cp  ON cp .pk            = e  .center_procedure_pk\n" +
+                        "JOIN center                           c   ON c  .pk            = cp .center_pk\n" +
+                        "JOIN procedure_                       p   ON p  .pk            = cp .procedure_pk\n" +
+                        "JOIN experiment_specimen              es  ON es .pk            = e  .pk\n" +
+                        "JOIN specimen                         s   ON s  .pk            = es .specimen_pk\n" +
+                        "LEFT OUTER JOIN experiment_statuscode esc ON esc.experiment_pk = e  .pk\n" +
+                        "LEFT OUTER JOIN statuscode            sc  ON sc .pk            = esc.statuscode_pk\n" +
+                        "WHERE e.experimentId = :experimentId AND c.centerId = :centerId";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("experimentId", experimentId);
+        parameterMap.put("centerId", centerId);
+
+        List<DccExperimentDTO> experiments = npJdbcTemplate.query(query, parameterMap, new DccExperimentRowMapper());
+
+        if (experiments.isEmpty()) {
+            return null;
+        } else if (experiments.size() > 1) {
+            logger.error("Expected exactly 1 row for specimen query. Found {} rows. Query:\n\t{}", experiments.size(), query);
+            return null;
+        }
+
+        return experiments.get(0);
+    }
+
 
     /**
      * @return all line- and procedure-level experiments

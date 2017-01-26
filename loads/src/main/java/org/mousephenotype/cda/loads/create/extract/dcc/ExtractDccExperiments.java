@@ -172,7 +172,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
 
         for (CentreProcedure centerProcedure : centerProcedures) {
-            logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID());
+            logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID().value());
 
             // Load experiment info.
             for (Experiment experiment : centerProcedure.getExperiment()) {
@@ -196,8 +196,8 @@ public class ExtractDccExperiments implements CommandLineRunner {
                     totalExperiments++;
 
                 } catch (Exception e) {
-                    logger.error("ERROR IMPORTING EXPERIMENT FROM FILE {}. experimentID: '{}'. datasourceShortName: {}. centerPk: {}. EXPERIMENT SKIPPED. ERROR:\n{}" ,
-                                 filename, experiment.getExperimentID(), datasourceShortName, centerPk, e.getLocalizedMessage());
+                    logger.error("ERROR IMPORTING EXPERIMENT FROM FILE {}. experimentID: '{}'. datasourceShortName: {}. cenreID: {}, centerPk: {}. EXPERIMENT SKIPPED. ERROR:\n{}" ,
+                                 filename, experiment.getExperimentID(), datasourceShortName, centerProcedure.getCentreID().value(), centerPk, e.getLocalizedMessage());
                     totalExperimentsFailed++;
                 }
             }
