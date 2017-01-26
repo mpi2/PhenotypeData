@@ -150,7 +150,8 @@ public class ExtractDccSpecimens implements CommandLineRunner {
                     insertSpecimen(specimen, datasourceShortName, centerSpecimen);
                     totalSpecimens++;
                 } catch (Exception e) {
-                    logger.error("ERROR IMPORTING SPECIMEN. CENTER: {}. SPECIMEN: {}. SPECIMEN SKIPPED. ERROR:\n{}", centerSpecimen.getCentreID(), specimen, e.getLocalizedMessage());
+                    logger.error("ERROR IMPORTING SPECIMEN FROM FILE {}. specimenID: {}. datasourceShortName: {}. centreID: {}. SPECIMEN SKIPPED. ERROR:\n{}",
+                                 filename, specimen.getSpecimenID(), datasourceShortName, centerSpecimen.getCentreID(), e.getLocalizedMessage());
                     totalSpecimenFailures++;
                 }
             }
