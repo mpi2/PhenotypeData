@@ -1215,14 +1215,15 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given {@link MediaFile} into the mediaFile table. Duplicates are ignored.
+     * Inserts the given {@link MediaFile} into the mediaFile table. If the insert fails, an error is logged
+     * and 0 is returned.
      *
      * @param mediaFile the mediaFile to be inserted
      * @param mediaSectionPk the mediaSection primary key
      *
-     * @return the mediaFile, with primary key loaded
+     * @return the primary key if the insert was successful; 0 otherwise
      */
-    public MediaFile insertMediaFile(MediaFile mediaFile, long mediaSectionPk) {
+    public long insertMediaFile(MediaFile mediaFile, long mediaSectionPk) {
         String insert = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_pk) " +
                         "VALUES (:localId, :fileType, :URI, :mediaSectionPk)";
 
@@ -1238,15 +1239,16 @@ public class DccSqlUtils {
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                mediaFile.setHjid(keyholder.getKey().longValue());
+                long pk = keyholder.getKey().longValue();
+                return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-            String query = "SELECT pk FROM mediaFile WHERE fileType = :fileType AND localId = :localId AND URI = :URI AND mediaSection_pk = :mediaSectionPk";
-            mediaFile.setHjid(npJdbcTemplate.queryForObject(query, parameterMap, Long.class));
+        } catch (Exception e) {
+            logger.error("INSERT to mediaFile failed for fileType {}, localId {}, link {}, URI {}, mediaSectionPk {}. Reason:\n\t{}",
+                         mediaFile.getFileType(), mediaFile.getLocalId(), mediaFile.getLink(), mediaFile.getURI(), mediaSectionPk, e.getLocalizedMessage());
         }
 
-        return mediaFile;
+        return 0;
     }
 
     /**
@@ -1311,13 +1313,14 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given {@link MediaParameter} into the mediaParameter table. Duplicates are ignored.
+     * Inserts the given {@link MediaParameter} into the mediaParameter table. If the insert fails, an error is logged
+     * and 0 is returned.
      *
      * @param mediaParameter the mediaParameter to be inserted
      *
-     * @return the mediaParameter, with primary key loaded
+     * @return the primary key if the insert was successful; 0 otherwise
      */
-    public MediaParameter insertMediaParameter(MediaParameter mediaParameter, long procedurePk) {
+    public long insertMediaParameter(MediaParameter mediaParameter, long procedurePk) {
         String insert = "INSERT INTO mediaParameter (parameterId, parameterStatus, filetype, URI, procedure_pk) " +
                         "VALUES (:parameterId, :parameterStatus, :filetype, :URI, :procedurePk)";
 
@@ -1336,27 +1339,26 @@ public class DccSqlUtils {
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
-                mediaParameter.setHjid(pk);
+                return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to mediaParameter failed for arameterId {}, procedurePk {}. Reason:\n\t{}",
+                         mediaParameter.getParameterID(), procedurePk, e.getLocalizedMessage());
         }
 
-        return mediaParameter;
+        return 0;
     }
 
     /**
      * Inserts the given {@code mediaParameterPk} and {@code parameterAssociationPk} into the
-     * mediaParameter_parameterAssociation table. Duplicates are ignored.
+     * mediaParameter_parameterAssociation table. If the insert fails, an error is logged.
      *
      * @param mediaParameterPk;   The media parameter primary key
      * @param parameterAssociationPk   The parameterAssociation primary key
-     *
-     * @return returns the mediaParameter_parameterAssociation primary key
      */
-    public long insertMediaParameter_parameterAssociation(long mediaParameterPk, long parameterAssociationPk) {
-        long pk = 0L;
+    public void insertMediaParameter_parameterAssociation(long mediaParameterPk, long parameterAssociationPk) {
+
         String insert = "INSERT INTO mediaParameter_parameterAssociation(mediaParameter_pk, parameterAssociation_pk) " +
                         "VALUES (:mediaParameterPk, :parameterAssociationPk)";
 
@@ -1365,32 +1367,27 @@ public class DccSqlUtils {
             parameterMap.put("mediaParameterPk", mediaParameterPk);
             parameterMap.put("parameterAssociationPk", parameterAssociationPk);
 
-            KeyHolder          keyholder       = new GeneratedKeyHolder();
-            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-
             int count = npJdbcTemplate.update(insert, parameterMap);
-            if (count > 0) {
-                pk = keyholder.getKey().longValue();
+            if (count == 0) {
+                logger.error("INSERT to mediaParameter_parameterAssociation failed for mediaParameterPk {}, parameterAssociationPk {}.",
+                             mediaParameterPk, parameterAssociationPk);
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to mediaParameter_parameterAssociation failed for mediaParameterPk {}, parameterAssociationPk {}. Reason:\n\t{}",
+                         mediaParameterPk, parameterAssociationPk, e.getLocalizedMessage());
         }
-
-        return pk;
     }
 
     /**
      * Inserts the given {@code mediaParameterPk} and {@code procedureMetadataPk} into the
-     * mediaParameter_procedureMetadata table. Duplicates are ignored.
+     * mediaParameter_procedureMetadata table. If the insert fails, an error is logged
      *
      * @param mediaParameterPk    The media parameter primary key
      * @param procedureMetadataPk The procedureMetadata primary key
-     *
-     * @return returns the mediaParameter_procedureMetadata primary key
      */
-    public long insertMediaParameter_procedureMetadata(long mediaParameterPk, long procedureMetadataPk) {
-        long pk = 0L;
+    public void insertMediaParameter_procedureMetadata(long mediaParameterPk, long procedureMetadataPk) {
+
         String insert = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_pk, procedureMetadata_pk) " +
                         "VALUES (:mediaParameterPk, :procedureMetadataPk)";
 
@@ -1399,29 +1396,23 @@ public class DccSqlUtils {
             parameterMap.put("mediaParameterPk", mediaParameterPk);
             parameterMap.put("procedureMetadataPk", procedureMetadataPk);
 
-            KeyHolder keyholder = new GeneratedKeyHolder();
-            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
-            if (count > 0) {
-                pk = keyholder.getKey().longValue();
-            }
+            npJdbcTemplate.update(insert, parameterMap);
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to mediaParameter_procedureMetadata failed for mediaParameterPk {}, procedureMetadataPk {}. Reason:\n\t{}",
+                         mediaParameterPk, procedureMetadataPk, e.getLocalizedMessage());
         }
-
-        return pk;
     }
 
     /**
-     * Inserts the given {@link MediaSample} into the mediaSample table. Duplicates are ignored.
+     * Inserts the given {@link MediaSample} into the mediaSample table. If insert fails, an error is logged and
+     * 0 is returned.
      *
      * @param mediaSample the mediaSample to be inserted
-     * @param mediaSampleParameterPk the mediaSampleParameter primary key
      *
-     * @return the mediaSample, with primary key loaded
+     * @return the primary key if the insert was successful; 0 otherwise
      */
-    public MediaSample insertMediaSample(MediaSample mediaSample, long mediaSampleParameterPk) {
+    public long insertMediaSample(MediaSample mediaSample, long mediaSampleParameterPk) {
         String insert = "INSERT INTO mediaSample (localId, mediaSampleParameter_pk) " +
                         "VALUES (:localId, :mediaSampleParameterPk)";
 
@@ -1431,29 +1422,32 @@ public class DccSqlUtils {
             parameterMap.put("localId", mediaSample.getLocalId());
             parameterMap.put("mediaSampleParameterPk", mediaSampleParameterPk);
 
-            KeyHolder keyholder = new GeneratedKeyHolder();
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
-                mediaSample.setHjid(pk);
+                return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to mediaSample failed for localId {}, mediaSampleParameterPk {}. Reason:\n\t{}",
+                         mediaSample.getLocalId(), mediaSampleParameterPk, e.getLocalizedMessage());
         }
 
-        return mediaSample;
+        return 0;
     }
 
     /**
-     * Inserts the given {@link MediaSampleParameter} into the mediaSampleParameter table. Duplicates are ignored.
+     * Inserts the given {@link MediaSampleParameter} into the mediaSampleParameter table.  If the insert fails, an
+     * error is logged and 0 is returned.
      *
      * @param mediaSampleParameter the mediaSampleParameter to be inserted
      *
      * @return the mediaSampleParameter, with primary key loaded
      */
-    public MediaSampleParameter insertMediaSampleParameter(MediaSampleParameter mediaSampleParameter, long procedurePk) {
+    public long insertMediaSampleParameter(MediaSampleParameter mediaSampleParameter, long procedurePk) {
         String insert = "INSERT INTO mediaSampleParameter (parameterId, parameterStatus, procedure_pk) " +
                         "VALUES (:parameterId, :parameterStatus, :procedurePk)";
 
@@ -1469,25 +1463,27 @@ public class DccSqlUtils {
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
-                mediaSampleParameter.setHjid(pk);
+                return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to mediaSampleParameter failed for parameterId {}, procedurePk {}. Reason:\n\t{}",
+                         mediaSampleParameter.getParameterID(), procedurePk, e.getLocalizedMessage());
         }
 
-        return mediaSampleParameter;
+        return 0;
     }
 
     /**
-     * Inserts the given {@link MediaSection} into the mediaSection table. Duplicates are ignored.
+     * Inserts the given {@link MediaSection} into the mediaSection table. If the insert fails, an error is logged
+     * and 0 is returned.
      *
      * @param mediaSection the mediaSection to be inserted
      * @param mediaSamplePk the mediaSample primary key
      *
-     * @return the mediaSection, with primary key loaded
+     * @return the primary key if the insert was successful; 0 otherwise
      */
-    public MediaSection insertMediaSection(MediaSection mediaSection, long mediaSamplePk) {
+    public long insertMediaSection(MediaSection mediaSection, long mediaSamplePk) {
         String insert = "INSERT INTO mediaSection (localId, mediaSample_pk) " +
                         "VALUES (:localId, :mediaSamplePk)";
 
@@ -1499,28 +1495,31 @@ public class DccSqlUtils {
 
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
-                mediaSection.setHjid(pk);
+                return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to mediaSection failed for localId {}, mediaSamplePk {}. Reason:\n\t{}",
+                         mediaSection.getLocalId(), mediaSamplePk, e.getLocalizedMessage());
         }
 
-        return mediaSection;
+        return 0;
     }
 
     /**
-     * Inserts the given {@link OntologyParameter} into the ontologyParameter table. Duplicates are ignored.
+     * Inserts the given {@link OntologyParameter} into the ontologyParameter table.  If the insert fails, an error is
+     * logged and 0 is returned.
      *
      * @param ontologyParameter the ontology parameter to be inserted
      * @param procedurePk the procedure primary key
      *
-     * @return the ontologyParameter, with primary key loaded
+     * @return the primary key if the insert was successful; 0 otherwise
      */
-    public OntologyParameter insertOntologyParameter(OntologyParameter ontologyParameter, long procedurePk) {
+    public long insertOntologyParameter(OntologyParameter ontologyParameter, long procedurePk) {
         String insert = "INSERT INTO ontologyParameter (parameterId, parameterStatus, sequenceId, procedure_pk) "
                       + "VALUES (:parameterId, :parameterStatus, :sequenceId, :procedurePk)";
 
@@ -1534,21 +1533,24 @@ public class DccSqlUtils {
 
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
-                ontologyParameter.setHjid(pk);
+                return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to ontologyParameter failed for ontologyParameterId {}, procedurePk {}. Reason:\n\t{}",
+                         ontologyParameter.getParameterID(), procedurePk, e.getLocalizedMessage());
         }
 
-        return ontologyParameter;
+        return 0;
     }
 
     /**
-     * Inserts the given {@code ontologyParameterTerm} into the ontologyParameterTerm table. Duplicates are ignored.
+     * Inserts the given {@code ontologyParameterTerm} into the ontologyParameterTerm table. If the insert fails, an
+     * error is logged.
      *
      * @param ontologyParameterTerm the ontology parameter term to be inserted
      * @param ontologyParameterPk the ontology parameter primary key
@@ -1573,8 +1575,9 @@ public class DccSqlUtils {
                 return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to ontologyParameterTerm failed for ontologyParameterTerm {}, ontologyParameterPk {}. Reason:\n\t{}",
+                         ontologyParameterTerm, ontologyParameterPk, e.getLocalizedMessage());
         }
 
         return 0;
@@ -1617,11 +1620,12 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given {@code procedureId} into the procedure_ table.
+     * Inserts the given {@code procedureId} into the procedure_ table. If the insert fails, an error is logged and
+     * 0 is returned.
      *
      * @param procedureId the procedure id to be inserted
      *
-     * @return the procedure primary key
+     * @return the procedure primary key if the insert was successful; 0 otherwise
      */
     public long insertProcedure(String procedureId) {
         long pk;
@@ -1635,28 +1639,30 @@ public class DccSqlUtils {
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
 
-            npJdbcTemplate.update(insert, parameterSource, keyholder);
-            pk = keyholder.getKey().longValue();
+            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
+            if (count > 0) {
+                pk = keyholder.getKey().longValue();
+                return pk;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("INSERT of procedure(" + procedureId + " FAILED: " + e.getLocalizedMessage());
+            logger.error("INSERT to procedure_ failed for procedureId {}. Reason:\n\t{}",
+                         procedureId, e.getLocalizedMessage());
         }
 
-        return pk;
+        return 0;
     }
 
     /**
      * Inserts the given {@code procedurePk} and {@code procedureMetadataPk} into the procedure_procedureMetadata
-     * table. Duplicates are ignored.
+     * table. If the insert fails, an error is logged.
      *
      * @param procedurePk the procedure primary key to be inserted
      * @param procedureMetadataPk the procedureMetadata primary key to be inserted
-     *
-     * @return the procedure_procedureMetadata primary key
      */
-    public long insertProcedure_procedureMetadata(long procedurePk, long procedureMetadataPk) {
-        long pk = 0L;
+    public void insertProcedure_procedureMetadata(long procedurePk, long procedureMetadataPk) {
+
         String insert = "INSERT INTO procedure_procedureMetadata(procedure_pk, procedureMetadata_pk) VALUES (:procedurePk, :procedureMetadataPk)";
 
         try {
@@ -1668,14 +1674,15 @@ public class DccSqlUtils {
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                pk = keyholder.getKey().longValue();
+                logger.error("INSERT to procedure_procedureMetadata failed for procedurePk {}, procedureMetadataPk {}.",
+                             procedurePk, procedureMetadataPk);
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("INSERT to procedure_procedureMetadata failed for procedurePk {}, procedureMetadataPk {}. Reason:\n\t{}",
+                         procedurePk, procedureMetadataPk, e.getLocalizedMessage());
         }
-
-        return pk;
     }
 
     /**
@@ -1714,14 +1721,15 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given {@link SeriesMediaParameter} into the seriesMediaParameter table. Duplicates are ignored.
+     * Inserts the given {@link SeriesMediaParameter} into the seriesMediaParameter table. If the insert fails, an error
+     * is logged and 0 is returned.
      *
      * @param seriesMediaParameter the seriesMediaParameter to be inserted
      * @param procedurePk the procedure primary key
      *
-     * @return the seriesMediaParameter, with primary key loaded
+     * @return the primary key if the insert was successful; 0 otherwise
      */
-    public SeriesMediaParameter insertSeriesMediaParameter(SeriesMediaParameter seriesMediaParameter, long procedurePk) {
+    public long insertSeriesMediaParameter(SeriesMediaParameter seriesMediaParameter, long procedurePk) {
         String insert = "INSERT INTO seriesMediaParameter (parameterId, parameterStatus, procedure_pk) "
                       + "VALUES (:parameterId, :parameterStatus, :procedurePk)";
 
@@ -1737,25 +1745,27 @@ public class DccSqlUtils {
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
-                seriesMediaParameter.setHjid(pk);
+                return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to seriesMediaParameter failed for seriesMediaParameter {}, procedurePk {}. Reason:\n\t{}",
+                         seriesMediaParameter.getParameterID(), procedurePk, e.getLocalizedMessage());
         }
 
-        return seriesMediaParameter;
+        return 0;
     }
     
     /**
-     * Inserts the given {@link SeriesMediaParameterValue} into the seriesMediaParameterValue table. Duplicates are ignored.
+     * Inserts the given {@link SeriesMediaParameterValue} into the seriesMediaParameterValue table. If the insert fails,
+     * an error is logged and 0 is returned.
      *
      * @param seriesMediaParameterValue the seriesMediaParameterValue to be inserted
      * @param seriesMediaParameterPk the seriesMediaParameter primary key
      *
-     * @return the seriesMediaParameterValue, with primary key loaded.
+     * @return the primary key if the insert was successful; 0 otherwise
      */
-    public SeriesMediaParameterValue insertSeriesMediaParameterValue(SeriesMediaParameterValue seriesMediaParameterValue, long seriesMediaParameterPk) {
+    public long insertSeriesMediaParameterValue(SeriesMediaParameterValue seriesMediaParameterValue, long seriesMediaParameterPk) {
         String insert = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, seriesMediaParameter_pk) " +
                         "VALUES (:fileType, :incrementValue, :URI, :seriesMediaParameterPk)";
 
@@ -1772,27 +1782,26 @@ public class DccSqlUtils {
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
-                seriesMediaParameterValue.setHjid(pk);
+                return pk;
             }
 
         } catch (DuplicateKeyException e) {
-
+            logger.error("INSERT to seriesMediaParameterValue failed for link {}, URI {}, seriesMediaParameterPk {}. Reason:\n\t{}",
+                         seriesMediaParameterValue.getLink(), seriesMediaParameterValue.getURI(), seriesMediaParameterPk, e.getLocalizedMessage());
         }
 
-        return seriesMediaParameterValue;
+        return 0;
     }
 
     /**
      * Inserts the given {@code seriesMediaParameterValuePk} and {@code parameterAssociationPk} into the
-     * seriesMediaParameterValue_parameterAssociation table. Duplicates are ignored.
+     * seriesMediaParameterValue_parameterAssociation table.  If the insert fails, an error is logged.
      *
      * @param seriesMediaParameterValuePk The seriesMediaParameterValue primary key
      * @param parameterAssociationPk      The parameterAssociation primary key
-     *
-     * @return returns the seriesMediaParameterValue_parameterAssociation primary key
      */
-    public long insertSeriesMediaParameterValue_parameterAssociation(long seriesMediaParameterValuePk, long parameterAssociationPk) {
-        long pk = 0L;
+    public void insertSeriesMediaParameterValue_parameterAssociation(long seriesMediaParameterValuePk, long parameterAssociationPk) {
+
         String insert = "INSERT INTO seriesMediaParameterValue_parameterAssociation(seriesMediaParameterValue_pk, parameterAssociation_pk) " +
                         "VALUES (:seriesMediaParameterValuePk, :parameterAssociationPk)";
 
@@ -1801,31 +1810,27 @@ public class DccSqlUtils {
             parameterMap.put("seriesMediaParameterValuePk", seriesMediaParameterValuePk);
             parameterMap.put("parameterAssociationPk", parameterAssociationPk);
 
-            KeyHolder keyholder = new GeneratedKeyHolder();
-            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
-            if (count > 0) {
-                pk = keyholder.getKey().longValue();
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count == 0) {
+                logger.error("INSERT to seriesMediaParameterValue_parameterAssociation failed for seriesMediaParameterValuePk {}, parameterAssociationPk {}.",
+                        seriesMediaParameterValuePk, parameterAssociationPk);
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to seriesMediaParameterValue_parameterAssociation failed for seriesMediaParameterValuePk {}, parameterAssociationPk {}. Reason:\n\t{}",
+                         seriesMediaParameterValuePk, parameterAssociationPk, e.getLocalizedMessage());
         }
-
-        return pk;
     }
 
     /**
      * Inserts the given {@code seriesMediaParameterValuePk} and {@code procedureMetadataPk} into the
-     * seriesMediaParameterValue_procedureMetadata table. Duplicates are ignored.
+     * seriesMediaParameterValue_procedureMetadata table. If the insert fails, an error is logged.
      *
      * @param seriesMediaParameterValuePk The seriesMediaParameterValue primary key
      * @param procedureMetadataPk         The procedureMetadata primary key
-     *
-     * @return returns the seriesMediaParameterValue_procedureMetadata primary key
      */
-    public long insertSeriesMediaParameterValue_procedureMetadata(long seriesMediaParameterValuePk, long procedureMetadataPk) {
-        long pk = 0L;
+    public void insertSeriesMediaParameterValue_procedureMetadata(long seriesMediaParameterValuePk, long procedureMetadataPk) {
+
         String insert = "INSERT INTO seriesMediaParameterValue_procedureMetadata(seriesMediaParameterValue_pk, procedureMetadata_pk) " +
                         "VALUES (:seriesMediaParameterValuePk, :procedureMetadataPk)";
 
@@ -1834,29 +1839,28 @@ public class DccSqlUtils {
             parameterMap.put("seriesMediaParameterValuePk", seriesMediaParameterValuePk);
             parameterMap.put("procedureMetadataPk", procedureMetadataPk);
 
-            KeyHolder keyholder = new GeneratedKeyHolder();
-            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
-            if (count > 0) {
-                pk = keyholder.getKey().longValue();
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count == 0) {
+                logger.error("INSERT to seriesMediaParameterValue_procedureMetadata failed for seriesMediaParameterValuePk {}, procedureMetadataPk {}.",
+                             seriesMediaParameterValuePk, procedureMetadataPk);
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to seriesMediaParameterValue_procedureMetadata failed for mediaseriesMediaParameterValuePkParameterPk {}, procedureMetadataPk {}. Reason:\n\t{}",
+                         seriesMediaParameterValuePk, procedureMetadataPk, e.getLocalizedMessage());
         }
-
-        return pk;
     }
 
     /**
-     * Inserts the given {@link SeriesParameter} into the seriesParameter table. Duplicates are ignored.
+     * Inserts the given {@link SeriesParameter} into the seriesParameter table. If the insert fails, an error is logged
+     * and 0 is returned.
      *
      * @param seriesParameter the series parameter to be inserted
      * @param procedurePk the procedure primary key
      *
-     * @return the seriesParameter, with primary key loaded
+     * @return the primary key if the insert was successful; 0 otherwise
      */
-    public SeriesParameter insertSeriesParameter(SeriesParameter seriesParameter, long procedurePk) {
+    public long insertSeriesParameter(SeriesParameter seriesParameter, long procedurePk) {
         String insert = "INSERT INTO seriesParameter (parameterId, parameterStatus, sequenceId, procedure_pk) "
                       + "VALUES (:parameterId, :parameterStatus, :sequenceId, :procedurePk)";
 
@@ -1873,25 +1877,26 @@ public class DccSqlUtils {
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
                 long pk = keyholder.getKey().longValue();
-                seriesParameter.setHjid(pk);
+                return pk;
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to seriesParameter failed for parameterId {}, procedurePk {}. Reason:\n\t{}",
+                         seriesParameter.getParameterID(), procedurePk, e.getLocalizedMessage());
         }
 
-        return seriesParameter;
+        return 0;
     }
 
     /**
-     * Inserts the given {@link SeriesParameterValue} into the seriesParameterValue table. Duplicates are ignored.
+     * Inserts the given {@link SeriesParameterValue} into the seriesParameterValue table. If the insert fails, an error
+     * is logged.
      *
      * @param seriesParameterValue the series parameter value to be inserted
      * @param seriesParameterPk the series parameter primary key
      *
-     * @return the seriesParameterValue, with primary key loaded.
      */
-    public SeriesParameterValue insertSeriesParameterValue(SeriesParameterValue seriesParameterValue, long seriesParameterPk) {
+    public void insertSeriesParameterValue(SeriesParameterValue seriesParameterValue, long seriesParameterPk) {
         String insert = "INSERT INTO seriesParameterValue(value, incrementValue, incrementStatus, seriesParameter_pk) "
                       + "VALUES (:value, :incrementValue, :incrementStatus, :seriesParameterPk)";
 
@@ -1903,19 +1908,16 @@ public class DccSqlUtils {
             parameterMap.put("incrementStatus", seriesParameterValue.getIncrementStatus());
             parameterMap.put("seriesParameterPk", seriesParameterPk);
 
-            KeyHolder keyholder = new GeneratedKeyHolder();
-            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
-            if (count > 0) {
-                long pk = keyholder.getKey().longValue();
-                seriesParameterValue.setHjid(pk);
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count == 0) {
+                logger.error("INSERT to seriesParameterValue failed for value {}, seriesParameterPk {}.",
+                             seriesParameterValue.getValue(), seriesParameterPk);
             }
 
-        } catch (DuplicateKeyException e) {
-
+        } catch (Exception e) {
+            logger.error("INSERT to seriesParameterValue failed for value {}, seriesParameterPk {}. Reason:\n\t{}",
+                         seriesParameterValue.getValue(), seriesParameterPk, e.getLocalizedMessage());
         }
-
-        return seriesParameterValue;
     }
 
     /**
@@ -1963,14 +1965,12 @@ public class DccSqlUtils {
     }
 
     /**
-     * Inserts the given {@link SimpleParameter} into the simpleParameter table. Duplicates are ignored.
+     * Inserts the given {@link SimpleParameter} into the simpleParameter table. If the insert fails, an error is logged.
      *
      * @param simpleParameter the simpleParameter to be inserted
      * @param procedurePk the procedure primary key
-     *
-     * @return the simpleParameter, with primary key loaded
      */
-    public SimpleParameter insertSimpleParameter(SimpleParameter simpleParameter, long procedurePk) throws DataLoadException {
+    public void insertSimpleParameter(SimpleParameter simpleParameter, long procedurePk) throws DataLoadException {
         final String insert = "INSERT INTO simpleParameter (parameterId, parameterStatus, procedure_pk, sequenceId, unit, value) "
                             + "VALUES (:parameterId, :parameterStatus, :procedurePk, :sequenceId, :unit, :value)";
 
@@ -1984,18 +1984,16 @@ public class DccSqlUtils {
             parameterMap.put("unit", simpleParameter.getUnit());
             parameterMap.put("value", simpleParameter.getValue());
 
-            KeyHolder keyholder = new GeneratedKeyHolder();
-            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
-            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
-            if (count > 0) {
-                long pk = keyholder.getKey().longValue();
-                simpleParameter.setHjid(pk);
+            int count = npJdbcTemplate.update(insert, parameterMap);
+            if (count == 0) {
+                logger.error("INSERT to simpleParameter failed for parameterId {}, procedurePk {}.",
+                             simpleParameter.getParameterID(), procedurePk);
             }
+
         } catch (Exception e) {
-            throw new DataLoadException(commonUtils.mapToString(parameterMap, "parameterMap"), e);
+            logger.error("INSERT to simpleParameter failed for parameterId {}, procedurePk {}. Reason:\n\t{}",
+                         simpleParameter.getParameterID(), procedurePk, e.getLocalizedMessage());
         }
-        
-        return simpleParameter;
     }
 
 
@@ -2073,42 +2071,30 @@ public class DccSqlUtils {
     }
 
     /**
-     * Returns the experiment_specimen primary key matching the given {@code experimentPk} and {@code specimenPk}. The
-     * data is first inserted into the experiment_specimen table if it does not yet exist.
+     * Inserts the specified {@code experimentPk} and @@code specimenPk into the experiment_specimen table. Duplicate
+     * rows are ignored.
      *
      * @param experimentPk The experiment primary key
      * @param specimenPk The specimen primary key
-     *
-     * @return the experiment_specimen primary key matching the given experimentPk and specimenPk. The data is first
-     *         inserted into the experiment_specimen table if it does not yet exist.
      */
-    public long selectOrInsertExperiment_specimen(long experimentPk, long specimenPk) {
-        Map<String, Object> parameterMap = new HashMap<>();
-        Long pk;
-        final String query = "SELECT pk FROM experiment_specimen WHERE experiment_pk = :experimentPk and specimen_pk = :specimenPk";
+    public void insertExperiment_specimen(long experimentPk, long specimenPk) {
 
+        final String insert = "INSERT INTO experiment_specimen (experiment_pk, specimen_pk) VALUES (:experimentPk, :specimenPk)";
+
+        Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("specimenPk", specimenPk);
-        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
-        if ((pk == null) || (pk == 0)) {
-            String insert = "INSERT INTO experiment_specimen (experiment_pk, specimen_pk) VALUES (:experimentPk, :specimenPk)";
-            try {
-                int count = npJdbcTemplate.update(insert, parameterMap);
-                if (count > 0) {
-                    pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
-                }
+        try {
+            npJdbcTemplate.update(insert, parameterMap);
 
-            } catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException e) {
 
-            }
         }
-
-        return pk;
     }
 
     /**
-     * Returns the experiment_statuscode primary key matching the given {@code experimentPk} and {@code statuscodePk}.
-     * The data is first inserted into the experiment_statuscode table if it does not yet exist.
+     * Inserts the given {@codeexperimentPk} and {@code statuscodePk} into the experiment_statuscode table. Duplicates
+     * are ignored.
      *
      * @param experimentPk The experiment primary key
      * @param statuscodePk The statuscode primary key
@@ -2116,28 +2102,18 @@ public class DccSqlUtils {
      * @return the experiment_statuscode primary key matching the given experimentPk and statuscodePk. The data is first
      *         inserted into the experiment_statuscode table if it does not yet exist.
      */
-    public long selectOrInsertExperiment_statuscode(long experimentPk, long statuscodePk) {
+    public void insertExperiment_statuscode(long experimentPk, long statuscodePk) {
         Map<String, Object> parameterMap = new HashMap<>();
-        Long pk;
-        final String query = "SELECT pk FROM experiment_statuscode WHERE experiment_pk = :experimentPk and statuscode_pk = :statuscodePk";
 
         parameterMap.put("experimentPk", experimentPk);
         parameterMap.put("statuscodePk", statuscodePk);
-        pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
-        if ((pk == null) || (pk == 0)) {
-            String insert = "INSERT INTO experiment_statuscode (experiment_pk, statuscode_pk) VALUES (:experimentPk, :statuscodePk)";
-            try {
-                int count = npJdbcTemplate.update(insert, parameterMap);
-                if (count > 0) {
-                    pk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
-                }
+        String insert = "INSERT INTO experiment_statuscode (experiment_pk, statuscode_pk) VALUES (:experimentPk, :statuscodePk)";
+        try {
+            npJdbcTemplate.update(insert, parameterMap);
 
-            } catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException e) {
 
-            }
         }
-
-        return pk;
     }
 
     /**
@@ -2330,6 +2306,7 @@ public class DccSqlUtils {
     }
 
     /**
+     * Inserts the given
      * Given a parameterId value, attempts to fetch the matching <code>ParameterAssociation</code> instance. If there is
      * none, the parameterId and sequenceId are first inserted. The <code>ParameterAssociation</code> instance is then
      * returned.
@@ -2343,31 +2320,50 @@ public class DccSqlUtils {
      * @return The <code>ParameterAssociation</code> instance matching <code>parameterId</code> (and <code>sequenceId</code>,
      * if specified), inserted first if necessary.
      */
-    public ParameterAssociation selectOrInsertParameterAssociation(ParameterAssociation parameterAssociation) {
+
+    /**
+     * Inserts the given {@code parameterAssociation} (and any associated {@link Dimension} instances) and returns the
+     * primary key of the row just inserted. If either insert fails, an error is logged and a 0 key is returned.
+     *
+     * @param parameterAssociation the {@link ParameterAssociation} instance to insert.
+     *
+     * @return The primary key of the row just inserted.
+     */
+    public long insertParameterAssociation(ParameterAssociation parameterAssociation) {
+        long parameterAssociationPk;
         String parameterId = parameterAssociation.getParameterID();
         Integer sequenceId = (parameterAssociation.getSequenceID() == null ? null : parameterAssociation.getSequenceID().intValue());
         final String insertPa = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (:parameterId, :sequenceId)";
         final String insertDimension = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_pk) "
                                      + "VALUES(:id, :origin, :unit, :value, :parameterAssociationPk)";
 
-        ParameterAssociation retVal = getParameterAssociation(parameterId, sequenceId);
-
-        if (retVal == null) {
             try {
                 Map<String, Object> parameterMap = new HashMap<>();
                 parameterMap.put("parameterId", parameterId);
                 parameterMap.put("sequenceId", sequenceId);
 
+                KeyHolder keyholder = new GeneratedKeyHolder();
+                SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+                npJdbcTemplate.update(insertPa, parameterSource, keyholder);
+
                 npJdbcTemplate.update(insertPa, parameterMap);
-                retVal = getParameterAssociation(parameterId, sequenceId);
-                if (retVal.getDim() != null) {
+                int count = npJdbcTemplate.update(insertPa, parameterSource, keyholder);
+                if (count > 0) {
+                    parameterAssociationPk = keyholder.getKey().longValue();
+                } else {
+                    logger.error("INSERT parameterAssociation FAILED for parameterId {}, sequenceId {}",
+                                 parameterId, sequenceId);
+                    return 0;
+                }
+
+                if (parameterAssociation.getDim() != null) {
                     parameterMap.clear();
-                    for (Dimension dimension : retVal.getDim()) {
+                    for (Dimension dimension : parameterAssociation.getDim()) {
                         parameterMap.put("id", dimension.getId());
                         parameterMap.put("origin", dimension.getOrigin());
                         parameterMap.put("unit", dimension.getUnit());
                         parameterMap.put("value", dimension.getValue());
-                        parameterMap.put("parameterAssociationPk", retVal.getHjid());
+                        parameterMap.put("parameterAssociationPk", parameterAssociationPk);
 
                         npJdbcTemplate.update(insertDimension, parameterMap);
                     }
@@ -2377,45 +2373,38 @@ public class DccSqlUtils {
                 e.printStackTrace();
                 throw new RuntimeException("INSERT of retVal(" + parameterId + ", " + sequenceId + ") FAILED: " + e.getLocalizedMessage());
             }
-        }
 
-        return retVal;
+        return parameterAssociationPk;
     }
 
     /**
-     * Returns a complete {@link ProcedureMetadata} instance by searching by parameterId and, if not null, sequenceId.
-     * If an instance is found, it is returned. If it is not found, an instance is first created and inserted, then
-     * that instance is returned.
+     * Inserts the given {@code procedureMetadata} and returns the primary key of the row just inserted.
      *
-     * @param procedureMetadata the {@link ProcedureMetadata} instance to search for/insert. Only the parameterId and,
-     *                          if not null, sequenceId are used to search for the instance.
+     * @param procedureMetadata the {@link ProcedureMetadata} instance to insert.
      *
-     * @return The <code>ProcedureMetadata</code> instance matching <code>parameterId</code> (and <code>sequenceId</code>,
-     * if specified), inserted first if necessary.
+     * @return The primary key of the row just inserted.
      */
-    public ProcedureMetadata selectOrInsertProcedureMetadata(ProcedureMetadata procedureMetadata) {
-        ProcedureMetadata retVal = getProcedureMetadata(procedureMetadata.getParameterID(), procedureMetadata.getSequenceID());
+    public long insertProcedureMetadata(ProcedureMetadata procedureMetadata) {
 
-        if (retVal == null) {
-            String insert = "INSERT INTO procedureMetadata (parameterId, parameterStatus, sequenceId, value)\n" +
-                           " VALUES (:parameterId, :parameterStatus, :sequenceId, :value)";
-            try {
-                Map<String, Object> parameterMap = new HashMap<>();
-                parameterMap.put("parameterId", procedureMetadata.getParameterID());
-                parameterMap.put("parameterStatus", procedureMetadata.getParameterStatus());
-                parameterMap.put("sequenceId", procedureMetadata.getSequenceID());
-                parameterMap.put("value", procedureMetadata.getValue());
+        String insert = "INSERT INTO procedureMetadata (parameterId, parameterStatus, sequenceId, value)\n" +
+                " VALUES (:parameterId, :parameterStatus, :sequenceId, :value)";
+        try {
+            Map<String, Object> parameterMap = new HashMap<>();
+            parameterMap.put("parameterId", procedureMetadata.getParameterID());
+            parameterMap.put("parameterStatus", procedureMetadata.getParameterStatus());
+            parameterMap.put("sequenceId", procedureMetadata.getSequenceID());
+            parameterMap.put("value", procedureMetadata.getValue());
 
-                npJdbcTemplate.update(insert, parameterMap);
-                retVal = getProcedureMetadata(procedureMetadata.getParameterID(), procedureMetadata.getSequenceID());
+            KeyHolder          keyholder       = new GeneratedKeyHolder();
+            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+            npJdbcTemplate.update(insert, parameterSource, keyholder);
+            long pk = keyholder.getKey().longValue();
+            return pk;
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("INSERT of procedureMetadata(" + procedureMetadata.getParameterID() + ", " + procedureMetadata.getSequenceID() + " FAILED: " + e.getLocalizedMessage());
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("INSERT of procedureMetadata(" + procedureMetadata.getParameterID() + ", " + procedureMetadata.getSequenceID() + " FAILED: " + e.getLocalizedMessage());
         }
-
-        return retVal;
     }
 
     /**
