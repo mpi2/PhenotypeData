@@ -1996,7 +1996,7 @@ var images = require('./images.json');
             selectedSort: "Frequency", // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency" 
             messaging: {
                 misconfig: 'Please fix your config to have at least one target group.',
-                gridSkeletonDataError: 'No phenotypes to compare.',
+                gridSkeletonDataError: 'No common phenotypes between mouse line and human disease.',
                 noAssociatedGenotype: 'This gene has no associated genotypes.',
                 noSimSearchMatchForExpandedGenotype: 'No matches found between the provided phenotypes and expanded genotypes.',
                 noSimSearchMatch: 'No simsearch matches found for {%groupName%} based on the provided phenotypes.' // {%groupName%} is placeholder
