@@ -189,25 +189,25 @@ public class LandingPageController {
     }
 
 
-
-    @ResponseBody
-    @RequestMapping(value = "/orthology.jsonp", method = RequestMethod.GET)
-    public String getOrthologyDownload(
-            @RequestParam(required = true, value = "mpId") String mpId,
-            @RequestParam( required =  true, value = "diseaseClasses") Set<String> diseaseClasses,
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes)
-            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
-
-        //TODO marker_symbol,marker_accession,disease_term,disease_id,impc_predicted,mgi_predicted,human_curated,max_mgi_m2d_score,max_impc_m2d_score
-
-//        phenodigmService.getGenesWithDiseaseDownload(diseaseClasses)
-        getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, true, false);
-        getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true);
-        return "";
-
-    }
+//
+//    @ResponseBody
+//    @RequestMapping(value = "/orthology.jsonp", method = RequestMethod.GET)
+//    public String getOrthologyDownload(
+//            @RequestParam(required = true, value = "mpId") String mpId,
+//            @RequestParam( required =  true, value = "diseaseClasses") Set<String> diseaseClasses,
+//            Model model,
+//            HttpServletRequest request,
+//            RedirectAttributes attributes)
+//            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
+//
+//        //TODO marker_symbol,marker_accession,disease_term,disease_id,impc_predicted,mgi_predicted,human_curated,max_mgi_m2d_score,max_impc_m2d_score
+//
+////        phenodigmService.getGenesWithDiseaseDownload(diseaseClasses)
+//        getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, true, false);
+//        getOrtologyDiseaseModelVennDiagram(mpId, diseaseClasses, false, true);
+//        return "";
+//
+//    }
 
     private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, Set<String> diseaseClasses, Boolean mgi, Boolean impc) throws IOException, SolrServerException {
 
