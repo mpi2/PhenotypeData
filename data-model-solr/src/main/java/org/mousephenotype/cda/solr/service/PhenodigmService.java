@@ -5,7 +5,9 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
+import org.mousephenotype.cda.utilities.HttpProxy;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,7 +79,7 @@ public class PhenodigmService implements WebStatus {
 	}
 
 
-	public String getGenesWithDiseaseDownload(Set<String> diseaseClasses) throws IOException, SolrServerException {
+	public String getGenesWithDiseaseDownload(Set<String> diseaseClasses) throws IOException, SolrServerException, URISyntaxException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
@@ -85,8 +89,9 @@ public class PhenodigmService implements WebStatus {
 			 PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.MAX_MGI_D2M_SCORE, PhenodigmDTO.HUMAN_CURATED);
 		query.set("wt", "csv");
 
-		System.out.println("solr.query(query) -- " + solr.query(query));
-		return solr.query(query).toString();
+		HttpProxy proxy = new HttpProxy();
+
+		return proxy.getContent(new URL(SolrUtils.getBaseURL(solr) + "/select?" + query));
 
 	}
 
