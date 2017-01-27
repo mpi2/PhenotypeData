@@ -75,6 +75,20 @@ public class PhenodigmService implements WebStatus {
 	}
 
 
+//	public StringBuffer getGenesWithDiseaseDownload(Set<String> diseaseClasses) throws IOException, SolrServerException {
+//
+//		SolrQuery query = new SolrQuery();
+//		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
+//		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
+//		query.setRows(Integer.MAX_VALUE);
+//		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.HUMAN_CURATED);
+//
+//
+//		QueryResponse rsp = solr.query(query);
+////		solr.query(query).
+//
+//	}
+
 	public Map<String, Set<String>> getGenesWithDisease(Set<String> diseaseClasses) throws IOException, SolrServerException {
 
 		Set<String> mgiPredicted = new HashSet<>();
