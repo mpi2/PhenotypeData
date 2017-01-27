@@ -1673,7 +1673,7 @@ public class DccSqlUtils {
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
-            if (count > 0) {
+            if (count == 0) {
                 logger.error("INSERT to procedure_procedureMetadata failed for procedurePk {}, procedureMetadataPk {}.",
                              procedurePk, procedureMetadataPk);
             }
