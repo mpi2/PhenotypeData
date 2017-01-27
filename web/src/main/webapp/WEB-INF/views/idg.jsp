@@ -61,7 +61,8 @@
 									<b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
 									</p>
 									<p>
-										The gene list on this page was last updated for the second phase of the IDG on Thursday 19th of January 2017.
+										The gene list on this page was last updated for the second phase of the IDG on Tuesday 24th of January 2017. The following genes did not have a mouse ortholog:
+										ADCK4, ADGRD2, ADGRE2, ADGRE3, BEST4, CLCA3P, CLIC2, FXYD6P3, GNRHR2, GPR32, GPR32P1, GPR42, GPR78, HTR1E, HTR3C, HTR3D, HTR3E, KCNJ18, MAS1L, NPBWR2, NPY6R, OPN1MW2, OXER1, P2RY11, PAK7, PRKACG, PRKY, PSKH2, SCNN1D, SGK223, STK17A, TAS2R19, TAS2R20, TAS2R30, TAS2R43, TAS2R5, TAS2R50, TAS2R8, TAS2R9, VN1R1, VN1R17P, VN1R3, VN1R5 .
 									</p>	
 							</div>
 						</div>	<!-- section -->
