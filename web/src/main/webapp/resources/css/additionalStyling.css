@@ -1,5 +1,41 @@
 /* Additional styling written at EBI */
 
+.green {
+	fill:rgb(36, 139, 75);
+	color:rgb(36, 139, 75);
+}
+
+.red {
+	fill:rgb(191, 75, 50);
+	color: rgb(191, 75, 50);
+}
+.forest {
+	fill:#16532D;
+	color:#16532D;
+}
+.blue {
+	fill:#0978A1;
+	color:#0978A1;
+}
+.yellow {
+	fill:rgb(255, 201, 67);
+	color:rgb(255, 201, 67);
+}
+.mustard {
+	fill:rgb(191, 151, 50);
+	color:rgb(191, 151, 50);;
+}
+
+
+.significant_pc {
+	fill: rgb(239, 123, 11);
+	font-weight:bold;
+}
+
+.significant_pc:before {
+	content:"• ";
+}
+
 .venntooltip {
 	position: absolute;
 	text-align: center;

@@ -109,7 +109,11 @@
                                     <jsp:param name="divId" value="mgiVenn"/>
                                 </jsp:include>
                             </div>
+
                             <div class="clear both"></div>
+
+                            <a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
+
                             </div>
                         </div>
                     </div>

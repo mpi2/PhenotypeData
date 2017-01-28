@@ -189,6 +189,23 @@ public class LandingPageController {
     }
 
 
+
+    @ResponseBody
+    @RequestMapping(value = "/orthology.csv", method = RequestMethod.GET)
+    public String getOrthologyDownload(
+            @RequestParam(required = false, value = "mpId") String mpId,
+            @RequestParam( required =  false, value = "diseaseClasses") Set<String> diseaseClasses,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes)
+            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
+
+        //TODO marker_symbol,marker_accession,disease_term,disease_id,impc_predicted,mgi_predicted,human_curated,max_mgi_m2d_score,max_impc_m2d_score
+
+        return phenodigmService.getGenesWithDiseaseDownload(diseaseClasses);
+
+    }
+
     private JSONArray getOrtologyDiseaseModelVennDiagram(String mpId, Set<String> diseaseClasses, Boolean mgi, Boolean impc) throws IOException, SolrServerException {
 
         Map<String, Set<String>> sets = new HashMap<>();
@@ -219,6 +236,7 @@ public class LandingPageController {
     }
 
     private JSONArray getJsonForVenn( Map<String, Set<String>> allSets){
+
         // get counts for intersections
         JSONArray sets = new JSONArray();
         JSONArray wholeSets = new JSONArray();
@@ -240,7 +258,7 @@ public class LandingPageController {
                 currentSets.add(j);
                 Set<String> intersection = new HashSet<>(CollectionUtils.intersection(allSets.get(keysIndex.get(i)), allSets.get(keysIndex.get(j))));
                 sets.add(getSetVennFormat(null, currentSets, intersection.size()));
-                wholeSets.add(getSetJSON(keysIndex.get(i), currentSets, intersection));
+                wholeSets.add(getSetJSON(null, currentSets, intersection));
             }
         }
 
@@ -255,7 +273,7 @@ public class LandingPageController {
                     Set<String> intersection = new HashSet<>(CollectionUtils.intersection(allSets.get(keysIndex.get(i)),
                             CollectionUtils.intersection(allSets.get(keysIndex.get(j)), allSets.get(keysIndex.get(k)))));
                     sets.add(getSetVennFormat(null, currentSets, intersection.size()));
-                    wholeSets.add(getSetJSON(keysIndex.get(i), currentSets, intersection));
+                    wholeSets.add(getSetJSON(null, currentSets, intersection));
                 }
             }
         }
