@@ -223,7 +223,6 @@ public class SolrIndex {
 		else {
 			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
 		}
-//		System.out.println("queryStr: " + querystr);
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
@@ -233,16 +232,23 @@ public class SolrIndex {
 		}
 
 		query.setStart(0);
-		query.setRows(idList.length);  // default
+
+		query.setRows(0);
+		QueryResponse response = server.query(query, METHOD.POST);
+		long rowCount = response.getResults().getNumFound(); // so that we know how many rows is returned
+
+//		System.out.println("row count: "+rowCount);
+		//query.setRows(idList.length);  // default
+		query.setRows((int) rowCount);
 
 		// retrieves wanted fields
 		query.setFields(fllist);
 		System.out.println("BATCHQUERY " + dataTypeName + " : " + query);
 
-		QueryResponse response = server.query(query, METHOD.POST);
-		//System.out.println("response: "+ response);
+		QueryResponse response2 = server.query(query, METHOD.POST);
+//		System.out.println("response: "+ response2);
 
-		return response;
+		return response2;
 	}
 
 	/**
