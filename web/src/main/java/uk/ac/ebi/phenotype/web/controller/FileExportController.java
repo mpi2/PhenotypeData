@@ -1824,7 +1824,6 @@ public class FileExportController {
 		}
 
 		for(String q : queryIds){
-			System.out.println("doing " + q);
 			if ( oriDataTypeName.equals("mouse_marker_symbol")){
 				List<String> data = idRow.get(q.toLowerCase());
 				for ( int i=0; i<data.size()/colList.size(); i++ ) {
