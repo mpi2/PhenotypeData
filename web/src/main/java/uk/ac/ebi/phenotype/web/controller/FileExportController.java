@@ -1770,7 +1770,13 @@ public class FileExportController {
 				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
 				//System.out.println(oriDataTypeName + " - SEARCH: " + qStr);
 				//System.out.println(data);
-				idRow.put("\"" + qStr + "\"", data);
+				//idRow.put("\"" + qStr + "\"", data);
+				if ( !idRow.containsKey("\"" + qStr + "\"")) {
+					idRow.put("\"" + qStr + "\"", data);
+				}
+				else {
+					idRow.get("\"" + qStr + "\"").addAll(data);
+				}
 			}
 
 		}
@@ -1816,17 +1822,23 @@ public class FileExportController {
 				idRow.put(thisVal, data);
 			}
 		}
-		// output result as the order of users query list
+
 		for(String q : queryIds){
+			System.out.println("doing " + q);
 			if ( oriDataTypeName.equals("mouse_marker_symbol")){
-				rowData.add(StringUtils.join(idRow.get(q.toLowerCase()), "\t"));
+				List<String> data = idRow.get(q.toLowerCase());
+				for ( int i=0; i<data.size()/colList.size(); i++ ) {
+					rowData.add(StringUtils.join(data.subList(i * colList.size(), i * colList.size() + colList.size()), "\t"));
+				}
 			}
 			else {
-				//System.out.println(q + " -- " + idRow.get(q));
-				rowData.add(StringUtils.join(idRow.get(q), "\t"));
+				List<String> data = idRow.get(q);
+				for ( int i=0; i<data.size()/colList.size(); i++ ) {
+					//System.out.println("data: " + data.subList(i*colList.size(), i*colList.size() + colList.size()));
+					rowData.add(StringUtils.join(data.subList(i*colList.size(), i*colList.size() + colList.size()), "\t"));
+				}
 			}
 		}
-
 
 		return rowData;
 	}
