@@ -423,6 +423,7 @@ public class Tools {
 		List<String> humanAttrs = new ArrayList<>();
 
 		geneAttrs.add("mgi_accession_id");
+		geneAttrs.add("ensembl_gene_id");
 		geneAttrs.add("marker_symbol");
 		geneAttrs.add("marker_name");
 		geneAttrs.add("marker_synonym");
@@ -474,6 +475,7 @@ public class Tools {
 
 		Map<String, String> friendlyNameMap = new HashMap<>();
 		friendlyNameMap.put("mgi_accession_id", "MGI gene id");
+		friendlyNameMap.put("ensembl_gene_id", "Ensembl mouse gene id");
 		friendlyNameMap.put("marker_symbol", "MGI gene symbol");
 		friendlyNameMap.put("human_gene_symbol", "HGNC gene symbol");
 		friendlyNameMap.put("marker_name", "MGI gene name");

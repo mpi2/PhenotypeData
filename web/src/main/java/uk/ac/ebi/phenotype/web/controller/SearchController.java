@@ -295,6 +295,17 @@ public class SearchController {
 
 	}
 
+	@RequestMapping(value="/batchquery2-1", method=RequestMethod.GET)
+	public @ResponseBody String fetchDataFields2(
+			@RequestParam(value = "core", required = false) String core,
+			HttpServletRequest request,
+			Model model) {
+
+		System.out.println("here.2-1....");
+		return Tools.fetchOutputFieldsCheckBoxesHtml2(core);
+
+	}
+
 	@RequestMapping(value="/batchQuery", method=RequestMethod.GET)
 	public String loadBatchQueryPage(
 			@RequestParam(value = "core", required = false) String core,
@@ -323,7 +334,7 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) {
 
-		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml(core);
+		String outputFieldsHtml = Tools.fetchOutputFieldsCheckBoxesHtml2(core);
 		model.addAttribute("outputFields", outputFieldsHtml);
 
 		if ( idlist != null) {
