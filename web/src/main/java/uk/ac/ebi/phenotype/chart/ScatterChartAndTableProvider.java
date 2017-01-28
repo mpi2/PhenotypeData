@@ -48,7 +48,12 @@ public class ScatterChartAndTableProvider {
 	ImpressService impressService;
 
 	public String createScatter(ExperimentDTO experiment, Float min, Float max, String experimentNumber, ParameterDTO parameter, JSONArray series) {
-
+		String yTitle="";
+		if(parameter.getUnitY()!=null && !parameter.getUnitY().equals("")){//if incremental parameter we should have a y unit - if not we use the xunit - most scatters were displaying null so this is a fix JW
+			yTitle=parameter.getUnitY();
+		}else if(parameter.getUnitX()!=null && !parameter.getUnitX().equals("")){
+			yTitle=parameter.getUnitX();
+		}
 		String chartString="	$(function () { "
 			+ "  chart71maleWTSI = new Highcharts.Chart({ "
 			+ "     chart: {"
@@ -77,7 +82,7 @@ public class ScatterChartAndTableProvider {
 			+ (max != null ? "       max: " + max + ", " : "")
 			+ (min != null ? "       min: " + min + ", " : "")
 			+ "       title: { "
-			+ "         text: '" + parameter.getUnitY() + "' "
+			+ "         text: '" + yTitle + "' "
 			+ "       } "
 			+ "     }, "
 			+ "     credits: { "

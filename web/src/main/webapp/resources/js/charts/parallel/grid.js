@@ -97,17 +97,10 @@
       
       if (this.selector) {
         var selected = undefined;
-        this.grid.onMouseEnter.subscribe(function(e,args) {
+        this.grid.onClick.subscribe(function(e,args) {
           selected = self.grid.getCellFromEvent(e).row;
           self.selector.select(selected);
-        });
-        this.grid.onMouseLeave.subscribe(function(e,args) {
-          selected = undefined;
-          setTimeout(function() {
-            if (typeof selected == "undefined") {
-              self.selector.deselect(); 
-            }
-          }, 40);
+          d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;     <a href='genes/" + self.grid.getData().getItem(selected).gene.split("(")[1].replace(/\)/g, "") + "'> " + self.grid.getData().getItem(selected).gene.split("(")[0] + "</a>");
         });
       }
     },

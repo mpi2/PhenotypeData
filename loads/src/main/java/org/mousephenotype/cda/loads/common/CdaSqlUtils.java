@@ -789,8 +789,8 @@ public class CdaSqlUtils {
         return results;
     }
 
-    // Returns the newly-inserted primary key if successful; null otherwise.
-    public Integer insertExperiment(
+    // Returns the newly-inserted primary key if successful; 0 otherwise.
+    public int insertExperiment(
             int db_id,
             String external_id,
             String sequence_id,
@@ -809,7 +809,7 @@ public class CdaSqlUtils {
             String metadataGroup
     ) throws DataLoadException {
 
-        Integer pk = null;
+        int pk = 0;
 
         final String insert = "INSERT INTO experiment (" +
                 "db_id, external_id, sequence_id, date_of_experiment, organisation_id, project_id," +
