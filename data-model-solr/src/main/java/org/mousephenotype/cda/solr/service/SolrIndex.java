@@ -224,6 +224,7 @@ public class SolrIndex {
 			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
 		}
 
+		//System.out.println("Query: " + querystr);
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
 
@@ -234,6 +235,7 @@ public class SolrIndex {
 		query.setStart(0);
 
 		query.setRows(0);
+
 		QueryResponse response = server.query(query, METHOD.POST);
 		long rowCount = response.getResults().getNumFound(); // so that we know how many rows is returned
 
