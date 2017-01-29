@@ -889,7 +889,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         String sigResultsQuery = "SELECT CONCAT(parameter.stable_id, '_', pcs.colony_id, pcs.organisation_id) AS doc_id, mp_acc " +
                 "FROM phenotype_call_summary pcs " +
                 "INNER JOIN phenotype_parameter parameter ON parameter.id = pcs.parameter_id " +
-                "WHERE parameter.stable_id REGEXP '" + embryoProcedures + "' ";
+                "WHERE parameter.stable_id REGEXP '" + embryoProcedures + "' AND pcs.mp_acc IS NOT NULL";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(sigResultsQuery)) {
             ResultSet r = p.executeQuery();
@@ -1650,6 +1650,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         String query = "SELECT co.category, " +
                 "  CONCAT(parameter.stable_id, '_', exp.id, '_embryo') as doc_id, " +
+                "  CONCAT(parameter.stable_id, '_', exp.colony_id, org.id) as significant_id, " +
                 "'embryo' AS data_type, db.id AS db_id, " +
                 "zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, " +
                 "parameter.id as parameter_id, exp.colony_id, null as sex, " +
@@ -1685,8 +1686,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 while (r.next()) {
                     StatisticalResultDTO doc = parseLineResult(r);
 
-                    if (embryoSignificantResults.containsKey(r.getString("doc_id"))) {
-                        addMpTermData(embryoSignificantResults.get(r.getString("doc_id")), doc);
+                    if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
+                        addMpTermData(embryoSignificantResults.get(r.getString("significant_id")), doc);
                         doc.setSignificant(true);
                     } else {
                         doc.setSignificant(false);
