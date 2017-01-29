@@ -66,7 +66,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
 
     private final List<String> EMBRYO_PROCEDURES_NO_VIA = Arrays.asList("IMPC_GPL", "IMPC_GEL", "IMPC_GPM", "IMPC_GEM", "IMPC_GPO", "IMPC_GEO", "IMPC_GPP", "IMPC_GEP");
-    private final List<String> EMBRYO_PROCEDURES_VIA = Arrays.asList("IMPC_EVL", "IMPC_EVM", "IMPC_EVO", "IMPC_EVP");
+    private final List<String> EMBRYO_PROCEDURES_VIA = Arrays.asList("IMPC_EVL_001_001", "IMPC_EVM_001_001", "IMPC_EVO_001_001", "IMPC_EVP_001_001");
 
 
     @Autowired
@@ -1701,7 +1701,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 logger.warn(" Error occurred getting embryo results", e);
             }
 
-            logger.info(" Added {} viability parameter documents", docs.size());
+            logger.info(" Added {} embryo viability parameter documents", docs.size());
             return docs;
         }
 
