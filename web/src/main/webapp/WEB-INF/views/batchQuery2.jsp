@@ -274,6 +274,7 @@
 			/*chr range slider */
 			div#rangeBox {
 				display: none;
+				margin-left: 15px;
 			}
 			div#chrSlider {
 				width: 200px;
@@ -283,7 +284,13 @@
 				height: 5px;
 				width: 0px;
 				padding-left: 9px; /*add this*/
-				margin-top: 3px;
+				margin-top: 2px;
+			}
+			.ui-slider-horizontal .ui-slider-handle{
+				background: lightgray;
+			}
+			.ui-slider-range.ui-widget-header {
+				background: orange;
 			}
 			input#chrRange {
 				border: 0;
@@ -391,7 +398,13 @@
                 freezeDefaultCheckboxes(); // not doing this for now: allow default ones to be selectable
                 //chkboxAllert();  for now, don't want automatic resubmit each time a checkbox is clicked
                 var currDataType  = false;
-                
+
+                fetchChrSlider($('select#chrSel').find(":selected").text());
+
+                $('select#chrSel').on('change', function() {
+                    fetchChrSlider(this.value);
+                });
+
                 toggleAllFields();
                 
                 $('.srchAuto input').click(function(){
@@ -429,6 +442,7 @@
                             $('textarea#pastedList').val($('input#srchMp').val() == 'search' ? '' : $('input#srchMp').val());
                             $('#searchboxMp').show();
                             $('#searchboxHp').hide();
+                            $('div#rangeBox').hide();
                             addAutosuggest($('input#srchMp'));
 
                         }
@@ -439,7 +453,13 @@
                             $('textarea#pastedList').val($('input#srchHp').val() == 'search' ? '' : $('input#srchHp').val());
                             $('#searchboxHp').show();
                             $('#searchboxMp').hide();
+                            $('div#rangeBox').hide();
                             addAutosuggest($('input#srchHp'));
+						}
+						else if (currDataType == "geneChr"){
+                            $('div#rangeBox').show();
+                            $('#searchboxHp').hide();
+                            $('#searchboxMp').hide();
 						}
 						else {
                             $('#searchboxMp').hide();
@@ -512,6 +532,49 @@
                 }
                 return oConf;
             }
+
+            function fetchChrSlider(chr){
+
+                $.ajax({
+                    url: baseUrl + '/chrlen?chr=' + chr,
+                    success: function(chrlen) {
+                        console.log(chrlen);
+                        var chunk = 1000;
+                        $('span#range').text("Chromosome " + chr + " (length: " + easyReadBp(chrlen) + " bps)");
+
+                        $("#chrSlider").slider({
+                            range: true,
+                            min: 1,
+                            max: chrlen,
+                            values: [chrlen/10, chrlen/2],
+                            slide: function (event, ui) {
+                                var v1 = ui.values[0];
+                                var v2 = ui.values[1];
+                                var val1 = Math.floor(v1/chunk);
+                                var val2 = Math.floor(v2/chunk);
+                                var ksepNum = easyReadBp(parseInt(v2-v1+1));
+
+                                $("#chrRange").val(val1 + "-" + val2 + " Kbps    (range: " + ksepNum + " bps)");
+                            }
+                        });
+                        var vL = $("#chrSlider").slider("values", 0);
+                        var vR = $("#chrSlider").slider("values", 1);
+                        var valL = Math.floor(vL/chunk);
+                        var valR = Math.floor(vR/chunk);
+                        var ksepNum = easyReadBp(parseInt(vR-vL+1));
+                        $("#chrRange").val(valL + "-" + valR + " Kbps    (range: " + ksepNum + " bps)");
+
+                    },
+                    error: function() {
+                        window.alert('AJAX error trying to fetch chromosome length data');
+                    }
+                });
+            }
+
+            function easyReadBp(bp){
+                return bp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
 
             function addAutosuggest(thisInput){
 
