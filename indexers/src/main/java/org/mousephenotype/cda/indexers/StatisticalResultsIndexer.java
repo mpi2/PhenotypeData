@@ -1649,7 +1649,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     class EmbryoViabilityResults implements Callable<List<StatisticalResultDTO>> {
 
         String query = "SELECT co.category, " +
-                "  CONCAT(parameter.stable_id, '_', exp.id, '_embryo') as significant_id, " +
+                "  CONCAT(parameter.stable_id, '_', exp.id, '_embryo') as doc_id, " +
                 "'embryo' AS data_type, db.id AS db_id, " +
                 "zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, " +
                 "parameter.id as parameter_id, exp.colony_id, null as sex, " +
@@ -1685,8 +1685,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 while (r.next()) {
                     StatisticalResultDTO doc = parseLineResult(r);
 
-                    if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
-                        addMpTermData(embryoSignificantResults.get(r.getString("significant_id")), doc);
+                    if (embryoSignificantResults.containsKey(r.getString("doc_id"))) {
+                        addMpTermData(embryoSignificantResults.get(r.getString("doc_id")), doc);
                         doc.setSignificant(true);
                     } else {
                         doc.setSignificant(false);
