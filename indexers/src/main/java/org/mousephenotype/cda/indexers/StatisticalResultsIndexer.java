@@ -63,7 +63,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private final double REPORT_INTERVAL = 100000;
 
     static final String RESOURCE_3I = "3i";
-    private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
 
     private final List<String> EMBRYO_PROCEDURES_NO_VIA = Arrays.asList("IMPC_GPL", "IMPC_GEL", "IMPC_GPM", "IMPC_GEM", "IMPC_GPO", "IMPC_GEO", "IMPC_GPP", "IMPC_GEP");
     private final List<String> EMBRYO_PROCEDURES_VIA = Arrays.asList("IMPC_EVL_001_001", "IMPC_EVM_001_001", "IMPC_EVO_001_001", "IMPC_EVP_001_001");
