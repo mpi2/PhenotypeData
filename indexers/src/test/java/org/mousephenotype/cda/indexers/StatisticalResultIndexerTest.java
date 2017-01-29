@@ -118,6 +118,14 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
         assert (results.size() > 100);
     }
 
+    @Test
+    public void getEmbryoViabilityResults() throws Exception {
+
+        statisticalResultIndexer.setSAVE(Boolean.FALSE);
+        List<StatisticalResultDTO> results = statisticalResultIndexer.getEmbryoViabilityResults().call();
+        assert (results.size() > 100);
+    }
+
 
     @Test
     public void getGrossPathologyResults() throws Exception {
