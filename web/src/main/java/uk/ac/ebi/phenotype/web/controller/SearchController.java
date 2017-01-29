@@ -17,17 +17,25 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.phenotype.util.SearchConfig;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -61,6 +69,10 @@ public class SearchController {
 
 	@Autowired
 	private QueryBrokerController queryBrokerController;
+
+	@Autowired
+	@Qualifier("komp2DataSource")
+	private DataSource komp2DataSource;
 
 
 	/**
@@ -346,6 +358,30 @@ public class SearchController {
 		return "batchQuery2";
 	}
 
+	@RequestMapping(value = "/chrlen", method = RequestMethod.GET)
+	public @ResponseBody Integer chrlen(
+			@RequestParam(value = "chr", required = true) String chr,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
 
+		//fetchChrLenJson();
+		Connection connKomp2 = komp2DataSource.getConnection();
+
+		String sql = "SELECT length FROM seq_region WHERE name ='" + chr + "'";
+		Integer len = null;
+
+		try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+				len = resultSet.getInt("length");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return len;
+	}
 
 }
