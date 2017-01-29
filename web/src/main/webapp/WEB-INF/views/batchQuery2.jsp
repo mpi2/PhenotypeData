@@ -158,7 +158,7 @@
 			}
 			#srchBlock {
 				background-color: white;
-				padding: 10px 10px 0 10px;
+				padding: 10px 10px 30px 10px;
 			}
 			div#infoBlock {
 				margin-bottom: 10px;
@@ -393,7 +393,7 @@
                 $('input#geneId').prop("checked", true) // check datatyep ID as gene by default
                 $('input#datatype').val("gene"); // default
                 //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
-
+                $('textarea#pastedList').val("For example:\n" + $('input#geneId').attr("value"));
 
                 freezeDefaultCheckboxes(); // not doing this for now: allow default ones to be selectable
                 //chkboxAllert();  for now, don't want automatic resubmit each time a checkbox is clicked
@@ -458,10 +458,12 @@
 						}
 						else if (currDataType == "geneChr"){
                             $('div#rangeBox').show();
+                            $('textarea#pastedList').val($(this).attr("value"));
                             $('#searchboxHp').hide();
                             $('#searchboxMp').hide();
 						}
 						else {
+                            $('div#rangeBox').hide();
                             $('#searchboxMp').hide();
                             $('#searchboxHp').hide();
                             $('textarea#pastedList').val("For example:\n" + $(this).attr("value"));
@@ -491,7 +493,7 @@
                 	} 
                 });
                 
-                $('textarea#pastedList').val(''); // reset
+               // $('textarea#pastedList').val(''); // reset
                 $('input#fileupload').val(''); // reset
                 $('input#fulldata').attr('checked', false); // reset
                 
@@ -534,7 +536,6 @@
             }
 
             function fetchChrSlider(chr){
-
                 $.ajax({
                     url: baseUrl + '/chrlen?chr=' + chr,
                     success: function(chrlen) {
@@ -555,6 +556,7 @@
                                 var ksepNum = easyReadBp(parseInt(v2-v1+1));
 
                                 $("#chrRange").val(val1 + "-" + val2 + " Kbps    (range: " + ksepNum + " bps)");
+                                $('textarea#pastedList').val("Chr" + chr + ":" + v1 + "-" + v2);
                             }
                         });
                         var vL = $("#chrSlider").slider("values", 0);
@@ -563,6 +565,7 @@
                         var valR = Math.floor(vR/chunk);
                         var ksepNum = easyReadBp(parseInt(vR-vL+1));
                         $("#chrRange").val(valL + "-" + valR + " Kbps    (range: " + ksepNum + " bps)");
+                        //$('textarea#pastedList').val("Chr" + chr + ":" + vL + "-" + vR);
 
                     },
                     error: function() {
@@ -793,7 +796,7 @@
             		alert('Oops, search keyword is missing...');
             	}
             	else { 
-            		var currDataType = parseCurrDataDype($('input.bq:checked').attr('id'));
+            		var currDataType = $('input.bq:checked').attr('id');
 alert(currDataType)
             		idList = parsePastedList($('textarea#pastedList').val(), currDataType);
 
@@ -806,7 +809,7 @@ alert(currDataType)
                      	oConf.idlist = idList;
                      	oConf.fllist = fllist;
                      	oConf.corename = currDataType;
-                     	
+
                      	fetchBatchQueryDataTable(oConf);
             		}
             	}
@@ -1138,7 +1141,7 @@ alert(currDataType)
 														<input type="radio" id="geneId" value="MGI:106209" name="dataType" class='bq' >MGI id<br>
 														<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Id<br>
 
-														<input type="radio" id="geneChr" value="9:78456054-78556054" name="dataType" class='bq'>Chromosome name and coordinates
+														<input type="radio" id="geneChr" value="Drag the sliders to fetch coordinates..." name="dataType" class='bq'>Chromosome name and coordinates
 														<div id="rangeBox">
 															<select id="chrSel">
 																<option value="1" selected="selected">1</option>

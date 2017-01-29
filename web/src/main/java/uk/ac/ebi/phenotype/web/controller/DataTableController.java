@@ -34,6 +34,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +45,7 @@ import javax.sql.DataSource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -209,7 +212,38 @@ public class DataTableController {
 		String content = null;
 
 		String oriDataTypeName = dataTypeName;
-		List<String> queryIds = Arrays.asList(idlist.split(","));
+		List<String> queryIds = new ArrayList<>();
+
+		if ( dataTypeName.equals("geneChr")){
+
+			dataTypeName = oriDataTypeName = "gene";
+
+			Pattern pattern = Pattern.compile("^\"Chr(\\w+):(\\d+)-(\\d+)");
+			Matcher matcher = pattern.matcher(idlist);
+
+			String chr = null;
+			String chrStart = null;
+			String chrEnd = null;
+			while (matcher.find()) {
+				chr = matcher.group(1);
+				chrStart = matcher.group(2);
+				chrEnd = matcher.group(3);
+			}
+
+			int defaultRow = 10;
+			queryIds = solrIndex.fetchQueryIdsFromChrRange(chr, chrStart, chrEnd, defaultRow);
+		}
+		if ( dataTypeName.equals("geneId")){
+			dataTypeName = oriDataTypeName = "gene";
+			queryIds = Arrays.asList(idlist.split(","));
+		}
+		else if (dataTypeName.equals("mpTerm")) {
+
+		}
+		else {
+			queryIds = Arrays.asList(idlist.split(","));
+		}
+
 		Long time = System.currentTimeMillis();
 
 		List<String> mgiIds = new ArrayList<>();
@@ -824,6 +858,7 @@ public class DataTableController {
 						try {
 							Collection<Object> vals =  docMap.get(fieldName);
 							Set<Object> valSet = new HashSet<>(vals);
+
 							value = StringUtils.join(valSet, ", ");
 
 							if ( !oriDataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
