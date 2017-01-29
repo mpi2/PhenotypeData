@@ -158,7 +158,7 @@
 			}
 			#srchBlock {
 				background-color: white;
-				padding: 10px 10px 0 10px;
+				padding: 10px 10px 30px 10px;
 			}
 			div#infoBlock {
 				margin-bottom: 10px;
@@ -274,6 +274,7 @@
 			/*chr range slider */
 			div#rangeBox {
 				display: none;
+				margin-left: 15px;
 			}
 			div#chrSlider {
 				width: 200px;
@@ -283,7 +284,13 @@
 				height: 5px;
 				width: 0px;
 				padding-left: 9px; /*add this*/
-				margin-top: 3px;
+				margin-top: 2px;
+			}
+			.ui-slider-horizontal .ui-slider-handle{
+				background: lightgray;
+			}
+			.ui-slider-range.ui-widget-header {
+				background: orange;
 			}
 			input#chrRange {
 				border: 0;
@@ -386,12 +393,18 @@
                 $('input#geneId').prop("checked", true) // check datatyep ID as gene by default
                 $('input#datatype').val("gene"); // default
                 //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
-
+                $('textarea#pastedList').val("For example:\n" + $('input#geneId').attr("value"));
 
                 freezeDefaultCheckboxes(); // not doing this for now: allow default ones to be selectable
                 //chkboxAllert();  for now, don't want automatic resubmit each time a checkbox is clicked
                 var currDataType  = false;
-                
+
+                fetchChrSlider($('select#chrSel').find(":selected").text());
+
+                $('select#chrSel').on('change', function() {
+                    fetchChrSlider(this.value);
+                });
+
                 toggleAllFields();
                 
                 $('.srchAuto input').click(function(){
@@ -429,6 +442,7 @@
                             $('textarea#pastedList').val($('input#srchMp').val() == 'search' ? '' : $('input#srchMp').val());
                             $('#searchboxMp').show();
                             $('#searchboxHp').hide();
+                            $('div#rangeBox').hide();
                             addAutosuggest($('input#srchMp'));
 
                         }
@@ -439,9 +453,17 @@
                             $('textarea#pastedList').val($('input#srchHp').val() == 'search' ? '' : $('input#srchHp').val());
                             $('#searchboxHp').show();
                             $('#searchboxMp').hide();
+                            $('div#rangeBox').hide();
                             addAutosuggest($('input#srchHp'));
 						}
+						else if (currDataType == "geneChr"){
+                            $('div#rangeBox').show();
+                            $('textarea#pastedList').val($(this).attr("value"));
+                            $('#searchboxHp').hide();
+                            $('#searchboxMp').hide();
+						}
 						else {
+                            $('div#rangeBox').hide();
                             $('#searchboxMp').hide();
                             $('#searchboxHp').hide();
                             $('textarea#pastedList').val("For example:\n" + $(this).attr("value"));
@@ -471,7 +493,7 @@
                 	} 
                 });
                 
-                $('textarea#pastedList').val(''); // reset
+               // $('textarea#pastedList').val(''); // reset
                 $('input#fileupload').val(''); // reset
                 $('input#fulldata').attr('checked', false); // reset
                 
@@ -512,6 +534,50 @@
                 }
                 return oConf;
             }
+
+            function fetchChrSlider(chr){
+                $.ajax({
+                    url: baseUrl + '/chrlen?chr=' + chr,
+                    success: function(chrlen) {
+                        console.log(chrlen);
+                        var chunk = 1000;
+                        $('span#range').text("Chromosome " + chr + " (length: " + easyReadBp(chrlen) + " bps)");
+
+                        $("#chrSlider").slider({
+                            range: true,
+                            min: 1,
+                            max: chrlen,
+                            values: [chrlen/10, chrlen/2],
+                            slide: function (event, ui) {
+                                var v1 = ui.values[0];
+                                var v2 = ui.values[1];
+                                var val1 = Math.floor(v1/chunk);
+                                var val2 = Math.floor(v2/chunk);
+                                var ksepNum = easyReadBp(parseInt(v2-v1+1));
+
+                                $("#chrRange").val(val1 + "-" + val2 + " Kbps    (range: " + ksepNum + " bps)");
+                                $('textarea#pastedList').val("Chr" + chr + ":" + v1 + "-" + v2);
+                            }
+                        });
+                        var vL = $("#chrSlider").slider("values", 0);
+                        var vR = $("#chrSlider").slider("values", 1);
+                        var valL = Math.floor(vL/chunk);
+                        var valR = Math.floor(vR/chunk);
+                        var ksepNum = easyReadBp(parseInt(vR-vL+1));
+                        $("#chrRange").val(valL + "-" + valR + " Kbps    (range: " + ksepNum + " bps)");
+                        //$('textarea#pastedList').val("Chr" + chr + ":" + vL + "-" + vR);
+
+                    },
+                    error: function() {
+                        window.alert('AJAX error trying to fetch chromosome length data');
+                    }
+                });
+            }
+
+            function easyReadBp(bp){
+                return bp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
 
             function addAutosuggest(thisInput){
 
@@ -730,7 +796,7 @@
             		alert('Oops, search keyword is missing...');
             	}
             	else { 
-            		var currDataType = parseCurrDataDype($('input.bq:checked').attr('id'));
+            		var currDataType = $('input.bq:checked').attr('id');
 alert(currDataType)
             		idList = parsePastedList($('textarea#pastedList').val(), currDataType);
 
@@ -743,7 +809,7 @@ alert(currDataType)
                      	oConf.idlist = idList;
                      	oConf.fllist = fllist;
                      	oConf.corename = currDataType;
-                     	
+
                      	fetchBatchQueryDataTable(oConf);
             		}
             	}
@@ -1075,7 +1141,7 @@ alert(currDataType)
 														<input type="radio" id="geneId" value="MGI:106209" name="dataType" class='bq' >MGI id<br>
 														<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Id<br>
 
-														<input type="radio" id="geneChr" value="9:78456054-78556054" name="dataType" class='bq'>Chromosome name and coordinates
+														<input type="radio" id="geneChr" value="Drag the sliders to fetch coordinates..." name="dataType" class='bq'>Chromosome name and coordinates
 														<div id="rangeBox">
 															<select id="chrSel">
 																<option value="1" selected="selected">1</option>
