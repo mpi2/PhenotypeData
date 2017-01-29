@@ -63,7 +63,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private final double REPORT_INTERVAL = 100000;
 
     static final String RESOURCE_3I = "3i";
-    private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
+
+    private final List<String> EMBRYO_PROCEDURES_NO_VIA = Arrays.asList("IMPC_GPL", "IMPC_GEL", "IMPC_GPM", "IMPC_GEM", "IMPC_GPO", "IMPC_GEO", "IMPC_GPP", "IMPC_GEP");
+    private final List<String> EMBRYO_PROCEDURES_VIA = Arrays.asList("IMPC_EVL_001_001", "IMPC_EVM_001_001", "IMPC_EVO_001_001", "IMPC_EVP_001_001");
+
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -91,6 +94,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     private Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
     private Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
+
     private Map<String, String> embryoSignificantResults = new HashMap<>();
     protected Set<String> VIA_SIGNIFICANT = new HashSet<>();
     protected Set<String> MALE_FER_SIGNIFICANT = new HashSet<>();
@@ -875,11 +879,17 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      */
     void populateEmbryoSignificanceMap() throws SQLException {
 
+        // Generate MySQL REGEX string to include all embryo parameters
+        Set<String> allEmbryoProcedures = new HashSet<>();
+        allEmbryoProcedures.addAll(EMBRYO_PROCEDURES_NO_VIA);
+        allEmbryoProcedures.addAll(EMBRYO_PROCEDURES_VIA);
+        String embryoProcedures = StringUtils.join(allEmbryoProcedures, "|");
+
         // Populate the significant results map with this query
         String sigResultsQuery = "SELECT CONCAT(parameter.stable_id, '_', pcs.colony_id, pcs.organisation_id) AS doc_id, mp_acc " +
                 "FROM phenotype_call_summary pcs " +
                 "INNER JOIN phenotype_parameter parameter ON parameter.id = pcs.parameter_id " +
-                "WHERE parameter.stable_id REGEXP '" + EMBRYO_PROCEDURES + "' ";
+                "WHERE parameter.stable_id REGEXP '" + embryoProcedures + "' ";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(sigResultsQuery)) {
             ResultSet r = p.executeQuery();
@@ -1591,7 +1601,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 "  INNER JOIN biological_model bm ON bm.id = bms.biological_model_id " +
                 "  INNER JOIN experiment_observation eo ON eo.observation_id = obs.id " +
                 "  INNER JOIN experiment exp ON exp.id = eo.experiment_id " +
-                "  INNER JOIN (SELECT id FROM phenotype_procedure WHERE stable_id REGEXP '" + EMBRYO_PROCEDURES + "') B ON B.id = exp.procedure_id " +
+                "  INNER JOIN (SELECT id FROM phenotype_procedure WHERE stable_id REGEXP '" + StringUtils.join(EMBRYO_PROCEDURES_NO_VIA, "|") + "') B ON B.id = exp.procedure_id " +
                 "  INNER JOIN external_db db ON db.id = obs.db_id " +
                 "  INNER JOIN project proj ON proj.id = exp.project_id " +
                 "  INNER JOIN organisation org ON org.id = exp.organisation_id " +
@@ -1664,7 +1674,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 "    INNER JOIN phenotype_parameter_option opt ON opt.id=lnkopt.option_id " +
                 "    INNER JOIN phenotype_parameter_ontology_annotation oa ON oa.option_id=opt.id " +
                 "  ) b ON b.parameter_id=parameter.id AND b.name=co.category " +
-                "WHERE parameter.stable_id in ('IMPC_EVL_001_001','IMPC_EVM_001_001','IMPC_EVO_001_001','IMPC_EVP_001_001') ";
+                "WHERE parameter.stable_id in ('" + StringUtils.join(EMBRYO_PROCEDURES_VIA, "','") + "') ";
 
         @Override
         public List<StatisticalResultDTO> call() {
@@ -1674,6 +1684,14 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
                     StatisticalResultDTO doc = parseLineResult(r);
+
+                    if (embryoSignificantResults.containsKey(r.getString("doc_id"))) {
+                        addMpTermData(embryoSignificantResults.get(r.getString("doc_id")), doc);
+                        doc.setSignificant(true);
+                    } else {
+                        doc.setSignificant(false);
+                    }
+
                     docs.add(doc);
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
                     shouldHaveAdded.add(doc.getDocId());
@@ -1682,7 +1700,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 logger.warn(" Error occurred getting embryo results", e);
             }
 
-            logger.info(" Added {} viability parameter documents", docs.size());
+            logger.info(" Added {} embryo viability parameter documents", docs.size());
             return docs;
         }
 
@@ -1749,4 +1767,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     void setSAVE(Boolean SAVE) {
         this.SAVE = SAVE;
     }
+
+    public Map<String, String> getEmbryoSignificantResults() {
+        return embryoSignificantResults;
+    }
+
+
 }
