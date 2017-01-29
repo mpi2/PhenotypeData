@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-    <jsp:attribute name="title">Parrallel Coordinates Chart for ${procedure}</jsp:attribute>
+    <jsp:attribute name="title">Parallel Coordinates Chart for ${procedure}</jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
     
     <jsp:attribute name="header">

@@ -171,12 +171,6 @@ public class Tools {
 
 		// main attrs.
 		List<String> mainAttrs = new ArrayList<>();
-		List<String> geneAttrs = new ArrayList<>();
-		List<String> alleleAttrs = new ArrayList<>();
-		List<String> phenotypeAttrs = new ArrayList<>();
-		List<String> anatomyAttrs = new ArrayList<>();
-		List<String> diseaseAttrs = new ArrayList<>();
-		List<String> humanAttrs = new ArrayList<>();
 
 		// additional information
 		List<String> additionalInfos = new ArrayList<>();
@@ -209,57 +203,6 @@ public class Tools {
 		if ( corename.equals("gene") || corename.equals("marker_symbol") ){
 
 			// gene attr fields
-			geneAttrs.add("mgi_accession_id");
-			geneAttrs.add("marker_symbol");
-			geneAttrs.add("human_gene_symbol");
-			geneAttrs.add("marker_name");
-			geneAttrs.add("marker_synonym");
-			geneAttrs.add("marker_type");
-
-			alleleAttrs.add("allele_mgi_accession_id");
-			alleleAttrs.add("allele_name");
-			alleleAttrs.add("es_cell_status");
-			alleleAttrs.add("mouse_status");
-			alleleAttrs.add("phenotype_status");
-			alleleAttrs.add("mutation_type");
-			alleleAttrs.add("allele_description");
-
-			diseaseAttrs.add("disease_id");
-			diseaseAttrs.add("disease_term");
-			diseaseAttrs.add("disease_classes");
-			diseaseAttrs.add("disease_locus");
-			diseaseAttrs.add("human_curated");  // ortholog
-			diseaseAttrs.add("mouse_curated");  // ortholog
-			diseaseAttrs.add("mgi_predicted");  // pheno sim
-			diseaseAttrs.add("impc_predicted"); // pheno sim
-			diseaseAttrs.add("mgi_predicted_known_gene");
-			diseaseAttrs.add("impc_predicted_known_gene");
-			diseaseAttrs.add("mgi_novel_predicted_in_locus");
-			diseaseAttrs.add("impc_novel_predicted_in_locus");
-			diseaseAttrs.add("impc_novel_predicted_in_locus");
-
-			phenotypeAttrs.add("mp_id");
-			phenotypeAttrs.add("mp_term");
-			phenotypeAttrs.add("mp_definition");
-			phenotypeAttrs.add("top_level_mp_id");
-			phenotypeAttrs.add("top_level_mp_term");
-			phenotypeAttrs.add("p_value");
-			phenotypeAttrs.add("hasQc");
-
-
-			anatomyAttrs.add("ma_id");
-			anatomyAttrs.add("ma_term");
-			anatomyAttrs.add("selected_top_level_ma_id");
-			anatomyAttrs.add("selected_top_level_ma_term");
-
-
-			humanAttrs.add("hp_id");
-			humanAttrs.add("hp_term");
-			humanAttrs.add("human_gene_symbol");
-
-
-
-
 			// these first 6 ones are checked by default
 			mainAttrs.add("mgi_accession_id");
 			mainAttrs.add("marker_symbol");
@@ -459,6 +402,357 @@ public class Tools {
 		return htmlStr1 + htmlStr2 + hrStr + checkAllBoxStr;
 	}
 
+	public static String fetchOutputFieldsCheckBoxesHtml2(String corename) {
 
+		corename = (corename == null) ? "gene" : corename;
+
+		if ( corename.contains("marker_symbol")){
+			corename = "marker_symbol";
+		}
+
+		String htmlStr1 = "";
+		String htmlStr2 = "";
+
+		// main attrs.
+		List<String> mainAttrs = new ArrayList<>();
+		List<String> geneAttrs = new ArrayList<>();
+		List<String> alleleAttrs = new ArrayList<>();
+		List<String> phenotypeAttrs = new ArrayList<>();
+		List<String> anatomyAttrs = new ArrayList<>();
+		List<String> diseaseAttrs = new ArrayList<>();
+		List<String> humanAttrs = new ArrayList<>();
+
+		geneAttrs.add("mgi_accession_id");
+		geneAttrs.add("ensembl_gene_id");
+		geneAttrs.add("marker_symbol");
+		geneAttrs.add("marker_name");
+		geneAttrs.add("marker_synonym");
+		geneAttrs.add("marker_type");
+
+		alleleAttrs.add("allele_mgi_accession_id");
+		alleleAttrs.add("allele_name");
+		alleleAttrs.add("es_cell_status");
+		alleleAttrs.add("mouse_status");
+		alleleAttrs.add("phenotype_status");
+		alleleAttrs.add("mutation_type");
+		alleleAttrs.add("allele_description");
+
+		diseaseAttrs.add("disease_id");
+		diseaseAttrs.add("disease_term");
+		diseaseAttrs.add("disease_classes");
+		diseaseAttrs.add("disease_locus");
+		diseaseAttrs.add("human_curated");  // ortholog
+		diseaseAttrs.add("mouse_curated");  // ortholog
+		diseaseAttrs.add("mgi_predicted");  // pheno sim
+		diseaseAttrs.add("impc_predicted"); // pheno sim
+		diseaseAttrs.add("mgi_predicted_known_gene");
+		diseaseAttrs.add("impc_predicted_known_gene");
+		diseaseAttrs.add("mgi_novel_predicted_in_locus");
+		diseaseAttrs.add("impc_novel_predicted_in_locus");
+		diseaseAttrs.add("impc_novel_predicted_in_locus");
+
+		phenotypeAttrs.add("mp_id");
+		phenotypeAttrs.add("mp_term");
+		phenotypeAttrs.add("mp_definition");
+		phenotypeAttrs.add("top_level_mp_id");
+		phenotypeAttrs.add("top_level_mp_term");
+		phenotypeAttrs.add("p_value");
+		phenotypeAttrs.add("hasQc");
+
+
+		anatomyAttrs.add("ma_id");
+		anatomyAttrs.add("ma_term");
+		anatomyAttrs.add("selected_top_level_ma_id");
+		anatomyAttrs.add("selected_top_level_ma_term");
+
+		humanAttrs.add("human_gene_symbol");
+		humanAttrs.add("hp_id");
+		humanAttrs.add("hp_term");
+
+
+		// additional information
+		List<String> additionalInfos = new ArrayList<>();
+
+		Map<String, String> friendlyNameMap = new HashMap<>();
+		friendlyNameMap.put("mgi_accession_id", "MGI gene id");
+		friendlyNameMap.put("ensembl_gene_id", "Ensembl mouse gene id");
+		friendlyNameMap.put("marker_symbol", "MGI gene symbol");
+		friendlyNameMap.put("human_gene_symbol", "HGNC gene symbol");
+		friendlyNameMap.put("marker_name", "MGI gene name");
+		friendlyNameMap.put("marker_synonym", "MGI gene synonym");
+		friendlyNameMap.put("marker_type", "MGI gene type");
+		friendlyNameMap.put("p_value", "p value (phenotyping significance)");
+		friendlyNameMap.put("mp_id", "MP id");
+		friendlyNameMap.put("mp_term", "MP term");
+		friendlyNameMap.put("mp_term_synonym", "MP term synonym");
+		friendlyNameMap.put("mp_term_definition", "MP term definition");
+		friendlyNameMap.put("hp_id", "HP id");
+		friendlyNameMap.put("hp_term", "HP term");
+
+		// first n fields checked by default
+		Map<String, Integer> defaultOffset = new HashMap<>();
+		defaultOffset.put("gene", 8);
+		defaultOffset.put("marker_symbol", 8);
+		defaultOffset.put("ensembl", 9);
+		defaultOffset.put("disease", 5);
+		defaultOffset.put("mp", 6);
+		defaultOffset.put("anatomy", 5);
+		defaultOffset.put("phenodigm", 8);
+
+		if ( corename.equals("gene") || corename.equals("marker_symbol") ){
+
+			// gene attr fields
+
+			// these first 6 ones are checked by default
+			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+			mainAttrs.add("marker_name");
+			mainAttrs.add("marker_synonym");
+			mainAttrs.add("marker_type");
+			mainAttrs.add("latest_mouse_status");
+			mainAttrs.add("latest_phenotype_status");
+			mainAttrs.add("legacy_phenotype_status");
+			mainAttrs.add("latest_es_cell_status");
+			mainAttrs.add("latest_project_status");
+			mainAttrs.add("latest_production_centre");
+			mainAttrs.add("latest_phenotyping_centre");
+
+			// gene has QC: ie, a record in experiment core
+			additionalInfos.add("ensembl_gene_ids");
+			additionalInfos.add("hasQc");
+
+			// annotated mp term
+			additionalInfos.add("p_value");
+
+
+			additionalInfos.add("mp_id");
+			additionalInfos.add("mp_term");
+			additionalInfos.add("mp_term_synonym");
+			additionalInfos.add("mp_term_definition");
+
+			// mp to hp mapping
+			additionalInfos.add("hp_id");
+			additionalInfos.add("hp_term");
+
+			// disease fields
+			additionalInfos.add("disease_id");
+			additionalInfos.add("disease_term");
+
+			// impc images link
+			//additionalInfos.add("images_link");
+
+			//GO stuff for gene : not shown for now
+		}
+		else if ( corename.equals("ensembl") ){
+
+			// gene attr fields
+			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("ensembl_gene_id");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+			mainAttrs.add("marker_name");
+			mainAttrs.add("marker_synonym");
+			mainAttrs.add("marker_type");
+			mainAttrs.add("latest_phenotype_status");
+			mainAttrs.add("latest_mouse_status");
+
+			mainAttrs.add("legacy_phenotype_status");
+			mainAttrs.add("latest_es_cell_status");
+			mainAttrs.add("latest_project_status");
+			mainAttrs.add("latest_production_centre");
+			mainAttrs.add("latest_phenotyping_centre");
+
+			// gene has QC: ie, a record in experiment core
+			additionalInfos.add("hasQc");
+
+			// annotated mp term
+			additionalInfos.add("p_value");
+			additionalInfos.add("mp_id");
+			additionalInfos.add("mp_term");
+			additionalInfos.add("mp_term_synonym");
+			additionalInfos.add("mp_term_definition");
+
+			// mp to hp mapping
+			additionalInfos.add("hp_id");
+			additionalInfos.add("hp_term");
+
+			// disease fields
+			additionalInfos.add("disease_id");
+			additionalInfos.add("disease_term");
+
+			// impc images link
+			//additionalInfos.add("images_link");
+
+			//GO stuff for gene : not shown for now
+		}
+
+		else if ( corename.equals("disease") ) {
+			mainAttrs.add("disease_id");
+			mainAttrs.add("disease_term");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("human_gene_symbol");
+
+			// annotated and inferred mp term
+			additionalInfos.add("p_value");
+			additionalInfos.add("mp_id");
+			additionalInfos.add("mp_term");
+			additionalInfos.add("mp_term_synonym");
+
+			// mp to hp mapping
+			additionalInfos.add("hp_id");
+			additionalInfos.add("hp_term");
+
+		}
+		else if ( corename.equals("mp") ) {
+			mainAttrs.add("mp_id");
+			mainAttrs.add("mp_term");
+			mainAttrs.add("mp_definition");
+
+			// gene core stuff
+			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+
+			additionalInfos.add("top_level_mp_id");
+			additionalInfos.add("top_level_mp_term");
+
+			//  mp to hp mapping
+			additionalInfos.add("hp_id");
+			additionalInfos.add("hp_term");
+
+			//disease core stuff
+			additionalInfos.add("disease_id");
+			additionalInfos.add("disease_term");
+		}
+		else if ( corename.equals("anatomy") ) {
+			mainAttrs.add("anatomy_id");
+			mainAttrs.add("anatomy_term");
+
+			// gene core stuff
+			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+
+			additionalInfos.add("selected_top_level_id");
+			additionalInfos.add("selected_top_level_term");
+			// impc images link
+			//additionalInfos.add("images_link");
+		}
+		else if ( corename.equals("phenodigm") ) {
+
+			mainAttrs.add("hp_id");
+			mainAttrs.add("hp_term");
+
+			//  hp to mp mapping
+			mainAttrs.add("mp_id");
+			mainAttrs.add("mp_term");
+			mainAttrs.add("mp_definition");
+
+			// gene core stuff
+			mainAttrs.add("mgi_accession_id");
+			mainAttrs.add("marker_symbol");
+			mainAttrs.add("human_gene_symbol");
+
+			additionalInfos.add("top_level_mp_id");
+			additionalInfos.add("top_level_mp_term");
+
+			//disease core stuff
+			additionalInfos.add("disease_id");
+			additionalInfos.add("disease_term");
+		}
+
+
+		String checkAlltheseAtt = "<i class='fa fa-plus'></i>";
+		String htmlStr = "";
+		String checked = "";
+		String checkedClass = "";
+
+		String htmlStrGene = "";
+		for (String field : geneAttrs){
+			String friendlyFieldName = friendlyNameMap.get(field) != null ? friendlyNameMap.get(field) : field.replaceAll("_", " ");
+			htmlStrGene += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + field+ "'" + checked + ">" + friendlyFieldName;
+		}
+		htmlStr += "<fieldset id='genefs'><legend>Mouse gene attributes</legend>" + htmlStrGene + checkAlltheseAtt+ "</fieldset>";
+
+		String htmlStrAllele = "";
+		for (String field : alleleAttrs){
+			String friendlyFieldName = friendlyNameMap.get(field) != null ? friendlyNameMap.get(field) : field.replaceAll("_", " ");
+			htmlStrAllele += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + field+ "'" + checked + ">" + friendlyFieldName;
+		}
+		htmlStr += "<fieldset><legend>Mouse allele attributes</legend>" + htmlStrAllele + checkAlltheseAtt+ "</fieldset>";
+
+		String htmlStrPhentype = "";
+		for (String field : phenotypeAttrs){
+			String friendlyFieldName = friendlyNameMap.get(field) != null ? friendlyNameMap.get(field) : field.replaceAll("_", " ");
+			htmlStrPhentype += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + field+ "'" + checked + ">" + friendlyFieldName;
+		}
+		htmlStr += "<fieldset><legend>Mouse phenotype attributes</legend>" + htmlStrPhentype + checkAlltheseAtt+ "</fieldset>";
+
+		String htmlStrAnatomy = "";
+		for (String field : anatomyAttrs){
+			String friendlyFieldName = friendlyNameMap.get(field) != null ? friendlyNameMap.get(field) : field.replaceAll("_", " ");
+			htmlStrAnatomy += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + field+ "'" + checked + ">" + friendlyFieldName;
+		}
+		htmlStr += "<fieldset><legend>Mouse anatomy attributes</legend>" + htmlStrAnatomy + checkAlltheseAtt+ "</fieldset>";
+
+		String htmlStrDisease = "";
+		for (String field : diseaseAttrs){
+			String friendlyFieldName = friendlyNameMap.get(field) != null ? friendlyNameMap.get(field) : field.replaceAll("_", " ");
+			htmlStrDisease += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + field+ "'" + checked + ">" + friendlyFieldName;
+		}
+		htmlStr += "<fieldset class='human'><legend class='human'>Human disease attributes</legend>" + htmlStrDisease + checkAlltheseAtt+ "</fieldset>";
+
+		String htmlStrHuman = "";
+		for (String field : humanAttrs){
+			String friendlyFieldName = friendlyNameMap.get(field) != null ? friendlyNameMap.get(field) : field.replaceAll("_", " ");
+			htmlStrHuman += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + field+ "'" + checked + ">" + friendlyFieldName;
+		}
+		htmlStr += "<fieldset class='human'><legend class='human'>Human gene and phenotype attributes</legend>" + htmlStrHuman + checkAlltheseAtt+ "</fieldset>";
+
+		String hrStr = "<hr>";
+		String checkAllBoxStr = "<button type='button' id='chkFields'>Check all fields</button>";
+
+
+		return htmlStr + hrStr + checkAllBoxStr;
+//		String dataType = corename.toUpperCase().replaceAll("_"," ");
+//
+//		htmlStr1 += "<div class='cat'>" + dataType + " attributes</div>";
+//		for ( int i=0; i<mainAttrs.size(); i++ ){
+//			String checked = "";
+//			String checkedClass = "";
+//
+//			if ( i < defaultOffset.get(corename) ) {
+//				checked = "checked";
+//				checkedClass = "default";
+//				// first two of each dataType are uncheckable, so they are minimum fields (order is important in the mainAttrs above
+//				if ( i < 2 ) {
+//					checkedClass = "default frozen";
+//				}
+//
+//			}
+//
+//			String friendlyFieldName = friendlyNameMap.get(mainAttrs.get(i)) != null ? friendlyNameMap.get(mainAttrs.get(i)) : mainAttrs.get(i).replaceAll("_", " ");
+//			htmlStr1 += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + friendlyFieldName;
+//			if ( (i+1) % 3 == 0 ){
+//				htmlStr1 += "<br>";
+//			}
+//		}
+//
+//		htmlStr2 += "<div class='cat'>Additional annotations to " + dataType + "</div>";
+//		for ( int i=0; i<additionalInfos.size(); i++ ){
+//			String friendlyFieldName = friendlyNameMap.get(additionalInfos.get(i)) != null ? friendlyNameMap.get(additionalInfos.get(i)) : additionalInfos.get(i).replaceAll("_", " ");
+//			htmlStr2 += "<input type='checkbox' name='" + corename + "' value='" + additionalInfos.get(i) + "'>" + friendlyFieldName;
+//			if ( (i+1) % 3 == 0 ){
+//				htmlStr2 += "<br>";
+//			}
+//		}
+//
+//		String hrStr = "<hr>";
+//		String checkAllBoxStr = "<button type='button' id='chkFields'>Check all fields</button>";
+//
+//		return htmlStr1 + htmlStr2 + hrStr + checkAllBoxStr;
+	}
 
 }

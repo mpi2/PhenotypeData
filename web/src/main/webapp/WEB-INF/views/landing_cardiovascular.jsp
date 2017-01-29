@@ -89,13 +89,33 @@
                                     var mpTopLevelTerms = ["cardiovascular system phenotype"];
                                     drawChords(false, mpTopLevelTerms);
                                 </script>
-
                             </div>
                         </div>
 
-                        <jsp:include page="gene_orthologs_frag.jsp" ></jsp:include>
+                        <div class="section">
 
+                            <h2 class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>
+                            <div class="inner">
 
+                            <div class="half">
+                                <jsp:include page="gene_orthologs_frag.jsp" >
+                                    <jsp:param name="currentSet" value="impcSets"/>
+                                    <jsp:param name="divId" value="impcVenn"/>
+                                </jsp:include>
+                            </div>
+                            <div class="half">
+                                <jsp:include page="gene_orthologs_frag.jsp" >
+                                    <jsp:param name="currentSet" value="mgiSets"/>
+                                    <jsp:param name="divId" value="mgiVenn"/>
+                                </jsp:include>
+                            </div>
+
+                            <div class="clear both"></div>
+
+                            <a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
