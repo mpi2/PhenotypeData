@@ -269,7 +269,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     Map<String, List<String>> populateMgiGeneId2EnsemblGeneId() {
 
-    	String query = "SELECT acc, xref_acc FROM xref WHERE db_id=3 AND xref_db_id=18";
+    	String query = "SELECT acc, xref_acc FROM xref WHERE db_id=3 AND xref_db_id=18 AND xref_acc like 'ENS%'";
 
     	try (PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet resultSet = p.executeQuery();
