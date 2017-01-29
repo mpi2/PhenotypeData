@@ -432,7 +432,7 @@
 
     <copyField source="disease_id" dest="diseaseQf" />
     <copyField source="disease_term" dest="diseaseQf" />
-    <!--<copyField source="disease_alts" dest="diseaseQf" /> -->
+    <copyField source="disease_alts" dest="diseaseQf" />
 
     <!-- Copy the price into a currency enabled field (default USD) -->
     <!--<copyField source="price" dest="price_c"/>-->

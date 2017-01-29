@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -300,6 +301,11 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                             continue;
                         }
 
+                        if (allele == null || allele.isEmpty()){
+                            logger.warn("Empty allele symbol for  {} {} {} {}", id, colonyId, parameter, phenotypingCenter);
+                            continue;
+                        }
+
                         // Skip if we already have this data postQC
                         phenotypingCenter = dccMapping.dccCenterMap.containsKey(phenotypingCenter) ? dccMapping.dccCenterMap.get(phenotypingCenter) : phenotypingCenter;
                         if (postQcData.contains(StringUtils.join(Arrays.asList(new String[]{colonyId, parameter, phenotypingCenter.toUpperCase()}), "_"))) {
@@ -352,15 +358,13 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                         }
                         o.setZygosity(zygosityMapping.get(zygosity));
 
-                        if (alleleSymbol2NameIdMapping.get(allele) == null) {
-                            // use fake id if we cannot find the symbol from komp2
-                            o.setAlleleAccessionId(createFakeIdFromSymbol(allele));
-                            o.setAlleleName(allele);
-                        } else {
-                            o.setAlleleAccessionId(alleleSymbol2NameIdMapping.get(allele).acc);
-                            o.setAlleleName(alleleSymbol2NameIdMapping.get(allele).name);
-                        }
-                        o.setAlleleSymbol(allele);
+                if (alleleSymbol2NameIdMapping.get(allele) == null || alleleSymbol2NameIdMapping.get(allele).acc == null) {
+                    // use fake id if we cannot find the symbol from komp2
+                    o.setAlleleAccessionId(createFakeIdFromSymbol(allele));
+                } else {
+                    o.setAlleleAccessionId(alleleSymbol2NameIdMapping.get(allele).acc);
+                }
+                o.setAlleleSymbol(allele);
 
                         if (dccMapping.dccCenterMap.containsKey(phenotypingCenter)) {
                             o.setPhenotypingCenter(dccMapping.dccCenterMap.get(phenotypingCenter));
@@ -452,30 +456,15 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {
-        String fakeId = null;
 
-        ResultSet rs;
-        Statement statement;
+        return "NULL-" + DigestUtils.md5Hex(alleleSymbol).substring(0,10).toUpperCase();
 
-        String query = "select CONCAT('NULL-', UPPER(SUBSTR(MD5('" + alleleSymbol + "'),1,10))) as fakeId";
-        try {
-            statement = conn_komp2.createStatement();
-            rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                // Retrieve by column name
-                fakeId = rs.getString("fakeId");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return fakeId;
     }
 
     public void doGeneSymbol2IdMapping() {
 
         try {
-            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments(Allele2DTO.MARKER_SYMBOL, Allele2DTO.MGI_ACCESSION_ID);
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments("Gene", Allele2DTO.MARKER_SYMBOL, Allele2DTO.MGI_ACCESSION_ID);
             for (Allele2DTO allele: allele2Docs){
                 geneSymbol2IdMapping.put(allele.getMarkerSymbol(), allele.getMgiAccessionId());
             }
@@ -549,7 +538,7 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
         try {
-            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments(Allele2DTO.ALLELE_NAME, Allele2DTO.ALLELE_MGI_ACCESSION_ID, Allele2DTO.ALLELE_SYMBOL);
+            List<Allele2DTO> allele2Docs = allele2Service.getAllDocuments("Allele", Allele2DTO.ALLELE_NAME, Allele2DTO.ALLELE_MGI_ACCESSION_ID, Allele2DTO.ALLELE_SYMBOL);
             for (Allele2DTO allele: allele2Docs){
                 AlleleDTO al = new AlleleDTO();
                 al.acc = allele.getAlleleMgiAccessionId();

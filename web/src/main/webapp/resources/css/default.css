@@ -20,7 +20,7 @@ b,strong                { font-weight: 600; }
 p.padleft               { padding-left: 1em; }
 
 /* Links */
-a                       { color: #0978a1; text-decoration: none; cursor: pointer; }
+a                       { color: #0978a1; fill: #0978a1; text-decoration: none; cursor: pointer; }
 a:hover                 { color: #0978a1; text-decoration: underline; }
 
 /* Font Awesome */
