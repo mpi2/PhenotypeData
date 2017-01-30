@@ -24,20 +24,32 @@ public class PhisService {
 	
 	HttpSolrClient phisSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.3/images/");
 
-	public List<ImageDTO> getPhenoImageShareImageDTOs() throws SolrServerException, IOException {
-		// http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.3/images/select?q=host_name:WTSI&rows=200
-		SolrQuery q = new SolrQuery();
-		q.setQuery(PImageDTO.HOST_NAME + ":WTSI").setRows(200);// Integer.MAX_VALUE);
 
-		List<PImageDTO> phisImages = phisSolr.query(q).getBeans(PImageDTO.class);
+	public List<ImageDTO> getPhenoImageShareImageDTOs() throws SolrServerException, IOException {
+
+		List<PImageDTO> phisImages = new ArrayList<>();
+		SolrQuery q = new SolrQuery();
+
+		q.setQuery(PImageDTO.HOST_NAME + ":WTSI").setRows(Integer.MAX_VALUE); // WTSI -> brain histopath images
+		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class));
+
+		q.setQuery(PImageDTO.HOST_NAME + ":\"IMPC Portal\"");
+		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class)); // IMPC Portal -> Sanger old images
+
+		System.out.println("Got this many images: " + phisImages.size());
+
 		return this.convertPhisImageToImages(phisImages);
+
 	}
 
 	private List<ImageDTO> convertPhisImageToImages(List<PImageDTO> phisImages) {
+
 		List<ImageDTO> images = new ArrayList<>();
+
 		for (PImageDTO pImage : phisImages) {
+
 			ImageDTO image = new ImageDTO();
-			String id = pImage.getId();
+
 			image.setObservationType(ObservationType.image_record.name());
 			if(pImage.getGeneIds().size()>=1){
 					image.setGeneAccession(pImage.getGeneIds().get(0));
@@ -94,11 +106,14 @@ public class PhisService {
 //			<str name="pipeline">MGP_001</str>
 //			<str name="parameter">MGP_BHP_066_001</str>
 //			<str name="procedure">MGP_BHP_001</str>
-			if(pImage.getPipeline()!=null){
+
+			if(pImage.getPipeline() != null){
 				image.setPipelineStableId(pImage.getPipeline());
 			}
 			if(pImage.getProcedure()!=null){
-				image.setProcedureStableId(pImage.getProcedure());
+				if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
+					image.setProcedureStableId(pImage.getProcedure());
+				}
 			}
 			if(pImage.getParameter()!=null){
 				image.setParameterStableId(pImage.getParameter());
