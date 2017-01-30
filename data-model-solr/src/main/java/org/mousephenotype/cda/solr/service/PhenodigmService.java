@@ -5,7 +5,9 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
+import org.mousephenotype.cda.utilities.HttpProxy;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,19 +79,21 @@ public class PhenodigmService implements WebStatus {
 	}
 
 
-//	public StringBuffer getGenesWithDiseaseDownload(Set<String> diseaseClasses) throws IOException, SolrServerException {
-//
-//		SolrQuery query = new SolrQuery();
-//		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
-//		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
-//		query.setRows(Integer.MAX_VALUE);
-//		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.HUMAN_CURATED);
-//
-//
-//		QueryResponse rsp = solr.query(query);
-////		solr.query(query).
-//
-//	}
+	public String getGenesWithDiseaseDownload(Set<String> diseaseClasses) throws IOException, SolrServerException, URISyntaxException {
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery(diseaseClasses.stream().collect(Collectors.joining("\" OR \"", PhenodigmDTO.DISEASE_CLASSES + ":(\"", "\")")));
+		query.setFilterQueries(PhenodigmDTO.TYPE + ":disease_gene_summary");
+		query.setRows(Integer.MAX_VALUE);
+		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.MARKER_ACCESSION, PhenodigmDTO.HGNC_GENE_SYMBOL,PhenodigmDTO.DISEASE_TERM, PhenodigmDTO.DISEASE_ID, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MAX_IMPC_D2M_SCORE,
+			 PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.MAX_MGI_D2M_SCORE, PhenodigmDTO.HUMAN_CURATED);
+		query.set("wt", "csv");
+
+		HttpProxy proxy = new HttpProxy();
+
+		return proxy.getContent(new URL(SolrUtils.getBaseURL(solr) + "/select?" + query));
+
+	}
 
 	public Map<String, Set<String>> getGenesWithDisease(Set<String> diseaseClasses) throws IOException, SolrServerException {
 

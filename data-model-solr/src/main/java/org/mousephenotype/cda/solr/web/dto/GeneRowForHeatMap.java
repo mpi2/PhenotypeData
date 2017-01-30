@@ -24,11 +24,7 @@ package org.mousephenotype.cda.solr.web.dto;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,10 +40,22 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     private String miceProduced="No";//not boolean as 3 states No, Yes, In progress - could have an enum I guess?
 	Map<String, HeatMapCell> xAxisToCellMap=new HashMap<>();
 	private Float lowestPValue=new Float(1000000);//just large number so we don't get null pointers
-	
-	
-	
-    public String getGroupLabel() {
+	private List<String> humanSymbol;
+
+	public List<String> getHumanSymbol() {
+		return humanSymbol;
+	}
+
+
+	public String getHumanSymbolToString() {
+		return humanSymbol.toString().replaceAll("\\]|\\[", "");
+	}
+
+	public void setHumanSymbol(List<String> humanSymbol) {
+		this.humanSymbol = humanSymbol;
+	}
+
+	public String getGroupLabel() {
 		return groupLabel;
 	}
 
@@ -82,7 +90,6 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     public void add(HeatMapCell cell) {
        this.xAxisToCellMap.put(cell.getxAxisKey(), cell);
     }
-    
     
     public String getMiceProduced() {
 		return miceProduced;
@@ -124,16 +131,11 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 	public void setLowestPValue(Float getpValue) {
 		this.lowestPValue=getpValue;
 	}
-	
-	
-	
 
-	
 
 	public String toTabbedString() {
-		return  accession + "\t" + symbol + "\t" + groupLabel + "\t" + this.statusStringForExport(miceProduced).replace("<br>", " ") + "\t";
+		return  accession + "\t" + symbol + "\t" + getHumanSymbolToString() + "\t" + groupLabel + "\t" + this.statusStringForExport(miceProduced).replace("<br>", " ") + "\t";
 	}
-
 	
 
 	private String statusStringForExport(String status){
