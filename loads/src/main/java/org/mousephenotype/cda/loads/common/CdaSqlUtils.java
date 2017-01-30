@@ -423,8 +423,20 @@ public class CdaSqlUtils {
         return map;
     }
 
-    
-    
+    public Map<String, String> getCdaParameterNames() {
+        Map<String, String> map = new ConcurrentHashMap<>();
+
+        List<Map<String, Object>> results = jdbcCda.queryForList("SELECT stable_id, name FROM phenotype_parameter", new HashMap<>());
+
+        for (Map<String, Object> result : results) {
+            String  stableId = result.get("stable_id").toString();
+            String name      = result.get("name").toString();
+            map.put(stableId, name);
+        }
+
+        return map;
+    }
+
     
     /**
      * @return the set of all consider accession ids
