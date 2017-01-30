@@ -38,7 +38,7 @@
    
 	 <c:forEach items="${geneRows}" var="row">
      	<tr>
-            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a><br/>${row.getHumanSymbol()}</td>
+            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a><br/>${row.getHumanSymbolToString()}</td>
             <td>${row.groupLabel}</td>
       	    <td>${row.miceProduced}</td>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" > 

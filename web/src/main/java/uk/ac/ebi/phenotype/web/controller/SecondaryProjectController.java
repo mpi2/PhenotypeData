@@ -146,7 +146,8 @@ public class SecondaryProjectController {
 
 			List<String> tableHeaders=new ArrayList<>();
 			tableHeaders.add("Gene Accession");
-			tableHeaders.add("Gene Symbol");
+            tableHeaders.add("Gene Symbol");
+            tableHeaders.add("Human gene");
 			tableHeaders.add("Family");
 	        tableHeaders.add("Availability");//and 4 tabs to cover all availability options - no I don't like this either JW
 			 List<String> dataRows = new ArrayList<>();
@@ -165,7 +166,7 @@ public class SecondaryProjectController {
 					phenotypeStatus.add(phenotypeStatusCell.getStatus());
 				}
 			 	
-			 	 dataRows.add(row.toTabbedString() +StringUtils.join(phenotypeStatus, "\t"));
+			 	 dataRows.add(row.toTabbedString() + StringUtils.join(phenotypeStatus, "\t"));
 			 }
 			
 			 FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
