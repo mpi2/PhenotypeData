@@ -426,7 +426,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	}
 
 	private List<ImageDTO> populatePhisImages() throws SolrServerException, IOException {
-		List<ImageDTO> phisImages=phisService.getPhenoImageShareImageDTOs();
+		List<ImageDTO> phisImages = phisService.getPhenoImageShareImageDTOs();
 		return phisImages;
 	}
 
@@ -441,15 +441,15 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		//need to query the experiment core to make sure we allocate numbers over what we already have
 		//this could have other issues if we have assumed id is observation id elsewhere -but I think it's in loading the db and not after indexing??
 		int highestObserationId=this.getHighestObservationId();
-		//currently just getting brain histopath
-		List<ImageDTO> brainHistoImageDtos = populatePhisImages();
+
+		List<ImageDTO> phisImageDtos = populatePhisImages();
 		int id=highestObserationId;
-		for(ImageDTO image:brainHistoImageDtos){
+		for(ImageDTO image:phisImageDtos){
 			id++;//do here so one higher than highest obs id
 			image.setId(id);//add a generated id that we know hasn't been used before
 			addMpInfo( image, runStatus);
 		}
-		return brainHistoImageDtos;
+		return phisImageDtos;
 	}
 
 	ImageDTO addMpInfo (ImageDTO image, RunStatus runStatus){
