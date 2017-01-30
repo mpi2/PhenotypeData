@@ -203,7 +203,7 @@ public class FileExportController {
 
 				row.add((observation.getWeight() != null && StringUtils.isNotEmpty(observation.getWeight().toString())) ? observation.getWeight().toString() : "");
 
-				rows.add(StringUtils.join(row, ", "));
+				rows.add(StringUtils.join(row, ","));
 			}
 
 			// Next experiment
