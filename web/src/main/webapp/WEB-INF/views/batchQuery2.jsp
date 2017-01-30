@@ -158,7 +158,7 @@
 			}
 			#srchBlock {
 				background-color: white;
-				padding: 10px 10px 0 10px;
+				padding: 10px 10px 30px 10px;
 			}
 			div#infoBlock {
 				margin-bottom: 10px;
@@ -271,6 +271,39 @@
 				margin-top: 15px;
 			}
 
+			/*chr range slider */
+			div#rangeBox {
+				display: none;
+				margin-left: 15px;
+			}
+			div#chrSlider {
+				width: 200px;
+				height: 2px;
+			}
+			.ui-slider .ui-slider-handle {
+				height: 5px;
+				width: 0px;
+				padding-left: 9px; /*add this*/
+				margin-top: 2px;
+			}
+			.ui-slider-horizontal .ui-slider-handle{
+				background: lightgray;
+			}
+			.ui-slider-range.ui-widget-header {
+				background: orange;
+			}
+			input#chrRange {
+				border: 0;
+				color: gray;
+				font-size: 12px;
+			}
+			span#range {
+				font-size: 12px;
+			}
+			#chrSel {
+				display: inline;
+			}
+
         </style>
         
         <script type='text/javascript'>
@@ -354,17 +387,24 @@
                 });
                 
                 $( "#accordion" ).accordion();
-                
+
+
                 // reset to default when page loads
-                $('input#gene').prop("checked", true) // check datatyep ID as gene by default
+                $('input#geneId').prop("checked", true) // check datatyep ID as gene by default
                 $('input#datatype').val("gene"); // default
                 //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
-
+                $('textarea#pastedList').val("For example:\n" + $('input#geneId').attr("value"));
 
                 freezeDefaultCheckboxes(); // not doing this for now: allow default ones to be selectable
                 //chkboxAllert();  for now, don't want automatic resubmit each time a checkbox is clicked
                 var currDataType  = false;
-                
+
+                fetchChrSlider($('select#chrSel').find(":selected").text());
+
+                $('select#chrSel').on('change', function() {
+                    fetchChrSlider(this.value);
+                });
+
                 toggleAllFields();
                 
                 $('.srchAuto input').click(function(){
@@ -390,20 +430,19 @@
 
                 		currDataType = $(this).attr('id');
                 		
-                		var currDataType2 = currDataType.toUpperCase().replace("_"," ");
-                		
                 		// assign to hidden field in fileupload section
                 		$('input#datatype').val(currDataType);
                 		
                 		//$('td.idnote').text($(this).attr("value"));
 
-						if (currDataType=="mpterm"){
+						if (currDataType=="mpTerm"){
                             if ($('input#srchMp').val() == ''){
                                 $('input#srchMp').val('search');
                             }
                             $('textarea#pastedList').val($('input#srchMp').val() == 'search' ? '' : $('input#srchMp').val());
                             $('#searchboxMp').show();
                             $('#searchboxHp').hide();
+                            $('div#rangeBox').hide();
                             addAutosuggest($('input#srchMp'));
 
                         }
@@ -414,28 +453,31 @@
                             $('textarea#pastedList').val($('input#srchHp').val() == 'search' ? '' : $('input#srchHp').val());
                             $('#searchboxHp').show();
                             $('#searchboxMp').hide();
+                            $('div#rangeBox').hide();
                             addAutosuggest($('input#srchHp'));
 						}
+						else if (currDataType == "geneChr"){
+                            $('div#rangeBox').show();
+                            $('textarea#pastedList').val($(this).attr("value"));
+                            $('#searchboxHp').hide();
+                            $('#searchboxMp').hide();
+						}
 						else {
+                            $('div#rangeBox').hide();
                             $('#searchboxMp').hide();
                             $('#searchboxHp').hide();
                             $('textarea#pastedList').val("For example:\n" + $(this).attr("value"));
                         }
 
-						if (currDataType == "mpid" || currDataType == "mpterm" ){
-                            currDataType = "mp"
-						}
-                        else if (currDataType == "phenodigmId" || currDataType == "phenodigmTerm" ){
-                            currDataType = "phenodigm";
-                        }
+                        currDataType = parseCurrDataDype(currDataType);
 
                 		//console.log($(this).attr('id'));
-                		var id = $(this).attr('id');
+                		//var id = $(this).attr('id');
                 		//$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full IMPC dataset via " + currDataType2 + " identifiers");
                 		$('div#fullDump').html("Please refer to our FTP site");
                 		// load dataset fields for selected datatype Id
                 		$.ajax({
-                        	url: baseUrl + '/batchquery2?core=' + currDataType,
+                        	url: baseUrl + '/batchquery2-1?core=' + currDataType,
                             success: function(htmlStr) {
                                 //console.log(htmlStr);
                             	$('div#fieldList').html(htmlStr);
@@ -451,11 +493,24 @@
                 	} 
                 });
                 
-                $('textarea#pastedList').val(''); // reset
+               // $('textarea#pastedList').val(''); // reset
                 $('input#fileupload').val(''); // reset
                 $('input#fulldata').attr('checked', false); // reset
                 
             });
+
+            function parseCurrDataDype(currDataType){
+				if (currDataType.startsWith("mp")){
+					currDataType = "mp";
+				}
+				else if (currDataType.startsWith("phenodigm")){
+					currDataType = "phenodigm";
+				}
+				else if (currDataType.startsWith("gene")){
+					currDataType = "gene";
+				}
+				return currDataType;
+			}
 
             function addAttrChecker() {
                 $('fieldset i').click(function () {
@@ -479,6 +534,50 @@
                 }
                 return oConf;
             }
+
+            function fetchChrSlider(chr){
+                $.ajax({
+                    url: baseUrl + '/chrlen?chr=' + chr,
+                    success: function(chrlen) {
+                        console.log(chrlen);
+                        var chunk = 1000;
+                        $('span#range').text("Chromosome " + chr + " (length: " + easyReadBp(chrlen) + " bps)");
+
+                        $("#chrSlider").slider({
+                            range: true,
+                            min: 1,
+                            max: chrlen,
+                            values: [chrlen/10, chrlen/2],
+                            slide: function (event, ui) {
+                                var v1 = ui.values[0];
+                                var v2 = ui.values[1];
+                                var val1 = Math.floor(v1/chunk);
+                                var val2 = Math.floor(v2/chunk);
+                                var ksepNum = easyReadBp(parseInt(v2-v1+1));
+
+                                $("#chrRange").val(val1 + "-" + val2 + " Kbps    (range: " + ksepNum + " bps)");
+                                $('textarea#pastedList').val("Chr" + chr + ":" + v1 + "-" + v2);
+                            }
+                        });
+                        var vL = $("#chrSlider").slider("values", 0);
+                        var vR = $("#chrSlider").slider("values", 1);
+                        var valL = Math.floor(vL/chunk);
+                        var valR = Math.floor(vR/chunk);
+                        var ksepNum = easyReadBp(parseInt(vR-vL+1));
+                        $("#chrRange").val(valL + "-" + valR + " Kbps    (range: " + ksepNum + " bps)");
+                        //$('textarea#pastedList').val("Chr" + chr + ":" + vL + "-" + vR);
+
+                    },
+                    error: function() {
+                        window.alert('AJAX error trying to fetch chromosome length data');
+                    }
+                });
+            }
+
+            function easyReadBp(bp){
+                return bp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
 
             function addAutosuggest(thisInput){
 
@@ -698,19 +797,19 @@
             	}
             	else { 
             		var currDataType = $('input.bq:checked').attr('id');
+alert(currDataType)
             		idList = parsePastedList($('textarea#pastedList').val(), currDataType);
 
             		if ( idList !== false ){
             			var fllist = fetchSelectedFieldList();
-                     	//var currDataType = $('input.bq:checked').attr('id');
-                     	
+
                      	prepare_dataTable(fllist);
                      	
                      	var oConf = {};
                      	oConf.idlist = idList;
                      	oConf.fllist = fllist;
                      	oConf.corename = currDataType;
-                     	
+
                      	fetchBatchQueryDataTable(oConf);
             		}
             	}
@@ -832,7 +931,7 @@
                 			return false;
                 		}
             		}
-            		else if ( dataType == 'gene' && uppercaseId.indexOf('MGI:') != 0 ){
+            		else if ( dataType == 'geneId' && uppercaseId.indexOf('MGI:') != 0 ){
             			alert(errMsg);
             			return false;
             		}
@@ -915,7 +1014,7 @@
                     		
                     		var fllist = fetchSelectedFieldList();
                     		var errMsg = 'AJAX error trying to export dataset';
-                    		var currDataType = $('input.bq:checked').attr('id');
+                    		var currDataType = parseCurrDataDype($('input.bq:checked').attr('id'));
                     		var idList = null;
                     		var fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
                     		
@@ -952,7 +1051,7 @@
                         $('body').removeClass('footerToBottom'); 
                     },
                     "ajax": {
-                        "url": baseUrl + "/dataTable_bq?",
+                        "url": baseUrl + "/dataTable_bq2?",
                         "data": oConf,
                         "type": "POST",
                         "error": function() {
@@ -1039,36 +1138,44 @@
 													<td><span class='cat'>Mouse (GRCm38):</span></td>
 													<td>
 														<input type="radio" id="mouse_marker_symbol" value="Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq' checked="checked">MGI gene Symbol<br>
-														<input type="radio" id="gene" value="MGI:106209" name="dataType" class='bq' >MGI id<br>
+														<input type="radio" id="geneId" value="MGI:106209" name="dataType" class='bq' >MGI id<br>
 														<input type="radio" id="ensembl" value="ENSMUSG00000011257" name="dataType" class='bq'>Ensembl Id<br>
-														<input type="radio" id="gene" value="22" name="dataType" class='bq'>Chromosome name
-														<select>
-															<option value="1">1</option>
-															<option value="2">2</option>
-															<option value="3">3</option>
-															<option value="4">4</option>
-															<option value="5">5</option>
-															<option value="6">6</option>
-															<option value="7">7</option>
-															<option value="8">8</option>
-															<option value="9">9</option>
-															<option value="10">10</option>
-															<option value="11">11</option>
-															<option value="12">12</option>
-															<option value="13">13</option>
-															<option value="14">14</option>
-															<option value="15">15</option>
-															<option value="16">16</option>
-															<option value="17">17</option>
-															<option value="18">18</option>
-															<option value="19">19</option>
-															<option value="X">X</option>
-															<option value="Y">Y</option>
-															<option value="MT">MT</option>
-														</select><br>
-														<input type="radio" id="gene" value="9:78456054-78556054" name="dataType" class='bq'>Chromosome name and coordinates<br>
-														<input type="radio" id="mpid" value="MP:0001926" name="dataType" class='bq'>MP id (Mammalian Phenotype Ontology)<br>
-														<input type="radio" id="mpterm" value="cardiovescular phenotype" name="dataType" class='bq'>MP term (Mammalian Phenotype Ontology)<br>
+
+														<input type="radio" id="geneChr" value="Drag the sliders to fetch coordinates..." name="dataType" class='bq'>Chromosome name and coordinates
+														<div id="rangeBox">
+															<select id="chrSel">
+																<option value="1" selected="selected">1</option>
+																<option value="2">2</option>
+																<option value="3">3</option>
+																<option value="4">4</option>
+																<option value="5">5</option>
+																<option value="6">6</option>
+																<option value="7">7</option>
+																<option value="8">8</option>
+																<option value="9">9</option>
+																<option value="10">10</option>
+																<option value="11">11</option>
+																<option value="12">12</option>
+																<option value="13">13</option>
+																<option value="14">14</option>
+																<option value="15">15</option>
+																<option value="16">16</option>
+																<option value="17">17</option>
+																<option value="18">18</option>
+																<option value="19">19</option>
+																<option value="X">X</option>
+																<option value="Y">Y</option>
+																<option value="MT">MT</option>
+															</select>
+
+															<span id="range"></span>
+															<input type="text" id="chrRange">
+
+															<div id="chrSlider"></div>
+														</div>
+														<br>
+														<input type="radio" id="mpId" value="MP:0001926" name="dataType" class='bq'>MP id (Mammalian Phenotype Ontology)<br>
+														<input type="radio" id="mpTerm" value="cardiovescular phenotype" name="dataType" class='bq'>MP term (Mammalian Phenotype Ontology)<br>
 														<div id='searchboxMp' class='block srchAuto'>
 															<i id='siconMp' class='fa fa-search'></i>
 															<input id='srchMp' value="search">
