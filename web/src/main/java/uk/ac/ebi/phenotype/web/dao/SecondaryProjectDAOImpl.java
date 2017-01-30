@@ -98,7 +98,7 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 			// get a data structure with the gene accession, parameter associated with a value or status ie. not phenotyped, not significant
 			String accession = doc.get(GeneDTO.MGI_ACCESSION_ID).toString();
 			GeneRowForHeatMap row = rows.containsKey(accession) ? rows.get(accession) : new GeneRowForHeatMap(accession, doc.get(GeneDTO.MARKER_SYMBOL).toString() , parameters);
-
+			row.setHumanSymbol((Set<String>)doc.get(GeneDTO.HUMAN_GENE_SYMBOL));
 			// Mouse production status
 			Map<String, String> prod =  GeneService.getStatusFromDoc(doc, geneUrl);
 			String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
