@@ -25,6 +25,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.*;
 
 @Service
@@ -100,6 +102,29 @@ public class SolrIndex {
 			case "allele2" : return allele2Core;
 		}
 		return geneCore;
+	}
+
+	public List<String> fetchQueryIdsFromChrRange(String chr, String chrStart, String chrEnd, int rows) throws IOException, SolrServerException {
+		List<String> queryIds = new ArrayList<>();
+
+		SolrClient server = null;
+		server = getSolrServer("gene");
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*");
+		query.setFilterQueries("seq_region_id:" + chr
+				+ " AND seq_region_start:["
+				+ chrStart + " TO " + chrEnd + "]"
+				+ " AND seq_region_end:["
+				+ chrStart + " TO " + chrEnd + "]");
+		query.setFields("mgi_accession_id");
+		query.setRows(rows); // more than all the impc genes
+
+		QueryResponse response = server.query(query, METHOD.POST);
+		for (SolrDocument doc : response.getResults() ){
+			queryIds.add("\"" + doc.get("mgi_accession_id") + "\"");
+		}
+		return queryIds;
 	}
 
     public static Map<Integer, String> getGomapCategory(){
@@ -186,9 +211,7 @@ public class SolrIndex {
 
 		return getResults(composeSolrUrl(core, mode, query, gridSolrParams,
 				start, length, showImgView));
-
 	}
-
 
 	public QueryResponse getBatchQueryJson(String idlist, String fllist, String dataTypeName) throws SolrServerException, IOException {
 
@@ -223,8 +246,8 @@ public class SolrIndex {
 		else {
 			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
 		}
-//		System.out.println("queryStr: " + querystr);
 
+		//System.out.println("Query: " + querystr);
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
 
@@ -233,16 +256,24 @@ public class SolrIndex {
 		}
 
 		query.setStart(0);
-		query.setRows(idList.length);  // default
+
+		query.setRows(0);
+
+		QueryResponse response = server.query(query, METHOD.POST);
+		long rowCount = response.getResults().getNumFound(); // so that we know how many rows is returned
+
+//		System.out.println("row count: "+rowCount);
+		//query.setRows(idList.length);  // default
+		query.setRows((int) rowCount);
 
 		// retrieves wanted fields
 		query.setFields(fllist);
 		System.out.println("BATCHQUERY " + dataTypeName + " : " + query);
 
-		QueryResponse response = server.query(query, METHOD.POST);
-		//System.out.println("response: "+ response);
+		QueryResponse response2 = server.query(query, METHOD.POST);
+//		System.out.println("response: "+ response2);
 
-		return response;
+		return response2;
 	}
 
 	/**

@@ -133,10 +133,10 @@ public class FileExportController {
 	@ResponseBody
 	@RequestMapping(value = "/exportraw", method = RequestMethod.GET)
 	public String getExperimentalData(
-			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter,
-			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId,
+			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter, // assume reuired in code
+			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId, // assume reuired in code
 			@RequestParam(value = "procedure_stable_id", required = false) String procedureStableId,
-			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId,
+			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId, // assume reuired in code
 			@RequestParam(value = "allele_accession_id", required = false) String alleleAccessionId,
 			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
@@ -182,7 +182,8 @@ public class FileExportController {
 				row.add("Exp" + i.toString());
 				row.add(phenotypingCenter);
 				row.add(pipelineStableId);
-				row.add(procedureStableId);
+				row.add(observation.getProcedureStableId());
+				row.add(parameterStableId);
 				row.add(observation.getStrain());
 				row.add((observation.getGroup().equals("control")) ? "+/+" : observation.getColonyId());
 				row.add((observation.getGroup().equals("control")) ? "\"\"" : geneAcc);
@@ -1497,7 +1498,8 @@ public class FileExportController {
 
 		Set<String> foundIds = new HashSet<>();
 
-		//System.out.println("Number of responses: " + solrResponses.size());
+//		System.out.println("datatype: "+dataTypeName);
+//		System.out.println("Number of responses: " + solrResponses.size());
 
 		SolrDocumentList results = new SolrDocumentList();
 
@@ -1618,12 +1620,10 @@ public class FileExportController {
 			}
 
 			List<String> data = new ArrayList<>();
-
 			// for (String fieldName : doc.getFieldNames()) {
 			for (int k = 0; k < cols.length; k++) {
 				String fieldName = cols[k];
-				// System.out.println("DataTableController: "+ fieldName + " -
-				// value: " + docMap.get(fieldName));
+				 //System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
 
 				if (fieldName.equals("id_link")) {
 
@@ -1632,7 +1632,7 @@ public class FileExportController {
 					for (Object acc : accs) {
 						accStr = (String) acc;
 					}
-					// System.out.println("idlink id: " + accStr);
+					 //System.out.println("idlink id: " + accStr);
 
 					if (!oriDataTypeName.equals("ensembl") && !dataTypeName.equals("marker_symbol")) {
 						foundIds.add("\"" + accStr + "\"");
@@ -1644,7 +1644,7 @@ public class FileExportController {
 					} else {
 						link = hostName + baseUrl + "/" + dataTypePath.get(dataTypeName) + "/" + accStr;
 					}
-					// System.out.println("idlink: " + link);
+//					 System.out.println("idlink: " + link);
 					data.add(link);
 				} else if (fieldName.equals("images_link")) {
 
@@ -1762,24 +1762,31 @@ public class FileExportController {
 					}
 				}
 			}
-			//rowData.add(StringUtils.join(data, "\t"));
-			//idRow.put("\"" + docMap.get(colList.get(sortCol.get(oriDataTypeName)+1)).toArray()[0] + "\"", data);
-			for (Object s : docMap.get(colList.get(sortCol.get(oriDataTypeName)+1))) {
+
+			// figure out the field to use as a key
+			int index = sortCol.get(oriDataTypeName) > 0 ? sortCol.get(oriDataTypeName) + 1 : 0;
+			for (Object s : docMap.get(colList.get(index))) {
 				String qStr = s.toString();
+				//System.out.println("qstr: " + qStr);
 				//String qStr = docMap.get(colList.get(sortCol.get(oriDataTypeName) + 1)).toArray()[0].toString();
 				qStr = oriDataTypeName.equals("mouse_marker_symbol") ? qStr.toLowerCase() : qStr;
 				//System.out.println(oriDataTypeName + " - SEARCH: " + qStr);
 				//System.out.println(data);
-				idRow.put("\"" + qStr + "\"", data);
+				if ( !idRow.containsKey("\"" + qStr + "\"")) {
+					idRow.put("\"" + qStr + "\"", data);
+				}
+				else {
+					idRow.get("\"" + qStr + "\"").addAll(data);
+				}
 			}
 
 		}
 
 		// find the ids that are not found and displays them to users
-		//System.out.println("query ids: " + queryIds);
-		//System.out.println("found ids: " + foundIds);
+//		System.out.println("query ids: " + queryIds);
+//		System.out.println("found ids: " + foundIds);
 		List<String> nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-		//System.out.println("non found ids: " + nonFoundIds);
+//		System.out.println("non found ids: " + nonFoundIds);
 
 		int fieldIndex = 0;
 		if ( nonFoundIds.size() > 0){
@@ -1816,17 +1823,21 @@ public class FileExportController {
 				idRow.put(thisVal, data);
 			}
 		}
-		// output result as the order of users query list
 		for(String q : queryIds){
 			if ( oriDataTypeName.equals("mouse_marker_symbol")){
-				rowData.add(StringUtils.join(idRow.get(q.toLowerCase()), "\t"));
+				List<String> data = idRow.get(q.toLowerCase());
+				for ( int i=0; i<data.size()/colList.size(); i++ ) {
+					rowData.add(StringUtils.join(data.subList(i * colList.size(), i * colList.size() + colList.size()), "\t"));
+				}
 			}
 			else {
-				//System.out.println(q + " -- " + idRow.get(q));
-				rowData.add(StringUtils.join(idRow.get(q), "\t"));
+				List<String> data = idRow.get(q);
+				for ( int i=0; i<data.size()/colList.size(); i++ ) {
+					//System.out.println("data: " + data.subList(i*colList.size(), i*colList.size() + colList.size()));
+					rowData.add(StringUtils.join(data.subList(i*colList.size(), i*colList.size() + colList.size()), "\t"));
+				}
 			}
 		}
-
 
 		return rowData;
 	}
