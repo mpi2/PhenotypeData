@@ -425,6 +425,9 @@ public class Tools {
 		geneAttrs.put("marker_name", "default");
 		geneAttrs.put("marker_synonym", "default");
 		geneAttrs.put("marker_type", "default");
+		geneAttrs.put("seq_region_id", "");
+		geneAttrs.put("seq_region_start", "");
+		geneAttrs.put("seq_region_end", "");
 
 		alleleAttrs.put("allele_mgi_accession_id", "default");
 		alleleAttrs.put("allele_name", "default");
@@ -472,6 +475,9 @@ public class Tools {
 		friendlyNameMap.put("marker_name", "MGI gene name");
 		friendlyNameMap.put("marker_synonym", "MGI gene synonym");
 		friendlyNameMap.put("marker_type", "MGI gene type");
+		friendlyNameMap.put("seq_region_id", "Chromosome name");
+		friendlyNameMap.put("seq_region_start", "Chromosome start");
+		friendlyNameMap.put("seq_region_end", "Chromosome end");
 		friendlyNameMap.put("p_value", "p value (phenotyping significance)");
 		friendlyNameMap.put("mp_id", "MP id");
 		friendlyNameMap.put("mp_term", "MP term");
