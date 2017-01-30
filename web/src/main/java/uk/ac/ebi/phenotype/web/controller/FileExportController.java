@@ -63,6 +63,8 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 public class FileExportController {
@@ -1458,6 +1460,41 @@ public class FileExportController {
 		List<QueryResponse> solrResponses = new ArrayList<>();
 		List<String> batchIdList = new ArrayList<>();
 		String batchIdListStr = null;
+
+
+		System.out.println("bq Export dataTypeName: " + dataTypeName);
+		System.out.println("idlist: " + idlist);
+
+
+		if ( dataTypeName.equals("geneChr")){
+
+			dataTypeName = "gene";
+
+			Pattern pattern = Pattern.compile("^\"Chr(\\w+):(\\d+)-(\\d+)");
+			Matcher matcher = pattern.matcher(idlist);
+
+			String chr = null;
+			String chrStart = null;
+			String chrEnd = null;
+			while (matcher.find()) {
+				chr = matcher.group(1);
+				chrStart = matcher.group(2);
+				chrEnd = matcher.group(3);
+			}
+
+			String mode = "export";
+			queryIds = solrIndex.fetchQueryIdsFromChrRange(chr, chrStart, chrEnd, mode);
+		}
+		else if ( dataTypeName.equals("geneId")){
+			dataTypeName = "gene";
+			queryIds = Arrays.asList(idlist.split(","));
+		}
+		else if (dataTypeName.equals("mpTerm")) {
+
+		}
+		else {
+			queryIds = Arrays.asList(idlist.split(","));
+		}
 
 		int counter = 0;
 

@@ -214,6 +214,8 @@ public class DataTableController {
 		String oriDataTypeName = dataTypeName;
 		List<String> queryIds = new ArrayList<>();
 
+		System.out.println("dataTypename: " + dataTypeName);
+
 		if ( dataTypeName.equals("geneChr")){
 
 			dataTypeName = oriDataTypeName = "gene";
@@ -229,11 +231,10 @@ public class DataTableController {
 				chrStart = matcher.group(2);
 				chrEnd = matcher.group(3);
 			}
-
-			int defaultRow = 10;
-			queryIds = solrIndex.fetchQueryIdsFromChrRange(chr, chrStart, chrEnd, defaultRow);
+			String mode = "show10";
+			queryIds = solrIndex.fetchQueryIdsFromChrRange(chr, chrStart, chrEnd, "show10");
 		}
-		if ( dataTypeName.equals("geneId")){
+		else if ( dataTypeName.equals("geneId")){
 			dataTypeName = oriDataTypeName = "gene";
 			queryIds = Arrays.asList(idlist.split(","));
 		}
