@@ -40,13 +40,13 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     private String miceProduced="No";//not boolean as 3 states No, Yes, In progress - could have an enum I guess?
 	Map<String, HeatMapCell> xAxisToCellMap=new HashMap<>();
 	private Float lowestPValue=new Float(1000000);//just large number so we don't get null pointers
-	private Set<String> humanSymbol;
+	private List<String> humanSymbol;
 
-	public Set<String> getHumanSymbol() {
+	public List<String> getHumanSymbol() {
 		return humanSymbol;
 	}
 
-	public void setHumanSymbol(Set<String> humanSymbol) {
+	public void setHumanSymbol(List<String> humanSymbol) {
 		this.humanSymbol = humanSymbol;
 	}
 
