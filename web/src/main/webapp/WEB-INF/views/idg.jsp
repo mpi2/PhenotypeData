@@ -18,23 +18,19 @@
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
     </jsp:attribute>
+
 	<jsp:attribute name="addToFooter">
+
 		<div class="region region-pinned">
-            
-        <div id="flyingnavi" class="block smoothScroll">
-            
-            <a href="#top"><i class="fa fa-chevron-up"
-					title="scroll to top"></i></a>
-            
-            <ul>
-                <li><a href="#top">IDG</a></li>
-            </ul>
-            
-            <div class="clear"></div>
-            
-        </div>
-        
-    </div>
+			<div id="flyingnavi" class="block smoothScroll">
+				<a href="#top"><i class="fa fa-chevron-up"
+						title="scroll to top"></i></a>
+				<ul>
+					<li><a href="#top">IDG</a></li>
+				</ul>
+				<div class="clear"></div>
+			</div>
+    	</div>
 		
     </jsp:attribute>
 
