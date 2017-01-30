@@ -134,7 +134,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	}
 
 
-
 	@Override
 	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 

@@ -91,7 +91,6 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
        this.xAxisToCellMap.put(cell.getxAxisKey(), cell);
     }
     
-    
     public String getMiceProduced() {
 		return miceProduced;
 	}
