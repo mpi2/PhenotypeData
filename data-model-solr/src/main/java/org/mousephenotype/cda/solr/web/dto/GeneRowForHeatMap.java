@@ -46,6 +46,11 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 		return humanSymbol;
 	}
 
+
+	public String getHumanSymbolToString() {
+		return humanSymbol.toString().replaceAll("\\]|\\[", "");
+	}
+
 	public void setHumanSymbol(List<String> humanSymbol) {
 		this.humanSymbol = humanSymbol;
 	}
@@ -127,16 +132,11 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 	public void setLowestPValue(Float getpValue) {
 		this.lowestPValue=getpValue;
 	}
-	
-	
-	
 
-	
 
 	public String toTabbedString() {
-		return  accession + "\t" + symbol + "\t" + groupLabel + "\t" + this.statusStringForExport(miceProduced).replace("<br>", " ") + "\t";
+		return  accession + "\t" + symbol + "\t" + getHumanSymbolToString() + "\t" + groupLabel + "\t" + this.statusStringForExport(miceProduced).replace("<br>", " ") + "\t";
 	}
-
 	
 
 	private String statusStringForExport(String status){
