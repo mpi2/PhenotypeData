@@ -748,6 +748,9 @@ public class GeneService extends BasicService implements WebStatus{
 		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
 		solrQuery.setRows(Integer.MAX_VALUE);
 
+		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID , GeneDTO.HUMAN_GENE_SYMBOL ,GeneDTO.MARKER_SYMBOL ,GeneDTO.ALLELE_NAME ,GeneDTO.MOUSE_STATUS ,GeneDTO.LATEST_ES_CELL_STATUS ,GeneDTO.LATEST_PHENOTYPE_STATUS,
+		GeneDTO.LEGACY_PHENOTYPE_STATUS ,GeneDTO.HAS_QC);
+
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
 
 		return rsp.getResults();

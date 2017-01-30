@@ -24,11 +24,7 @@ package org.mousephenotype.cda.solr.web.dto;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,10 +40,17 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     private String miceProduced="No";//not boolean as 3 states No, Yes, In progress - could have an enum I guess?
 	Map<String, HeatMapCell> xAxisToCellMap=new HashMap<>();
 	private Float lowestPValue=new Float(1000000);//just large number so we don't get null pointers
-	
-	
-	
-    public String getGroupLabel() {
+	private Set<String> humanSymbol;
+
+	public Set<String> getHumanSymbol() {
+		return humanSymbol;
+	}
+
+	public void setHumanSymbol(Set<String> humanSymbol) {
+		this.humanSymbol = humanSymbol;
+	}
+
+	public String getGroupLabel() {
 		return groupLabel;
 	}
 
