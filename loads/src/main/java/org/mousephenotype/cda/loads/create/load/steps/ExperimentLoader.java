@@ -141,6 +141,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, Integer>                  cdaPipeline_idMap;
     private Map<String, Integer>                  cdaProcedure_idMap;
     private Map<String, Integer>                  cdaParameter_idMap;
+    private Map<String, String>                   cdaParameterNameMap;              // map of impress parameter names keyed by stable_parameter_id
     private Set<String>                           requiredImpressParameters;
     private Map<String, BiologicalSample>         samplesMap;                       // keyed by external_id
     private Map<String, PhenotypedColony>         phenotypedColonyMap;
@@ -181,6 +182,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
+        cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
         phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
         requiredImpressParameters = cdaSqlUtils.getRequiredImpressParameters();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
@@ -284,17 +286,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return RepeatStatus.FINISHED;
     }
 
-//    @Transactional
+
     public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
-
-
-//        if (dccExperiment.getExperimentId().equals("8852_1943")) {
-//            int mm = 17;
-//            System.out.println();
-//        } else {
-//            return new Experiment();
-//        }
         Experiment experiment = createExperiment(dccExperiment);
 
         return experiment;
@@ -390,9 +384,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
        /** Save procedure metadata into metadataCombined and metadataGroup:
         *
-        * metadataCombined - All of a procedure's metadata parameters, in token = value format. Each metadata parameter
-        * is separated by a pair of colons. Each metadata lvalue is separated from its rvalue by " = ";
-        * for example: "Parm1 = 123::Parm2 = 567"
+        * metadataCombined - All of a procedure's metadata parameters, in parameterDescription = value format. Each
+        * metadata parameter is separated by a pair of colons. Each metadata lvalue is separated from its rvalue by " = ";
+        * for example, for cda.experiment.external_id '8852_1943':
+        *     "Equipment name = Rotarod apparatus::Equipment manufacturer = Bioseb::Equipment model = LE 8200::Surface of the rod = Foam rubber::Diameter of the rod = 4.5::Acceleration mode = 4 to 40 rpm in 5 min::Number of mice on the rod per run = 3::First inter-trial interval = 15::Second inter-trial interval = 15"
         *
         * metadataGroup - An md5 hash of only the required parameters. The hash source is the required metadata
         * parameters in the same format as <i>metadataCombined</i> above.</ul>
@@ -403,9 +398,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         ObservableList<String> metadataCombinedList = FXCollections.observableArrayList();
         ObservableList<String> metadataGroupList = FXCollections.observableArrayList();
         for (ProcedureMetadata metadata : dccMetadataList) {
-            metadataCombinedList.add(metadata.getParameterID() + " = " + metadata.getValue());
+            String parameterName = cdaParameterNameMap.get(metadata.getParameterID());
+            metadataCombinedList.add(parameterName + " = " + metadata.getValue());
             if (requiredImpressParameters.contains(metadata.getParameterID())) {
-                metadataGroupList.add(metadata.getParameterID() + " = " + metadata.getValue());
+                metadataGroupList.add(parameterName + " = " + metadata.getValue());
             }
         }
 
@@ -447,9 +443,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
-        createObservations(dccExperiment, dbId, experimentPk);
-
+        // Procedure-level metadata
         cdaSqlUtils.insertProcedureMetadata(dccMetadataList, dccExperiment.getProcedureId(), experimentPk, 0);
+
+        // Observations (including observation-level metadata)
+        createObservations(dccExperiment, dbId, experimentPk);
 
         return experiment;
     }
@@ -524,6 +522,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
         for (SeriesParameter seriesParameter : seriesParameterList) {
+            List<SeriesParameterValue> values = dccSqlUtils.getSeriesParameterValues(seriesParameter.getHjid());
+            seriesParameter.setValue(values);
             insertSeriesParameter(dccExperimentDTO, seriesParameter, experimentPk, dbId, biologicalSamplePk);
         }
 
@@ -538,6 +538,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
         for (SeriesMediaParameter seriesMediaParameter : seriesMediaParameterList) {
+            List<SeriesMediaParameterValue> values = dccSqlUtils.getSeriesMediaParameterValues(seriesMediaParameter.getHjid());
+            seriesMediaParameter.setValue(values);
             insertSeriesMediaParameter(dccExperimentDTO, seriesMediaParameter, experimentPk, dbId, biologicalSamplePk,
                                        simpleParameterList, ontologyParameterList);
         }
