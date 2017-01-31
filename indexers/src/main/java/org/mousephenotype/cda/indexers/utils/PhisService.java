@@ -60,6 +60,7 @@ public class PhisService {
 
 			image.setObservationType(ObservationType.image_record.name());
 
+            //TODO get gene symbol from allele2
 			if(pImage.getGeneIds().size() >= 1){
 				image.setGeneAccession(pImage.getGeneIds().get(0));
                 if(pImage.getGeneIds().size() != 1){
@@ -81,6 +82,7 @@ public class PhisService {
                 }
 			}
 
+            //TODO get allele symbol from allele2
             if (pImage.getGeneticFeatureSymbols().size() >= 1){
                 image.setAlleleSymbol(pImage.getGeneticFeatureSymbols().get(0));
                 if(pImage.getGeneticFeatureSymbols().size() != 1){
@@ -91,36 +93,92 @@ public class PhisService {
             // Genes in expression images are stored in a different field. Need to check the expressed bag too
             // Allele and gene ids are stored in the same field as this is only used for querying. You can get them from the associated roi.
             if (pImage.getExpressedGfIdBag().size() >= 1){
-                //TODO
-                List<PChannelDTO> channelDTOs = getPhenoImageShareChannelDTOs(pImage.getId());
 
+                List<PChannelDTO> channelDTOs = getPhenoImageShareChannelDTOs(pImage.getId());
+                if (channelDTOs.size() == 0){
+                    logger.warn("No Channel doc found.");
+                } else {
+                    PChannelDTO channel = channelDTOs.get(0); // Sanger images have one channel only.AlleleIndex
+
+                    if (channel.getGeneId() != null){
+                        image.setGeneAccession(channel.getGeneId());
+                    } else {
+                        logger.warn("Missing getGeneId.");
+                    }
+                    //TODO get gene symbol from allele2
+                    if (channel.getGeneSymbol() != null){
+                        image.setGeneSymbol(channel.getGeneSymbol());
+                    } else {
+                        logger.warn("Missing setGeneSymbol.");
+                    }
+
+                    if (channel.getGeneticFeatureId() != null){
+                        image.setAlleleAccession(channel.getGeneticFeatureId());
+                    } else {
+                        logger.warn("Missing getGeneticFeatureId.");
+                    }
+                    //TODO get allele symbol from allele2
+                    if (channel.getGeneticFeatureSymbol() != null){
+                        image.setAlleleSymbol(channel.getGeneticFeatureSymbol());
+                    } else {
+                        logger.warn("Missing getGeneticFeatureSymbol.");
+                    }
+                }
             }
+
 			image.setFullResolutionFilePath(pImage.getImageUrl());
 			image.setJpegUrl(pImage.getImageUrl());
 			image.setDownloadUrl(pImage.getImageUrl());
 			image.setThumbnailUrl(pImage.getThumbnailUrl());
-			
-			// need to loop over and creat mp_id_terms
+
+            if(pImage.getImageGeneratedBy() !=null){
+                image.setPhenotypingCenter(pImage.getImageGeneratedBy().get(0));//getting the first in the list. will we have a problem with centers that are not in our list/db as centers e.g. for brain histopath - ?
+            }
+
+			// Add MP annotations
 			if (pImage.getPhenotypeIdBag() != null) {
 				image.setMpId(pImage.getPhenotypeIdBag());
 			}
-			if(pImage.getImageGeneratedBy() !=null){
-				image.setPhenotypingCenter(pImage.getImageGeneratedBy().get(0));//getting the first in the list. will we have a problem with centers that are not in our list/db as centers e.g. for brain histopath - ?
-			}
-			
+            if (pImage.getPhenotypeLabelBag() != null) {
+                image.setMpTerm(pImage.getPhenotypeLabelBag());
+            }
+
+            // Anatomy terms, MA or EMAP for mouse
+            // PhIS stores them separately because anatomy annotations can have different meanings
+            if (pImage.getExpressionInIdBag() != null) {
+                image.addAnatomyId(pImage.getExpressionInIdBag());
+            }
+            if(pImage.getExpressionInLabelBag() !=null){
+                image.addAnatomyTerm(pImage.getExpressionInLabelBag());
+            }
+
+            // Anatomy terms, MA or EMAP for mouse
+            if (pImage.getAbnormalAnatomyIdBag() != null) {
+                image.addAnatomyId(pImage.getAbnormalAnatomyIdBag());
+            }
+            if(pImage.getAbnormalAnatomyTermBag() !=null){
+                image.addAnatomyTerm(pImage.getAbnormalAnatomyTermBag());
+            }
+
+            // Anatomy terms, MA or EMAP for mouse
+            if (pImage.getDepictedAnatomyIdBag() != null) {
+                image.addAnatomyId(pImage.getDepictedAnatomyIdBag());
+            }
+            if(pImage.getDepictedAnatomyTermBag() !=null) {
+                image.addAnatomyTerm(pImage.getDepictedAnatomyTermBag());
+            }
+
 			//what about mpath, emap and cmpo? no ids in the list of 163?
-			if(pImage.getSampleType()!=null){
-				String sampleType=pImage.getSampleType();
-				if(sampleType.equalsIgnoreCase("MUTANT")){
-					image.setGroup(BiologicalSampleType.experimental.toString());
-				}else{
-					image.setGroup(BiologicalSampleType.control.toString());
-				}
+			if(image.getGeneAccession() != null) { // We have a described mutation
+                image.setGroup(BiologicalSampleType.experimental.toString());
+            }else{
+				image.setGroup(BiologicalSampleType.control.toString());
 			}
 
 			if(pImage.getPipeline() != null){
 				image.setPipelineStableId(pImage.getPipeline());
 			}
+
 			if(pImage.getProcedure()!=null){
 				if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
 					image.setProcedureStableId(pImage.getProcedure());
@@ -129,6 +187,17 @@ public class PhisService {
                     image.setProcedureName(pImage.getProcedure().trim());
                 }
 			}
+
+            //observations seem to contain the procedure name - loop over these and see if they have procedure at the start and if so add them to procedure name (or get it from our impress? how generic can we be?)
+            if(pImage.getObservations().size()>=1){
+                for(String obs: pImage.getObservations()){
+                    if(obs.startsWith("Procedure name: ")){
+                        String procedureName=obs.substring(obs.indexOf(": ")+2, obs.length() );
+                        image.setProcedureName(procedureName);
+                    }
+                }
+            }
+
 			if(pImage.getParameter()!=null){
 			    if (pImage.getParameter().contains("_")) {
                     image.setParameterStableId(pImage.getParameter());
@@ -137,13 +206,9 @@ public class PhisService {
                     image.setParameterName(pImage.getParameter());
                 }
 			}
-//			<int name="FEMALE">181573</int>
-//			<int name="MALE">166083</int>
-//			<int name="UNKNOWN">3737</int>
-//			<int name="UNSEXED">678</int>
+
 			if(pImage.getSex()!=null){
 				String sex=pImage.getSex();
-//				System.out.println("sex="+sex);
 				SexType assignedSex=SexType.no_data;
 				if(sex.equals("MALE")){
 					assignedSex=SexType.male;
@@ -155,19 +220,12 @@ public class PhisService {
 					assignedSex=SexType.not_applicable;
 				}
 				image.setSex(assignedSex.toString());
-//				System.out.println("assignedSex="+assignedSex.toString());
 			}
-			//<str name="experiment_group">495324</str> is experiment id for sanger data?
+
 			if(pImage.getExperimentGroup() != null){
 				image.setExperimentId(Integer.parseInt(pImage.getExperimentGroup()));
 			}
-			//if(pImage.getEx)
-			
-//			<int name="HOMOZYGOUS">130105</int>
-//			<int name="HETEROZYGOUS">107430</int>
-//			<int name="WILD_TYPE">5501</int>
-//			<int name="HEMIZYGOUS">3922</int>
-//			<int name="UNSPECIFIED">7</int>
+
 			if(pImage.getZygosity().size()>=1){
 				String zyg=pImage.getZygosity().get(0);
 				ZygosityType z=null;
@@ -185,27 +243,11 @@ public class PhisService {
 				if(z!=null){
 					image.setZygosity(z.toString());
 				}
-
 			}
-			
-//			//<arr name="stage_facet">
-//			//<str>post-embryonic stage</str>
-//			//</arr>
-//			if(pImage.getStage()!=null){
+
+//			if(pImage.getStage() != null){
 //				image.setStage(pImage.getStage());
 //			}
-			//observations seem to contain the procedure name - loop over these and see if they have procedure at the start and if so add them to procedure name (or get it from our impress? how generic can we be?)
-			if(pImage.getObservations().size()>=1){
-				for(String obs: pImage.getObservations()){
-					if(obs.startsWith("Procedure name: ")){
-						String procedureName=obs.substring(obs.indexOf(": ")+2, obs.length() );
-						image.setProcedureName(procedureName);
-//						System.out.println("procedureName="+procedureName);
-					}
-				}
-			}
-		
-			
 
 			images.add(image);
 
