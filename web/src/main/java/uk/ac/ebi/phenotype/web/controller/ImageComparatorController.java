@@ -88,7 +88,7 @@ public class ImageComparatorController {
 			imgDoc = mutants.get(0);
 		}
 		
-		int numberOfControlsPerSex = 5;
+		int numberOfControlsPerSex = 100;
 		// int daysEitherSide = 30;// get a month either side
 		SexType sexType=null;
 		if(gender!=null && !gender.equals("all")){
@@ -99,7 +99,7 @@ public class ImageComparatorController {
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
 		List<ImageDTO> controls=null;
 		if(imgDoc!=null){
-		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexType);
+		controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexType, parameterStableId, anatomyId);
 		}
 		List<ImageDTO> filteredMutants = filterMutantsBySex(mutants, imgDoc, sexType);
 		
@@ -190,15 +190,13 @@ public class ImageComparatorController {
 	}
 
 	private List<ImageDTO> filterControlsBySexAndOthers(ImageDTO imgDoc, int numberOfControlsPerSex,
-			SexType sex) throws SolrServerException, IOException {
-		if(sex==null){
-			return imageService.getControls(numberOfControlsPerSex, null, imgDoc, null);
-		}
+			SexType sex, String parameterStableId, String anatomyId) throws SolrServerException, IOException {
+		
 		List<ImageDTO> controls = new ArrayList<>();
 		Set<ImageDTO> uniqueControls=new HashSet<>();
 		if (imgDoc != null) {
 			
-				List<ImageDTO> controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
+				List<ImageDTO> controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, parameterStableId,  anatomyId);
 				uniqueControls.addAll(controlsTemp);
 			
 		}
