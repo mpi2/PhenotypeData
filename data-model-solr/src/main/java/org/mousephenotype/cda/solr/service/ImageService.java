@@ -636,11 +636,12 @@ public class ImageService implements WebStatus{
 	/**
 	 *
 	 * @param numberOfImagesToRetrieve
+	 * @param parameterStableId TODO
 	 * @param anatomy if this is specified then filter by parameter_association_name and don't filter on date
 	 * @return
 	 * @throws SolrServerException, IOException
 	 */
-	public QueryResponse getControlImagesForExpressionData(int numberOfImagesToRetrieve, String anatomy) throws SolrServerException, IOException {
+	public QueryResponse getControlImagesForExpressionData(int numberOfImagesToRetrieve, String parameterStableId, String anatomyId) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
 
@@ -648,9 +649,16 @@ public class ImageService implements WebStatus{
 
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP
 				+ ":control");
-		if (StringUtils.isNotEmpty(anatomy)) {
-			solrQuery.addFilterQuery(ImageDTO.PARAMETER_ASSOCIATION_NAME
-					+ ":\"" + anatomy + "\"");
+		if (StringUtils.isNotEmpty(anatomyId)) {
+			//note - parameter_associations are already handled by the addOntology method in the ImpcImagesIndexer and are anatomy_id associated already.
+			solrQuery.addFilterQuery(ObservationDTO.ANATOMY_ID + ":\""
+					+ anatomyId+"\" OR "+ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\""
+					+ anatomyId+"\" OR "+ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\""
+					+ anatomyId+"\"");
+		}
+		if(StringUtils.isNotEmpty(parameterStableId)){
+			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":\""
+					+ parameterStableId+"\"");
 		}
 		solrQuery.setRows(numberOfImagesToRetrieve);
 		QueryResponse response = solr.query(solrQuery);
@@ -747,6 +755,7 @@ public class ImageService implements WebStatus{
 	 *            the sex of the specimen in the images
 	 * @param imgDoc
 	 *            the solr document representing the image record
+	 * @param parameterStableId TODO
 	 * @param anatomy
 	 *            TODO
 	 * @return solr document list, now updated to include all appropriate
@@ -754,7 +763,7 @@ public class ImageService implements WebStatus{
 	 * @throws SolrServerException, IOException
 	 */
 	public List<ImageDTO> getControls(int numberOfControls, SexType sex,
-			ImageDTO imgDoc, String anatomy) throws SolrServerException, IOException {
+			ImageDTO imgDoc, String parameterStableId, String anatomy) throws SolrServerException, IOException {
 		List<ImageDTO> list = new ArrayList<>();
 		final String metadataGroup = imgDoc.getMetadataGroup();
 				
@@ -767,7 +776,7 @@ public class ImageService implements WebStatus{
 
 		QueryResponse responseControl =null;
 		if(StringUtils.isNotEmpty(anatomy)){
-			responseControl=this.getControlImagesForExpressionData(numberOfControls, anatomy);
+			responseControl=this.getControlImagesForExpressionData(numberOfControls, parameterStableId, anatomy);
 		}else{
 			responseControl=this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
 		}
@@ -865,7 +874,7 @@ public class ImageService implements WebStatus{
 											null, null, null);
 
 							list = getControls(numberOfControls, null, imgDoc,
-									null);
+									null, null);
 
 							if (responseExperimental2 != null) {
 								list.addAll(responseExperimental2.getBeans(ImageDTO.class));
