@@ -373,7 +373,7 @@ public class ObservationDTOBase {
 	}
 
 	public void addAnatomyId(List<String> anatomyId) {
-		if (this.anatomyTerm == null) { this.anatomyTerm = new ArrayList<>();}
+		if (this.anatomyId == null) { this.anatomyId = new ArrayList<>();}
 		this.anatomyId.addAll(anatomyId);
 	}
 

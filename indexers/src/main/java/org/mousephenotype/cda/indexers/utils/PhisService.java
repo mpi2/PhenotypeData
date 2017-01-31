@@ -24,7 +24,7 @@ public class PhisService {
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 	
 	HttpSolrClient phisSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/images/");
-    HttpSolrClient phisRoiSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/rois/");
+    HttpSolrClient phisChannelSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/channels/");
 
 	public List<ImageDTO> getPhenoImageShareImageDTOs() throws SolrServerException, IOException {
 
@@ -35,9 +35,11 @@ public class PhisService {
 		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class));
 
 		q.setQuery(PImageDTO.HOST_NAME + ":\"IMPC Portal\"");
+		q.setFilterQueries("-" + PImageDTO.PROCEDURE + ":IMPC_XRY_001"); // WTSI already exported XRay images through Harwell. There are more images in PhIS but we need a strategy to avoid duplication
+		q.addFilterQuery("-" + PImageDTO.PROCEDURE + ":IMPC_EYE_001"); // They also exported IMPC_EYE_001, same as above
+
 		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class)); // IMPC Portal -> Sanger old images
-        //TODO filter out XRAy anf lacz because we already have an import from sanger. Could also import them as PhIS has more but we need to check which ones are already in.
-		System.out.println("Got this many images: " + phisImages.size());
+		logger.info("PhenoImageshare images loaded: " + phisImages.size());
 
 		return this.convertPhisImageToImages(phisImages);
 
@@ -46,7 +48,7 @@ public class PhisService {
 	public List<PChannelDTO> getPhenoImageShareChannelDTOs(String imageId) throws IOException, SolrServerException {
 
 	    SolrQuery query = new SolrQuery(PChannelDTO.ASSOCIATED_IMAGE + ":" + imageId);
-        return phisRoiSolr.query(query).getBeans(PChannelDTO.class);
+        return phisChannelSolr.query(query).getBeans(PChannelDTO.class);
 
 	}
 
@@ -61,21 +63,21 @@ public class PhisService {
 			image.setObservationType(ObservationType.image_record.name());
 
             //TODO get gene symbol from allele2
-			if(pImage.getGeneIds().size() >= 1){
+			if(pImage.getGeneIds() != null && pImage.getGeneIds().size() >= 1){
 				image.setGeneAccession(pImage.getGeneIds().get(0));
                 if(pImage.getGeneIds().size() != 1){
                     logger.warn("MGI accession in Phis is not 1 for image.");
                 }
 			}
 
-			if(pImage.getGeneSymbols().size() >= 1){
+			if(pImage.getGeneSymbols() != null && pImage.getGeneSymbols().size() >= 1){
 				image.setGeneSymbol(pImage.getGeneSymbols().get(0));
                 if(pImage.getGeneSymbols().size() != 1){
                     logger.warn("Symbol in Phis is not 1 for image.");
                 }
 			}
 
-			if(pImage.getGeneticFeatureIds().size() >= 1){
+			if(pImage.getGeneticFeatureIds() != null && pImage.getGeneticFeatureIds().size() >= 1){
 				image.setAlleleAccession(pImage.getGeneticFeatureIds().get(0));
                 if(pImage.getGeneticFeatureIds().size() != 1){
                     logger.warn("getGeneticFeatureIds (allele accession) in Phis is not 1 for one image.");
@@ -83,7 +85,7 @@ public class PhisService {
 			}
 
             //TODO get allele symbol from allele2
-            if (pImage.getGeneticFeatureSymbols().size() >= 1){
+            if (pImage.getGeneticFeatureSymbols() != null && pImage.getGeneticFeatureSymbols().size() >= 1){
                 image.setAlleleSymbol(pImage.getGeneticFeatureSymbols().get(0));
                 if(pImage.getGeneticFeatureSymbols().size() != 1){
                     logger.warn("getGeneticFeatureSymbols (allele symbol) in Phis is not 1 for one image.");
@@ -92,36 +94,32 @@ public class PhisService {
 
             // Genes in expression images are stored in a different field. Need to check the expressed bag too
             // Allele and gene ids are stored in the same field as this is only used for querying. You can get them from the associated roi.
-            if (pImage.getExpressedGfIdBag().size() >= 1){
+            if (pImage.getExpressedGfIdBag() != null && pImage.getExpressedGfIdBag().size() >= 1){
 
                 List<PChannelDTO> channelDTOs = getPhenoImageShareChannelDTOs(pImage.getId());
                 if (channelDTOs.size() == 0){
-                    logger.warn("No Channel doc found.");
+                    logger.warn("No Channel doc found." + pImage.getId());
                 } else {
                     PChannelDTO channel = channelDTOs.get(0); // Sanger images have one channel only.AlleleIndex
 
                     if (channel.getGeneId() != null){
                         image.setGeneAccession(channel.getGeneId());
                     } else {
-                        logger.warn("Missing getGeneId.");
-                    }
+                    	logger.warn("No gene accession " + channel.getId());
+					}
                     //TODO get gene symbol from allele2
                     if (channel.getGeneSymbol() != null){
                         image.setGeneSymbol(channel.getGeneSymbol());
-                    } else {
-                        logger.warn("Missing setGeneSymbol.");
                     }
 
                     if (channel.getGeneticFeatureId() != null){
                         image.setAlleleAccession(channel.getGeneticFeatureId());
                     } else {
-                        logger.warn("Missing getGeneticFeatureId.");
-                    }
+						logger.warn("No allele accession " + channel.getId());
+					}
                     //TODO get allele symbol from allele2
                     if (channel.getGeneticFeatureSymbol() != null){
                         image.setAlleleSymbol(channel.getGeneticFeatureSymbol());
-                    } else {
-                        logger.warn("Missing getGeneticFeatureSymbol.");
                     }
                 }
             }
@@ -226,7 +224,7 @@ public class PhisService {
 				image.setExperimentId(Integer.parseInt(pImage.getExperimentGroup()));
 			}
 
-			if(pImage.getZygosity().size()>=1){
+			if(pImage.getZygosity() != null && pImage.getZygosity().size() >= 1){
 				String zyg=pImage.getZygosity().get(0);
 				ZygosityType z=null;
 				if(zyg.equals("HOMOZYGOUS")){
@@ -243,6 +241,8 @@ public class PhisService {
 				if(z!=null){
 					image.setZygosity(z.toString());
 				}
+			} else {
+				image.setZygosity(null);
 			}
 
 //			if(pImage.getStage() != null){
