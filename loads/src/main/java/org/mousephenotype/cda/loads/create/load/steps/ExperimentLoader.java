@@ -772,7 +772,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int observationPk = 0;
 
         for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
-            String mediaSampleLocalId = mediaSample.getLocalId();
             for (MediaSection mediaSection : mediaSample.getMediaSection()) {
 
                 for (MediaFile mediaFile : mediaSection.getMediaFile()) {
@@ -878,7 +877,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             Date  timePoint     = dccExperimentDTO.getDateOfExperiment();                                               // timePoint for all cases. Default is dateOfExperiment.
             Float discretePoint = null;
 
-            if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.equals(""))) {
+            if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.trim().isEmpty())) {
                 try {
                     dataPoint = Float.parseFloat(simpleValue);                                                          // dataPoint for all cases.
                 } catch (NumberFormatException e) {
