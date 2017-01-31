@@ -7,6 +7,7 @@ import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.indexers.beans.PChannelDTO;
 import org.mousephenotype.cda.indexers.beans.PImageDTO;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
@@ -22,8 +23,8 @@ public class PhisService {
 	
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 	
-	HttpSolrClient phisSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.3/images/");
-
+	HttpSolrClient phisSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/images/");
+    HttpSolrClient phisRoiSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/rois/");
 
 	public List<ImageDTO> getPhenoImageShareImageDTOs() throws SolrServerException, IOException {
 
@@ -35,14 +36,21 @@ public class PhisService {
 
 		q.setQuery(PImageDTO.HOST_NAME + ":\"IMPC Portal\"");
 		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class)); // IMPC Portal -> Sanger old images
-
+        //TODO filter out XRAy anf lacz because we already have an import from sanger. Could also import them as PhIS has more but we need to check which ones are already in.
 		System.out.println("Got this many images: " + phisImages.size());
 
 		return this.convertPhisImageToImages(phisImages);
 
 	}
 
-	private List<ImageDTO> convertPhisImageToImages(List<PImageDTO> phisImages) {
+	public List<PChannelDTO> getPhenoImageShareChannelDTOs(String imageId) throws IOException, SolrServerException {
+
+	    SolrQuery query = new SolrQuery(PChannelDTO.ASSOCIATED_IMAGE + ":" + imageId);
+        return phisRoiSolr.query(query).getBeans(PChannelDTO.class);
+
+	}
+
+	private List<ImageDTO> convertPhisImageToImages(List<PImageDTO> phisImages) throws IOException, SolrServerException {
 
 		List<ImageDTO> images = new ArrayList<>();
 
@@ -51,34 +59,46 @@ public class PhisService {
 			ImageDTO image = new ImageDTO();
 
 			image.setObservationType(ObservationType.image_record.name());
-			if(pImage.getGeneIds().size()>=1){
-					image.setGeneAccession(pImage.getGeneIds().get(0));
+
+			if(pImage.getGeneIds().size() >= 1){
+				image.setGeneAccession(pImage.getGeneIds().get(0));
+                if(pImage.getGeneIds().size() != 1){
+                    logger.warn("MGI accession in Phis is not 1 for image.");
+                }
 			}
-			if(pImage.getGeneIds().size()!=1){
-				logger.warn("mgi accession in Phis is not 1 for image!!!!!!!");
-			}
-			
-			if(pImage.getGeneSymbols().size()>=1){
+
+			if(pImage.getGeneSymbols().size() >= 1){
 				image.setGeneSymbol(pImage.getGeneSymbols().get(0));
+                if(pImage.getGeneSymbols().size() != 1){
+                    logger.warn("Symbol in Phis is not 1 for image.");
+                }
 			}
-			if(pImage.getGeneSymbols().size()!=1){
-				logger.warn("symbol in Phis is not 1 for image!!!!!!!");
+
+			if(pImage.getGeneticFeatureIds().size() >= 1){
+				image.setAlleleAccession(pImage.getGeneticFeatureIds().get(0));
+                if(pImage.getGeneticFeatureIds().size() != 1){
+                    logger.warn("getGeneticFeatureIds (allele accession) in Phis is not 1 for one image.");
+                }
 			}
-			//strain ids? genetic_feature_id
-			if(pImage.getGeneticFeatureIds().size()>=1){
-				image.setStrainAccessionId(pImage.getGeneticFeatureIds().get(0));
-			}
-			if(pImage.getGeneticFeatureIds().size()!=1){
-				logger.warn("getGeneticFeatureIds/ mgi strain accession in Phis is not 1!!!!!!!");
-			}
-			
-			//System.out.println("Phis id=" + id);
-			//System.out.println("thumbnail url=" + pImage.getThumbnailUrl());
+
+            if (pImage.getGeneticFeatureSymbols().size() >= 1){
+                image.setAlleleSymbol(pImage.getGeneticFeatureSymbols().get(0));
+                if(pImage.getGeneticFeatureSymbols().size() != 1){
+                    logger.warn("getGeneticFeatureSymbols (allele symbol) in Phis is not 1 for one image.");
+                }
+            }
+
+            // Genes in expression images are stored in a different field. Need to check the expressed bag too
+            // Allele and gene ids are stored in the same field as this is only used for querying. You can get them from the associated roi.
+            if (pImage.getExpressedGfIdBag().size() >= 1){
+                //TODO
+                List<PChannelDTO> channelDTOs = getPhenoImageShareChannelDTOs(pImage.getId());
+
+            }
 			image.setFullResolutionFilePath(pImage.getImageUrl());
 			image.setJpegUrl(pImage.getImageUrl());
 			image.setDownloadUrl(pImage.getImageUrl());
 			image.setThumbnailUrl(pImage.getThumbnailUrl());
-			//thumbnail url what to do? probably need a new field in the ImageDTO?
 			
 			// need to loop over and creat mp_id_terms
 			if (pImage.getPhenotypeIdBag() != null) {
@@ -89,23 +109,14 @@ public class PhisService {
 			}
 			
 			//what about mpath, emap and cmpo? no ids in the list of 163?
-			
-			//WT vs Experimental
-//			<int name="MUTANT">243085</int>
-//			<int name="WILD_TYPE">117846</int>
 			if(pImage.getSampleType()!=null){
 				String sampleType=pImage.getSampleType();
-				//System.out.println("sampleType="+sampleType);
 				if(sampleType.equalsIgnoreCase("MUTANT")){
 					image.setGroup(BiologicalSampleType.experimental.toString());
 				}else{
 					image.setGroup(BiologicalSampleType.control.toString());
 				}
 			}
-			
-//			<str name="pipeline">MGP_001</str>
-//			<str name="parameter">MGP_BHP_066_001</str>
-//			<str name="procedure">MGP_BHP_001</str>
 
 			if(pImage.getPipeline() != null){
 				image.setPipelineStableId(pImage.getPipeline());
@@ -113,10 +124,18 @@ public class PhisService {
 			if(pImage.getProcedure()!=null){
 				if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
 					image.setProcedureStableId(pImage.getProcedure());
-				}
+				} else { // text name of procedure; procedure not in IMPRESS
+                    image.setProcedureStableId(pImage.getProcedure().trim().replaceAll(" ", "_"));
+                    image.setProcedureName(pImage.getProcedure().trim());
+                }
 			}
 			if(pImage.getParameter()!=null){
-				image.setParameterStableId(pImage.getParameter());
+			    if (pImage.getParameter().contains("_")) {
+                    image.setParameterStableId(pImage.getParameter());
+                } else {
+                    image.setParameterStableId(pImage.getParameter().trim().replaceAll(" ", "_"));
+                    image.setParameterName(pImage.getParameter());
+                }
 			}
 //			<int name="FEMALE">181573</int>
 //			<int name="MALE">166083</int>
@@ -139,7 +158,7 @@ public class PhisService {
 //				System.out.println("assignedSex="+assignedSex.toString());
 			}
 			//<str name="experiment_group">495324</str> is experiment id for sanger data?
-			if(pImage.getExperimentGroup()!=null){
+			if(pImage.getExperimentGroup() != null){
 				image.setExperimentId(Integer.parseInt(pImage.getExperimentGroup()));
 			}
 			//if(pImage.getEx)
