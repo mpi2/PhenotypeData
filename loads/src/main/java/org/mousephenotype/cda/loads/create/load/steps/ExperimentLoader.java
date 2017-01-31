@@ -43,11 +43,10 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
-
+import javax.inject.Inject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -67,19 +66,31 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private StepBuilderFactory            stepBuilderFactory;
 
     private Set<String> missingColonyIds         = new HashSet<>();
-    private Set<String> noGeneForAllele          = new HashSet<>();
     private Set<String> unsupportedParametersMap = new HashSet<>();
 
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
 
+    // lookup maps returning specified parameter type list given cda procedure primary key
+    private Map<String, Allele> allelesBySymbolMap;
 
-    public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
-                            CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils) {
-            this.jdbcCda = jdbcCda;
-            this.stepBuilderFactory = stepBuilderFactory;
-            this.cdaSqlUtils = cdaSqlUtils;
-            this.dccSqlUtils = dccSqlUtils;
+
+    @Inject
+    public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda,
+                            StepBuilderFactory stepBuilderFactory,
+                            CdaSqlUtils cdaSqlUtils,
+                            DccSqlUtils dccSqlUtils,
+                            Map<String, Allele> allelesBySymbolMap,
+                            Map<String, Integer> cdaOrganisation_idMap,
+                            Map<String, PhenotypedColony> phenotypedColonyMap
+                            ) {
+        this.jdbcCda = jdbcCda;
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.cdaSqlUtils = cdaSqlUtils;
+        this.dccSqlUtils = dccSqlUtils;
+        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
+        this.phenotypedColonyMap = phenotypedColonyMap;
+        this.allelesBySymbolMap = allelesBySymbolMap;
     }
 
     @Override
@@ -89,6 +100,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
         Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
+        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
+        Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
+        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
     }
 
     /**
@@ -156,10 +171,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap;
 
 
-    // lookup maps returning specified parameter type list given cda procedure primary key
-    private ConcurrentHashMap<String, Allele> allelesBySymbolMap;
-
-
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
@@ -174,16 +185,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         // Initialise maps.
         logger.info("Loading lookup maps started");
         euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
-        allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
 
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
-        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
         cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
-        phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
         requiredImpressParameters = cdaSqlUtils.getRequiredImpressParameters();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
 
@@ -877,11 +885,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             Date  timePoint     = dccExperimentDTO.getDateOfExperiment();                                               // timePoint for all cases. Default is dateOfExperiment.
             Float discretePoint = null;
 
+            missing = 1;
             if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.trim().isEmpty())) {
                 try {
                     dataPoint = Float.parseFloat(simpleValue);                                                          // dataPoint for all cases.
+                    missing = 0;
                 } catch (NumberFormatException e) {
-                    missing = 1;
                 }
             }
 

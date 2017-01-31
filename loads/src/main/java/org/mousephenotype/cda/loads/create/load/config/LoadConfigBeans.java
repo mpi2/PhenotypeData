@@ -16,83 +16,104 @@
 
 package org.mousephenotype.cda.loads.create.load.config;
 
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DataSourcesConfigApp;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.load.steps.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.steps.ImpressUpdater;
 import org.mousephenotype.cda.loads.create.load.steps.SampleLoader;
+import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.util.Assert;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mrelac on 03/09/16.
  */
 @Configuration
 @Import(DataSourcesConfigApp.class)
-public class LoadConfigBeans {
+public class LoadConfigBeans implements InitializingBean {
 
-    private int externalIdDbId;
+    private NamedParameterJdbcTemplate    jdbcCda;
+    private NamedParameterJdbcTemplate    jdbcDcc;
+    private NamedParameterJdbcTemplate    jdbcDccEurophenome;
+    private StepBuilderFactory            stepBuilderFactory;
+    private Map<String, Allele>           allelesBySymbolMap;
+    private Map<String, Integer>          cdaOrganisation_idMap;
+    private Map<String, PhenotypedColony> phenotypedColonyMap;
 
-    @Autowired
-    private NamedParameterJdbcTemplate jdbcCda;
 
-    @Autowired
-    private NamedParameterJdbcTemplate jdbcDcc;
+    @Inject
+    public LoadConfigBeans(
+            NamedParameterJdbcTemplate jdbcCda,
+            NamedParameterJdbcTemplate jdbcDcc,
+            NamedParameterJdbcTemplate jdbcDccEurophenome,
+            StepBuilderFactory stepBuilderFactory
+    ) {
+        this.jdbcCda = jdbcCda;
+        this.jdbcDcc = jdbcDcc;
+        this.jdbcDccEurophenome = jdbcDccEurophenome;
+        this.stepBuilderFactory = stepBuilderFactory;
+    }
 
-    @Autowired
-    private NamedParameterJdbcTemplate jdbcDccEurophenome;
 
-    @Autowired
-    private StepBuilderFactory stepBuilderFactory;
-// // FIXME: 04/11/16
-//    @Bean
-//    public List<SampleLoader> sampleLoaders() {
-//        List<SampleLoader>  sampleLoaders = new ArrayList<>();
-//
-////        String externalDbShortName = "EuroPhenome";
-////        String externalDbShortName = "3i";
-//        String externalDbShortName = "IMPC";
-//
-//        SampleLoader sampleLoader = new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), externalDbShortName);
-//
-//        return sampleLoader;
-//    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
+        this.allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils().getAllelesBySymbol());
+        this.cdaOrganisation_idMap = cdaSqlUtils().getCdaOrganisation_idsByDccCenterId();
+        this.phenotypedColonyMap = cdaSqlUtils().getPhenotypedColonies();
+
+        Assert.notNull(jdbcCda, "jdbcCda must be set");
+        Assert.notNull(jdbcDcc, "jdbcDcc must be set");
+        Assert.notNull(jdbcDccEurophenome, "jdbcDccEurophenome must be set");
+        Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
+        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
+        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
+    }
+
 
     @Bean
     public List<SampleLoader> sampleLoaders() {
         List<SampleLoader> sampleLoaders = new ArrayList<>();
 
-        sampleLoaders.add(new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils()));
-        sampleLoaders.add(new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils()));
+        sampleLoaders.add(new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap));
+        sampleLoaders.add(new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap));
 
         return sampleLoaders;
     }
 
     @Bean
     public SampleLoader sampleDccLoader() {
-        return new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils());
+        return new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap);
     }
 
     @Bean
     public ExperimentLoader experimentDccLoader() {
-        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils());
+        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap);
     }
 
     @Bean
     public SampleLoader sampleDccEurophenomeLoader() {
-        return new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils());
+        return new SampleLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap);
     }
 
     @Bean
     public ExperimentLoader experimentDccEurophenomeLoader() {
-        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils());
+        return new ExperimentLoader(jdbcCda, stepBuilderFactory, cdaSqlUtils(), dccEurophenomeSqlUtils(), allelesBySymbolMap, cdaOrganisation_idMap, phenotypedColonyMap);
     }
 
     @Bean
