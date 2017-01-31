@@ -17,12 +17,11 @@
  	</script>
   	
   	<div id="export">
-										<p class="textright">
-											Download data as:
-											<a id="tsvDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=tsv&fileName=idgData" target="_blank" class="button fa fa-download">TSV</a>
-											<a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank" class="button fa fa-download">XLS</a>
-										</p>
-									</div>     
+		<p class="textright"> Download data as:
+			<a id="tsvDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=tsv&fileName=idgData" target="_blank" class="button fa fa-download">TSV</a>
+			<a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank" class="button fa fa-download">XLS</a>
+		</p>
+	</div>
  	<table id="secondaryGeneHeatmap">
  	
    <thead>
@@ -38,7 +37,7 @@
    
 	 <c:forEach items="${geneRows}" var="row">
      	<tr>
-            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a><br/>${row.getHumanSymbolToString()}</td>
+            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}<i class="icon icon-species">M</i></a><br/>	${row.getHumanSymbolToString()}<i class="icon icon-species" >H</i></td>
             <td>${row.groupLabel}</td>
       	    <td>${row.miceProduced}</td>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" > 
