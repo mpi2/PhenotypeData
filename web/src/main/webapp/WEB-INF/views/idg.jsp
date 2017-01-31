@@ -47,7 +47,7 @@
 				<div class="node node-gene">
 				
 						<h1 class="title" id="top">Project Page: IDG</h1>
-				
+
 						<div class="section">
 							<div class=inner>
 									<div class="floatright">
@@ -62,7 +62,7 @@
 				
 						 <div class="section" >
 								<h2 class="title"	id="section-associations"> Latest status for IDG gene set </h2>		
-		            <div class="inner">
+		           					 <div class="inner">
 		            	
 									<div  class="half">
 										<div id="genotypeStatusChart">
