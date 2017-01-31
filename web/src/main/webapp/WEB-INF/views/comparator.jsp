@@ -121,8 +121,13 @@
 
 	            		<div class="thumbList">
 	            		<c:forEach var="img" items="${controls}" varStatus="controlLoop">
+	            		
+	            		<c:forEach items="${img.parameterAssociationName}" var="currentItem" varStatus="stat">
+  								<c:set var="controlParamAssValues" value="${stat.first ? '' : paramAssValues} ${currentItem}:${img.parameterAssociationValue[stat.index]}" />
+  								
+							</c:forEach> 
 	            			
-	            				<c:set var="controlText" value="WT: ${img.zygosity} ${img.sex} ${img.ageInDays} days ${img.parameterName}"/>
+	            				<c:set var="controlText" value="WT: ${img.zygosity} ${img.sex} ${img.ageInDays} days ${img.parameterName} ${controlParamAssValues}"/>
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
