@@ -1740,15 +1740,15 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             return 0;
         }
 
-        final String insert =
-                "INSERT INTO image_record_observation (" +
-                        "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
-                        "" +
-                ") VALUES (" +
-                        ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
-                        ")";
-
         if (missing == 0) {
+            final String insert =
+                    "INSERT INTO image_record_observation (" +
+                            "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
+                            "" +
+                            ") VALUES (" +
+                            ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
+                            ")";
+
             String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
             String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, URI);
 
@@ -1764,7 +1764,12 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("organisationPk", organisationPk);
             parameterMap.put("fullResolutionPath", fullResolutionFilePath);
 
-            count = jdbcCda.update(insert, parameterMap);
+            try {
+                count = jdbcCda.update(insert, parameterMap);
+            } catch (Exception e) {
+                logger.error("INSERT to image_record_observation table for MediaSampleParameter failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionPath {}. Reason:\n\t{}",
+                             parameterStableId, observationType.toString(), observationPk, samplePk, URI, mediaFile.getLink(), mediaFile.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
+            }
             if (count == 0) {
                 logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
@@ -1786,7 +1791,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 }
             }
         } else {
-            logger.debug("Image record not loaded: " + URI);
+            logger.debug("Image record not loaded (missing = 1). parameterStableId {}, URI {}" + parameterStableId,  URI);
         }
 
         return observationPk;
@@ -1836,16 +1841,16 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             return 0;
         }
 
-        final String insert =
-                "INSERT INTO image_record_observation (" +
-                        "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
-                        "" +
-                ") VALUES (" +
-                        ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
-                        ")";
-
         if (missing == 0) {
-            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
+            final String insert =
+                    "INSERT INTO image_record_observation (" +
+                            "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
+                            "" +
+                            ") VALUES (" +
+                            ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
+                            ")";
+
+            String filePathWithoutName    = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
             String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, mediaParameter.getURI());
 
             parameterMap.clear();
@@ -1860,13 +1865,18 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("organisationPk", organisationPk);
             parameterMap.put("fullResolutionPath", fullResolutionFilePath);
 
-            count = jdbcCda.update(insert, parameterMap);
+            try {
+                count = jdbcCda.update(insert, parameterMap);
+            } catch (Exception e) {
+                logger.error("INSERT to image_record_observation table for MediaParameter failed for parameterStableId {}, observationType {}, observationPk {}, imnageLink {}, fileType {}, organisationPk {}, fullResolutionPath {}. Reason:\n\t{}",
+                             parameterStableId, observationType.toString(), observationPk, mediaParameter.getLink(), mediaParameter.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
+            }
             if (count == 0) {
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
             }
         } else {
-            logger.debug("Image record not loaded: " + mediaParameter.getURI());
+            logger.debug("Image record not loaded (missing = 1). parameterStableId {} " + parameterStableId);
         }
 
         return observationPk;
@@ -1913,18 +1923,22 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             return 0;
         }
 
-        final String insert =
-                "INSERT INTO ontology_observation (id, parameter_id, sequence_id)" +
-                  " VALUES (:observationPk, :parameterId, :sequenceId)";
-
         if (missing == 0) {
+            final String insert =
+                    "INSERT INTO ontology_observation (id, parameter_id, sequence_id)" +
+                            " VALUES (:observationPk, :parameterId, :sequenceId)";
 
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
             parameterMap.put("parameterId", ontologyParameter.getParameterID());
             parameterMap.put("sequenceId", ontologyParameter.getSequenceID());
 
-            count = jdbcCda.update(insert, parameterMap);
+            try {
+                count = jdbcCda.update(insert, parameterMap);
+            } catch (Exception e) {
+                logger.error("INSERT to ontology_observation table failed for parameterStableId {}, parameterId {}, observationType {}, observationPk {}, sequenceId {}. Reason:\n\t{}",
+                             parameterStableId, ontologyParameter.getParameterID(), observationType.toString(), observationPk, ontologyParameter.getSequenceID(), e.getLocalizedMessage());
+            }
             if (count == 0) {
                 logger.warn("Insert OntologyParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
@@ -1981,15 +1995,15 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             return 0;
         }
 
-        final String insert =
-                "INSERT INTO image_record_observation (" +
-                        "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
-                        "" +
-                ") VALUES (" +
-                        ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
-                        ")";
-
         if (missing == 0) {
+            final String insert =
+                    "INSERT INTO image_record_observation (" +
+                            "id, sample_id, download_file_path, image_link, increment_value, file_type, media_sample_local_id, media_section_id, organisation_id, full_resolution_file_path" +
+                            "" +
+                            ") VALUES (" +
+                            ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
+                            ")";
+
             String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
             String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, seriesMediaParameterValue.getURI());
 
@@ -2005,7 +2019,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("organisationPk", organisationPk);
             parameterMap.put("fullResolutionPath", fullResolutionFilePath);
 
-            count = jdbcCda.update(insert, parameterMap);
+            try {
+                count = jdbcCda.update(insert, parameterMap);
+            } catch (Exception e) {
+                logger.error("INSERT to image_record_observation table for SeriesMediaParameterValue failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk, fullResolutionPath {}. Reason:\n\t{}",
+                             parameterStableId, observationType.toString(), observationPk, samplePk, seriesMediaParameterValue.getURI(), seriesMediaParameterValue.getLink(),
+                             seriesMediaParameterValue.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
+            }
             if (count == 0) {
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
@@ -2077,17 +2097,22 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             return 0;
         }
 
-        final String insert = "INSERT INTO time_series_observation (id, data_point, time_point, discrete_point)" +
-                              "VALUES (:observationPk, :dataPoint, :timePoint, :discretePoint)";
-
         if (missing == 0) {
+            final String insert = "INSERT INTO time_series_observation (id, data_point, time_point, discrete_point)" +
+                    "VALUES (:observationPk, :dataPoint, :timePoint, :discretePoint)";
+
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
             parameterMap.put("dataPoint", dataPoint);
             parameterMap.put("timePoint", timePoint);
             parameterMap.put("discretePoint", discretePoint);
 
-            count = jdbcCda.update(insert, parameterMap);
+            try {
+                count = jdbcCda.update(insert, parameterMap);
+            } catch (Exception e) {
+                logger.error("INSERT to time_series_observation table failed for parameterStableId {}, observationType {}, observationPk {}, dataPoint {}, timePoint {}, discretePoint {}. Reason:\n\t{}",
+                             parameterStableId, observationType.toString(), observationPk, dataPoint, timePoint, discretePoint, e.getLocalizedMessage());
+            }
             if (count == 0) {
                 logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
                 updateObservationMissingFlag(observationPk, true);
