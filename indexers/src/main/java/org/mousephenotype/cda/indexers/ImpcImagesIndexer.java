@@ -204,6 +204,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		
 			
 			for (ImageDTO imageDTO : imageList) {
+
 				int omeroId=0;
 
 				// "stage" field is needed for search, stage facet on image seach
@@ -230,71 +231,71 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					imageDTO.setOmeroId(omeroId);
 				}
 
-					if (omeroId == 0 && imageDTO.getFullResolutionFilePath()==null) {// modified this so phis images should be loaded now
-																											
-						//System.out.println("omero_id is 0 procedureName="+imageDTO.getProcedureName()+" full res file path="+ imageDTO.getFullResolutionFilePath());						
-						continue;
-					}
+				if (omeroId == 0 && imageDTO.getFullResolutionFilePath() == null) {// modified this so phis images should be loaded now
 
-					// need to add a full path to image in omero as part of api
-					// e.g.
-					// https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
-					if (omeroId != 0 && downloadFilePath != null) { //phis images have no omero_id but already have these paths set
-						// logger.info("  Setting
-						// downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
-						// /webgateway/archived_files/download/
-						if (downloadFilePath.endsWith(".pdf")) {
-							// http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
-							imageDTO.setDownloadUrl(impcAnnotationBaseUrl + "/annotation/" + omeroId);
-							imageDTO.setJpegUrl(pdfThumbnailUrl);// pdf thumnail
-																	// placeholder
-						} else {
-							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
-							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
-							imageDTO.setThumbnailUrl(impcMediaBaseUrl + "/render_birds_eye_view/" + omeroId);
-						}
+					//System.out.println("omero_id is 0 procedureName="+imageDTO.getProcedureName()+" full res file path="+ imageDTO.getFullResolutionFilePath());
+					continue;
+				}
+
+				// need to add a full path to image in omero as part of api
+				// e.g.
+				// https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
+				if (omeroId != 0 && downloadFilePath != null) { //phis images have no omero_id but already have these paths set
+					// logger.info("  Setting
+					// downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
+					// /webgateway/archived_files/download/
+					if (downloadFilePath.endsWith(".pdf")) {
+						// http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
+						imageDTO.setDownloadUrl(impcAnnotationBaseUrl + "/annotation/" + omeroId);
+						imageDTO.setJpegUrl(pdfThumbnailUrl);// pdf thumnail
+						// placeholder
 					} else {
-						runStatus.addWarning(" omero id is 0 for " + downloadFilePath+ " fullres filepath");
+						imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
+						imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
+						imageDTO.setThumbnailUrl(impcMediaBaseUrl + "/render_birds_eye_view/" + omeroId);
 					}
+				} else {
+					runStatus.addWarning(" omero id is 0 for " + downloadFilePath + " fullres filepath");
+				}
 
-					// add the extra stuf we need for the searching and faceting
-					// here
-					if (imageDTO.getGeneAccession() != null && !imageDTO.getGeneAccession().equals("")) {
+				// add the extra stuf we need for the searching and faceting
+				// here
+				if (imageDTO.getGeneAccession() != null && !imageDTO.getGeneAccession().equals("")) {
 
-						String geneAccession = imageDTO.getGeneAccession();
-						if (alleles.containsKey(geneAccession)) {
-							populateImageDtoStatuses(imageDTO, geneAccession);
+					String geneAccession = imageDTO.getGeneAccession();
+					if (alleles.containsKey(geneAccession)) {
+						populateImageDtoStatuses(imageDTO, geneAccession);
 
-							if (imageDTO.getSymbol() != null) {
-								String symbolGene = imageDTO.getSymbol() + "_" + imageDTO.getGeneAccession();
-								imageDTO.setSymbolGene(symbolGene);
+						if (imageDTO.getSymbol() != null) {
+							String symbolGene = imageDTO.getSymbol() + "_" + imageDTO.getGeneAccession();
+							imageDTO.setSymbolGene(symbolGene);
 
-								if (imageDTO.getMarkerSynonym() != null){
-									List<String> synSymGene = new ArrayList<>();
-									for (String syn : imageDTO.getMarkerSynonym()) {
-										synSymGene.add(syn + fieldSeparator + symbolGene);
-									}
-									imageDTO.setMarkerSynonymSymbolGene(synSymGene);
+							if (imageDTO.getMarkerSynonym() != null) {
+								List<String> synSymGene = new ArrayList<>();
+								for (String syn : imageDTO.getMarkerSynonym()) {
+									synSymGene.add(syn + fieldSeparator + symbolGene);
 								}
+								imageDTO.setMarkerSynonymSymbolGene(synSymGene);
 							}
 						}
 					}
-					List<String> paramAssocNameProcName = new ArrayList<>();
-
-					if (imageDTO.getParameterAssociationName() != null) {
-						for (String paramAssocName : imageDTO.getParameterAssociationName()) {
-							paramAssocNameProcName.add(paramAssocName + fieldSeparator + imageDTO.getProcedureName());
-						}
-						imageDTO.setParameterAssociationNameProcedureName(paramAssocNameProcName);
-					}
-
-					addOntologyTerms( imageDTO, parameterStableIdToMaTermIdMap, runStatus);
-					addOntologyTerms( imageDTO, parameterStableIdToEmapaTermIdMap, runStatus);
-					addOntologyTerms( imageDTO, parameterStableIdToMpTermIdMap, runStatus);
-
-					impcImagesCore.addBean(imageDTO, 30000);
-					documentCount++;
 				}
+				List<String> paramAssocNameProcName = new ArrayList<>();
+
+				if (imageDTO.getParameterAssociationName() != null) {
+					for (String paramAssocName : imageDTO.getParameterAssociationName()) {
+						paramAssocNameProcName.add(paramAssocName + fieldSeparator + imageDTO.getProcedureName());
+					}
+					imageDTO.setParameterAssociationNameProcedureName(paramAssocNameProcName);
+				}
+
+				addOntologyTerms(imageDTO, parameterStableIdToMaTermIdMap, runStatus);
+				addOntologyTerms(imageDTO, parameterStableIdToEmapaTermIdMap, runStatus);
+				addOntologyTerms(imageDTO, parameterStableIdToMpTermIdMap, runStatus);
+
+				impcImagesCore.addBean(imageDTO, 30000);
+				documentCount++;
+			}
 
 			impcImagesCore.commit();
 
