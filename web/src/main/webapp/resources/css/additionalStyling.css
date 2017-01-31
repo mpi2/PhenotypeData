@@ -1,5 +1,45 @@
 /* Additional styling written at EBI */
 
+
+/* EBI icons font */
+@font-face {
+	font-family: 'EBI-Species';
+	src:    url('../fonts/EBI-Species.ttf?mscl4l') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+.icon-human:before {
+	content: "\48";
+}
+.icon-mouse:before {
+	content: "\4d";
+}
+[class^="icon-"], [class*=" icon-"] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	font-family: 'EBI-Species' !important;
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Enable Ligatures ================ */
+	letter-spacing: 0;
+	-webkit-font-feature-settings: "liga";
+	-moz-font-feature-settings: "liga=1";
+	-moz-font-feature-settings: "liga";
+	-ms-font-feature-settings: "liga" 1;
+	-o-font-feature-settings: "liga";
+	font-feature-settings: "liga";
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+
+
 .green {
 	fill:rgb(36, 139, 75);
 	color:rgb(36, 139, 75);
