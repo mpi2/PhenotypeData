@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
+import uk.ac.ebi.phenotype.chart.PieChartCreator;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.web.dao.SecondaryProjectService;
@@ -54,6 +55,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,6 +122,11 @@ public class SecondaryProjectController {
                 List<PhenotypeCallSummaryDTO> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
                 String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
                 model.addAttribute("chart", chart);
+                Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
+                totalLabelToNumber.put("Mouse Orthologs with IMPC Data", 23);
+                totalLabelToNumber.put("Mouse Orthologs", 77);
+                String idgOrhtologPie = PieChartCreator.getPieChart(totalLabelToNumber, "idgOrhtologPie", "IDG Orthologs Representation in the IMPC", "",null);
+                model.addAttribute("idgOrhtologPie", idgOrhtologPie);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

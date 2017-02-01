@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -59,6 +61,26 @@ public class AnatomyService extends BasicService implements WebStatus {
 
 		SolrQuery solrQuery = new SolrQuery().setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"").setRows(1);
 
+		QueryResponse rsp = solr.query(solrQuery);
+		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
+
+		if (rsp.getResults().getNumFound() > 0) {
+			return anas.get(0);
+		}
+
+		return null;
+	}
+	
+	/**
+	 * Return an MA term
+	 *
+	 * @return single anatomy term from the anatomy core.
+	 * @throws SolrServerException, IOException
+	 */
+	public AnatomyDTO getTermByName(String anatomyTerm) throws SolrServerException, IOException  {
+
+		SolrQuery solrQuery = new SolrQuery().setQuery(AnatomyDTO.ANATOMY_TERM + ":\"" + WordUtils.capitalize(anatomyTerm)  + "\"").setRows(1);
+		System.out.println(solrQuery);
 		QueryResponse rsp = solr.query(solrQuery);
 		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
 
