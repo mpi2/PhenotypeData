@@ -162,7 +162,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, PhenotypedColony>         phenotypedColonyMap;
 
     // DCC parameter lookup maps, keyed by procedure_pk
-    private Map<Long, List<ProcedureMetadata>>    procedureMetadataMap;
     private Map<Long, List<SimpleParameter>>      simpleParameterMap;
     private Map<Long, List<MediaParameter>>       mediaParameterMap;
     private Map<Long, List<OntologyParameter>>    ontologyParameterMap;
@@ -195,7 +194,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
         requiredImpressParameters = cdaSqlUtils.getRequiredImpressParameters();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
-        procedureMetadataMap = dccSqlUtils.getProcedureMetadata();
 
         // Load DCC parameter maps
         simpleParameterMap = dccSqlUtils.getSimpleParameters();
@@ -401,7 +399,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         * metadataGroup - An md5 hash of only the required parameters. The hash source is the required metadata
         * parameters in the same format as <i>metadataCombined</i> above.</ul>
         */
-        List<ProcedureMetadata> dccMetadataList = procedureMetadataMap.get(dccExperiment.getDcc_procedure_pk());
+        List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperiment.getDcc_procedure_pk());
         if (dccMetadataList == null)
             dccMetadataList = new ArrayList<>();
         ObservableList<String> metadataCombinedList = FXCollections.observableArrayList();
@@ -861,7 +859,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
 
-        List<ProcedureMetadata> dccMetadataList = procedureMetadataMap.get(dccExperimentDTO.getDcc_procedure_pk());
+        List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperimentDTO.getDcc_procedure_pk());
         String parameterStableId = seriesParameter.getParameterID();
 
         for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
