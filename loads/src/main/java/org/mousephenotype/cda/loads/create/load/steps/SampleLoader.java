@@ -174,7 +174,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         long startStep = new Date().getTime();
 
-        String message = "**** LOADING " + dccSqlUtils.getDbName() + " SAMPLES ****";
+        String message = "**** LOADING " + dccSqlUtils.getDbName() + " SPECIMENS ****";
         logger.info(StringUtils.repeat("*", message.length()));
         logger.info(message);
         logger.info(StringUtils.repeat("*", message.length()));
