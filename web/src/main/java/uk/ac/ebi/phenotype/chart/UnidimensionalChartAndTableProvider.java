@@ -38,6 +38,7 @@ import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
@@ -327,6 +328,11 @@ public class UnidimensionalChartAndTableProvider {
 			// custom statuses to show + custom order
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) + "], ";
+			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";
+		}else if(divId.equalsIgnoreCase("idgChart")){
+			
+			data += "['" + StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE + "', " +  values.get(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) + "], ";
+			data += "['" + StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE + "', " +  values.get(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";
 		}
 		else {
