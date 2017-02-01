@@ -19,9 +19,7 @@ th {
 
 th span.vertical{
   margin-bottom: 0px;
-  padding: 0.0em;
-  writing-mode: tb-rl;
-  filter: flipv fliph;
+  writing-mode: vertical-lr;
   /* -webkit-transform:rotate(-90deg);
   -moz-transform:rotate(-90deg); */
   white-space:nowrap; 
