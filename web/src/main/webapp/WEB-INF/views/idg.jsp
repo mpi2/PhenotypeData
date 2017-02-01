@@ -64,19 +64,38 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 									</p>
 									
 									<table>
-										<tr>
-											<th>Family</th><th>Total Number</th><th>One to One</th><th>One to Many</th><th>Human Genes with No Orthologs<th>
-										</tr>
-										<tr>
-											<td>GPCRs</td><td>143<td>113</td><td>3</td><td>27</td>
-										</tr>
-										<tr>
-											<td>Kinases</td><td>134</td><td>127</td><td>0</td><td>7</td>
-										</tr>
-										<tr>
-											<td>Ion Channels</td><td>118</td><td>107</td><td>2</td><td>9</td>
-										</tr>
-										
+										<thead>
+											<tr>
+												<th>Family</th>
+												<th>Total Number</th>
+												<th>One to One</th>
+												<th>One to Many</th>
+												<th>Human Genes with No Orthologs</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>GPCRs</td>
+												<td>143</td>
+												<td>113</td>
+												<td>3</td>
+												<td>27</td>
+											</tr>
+											<tr>
+												<td>Kinases</td>
+												<td>134</td>
+												<td>127</td>
+												<td>0</td>
+												<td>7</td>
+											</tr>
+											<tr>
+												<td>Ion Channels</td>
+												<td>118</td>
+												<td>107</td>
+												<td>2</td>
+												<td>9</td>
+											</tr>
+										</tbody>
 									
 									</table>
 							</div>
@@ -84,8 +103,7 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 				
 				
 						 <div class="section" >
-								<h2 class="title"	id="section-associations"> IMPC Production Status for IDG Gene Set
- </h2>		
+								<h2 class="title"	id="section-associations"> IMPC Production Status for IDG Gene Set </h2>
 		           					 <div class="inner">
 		            	
 		            	The IMPC consortium is using different complementary targeting strategies to produce Knockout alleles, namely ES cell based chromosome engineering and CRISPR/Cas-mediated genome engineering. Mouse are then produced and submitted to phenotyping pipelines. Below are Statistics representing the IMPC production status for IDG gene lists.
