@@ -120,8 +120,8 @@ public class LoadFromDcc implements CommandLineRunner {
         // parameter to indicate the components to build (e.g. specimens,experiments)
         parser.accepts("component").withRequiredArg().ofType(String.class);
 
-        // parameter to indicate the dcc files to build (e.g. europhenome,dcc)
-        parser.accepts("dcc").withRequiredArg().ofType(String.class);
+        // parameter to indicate the source of the dcc files to build (e.g. europhenome,dcc)
+        parser.accepts("source").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);
 
@@ -130,14 +130,14 @@ public class LoadFromDcc implements CommandLineRunner {
             logger.error(message);
             throw new DataLoadException(message);
         }
-        boolean processSpecimens = false;
-        boolean processExperiments = false;
+        boolean loadSpecimens = false;
+        boolean loadExperiments = false;
         List<String> components = (List<String>) options.valuesOf("component");
         for (String component : components) {
             if (component.equals("specimens")) {
-                processSpecimens = true;
+                loadSpecimens = true;
             } else if (component.equals("experiments")) {
-                processExperiments = true;
+                loadExperiments = true;
             } else {
                 String message = "Invalid component '" + component + "'. Valid components are 'specimens' and 'experiments'.";
                 logger.error(message);
@@ -145,52 +145,47 @@ public class LoadFromDcc implements CommandLineRunner {
             }
         }
 
-        if ( ! options.has("dcc")) {
-            String message = "Missing required command-line parameter 'dcc (e.g. europhenome,dcc)'";
+        if ( ! options.has("source")) {
+            String message = "Missing required source parameter (e.g. europhenome,dcc)'";
             logger.error(message);
             throw new DataLoadException(message);
         }
-        boolean processEurophenome = false;
-        boolean processDcc = false;
-        List<String> dccs = (List<String>) options.valuesOf("dcc");
-        for (String dcc : dccs) {
-            if (dcc.equals("europhenome")) {
-                processEurophenome = true;
-            } else if (dcc.equals("dcc")) {
-                processDcc = true;
+        boolean loadEurophenome = false;
+        boolean loadDcc = false;
+        List<String> sources = (List<String>) options.valuesOf("source");
+        for (String source : sources) {
+            if (source.equals("europhenome")) {
+                loadEurophenome = true;
+            } else if (source.equals("dcc")) {
+                loadDcc = true;
             } else {
-                String message = "Invalid dcc '" + dcc + "'. Valid dcc values are 'europhenome' and 'dcc'.";
+                String message = "Invalid source '" + source + "'. Valid source values are 'europhenome' and 'dcc'.";
                 logger.error(message);
                 throw new DataLoadException(message);
             }
         }
 
-        if (processSpecimens) {
-            if (processEurophenome) {
-                jobs.add(specimensFromDccEurophenome());
-            }
-            if (processDcc) {
-                jobs.add(specimensFromDcc());
-            }
-        }
+        // Process in this order: europhenome_specimens, europhenome_experiments, dcc_specimens, dcc_experiments
+        if (loadEurophenome && loadSpecimens)
+            jobs.add(processEurophenomeSpecimens());
 
-        if (processExperiments) {
-            if (processEurophenome) {
-                jobs.add(experimentsFromDccEurophenome());
-            }
-            if (processDcc) {
-                jobs.add(experimentsFromDcc());
-            }
-        }
+        if (loadEurophenome && loadExperiments)
+            jobs.add(processEurophenomeExperiments());
+
+        if (loadDcc && loadSpecimens)
+            jobs.add(processDccSpecimens());
+
+        if (loadDcc && loadExperiments)
+            jobs.add(processDccExperiments());
 
         List<String> parts = new ArrayList<>();
-        if (processEurophenome && processSpecimens)
+        if (loadEurophenome && loadSpecimens)
             parts.add("europhenome specimens");
-        if (processDcc && processSpecimens)
+        if (loadDcc && loadSpecimens)
             parts.add("dcc specimens");
-        if (processEurophenome && processExperiments)
+        if (loadEurophenome && loadExperiments)
             parts.add("europhenome experiments");
-        if (processDcc && processExperiments)
+        if (loadDcc && loadExperiments)
             parts.add("dcc experiments");
 
         logger.info("processing {}", StringUtils.join(parts, ", "));
@@ -228,48 +223,48 @@ public class LoadFromDcc implements CommandLineRunner {
         return jobs;
     }
 
-    public Job specimensFromDcc() throws DataLoadException {
+    public Job processEurophenomeSpecimens() throws DataLoadException {
 
         // Specimens to Samples
-        Flow samplesFlow = new FlowBuilder<Flow>("samplesDccFlow").from(sampleDccLoader).end();
+        Flow samplesFlow = new FlowBuilder<Flow>("processEurophenomeSpecimensFlow").from(sampleDccEurophenomeLoader).end();
 
-        return jobBuilderFactory.get("samplesDccJobJob")
+        return jobBuilderFactory.get("processEurophenomeSpecimensJob")
                 .incrementer(new RunIdIncrementer())
                 .start(samplesFlow)
                 .end()
                 .build();
     }
 
-    public Job experimentsFromDcc() throws DataLoadException {
+    public Job processEurophenomeExperiments() throws DataLoadException {
 
         // Dcc Experiments to Cda Experiments
-        Flow experimentsFlow = new FlowBuilder<Flow>("experimentsDccFlow").from(experimentDccLoader).end();
+        Flow experimentsFlow = new FlowBuilder<Flow>("processEurophenomeExperimentsFlow").from(experimentDccEurophenomeLoader).end();
 
-        return jobBuilderFactory.get("experimentsDccJob")
+        return jobBuilderFactory.get("processEurophenomeExperimentsJob")
                 .incrementer(new RunIdIncrementer())
                 .start(experimentsFlow)
                 .end()
                 .build();
     }
 
-    public Job specimensFromDccEurophenome() throws DataLoadException {
+    public Job processDccSpecimens() throws DataLoadException {
 
         // Specimens to Samples
-        Flow samplesFlow = new FlowBuilder<Flow>("samplesDccEurophenomeFlow").from(sampleDccEurophenomeLoader).end();
+        Flow samplesFlow = new FlowBuilder<Flow>("processDccSpecimensFlow").from(sampleDccLoader).end();
 
-        return jobBuilderFactory.get("samplesDccEurophenomeJob")
+        return jobBuilderFactory.get("processDccSpecimensJob")
                 .incrementer(new RunIdIncrementer())
                 .start(samplesFlow)
                 .end()
                 .build();
     }
 
-    public Job experimentsFromDccEurophenome() throws DataLoadException {
+    public Job processDccExperiments() throws DataLoadException {
 
         // Dcc Experiments to Cda Experiments
-        Flow experimentsFlow = new FlowBuilder<Flow>("experimentsDccEurophenomeFlow").from(experimentDccEurophenomeLoader).end();
+        Flow experimentsFlow = new FlowBuilder<Flow>("processDccExperimentsFlow").from(experimentDccLoader).end();
 
-        return jobBuilderFactory.get("experimentsDccEurophenomeJob")
+        return jobBuilderFactory.get("processDccExperimentsJob")
                 .incrementer(new RunIdIncrementer())
                 .start(experimentsFlow)
                 .end()
