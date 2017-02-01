@@ -173,11 +173,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        logger.info("Loading dcc experiments from {}", dccSqlUtils.getDbName());
+        String message = "**** LOADING " + dccSqlUtils.getDbName() + " EXPERIMENTS ****";
+        logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
+        logger.info(message);
+        logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
 
         long startStep = new Date().getTime();
-        Experiment experiment;
-        Observation observation;
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
         Map<String, Integer>   counts;
 

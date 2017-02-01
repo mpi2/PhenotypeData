@@ -225,9 +225,6 @@ public class LoadFromDcc implements CommandLineRunner {
 
     public Job processEurophenomeSpecimens() throws DataLoadException {
 
-        logger.info("*******************************************");
-        logger.info("****  PROCESSING EUROPHENOME SPECIMENS ****");
-        logger.info("*******************************************");
         // Specimens to Samples
         Flow samplesFlow = new FlowBuilder<Flow>("processEurophenomeSpecimensFlow").from(sampleDccEurophenomeLoader).end();
 
@@ -240,9 +237,6 @@ public class LoadFromDcc implements CommandLineRunner {
 
     public Job processEurophenomeExperiments() throws DataLoadException {
 
-        logger.info("*********************************************");
-        logger.info("****  PROCESSING EUROPHENOME EXPERIMENTS ****");
-        logger.info("*********************************************");
         // Dcc Experiments to Cda Experiments
         Flow experimentsFlow = new FlowBuilder<Flow>("processEurophenomeExperimentsFlow").from(experimentDccEurophenomeLoader).end();
 
@@ -255,10 +249,6 @@ public class LoadFromDcc implements CommandLineRunner {
 
     public Job processDccSpecimens() throws DataLoadException {
 
-
-        logger.info("***********************************");
-        logger.info("****  PROCESSING DCC SPECIMENS ****");
-        logger.info("***********************************");
         // Specimens to Samples
         Flow samplesFlow = new FlowBuilder<Flow>("processDccSpecimensFlow").from(sampleDccLoader).end();
 
@@ -271,10 +261,6 @@ public class LoadFromDcc implements CommandLineRunner {
 
     public Job processDccExperiments() throws DataLoadException {
 
-
-        logger.info("*************************************");
-        logger.info("****  PROCESSING DCC EXPERIMENTS ****");
-        logger.info("*************************************");
         // Dcc Experiments to Cda Experiments
         Flow experimentsFlow = new FlowBuilder<Flow>("processDccExperimentsFlow").from(experimentDccLoader).end();
 
