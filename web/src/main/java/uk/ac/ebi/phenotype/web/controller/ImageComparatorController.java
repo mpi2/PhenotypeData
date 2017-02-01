@@ -15,15 +15,18 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.AnatomyService;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +50,9 @@ public class ImageComparatorController {
 
 	@Autowired
 	GeneService geneService;
+	
+	@Autowired
+	AnatomyService anatomyService;
 
 	
 	@RequestMapping("/imageComparator")
@@ -54,6 +60,7 @@ public class ImageComparatorController {
 				@RequestParam(value = "parameter_stable_id", required=false)  String parameterStableId,
 				@RequestParam(value = "parameter_association_value", required=false)  String parameterAssociationValue,
 				@RequestParam(value = "anatomy_id", required=false)  String anatomyId,
+				@RequestParam(value = "anatomy_term", required=false)  String anatomyTerm,
 				@RequestParam(value = "gender", required=false) String gender,
 				@RequestParam(value = "zygosity", required=false) String zygosity,
 				@RequestParam(value="mediaType", required=false) String mediaType,
@@ -76,6 +83,10 @@ public class ImageComparatorController {
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
+		if(StringUtils.isEmpty(anatomyId) && !StringUtils.isEmpty(anatomyTerm)){
+			AnatomyDTO anatomyDto = anatomyService.getTermByName(anatomyTerm);
+			anatomyId=anatomyDto.getAnatomyId();
+		}
 		List<ImageDTO> mutants=new ArrayList<>();
 		QueryResponse responseExperimental = imageService
 				.getImagesForGeneByParameter(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
