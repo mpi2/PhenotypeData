@@ -53,21 +53,47 @@
 									<div class="floatright">
 										<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
 									</div>
+									<h3>Illuminating the Druggable Genome (IDG)</h3>
 									<p>
-									<b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
+										IDG is an NIH Common Fund project focused on collecting, integrating and making available biological data on 395 genes from three key druggable protein families that have been identified as potential therapeutic targets: non-olfactory G-protein coupled receptors (GPCRs), ion channels, and protein kinases. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
 									</p>
+									
+									<p>
+									<b>Human-Mouse orthology mapping</b>
+Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of IDG genes had mouse orthologs with one-to-one, one-to-many and many-to-one relationships (364 unique mouse orthologs). 43 IDG genes did not have a mouse ortholog: ADCK4, ADGRD2, ADGRE2, ADGRE3, BEST4, CLCA3P, CLIC2, FXYD6P3, GNRHR2, GPR32, GPR32P1, GPR42, GPR78, HTR1E, HTR3C, HTR3D, HTR3E, KCNJ18, MAS1L, NPBWR2, NPY6R, OPN1MW2, OXER1, P2RY11, PAK7, PRKACG, PRKY, PSKH2, SCNN1D, SGK223, STK17A, TAS2R19, TAS2R20, TAS2R30, TAS2R43, TAS2R5, TAS2R50, TAS2R8, TAS2R9, VN1R1, VN1R17P, VN1R3, VN1R5
+									</p>
+									
+									<table>
+										<tr>
+											<th>Family</th><th>Total Number</th><th>One to One</th><th>One to Many</th><th>Human Genes with No Orthologs<th>
+										</tr>
+										<tr>
+											<td>GPCRs</td><td>143<td>113</td><td>3</td><td>27</td>
+										</tr>
+										<tr>
+											<td>Kinases</td><td>134</td><td>127</td><td>0</td><td>7</td>
+										</tr>
+										<tr>
+											<td>Ion Channels</td><td>118</td><td>107</td><td>2</td><td>9</td>
+										</tr>
+										
+									
+									</table>
 							</div>
 						</div>	<!-- section -->
 				
 				
 						 <div class="section" >
-								<h2 class="title"	id="section-associations"> Latest status for IDG gene set </h2>		
+								<h2 class="title"	id="section-associations"> IMPC Production Status for IDG Gene Set
+ </h2>		
 		           					 <div class="inner">
 		            	
+		            	The IMPC consortium is using different complementary targeting strategies to produce Knockout alleles, namely ES cell based chromosome engineering and CRISPR/Cas-mediated genome engineering. Mouse are then produced and submitted to phenotyping pipelines. Below are Statistics representing the IMPC production status for IDG gene lists.
+		            	
 									<div  class="half">
-										<div id="genotypeStatusChart">
+										<div id="idgOrhtologPie">
 			            		<script type="text/javascript">
-													${genotypeStatusChart.getChart()}
+													${idgOrhtologPie}
 											</script> 
 										</div>       	
 									</div>
@@ -108,8 +134,7 @@
 							<div class=inner>
 
 								<p>
-									The gene list on this page was last updated for the second phase of the IDG on Tuesday 24th of January 2017. The following genes did not have a mouse ortholog (HomoloGene):
-									ADCK4, ADGRD2, ADGRE2, ADGRE3, BEST4, CLCA3P, CLIC2, FXYD6P3, GNRHR2, GPR32, GPR32P1, GPR42, GPR78, HTR1E, HTR3C, HTR3D, HTR3E, KCNJ18, MAS1L, NPBWR2, NPY6R, OPN1MW2, OXER1, P2RY11, PAK7, PRKACG, PRKY, PSKH2, SCNN1D, SGK223, STK17A, TAS2R19, TAS2R20, TAS2R30, TAS2R43, TAS2R5, TAS2R50, TAS2R8, TAS2R9, VN1R1, VN1R17P, VN1R3, VN1R5 .
+									Heat Map representing the data status of IDG orthologs in IMPC.
 								</p>
 
 							<div id="legend">
