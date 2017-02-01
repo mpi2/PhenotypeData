@@ -4,7 +4,7 @@ td{
 	word-wrap: break-word;
 }
 
-#geneHeatmap td, th {
+.geneHeatmap td, th {
     padding: 0.5em 0.7em 0.3em 0.3em;
 }
 
@@ -13,11 +13,11 @@ table, tr, td, th {
  text-align: center;
 }
 
-th {
+.geneHeatMap th {
     vertical-align: bottom;
 }
 
-th span.vertical{
+.geneHeatMap th span.vertical{
   margin-bottom: 0px;
   writing-mode: vertical-lr;
   /* -webkit-transform:rotate(-90deg);
