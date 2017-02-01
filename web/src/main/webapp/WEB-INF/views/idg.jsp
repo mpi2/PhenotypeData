@@ -11,7 +11,6 @@
 			href="${baseUrl}/IDG">IDG</a> &raquo; IDG</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="chartpage no-sidebars small-header">
-	
 	</jsp:attribute>
 	<jsp:attribute name="header">
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>

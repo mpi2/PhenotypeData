@@ -8,7 +8,7 @@
 	<script>
  		$(function() {
 	    var header_height = 0;
-	    $('table th span').each(function() {
+	    $('.gene-heatmap-header .vertical').each(function() {
 	        if ($(this).outerWidth() > header_height) header_height = $(this).outerWidth();
 	        $(this).width($(this).height()* 0.05);
 	    });
