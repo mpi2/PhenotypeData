@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.loads.create.load.steps;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -41,6 +42,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
+
 import javax.inject.Inject;
 import java.util.*;
 
@@ -172,7 +174,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         long startStep = new Date().getTime();
 
-        logger.info("Loading dcc samples from {}", dccSqlUtils.getDbName());
+        String message = "**** LOADING " + dccSqlUtils.getDbName() + " SPECIMENS ****";
+        logger.info(StringUtils.repeat("*", message.length()));
+        logger.info(message);
+        logger.info(StringUtils.repeat("*", message.length()));
 
         List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
         Map<String, Integer>   counts;
