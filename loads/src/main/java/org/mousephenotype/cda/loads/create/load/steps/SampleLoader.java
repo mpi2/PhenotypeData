@@ -17,12 +17,12 @@
 package org.mousephenotype.cda.loads.create.load.steps;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
-import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
@@ -43,6 +43,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
 
+import javax.inject.Inject;
 import java.util.*;
 
 /**
@@ -53,14 +54,12 @@ import java.util.*;
  */
 public class SampleLoader implements Step, Tasklet, InitializingBean {
 
-    private Map<String, Allele>     allelesBySymbol         = new HashMap<>();
-    private CommonUtils             commonUtils             = new CommonUtils();
-    private EuroPhenomeStrainMapper euroPhenomeStrainMapper;
 
     private CdaSqlUtils                cdaSqlUtils;
+    private CommonUtils                commonUtils = new CommonUtils();
     private DccSqlUtils                dccSqlUtils;
+    private EuroPhenomeStrainMapper    euroPhenomeStrainMapper;
     private NamedParameterJdbcTemplate jdbcCda;
-    private LoadUtils                  loadUtils = new LoadUtils();
 
     private Set<String> missingColonyIds = new HashSet<>();
     private Set<String> noGeneForAllele = new HashSet<>();
@@ -74,18 +73,29 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     private OntologyTerm sampleTypeMouseEmbryoStage;
     private OntologyTerm sampleTypeWholeOrganism;
 
+    private Map<String, Allele>           allelesBySymbolMap = new HashMap<>();
     private Map<String, Integer>          cdaOrganisation_idMap;
     private Map<String, PhenotypedColony> phenotypedColonyMap;
 
     private int efoDbId;
 
 
-    public SampleLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
-                        CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils) {
+    @Inject
+    public SampleLoader(NamedParameterJdbcTemplate jdbcCda,
+                        StepBuilderFactory stepBuilderFactory,
+                        CdaSqlUtils cdaSqlUtils,
+                        DccSqlUtils dccSqlUtils,
+                        Map<String, Allele> allelesBySymbolMap,
+                        Map<String, Integer> cdaOrganisation_idMap,
+                        Map<String, PhenotypedColony> phenotypedColonyMap
+                        ) {
         this.jdbcCda = jdbcCda;
         this.stepBuilderFactory = stepBuilderFactory;
         this.cdaSqlUtils = cdaSqlUtils;
         this.dccSqlUtils = dccSqlUtils;
+        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
+        this.phenotypedColonyMap = phenotypedColonyMap;
+        this.allelesBySymbolMap = allelesBySymbolMap;
 
         written.put("biologicalModel", 0);
         written.put("biologicalSample", 0);
@@ -97,20 +107,19 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
-        phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
         sampleTypeWholeOrganism = cdaSqlUtils.getOntologyTermByName("whole organism");
-        allelesBySymbol = cdaSqlUtils.getAllelesBySymbol();
         this.euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
         this.efoDbId = cdaSqlUtils.getExternalDbId("EFO");
 
-        Assert.notNull(developmentalStageMouse, "developmentalStageMouse must be set");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
+        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
+
+        Assert.notNull(developmentalStageMouse, "developmentalStageMouse must be set");
         Assert.notNull(sampleTypeMouseEmbryoStage, "xsampleTypeMouseEmbryoStagex must be set");
         Assert.notNull(sampleTypeWholeOrganism, "sampleTypeWholeOrganism must be set");
-        Assert.notNull(allelesBySymbol, "allelesBySymbol must be set");
         Assert.notNull(jdbcCda, "jdbcCda must be set");
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
@@ -165,7 +174,10 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         long startStep = new Date().getTime();
 
-        logger.info("Loading dcc samples from {}", dccSqlUtils.getDbName());
+        String message = "**** LOADING " + dccSqlUtils.getDbName() + " SAMPLES ****";
+        logger.info(StringUtils.repeat("*", message.length()));
+        logger.info(message);
+        logger.info(StringUtils.repeat("*", message.length()));
 
         List<SpecimenExtended> specimens = dccSqlUtils.getSpecimens();
         Map<String, Integer>   counts;
@@ -266,7 +278,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         String sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
 
         try {
-            biologicalModel = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbol);
+            biologicalModel = cdaSqlUtils.selectOrInsertBiologicalModel(phenotypedColony, euroPhenomeStrainMapper, zygosity, sampleGroup, allelesBySymbolMap);
         } catch (DataLoadException e) {
             switch (e.getDetail()) {
                 case NO_GENE_FOR_ALLELE:
