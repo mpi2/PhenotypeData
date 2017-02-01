@@ -34,7 +34,7 @@ String pieChart="";
 		List<String> colors=new ArrayList<>();
 		if(map == null){//if no colormap then use highdifference colors as default
 			colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
-		}else{
+		}else if(map!=null){
 			for(Entry<String, Integer> entry: labelToNumber.entrySet()){
 				if(entry.getKey().contains("WT")){
 					colors.add(map.get("WT"));
@@ -48,9 +48,20 @@ String pieChart="";
 				if(entry.getKey().contains("Hemizygous")){
 					colors.add(map.get(ZygosityType.hemizygote.name()));
 				}
+				
 			}
 		}
 
+		return makeChart(labelToNumber, chartId, title, subtitle, colors);
+	}
+	
+	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title, String subtitle,  List<String> colorsList){
+		return makeChart(labelToNumber, chartId, title, subtitle, colorsList);
+	}
+
+
+	private static String makeChart(Map<String, Integer> labelToNumber, String chartId, String title, String subtitle,
+			List<String> colors) {
 		String chart = "$(function () { $('#"+chartId+"').highcharts({ "
 				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "
 				 + " colors:"+colors+", "

@@ -127,15 +127,23 @@ public class SecondaryProjectController {
                 combinedData.putAll(geneStatus);
                 combinedData.putAll(mouseStatus);
                 combinedData.putAll(phenoStatus);
-                model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG Orthologs Datasets", "idgChart"));
+          
                 List<PhenotypeCallSummaryDTO> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
                 String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
                 model.addAttribute("chart", chart);
                 Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
-                totalLabelToNumber.put("Mouse Orthologs with IMPC Data", 81);
-                totalLabelToNumber.put("Mouse Orthologs",278);
-                String idgOrthologPie = PieChartCreator.getPieChart(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",null);
+               
+                totalLabelToNumber.put("Mouse Orthologs with IMPC Data",278);
+                totalLabelToNumber.put("Mouse Orthologs without IMPC Data", 81);
+                String sigColor="'rgb(191, 75, 50)'";
+                String nonSigColor="'rgb(247,157,70)'";
+                List<String> colorsForPie=new ArrayList<>();
+				colorsForPie.add( sigColor);
+                colorsForPie.add(nonSigColor);
+;                String idgOrthologPie = PieChartCreator.getPieChart(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",colorsForPie);
                 model.addAttribute("idgOrthologPie", idgOrthologPie);
+                
+                model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG Orthologs Datasets", "idgChart", colorsForPie));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
