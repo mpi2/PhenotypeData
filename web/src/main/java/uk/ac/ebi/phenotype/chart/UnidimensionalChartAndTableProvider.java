@@ -307,7 +307,7 @@ public class UnidimensionalChartAndTableProvider {
 		return chartAndTable;
 	}
 
-	public ChartData getStatusColumnChart(HashMap<String , Long> values, String title, String divId){
+	public ChartData getStatusColumnChart(HashMap<String , Long> values, String title, String divId, List<String> colors){
 
 		String data = "[";
 		// custom order & selection from Terry
@@ -341,9 +341,12 @@ public class UnidimensionalChartAndTableProvider {
 			}
 		}
 		data += "]";
-
+		if(colors==null || colors.isEmpty()){
+			colors=ChartColors.getHighDifferenceColorsRgba(new Double(50));
+		}
 		String javascript = "$(function () { $('#" + divId + "').highcharts({" +
-        	" chart: {type: 'column' }," +
+			" colors:"+colors+
+        	", chart: {type: 'column' }," +
         	" title: {text: '" + title + "'}," +
         	" credits: { enabled: false },  " +
         	" xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
