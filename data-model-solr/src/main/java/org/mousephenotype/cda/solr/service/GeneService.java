@@ -27,6 +27,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -996,6 +997,40 @@ public class GeneService extends BasicService implements WebStatus{
 	@Override
 	public String getServiceName(){
 		return "Gene Service";
+	}
+	
+	/**
+	 *
+	 * @param geneIds the input set of gene ids (e.g. idg genes)
+	 * @param statusField the status field
+	 * @return Number of genes (from the provided list) in each status of interest.
+	 */
+	public HashMap<String, Long> getStatusCount(Set<String> geneIds, String statusField) {
+
+		HashMap<String, Long> res = new HashMap<>();
+		SolrQuery solrQuery = new SolrQuery();
+		QueryResponse solrResponse;
+
+		if (geneIds != null){
+			String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
+			solrQuery.setQuery(geneQuery);
+		}else {
+			solrQuery.setQuery("*:*");
+		}
+		solrQuery.setRows(1);
+		solrQuery.setFacet(true);
+		solrQuery.setFacetLimit(-1);
+		try {
+			solrQuery.addFacetField(statusField);
+			solrResponse = solr.query(solrQuery);
+			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
+				res.put(c.getName(), c.getCount());
+			}
+		} catch (SolrServerException | IOException e) {
+			e.printStackTrace();
+		}
+
+		return res;
 	}
 	
 }

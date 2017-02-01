@@ -769,8 +769,9 @@ protected void addAbnormalEmapOntology(){
 	}
 
 	private Map<String,ObservationType> getObservationTypeMap(RunStatus runStatus){
+
 		Map<String,ObservationType> map = new HashMap<>();
-		String query= "select distinct parameter_stable_id, observation_type from observation";
+		String query= "select distinct parameter_stable_id, observation_type from observation where observation.missing != 1";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
 
