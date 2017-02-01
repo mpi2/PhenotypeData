@@ -162,7 +162,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, PhenotypedColony>         phenotypedColonyMap;
 
     // DCC parameter lookup maps, keyed by procedure_pk
-    private Map<Long, List<ProcedureMetadata>>    procedureMetadataMap;
     private Map<Long, List<SimpleParameter>>      simpleParameterMap;
     private Map<Long, List<MediaParameter>>       mediaParameterMap;
     private Map<Long, List<OntologyParameter>>    ontologyParameterMap;
@@ -196,7 +195,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         samplesMap = cdaSqlUtils.getBiologicalSamples();
 
         // Load DCC parameter maps
-        procedureMetadataMap = dccSqlUtils.getProcedureMetadata();
         simpleParameterMap = dccSqlUtils.getSimpleParameters();
         mediaParameterMap = dccSqlUtils.getMediaParameters();
         ontologyParameterMap = dccSqlUtils.getOntologyParameters();
@@ -400,7 +398,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         * metadataGroup - An md5 hash of only the required parameters. The hash source is the required metadata
         * parameters in the same format as <i>metadataCombined</i> above.</ul>
         */
-        List<ProcedureMetadata> dccMetadataList = procedureMetadataMap.get(dccExperiment.getDcc_procedure_pk());
+        List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperiment.getDcc_procedure_pk());
         if (dccMetadataList == null)
             dccMetadataList = new ArrayList<>();
         ObservableList<String> metadataCombinedList = FXCollections.observableArrayList();
@@ -860,7 +858,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
 
-        List<ProcedureMetadata> dccMetadataList = procedureMetadataMap.get(dccExperimentDTO.getDcc_procedure_pk());
+        List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperimentDTO.getDcc_procedure_pk());
         String parameterStableId = seriesParameter.getParameterID();
 
         for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
@@ -875,7 +873,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String[]        rawParameterStatus     = commonUtils.parseImpressStatus(seriesParameter.getParameterStatus());
             String          parameterStatus        = rawParameterStatus[0];
             String          parameterStatusMessage = rawParameterStatus[1];
-            int             missing                = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
+            int             missing                = ((procedureStatus != null) || (parameterStatus != null) ? 1 : 0);
             int             parameterPk            = cdaParameter_idMap.get(parameterStableId);
             String          sequenceId             = null;
             int             populationId           = 0;
@@ -885,12 +883,16 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             Date  timePoint     = dccExperimentDTO.getDateOfExperiment();                                               // timePoint for all cases. Default is dateOfExperiment.
             Float discretePoint = null;
 
-            missing = 1;
-            if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.trim().isEmpty())) {
-                try {
-                    dataPoint = Float.parseFloat(simpleValue);                                                          // dataPoint for all cases.
-                    missing = 0;
-                } catch (NumberFormatException e) {
+            if (missing == 0) {
+                if ((simpleValue != null) && (!simpleValue.equals("null")) && (!simpleValue.trim().isEmpty())) {
+                    try {
+                        dataPoint = Float.parseFloat(simpleValue);                                                      // dataPoint for all cases.
+                        missing = 0;
+                    } catch (NumberFormatException e) {
+                        missing = 1;
+                    }
+                } else {
+                    missing = 1;
                 }
             }
 

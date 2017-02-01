@@ -165,23 +165,18 @@ public class LoadFromDcc implements CommandLineRunner {
             }
         }
 
-        if (processSpecimens) {
-            if (processEurophenome) {
-                jobs.add(specimensFromDccEurophenome());
-            }
-            if (processDcc) {
-                jobs.add(specimensFromDcc());
-            }
-        }
+        // Process in this order: europhenome_specimens, europhenome_experiments, dcc_specimens, dcc_experiments
+        if (processEurophenome && processSpecimens)
+            jobs.add(processEurophenomeSpecimens());
 
-        if (processExperiments) {
-            if (processEurophenome) {
-                jobs.add(experimentsFromDccEurophenome());
-            }
-            if (processDcc) {
-                jobs.add(experimentsFromDcc());
-            }
-        }
+        if (processEurophenome && processExperiments)
+            jobs.add(processEurophenomeExperiments());
+
+        if (processDcc && processSpecimens)
+            jobs.add(processDccSpecimens());
+
+        if (processDcc && processExperiments)
+            jobs.add(processDccExperiments());
 
         List<String> parts = new ArrayList<>();
         if (processEurophenome && processSpecimens)
@@ -228,48 +223,62 @@ public class LoadFromDcc implements CommandLineRunner {
         return jobs;
     }
 
-    public Job specimensFromDcc() throws DataLoadException {
+    public Job processEurophenomeSpecimens() throws DataLoadException {
 
+        logger.info("*******************************************");
+        logger.info("****  PROCESSING EUROPHENOME SPECIMENS ****");
+        logger.info("*******************************************");
         // Specimens to Samples
-        Flow samplesFlow = new FlowBuilder<Flow>("samplesDccFlow").from(sampleDccLoader).end();
+        Flow samplesFlow = new FlowBuilder<Flow>("processEurophenomeSpecimensFlow").from(sampleDccEurophenomeLoader).end();
 
-        return jobBuilderFactory.get("samplesDccJobJob")
+        return jobBuilderFactory.get("processEurophenomeSpecimensJob")
                 .incrementer(new RunIdIncrementer())
                 .start(samplesFlow)
                 .end()
                 .build();
     }
 
-    public Job experimentsFromDcc() throws DataLoadException {
+    public Job processEurophenomeExperiments() throws DataLoadException {
 
+        logger.info("*********************************************");
+        logger.info("****  PROCESSING EUROPHENOME EXPERIMENTS ****");
+        logger.info("*********************************************");
         // Dcc Experiments to Cda Experiments
-        Flow experimentsFlow = new FlowBuilder<Flow>("experimentsDccFlow").from(experimentDccLoader).end();
+        Flow experimentsFlow = new FlowBuilder<Flow>("processEurophenomeExperimentsFlow").from(experimentDccEurophenomeLoader).end();
 
-        return jobBuilderFactory.get("experimentsDccJob")
+        return jobBuilderFactory.get("processEurophenomeExperimentsJob")
                 .incrementer(new RunIdIncrementer())
                 .start(experimentsFlow)
                 .end()
                 .build();
     }
 
-    public Job specimensFromDccEurophenome() throws DataLoadException {
+    public Job processDccSpecimens() throws DataLoadException {
 
+
+        logger.info("***********************************");
+        logger.info("****  PROCESSING DCC SPECIMENS ****");
+        logger.info("***********************************");
         // Specimens to Samples
-        Flow samplesFlow = new FlowBuilder<Flow>("samplesDccEurophenomeFlow").from(sampleDccEurophenomeLoader).end();
+        Flow samplesFlow = new FlowBuilder<Flow>("processDccSpecimensFlow").from(sampleDccLoader).end();
 
-        return jobBuilderFactory.get("samplesDccEurophenomeJob")
+        return jobBuilderFactory.get("processDccSpecimensJob")
                 .incrementer(new RunIdIncrementer())
                 .start(samplesFlow)
                 .end()
                 .build();
     }
 
-    public Job experimentsFromDccEurophenome() throws DataLoadException {
+    public Job processDccExperiments() throws DataLoadException {
 
+
+        logger.info("*************************************");
+        logger.info("****  PROCESSING DCC EXPERIMENTS ****");
+        logger.info("*************************************");
         // Dcc Experiments to Cda Experiments
-        Flow experimentsFlow = new FlowBuilder<Flow>("experimentsDccEurophenomeFlow").from(experimentDccEurophenomeLoader).end();
+        Flow experimentsFlow = new FlowBuilder<Flow>("processDccExperimentsFlow").from(experimentDccLoader).end();
 
-        return jobBuilderFactory.get("experimentsDccEurophenomeJob")
+        return jobBuilderFactory.get("processDccExperimentsJob")
                 .incrementer(new RunIdIncrementer())
                 .start(experimentsFlow)
                 .end()

@@ -894,62 +894,22 @@ public class DccSqlUtils {
         return results;
     }
 
-    // This is a container to hold the procedure_pk matching the associated ProcedureMetadata.
-    public class ProcedureMetadataEx {
-        private long              procedure_pk;
-        private ProcedureMetadata procedureMetadata;
-
-        public long getProcedure_pk() {
-            return procedure_pk;
-        }
-
-        public void setProcedure_pk(long procedure_pk) {
-            this.procedure_pk = procedure_pk;
-        }
-
-        public ProcedureMetadata getProcedureMetadata() {
-            return procedureMetadata;
-        }
-
-        public void setProcedureMetadata(ProcedureMetadata procedureMetadata) {
-            this.procedureMetadata = procedureMetadata;
-        }
-    }
-    public class ProcedureMetadataExRowMapper implements RowMapper<ProcedureMetadataEx> {
-
-        @Override
-        public ProcedureMetadataEx mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ProcedureMetadataEx procedureMetadataEx = new ProcedureMetadataEx();
-
-            procedureMetadataEx.setProcedure_pk(rs.getLong("procedure_pk"));
-            procedureMetadataEx.setProcedureMetadata(new ProcedureMetadataRowMapper().mapRow(rs, rowNum));
-
-            return procedureMetadataEx;
-        }
-    }
-    public Map<Long, List<ProcedureMetadata>> getProcedureMetadata() {
-        Map<Long, List<ProcedureMetadata>> retVal = new HashMap<>();
+    public List<ProcedureMetadata> getProcedureMetadata(long dccProcedurePk) {
 
         final String query =
                 "SELECT\n" +
                 "  ppm.procedure_pk,\n" +
                 "  pm.*\n" +
                 "FROM procedureMetadata pm\n" +
-                "JOIN procedure_procedureMetadata ppm on ppm.procedureMetadata_pk = pm.pk";
+                "JOIN procedure_procedureMetadata ppm on ppm.procedureMetadata_pk = pm.pk\n" +
+                "WHERE ppm.procedure_pk = :dccProcedurePk";
 
         Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dccProcedurePk", dccProcedurePk);
 
-        List<ProcedureMetadataEx> list = npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataExRowMapper());
-        for (ProcedureMetadataEx pmEx : list) {
-            List<ProcedureMetadata> pmdList = retVal.get(pmEx.getProcedure_pk());
-            if (pmdList == null) {
-                pmdList = new ArrayList<>();
-                retVal.put(pmEx.getProcedure_pk(), pmdList);
-            }
-            pmdList.add(pmEx.getProcedureMetadata());
-        }
+        List<ProcedureMetadata> list = npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
 
-        return retVal;
+        return list;
     }
 
     /**
