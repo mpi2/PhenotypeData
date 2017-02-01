@@ -104,20 +104,20 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 						 <div class="section" >
 								<h2 class="title"	id="section-associations"> IMPC Production Status for IDG Gene Set </h2>
 		           					 <div class="inner">
-		            	
+		            	<p>
 		            	The IMPC consortium is using different complementary targeting strategies to produce Knockout alleles, namely ES cell based chromosome engineering and CRISPR/Cas-mediated genome engineering. Mouse are then produced and submitted to phenotyping pipelines. Below are Statistics representing the IMPC production status for IDG gene lists.
-		            	
+		            	</p>
 									<div  class="half">
-										<div id="idgOrhtologPie">
+										<div id="idgOrthologPie">
 			            		<script type="text/javascript">
-													${idgOrhtologPie}
+													${idgOrthologPie}
 											</script> 
 										</div>       	
 									</div>
 									<div  class="half">
-			            	<div id="phenotypeStatusChart">
+			            	<div id=idgChart>
 			            		<script type="text/javascript">
-													${phenotypeStatusChart.getChart()}
+													${idgChartTable.getChart()}
 											</script> 
 										</div>   
 									</div>
@@ -145,7 +145,7 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 		        
 						
 						<div class="section">
-						<h2 class="title">Gene to MP Term Heat Map</h2>
+						<h2 class="title">Gene to Phenotype Heat Map</h2>
 
 
 							<div class=inner>
@@ -176,7 +176,7 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 									</tr>
 								</table>
 							</div>
-									<div id="geneHeatmap" style="overflow: hidden; overflow-x: auto;">
+									<div id="geneHeatmap" class="geneHeatMap" style="overflow: hidden; overflow-x: auto;">
 									</div>
 							</div>
 						</div>

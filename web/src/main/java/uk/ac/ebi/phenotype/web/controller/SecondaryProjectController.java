@@ -22,6 +22,7 @@ import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
@@ -55,6 +56,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,16 +119,31 @@ public class SecondaryProjectController {
             try {
                 Set<SecondaryProjectBean> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
                 Set<String> accessions=SecondaryProjectBean.getAccessionsFromBeans(secondaryProjects);
-                model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart"));
-                model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
+                //model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(geneService.getStatusCount(accessions, GeneDTO.LATEST_ES_CELL_STATUS), "Genotype Status Chart", "genotypeStatusChart"));
+                HashMap<String, Long> geneStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_ES_CELL_STATUS);
+                HashMap<String, Long> mouseStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_MOUSE_STATUS);
+                HashMap<String, Long> phenoStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_PHENOTYPE_STATUS);
+                HashMap<String, Long> combinedData=new HashMap<>();
+                combinedData.putAll(geneStatus);
+                combinedData.putAll(mouseStatus);
+                combinedData.putAll(phenoStatus);
+          
                 List<PhenotypeCallSummaryDTO> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
                 String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
                 model.addAttribute("chart", chart);
                 Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
-                totalLabelToNumber.put("Mouse Orthologs with IMPC Data", 23);
-                totalLabelToNumber.put("Mouse Orthologs", 77);
-                String idgOrhtologPie = PieChartCreator.getPieChart(totalLabelToNumber, "idgOrhtologPie", "IDG Orthologs Representation in the IMPC", "",null);
-                model.addAttribute("idgOrhtologPie", idgOrhtologPie);
+               
+                totalLabelToNumber.put("Mouse Orthologs with IMPC Data",278);
+                totalLabelToNumber.put("Mouse Orthologs without IMPC Data", 81);
+                String sigColor="'rgb(191, 75, 50)'";
+                String nonSigColor="'rgb(247,157,70)'";
+                List<String> colorsForPie=new ArrayList<>();
+				colorsForPie.add( sigColor);
+                colorsForPie.add(nonSigColor);
+;                String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",colorsForPie);
+                model.addAttribute("idgOrthologPie", idgOrthologPie);
+                
+                model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG Orthologs Datasets", "idgChart", colorsForPie));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
