@@ -55,7 +55,7 @@ String pieChart="";
 		return makeChart(labelToNumber, chartId, title, subtitle, colors);
 	}
 	
-	public static String getPieChart(Map<String, Integer> labelToNumber, String chartId, String title, String subtitle,  List<String> colorsList){
+	public static String getPieChartForColorList(Map<String, Integer> labelToNumber, String chartId, String title, String subtitle,  List<String> colorsList){
 		return makeChart(labelToNumber, chartId, title, subtitle, colorsList);
 	}
 

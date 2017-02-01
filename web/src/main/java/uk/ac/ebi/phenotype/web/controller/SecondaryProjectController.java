@@ -140,7 +140,7 @@ public class SecondaryProjectController {
                 List<String> colorsForPie=new ArrayList<>();
 				colorsForPie.add( sigColor);
                 colorsForPie.add(nonSigColor);
-;                String idgOrthologPie = PieChartCreator.getPieChart(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",colorsForPie);
+;                String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",colorsForPie);
                 model.addAttribute("idgOrthologPie", idgOrthologPie);
                 
                 model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG Orthologs Datasets", "idgChart", colorsForPie));
