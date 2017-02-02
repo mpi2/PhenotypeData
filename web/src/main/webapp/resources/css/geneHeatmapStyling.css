@@ -20,7 +20,6 @@ table, tr, td, th {
 .geneHeatMap th span.vertical{
   margin-bottom: 0px;
   writing-mode: vertical-lr;
-  -webkit-text-orientation: sideways;
   -webkit-writing-mode: vertical-lr;
   -ms-writing-mode: lr-tb;
     /*-webkit-transform:rotate(-90deg);*/
