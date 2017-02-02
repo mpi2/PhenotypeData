@@ -8,11 +8,11 @@
 	<script>
  		$(function() {
 	    var header_height = 0;
-	    $('table th span').each(function() {
+	    $('.gene-heatmap-header .vertical').each(function() {
 	        if ($(this).outerWidth() > header_height) header_height = $(this).outerWidth();
 	        $(this).width($(this).height()* 0.05);
 	    });
-	    $('table th').height(header_height);
+	    $('geneHeatMap table th').height(header_height);
 		});
  	</script>
   	
@@ -22,7 +22,7 @@
 			<a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank" class="button fa fa-download">XLS</a>
 		</p>
 	</div>
- 	<table id="secondaryGeneHeatmap">
+ 	<table id="secondaryGeneHeatmap" class="geneHeatMap">
  	
    <thead>
      <tr> 

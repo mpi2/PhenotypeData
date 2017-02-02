@@ -331,8 +331,8 @@ public class ReleaseController {
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
 		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
-		model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotyping Status", "genotypeStatusChart" ));
-		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotyping Status", "phenotypeStatusChart"));
+		model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotyping Status", "genotypeStatusChart", null ));
+		model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(null, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotyping Status", "phenotypeStatusChart", null));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
 		model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
