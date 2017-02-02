@@ -8,22 +8,21 @@
 	<script>
  		$(function() {
 	    var header_height = 0;
-	    $('table th span').each(function() {
+	    $('.gene-heatmap-header .vertical').each(function() {
 	        if ($(this).outerWidth() > header_height) header_height = $(this).outerWidth();
 	        $(this).width($(this).height()* 0.05);
 	    });
-	    $('table th').height(header_height);
+	    $('geneHeatMap table th').height(header_height);
 		});
  	</script>
   	
   	<div id="export">
-										<p class="textright">
-											Download data as:
-											<a id="tsvDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=tsv&fileName=idgData" target="_blank" class="button fa fa-download">TSV</a>
-											<a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank" class="button fa fa-download">XLS</a>
-										</p>
-									</div>     
- 	<table id="secondaryGeneHeatmap">
+		<p class="textright"> Download data as:
+			<a id="tsvDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=tsv&fileName=idgData" target="_blank" class="button fa fa-download">TSV</a>
+			<a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank" class="button fa fa-download">XLS</a>
+		</p>
+	</div>
+ 	<table id="secondaryGeneHeatmap" class="geneHeatMap">
  	
    <thead>
      <tr> 
@@ -38,8 +37,9 @@
    
 	 <c:forEach items="${geneRows}" var="row">
      	<tr>
-            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a></td><td>${row.groupLabel}</td>
-      	<td>${row.miceProduced}</td>
+            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}<i class="icon icon-species">M</i></a><br/>	${row.getHumanSymbolToString()}<i class="icon icon-species" >H</i></td>
+            <td>${row.groupLabel}</td>
+      	    <td>${row.miceProduced}</td>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" > 
           <td
            	<c:choose>

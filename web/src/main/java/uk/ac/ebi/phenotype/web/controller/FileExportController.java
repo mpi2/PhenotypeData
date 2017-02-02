@@ -135,10 +135,10 @@ public class FileExportController {
 	@ResponseBody
 	@RequestMapping(value = "/exportraw", method = RequestMethod.GET)
 	public String getExperimentalData(
-			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter,
-			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId,
+			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter, // assume reuired in code
+			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId, // assume reuired in code
 			@RequestParam(value = "procedure_stable_id", required = false) String procedureStableId,
-			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId,
+			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId, // assume reuired in code
 			@RequestParam(value = "allele_accession_id", required = false) String alleleAccessionId,
 			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
@@ -184,7 +184,8 @@ public class FileExportController {
 				row.add("Exp" + i.toString());
 				row.add(phenotypingCenter);
 				row.add(pipelineStableId);
-				row.add(procedureStableId);
+				row.add(observation.getProcedureStableId());
+				row.add(parameterStableId);
 				row.add(observation.getStrain());
 				row.add((observation.getGroup().equals("control")) ? "+/+" : observation.getColonyId());
 				row.add((observation.getGroup().equals("control")) ? "\"\"" : geneAcc);
@@ -204,7 +205,7 @@ public class FileExportController {
 
 				row.add((observation.getWeight() != null && StringUtils.isNotEmpty(observation.getWeight().toString())) ? observation.getWeight().toString() : "");
 
-				rows.add(StringUtils.join(row, ", "));
+				rows.add(StringUtils.join(row, ","));
 			}
 
 			// Next experiment

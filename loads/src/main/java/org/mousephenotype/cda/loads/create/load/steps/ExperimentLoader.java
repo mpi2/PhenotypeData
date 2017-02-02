@@ -43,11 +43,10 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
-
+import javax.inject.Inject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -67,19 +66,31 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private StepBuilderFactory            stepBuilderFactory;
 
     private Set<String> missingColonyIds         = new HashSet<>();
-    private Set<String> noGeneForAllele          = new HashSet<>();
     private Set<String> unsupportedParametersMap = new HashSet<>();
 
     private int lineLevelProcedureCount   = 0;
     private int sampleLevelProcedureCount = 0;
 
+    // lookup maps returning specified parameter type list given cda procedure primary key
+    private Map<String, Allele> allelesBySymbolMap;
 
-    public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda, StepBuilderFactory stepBuilderFactory,
-                            CdaSqlUtils cdaSqlUtils, DccSqlUtils dccSqlUtils) {
-            this.jdbcCda = jdbcCda;
-            this.stepBuilderFactory = stepBuilderFactory;
-            this.cdaSqlUtils = cdaSqlUtils;
-            this.dccSqlUtils = dccSqlUtils;
+
+    @Inject
+    public ExperimentLoader(NamedParameterJdbcTemplate jdbcCda,
+                            StepBuilderFactory stepBuilderFactory,
+                            CdaSqlUtils cdaSqlUtils,
+                            DccSqlUtils dccSqlUtils,
+                            Map<String, Allele> allelesBySymbolMap,
+                            Map<String, Integer> cdaOrganisation_idMap,
+                            Map<String, PhenotypedColony> phenotypedColonyMap
+                            ) {
+        this.jdbcCda = jdbcCda;
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.cdaSqlUtils = cdaSqlUtils;
+        this.dccSqlUtils = dccSqlUtils;
+        this.cdaOrganisation_idMap = cdaOrganisation_idMap;
+        this.phenotypedColonyMap = phenotypedColonyMap;
+        this.allelesBySymbolMap = allelesBySymbolMap;
     }
 
     @Override
@@ -89,6 +100,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
         Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
+        Assert.notNull(cdaOrganisation_idMap, "cdaOrganisation_idMap must be set");
+        Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must be set");
+        Assert.notNull(dccSqlUtils, "dccSqlUtils must be set");
+        Assert.notNull(allelesBySymbolMap, "allelesBySymbolMap must be set");
     }
 
     /**
@@ -141,12 +156,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, Integer>                  cdaPipeline_idMap;
     private Map<String, Integer>                  cdaProcedure_idMap;
     private Map<String, Integer>                  cdaParameter_idMap;
+    private Map<String, String>                   cdaParameterNameMap;              // map of impress parameter names keyed by stable_parameter_id
     private Set<String>                           requiredImpressParameters;
     private Map<String, BiologicalSample>         samplesMap;                       // keyed by external_id
     private Map<String, PhenotypedColony>         phenotypedColonyMap;
 
     // DCC parameter lookup maps, keyed by procedure_pk
-    private Map<Long, List<ProcedureMetadata>>    procedureMetadataMap;
     private Map<Long, List<SimpleParameter>>      simpleParameterMap;
     private Map<Long, List<MediaParameter>>       mediaParameterMap;
     private Map<Long, List<OntologyParameter>>    ontologyParameterMap;
@@ -155,38 +170,32 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap;
 
 
-    // lookup maps returning specified parameter type list given cda procedure primary key
-    private ConcurrentHashMap<String, Allele> allelesBySymbolMap;
-
-
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        logger.info("Loading dcc experiments from {}", dccSqlUtils.getDbName());
+        String message = "**** LOADING " + dccSqlUtils.getDbName() + " EXPERIMENTS ****";
+        logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
+        logger.info(message);
+        logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
 
         long startStep = new Date().getTime();
-        Experiment experiment;
-        Observation observation;
         List<DccExperimentDTO> dccExperiments = dccSqlUtils.getExperiments();
         Map<String, Integer>   counts;
 
         // Initialise maps.
         logger.info("Loading lookup maps started");
         euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
-        allelesBySymbolMap = new ConcurrentHashMap<>(cdaSqlUtils.getAllelesBySymbol());
 
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
-        cdaOrganisation_idMap = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
-        phenotypedColonyMap = cdaSqlUtils.getPhenotypedColonies();
+        cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
         requiredImpressParameters = cdaSqlUtils.getRequiredImpressParameters();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
 
         // Load DCC parameter maps
-        procedureMetadataMap = dccSqlUtils.getProcedureMetadata();
         simpleParameterMap = dccSqlUtils.getSimpleParameters();
         mediaParameterMap = dccSqlUtils.getMediaParameters();
         ontologyParameterMap = dccSqlUtils.getOntologyParameters();
@@ -241,37 +250,37 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {
             String colonyId = missingColonyIdsIt.next();
-            logger.error("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'. Skipping...");
+            logger.warn("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'. Skipping...");
         }
 
         Iterator<String> missingCentersIt = missingCenters.iterator();
         while (missingCentersIt.hasNext()) {
             String centerId = missingCentersIt.next();
-            logger.error("Missing center '" + centerId + "'. Skipping...");
+            logger.warn("Missing center '" + centerId + "'. Skipping...");
         }
 
         Iterator<String> missingPipelinesIt = missingPipelines.iterator();
         while (missingPipelinesIt.hasNext()) {
             String pipelineId = missingPipelinesIt.next();
-            logger.error("Missing pipeline '" + pipelineId + "'. Skipping...");
+            logger.warn("Missing pipeline '" + pipelineId + "'. Skipping...");
         }
 
         Iterator<String> missingProceduresIt = missingProcedures.iterator();
         while (missingProceduresIt.hasNext()) {
             String procedureId = missingProceduresIt.next();
-            logger.error("Missing procedure '" + procedureId + "'. Skipping...");
+            logger.warn("Missing procedure '" + procedureId + "'. Skipping...");
         }
 
         Iterator<String> missingProjectsIt = missingProjects.iterator();
         while (missingProjectsIt.hasNext()) {
             String projectId = missingProjectsIt.next();
-            logger.error("Missing project '" + projectId + "'. Skipping...");
+            logger.warn("Missing project '" + projectId + "'. Skipping...");
         }
 
         Iterator<String> missingSamplesIt = missingSamples.iterator();
         while (missingSamplesIt.hasNext()) {
             String parameterStableId = missingSamplesIt.next();
-            logger.error("Missing samples for parameter stable id '" + parameterStableId + "'. Skipping...");
+            logger.warn("Missing samples for parameter stable id '" + parameterStableId + "'. Skipping...");
         }
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
@@ -284,17 +293,9 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         return RepeatStatus.FINISHED;
     }
 
-//    @Transactional
+
     public Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
 
-
-
-//        if (dccExperiment.getExperimentId().equals("8852_1943")) {
-//            int mm = 17;
-//            System.out.println();
-//        } else {
-//            return new Experiment();
-//        }
         Experiment experiment = createExperiment(dccExperiment);
 
         return experiment;
@@ -369,7 +370,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                logger.error("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
+                logger.warn("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
                 return null;
             }
             colonyId = phenotypedColony.getColonyName();
@@ -390,22 +391,24 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
        /** Save procedure metadata into metadataCombined and metadataGroup:
         *
-        * metadataCombined - All of a procedure's metadata parameters, in token = value format. Each metadata parameter
-        * is separated by a pair of colons. Each metadata lvalue is separated from its rvalue by " = ";
-        * for example: "Parm1 = 123::Parm2 = 567"
+        * metadataCombined - All of a procedure's metadata parameters, in parameterDescription = value format. Each
+        * metadata parameter is separated by a pair of colons. Each metadata lvalue is separated from its rvalue by " = ";
+        * for example, for cda.experiment.external_id '8852_1943':
+        *     "Equipment name = Rotarod apparatus::Equipment manufacturer = Bioseb::Equipment model = LE 8200::Surface of the rod = Foam rubber::Diameter of the rod = 4.5::Acceleration mode = 4 to 40 rpm in 5 min::Number of mice on the rod per run = 3::First inter-trial interval = 15::Second inter-trial interval = 15"
         *
         * metadataGroup - An md5 hash of only the required parameters. The hash source is the required metadata
         * parameters in the same format as <i>metadataCombined</i> above.</ul>
         */
-        List<ProcedureMetadata> dccMetadataList = procedureMetadataMap.get(dccExperiment.getDcc_procedure_pk());
+        List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperiment.getDcc_procedure_pk());
         if (dccMetadataList == null)
             dccMetadataList = new ArrayList<>();
         ObservableList<String> metadataCombinedList = FXCollections.observableArrayList();
         ObservableList<String> metadataGroupList = FXCollections.observableArrayList();
         for (ProcedureMetadata metadata : dccMetadataList) {
-            metadataCombinedList.add(metadata.getParameterID() + " = " + metadata.getValue());
+            String parameterName = cdaParameterNameMap.get(metadata.getParameterID());
+            metadataCombinedList.add(parameterName + " = " + metadata.getValue());
             if (requiredImpressParameters.contains(metadata.getParameterID())) {
-                metadataGroupList.add(metadata.getParameterID() + " = " + metadata.getValue());
+                metadataGroupList.add(parameterName + " = " + metadata.getValue());
             }
         }
 
@@ -447,9 +450,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
-        createObservations(dccExperiment, dbId, experimentPk);
-
+        // Procedure-level metadata
         cdaSqlUtils.insertProcedureMetadata(dccMetadataList, dccExperiment.getProcedureId(), experimentPk, 0);
+
+        // Observations (including observation-level metadata)
+        createObservations(dccExperiment, dbId, experimentPk);
 
         return experiment;
     }
@@ -524,6 +529,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
         for (SeriesParameter seriesParameter : seriesParameterList) {
+            List<SeriesParameterValue> values = dccSqlUtils.getSeriesParameterValues(seriesParameter.getHjid());
+            seriesParameter.setValue(values);
             insertSeriesParameter(dccExperimentDTO, seriesParameter, experimentPk, dbId, biologicalSamplePk);
         }
 
@@ -538,6 +545,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
         for (SeriesMediaParameter seriesMediaParameter : seriesMediaParameterList) {
+            List<SeriesMediaParameterValue> values = dccSqlUtils.getSeriesMediaParameterValues(seriesMediaParameter.getHjid());
+            seriesMediaParameter.setValue(values);
             insertSeriesMediaParameter(dccExperimentDTO, seriesMediaParameter, experimentPk, dbId, biologicalSamplePk,
                                        simpleParameterList, ontologyParameterList);
         }
@@ -633,7 +642,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private void insertSimpleParameter(DccExperimentDTO dccExperimentDTO, SimpleParameter simpleParameter, int experimentPk,
-                                       int dbId, int biologicalSamplePk) throws DataLoadException {
+                                       int dbId, Integer biologicalSamplePk) throws DataLoadException {
         String parameterStableId = simpleParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
@@ -686,7 +695,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private void insertMediaParameter(DccExperimentDTO dccExperimentDTO, MediaParameter mediaParameter,
-                                      int experimentPk, int dbId, int biologicalSamplePk) throws DataLoadException
+                                      int experimentPk, int dbId, Integer biologicalSamplePk) throws DataLoadException
     {
         if (dccExperimentDTO.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains MediaParameters, which is currently unsupported. Skipping parameters.");
@@ -726,7 +735,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     public void insertMediaSampleParameter(DccExperimentDTO dccExperimentDTO, MediaSampleParameter mediaSampleParameter,
-                                           int experimentPk, int dbId, int biologicalSamplePk,
+                                           int experimentPk, int dbId, Integer biologicalSamplePk,
                                            List<SimpleParameter> simpleParameterList,
                                            List<OntologyParameter> ontologyParameterList) throws DataLoadException
     {
@@ -770,7 +779,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int observationPk = 0;
 
         for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
-            String mediaSampleLocalId = mediaSample.getLocalId();
             for (MediaSection mediaSection : mediaSample.getMediaSection()) {
 
                 for (MediaFile mediaFile : mediaSection.getMediaFile()) {
@@ -791,7 +799,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private void insertSeriesMediaParameter(DccExperimentDTO dccExperimentDTO, SeriesMediaParameter seriesMediaParameter,
-                                            int experimentPk, int dbId, int biologicalSamplePk,
+                                            int experimentPk, int dbId, Integer biologicalSamplePk,
                                             List<SimpleParameter> simpleParameterList,
                                             List<OntologyParameter> ontologyParameterList) throws DataLoadException
     {
@@ -813,7 +821,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             parameterStatus        = rawParameterStatus[0];
             parameterStatusMessage = rawParameterStatus[1];
         } catch (Exception e) {
-            logger.error("Error extracting parameter. rawParameterStatus = {}. Ingored.", rawParameterStatus);
+            logger.warn("Error extracting parameter. rawParameterStatus = {}. Ingored.", rawParameterStatus);
         }
         int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
@@ -844,14 +852,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
 
     private void insertSeriesParameter(DccExperimentDTO dccExperimentDTO, SeriesParameter seriesParameter, int experimentPk,
-                                       int dbId, int biologicalSamplePk) throws DataLoadException {
+                                       int dbId, Integer biologicalSamplePk) throws DataLoadException {
 
         if (dccExperimentDTO.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains SeriesParameters, which is currently unsupported. Skipping parameters.");
             return;
         }
 
-        List<ProcedureMetadata> dccMetadataList = procedureMetadataMap.get(dccExperimentDTO.getDcc_procedure_pk());
+        List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperimentDTO.getDcc_procedure_pk());
         String parameterStableId = seriesParameter.getParameterID();
 
         for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
@@ -866,7 +874,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String[]        rawParameterStatus     = commonUtils.parseImpressStatus(seriesParameter.getParameterStatus());
             String          parameterStatus        = rawParameterStatus[0];
             String          parameterStatusMessage = rawParameterStatus[1];
-            int             missing                = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
+            int             missing                = ((procedureStatus != null) || (parameterStatus != null) ? 1 : 0);
             int             parameterPk            = cdaParameter_idMap.get(parameterStableId);
             String          sequenceId             = null;
             int             populationId           = 0;
@@ -876,10 +884,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             Date  timePoint     = dccExperimentDTO.getDateOfExperiment();                                               // timePoint for all cases. Default is dateOfExperiment.
             Float discretePoint = null;
 
-            if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.equals(""))) {
-                try {
-                    dataPoint = Float.parseFloat(simpleValue);                                                          // dataPoint for all cases.
-                } catch (NumberFormatException e) {
+            if (missing == 0) {
+                if ((simpleValue != null) && (!simpleValue.equals("null")) && (!simpleValue.trim().isEmpty())) {
+                    try {
+                        dataPoint = Float.parseFloat(simpleValue);                                                      // dataPoint for all cases.
+                        missing = 0;
+                    } catch (NumberFormatException e) {
+                        missing = 1;
+                    }
+                } else {
                     missing = 1;
                 }
             }
@@ -925,7 +938,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private void insertOntologyParameters(DccExperimentDTO dccExperimentDTO, OntologyParameter ontologyParameter,
-                                          int experimentPk, int dbId, int biologicalSamplePk) throws DataLoadException
+                                          int experimentPk, int dbId, Integer biologicalSamplePk) throws DataLoadException
     {
         if (dccExperimentDTO.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains OntologyParameters, which is currently unsupported. Skipping parameters.");

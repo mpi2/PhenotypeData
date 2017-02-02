@@ -700,6 +700,25 @@ public class DccSqlUtils {
         return retVal;
     }
 
+    public List<SeriesMediaParameterValue> getSeriesMediaParameterValues(long seriesMediaParameter_pk) {
+
+        final String query =
+                "SELECT\n" +
+                        "  pk,\n" +
+                        "  fileType,\n" +
+                        "  incrementValue,\n" +
+                        "  URI,seriesMediaParameter_pk\n" +
+                        "FROM seriesMediaParameterValue\n" +
+                        "WHERE seriesMediaParameter_pk = :seriesMediaParameter_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("seriesMediaParameter_pk", seriesMediaParameter_pk);
+
+        List<SeriesMediaParameterValue> list = npJdbcTemplate.query(query, parameterMap, new SeriesMediaParameterValueRowMapper());
+
+        return list;
+    }
+
     private class SeriesParameterEx {
         private long procedure_pk;
         private SeriesParameter seriesParameter;
@@ -752,6 +771,25 @@ public class DccSqlUtils {
         }
 
         return retVal;
+    }
+
+    public List<SeriesParameterValue> getSeriesParameterValues(long seriesParameter_pk) {
+
+        final String query =
+                "SELECT\n" +
+                        "  pk,\n" +
+                        "  incrementStatus,\n" +
+                        "  incrementValue,\n" +
+                        "  value\n" +
+                        "FROM seriesParameterValue\n" +
+                        "WHERE seriesParameter_pk = :seriesParameter_pk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("seriesParameter_pk", seriesParameter_pk);
+
+        List<SeriesParameterValue> list = npJdbcTemplate.query(query, parameterMap, new SeriesParameterValueRowMapper());
+
+        return list;
     }
 
     private class SimpleParameterEx {
@@ -912,6 +950,24 @@ public class DccSqlUtils {
         }
 
         return retVal;
+    }
+
+    public List<ProcedureMetadata> getProcedureMetadata(long dccProcedurePk) {
+
+        final String query =
+                "SELECT\n" +
+                "  ppm.procedure_pk,\n" +
+                "  pm.*\n" +
+                "FROM procedureMetadata pm\n" +
+                "JOIN procedure_procedureMetadata ppm on ppm.procedureMetadata_pk = pm.pk\n" +
+                "WHERE ppm.procedure_pk = :dccProcedurePk";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dccProcedurePk", dccProcedurePk);
+
+        List<ProcedureMetadata> list = npJdbcTemplate.query(query, parameterMap, new ProcedureMetadataRowMapper());
+
+        return list;
     }
 
     /**
