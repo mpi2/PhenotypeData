@@ -45,4 +45,11 @@
       </plugin>
       </plugins></build>
 
+      <dependencies>
+          <dependency>
+              <groupId>org.springframework.retry</groupId>
+              <artifactId>spring-retry</artifactId>
+          </dependency>
+      </dependencies>
+
 </project>
