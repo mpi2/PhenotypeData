@@ -104,7 +104,7 @@ public class SolrIndex {
 		return geneCore;
 	}
 
-	public List<String> fetchQueryIdsFromChrRange(String chr, String chrStart, String chrEnd, int rows) throws IOException, SolrServerException {
+	public List<String> fetchQueryIdsFromChrRange(String chr, String chrStart, String chrEnd, String mode) throws IOException, SolrServerException {
 		List<String> queryIds = new ArrayList<>();
 
 		SolrClient server = null;
@@ -118,9 +118,21 @@ public class SolrIndex {
 				+ " AND seq_region_end:["
 				+ chrStart + " TO " + chrEnd + "]");
 		query.setFields("mgi_accession_id");
-		query.setRows(rows); // more than all the impc genes
 
-		QueryResponse response = server.query(query, METHOD.POST);
+		QueryResponse response = null;
+		if ( !mode.equals("export")) {
+			query.setRows(10); // default, display only a max of 10 records on batchQuery page
+			response = server.query(query, METHOD.POST);
+		}
+		else {
+			query.setRows(0);
+			response = server.query(query, METHOD.POST);
+			int rows = (int) response.getResults().getNumFound();  // need to figure out how many docs found for full export
+			query.setRows(rows); // default
+			response = server.query(query, METHOD.POST);
+		}
+
+		System.out.println("Found " + response.getResults().getNumFound() + " gene(s) in range");
 		for (SolrDocument doc : response.getResults() ){
 			queryIds.add("\"" + doc.get("mgi_accession_id") + "\"");
 		}

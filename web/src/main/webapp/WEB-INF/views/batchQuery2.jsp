@@ -819,7 +819,7 @@ alert(currDataType)
             function refreshResult(){
             	$('div#infoBlock, div#errBlock, div#bqResult').html(''); // refresh first
 	            var sampleData = "<p><span id='sample'>Showing maximum of 10 records for how your data looks like.<br>For complete dataset of your search, please use export buttons.</span>";
-            	$('div#infoBlock').html("Your datatype of search: " + $('input.bq:checked').attr('id').toUpperCase() + sampleData);
+            	$('div#infoBlock').html("Your datatype of search: " + parseCurrDataDype($('input.bq:checked').attr('id')).toUpperCase() + sampleData);
             }
             
             function uploadJqueryForm(){
@@ -1014,7 +1014,7 @@ alert(currDataType)
                     		
                     		var fllist = fetchSelectedFieldList();
                     		var errMsg = 'AJAX error trying to export dataset';
-                    		var currDataType = parseCurrDataDype($('input.bq:checked').attr('id'));
+                    		var currDataType = $('input.bq:checked').attr('id');
                     		var idList = null;
                     		var fileType = $(this).hasClass('tsv') ? 'tsv' : 'xls';
                     		
