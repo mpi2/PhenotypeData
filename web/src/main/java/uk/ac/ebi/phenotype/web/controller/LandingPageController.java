@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,7 +150,6 @@ public class LandingPageController {
         procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
 
-
         model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",
                 "for genes with at least one " + pageTitle + " phenotype", "Number of associations to " + pageTitle, "Number of associations to other phenotypes",
                 "Other phenotype calls: ", pageTitle + " phenotype calls: "));
@@ -193,16 +193,22 @@ public class LandingPageController {
     @ResponseBody
     @RequestMapping(value = "/orthology.csv", method = RequestMethod.GET)
     public String getOrthologyDownload(
-            @RequestParam(required = false, value = "mpId") String mpId,
-            @RequestParam( required =  false, value = "diseaseClasses") Set<String> diseaseClasses,
+            @RequestParam(required = true, value = "mpId") String mpId,
+            @RequestParam( required =  true, value = "diseaseClasses") Set<String> diseaseClasses,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
-        //TODO marker_symbol,marker_accession,disease_term,disease_id,impc_predicted,mgi_predicted,human_curated,max_mgi_m2d_score,max_impc_m2d_score
+        StringBuffer result = new StringBuffer("There are 2 tables in this file: disease predictions and phenotype associations. ");
 
-        return phenodigmService.getGenesWithDiseaseDownload(diseaseClasses);
+        result.append(GeneDTO.MARKER_SYMBOL + "\t" + GeneDTO.MGI_ACCESSION_ID + "\t" + GeneDTO.MP_TERM + "\t" + GeneDTO.MP_ID + "\n");
+        result.append(geneService.getGenesSymbolsBy(mpId).stream().map(geneDTO -> { return "\"" + geneDTO.getMarkerSymbol() + "\",\"" + geneDTO.getMgiAccessionId() + "\",\""
+                + geneDTO.getMpTerm() + "\",\"" + geneDTO.getMpId() + "\""; }).collect(Collectors.joining("\n")));
+        result.append("\n\n"); // separate the 2 tables by some empty space.
+        result.append(phenodigmService.getGenesWithDiseaseDownload(diseaseClasses));
+
+        return result.toString();
 
     }
 
@@ -211,8 +217,8 @@ public class LandingPageController {
         Map<String, Set<String>> sets = new HashMap<>();
 
         // get gene sets for human orthology (with/without)
-        sets.put("IMPC phenotype", geneService.getGenesSumbolsBy(mpId));
-        System.out.println("Gene count : " + geneService.getGenesSumbolsBy(mpId).size());
+        sets.put("IMPC phenotype", geneService.getGenesSymbolsBy(mpId).stream().map(geneDTO -> {return geneDTO.getMarkerSymbol();}).collect(Collectors.toSet()));
+        System.out.println("Gene count : " + geneService.getGenesSymbolsBy(mpId).size());
 
         // get gene sets for IMPC and MGI disease models
         // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/phenodigm/select?q=*:*&facet=true&facet.field=type&fq=type:disease_gene_summary&fq=impc_predicted:true&fq=raw_htpc_score:[1.79%20TO%20*]&fq=disease_classes:cardiac*&group=true&group.field=marker_symbol&group.ngroups=true

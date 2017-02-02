@@ -112,7 +112,7 @@
 
                             <div class="clear both"></div>
 
-                            <a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
+                            <a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
 
                             </div>
                         </div>

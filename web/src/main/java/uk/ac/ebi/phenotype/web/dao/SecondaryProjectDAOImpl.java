@@ -104,7 +104,6 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 			String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
 			prodStatusIcons = prodStatusIcons.equals("") ? "No" : prodStatusIcons;
 			row.setMiceProduced(prodStatusIcons);
-
 			if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
 				for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
 					cell.addStatus(HeatMapCell.THREE_I_NO_DATA); // set all the cells to No Data Available
