@@ -642,7 +642,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private void insertSimpleParameter(DccExperimentDTO dccExperimentDTO, SimpleParameter simpleParameter, int experimentPk,
-                                       int dbId, int biologicalSamplePk) throws DataLoadException {
+                                       int dbId, Integer biologicalSamplePk) throws DataLoadException {
         String parameterStableId = simpleParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
@@ -695,7 +695,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private void insertMediaParameter(DccExperimentDTO dccExperimentDTO, MediaParameter mediaParameter,
-                                      int experimentPk, int dbId, int biologicalSamplePk) throws DataLoadException
+                                      int experimentPk, int dbId, Integer biologicalSamplePk) throws DataLoadException
     {
         if (dccExperimentDTO.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains MediaParameters, which is currently unsupported. Skipping parameters.");
@@ -735,7 +735,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     public void insertMediaSampleParameter(DccExperimentDTO dccExperimentDTO, MediaSampleParameter mediaSampleParameter,
-                                           int experimentPk, int dbId, int biologicalSamplePk,
+                                           int experimentPk, int dbId, Integer biologicalSamplePk,
                                            List<SimpleParameter> simpleParameterList,
                                            List<OntologyParameter> ontologyParameterList) throws DataLoadException
     {
@@ -799,7 +799,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private void insertSeriesMediaParameter(DccExperimentDTO dccExperimentDTO, SeriesMediaParameter seriesMediaParameter,
-                                            int experimentPk, int dbId, int biologicalSamplePk,
+                                            int experimentPk, int dbId, Integer biologicalSamplePk,
                                             List<SimpleParameter> simpleParameterList,
                                             List<OntologyParameter> ontologyParameterList) throws DataLoadException
     {
@@ -852,7 +852,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
 
     private void insertSeriesParameter(DccExperimentDTO dccExperimentDTO, SeriesParameter seriesParameter, int experimentPk,
-                                       int dbId, int biologicalSamplePk) throws DataLoadException {
+                                       int dbId, Integer biologicalSamplePk) throws DataLoadException {
 
         if (dccExperimentDTO.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains SeriesParameters, which is currently unsupported. Skipping parameters.");
@@ -938,7 +938,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     }
 
     private void insertOntologyParameters(DccExperimentDTO dccExperimentDTO, OntologyParameter ontologyParameter,
-                                          int experimentPk, int dbId, int biologicalSamplePk) throws DataLoadException
+                                          int experimentPk, int dbId, Integer biologicalSamplePk) throws DataLoadException
     {
         if (dccExperimentDTO.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperimentDTO.getExperimentId() + " contains OntologyParameters, which is currently unsupported. Skipping parameters.");
