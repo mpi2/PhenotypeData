@@ -169,7 +169,7 @@ public class FileExportController {
 		List<String> rows = new ArrayList<>();
 		rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain",
 				"Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value", "Metadata", "Weight" },
-				", "));
+				","));
 
 		Integer i = 1;
 
