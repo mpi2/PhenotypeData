@@ -27,7 +27,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
-import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -960,26 +959,21 @@ public class GeneService extends BasicService implements WebStatus{
 		return geneToHumanOrthologMap;
 	}
 
-	public Set<String> getGenesSumbolsBy(String mpId) throws IOException, SolrServerException {
+	public List<GeneDTO> getGenesSymbolsBy(String mpId) throws IOException, SolrServerException {
 
 		if (mpId == null) {
 			return null;
 		}
 
-		Set<String> symbols = new HashSet<>();
-
 		SolrQuery query = new SolrQuery();
 		query.setQuery("(" + GeneDTO.MP_ID + ":\"" + mpId + "\" OR " + GeneDTO.TOP_LEVEL_MP_ID + ":\"" + mpId + "\")");
 		query.setRows(Integer.MAX_VALUE);
-		query.setFields(GeneDTO.MARKER_SYMBOL, GeneDTO.HUMAN_GENE_SYMBOL);
+		query.setFields(GeneDTO.MARKER_SYMBOL, GeneDTO.MGI_ACCESSION_ID, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.MP_ID, GeneDTO.MP_TERM);
 
 		QueryResponse rsp = solr.query(query);
-		List<GeneDTO> dtos = rsp.getBeans(GeneDTO.class);
-		for (GeneDTO dto : dtos) {
-			symbols.add(dto.getMarkerSymbol());
-		}
 
-		return symbols;
+		return rsp.getBeans(GeneDTO.class);
+
 	}
 	
 	@Override
