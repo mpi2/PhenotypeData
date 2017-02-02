@@ -1204,8 +1204,7 @@ public class CdaSqlUtils {
                     // is that a number or a category?
                     try {
                         // check whether it's null
-                        if (value != null && !value.equals("null")) {
-
+                        if (value != null && !value.equals("null") && !value.trim().isEmpty()) {
                             valueToInsert = Float.valueOf(value);
                         }
                         if (parameter.isIncrementFlag()) {
