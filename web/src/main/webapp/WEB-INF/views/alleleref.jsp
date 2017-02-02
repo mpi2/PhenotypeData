@@ -24,12 +24,19 @@
             	clear: left;
                 margin-top: 20px;
             }
-            table#alleleRef th:first-child, table#alleleRef th:nth-child(2) {
+            table#alleleRef th:first-child {
                 width: 150px !important;
             }
-            table#alleleRef th:nth-child(3) {
-                width: 80px !important;
+            table#alleleRef td:nth-child(2) {
+                max-width: 110px;
             }
+            table#alleleRef td:nth-child(3) {
+                max-width: 50px !important;
+            }
+            table#alleleRef td:nth-child(4) {
+                max-width: 40px !important;
+            }
+
             table#alleleRef td {
                 font-size: 14px !important;
             }

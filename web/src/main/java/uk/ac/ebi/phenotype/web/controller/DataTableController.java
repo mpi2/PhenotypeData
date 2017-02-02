@@ -3003,7 +3003,8 @@ public class DataTableController {
 					//String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 					String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 
-					if (reference.getImpcGeneLinks() != null) {
+					if (reference.getImpcGeneLinks() != null && reference.getImpcGeneLinks().size() != 0) {
+
 						if (i < reference.getImpcGeneLinks().size()) {
 							alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
 						} else {
