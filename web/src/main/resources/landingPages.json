@@ -3,42 +3,42 @@
     "title": "Embryo Landing Page",
     "description": "Each IMPC gene knockout strain is assessed for viability by examination of litters produced from mating heterozygous animals. Embryonic lethal and subviable lines are assessed in a dedicated phenotyping pipeline.",
     "image": "/img/Tmem100_het.jpeg" ,
-    "link": "landing/embryo"
+    "link": "embryo"
   },
   {
     "title": "Deafness Landing Page",
     "image": "" ,
     "description": "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.",
-    "link": "landing/deafness"
+    "link": "biological-system/deafness"
   },
   {
     "title": "Metabolism Landing Page",
     "image": "" ,
     "description": "description....",
-    "link": "landing/metabolism"
+    "link": "biological-system/metabolism"
   },
   {
     "title": "Cardiovascular Landing Page",
     "image": "" ,
     "description": "Description....",
-    "link": "landing/cardiovascular"
+    "link": "biological-system/cardiovascular"
   },
   {
     "title": "Vision Landing Page",
     "image": "" ,
     "description": "Description...",
-    "link": "landing/vision"
+    "link": "biological-system/vision"
   },
   {
     "title": "Nervous System Landing Page",
     "image": "" ,
     "description": "Description...",
-    "link": "landing/nervous"
+    "link": "biological-system/nervous"
   },
   {
     "title": "Neurological and Behavioural Landing Page",
     "image": "" ,
     "description": "Description...",
-    "link": "landing/neurological"
+    "link": "biological-system/neurological"
   }
 ]
