@@ -2552,5 +2552,4 @@ public class GeneDTO {
 				'}';
 	}
 
-
 }

@@ -574,29 +574,34 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
      * @return the date of experiment, if valid; null otherwise.
      */
     private Date getDateOfExperiment(DccExperimentDTO dccExperiment) {
-        Date dateOfExperiment = null;
+        Date dateOfExperiment;
         SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd");
 
         String experimentId = dccExperiment.getExperimentId();
+        Date dccDate = dccExperiment.getDateOfExperiment();
 
         try {
-            Date dccDate = dccExperiment.getDateOfExperiment();
+
             Date maxDate = new Date();
             Date minDate = dateFormat.parse("1975-01-01");
 
             if (dccDate.before(minDate)) {
 
-                logger.warn("Experiment {} has date before 01-January-1975. Skipping ...", experimentId, dccDate);
+                logger.warn("Experiment {}, center {} has date {}, which is before 01-January-1975. Skipping ...", experimentId, dccExperiment.getPhenotypingCenter(), dccDate);
+                return null;
+
             } else if (dccDate.after(maxDate)) {
 
-                logger.warn("Experiment {} has date after today's date. Skipping ...", experimentId, dccDate);
+                logger.warn("Experiment {}, center {} has date {}, which is after today's date. Skipping ...", experimentId, dccExperiment.getPhenotypingCenter(), dccDate);
+                return null;
             }
 
             dateOfExperiment = dccDate;
 
         } catch (Exception e) {
 
-            logger.warn("Experiment {} has invalid date. Skipping ...", experimentId, dccExperiment.getDateOfExperiment());
+            logger.warn("Experiment {}, center {} has invalid date {}. Skipping ...", experimentId, dccExperiment.getPhenotypingCenter(), dccDate);
+            return null;
         }
 
         return dateOfExperiment;
