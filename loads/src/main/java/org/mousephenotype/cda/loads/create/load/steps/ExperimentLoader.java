@@ -250,37 +250,37 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
         while (missingColonyIdsIt.hasNext()) {
             String colonyId = missingColonyIdsIt.next();
-            logger.error("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'. Skipping...");
+            logger.warn("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'. Skipping...");
         }
 
         Iterator<String> missingCentersIt = missingCenters.iterator();
         while (missingCentersIt.hasNext()) {
             String centerId = missingCentersIt.next();
-            logger.error("Missing center '" + centerId + "'. Skipping...");
+            logger.warn("Missing center '" + centerId + "'. Skipping...");
         }
 
         Iterator<String> missingPipelinesIt = missingPipelines.iterator();
         while (missingPipelinesIt.hasNext()) {
             String pipelineId = missingPipelinesIt.next();
-            logger.error("Missing pipeline '" + pipelineId + "'. Skipping...");
+            logger.warn("Missing pipeline '" + pipelineId + "'. Skipping...");
         }
 
         Iterator<String> missingProceduresIt = missingProcedures.iterator();
         while (missingProceduresIt.hasNext()) {
             String procedureId = missingProceduresIt.next();
-            logger.error("Missing procedure '" + procedureId + "'. Skipping...");
+            logger.warn("Missing procedure '" + procedureId + "'. Skipping...");
         }
 
         Iterator<String> missingProjectsIt = missingProjects.iterator();
         while (missingProjectsIt.hasNext()) {
             String projectId = missingProjectsIt.next();
-            logger.error("Missing project '" + projectId + "'. Skipping...");
+            logger.warn("Missing project '" + projectId + "'. Skipping...");
         }
 
         Iterator<String> missingSamplesIt = missingSamples.iterator();
         while (missingSamplesIt.hasNext()) {
             String parameterStableId = missingSamplesIt.next();
-            logger.error("Missing samples for parameter stable id '" + parameterStableId + "'. Skipping...");
+            logger.warn("Missing samples for parameter stable id '" + parameterStableId + "'. Skipping...");
         }
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
@@ -370,7 +370,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                logger.error("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
+                logger.warn("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
                 return null;
             }
             colonyId = phenotypedColony.getColonyName();
@@ -821,7 +821,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             parameterStatus        = rawParameterStatus[0];
             parameterStatusMessage = rawParameterStatus[1];
         } catch (Exception e) {
-            logger.error("Error extracting parameter. rawParameterStatus = {}. Ingored.", rawParameterStatus);
+            logger.warn("Error extracting parameter. rawParameterStatus = {}. Ingored.", rawParameterStatus);
         }
         int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
