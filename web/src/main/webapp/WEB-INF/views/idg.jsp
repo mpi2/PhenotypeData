@@ -152,8 +152,7 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 		        </div> <!-- section -->                    
 		        
 						
-						<div class="section">
-						<h2 class="title">Gene to Phenotype Heat Map</h2>
+						
 
                         <div class="section">
                             <h2 class="title" id="section-associations"> IMPC Production Status for IDG Gene Set </h2>
