@@ -127,6 +127,19 @@ public class SecondaryProjectController {
                 combinedData.putAll(geneStatus);
                 combinedData.putAll(mouseStatus);
                 combinedData.putAll(phenoStatus);
+                
+                List<String> colorsForPie=new ArrayList<>();
+                String sigColor="'rgb(191, 75, 50)'";
+                String nonSigColor="'rgb(247,157,70)'";
+				colorsForPie.add( sigColor);
+                colorsForPie.add(nonSigColor);
+                
+                Map<String, Integer> totalHumanLabelToNumber = new LinkedHashMap<>();
+                totalHumanLabelToNumber.put("Mouse Orthologs",89);
+                totalHumanLabelToNumber.put("No Mouse Orthologs", 11);
+                String idgHumanOrthologPie = PieChartCreator.getPieChartForColorList(totalHumanLabelToNumber, "idgHumanOrthologPie", "Human Ortholog Mappings", "",colorsForPie);
+                model.addAttribute("idgHumanOrthologPie", idgHumanOrthologPie);
+                
           
                 List<PhenotypeCallSummaryDTO> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
                 String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
@@ -135,11 +148,8 @@ public class SecondaryProjectController {
                
                 totalLabelToNumber.put("Mouse Orthologs with IMPC Data",278);
                 totalLabelToNumber.put("Mouse Orthologs without IMPC Data", 81);
-                String sigColor="'rgb(191, 75, 50)'";
-                String nonSigColor="'rgb(247,157,70)'";
-                List<String> colorsForPie=new ArrayList<>();
-				colorsForPie.add( sigColor);
-                colorsForPie.add(nonSigColor);
+               
+                
 ;                String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",colorsForPie);
                 model.addAttribute("idgOrthologPie", idgOrthologPie);
                 
