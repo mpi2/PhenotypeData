@@ -63,7 +63,14 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 									</p>
 									
 									<table>
+									
 										<thead>
+											<tr >
+												<th style="border-bottom: none"></th>
+												<th style="border-bottom: none"></th>
+												<th colspan="2">human-mouse ortholog relationship</th>
+												<th style="border-bottom: none"></th>
+											</tr>
 											<tr>
 												<th>Family</th>
 												<th>Total Number</th>
