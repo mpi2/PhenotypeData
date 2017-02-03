@@ -14,6 +14,10 @@
     <jsp:attribute name="header">
 
 	<!-- CSS Local Imports -->
+    <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
+
+
+
 	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
@@ -51,6 +55,41 @@
                                 <div id="phenotypeChart">
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="section">
+
+                            <h2 class="title">Related papers using IMPC resources</h2>
+                            <div class="inner">
+                                <p>These papers shown have MESH terms containing "<span id='kw'></span>".
+                                </p>
+                                <br/> <br/>
+                                <div class="HomepageTable" id="alleleRef"></div>
+
+                                <script type="text/javascript">
+                                    $(document).ready(function () {
+
+                                        'use strict';
+                                        var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>PMID</th><th>Paper link</th><th>Mesh</th></thead>";
+                                        var tableCols = 8;
+
+                                        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
+                                        $('div#alleleRef').append(dTable);
+
+                                        var oConf = {};
+                                        oConf.doAlleleRef = true;
+                                        oConf.iDisplayLength = 10;
+                                        oConf.iDisplayStart = 0;
+                                        oConf.kw = "metabolism";
+                                        oConf.baseUrl = "${baseUrl}";
+
+                                        $('span#kw').text(oConf.kw);
+                                        $.fn.fetchAlleleRefDataTable(oConf);
+
+                                    });
+                                </script>
+
                             </div>
                         </div>
 

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.dao;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,19 +128,40 @@ public class ReferenceDAO {
         String pmidsToOmit = getPmidsToOmit();
         String notInClause = (pmidsToOmit.isEmpty() ? "" : "  AND pmid NOT IN (" + pmidsToOmit + ")\n");
         String searchClause = "";
+
+        int colCount = 0;
+
         if ( ! filter.isEmpty()) {
-            searchClause =
-                "  AND (\n"
-                + "     title               LIKE ?\n"
-                + " OR journal             LIKE ?\n"
-                + " OR acc                 LIKE ?\n"
-                + " OR symbol              LIKE ?\n"
-                + " OR pmid                LIKE ?\n"
-                + " OR date_of_publication LIKE ?\n"
-                + " OR grant_id            LIKE ?\n"
-                + " OR agency              LIKE ?\n"
-                + " OR acronym             LIKE ?\n"
-                + " OR mesh                LIKE ?)\n";
+            if ( filter.contains("|")){
+                searchClause =
+                        "  AND (\n"
+                                + "(title LIKE ? or title LIKE ?)\n"
+                                + " OR (journal LIKE ? OR journal LIKE ?)\n"
+                                + " OR (acc LIKE ? OR acc LIKE ?)\n"
+                                + " OR (symbol LIKE ? OR symbol LIKE ?)\n"
+                                + " OR (pmid LIKE ? OR pmid LIKE ?)\n"
+                                + " OR (date_of_publication LIKE ? OR date_of_publication LIKE ?)\n"
+                                + " OR (grant_id LIKE ? OR grant_id LIKE ?)\n"
+                                + " OR (agency LIKE ? OR agency LIKE ?)\n"
+                                + " OR (acronym LIKE ? OR acronym LIKE ?)\n"
+                                + " OR (mesh LIKE ? OR mesh LIKE ?))\n";
+                colCount = 20;
+            }
+            else {
+                colCount = 10;
+                searchClause =
+                        "  AND (\n"
+                                + "     title               LIKE ?\n"
+                                + " OR journal             LIKE ?\n"
+                                + " OR acc                 LIKE ?\n"
+                                + " OR symbol              LIKE ?\n"
+                                + " OR pmid                LIKE ?\n"
+                                + " OR date_of_publication LIKE ?\n"
+                                + " OR grant_id            LIKE ?\n"
+                                + " OR agency              LIKE ?\n"
+                                + " OR acronym             LIKE ?\n"
+                                + " OR mesh                LIKE ?)\n";
+            }
         }
 
         String whereClause =
@@ -178,16 +200,34 @@ public class ReferenceDAO {
               //+ "GROUP BY pmid\n"
               + "ORDER BY date_of_publication DESC\n";
 
-        //System.out.println("alleleRef query: " + query);
-
+        System.out.println("alleleRef query: " + query);
+        System.out.println("check: "+ filter.contains("|"));
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             if ( ! searchClause.isEmpty()) {
-                // Replace the 9 parameter holder ? with the values.
-                String like = "%" + filter + "%";
-                for (int i = 0; i < 9; i++) {                                   // If a search clause was specified, load the parameters.
-                    ps.setString(i + 1, like);
+                // Replace the parameter holder ? with the values.
+
+                String like1, like2 = null;
+                if (filter.contains("|")){
+                    System.out.println("here-1");
+                    String[] fltr = StringUtils.split("|");
+                    System.out.println(fltr);
+                    System.out.println("here-2");
+                    like1 = "%" + fltr[0] + "%";
+                    like2 = "%" + fltr[1] + "%";
+
+                    System.out.println(like1 + "---" + like2);
+                    for (int i = 0; i < colCount; i=i+2) {                                   // If a search clause was specified, load the parameters.
+                        ps.setString(i + 1, like1);
+                        ps.setString(i + 2, like2);
+                    }
+                }
+                else {
+                    like1 = "%" + filter + "%";
+                    for (int i = 0; i < colCount; i=i++) {                                   // If a search clause was specified, load the parameters.
+                        ps.setString(i + 1, like1);
+                    }
                 }
             }
 
