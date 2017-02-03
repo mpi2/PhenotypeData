@@ -15,7 +15,29 @@
 	    $('geneHeatMap table th').height(header_height);
 		});
  	</script>
-  	
+
+    <div id="legend">
+        <table>
+            <tr>
+                <td>
+                    <div class="table_legend_color hm-significant"></div>
+                    <div class="table_legend_key">Deviance Significant</div>
+                </td>
+                <td>
+                    <div class="table_legend_color hm-not-significant" ></div>
+                    <div class="table_legend_key">Data analysed, no significant call</div>
+                </td>
+                <td>
+                    <div class="table_legend_color hm-not-analysed" ></div>
+                    <div class="table_legend_key">Could not analyse</div>
+                </td>
+                <td>
+                    <div class="table_legend_color hm-no-data" ></div>
+                    <div class="table_legend_key">No data</div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
  	<table id="secondaryGeneHeatmap" class="geneHeatMap">
  	
