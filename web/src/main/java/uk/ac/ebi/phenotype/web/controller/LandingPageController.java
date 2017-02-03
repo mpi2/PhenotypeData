@@ -115,6 +115,7 @@ public class LandingPageController {
             anatomyIds.add("EMAPA:36002");
             model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
             pageTitle = "Hearing/Vestibular/Ear";
+
         } else if (page.equalsIgnoreCase("cardiovascular")) {
             mpDTO = mpService.getPhenotype("MP:0005385");
             anatomyIds.add("MA:0000010");

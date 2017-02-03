@@ -31,3 +31,21 @@ table, tr, td, th {
   font-size:70%;
   /* background-color: red;  */
 }
+
+.hm-significant {
+    background-color: rgb(191, 75, 50);
+    color:  rgb(191, 75, 50); // we want text invisible but there so sorting works.
+}
+.hm-not-analysed {
+    background-color: rgb(119, 119, 119);
+    color: rgb(119, 119, 119);
+}
+.hm-not-significant {
+    background-color: rgb(247, 157, 70);
+    color: rgb(247, 157, 70);
+}
+
+.hm-no-data {
+    background-color: rgb(230, 242, 246);
+    color: rgb(230, 242, 246);
+}
