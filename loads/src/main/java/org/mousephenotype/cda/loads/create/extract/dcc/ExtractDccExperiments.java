@@ -344,7 +344,12 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         Long procedurePk, center_procedurePk;
 
-        final String colonyId = line.getColonyID();
+        String colonyId = line.getColonyID();
+
+        // Correct the europhenome specimen colony id
+        if (datasourceShortName.equals("EuroPhenome")) {
+            colonyId = dccSqlUtils.correctEurophenomeColonyId(colonyId);
+        }
 
         String procedureName = line.getProcedure().getProcedureID();
 
