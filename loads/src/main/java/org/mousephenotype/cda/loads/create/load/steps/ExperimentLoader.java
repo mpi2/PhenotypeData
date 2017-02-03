@@ -222,6 +222,46 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
+        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
+        while (missingColonyIdsIt.hasNext()) {
+            String colonyId = missingColonyIdsIt.next();
+            logger.warn("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'");
+        }
+
+        Iterator<String> missingCentersIt = missingCenters.iterator();
+        while (missingCentersIt.hasNext()) {
+            String centerId = missingCentersIt.next();
+            logger.warn("Missing center '" + centerId + "'");
+        }
+
+        Iterator<String> missingPipelinesIt = missingPipelines.iterator();
+        while (missingPipelinesIt.hasNext()) {
+            String pipelineId = missingPipelinesIt.next();
+            logger.warn("Missing pipeline '" + pipelineId + "'");
+        }
+
+        Iterator<String> missingProceduresIt = missingProcedures.iterator();
+        while (missingProceduresIt.hasNext()) {
+            String procedureId = missingProceduresIt.next();
+            logger.warn("Missing procedure '" + procedureId + "'");
+        }
+
+        Iterator<String> missingProjectsIt = missingProjects.iterator();
+        while (missingProjectsIt.hasNext()) {
+            String projectId = missingProjectsIt.next();
+            logger.warn("Missing project '" + projectId + "'. Skipping...");
+        }
+
+        Iterator<String> missingSamplesIt = missingSamples.iterator();
+        while (missingSamplesIt.hasNext()) {
+            String parameterStableId = missingSamplesIt.next();
+            logger.warn("Missing samples for parameter stable id '" + parameterStableId + "'");
+        }
+
+
+        logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
+        logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
+
         logger.info("Enabling indexes for observation");
         cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for observation");
@@ -247,44 +287,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for image_record_observation");
 
-        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
-        while (missingColonyIdsIt.hasNext()) {
-            String colonyId = missingColonyIdsIt.next();
-            logger.warn("Missing phenotyped_colony information for dcc-supplied colony '" + colonyId + "'. Skipping...");
-        }
-
-        Iterator<String> missingCentersIt = missingCenters.iterator();
-        while (missingCentersIt.hasNext()) {
-            String centerId = missingCentersIt.next();
-            logger.warn("Missing center '" + centerId + "'. Skipping...");
-        }
-
-        Iterator<String> missingPipelinesIt = missingPipelines.iterator();
-        while (missingPipelinesIt.hasNext()) {
-            String pipelineId = missingPipelinesIt.next();
-            logger.warn("Missing pipeline '" + pipelineId + "'. Skipping...");
-        }
-
-        Iterator<String> missingProceduresIt = missingProcedures.iterator();
-        while (missingProceduresIt.hasNext()) {
-            String procedureId = missingProceduresIt.next();
-            logger.warn("Missing procedure '" + procedureId + "'. Skipping...");
-        }
-
-        Iterator<String> missingProjectsIt = missingProjects.iterator();
-        while (missingProjectsIt.hasNext()) {
-            String projectId = missingProjectsIt.next();
-            logger.warn("Missing project '" + projectId + "'. Skipping...");
-        }
-
-        Iterator<String> missingSamplesIt = missingSamples.iterator();
-        while (missingSamplesIt.hasNext()) {
-            String parameterStableId = missingSamplesIt.next();
-            logger.warn("Missing samples for parameter stable id '" + parameterStableId + "'. Skipping...");
-        }
-
-        logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
-        logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
         contribution.setExitStatus(ExitStatus.COMPLETED);
@@ -332,22 +334,26 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         organisationPk = cdaOrganisation_idMap.get(dccExperiment.getPhenotypingCenter());
         if (organisationPk == null) {
             missingCenters.add(dccExperiment.getPhenotypingCenter());
+            logger.warn("Experiment {} is missing phenotyping center {}", dccExperiment.getExperimentId(), dccExperiment.getPhenotypingCenter());
             return null;
         }
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
         if (projectPk == null) {
             missingProjects.add(dccExperiment.getProject());
+            logger.warn("Experiment {} is missing projectId {}", dccExperiment.getExperimentId(), dccExperiment.getProject());
             return null;
         }
         pipelinePk = cdaPipeline_idMap.get(dccExperiment.getPipeline());
         if (pipelinePk == null) {
             missingPipelines.add(dccExperiment.getPipeline());
+            logger.warn("Experiment {} is missing pipeline {}", dccExperiment.getExperimentId(), dccExperiment.getPipeline());
             return null;
         }
         pipelineStableId = dccExperiment.getPipeline();
         procedurePk = cdaProcedure_idMap.get(dccExperiment.getProcedureId());
         if (procedurePk == null) {
             missingProcedures.add(dccExperiment.getProcedureId());
+            logger.warn("Experiment {} is missing procedureId {}", dccExperiment.getExperimentId(), dccExperiment.getProcedureId());
             return null;
         }
         procedureStableId = dccExperiment.getProcedureId();
@@ -370,7 +376,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                logger.warn("Experiment {} has null/invalid colonyId '{}'. Skipping ...", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
+                missingColonyIds.add(dccExperiment.getColonyId());
+                logger.warn("Experiment {} has null/invalid colonyId '{}'", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
                 return null;
             }
             colonyId = phenotypedColony.getColonyName();
@@ -683,8 +690,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         if ((value == null) || value.trim().isEmpty()) {
             if ((simpleParameter.getParameterStatus() == null) || (simpleParameter.getParameterStatus().trim().isEmpty())) {
                 if (requiredImpressParameters.contains(simpleParameter.getParameterID())) {
-                    logger.warn("Null/empty value and status found for required simple parameter {}, dcc experiment {}. Skipping parameter ...",
-                                simpleParameter.getParameterID(), dccExperimentDTO);
+                    logger.warn("Experiment {} has null/empty value and status for required simpleParameter {}",
+                                dccExperimentDTO, simpleParameter.getParameterID());
                 }
             }
             return;
@@ -826,7 +833,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             parameterStatus        = rawParameterStatus[0];
             parameterStatusMessage = rawParameterStatus[1];
         } catch (Exception e) {
-            logger.warn("Error extracting parameter. rawParameterStatus = {}. Ingored.", rawParameterStatus);
+            logger.warn("Error extracting experimentId {}, parameterStatus {}", dccExperimentDTO.getExperimentId(), rawParameterStatus);
         }
         int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
