@@ -16,12 +16,7 @@
 		});
  	</script>
   	
-  	<div id="export">
-		<p class="textright"> Download data as:
-			<a id="tsvDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=tsv&fileName=idgData" target="_blank" class="button fa fa-download">TSV</a>
-			<a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank" class="button fa fa-download">XLS</a>
-		</p>
-	</div>
+
  	<table id="secondaryGeneHeatmap" class="geneHeatMap">
  	
    <thead>
@@ -37,26 +32,45 @@
    
 	 <c:forEach items="${geneRows}" var="row">
      	<tr>
-            <td><a href="${baseUrl}/genes/${row.accession}">${row.symbol}<i class="icon icon-species">M</i></a><br/>	${row.getHumanSymbolToString()}<i class="icon icon-species" >H</i></td>
+            <td><a href="${baseUrl}/genes/${row.accession}"> ${row.symbol} <i class="icon icon-species">M</i></a><br/>	${row.getHumanSymbolToString()}<i class="icon icon-species" >H</i></td>
             <td>${row.groupLabel}</td>
       	    <td>${row.miceProduced}</td>
         <c:forEach var="xAxisBean" items="${xAxisBeans}" > 
-          <td
            	<c:choose>
-
-                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Deviance Significant'}">style="background-color:rgb(191, 75, 50)"</c:when>
-                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Could not analyse'}">style="background-color: rgb(119, 119, 119)"</c:when>
-                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Data analysed, no significant call'}">style="background-color: rgb(247, 157, 70)"</c:when>
-                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'No data' }">style="background-color: rgb(230, 242, 246)"</c:when>
+                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Deviance Significant'}">
+                    <td title="${xAxisBean.name}" class="hm-significant" >A</td>
+                </c:when>
+                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Could not analyse'}">
+                    <td  title="${xAxisBean.name}" class="hm-not-analysed">C</td>
+                </c:when>
+                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'Data analysed, no significant call'}">
+                    <td  title="${xAxisBean.name}" class="hm-not-significant">B</td>
+                </c:when>
+                <c:when test="${row.XAxisToCellMap[xAxisBean.name].status eq 'No data' }">
+                    <td  title="${xAxisBean.name}" class="hm-no-data">D</td>
+                </c:when>
 
             </c:choose>
-            title="${xAxisBean.name}"></td>
+
         </c:forEach>
       </tr>
     </c:forEach>
     
-    
+    <script>
+        $(document).ready(function() {
+            $('#secondaryGeneHeatmap').DataTable({
+                sortable: true,
+                paginate:false
+            });
+
+        } );
+    </script>
     
   </table>
-           
-          
+
+    <div id="export">
+        <p class="textright"> Download data as:
+            <a id="tsvDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=tsv&fileName=idgData" target="_blank" class="button fa fa-download">TSV</a>
+            <a id="xlsDownload" href="${baseUrl}/secondaryproject/export/idg?fileType=xls&fileName=idgData" target="_blank" class="button fa fa-download">XLS</a>
+        </p>
+    </div>
