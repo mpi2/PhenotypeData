@@ -167,6 +167,14 @@
                                     <c:if test="${gene.getUniprotHumanCanonicalAcc() == null}">
                                     	<p class="alert alert-info"> No human orthologs could be found.</p>
                                     </c:if>
+
+										<c:if test="${pharos != null}">
+											<p class="with-label">
+												<span class="label">Target druggability</span>
+												<a title="${pharos.getDescription()}</br>Source: PHAROS" href="${pharos.getPageLink()}"> ${pharos.getTdl()} </a>
+											</p>
+										</c:if>
+
                                     <c:if test="${gene.getUniprotHumanCanonicalAcc() != null}">
 	                                    <div> 
 	                                   		<c:if test="${uniprotData.getFunction() != null}">
