@@ -63,6 +63,8 @@ import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
+import uk.ac.ebi.phenotype.service.PharosDTO;
+import uk.ac.ebi.phenotype.service.PharosService;
 import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
@@ -94,9 +96,6 @@ public class GenesController {
 
 	@Autowired
 	private PhenotypeCallSummarySolr phenotypeCallSummaryService;
-//
-//	@Autowired
-//	private GwasDAO gwasDao;
 
 	@Autowired
 	ObservationService observationService;
@@ -124,6 +123,7 @@ public class GenesController {
 
 	@Autowired
 	private UniprotService uniprotService;
+
 	
 	@Autowired
 	OrderService orderService;
@@ -133,9 +133,14 @@ public class GenesController {
 
 	private String drupalBaseUrl;
 
+	private PharosService pharosService;
+
 	@PostConstruct
 	private void postConstruct() {
+
 		drupalBaseUrl = config.get("drupalBaseUrl");
+		pharosService = new PharosService();
+
 	}
 
 	HttpProxy proxy = new HttpProxy();
@@ -502,9 +507,10 @@ public class GenesController {
 			JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
 			model.addAttribute("pfamJson", pfamJson);
 		}
-		
+
+		PharosDTO pharos = pharosService.getPharosInfo(gene.getHumanGeneSymbol().get(0));
+
 		Map<String, Double> stringDBTable = readStringDbTable(gene.getMarkerSymbol());
-		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
 		model.addAttribute("stringDbTable", stringDBTable);		
@@ -518,7 +524,7 @@ public class GenesController {
 		model.addAttribute("imageSummary", imageSummary);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("uniprotData", uniprotData);
-				
+		model.addAttribute("pharos", pharos);
 		return "geneSummary";
 	}
 
