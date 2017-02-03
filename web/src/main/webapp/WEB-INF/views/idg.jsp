@@ -59,11 +59,18 @@
 									
 									<p>
 									<b>Human-Mouse orthology mapping</b>
-Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of IDG genes had mouse orthologs with one-to-one, one-to-many and many-to-one relationships (364 unique mouse orthologs). 43 IDG genes did not have a mouse ortholog: ADCK4, ADGRD2, ADGRE2, ADGRE3, BEST4, CLCA3P, CLIC2, FXYD6P3, GNRHR2, GPR32, GPR32P1, GPR42, GPR78, HTR1E, HTR3C, HTR3D, HTR3E, KCNJ18, MAS1L, NPBWR2, NPY6R, OPN1MW2, OXER1, P2RY11, PAK7, PRKACG, PRKY, PSKH2, SCNN1D, SGK223, STK17A, TAS2R19, TAS2R20, TAS2R30, TAS2R43, TAS2R5, TAS2R50, TAS2R8, TAS2R9, VN1R1, VN1R17P, VN1R3, VN1R5
+Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of IDG genes had mouse orthologs with one-to-one, one-to-many relationships (364 unique mouse orthologs). 43 IDG genes did not have a mouse ortholog: ADCK4, ADGRD2, ADGRE2, ADGRE3, BEST4, CLCA3P, CLIC2, FXYD6P3, GNRHR2, GPR32, GPR32P1, GPR42, GPR78, HTR1E, HTR3C, HTR3D, HTR3E, KCNJ18, MAS1L, NPBWR2, NPY6R, OPN1MW2, OXER1, P2RY11, PAK7, PRKACG, PRKY, PSKH2, SCNN1D, SGK223, STK17A, TAS2R19, TAS2R20, TAS2R30, TAS2R43, TAS2R5, TAS2R50, TAS2R8, TAS2R9, VN1R1, VN1R17P, VN1R3, VN1R5
 									</p>
 									
 									<table>
+									
 										<thead>
+											<tr >
+												<th style="border-bottom: none"></th>
+												<th style="border-bottom: none"></th>
+												<th colspan="2">human-mouse ortholog relationship</th>
+												<th style="border-bottom: none"></th>
+											</tr>
 											<tr>
 												<th>Family</th>
 												<th>Total Number</th>
