@@ -56,11 +56,17 @@
 									<p>
 										IDG is an NIH Common Fund project focused on collecting, integrating and making available biological data on 395 genes from three key druggable protein families that have been identified as potential therapeutic targets: non-olfactory G-protein coupled receptors (GPCRs), ion channels, and protein kinases. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
 									</p>
-									
+							</div>
+						</div>	<!-- section -->
+				
+				
+						<div class="section">
+							<div class=inner>
+								
+									<h3>Human-Mouse orthology mapping</h3>
 									<p>
-									<b>Human-Mouse orthology mapping</b>
-Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of IDG genes had mouse orthologs with one-to-one, one-to-many relationships (364 unique mouse orthologs). 43 IDG genes did not have a mouse ortholog: ADCK4, ADGRD2, ADGRE2, ADGRE3, BEST4, CLCA3P, CLIC2, FXYD6P3, GNRHR2, GPR32, GPR32P1, GPR42, GPR78, HTR1E, HTR3C, HTR3D, HTR3E, KCNJ18, MAS1L, NPBWR2, NPY6R, OPN1MW2, OXER1, P2RY11, PAK7, PRKACG, PRKY, PSKH2, SCNN1D, SGK223, STK17A, TAS2R19, TAS2R20, TAS2R30, TAS2R43, TAS2R5, TAS2R50, TAS2R8, TAS2R9, VN1R1, VN1R17P, VN1R3, VN1R5
-									</p>
+Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of human IDG genes had mouse orthologs. 11% of human IDG genes did not have a mouse ortholog - put a link to 11% to the list of gene or in the pie chart.
+								</p>
 									
 									<table>
 									
@@ -105,14 +111,15 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 									
 									</table>
 							</div>
-						</div>	<!-- section -->
+						</div>
+				
 				
 				
 						 <div class="section" >
 								<h2 class="title"	id="section-associations"> IMPC Production Status for IDG Gene Set </h2>
 		           					 <div class="inner">
 		            	<p>
-		            	The IMPC consortium is using different complementary targeting strategies to produce Knockout alleles, namely ES cell based chromosome engineering and CRISPR/Cas-mediated genome engineering. Mouse are then produced and submitted to phenotyping pipelines. Below are Statistics representing the IMPC production status for IDG gene lists.
+		            	The IMPC consortium is using different complementary targeting strategies to produce Knockout alleles, namely ES cell based chromosome engineering and CRISPR/Cas-mediated genome engineering. Mice are then produced and submitted to phenotyping pipelines. 77.4 % of IDG orthologs have data representation in the IMPC. Statistics representing the IMPC production status for IDG orthologs are shown below.
 		            	</p>
 									<div  class="half">
 										<div id="idgOrthologPie">
