@@ -16,6 +16,9 @@
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+        <script type="text/javascript" src="${baseUrl}/js/charts/chordDiagram.js?v=${version}"></script>
+        <script src="//d3js.org/queue.v1.min.js"></script>
+        <script src="//d3js.org/d3.v4.min.js"></script>
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
@@ -144,6 +147,14 @@
                                     </div>
                                 </div>
                                 <div class="clear"></div>
+
+                                <div id="chordContainerKinases" class="half"></div>
+                                <svg id="chordDiagramSvgKinases" width="480" height="480"></svg>
+                                <script>
+                                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, null, true);
+                                </script>
+
+
                             </div>
 
                         </div> <!-- section -->
