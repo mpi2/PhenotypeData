@@ -26,17 +26,14 @@ table, tr, td, th {
     writing-mode: vertical-lr;
     -webkit-writing-mode: vertical-lr;
     -ms-writing-mode: lr-tb;
-    /*-webkit-transform:rotate(-90deg);*/
-    /*-moz-transform:rotate(-90deg);*/
     white-space: nowrap;
     display: block;
     padding: 0.0em 0.0em 0.0em 0.0em;
     word-wrap: break-word;
-    /* background-color: red;  */
 }
 
 .hm-not-significant {
-    background-color: #0978a1; /* rgb(191, 75, 50); */
+    background-color: #0978a1;
     color: #0978a1; /* we want text invisible but there so sorting works. */
 }
 
