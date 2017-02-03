@@ -35,20 +35,20 @@ table, tr, td, th {
   /* background-color: red;  */
 }
 
-.hm-significant {
-    background-color: rgb(191, 75, 50);
-    color:  rgb(191, 75, 50); // we want text invisible but there so sorting works.
+.hm-not-significant {
+    background-color: #0978a1; /* rgb(191, 75, 50); */
+    color:  #0978a1; /* we want text invisible but there so sorting works. */
 }
 .hm-not-analysed {
-    background-color: rgb(119, 119, 119);
-    color: rgb(119, 119, 119);
+    background-color: #c2c2c2;
+    color: #c2c2c2;
 }
-.hm-not-significant {
+.hm-significant{
     background-color: rgb(247, 157, 70);
     color: rgb(247, 157, 70);
 }
 
 .hm-no-data {
-    background-color: rgb(230, 242, 246);
-    color: rgb(230, 242, 246);
+    background-color: rgb(119, 119, 119);
+    color: rgb(119, 119, 119);
 }
