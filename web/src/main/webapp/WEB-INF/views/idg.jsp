@@ -192,7 +192,7 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
                                 <div class="clear"></div>
 
                                 <div id="chordContainerKinases" class="half"></div>
-                                <svg id="chordDiagramSvgKinases" width="480" height="480"></svg>
+                                <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
                                 <script>
                                     drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, null, true);
                                 </script>
