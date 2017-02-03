@@ -2795,14 +2795,23 @@ public class DataTableController {
 
 	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.GET)
 	public ResponseEntity<String> dataTableAlleleRefJson(
-			@RequestParam(value = "iDisplayStart", required = false, defaultValue = "0") int iDisplayStart,
-			@RequestParam(value = "iDisplayLength", required = false, defaultValue = "-1") int iDisplayLength,
-			@RequestParam(value = "sSearch", required = false) String sSearch,
+			//@RequestParam(value = "iDisplayStart", required = false, defaultValue = "0") int iDisplayStart,
+			//@RequestParam(value = "iDisplayLength", required = false, defaultValue = "-1") int iDisplayLength,
+			//@RequestParam(value = "sSearch", required = false) String sSearch,
+			@RequestParam(value = "doAlleleRef", required = false) String params,
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
 
-		String content = fetch_allele_ref(iDisplayLength, iDisplayStart, sSearch);
+		System.out.println("params: " + params);
+
+		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+
+		int iDisplayLength = jParams.getInt("iDisplayLength");
+		int iDisplayStart = jParams.getInt("iDisplayStart");
+		String searchKw = jParams.getString("kw");
+
+		String content = fetch_allele_ref(iDisplayLength, iDisplayStart, searchKw);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
