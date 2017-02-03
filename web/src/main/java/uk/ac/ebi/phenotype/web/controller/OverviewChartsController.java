@@ -68,6 +68,7 @@ public class OverviewChartsController {
 	@Autowired
 	Utilities impressUtilities;
 
+
 	public OverviewChartsController(){
 
 	}
@@ -90,12 +91,13 @@ public class OverviewChartsController {
 	@RequestMapping(value="/chordDiagram.json", method=RequestMethod.GET)
 	public String getMatrix(
 			@RequestParam(required = false, value = "phenotype_name") List<String> phenotypeName,
+			@RequestParam(required = false, value = "idg") Boolean idg,
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes) {
 
 		try {
-			return gpService.getPleiotropyMatrix(phenotypeName).toString();
+			return gpService.getPleiotropyMatrix(phenotypeName, idg).toString();
 		} catch (IOException | SolrServerException e) {
 			e.printStackTrace();
 		}
@@ -107,13 +109,14 @@ public class OverviewChartsController {
 	@RequestMapping(value="/chordDiagram.csv", method=RequestMethod.GET)
 	public String getChordDiagramDownload(
 			@RequestParam(required = false, value = "phenotype_name") List<String> phenotypeName,
+			@RequestParam(required = false, value = "idg") Boolean idg,
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes) {
 
 		try {
-			return gpService.getPleiotropyDownload(phenotypeName);
-		} catch (IOException | SolrServerException e) {
+			return gpService.getPleiotropyDownload(phenotypeName, idg);
+		} catch (IOException | SolrServerException | SQLException e) {
 			e.printStackTrace();
 		}
 		return "";
