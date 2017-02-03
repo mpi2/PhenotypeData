@@ -59,10 +59,18 @@
 								
 									<h3>Human-Mouse orthology mapping</h3>
 									<p>
-Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of human IDG genes had mouse orthologs. 11% of human IDG genes did not have a mouse ortholog - put a link to 11% to the list of gene or in the pie chart.
+Orthologous genes between human and mouse were mapped using <a href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of human IDG genes had mouse orthologs. 11% of human IDG genes did not have a mouse ortholog.
 								</p>
 									
-									<table>
+									<div  class="half">
+										<div id="idgHumanOrthologPie">
+			            					<script type="text/javascript">
+													${idgHumanOrthologPie}
+											</script> 
+										</div>       	
+									</div>
+									 <div class="clear"></div>   
+									<%-- <table>
 									
 										<thead>
 											<tr >
@@ -103,7 +111,7 @@ Orthologous genes between human and mouse were mapped using <a href="https://www
 											</tr>
 										</tbody>
 									
-									</table>
+									</table> --%>
 							</div>
 						</div>
 				
