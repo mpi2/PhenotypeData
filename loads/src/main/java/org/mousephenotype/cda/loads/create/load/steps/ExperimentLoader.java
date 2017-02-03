@@ -357,7 +357,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         procedureStatusMessage = rawProcedureStatus[1];
 
         // Within the scope of the cda experiment, line-level procedures have:
-        //   - no dcc experiment info (e.g. no date_of_experimentor or sequence_id). The external_id is computed from
+        //   - no dcc experiment info (e.g. no date_of_experiment or sequence_id). The external_id is computed from
         //     a concatenation of Dcc procedureId and colonyId.
         //   - non-null colony_id
         //   - non-null biological_model_id
