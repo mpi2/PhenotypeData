@@ -41,89 +41,89 @@
                     <div class="node node-gene">
                         <h1 class="title" id="top">${systemName} </h1>
 
-                        <c:import url="landing_overview_frag.jsp"/>
-                        <br/><br/>
+                        <%--<c:import url="landing_overview_frag.jsp"/>--%>
+                        <%--<br/><br/>--%>
 
+
+                        <%--<div class="section">--%>
+                            <%--<h2 class="title">Approach</h2>--%>
+                             <%--<div class="inner">--%>
+
+                                <%--<p> To measure cardiovascular function in the mouse, IMPC uses a series of standardised protolcols. These protocols are described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). </p>--%>
+                                <%--<p>Heart and vascular function/physiology are measured through several procedures like echocardiography and electrocardiogram, Non-Invasive blood pressure for example. Cardiovascular system morphology is assessed through macroscopic and microscopic measurements, like heart weight, gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are presented in the table below. Links to impress are provided for more details on the procedure. </p>--%>
+                                <%--<br/><br/>--%>
+                                <%--<c:import url="landing_procedures_frag.jsp"/>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+
+
+                        <%--<div class="section">--%>
+                            <%--&lt;%&ndash;IMPC images&ndash;%&gt;--%>
+                            <%--<c:if test="${not empty impcImageGroups}">--%>
+                                <%--<div class="section" id="imagesSection">--%>
+                                    <%--<h2 class="title">Associated Images </h2>--%>
+                                    <%--<div class="inner">--%>
+                                        <%--<jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</c:if>--%>
+                        <%--</div>--%>
+
+
+                        <%--<div class="section">--%>
+
+                            <%--<h2 class="title">Phenotypes distribution</h2>--%>
+                            <%--<div class="inner">--%>
+                                <%--<p>The following graph represents the distribution of genes according to their phenotypes. Genes have at least one phenotype linked to cardiovascular system.--%>
+                                <%--</p>--%>
+                                <%--<br/> <br/>--%>
+                                <%--<div id="phenotypeChart">--%>
+                                    <%--<script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>--%>
+                                <%--</div>--%>
+
+                                <%--<br/><br/>--%>
+                                    <%--<p>The following diagram represents the various biological system phenotypes associations for genes linked to cardiovascular system phenotypes. The line thickness is correlated with the strength of the association.</p>--%>
+                                    <%--<p>Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>--%>
+                                <%--<br/>--%>
+                                <%--<div id="chordContainer"></div>--%>
+                                <%--<svg id="chordDiagramSvg" width="960" height="960"></svg>--%>
+                                <%--<script>--%>
+                                    <%--var mpTopLevelTerms = ["cardiovascular system phenotype"];--%>
+                                    <%--drawChords(false, mpTopLevelTerms);--%>
+                                <%--</script>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+
+                        <%--<div class="section">--%>
+
+                            <%--<h2 class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>--%>
+                            <%--<div class="inner">--%>
+
+                            <%--<div class="half">--%>
+                                <%--<jsp:include page="gene_orthologs_frag.jsp" >--%>
+                                    <%--<jsp:param name="currentSet" value="impcSets"/>--%>
+                                    <%--<jsp:param name="divId" value="impcVenn"/>--%>
+                                <%--</jsp:include>--%>
+                            <%--</div>--%>
+                            <%--<div class="half">--%>
+                                <%--<jsp:include page="gene_orthologs_frag.jsp" >--%>
+                                    <%--<jsp:param name="currentSet" value="mgiSets"/>--%>
+                                    <%--<jsp:param name="divId" value="mgiVenn"/>--%>
+                                <%--</jsp:include>--%>
+                            <%--</div>--%>
+
+                            <%--<div class="clear both"></div>--%>
+
+                            <%--<a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>--%>
+
+                            <%--</div>--%>
+                        <%--</div>--%>
 
                         <div class="section">
-                            <h2 class="title">Approach</h2>
-                             <div class="inner">
 
-                                <p> To measure cardiovascular function in the mouse, IMPC uses a series of standardised protolcols. These protocols are described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). </p>
-                                <p>Heart and vascular function/physiology are measured through several procedures like echocardiography and electrocardiogram, Non-Invasive blood pressure for example. Cardiovascular system morphology is assessed through macroscopic and microscopic measurements, like heart weight, gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are presented in the table below. Links to impress are provided for more details on the procedure. </p>
-                                <br/><br/>
-                                <c:import url="landing_procedures_frag.jsp"/>
-                            </div>
-                        </div>
-
-
-                        <div class="section">
-                            <%--IMPC images--%>
-                            <c:if test="${not empty impcImageGroups}">
-                                <div class="section" id="imagesSection">
-                                    <h2 class="title">Associated Images </h2>
-                                    <div class="inner">
-                                        <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-                                    </div>
-                                </div>
-                            </c:if>
-                        </div>
-
-
-                        <div class="section">
-
-                            <h2 class="title">Phenotypes distribution</h2>
+                            <h2 class="title">Related papers citing IMPC resources</h2>
                             <div class="inner">
-                                <p>The following graph represents the distribution of genes according to their phenotypes. Genes have at least one phenotype linked to cardiovascular system.
-                                </p>
-                                <br/> <br/>
-                                <div id="phenotypeChart">
-                                    <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
-                                </div>
-
-                                <br/><br/>
-                                    <p>The following diagram represents the various biological system phenotypes associations for genes linked to cardiovascular system phenotypes. The line thickness is correlated with the strength of the association.</p>
-                                    <p>Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>
-                                <br/>
-                                <div id="chordContainer"></div>
-                                <svg id="chordDiagramSvg" width="960" height="960"></svg>
-                                <script>
-                                    var mpTopLevelTerms = ["cardiovascular system phenotype"];
-                                    drawChords(false, mpTopLevelTerms);
-                                </script>
-                            </div>
-                        </div>
-
-                        <div class="section">
-
-                            <h2 class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>
-                            <div class="inner">
-
-                            <div class="half">
-                                <jsp:include page="gene_orthologs_frag.jsp" >
-                                    <jsp:param name="currentSet" value="impcSets"/>
-                                    <jsp:param name="divId" value="impcVenn"/>
-                                </jsp:include>
-                            </div>
-                            <div class="half">
-                                <jsp:include page="gene_orthologs_frag.jsp" >
-                                    <jsp:param name="currentSet" value="mgiSets"/>
-                                    <jsp:param name="divId" value="mgiVenn"/>
-                                </jsp:include>
-                            </div>
-
-                            <div class="clear both"></div>
-
-                            <a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
-
-                            </div>
-                        </div>
-
-                        <div class="section">
-
-                            <h2 class="title">Related papers using IMPC resources</h2>
-                            <div class="inner">
-                                <%--<p>These papers shown have MESH terms containing "<span id='kw'></span>".--%>
+                                <p>These papers shown have MESH terms containing "<span id='kw'></span>".
                                 </p>
                                 <br/> <br/>
                                 <div class="HomepageTable" id="alleleRef"></div>
@@ -132,21 +132,27 @@
                                     $(document).ready(function () {
 
                                         'use strict';
-                                        var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>PMID</th><th>Paper link</th><th>Mesh</th></thead>";
-                                        var tableCols = 8;
+//                                        var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>PMID</th><th>Paper link</th><th>Mesh</th></thead>";
+//                                        var tableCols = 8;
+
+
+
+                                        var tableHeader = "<thead><th></th></thead>";
+                                        var tableCols = 1;
 
                                         var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
                                         $('div#alleleRef').append(dTable);
 
                                         var oConf = {};
-                                        oConf.doAlleleRef = true;
                                         oConf.iDisplayLength = 10;
                                         oConf.iDisplayStart = 0;
                                         oConf.kw = "cardiovascular";
                                         oConf.baseUrl = "${baseUrl}";
+                                        oConf.rowFormat = true;
 
                                         $('span#kw').text(oConf.kw);
-                                        $.fn.fetchAlleleRefDataTable(oConf);
+                                      //  alert('is here')
+                                        $.fn.fetchAlleleRefDataTable2(oConf);
 
                                     });
                                 </script>

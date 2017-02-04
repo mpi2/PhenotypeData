@@ -56,9 +56,9 @@
 
                         <div class="section">
 
-                            <h2 class="title">Related papers using IMPC resources</h2>
+                            <h2 class="title">Related papers citing IMPC resources</h2>
                             <div class="inner">
-                                <%--<p>These papers shown have MESH terms containing "neurologic" or "behavior".--%>
+                                <p>These papers shown have MESH terms containing "neurologic" or "behavior".
                                 </p>
                                 <br/> <br/>
                                 <div class="HomepageTable" id="alleleRef"></div>

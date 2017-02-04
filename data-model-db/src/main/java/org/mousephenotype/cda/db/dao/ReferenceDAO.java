@@ -200,8 +200,7 @@ public class ReferenceDAO {
               //+ "GROUP BY pmid\n"
               + "ORDER BY date_of_publication DESC\n";
 
-        System.out.println("alleleRef query: " + query);
-        System.out.println("check: "+ filter.contains("|"));
+        //System.out.println("alleleRef query: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -210,14 +209,10 @@ public class ReferenceDAO {
 
                 String like1, like2 = null;
                 if (filter.contains("|")){
-                    System.out.println("here-1");
-                    String[] fltr = StringUtils.split("|");
-                    System.out.println(fltr);
-                    System.out.println("here-2");
+                    String[] fltr = StringUtils.split(filter,"|");
                     like1 = "%" + fltr[0] + "%";
                     like2 = "%" + fltr[1] + "%";
 
-                    System.out.println(like1 + "---" + like2);
                     for (int i = 0; i < colCount; i=i+2) {                                   // If a search clause was specified, load the parameters.
                         ps.setString(i + 1, like1);
                         ps.setString(i + 2, like2);
@@ -225,7 +220,7 @@ public class ReferenceDAO {
                 }
                 else {
                     like1 = "%" + filter + "%";
-                    for (int i = 0; i < colCount; i=i++) {                                   // If a search clause was specified, load the parameters.
+                    for (int i = 0; i < colCount; i++) {                                   // If a search clause was specified, load the parameters.
                         ps.setString(i + 1, like1);
                     }
                 }
