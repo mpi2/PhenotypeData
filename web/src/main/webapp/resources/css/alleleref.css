@@ -9,7 +9,7 @@ table.dataTable span.highlight {
 }
 table#alleleRef {
     clear: left;
-    margin-top: 20px;
+    margin: 20px 0;
 }
 table#alleleRef th:first-child {
     width: 150px !important;
@@ -34,7 +34,7 @@ table#alleleRef td {
 /*display: block;*/
 /*}*/
 ul li.showMe {
-    list-style-type: solid circle !important;
+    /*list-style-type: solid circle !important;*/
 }
 .alleleToggle {
     cursor: pointer;
@@ -45,4 +45,41 @@ div.saveTable {
     margin-bottom: 30px;
     float: right;
     margin-right: 30px;
+}
+tr.hiddenMesh {
+    display: none;
+}
+table.dataTable tr td {
+    border-bottom: 1px solid gray;
+}
+table.dataTable, table.innerData {
+    /*border-collapse: collapse;*/
+    margin: 0;
+    padding: 0;
+}
+table.innerData tr td {
+    padding: 0 0 0 10px;
+    margin: 0;
+    border-bottom: 1px solid lightgrey;
+}
+td.titleName {
+    font-weight: bold;
+    width: 130px;
+    background-color: #F2F2F2;
+}
+table.dataTable tr:nth-child(even) .innerData td.titleName {
+    border-left: 3px solid lightgrey;
+}
+table.innerData tr:nth-last-child(2) td {
+    border-bottom: none;
+}
+table.dataTable > caption {
+    background-color: lightgrey;
+    padding: 5px;
+}
+table.dataTable > caption button {
+    margin-left: 50px;
+}
+div#alleleRef_info {
+    padding-top: 10px !important;
 }
