@@ -384,7 +384,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             dateOfExperiment = null;
             sequenceId = null;
             List<SimpleParameter> simpleParameters = simpleParameterMap.get(dccExperiment.getDcc_procedure_pk());
-            biologicalModelPk = getBiologicalModelId(phenotypedColony, simpleParameters);
+            try {
+                biologicalModelPk = getBiologicalModelId(phenotypedColony, simpleParameters);
+            } catch (DataLoadException e) {
+                logger.warn("Skipping line-level experiment {}", dccExperiment.getExperimentId());
+                return null;
+            }
 
         } else {
             colonyId = null;
