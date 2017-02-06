@@ -89,8 +89,10 @@ public class ParallelCoordinatesController {
 
 
 	@RequestMapping(value = "/parallelFrag", method = RequestMethod.GET)
-	public String getGraph(@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, @RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
-						   Model model, HttpServletRequest request)
+	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds,
+							@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
+							@RequestParam(required = false, value = "genes") List<String> genes,
+						   	Model model, HttpServletRequest request)
 			throws SolrServerException, IOException, MalformedURLException, IOException, URISyntaxException {
 
 		long totalTime = System.currentTimeMillis();
