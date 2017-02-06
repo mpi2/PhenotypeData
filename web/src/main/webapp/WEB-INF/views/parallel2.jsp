@@ -52,6 +52,7 @@
 		                    		<option value="${center}">${center}</option>
 		                    	</c:forEach>
 		                    </select>
+							<textarea onfocus="if(this.value==this.defaultValue)this.value=''" onblur="if(this.value=='')this.value=this.defaultValue" id="geneIds" rows="2" cols="100" style="width:50%">Filter by gene MGI ids.	</textarea>
 		                    <div id="widgets_pc" class="widgets" class="right">
 								
 							</div>
