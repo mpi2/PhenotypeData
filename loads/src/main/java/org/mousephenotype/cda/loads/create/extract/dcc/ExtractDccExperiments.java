@@ -344,11 +344,9 @@ public class ExtractDccExperiments implements CommandLineRunner {
 
         Long procedurePk, center_procedurePk;
 
-        String colonyId = line.getColonyID();
-
         // Correct the europhenome specimen colony id
         if (datasourceShortName.equals("EuroPhenome")) {
-            colonyId = dccSqlUtils.correctEurophenomeColonyId(colonyId);
+            line.setColonyID(dccSqlUtils.correctEurophenomeColonyId(line.getColonyID()));
         }
 
         String procedureName = line.getProcedure().getProcedureID();
@@ -356,7 +354,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         // Skip any lines whose procedure group has been marked to be skipped.
         String procedureGroup = getProcedureGroup(procedureName);
         if (skipProcedures.contains(procedureGroup)) {
-            String lineID = String.format("%s-%s", procedureName, colonyId);
+            String lineID = String.format("%s-%s", procedureName, line.getColonyID());
             logger.info("Skipped Line ID {} as it contains excluded procedure ID {}", lineID , procedureName);
             return;
         }
