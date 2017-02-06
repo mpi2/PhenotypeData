@@ -44,137 +44,78 @@
         </script>
 
 
-        <div class="section">
-            <div class=inner>
-                <div class="floatright">
-                    <img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
-                </div>
-                <h3>Illuminating the Druggable Genome (IDG)</h3>
-                <p>
-                    IDG is an NIH Common Fund project focused on collecting, integrating and making available biological
-                    data on 395 genes from three key druggable protein families that have been identified as potential
-                    therapeutic targets: non-olfactory G-protein coupled receptors (GPCRs), ion channels, and protein
-                    kinases. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this
-                    consortium.
-                </p>
-            </div>
-        </div>
-        <!-- section -->
+        		<div class="section">
+							<div class=inner>
+									<div class="floatright">
+										<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
+									</div>
+									<h3>Illuminating the Druggable Genome (IDG)</h3>
+									<p>
+										IDG is an NIH Common Fund project focused on collecting, integrating and making available biological data on 395 genes from three key druggable protein families that have been identified as potential therapeutic targets: non-olfactory G-protein coupled receptors (GPCRs), ion channels, and protein kinases. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
+									</p>
+							</div>
+						</div>	<!-- section -->
 
 
-        <div class="section">
-            <div class=inner>
+						<div class="section" >
+								<h2 class="title"	id="section-associations"> IMPC Production Status for IDG Gene Set </h2>
+		           					 <div class="inner">
+		            	<p>
+		            	The IMPC consortium is using different complementary targeting strategies to produce Knockout alleles, namely ES cell based chromosome engineering and CRISPR/Cas-mediated genome engineering. Mice are then produced and submitted to phenotyping pipelines. 77.4 % of IDG
+		            	<a href="${baseUrl}/secondaryproject/idg/mapping">orthologs</a> have data representation in the IMPC. Statistics representing the IMPC production status for IDG orthologs are shown below.
+		            	</p>
+									<div  class="half">
+										<div id="idgOrthologPie">
+			            		<script type="text/javascript">
+													${idgOrthologPie}
+											</script>
+										</div>
+									</div>
+									<div  class="half">
+			            	<div id=idgChart>
+			            		<script type="text/javascript">
+													${idgChartTable.getChart()}
+											</script>
+										</div>
+									</div>
+		            	  <div class="clear"></div>
+		            </div>
 
-                <h3>Human-Mouse orthology mapping</h3>
-                <p>
-                    Orthologous genes between human and mouse were mapped using <a
-                        href="https://www.ncbi.nlm.nih.gov/homologene">HomoloGene</a>. 89% of human IDG genes had mouse
-                    orthologs. 11% of human IDG genes did not have a mouse ortholog.
-                </p>
-
-                <div class="half">
-                    <div id="idgHumanOrthologPie">
-                        <script type="text/javascript">
-                            ${idgHumanOrthologPie}
-                        </script>
-                    </div>
-                </div>
-                <div class="clear"></div>
-                    <%-- <table>
-
-                        <thead>
-                            <tr >
-                                <th style="border-bottom: none"></th>
-                                <th style="border-bottom: none"></th>
-                                <th colspan="2">human-mouse ortholog relationship</th>
-                                <th style="border-bottom: none"></th>
-                            </tr>
-                            <tr>
-                                <th>Family</th>
-                                <th>Total Number</th>
-                                <th>One to One</th>
-                                <th>One to Many</th>
-                                <th>Human Genes with No Orthologs</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>GPCRs</td>
-                                <td>143</td>
-                                <td>113</td>
-                                <td>3</td>
-                                <td>27</td>
-                            </tr>
-                            <tr>
-                                <td>Kinases</td>
-                                <td>134</td>
-                                <td>127</td>
-                                <td>0</td>
-                                <td>7</td>
-                            </tr>
-                            <tr>
-                                <td>Ion Channels</td>
-                                <td>118</td>
-                                <td>107</td>
-                                <td>2</td>
-                                <td>9</td>
-                            </tr>
-                        </tbody>
-
-                    </table> --%>
-            </div>
-        </div>
-
-        <!-- section -->
-        <div class="section">
-            <h2 class="title"> IMPC Production Status for IDG Gene Set </h2>
-            <div class="inner">
-                <p>
-                    The IMPC consortium is using different complementary targeting strategies to produce
-                    Knockout alleles, namely ES cell based chromosome engineering and
-                    CRISPR/Cas-mediated genome engineering. Mouse are then produced and submitted to
-                    phenotyping pipelines. Below are Statistics representing the IMPC production status
-                    for IDG gene lists.
-                </p>
-                <div class="half">
-                    <div id="idgOrthologPie">
-                        <script type="text/javascript">
-                            ${idgOrthologPie}
-                        </script>
-                    </div>
-                </div>
-                <div class="half">
-                    <div id=idgChart>
-                        <script type="text/javascript">
-                            ${idgChartTable.getChart()}
-                        </script>
-                    </div>
-                </div>
-                <div class="clear"></div>
-            </div>
-
-        </div>
-        <!-- section -->
+		        </div> <!-- section -->
 
 
         <div class="section" id="phenotypePValueDistribution">
-            <h2 class="title" id="section-associations"> Phenotype P value distribution for IDG
-                genes </h2>
+            <h2 class="title" id="section-associations">Phenotype Associations</h2>
             <div class="inner">
-                <!-- Associations table -->
-                <c:if test="${chart != null}">
-                    <!-- phenome chart here -->
-                    <div id="phenomeChart">
-                        <a class="various" id="iframe" data-fancybox-type="iframe"></a></div>
-                    <script type="text/javascript">
-                        ${chart}
-                    </script>
-                </c:if>
 
+                <h3>All</h3>
+                <div id="chordContainer" class="half"></div>
+                <svg id="chordDiagramSvg" width="960" height="960"></svg>
+                <script>
+                    drawChords("chordDiagramSvg", "chordContainer", false, null, true, null);
+                </script>
+
+                <h3>Ion channels</h3>
+                <div id="chordContainerIonChannels" class="half"></div>
+                <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
+                <script>
+                    drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, null, true, "Ion Channels");
+                </script>
+
+
+                <h3>GPCRs</h3>
+                <div id="chordContainerGPCRs" class="half"></div>
+                <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>
+                <script>
+                    drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, null, true, "GPCRs");
+                </script>
+
+
+                <h3>Kinases</h3>
                 <div id="chordContainerKinases" class="half"></div>
                 <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, null, true);
+                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, null, true, "Kinases");
                 </script>
             </div>
         </div>

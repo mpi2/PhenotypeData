@@ -38,8 +38,8 @@ table, tr, td, th {
 }
 
 .hm-not-analysed {
-    background-color: #c2c2c2;
-    color: #c2c2c2;
+    background-color: rgb(119, 119, 119);
+    color: rgb(119, 119, 119);
 }
 
 .hm-significant {
@@ -48,6 +48,6 @@ table, tr, td, th {
 }
 
 .hm-no-data {
-    background-color: rgb(119, 119, 119);
-    color: rgb(119, 119, 119);
+    background-color: #c2c2c2;
+    color: #c2c2c2;
 }

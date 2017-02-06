@@ -34,7 +34,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 
 @Repository
@@ -57,14 +56,18 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 
 	@Transactional(readOnly = true)
 	@Override
-	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId)
+	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId, String group_label)
 		throws SQLException {
 		Set<SecondaryProjectBean> projectBeans = new LinkedHashSet<>();
 
-		String query = "select * from genes_secondary_project where secondary_project_id="
-			+ "\"" + projectId + "\"";// +" limit 10";
+		String query = (group_label == null) ? "select * from genes_secondary_project where secondary_project_id=?" : "select * from genes_secondary_project where secondary_project_id=? AND group_label=?";
 
 		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+
+			statement.setString(1, projectId);
+			if (group_label != null) {
+				statement.setString(2, group_label);
+			}
 
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
@@ -75,9 +78,7 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 				projectBeans.add(bean);
 			}
 		}
-		// accessions.add("MGI:104874");//just for testing as no others seem to
-		// have mice produced so far for idg
-		// accessions.add("MGI:2683087");
+
 		return projectBeans;
 	}
 
