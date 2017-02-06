@@ -119,9 +119,12 @@ $(document).ready(function(){
 				tableUrl += getParametersForUrl(currentList.array, "phenotyping_center") + "&";
 			}
 		}
-		
-		console.log ( " URL " + tableUrl);
-		
+        var geneList = $("#geneIds").val();
+
+        if (geneList != null){
+            tableUrl += "gene_acc_list=" + geneList + "&";
+        }
+
 		$.ajax({
 		  url: tableUrl,
 		  cache: false

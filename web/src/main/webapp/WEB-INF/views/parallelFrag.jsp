@@ -104,7 +104,7 @@
 		});
 
 		// vertical full screen
-		var parallel_height = $(window).height() - 64- 12  - 120 - 320;
+		var parallel_height = $(window).height() - 64 - 12 - 120 - 320;
 		if (parallel_height < 380)
 			parallel_height = 380; // min height
 		$('#parallel').css({
