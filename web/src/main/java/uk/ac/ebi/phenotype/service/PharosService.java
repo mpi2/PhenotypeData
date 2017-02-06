@@ -1,6 +1,5 @@
 package uk.ac.ebi.phenotype.service;
 
-import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -19,11 +18,7 @@ public class PharosService {
 
     public PharosService(){
 
-        String PROXY_HOST = "hx-wwwcache.ebi.ac.uk";
-        int PROXY_PORT = 3128;
-        HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-        HttpClient client = HttpClientBuilder.create().setMaxConnTotal(5).setProxy(proxy).build();
-
+        HttpClient client = HttpClientBuilder.create().setMaxConnTotal(5).build();
         restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(client));
 
     }
@@ -51,5 +46,8 @@ public class PharosService {
             return null;
         }
     }
+
+
+
 
 }

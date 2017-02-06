@@ -109,6 +109,25 @@ public class SecondaryProjectController {
         responseHeaders.setContentType(MediaType.TEXT_PLAIN);
         return responseHeaders;
     }
+    
+    @RequestMapping(value = "/secondaryproject/idg/mapping", method = RequestMethod.GET)
+    public String idgMappingPage( Model model)
+            throws SolrServerException, IOException , URISyntaxException {
+    	System.out.println("calling idg mapping page");
+    	List<String> colorsForPie=new ArrayList<>();
+        String sigColor="'rgb(191, 75, 50)'";
+        String nonSigColor="'rgb(247,157,70)'";
+		colorsForPie.add( sigColor);
+        colorsForPie.add(nonSigColor);
+        
+        Map<String, Integer> totalHumanLabelToNumber = new LinkedHashMap<>();
+        totalHumanLabelToNumber.put("Mouse Orthologs",89);
+        totalHumanLabelToNumber.put("No Mouse Orthologs", 11);
+        String idgHumanOrthologPie = PieChartCreator.getPieChartForColorList(totalHumanLabelToNumber, "idgHumanOrthologPie", "Human Ortholog Mappings", "",colorsForPie);
+        model.addAttribute("idgHumanOrthologPie", idgHumanOrthologPie);
+    	return "idgMappings";
+    }
+    
 
     @RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
     public String loadSecondaryProjectPage(@PathVariable String id, Model model, HttpServletRequest request, RedirectAttributes attributes)
