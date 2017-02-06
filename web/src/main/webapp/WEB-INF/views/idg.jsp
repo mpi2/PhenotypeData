@@ -85,7 +85,7 @@
 
 
         <div class="section" id="phenotypePValueDistribution">
-            <h2 class="title" id="section-associations"> Phenotype Associations</h2>
+            <h2 class="title" id="section-associations">Phenotype Associations</h2>
             <div class="inner">
 
                 <h3>All</h3>
