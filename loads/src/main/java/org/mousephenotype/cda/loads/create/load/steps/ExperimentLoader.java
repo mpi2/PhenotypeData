@@ -165,7 +165,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, PhenotypedColony>         phenotypedColonyMap = new HashMap<>();
 
     // DCC parameter lookup maps, keyed by procedure_pk
-    private Map<Long, List<SimpleParameter>>      simpleParameterMap = new HashMap<>();
     private Map<Long, List<MediaParameter>>       mediaParameterMap = new HashMap<>();
     private Map<Long, List<OntologyParameter>>    ontologyParameterMap = new HashMap<>();
     private Map<Long, List<SeriesParameter>>      seriesParameterMap = new HashMap<>();
@@ -193,46 +192,56 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         cdaDb_idMap.clear();
         cdaDb_idMap = cdaSqlUtils.getCdaDb_idsByDccDatasourceShortName();
+        logger.info("loaded {} db_id rows", cdaDb_idMap.size());
 
         cdaProject_idMap.clear();
         cdaProject_idMap = cdaSqlUtils.getCdaProject_idsByDccProject();
+        logger.info("loaded {} project rows", cdaProject_idMap.size());
 
         cdaPipeline_idMap.clear();
         cdaPipeline_idMap = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
+        logger.info("loaded {} pipeline rows", cdaPipeline_idMap.size());
 
         cdaProcedure_idMap.clear();
         cdaProcedure_idMap = cdaSqlUtils.getCdaProcedure_idsByDccProcedureId();
+        logger.info("loaded {} procedure rows", cdaProcedure_idMap.size());
 
         cdaParameter_idMap.clear();
         cdaParameter_idMap = cdaSqlUtils.getCdaParameter_idsByDccParameterId();
+        logger.info("loaded {} parameter rows", cdaParameter_idMap.size());
 
         cdaParameterNameMap.clear();
         cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
+        logger.info("loaded {} parameterName rows", cdaParameterNameMap.size());
 
         requiredImpressParameters.clear();
         requiredImpressParameters = cdaSqlUtils.getRequiredImpressParameters();
+        logger.info("loaded {} requiredImpressParameter rows", requiredImpressParameters.size());
 
         samplesMap.clear();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
+        logger.info("loaded {} sample rows", samplesMap.size());
 
         // Load DCC parameter maps.
-        simpleParameterMap.clear();
-        simpleParameterMap = dccSqlUtils.getSimpleParameters();
-
         mediaParameterMap.clear();
         mediaParameterMap = dccSqlUtils.getMediaParameters();
+        logger.info("loaded {} mediaParameter rows", mediaParameterMap.size());
 
         ontologyParameterMap.clear();
         ontologyParameterMap = dccSqlUtils.getOntologyParameters();
+        logger.info("loaded {} ontologyParameter rows", ontologyParameterMap.size());
 
         seriesParameterMap.clear();
         seriesParameterMap = dccSqlUtils.getSeriesParameters();
+        logger.info("loaded {} seriesParameter rows", seriesParameterMap.size());
 
         seriesMediaParameterMap.clear();
         seriesMediaParameterMap = dccSqlUtils.getSeriesMediaParameters();
+        logger.info("loaded {} seriesMediaParameter rows", seriesMediaParameterMap.size());
 
         mediaSampleParameterMap.clear();
         mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
+        logger.info("loaded {} mediaSampleParameter rows", mediaSampleParameterMap.size());
 
         logger.info("Loading lookup maps finished");
 
@@ -429,7 +438,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             colonyId = phenotypedColony.getColonyName();
             dateOfExperiment = null;
             sequenceId = null;
-            List<SimpleParameter> simpleParameters = simpleParameterMap.get(dccExperiment.getDcc_procedure_pk());
+            List<SimpleParameter> simpleParameters = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
             try {
                 biologicalModelPk = getBiologicalModelId(phenotypedColony, simpleParameters);
             } catch (DataLoadException e) {
@@ -540,7 +549,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
 
         // simpleParameters
-        List<SimpleParameter> simpleParameterList = simpleParameterMap.get(dccExperimentDTO.getDcc_procedure_pk());
+        List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperimentDTO.getDcc_procedure_pk());
         if (simpleParameterList == null)
             simpleParameterList = new ArrayList<>();
         for (SimpleParameter simpleParameter : simpleParameterList) {
