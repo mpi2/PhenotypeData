@@ -66,6 +66,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private StepBuilderFactory            stepBuilderFactory;
 
     private Set<String> missingColonyIds         = new HashSet<>();
+    private Set<String> skippedExperiments       = new HashSet<>();
     private Set<String> unsupportedParametersMap = new HashSet<>();
 
     private int lineLevelProcedureCount   = 0;
@@ -247,6 +248,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         int experimentCount = 0;
         for (DccExperimentDTO dccExperiment : dccExperiments) {
+
+            // Skip any experiments with known bad colony ids.
+            if ( ! DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
+                skippedExperiments.add(dccExperiment.getDatasourceShortName() + " experiment " + dccExperiment.getExperimentId());
+                continue;
+            }
+
             insertExperiment(dccExperiment);
             experimentCount++;
             if (experimentCount % 100000 == 0) {
@@ -290,6 +298,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             logger.warn("Missing samples for parameter stable id '" + parameterStableId + "'");
         }
 
+        Iterator<String> skippedExperimentsId = skippedExperiments.iterator();
+        while (skippedExperimentsId.hasNext()) {
+            String skippedExperiment = skippedExperimentsId.next();
+            logger.info("Skipped {} because of known bad colony id", skippedExperiment);
+        }
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
         logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
@@ -409,9 +422,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
                 missingColonyIds.add(dccExperiment.getColonyId());
-                logger.warn("Experiment {} has null/invalid colonyId '{}'", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
+                logger.warn("Line-level experiment {} has null/invalid colonyId '{}'", dccExperiment.getExperimentId(), dccExperiment.getColonyId());
                 return null;
             }
+
             colonyId = phenotypedColony.getColonyName();
             dateOfExperiment = null;
             sequenceId = null;
@@ -516,12 +530,11 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         } else {
             BiologicalSample bs = samplesMap.get(dccExperimentDTO.getSpecimenId());
             if (bs == null) {
-                if ( ! DccSqlUtils.knownBadColonyIds.contains(dccExperimentDTO.getColonyId())) {
-                    missingColonyIds.add(dccExperimentDTO.getColonyId());
-                }
+                missingSamples.add(dccExperimentDTO.getSpecimenId());
 
                 return;
             }
+
             biologicalSamplePk = bs.getId();
         }
 
@@ -766,7 +779,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int populationId = 0;
         BiologicalSample sample = samplesMap.get(parameterPk);
         if (sample == null) {
-            missingSamples.add(parameterStableId);
+            missingSamples.add("Unknown sampleId for parameterStableId " + parameterStableId);
             return;
         }
 
