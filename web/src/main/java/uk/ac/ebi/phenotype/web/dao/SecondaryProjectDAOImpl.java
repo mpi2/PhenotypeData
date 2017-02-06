@@ -73,7 +73,7 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 	@Override
 	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId) throws SQLException {
 
-		return secondaryProjectDAO.getAccessionsBySecondaryProjectId(projectId);
+		return secondaryProjectDAO.getAccessionsBySecondaryProjectId(projectId, null);
 	}
 
 
@@ -85,7 +85,7 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 		String geneUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
 		// get a list of genes for the project - which will be the row headers
-		Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg");
+		Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg", null);
 		Set<String>accessions=SecondaryProjectBean.getAccessionsFromBeans(projectBeans);
         Map<String,String>accessionToGroupLabelMap=SecondaryProjectBean.getAccessionsToLabelMapFromBeans(projectBeans);
 		

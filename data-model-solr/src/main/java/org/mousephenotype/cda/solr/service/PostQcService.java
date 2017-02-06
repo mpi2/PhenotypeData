@@ -138,15 +138,15 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      * Used by chord diagram
      * @param topLevelMpTerms the mp terms are used with AND. If not null returns data for genes that have ALL phenotypes in the passed list.
      * @param idg Option to get data only for IDG. Set to false or null if you want all data.
+     * @param idgClass one of [GPCRs, Ion Channels, Ion Channels]
      * @return
      */
-    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg) throws IOException, SolrServerException {
+    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException {
 
 
         try {
 
-            SolrQuery query = getPleiotropyQuery(topLevelMpTerms, idg);
-            System.out.println("--- " + query  );
+            SolrQuery query = getPleiotropyQuery(topLevelMpTerms, idg, idgClass);
 
             QueryResponse queryResponse = solr.query(query, SolrRequest.METHOD.POST);
             Set<String> facets = getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME).keySet();
@@ -207,9 +207,9 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         return new JSONObject();
     }
 
-    public String getPleiotropyDownload(List<String> topLevelMpTerms, Boolean idg) throws IOException, SolrServerException, SQLException {
+    public String getPleiotropyDownload(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, SQLException {
 
-        SolrQuery query = getPleiotropyQuery(topLevelMpTerms,idg);
+        SolrQuery query = getPleiotropyQuery(topLevelMpTerms,idg, idgClass);
         query.add("wt", "xslt");
         query.add("tr", "pivot.xsl");
 
@@ -232,7 +232,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      * @throws IOException
      * @throws SolrServerException
      */
-    private SolrQuery getPleiotropyQuery(List<String> topLevelMpTerms, Boolean idg) throws IOException, SolrServerException, SQLException {
+    private SolrQuery getPleiotropyQuery(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, SQLException {
 
         String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
         SolrQuery query = new SolrQuery()
@@ -243,9 +243,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
 
         if ( idg != null && idg){
-            //TODO add gene symbols to query
-
-            Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg");
+            Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg", idgClass);
             query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + projectBeans.stream().map(gene -> {return gene.getAccession();}).collect(Collectors.joining("\" OR \"")) + "\")");
         }
 
