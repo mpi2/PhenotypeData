@@ -256,11 +256,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.DISABLE);
 
         int experimentCount = 0;
+        int skippedExperimentsCount = 0;
         for (DccExperimentDTO dccExperiment : dccExperiments) {
 
             // Skip any experiments with known bad colony ids.
-            if ( ! DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
+            if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
                 skippedExperiments.add(dccExperiment.getDatasourceShortName() + " experiment " + dccExperiment.getExperimentId());
+                skippedExperimentsCount++;
                 continue;
             }
 
@@ -307,11 +309,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             logger.warn("Missing samples for parameter stable id '" + parameterStableId + "'");
         }
 
-        Iterator<String> skippedExperimentsId = skippedExperiments.iterator();
-        while (skippedExperimentsId.hasNext()) {
-            String skippedExperiment = skippedExperimentsId.next();
-            logger.info("Skipped {} because of known bad colony id", skippedExperiment);
-        }
+        logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
         logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
