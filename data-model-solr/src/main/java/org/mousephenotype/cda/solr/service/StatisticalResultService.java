@@ -393,7 +393,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	}
 
 
-	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl)
+	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl, List<String> genes)
 	throws SolrServerException, IOException, URISyntaxException{
 
     	SolrQuery query = new SolrQuery();
@@ -446,7 +446,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
     		query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
     	}
-    	List<StatisticalResultDTO> result = solr.query(query).getBeans(StatisticalResultDTO.class);
+
+		if (genes != null){
+			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":(\"" + genes.stream().collect(Collectors.joining("\" OR \"")) + "\")");
+		}
+
+		List<StatisticalResultDTO> result = solr.query(query).getBeans(StatisticalResultDTO.class);
     	TreeMap<String, ParallelCoordinatesDTO> row = addMaxGenotypeEffects(result, parameterMap, baseUrl);
     	row = addDefaultValues(row, parameters);
     	row = addMeanValues(row, parameters);
