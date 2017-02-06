@@ -1540,9 +1540,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, PhenotypedColony> getPhenotypedColonies() {
 
         Map<String, PhenotypedColony> list = new HashMap<>();
-        String query = "SELECT * FROM phenotyped_colony";
+        String query = "SELECT\n" +
+                "  pc.*,\n" +
+                "  gf.*\n" +
+                "FROM phenotyped_colony pc\n" +
+                "JOIN genomic_feature gf ON gf.db_id = gf_db_id AND gf.acc = pc.gf_acc";
 
-        List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<String, Object>(), new PhenotypedColonyRowMapper());
+        List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<>(), new PhenotypedColonyRowMapper());
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
             list.put(phenotypedColony.getColonyName(), phenotypedColony);
         }
@@ -3290,9 +3294,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             String esCellName = rs.getString("es_cell_name");
             phenotypedColony.setEs_cell_name(rs.wasNull() ? null : esCellName);
 
-            GenomicFeature gf = new GenomicFeature();
-            gf.setId(new DatasourceEntityId(rs.getString("gf_acc"), rs.getInt("gf_db_id")));
-            phenotypedColony.setGene(gf);
+            GenomicFeatureRowMapper geneRowMapper = new GenomicFeatureRowMapper();
+            GenomicFeature gene = geneRowMapper.mapRow(rs, rowNum);
+            phenotypedColony.setGene(gene);
 
             phenotypedColony.setAlleleSymbol(rs.getString("allele_symbol"));
 
