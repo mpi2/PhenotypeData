@@ -158,24 +158,40 @@
 
 
         <div class="section" id="phenotypePValueDistribution">
-            <h2 class="title" id="section-associations"> Phenotype P value distribution for IDG
+            <h2 class="title" id="section-associations"> Phenotype associations
                 genes </h2>
             <div class="inner">
-                <!-- Associations table -->
-                <c:if test="${chart != null}">
-                    <!-- phenome chart here -->
-                    <div id="phenomeChart">
-                        <a class="various" id="iframe" data-fancybox-type="iframe"></a></div>
-                    <script type="text/javascript">
-                        ${chart}
-                    </script>
-                </c:if>
 
+                <h3>All</h3>
+                <div id="chordContainer" class="half"></div>
+                <svg id="chordDiagramSvg" width="960" height="960"></svg>
+                <script>
+                    drawChords("chordDiagramSvg", "chordContainer", false, null, true, null);
+                </script>
+
+                <h3>Ion channels</h3>
+                <div id="chordContainerIonChannels" class="half"></div>
+                <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
+                <script>
+                    drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, null, true, "Ion Channels");
+                </script>
+
+
+                <h3>GPCRs</h3>
+                <div id="chordContainerGPCRs" class="half"></div>
+                <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>
+                <script>
+                    drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, null, true, "GPCRs");
+                </script>
+
+
+                <h3>Kinases</h3>
                 <div id="chordContainerKinases" class="half"></div>
                 <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, null, true);
+                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, null, true, "Kinases");
                 </script>
+
             </div>
         </div>
         <!-- section -->

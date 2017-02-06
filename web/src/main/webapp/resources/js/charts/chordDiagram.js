@@ -3,12 +3,15 @@
  */
 /** Initialize var mpTopLevelTerms if you want it filtered **/
 
-var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg) {
+var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg, idgClass) {
 
     console.log(mpTopLevelTerms);
     var jsonSource = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? baseUrl + "/chordDiagram.json?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : baseUrl+ "/chordDiagram.json?";
     if (idg != null){
         jsonSource += "&idg=" + idg;
+    }
+    if (idgClass != null){
+        jsonSource += "&idgClass=" + idgClass;
     }
     console.log(jsonSource);
 
