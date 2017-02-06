@@ -2941,6 +2941,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    	public Allele createAndInsertAllele(String alleleSymbol) throws DataLoadException {
 
         if (alleleSymbol == null || alleleSymbol.isEmpty()) {
+            logger.warn("Allele symbol is null");
       		throw new DataLoadException("Allele symbol is null");
         }
 
@@ -2955,6 +2956,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    		// Try to get the gene. If it's not found, throw an exception.
         GenomicFeature gene = getGeneBySymbol(alleleGeneSymbol);
         if (gene == null) {
+            logger.warn("No gene for allele {}", alleleSymbol);
             throw new DataLoadException("No gene for allele " + alleleSymbol, DataLoadException.DETAIL.NO_GENE_FOR_ALLELE);
         }
 
@@ -3051,6 +3053,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         Strain backgroundStrain;
 
         if (colony == null) {
+            logger.warn("colony is null for sample group {}", sampleGroup);
             throw new DataLoadException("colonyId is null");
         }
 
