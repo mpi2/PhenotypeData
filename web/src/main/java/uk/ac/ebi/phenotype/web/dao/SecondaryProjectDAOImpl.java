@@ -49,6 +49,11 @@ import java.util.*;
 @Service("idg")
 class SecondaryProjectServiceIdg implements SecondaryProjectService {
 
+	
+	public static final String DEVIANCE_COLOR="rgb(191, 75, 50)";
+	public static final String COULD_NOT_ANALYSE="rgb(230, 242, 246)";
+	public static final String NO_SIGNIFICANT_CALL="rgb(247, 157, 70)";
+	public static final String NO_DATA="rgb(119, 119, 119)";
 	@Autowired
 	private GeneService geneService;
 

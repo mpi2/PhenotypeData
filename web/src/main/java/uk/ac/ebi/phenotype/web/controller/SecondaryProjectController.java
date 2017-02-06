@@ -107,10 +107,10 @@ public class SecondaryProjectController {
             throws SolrServerException, IOException , URISyntaxException {
     	System.out.println("calling idg mapping page");
     	List<String> colorsForPie=new ArrayList<>();
-        String sigColor="'rgb(191, 75, 50)'";
-        String nonSigColor="'rgb(247,157,70)'";
-		colorsForPie.add( sigColor);
-        colorsForPie.add(nonSigColor);
+    	 String nonSigColor="'rgb(194, 194, 194)'";
+         String sigColor="'rgb(247, 157, 70)'";
+         colorsForPie.add(sigColor);
+         colorsForPie.add(nonSigColor);
         
         Map<String, Integer> totalHumanLabelToNumber = new LinkedHashMap<>();
         totalHumanLabelToNumber.put("Mouse Orthologs",89);
@@ -140,20 +140,11 @@ public class SecondaryProjectController {
                 combinedData.putAll(phenoStatus);
                 
                 List<String> colorsForPie=new ArrayList<>();
-                String sigColor="'rgb(191, 75, 50)'";
-                String nonSigColor="'rgb(247,157,70)'";
-				colorsForPie.add( sigColor);
-                colorsForPie.add(nonSigColor);
                 
-                Map<String, Integer> totalHumanLabelToNumber = new LinkedHashMap<>();
-                totalHumanLabelToNumber.put("Mouse Orthologs",89);
-                totalHumanLabelToNumber.put("No Mouse Orthologs", 11);
-                String idgHumanOrthologPie = PieChartCreator.getPieChartForColorList(totalHumanLabelToNumber, "idgHumanOrthologPie", "Human Ortholog Mappings", "",colorsForPie);
-                model.addAttribute("idgHumanOrthologPie", idgHumanOrthologPie);
-
-//                List<PhenotypeCallSummaryDTO> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
-//                String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
-//                model.addAttribute("chart", chart);
+                String nonSigColor="'rgb(194, 194, 194)'";
+                String sigColor="'rgb(247, 157, 70)'";
+				colorsForPie.add(sigColor);
+                colorsForPie.add(nonSigColor);
 
                 Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
                 totalLabelToNumber.put("Mouse Orthologs with IMPC Data",278);
