@@ -85,7 +85,7 @@
 
 
         <div class="section" id="phenotypePValueDistribution">
-            <h2 class="title" id="section-associations"> Phenotype P value distribution for IDG
+            <h2 class="title" id="section-associations"> Phenotype distribution for IDG
                 genes </h2>
             <div class="inner">
                 <div id="chordContainerKinases" class="half"></div>
