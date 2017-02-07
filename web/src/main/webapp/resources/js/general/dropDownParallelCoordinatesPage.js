@@ -19,7 +19,7 @@ $(document).ready(function(){
 	createDropdown(allDropdowns[1],"Centers: All", allDropdowns);
 
 
-	$("#geneFilterButton").click(function(){reloadChartAndTable(dropdownsList); return false;});
+	$("#geneFilterButton").click(function(){console.log(dropdownsList); reloadChartAndTable(dropdownsList); return false;});
 
 	function createDropdown(multipleSel, emptyText,  allDd){
 	
