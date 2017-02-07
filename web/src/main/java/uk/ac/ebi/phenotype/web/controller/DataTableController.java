@@ -3141,6 +3141,7 @@ public class DataTableController {
 			}
 
 			rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
+			rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
 			rowData.add("<p>" + reference.getJournal() + ", " + reference.getDateOfPublication() + "</p>");
 			rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
 			if ( alLinks.size() > 0) {
