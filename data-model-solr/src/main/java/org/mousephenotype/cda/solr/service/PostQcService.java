@@ -197,6 +197,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
             JSONObject result = new JSONObject();
             result.put("matrix", new JSONArray(matrix));
             result.put("labels", labelList);
+            result.put("geneCount", facetPivotResults.keySet().size());
 
             return result;
 
