@@ -17,11 +17,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
 
     var url = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? baseUrl + "/chordDiagram?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : baseUrl+ "/chordDiagram";
 
-    // Attach download action
-    if (mpTopLevelTerms && mpTopLevelTerms.length > 0) {
-        $('#'+containerId).html("<p>Genes with at least on phenotype association in each of the following systems: <b>" + mpTopLevelTerms.join(",") + "</b></p><p><a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" + "genes with " + mpTopLevelTerms.join(" ") +
-            "genes_by_top_level_phenotype_associations.csv" + "'>Get gene list</a> </p>");
-    }
+
 
     queue().defer(d3.json, jsonSource)
         .await(ready);
@@ -34,6 +30,14 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
             var labels = json.labels;
 
             var matrix = json.matrix;
+
+            // Attach download action
+            if (mpTopLevelTerms && mpTopLevelTerms.length > 0) {
+                $('#'+containerId).html("<p>" + json.geneCount + " genes with at least one phenotype association in each of the following systems: <b>" + mpTopLevelTerms.join(",") + "</b></p><p><a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" + "genes with " + mpTopLevelTerms.join(" ") +
+                    "genes_by_top_level_phenotype_associations.csv" + "'>Get gene list</a> </p>");
+            } else {
+                $('#'+containerId).html("<p>" + json.geneCount + " genes with at least one phenotype association are displayed. <a href='" + jsonSource.replace("chordDiagram.json", "chordDiagram.csv") + "' download='" + "genes_phenotype_associations.csv" + "'>Get gene list.</a> </p>");
+            }
 
             d3.select("#"+svgId).selectAll("*").remove(); //clear svg for in-place filters
             var svg = d3.select("#"+svgId),
