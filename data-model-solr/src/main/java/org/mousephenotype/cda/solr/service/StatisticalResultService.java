@@ -448,10 +448,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	}
 
 		if (genes != null){
-			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":(\"" + genes.stream().collect(Collectors.joining("\" OR \"")) + "\")");
+			query.addFilterQuery(StatisticalResultDTO.MARKER_SYMBOL + ":(\"" + genes.stream().collect(Collectors.joining("\" OR \"")) + "\")");
 		}
 
-		List<StatisticalResultDTO> result = solr.query(query).getBeans(StatisticalResultDTO.class);
+		List<StatisticalResultDTO> result = solr.query(query, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
     	TreeMap<String, ParallelCoordinatesDTO> row = addMaxGenotypeEffects(result, parameterMap, baseUrl);
     	row = addMeanValues(row, parameters);
 		row = addDefaultValues(row, parameters); // add normal/no effect values after mean so that they're not used in the computation
