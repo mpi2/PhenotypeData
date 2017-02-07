@@ -1571,10 +1571,12 @@ public class DccSqlUtils {
      *
      * @param ontologyParameterTerm the ontology parameter term to be inserted
      * @param ontologyParameterPk the ontology parameter primary key
+     * @param ontologyParameter the ontology parameter instance (for logging purposes only)
+     *
      *
      * @return the ontologyParameterTerm primary key
      */
-    public long insertOntologyParameterTerm(String ontologyParameterTerm, long ontologyParameterPk) {
+    public long insertOntologyParameterTerm(String ontologyParameterTerm, long ontologyParameterPk, OntologyParameter ontologyParameter) {
         String insert = "INSERT INTO ontologyParameterTerm(term, ontologyParameter_pk) "
                       + "VALUES (:term, :ontologyParameterPk)";
 
@@ -1592,9 +1594,9 @@ public class DccSqlUtils {
                 return pk;
             }
 
-        } catch (Exception e) {
-            logger.error("INSERT to ontologyParameterTerm failed for ontologyParameterTerm {}, ontologyParameterPk {}. Reason:\n\t{}",
-                         ontologyParameterTerm, ontologyParameterPk, e.getLocalizedMessage());
+        } catch (DuplicateKeyException dke) {
+            logger.info("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}",
+                         ontologyParameterTerm, ontologyParameterPk, ontologyParameter.getParameterID());
         }
 
         return 0;
