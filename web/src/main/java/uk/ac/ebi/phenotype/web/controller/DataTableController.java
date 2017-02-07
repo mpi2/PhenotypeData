@@ -2795,14 +2795,44 @@ public class DataTableController {
 
 	@RequestMapping(value = "/dataTableAlleleRef", method = RequestMethod.GET)
 	public ResponseEntity<String> dataTableAlleleRefJson(
-			@RequestParam(value = "iDisplayStart", required = false, defaultValue = "0") int iDisplayStart,
-			@RequestParam(value = "iDisplayLength", required = false, defaultValue = "-1") int iDisplayLength,
-			@RequestParam(value = "sSearch", required = false) String sSearch,
+			//@RequestParam(value = "iDisplayStart", required = false, defaultValue = "0") int iDisplayStart,
+			//@RequestParam(value = "iDisplayLength", required = false, defaultValue = "-1") int iDisplayLength,
+			//@RequestParam(value = "sSearch", required = false) String sSearch,
+			@RequestParam(value = "doAlleleRef", required = false) String params,
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
 
-		String content = fetch_allele_ref(iDisplayLength, iDisplayStart, sSearch);
+		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+
+		int iDisplayLength = jParams.getInt("iDisplayLength");
+		int iDisplayStart = jParams.getInt("iDisplayStart");
+		String searchKw = jParams.getString("kw");
+
+		String content = fetch_allele_ref(iDisplayLength, iDisplayStart, searchKw);
+		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+
+	}
+	@RequestMapping(value = "/dataTableAlleleRef2", method = RequestMethod.GET)
+	public ResponseEntity<String> dataTableAlleleRefJson2(
+			//@RequestParam(value = "iDisplayStart", required = false, defaultValue = "0") int iDisplayStart,
+			//@RequestParam(value = "iDisplayLength", required = false, defaultValue = "-1") int iDisplayLength,
+			//@RequestParam(value = "sSearch", required = false) String sSearch,
+			@RequestParam(value = "doAlleleRef", required = false) String params,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException {
+		//System.out.println("params: " + params);
+
+		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+
+		int iDisplayLength = jParams.getInt("iDisplayLength");
+		int iDisplayStart = jParams.getInt("iDisplayStart");
+		String searchKw = jParams.getString("kw");
+		Boolean rowFormat = jParams.getBoolean("rowFormat");
+		String orderByStr = jParams.getString("orderBy");
+
+		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
@@ -2977,6 +3007,182 @@ public class DataTableController {
 		return j.toString();
 	}
 
+	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr) throws SQLException, UnsupportedEncodingException {
+		final int DISPLAY_THRESHOLD = 4;
+		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr);
+
+		JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);
+		j.put("iTotalRecords", references.size());
+		j.put("iTotalDisplayRecords", references.size());
+
+		for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
+
+			List<String> rowData = new ArrayList<>();
+			Map<String,String> alleleSymbolinks = new LinkedHashMap<String,String>();
+			List<String> alLinks = new ArrayList<>();
+
+			if (reference.getAlleleAccessionIds() != null) {
+
+				// show max of 50 alleles for a paper
+				int alleleAccessionIdCount = reference.getAlleleAccessionIds().size() > 50 ? 50 : reference.getAlleleAccessionIds().size();
+
+				for (int i = 0; i < alleleAccessionIdCount; i++) {
+					String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
+
+					if (symbol.equals("N/A")){
+						continue;
+					}
+
+					String alleleLink;
+					//String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+					String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+
+					if (reference.getImpcGeneLinks() != null && reference.getImpcGeneLinks().size() != 0) {
+
+						if (i < reference.getImpcGeneLinks().size()) {
+							alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
+						} else {
+							if (i > 0) {
+								alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></div>";
+							} else {
+								alleleLink = alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
+							}
+						}
+
+						alleleSymbolinks.put(symbol, alleleLink);
+					}
+					else {
+						// some allele id does not associate with a gene id in database yet
+						alleleSymbolinks.put(symbol, symbol);
+					}
+				}
+
+				if (alleleSymbolinks.size() > 5) {
+					int num = alleleSymbolinks.size();
+					int totalNum = reference.getAlleleAccessionIds().size();
+					if (totalNum > num) {
+						alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show " + num + " of " + totalNum + " alleles...</div>");
+					} else {
+						alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
+					}
+				}
+
+				Iterator it = alleleSymbolinks.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					alLinks.add(pair.getValue().toString());
+					it.remove(); // avoids a ConcurrentModificationException
+				}
+			}
+//			else {
+//				alLinks.add("Not available");
+//			}
+
+			int pmid = reference.getPmid();
+			List<String> paperLinks = new ArrayList<>();
+			List<String> paperLinksOther = new ArrayList<>();
+			List<String> paperLinksPubmed = new ArrayList<>();
+			List<String> paperLinksEuroPubmed = new ArrayList<>();
+			String[] urlList = (reference.getPaperUrls() != null) ? reference.getPaperUrls().toArray(new String[0]) : new String[0];
+
+			for (int i = 0; i < urlList.length; i ++) {
+				String[] urls = urlList[i].split(",");
+
+				int pubmedSeen = 0;
+				int eupubmedSeen = 0;
+				int otherSeen = 0;
+
+				for (int k = 0; k < urls.length; k ++) {
+					String url = urls[k];
+
+					if (pubmedSeen != 1) {
+						if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf")) {
+							paperLinksPubmed.add(url);
+
+							pubmedSeen ++;
+						} else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid))) {
+							paperLinksPubmed.add(url);
+							pubmedSeen ++;
+						}
+					}
+					if (eupubmedSeen != 1) {
+						if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")) {
+							paperLinksEuroPubmed.add(url);
+							eupubmedSeen ++;
+						} else if (url.startsWith("http://europepmc.org/")) {
+							paperLinksEuroPubmed.add(url);
+							eupubmedSeen ++;
+						}
+					}
+					if (otherSeen != 1 &&  ! url.startsWith("http://www.pubmedcentral.nih.gov") &&  ! url.startsWith("http://europepmc.org/")) {
+						paperLinksOther.add(url);
+						otherSeen ++;
+					}
+				}
+			}
+
+
+			// ordered
+//            paperLinks.addAll(paperLinksEuroPubmed);
+//            paperLinks.addAll(paperLinksPubmed);
+//            paperLinks.addAll(paperLinksOther);
+//            rowData.add(StringUtils.join(paperLinks, ""));
+			// for now show only one
+			String paperLink = null;
+			if (paperLinksEuroPubmed.size()>0){
+				paperLink = paperLinksEuroPubmed.get(0);
+			}
+			else if (paperLinksPubmed.size()>0){
+				paperLink = paperLinksPubmed.get(0);
+			}
+			else {
+				paperLink = paperLinksOther.get(0);
+			}
+
+			rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
+			rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
+			rowData.add("<p>" + reference.getJournal() + ", " + reference.getDateOfPublication() + "</p>");
+			rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
+			if ( alLinks.size() > 0) {
+				rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alLinks, ", ") + "</div>");
+			}
+
+			List<String> agencyList = new ArrayList();
+			int agencyCount = reference.getGrantAgencies().size();
+
+			// unique agency
+			for (int i = 0; i < agencyCount; i++) {
+				String grantAgency = reference.getGrantAgencies().get(i);
+				if ( ! grantAgency.isEmpty()) {
+					if ( ! agencyList.contains(grantAgency)) {
+						agencyList.add(grantAgency);
+					}
+				}
+			}
+
+
+			if (agencyList.size() >0) {
+				rowData.add("<p>Grant agency: " + StringUtils.join(agencyList, ", ") + "</p>");
+			}
+			// hidden in datatable: mesh terms
+			String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
+			rowData.add("<p class='meshTerms'>" + meshTerms + "</p>");
+
+			if (rowFormat){
+				// single column
+				String inOneRow = StringUtils.join(rowData, "");
+				List<String> rowData2 = new ArrayList<>();
+				rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
+				rowData = rowData2;
+			}
+			j.getJSONArray("aaData").add(rowData);
+
+		}
+
+		return j.toString();
+	}
+
 	public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException, UnsupportedEncodingException {
 		final int DISPLAY_THRESHOLD = 4;
 		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
@@ -3049,6 +3255,7 @@ public class DataTableController {
 			rowData.add(reference.getJournal());
 
 			rowData.add("<span>" + reference.getDateOfPublication() + "</span>");
+
 
 			List<String> agencyList = new ArrayList();
 			int agencyCount = reference.getGrantAgencies().size();
@@ -3136,7 +3343,6 @@ public class DataTableController {
 
 		}
 
-		//System.out.println("Got " + rowCount + " rows");
 		return j.toString();
 	}
 

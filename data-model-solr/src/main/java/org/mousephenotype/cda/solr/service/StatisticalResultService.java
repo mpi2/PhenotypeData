@@ -448,13 +448,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	}
 
 		if (genes != null){
-			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":(\"" + genes.stream().collect(Collectors.joining("\" OR \"")) + "\")");
+			query.addFilterQuery(StatisticalResultDTO.MARKER_SYMBOL + ":(\"" + genes.stream().collect(Collectors.joining("\" OR \"")) + "\")");
 		}
 
-		List<StatisticalResultDTO> result = solr.query(query).getBeans(StatisticalResultDTO.class);
+		List<StatisticalResultDTO> result = solr.query(query, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
     	TreeMap<String, ParallelCoordinatesDTO> row = addMaxGenotypeEffects(result, parameterMap, baseUrl);
-    	row = addDefaultValues(row, parameters);
     	row = addMeanValues(row, parameters);
+		row = addDefaultValues(row, parameters); // add normal/no effect values after mean so that they're not used in the computation
 
     	return row;
 
@@ -507,7 +507,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		}
 
 	    for (ParameterDTO param : allParameterNames){
-	    	Double mean = sum.get(param.getName()) / n.get(param.getName());
+	    	Double mean = (n.get(param.getName()) > 0) ?sum.get(param.getName()) / n.get(param.getName()) : 0;
 	        currentBean.addValue(param, mean, false);
 	    }
 
