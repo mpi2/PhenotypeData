@@ -1,33 +1,53 @@
 /* Additional styling written at EBI for gene heatmap for secondary projects*/
 
-td{
-	word-wrap: break-word;
+td {
+    word-wrap: break-word;
+}
+
+.geneHeatMap {
+    font-size: 80%;
 }
 
 .geneHeatmap td, th {
-    padding: 0.5em 0.7em 0.3em 0.3em;
+    padding: 0.0em 0.0em 0.0em 0.0em;
 }
 
 table, tr, td, th {
- word-wrap: break-word;
- text-align: center;
+    word-wrap: break-word;
+    text-align: center;
 }
 
 .geneHeatMap th {
     vertical-align: bottom;
 }
 
-.geneHeatMap th span.vertical{
-  margin-bottom: 0px;
-  writing-mode: vertical-lr;
-  -webkit-writing-mode: vertical-lr;
-  -ms-writing-mode: lr-tb;
-    /*-webkit-transform:rotate(-90deg);*/
-  /*-moz-transform:rotate(-90deg);*/
-  white-space:nowrap; 
-  display:block;
-  padding: 0.0em 0.0em 0.0em 0.0em;
-  word-wrap: break-word;
-  font-size:70%;
-  /* background-color: red;  */
+.geneHeatMap th span.vertical {
+    margin-bottom: 0px;
+    writing-mode: vertical-lr;
+    -webkit-writing-mode: vertical-lr;
+    -ms-writing-mode: lr-tb;
+    white-space: nowrap;
+    display: block;
+    padding: 0.0em 0.0em 0.0em 0.0em;
+    word-wrap: break-word;
+}
+
+.hm-not-significant {
+    background-color: #0978a1;
+    color: #0978a1; /* we want text invisible but there so sorting works. */
+}
+
+.hm-not-analysed {
+    background-color: rgb(119, 119, 119);
+    color: rgb(119, 119, 119);
+}
+
+.hm-significant {
+    background-color: rgb(247, 157, 70);
+    color: rgb(247, 157, 70);
+}
+
+.hm-no-data {
+    background-color: #c2c2c2;
+    color: #c2c2c2;
 }
