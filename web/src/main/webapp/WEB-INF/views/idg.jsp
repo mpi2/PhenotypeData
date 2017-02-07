@@ -83,6 +83,19 @@
 
 		        </div> <!-- section -->
 
+        <div class="section">
+
+            <h2 class="title">Gene to Phenotype Heat Map</h2>
+
+            <div class=inner>
+                <p>
+                    Heat Map representing the data status of IDG orthologs in IMPC.
+                </p>
+                <div id="geneHeatmap" class="geneHeatMap" style="overflow: hidden; overflow-x: auto;">
+                </div>
+            </div>
+
+        </div>
 
         <div class="section" id="phenotypePValueDistribution">
             <h2 class="title" id="section-associations">Phenotype Associations</h2>
@@ -120,20 +133,6 @@
             </div>
         </div>
         <!-- section -->
-
-        <div class="section">
-
-            <h2 class="title">Gene to Phenotype Heat Map</h2>
-
-            <div class=inner>
-                <p>
-                    Heat Map representing the data status of IDG orthologs in IMPC.
-                </p>
-                <div id="geneHeatmap" class="geneHeatMap" style="overflow: hidden; overflow-x: auto;">
-                </div>
-            </div>
-
-        </div>
 
         <script>
             $(document).ready(function () {
