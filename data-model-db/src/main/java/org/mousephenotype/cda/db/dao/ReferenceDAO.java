@@ -180,6 +180,7 @@ public class ReferenceDAO {
                         + ", agency AS grantAgencies\n"
                         + ", paper_url AS paperUrls\n"
                         + ", mesh\n"
+                        + ", author\n"
                         + "FROM allele_ref AS ar\n"
                         + whereClause
                         //+ "GROUP BY pmid\n"
@@ -237,6 +238,7 @@ public class ReferenceDAO {
                 referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
                 referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
+                referenceRow.setAuthor(resultSet.getString("author"));
 
                 results.add(referenceRow);
             }
