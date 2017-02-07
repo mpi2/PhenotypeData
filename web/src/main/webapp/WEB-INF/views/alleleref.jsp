@@ -8,8 +8,13 @@
     <jsp:attribute name="header">
         
         <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-        <link href="${baseUrl}/css/default.css" rel="stylesheet" />
+        <%--<link href="${baseUrl}/css/default.css" rel="stylesheet" />--%>
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
+        <style>
+            div#alleleRef {
+                margin-top: 30px;
+            }
+        </style>
         
         <script type='text/javascript'>
         
@@ -20,27 +25,23 @@
                 //var baseUrl = '//dev.mousephenotype.org/data';
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
                 
-                var solrUrl = "${internalSolrUrl};"
+                //var solrUrl = "${internalSolrUrl};"
 
-                //var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Pmid</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
-                //var tableCols = 7;
-                var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>PMID</th><th>Paper link</th><th>Mesh</th></thead>";
-                //var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
-
-                var tableCols = 8;
-
+                var tableHeader = "<thead><th></th></thead>";
+                var tableCols = 1;
 
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
                 $('div#alleleRef').append(dTable);
 
                 var oConf = {};
-                oConf.doAlleleRef = true;
                 oConf.iDisplayLength = 10;
                 oConf.iDisplayStart = 0;
-                oConf.baseUrl = "${baseUrl}";
                 oConf.kw = "";
+                oConf.baseUrl = "${baseUrl}";
+                oConf.rowFormat = true;
+                oConf.orderBy = "date_of_publication DESC"; // default
 
-                $.fn.fetchAlleleRefDataTable(oConf);
+                $.fn.fetchAlleleRefDataTable2(oConf);
             });
 
 
