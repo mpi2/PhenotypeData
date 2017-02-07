@@ -2469,7 +2469,14 @@ VALUES
 ('ABE1',NULL,'MGI:104785',(SELECT @MGI_DB_ID),'Myo6<Tlc>','C3HeB/FeJ',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu')),
 ('Tnfaip1Tnfaip1<tm1a(EUCOMM)Wtsi/H>',NULL,'MGI:104961',(SELECT @MGI_DB_ID),'Tnfaip1<tm1a(EUCOMM)Wtsi>','C57BL/6N',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi')),
 ('Hhip',NULL,'MGI:1341847',(SELECT @MGI_DB_ID),'Hhip<tm1Icmb>','C57BL/6J',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu')),
-('Cdh23Cdh23<v>',NULL,'MGI:1890219',(SELECT @MGI_DB_ID),'Cdh23<v>','STOCK Cdh23<v>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'));
+('Cdh23Cdh23<v>',NULL,'MGI:1890219',(SELECT @MGI_DB_ID),'Cdh23<v>','STOCK Cdh23<v>',(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Wtsi')),
+
+  -- line-based hand-curated colonyIds
+('EPD0080_1_B11',NULL,'MGI:2684063',(SELECT @MGI_DB_ID),'Asxl1<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu')),
+('EPD0059_2_G04',NULL,'MGI:1926153',(SELECT @MGI_DB_ID),'Wrnip1<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu')),
+('EPD0060_1_B12',NULL,'MGI:104681', (SELECT @MGI_DB_ID),'Hgs<tm1a(EUCOMM)Wtsi>',   'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu')),
+('EPD0177_2_H03',NULL,'MGI:2141881',(SELECT @MGI_DB_ID),'Ino80e<tm1a(EUCOMM)Wtsi>','C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu')),
+('EPD0116_3_D06',NULL,'MGI:95585',  (SELECT @MGI_DB_ID),'Cidec<tm1a(EUCOMM)Wtsi>', 'C57BL/6NTac',(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'),(SELECT @EUMODIC_PROJECT_ID),(SELECT id FROM organisation WHERE name = 'Hmgu'));
 
  /*
  ** FOR SECONDARY PROJECT GENES LOADING
