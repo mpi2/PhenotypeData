@@ -90,14 +90,14 @@
 
                 <h3>All</h3>
                 <div id="chordContainer" class="half"></div>
-                <svg id="chordDiagramSvg" width="480" height="480"></svg>
+                <svg id="chordDiagramSvg" width="960" height="960"></svg>
                 <script>
                     drawChords("chordDiagramSvg", "chordContainer", false, null, true, null);
                 </script>
 
                 <h3>Ion channels</h3>
                 <div id="chordContainerIonChannels" class="half"></div>
-                <svg id="chordDiagramSvgIonChannels" width="480" height="480"></svg>
+                <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
                 <script>
                     drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, null, true, "Ion Channels");
                 </script>
