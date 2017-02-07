@@ -83,21 +83,22 @@
 
                                         'use strict';
 
-                                        var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>PMID</th><th>Paper link</th><th>Mesh</th></thead>";
-                                        var tableCols = 8;
+                                        var tableHeader = "<thead><th></th></thead>";
+                                        var tableCols = 1;
 
                                         var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
                                         $('div#alleleRef').append(dTable);
 
                                         var oConf = {};
-                                        oConf.doAlleleRef = true;
                                         oConf.iDisplayLength = 10;
                                         oConf.iDisplayStart = 0;
-                                        oConf.kw = "nervous system";
+                                        oConf.kw = "nervous";
                                         oConf.baseUrl = "${baseUrl}";
+                                        oConf.rowFormat = true;
+                                        oConf.orderBy = "date_of_publication DESC"; // default
 
                                         $('span#kw').text(oConf.kw);
-                                        $.fn.fetchAlleleRefDataTable(oConf);
+                                        $.fn.fetchAlleleRefDataTable2(oConf);
 
                                     });
                                 </script>

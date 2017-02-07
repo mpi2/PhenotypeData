@@ -2822,8 +2822,7 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
-		System.out.println("++++++++++++++++");
-		System.out.println("params: " + params);
+		//System.out.println("params: " + params);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 
@@ -2831,9 +2830,9 @@ public class DataTableController {
 		int iDisplayStart = jParams.getInt("iDisplayStart");
 		String searchKw = jParams.getString("kw");
 		Boolean rowFormat = jParams.getBoolean("rowFormat");
-		System.out.println(" rowformat: "+ rowFormat);
+		String orderByStr = jParams.getString("orderBy");
 
-		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat);
+		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
@@ -3008,9 +3007,9 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat) throws SQLException, UnsupportedEncodingException {
+	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr) throws SQLException, UnsupportedEncodingException {
 		final int DISPLAY_THRESHOLD = 4;
-		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
+		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr);
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
@@ -3030,6 +3029,11 @@ public class DataTableController {
 
 				for (int i = 0; i < alleleAccessionIdCount; i++) {
 					String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
+
+					if (symbol.equals("N/A")){
+						continue;
+					}
+
 					String alleleLink;
 					//String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 					String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
@@ -3071,32 +3075,9 @@ public class DataTableController {
 					it.remove(); // avoids a ConcurrentModificationException
 				}
 			}
-			else {
-				alLinks.add("Not available");
-			}
-
-			rowData.add("<tr><td class='titleName'>Paper title: </td><td>" + reference.getTitle() + "</td></tr>");
-			rowData.add("<tr><td class='titleName'>PMID: </td><td>" + Integer.toString(reference.getPmid()) + "</td></tr>");
-			rowData.add("<tr><td class='titleName'>Allele: </td><td>" + StringUtils.join(alLinks, "") + "</td></tr>");
-			rowData.add("<tr><td class='titleName'>Journal: </td><td>" + reference.getJournal() + "</td></tr>");
-			rowData.add("<tr><td class='titleName'>Date of publication: </td>" + "<td>" + reference.getDateOfPublication() + "</td></tr>");
-
-			List<String> agencyList = new ArrayList();
-			int agencyCount = reference.getGrantAgencies().size();
-
-			// unique agency
-			for (int i = 0; i < agencyCount; i++) {
-				String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
-				String grantAgency = reference.getGrantAgencies().get(i);
-				if ( ! grantAgency.isEmpty()) {
-					String thisAgency = "<li " + cssClass + ">" + grantAgency + "</li>";
-					if ( ! agencyList.contains(thisAgency)) {
-						agencyList.add(thisAgency);
-					}
-				}
-			}
-
-			rowData.add("<tr><td class='titleName'>Agency: </td><td>" + "<ul>" + StringUtils.join(agencyList, "") + "</ul></td></tr>");
+//			else {
+//				alLinks.add("Not available");
+//			}
 
 			int pmid = reference.getPmid();
 			List<String> paperLinks = new ArrayList<>();
@@ -3117,28 +3098,30 @@ public class DataTableController {
 
 					if (pubmedSeen != 1) {
 						if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf")) {
-							paperLinksPubmed.add("<a target='_blank' href='" + url + "'>Pubmed Central</a>");
+							paperLinksPubmed.add(url);
+
 							pubmedSeen ++;
 						} else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid))) {
-							paperLinksPubmed.add("<a target='_blank' href='" + url + "'>Pubmed Central</a>");
+							paperLinksPubmed.add(url);
 							pubmedSeen ++;
 						}
 					}
 					if (eupubmedSeen != 1) {
 						if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")) {
-							paperLinksEuroPubmed.add("<a target='_blank' href='" + url + "'>Europe Pubmed Central</a>");
+							paperLinksEuroPubmed.add(url);
 							eupubmedSeen ++;
 						} else if (url.startsWith("http://europepmc.org/")) {
-							paperLinksEuroPubmed.add("<a target='_blank' href='" + url + "'>Europe Pubmed Central</a>");
+							paperLinksEuroPubmed.add(url);
 							eupubmedSeen ++;
 						}
 					}
 					if (otherSeen != 1 &&  ! url.startsWith("http://www.pubmedcentral.nih.gov") &&  ! url.startsWith("http://europepmc.org/")) {
-						paperLinksOther.add("<a target='_blank' href='" + url + "'>Non-pubmed source</a>");
+						paperLinksOther.add(url);
 						otherSeen ++;
 					}
 				}
 			}
+
 
 			// ordered
 //            paperLinks.addAll(paperLinksEuroPubmed);
@@ -3146,24 +3129,50 @@ public class DataTableController {
 //            paperLinks.addAll(paperLinksOther);
 //            rowData.add(StringUtils.join(paperLinks, ""));
 			// for now show only one
+			String paperLink = null;
 			if (paperLinksEuroPubmed.size()>0){
-				rowData.add("<tr><td class='titleName plink'>Paper link: </td><td>" + paperLinksEuroPubmed.get(0) + "</ul></td>");
+				paperLink = paperLinksEuroPubmed.get(0);
 			}
 			else if (paperLinksPubmed.size()>0){
-				rowData.add("<tr><td class='titleName plink'>Paper link: </td><td>" + paperLinksPubmed.get(0) + "</ul></td>");
+				paperLink = paperLinksPubmed.get(0);
 			}
 			else {
-				rowData.add("<tr><td class='titleName plink'>Paper link: </td><td>" + paperLinksOther.get(0) + "</ul></td>");
+				paperLink = paperLinksOther.get(0);
 			}
 
+			rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
+			rowData.add("<p>" + reference.getJournal() + ", " + reference.getDateOfPublication() + "</p>");
+			rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
+			if ( alLinks.size() > 0) {
+				rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alLinks, ", ") + "</div>");
+			}
+
+			List<String> agencyList = new ArrayList();
+			int agencyCount = reference.getGrantAgencies().size();
+
+			// unique agency
+			for (int i = 0; i < agencyCount; i++) {
+				String grantAgency = reference.getGrantAgencies().get(i);
+				if ( ! grantAgency.isEmpty()) {
+					if ( ! agencyList.contains(grantAgency)) {
+						agencyList.add(grantAgency);
+					}
+				}
+			}
+
+
+			if (agencyList.size() >0) {
+				rowData.add("<p>Grant agency: " + StringUtils.join(agencyList, ", ") + "</p>");
+			}
 			// hidden in datatable: mesh terms
 			String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
-			rowData.add("<tr class='hiddenMesh'><td></td><td>" + meshTerms + "</td></tr>");
+			rowData.add("<p class='meshTerms'>" + meshTerms + "</p>");
 
 			if (rowFormat){
+				// single column
 				String inOneRow = StringUtils.join(rowData, "");
 				List<String> rowData2 = new ArrayList<>();
-				rowData2.add("<table class='innerData'>" + inOneRow + "</table>");
+				rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
 				rowData = rowData2;
 			}
 			j.getJSONArray("aaData").add(rowData);

@@ -217,14 +217,14 @@
         var baseUrl = oConf.baseUrl;
         //var aDataTblCols = [0,1,2,3,4,5,6];
         var oTable = $('table#alleleRef').dataTable({
-            "bSort": true, // true is default
+            "bSort": false, // true is default
             "processing": true,
-            "paging": false,
+            "paging": true,
             //"serverSide": false,  // do not want sorting to be processed from server, false by default
             "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
             "sPaginationType": "bootstrap",
             "searchHighlight": true,
-            "iDisplayLength": 200,
+            "iDisplayLength": 10,
             "oLanguage": {
                 "sSearch": "Filter: "
             },
@@ -250,13 +250,16 @@
             "aoColumns": [
                {"bSearchable": true, "sType": "html", "bSortable": true}
             ],
-            "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
+            //"fnDrawCallback": function (oSettings) {  // when dataTable is loaded
+            "initComplete": function (oSettings, json) {  // when dataTable is loaded
+
 
                 // download tool
                 oConf.fileName = 'impc_allele_references';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 5000;
                 oConf.dataType = "alleleRef";
+                oConf.rowFormat = true;
 
                 var paramStr = "mode=all";
                 $.each(oConf, function (i, val) {
@@ -277,26 +280,46 @@
 
                 $("div.saveTable").html(toolBox);
 
-                //$.fn.initDataTableDumpControl(oConf);
-               // console.log(oConf)
-				// sort by: checkbox
+				// sort by date_of_publication and reload table with new content
 				$('.dataTable  > caption button').click(function(){
+					// var sortCols = [];
+					// $(this).siblings("input").each(function () {
+					// 	var thisChkbox = $(this);
+					// 	if (thisChkbox.is(':checked')) {
+					// 		sortCols.push(thisChkbox.val());
+					// 	}
+					// })
+					// var sortStr = sortCols.join();
+					//oConf.orderBy = "date_of_publication";
 
-                    var sortCols = [];
-					$(this).siblings("input").each(function(){
-						var thisChkbox = $(this);
-						if ( thisChkbox.is(':checked') ){
-							sortCols.push(thisChkbox.val());
-						}
-					})
-					var sortStr = sortCols.join();
-					//console.log(oConf)
-					console.log("test")
 
+					if ($(this).siblings("i").hasClass("fa-caret-down")){
+                        $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
+						oConf.orderBy = "date_of_publication ASC";
+					}
+					else {
+                        $(this).siblings("i").removeClass("fa-caret-up").addClass("fa-caret-down");
+                        oConf.orderBy = "date_of_publication DESC";
+					}
+
+					$.ajax({
+						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
+						//'dataType': 'jsonp',
+						'async': true,
+						'jsonp': 'json.wrf',
+						'success': function (json) {
+							// console.log(json);
+							oTable.fnClearTable();
+							oTable.fnAddData(json.aaData)
+
+						},
+                        'error' : function(jqXHR, textStatus, errorThrown) {
+                           alert("error: " + errorThrown);
+                        }
+					});
 				});
 
                 $('.alleleToggle', this).click(function () {
-                    console.log("toggle");
                     if (!$(this).hasClass('showMe')) {
                         $(this).addClass('showMe').text('Show fewer alleles ...');
                         //console.log($(this).siblings("div.hideMe").html());
@@ -308,7 +331,6 @@
                         $(this).siblings().removeClass('showMe');
                     }
                 });
-
 
                 $('body').removeClass('footerToBottom');
             },
@@ -873,19 +895,21 @@
 
 	$.fn.fetchEmptyTable = function(theadStr, colNum, id, pageReload) {
 
-        console.log("empty table");
 		var table = $('<table></table>').attr({
 			'id' : id,
 			'class' : 'table tableSorter'
 		});
 
-        var sortFields = ["title", "journal", "date_of_publication"];
+        var sortFields = ["date_of_publication", "title", "journal"];
         var sortChkboxes = "";
-        for (var i=0; i<sortFields.length; i++){
-            var label = sortFields[i].replace(/_/g, " ");
-            sortChkboxes += "<input type='checkbox' name='sortField' value='" + sortFields[i] + "'>" + label;
-        }
-        var caption = "<caption>Sort by " + sortChkboxes + "<button>Sort</button></caption>";
+        // for (var i=0; i<sortFields.length; i++){
+        //     var label = sortFields[i].replace(/_/g, " ");
+        //     var fieldName = sortFields[i];
+        //     var checked = fieldName == "date_of_publication" ? "checked" : "";
+        //     sortChkboxes += "<input type='checkbox' name='sortField' value='" + sortFields[i] + "'" + checked + ">" + label;
+        // }
+        //var caption = "<caption>Sort by " + sortChkboxes + "<button>Sort</button></caption>";
+        var caption = "<caption><button>Sort by date of publication</button><i class='fa fa-caret-down'></i></caption>";
 
 		var thead = theadStr;
 		var tds = '';
@@ -894,6 +918,7 @@
 		}
 		var tbody = $('<tbody><tr>' + tds + '</tr></tbody>');
 		table.append(caption, thead, tbody);
+        //table.append(thead, tbody);
 
 		return table;
 	};
@@ -1873,7 +1898,6 @@ $.extend($.fn.dataTableExt.oSort, {
 		return a.match(/alt="(.*?)"/)[1].toLowerCase();
 	},
 	"alt-string-asc" : function(a, b) {
-		console.log("SOORTING");
 		return ((a < b) ? -1 : ((a > b) ? 1 : 0));
 
 	},
