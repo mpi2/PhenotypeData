@@ -17,7 +17,10 @@ $(document).ready(function(){
 	createDropdown(allDropdowns[0],"Procedure: All", allDropdowns);
 	allDropdowns[1] = $('#centersFilter');
 	createDropdown(allDropdowns[1],"Centers: All", allDropdowns);
-	
+
+
+	$("#geneFilterButton").click(function(){reloadChartAndTable(dropdownsList); return false;});
+
 	function createDropdown(multipleSel, emptyText,  allDd){
 	
 		$(multipleSel).dropdownchecklist( { 
@@ -97,8 +100,7 @@ $(document).ready(function(){
 		}  
 		return values;
 	}
-	
-		
+
 	function removeFilterSelects(){ 
 		// Remove selected options when going back to the page
 		$("option:selected").removeAttr("selected");
@@ -106,7 +108,7 @@ $(document).ready(function(){
 	
 	function reloadChartAndTable(lists){
 		
-		$('#spinner').click();
+		$( '#spinner' ).click();
 	 	$( '#spinner' ).show();
 		var tableUrl = base_url + "/parallelFrag?";
 		
