@@ -309,6 +309,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             logger.warn("Missing samples for parameter stable id '" + parameterStableId + "'");
         }
 
+        Iterator<String> nullSamplesIt = nullSamples.iterator();
+        while (nullSamplesIt.hasNext()) {
+            String parameterStableId = nullSamplesIt.next();
+            logger.warn("Null samples for parameter stable id '" + parameterStableId + "'");
+        }
+
         logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
@@ -316,28 +322,27 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         logger.info("Enabling indexes for observation");
         cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.ENABLE);
-        logger.info("Enabling indexes for observation");
 
-        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for unidimensional_observation");
+        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.ENABLE);
 
-        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for categorical_observation");
+        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.ENABLE);
 
-        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for procedure_meta_data");
+        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.ENABLE);
 
-        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for experiment");
+        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.ENABLE);
 
-        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for text_observation");
+        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.ENABLE);
 
-        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for datetime_observation");
+        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.ENABLE);
 
-        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.ENABLE);
         logger.info("Enabling indexes for image_record_observation");
+        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.ENABLE);
 
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
@@ -359,7 +364,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Set<String> missingProjects   = new HashSet<>();
     private Set<String> missingPipelines  = new HashSet<>();
     private Set<String> missingProcedures = new HashSet<>();
-    private Set<String> missingSamples    = new HashSet<>();        // value = parameterStableId
+    private Set<String> missingSamples    = new HashSet<>();        // value = specimenId
+    private Set<String> nullSamples       = new HashSet<>();        // value = parameterStableId
 
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
@@ -392,20 +398,20 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
         if (projectPk == null) {
             missingProjects.add(dccExperiment.getProject());
-            logger.warn("Experiment {} is missing projectId {}", dccExperiment.getExperimentId(), dccExperiment.getProject());
+            logger.warn("Experiment {}, center {} is missing projectId {}", dccExperiment.getExperimentId(), dccExperiment.getPhenotypingCenter(), dccExperiment.getProject());
             return null;
         }
         pipelinePk = cdaPipeline_idMap.get(dccExperiment.getPipeline());
         if (pipelinePk == null) {
             missingPipelines.add(dccExperiment.getPipeline());
-            logger.warn("Experiment {} is missing pipeline {}", dccExperiment.getExperimentId(), dccExperiment.getPipeline());
+            logger.warn("Experiment {}, center {} is missing pipeline {}", dccExperiment.getExperimentId(), dccExperiment.getPhenotypingCenter(), dccExperiment.getPipeline());
             return null;
         }
         pipelineStableId = dccExperiment.getPipeline();
         procedurePk = cdaProcedure_idMap.get(dccExperiment.getProcedureId());
         if (procedurePk == null) {
             missingProcedures.add(dccExperiment.getProcedureId());
-            logger.warn("Experiment {} is missing procedureId {}", dccExperiment.getExperimentId(), dccExperiment.getProcedureId());
+            logger.warn("Experiment {}, center {} is missing procedureId {}", dccExperiment.getExperimentId(), dccExperiment.getPhenotypingCenter(), dccExperiment.getProcedureId());
             return null;
         }
         procedureStableId = dccExperiment.getProcedureId();
@@ -786,7 +792,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int populationId = 0;
         BiologicalSample sample = samplesMap.get(parameterPk);
         if (sample == null) {
-            missingSamples.add("Unknown sampleId for parameterStableId " + parameterStableId);
+            logger.warn("Experiment {}, center {}: null sampleId for mediaParameter {}", dccExperimentDTO.getExperimentId(), dccExperimentDTO.getPhenotypingCenter(),  parameterStableId);
+            nullSamples.add(parameterStableId);
             return;
         }
 
@@ -896,7 +903,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int populationId = 0;
         BiologicalSample sample = samplesMap.get(parameterPk);
         if (sample == null) {
-            missingSamples.add(parameterStableId);
+            logger.warn("Experiment {}, center {}: null sampleId for seriesMediaParameter {}", dccExperimentDTO.getExperimentId(), dccExperimentDTO.getPhenotypingCenter(),  parameterStableId);
+            nullSamples.add(parameterStableId);
             return;
         }
 
