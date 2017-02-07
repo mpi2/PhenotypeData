@@ -199,6 +199,7 @@ public class HttpProxy {
 				return null;
 			}
 		}
+
 		// Do not proxy requests to these hosts
 		// e.g. http.nonProxyHosts=*.ebi.ac.uk|localhost|127.0.0.1
 		String noProxyStr = System.getProperty("http.nonProxyHosts");

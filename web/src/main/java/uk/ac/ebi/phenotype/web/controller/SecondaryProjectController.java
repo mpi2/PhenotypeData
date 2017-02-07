@@ -20,12 +20,10 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.solr.service.*;
-import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
@@ -55,12 +52,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @Controller
@@ -109,6 +101,25 @@ public class SecondaryProjectController {
         responseHeaders.setContentType(MediaType.TEXT_PLAIN);
         return responseHeaders;
     }
+    
+    @RequestMapping(value = "/secondaryproject/idg/mapping", method = RequestMethod.GET)
+    public String idgMappingPage( Model model)
+            throws SolrServerException, IOException , URISyntaxException {
+    	System.out.println("calling idg mapping page");
+    	List<String> colorsForPie=new ArrayList<>();
+    	 String nonSigColor="'rgb(194, 194, 194)'";
+         String sigColor="'rgb(247, 157, 70)'";
+         colorsForPie.add(sigColor);
+         colorsForPie.add(nonSigColor);
+        
+        Map<String, Integer> totalHumanLabelToNumber = new LinkedHashMap<>();
+        totalHumanLabelToNumber.put("Mouse Orthologs",89);
+        totalHumanLabelToNumber.put("No Mouse Orthologs", 11);
+        String idgHumanOrthologPie = PieChartCreator.getPieChartForColorList(totalHumanLabelToNumber, "idgHumanOrthologPie", "Human Ortholog Mappings", "",colorsForPie);
+        model.addAttribute("idgHumanOrthologPie", idgHumanOrthologPie);
+    	return "idgMappings";
+    }
+    
 
     @RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
     public String loadSecondaryProjectPage(@PathVariable String id, Model model, HttpServletRequest request, RedirectAttributes attributes)
@@ -127,23 +138,22 @@ public class SecondaryProjectController {
                 combinedData.putAll(geneStatus);
                 combinedData.putAll(mouseStatus);
                 combinedData.putAll(phenoStatus);
-          
-                List<PhenotypeCallSummaryDTO> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
-                String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
-                model.addAttribute("chart", chart);
+                
+                List<String> colorsForPie=new ArrayList<>();
+                
+                String nonSigColor="'rgb(194, 194, 194)'";
+                String sigColor="'rgb(247, 157, 70)'";
+				colorsForPie.add(sigColor);
+                colorsForPie.add(nonSigColor);
+
                 Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
-               
                 totalLabelToNumber.put("Mouse Orthologs with IMPC Data",278);
                 totalLabelToNumber.put("Mouse Orthologs without IMPC Data", 81);
-                String sigColor="'rgb(191, 75, 50)'";
-                String nonSigColor="'rgb(247,157,70)'";
-                List<String> colorsForPie=new ArrayList<>();
-				colorsForPie.add( sigColor);
-                colorsForPie.add(nonSigColor);
-;                String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",colorsForPie);
+
+                String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",colorsForPie);
                 model.addAttribute("idgOrthologPie", idgOrthologPie);
-                
                 model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG Orthologs Datasets", "idgChart", colorsForPie));
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }

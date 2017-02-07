@@ -1540,9 +1540,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, PhenotypedColony> getPhenotypedColonies() {
 
         Map<String, PhenotypedColony> list = new HashMap<>();
-        String query = "SELECT * FROM phenotyped_colony";
+        String query = "SELECT\n" +
+                "  pc.*,\n" +
+                "  gf.*\n" +
+                "FROM phenotyped_colony pc\n" +
+                "JOIN genomic_feature gf ON gf.db_id = gf_db_id AND gf.acc = pc.gf_acc";
 
-        List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<String, Object>(), new PhenotypedColonyRowMapper());
+        List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<>(), new PhenotypedColonyRowMapper());
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
             list.put(phenotypedColony.getColonyName(), phenotypedColony);
         }
@@ -2936,11 +2940,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    	 *
    	 *
    	 * @param alleleSymbol the allele symbol
+     * @param gene the gene instance
    	 * @return an allele DAO object representing the newly created allele, or null if the allele symbol is bad.
    	 */
-   	public Allele createAndInsertAllele(String alleleSymbol) throws DataLoadException {
+   	public Allele createAndInsertAllele(String alleleSymbol, GenomicFeature gene) throws DataLoadException {
 
         if (alleleSymbol == null || alleleSymbol.isEmpty()) {
+            logger.warn("Allele symbol is null");
       		throw new DataLoadException("Allele symbol is null");
         }
 
@@ -2951,12 +2957,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
    		// Create the gene symbol
         int index = alleleSymbol.indexOf('<');
    		String alleleGeneSymbol = (index >= 0 ? alleleSymbol.substring(0, index)  : alleleSymbol);
-
-   		// Try to get the gene. If it's not found, throw an exception.
-        GenomicFeature gene = getGeneBySymbol(alleleGeneSymbol);
-        if (gene == null) {
-            throw new DataLoadException("No gene for allele " + alleleSymbol, DataLoadException.DETAIL.NO_GENE_FOR_ALLELE);
-        }
 
    		// Create the allele acc
    		String alleleAccession = "NULL-" + DigestUtils.md5Hex(alleleSymbol).substring(0, 9).toUpperCase();
@@ -3051,21 +3051,22 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         Strain backgroundStrain;
 
         if (colony == null) {
+            logger.warn("colony is null for sample group {}", sampleGroup);
             throw new DataLoadException("colonyId is null");
-        }
-
-        // Get the allele by symbol.
-        Allele allele = allelesBySymbol.get(colony.getAlleleSymbol());
-        if (allele == null) {
-            allele = createAndInsertAllele(colony.getAlleleSymbol());
         }
 
         // Get the gene. Mark as error and skip if no gene.
         gene = colony.getGene();
         if (gene == null) {
-            message = "Missing gene information for dcc-supplied colony " + colony.getColonyName() + " for allele '" + allele.toString() + "'. Skipping...";
+            message = "Missing gene information for dcc-supplied colony " + colony.getColonyName() + " for allele symbol '" + colony.getAlleleSymbol() + "'. Skipping...";
             logger.error(message);
             throw new DataLoadException(message);
+        }
+
+        // Get the allele by symbol.
+        Allele allele = allelesBySymbol.get(colony.getAlleleSymbol());
+        if (allele == null) {
+            allele = createAndInsertAllele(colony.getAlleleSymbol(), gene);
         }
 
         // Get the background strain from iMits. EuroPhenome background strains require manual curation/remapping and
@@ -3293,9 +3294,9 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             String esCellName = rs.getString("es_cell_name");
             phenotypedColony.setEs_cell_name(rs.wasNull() ? null : esCellName);
 
-            GenomicFeature gf = new GenomicFeature();
-            gf.setId(new DatasourceEntityId(rs.getString("gf_acc"), rs.getInt("gf_db_id")));
-            phenotypedColony.setGene(gf);
+            GenomicFeatureRowMapper geneRowMapper = new GenomicFeatureRowMapper();
+            GenomicFeature gene = geneRowMapper.mapRow(rs, rowNum);
+            phenotypedColony.setGene(gene);
 
             phenotypedColony.setAlleleSymbol(rs.getString("allele_symbol"));
 

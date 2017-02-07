@@ -26,6 +26,8 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
+import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
@@ -40,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,6 +52,9 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     @Autowired
     @Qualifier("genotypePhenotypeCore")
     SolrClient solr;
+
+    @Autowired
+    private SecondaryProjectDAO secondaryProjectDAO;
 
     private Map<String,Long> documentCountGyGene; //<marker_acc,count>
 
@@ -131,14 +137,17 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     /**
      * Used by chord diagram
      * @param topLevelMpTerms the mp terms are used with AND. If not null returns data for genes that have ALL phenotypes in the passed list.
+     * @param idg Option to get data only for IDG. Set to false or null if you want all data.
+     * @param idgClass one of [GPCRs, Ion Channels, Ion Channels]
      * @return
      */
-    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms) throws IOException, SolrServerException {
+    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException {
 
 
         try {
 
-            SolrQuery query = getPleiotropyQuery(topLevelMpTerms);
+            SolrQuery query = getPleiotropyQuery(topLevelMpTerms, idg, idgClass);
+
             QueryResponse queryResponse = solr.query(query, SolrRequest.METHOD.POST);
             Set<String> facets = getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME).keySet();
 
@@ -188,19 +197,20 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
             JSONObject result = new JSONObject();
             result.put("matrix", new JSONArray(matrix));
             result.put("labels", labelList);
+            result.put("geneCount", facetPivotResults.keySet().size());
 
             return result;
 
-        } catch (SolrServerException | IOException e) {
+        } catch (SolrServerException | SQLException | IOException e) {
             e.printStackTrace();
         }
 
         return new JSONObject();
     }
 
-    public String getPleiotropyDownload(List<String> topLevelMpTerms) throws IOException, SolrServerException {
+    public String getPleiotropyDownload(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, SQLException {
 
-        SolrQuery query = getPleiotropyQuery(topLevelMpTerms);
+        SolrQuery query = getPleiotropyQuery(topLevelMpTerms,idg, idgClass);
         query.add("wt", "xslt");
         query.add("tr", "pivot.xsl");
 
@@ -223,7 +233,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      * @throws IOException
      * @throws SolrServerException
      */
-    private SolrQuery getPleiotropyQuery(List<String> topLevelMpTerms) throws IOException, SolrServerException {
+    private SolrQuery getPleiotropyQuery(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, SQLException {
 
         String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
         SolrQuery query = new SolrQuery()
@@ -232,6 +242,11 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
             .setFacetLimit(-1);
         query.add("facet.pivot", pivot);
         query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+
+        if ( idg != null && idg){
+            Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg", idgClass);
+            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + projectBeans.stream().map(gene -> {return gene.getAccession();}).collect(Collectors.joining("\" OR \"")) + "\")");
+        }
 
         if (topLevelMpTerms != null) {
 

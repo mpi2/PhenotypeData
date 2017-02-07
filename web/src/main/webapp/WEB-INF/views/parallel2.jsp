@@ -52,9 +52,9 @@
 		                    		<option value="${center}">${center}</option>
 		                    	</c:forEach>
 		                    </select>
-		                    <div id="widgets_pc" class="widgets" class="right">
-								
-							</div>
+							<textarea onfocus="if(this.value==this.defaultValue)this.value=''" onblur="if(this.value=='')this.value=this.defaultValue" id="geneIds" rows="2" cols="100" style="width:40%">Filter by gene MGI ids (space, tab or comma separated).	</textarea>
+							<a href="#" id="geneFilterButton" class="button btn" title="Filter by gene">Go</a>
+		                    <div id="widgets_pc" class="widgets" class="right">	</div>
 		                	<div class="clear"></div>
 	                    </form>
 							

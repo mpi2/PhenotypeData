@@ -49,6 +49,11 @@ import java.util.*;
 @Service("idg")
 class SecondaryProjectServiceIdg implements SecondaryProjectService {
 
+	
+	public static final String DEVIANCE_COLOR="rgb(191, 75, 50)";
+	public static final String COULD_NOT_ANALYSE="rgb(230, 242, 246)";
+	public static final String NO_SIGNIFICANT_CALL="rgb(247, 157, 70)";
+	public static final String NO_DATA="rgb(119, 119, 119)";
 	@Autowired
 	private GeneService geneService;
 
@@ -73,7 +78,7 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 	@Override
 	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId) throws SQLException {
 
-		return secondaryProjectDAO.getAccessionsBySecondaryProjectId(projectId);
+		return secondaryProjectDAO.getAccessionsBySecondaryProjectId(projectId, null);
 	}
 
 
@@ -85,7 +90,7 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 		String geneUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
 		// get a list of genes for the project - which will be the row headers
-		Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg");
+		Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg", null);
 		Set<String>accessions=SecondaryProjectBean.getAccessionsFromBeans(projectBeans);
         Map<String,String>accessionToGroupLabelMap=SecondaryProjectBean.getAccessionsToLabelMapFromBeans(projectBeans);
 		
