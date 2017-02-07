@@ -1,0 +1,96 @@
+div#alleleRef {
+    margin: -30px 0 0 0;
+    padding: 0;
+}
+div#alleleRef_filter {
+    float: left;
+    clear: right;
+    margin: 0 0 8px -5px;
+}
+table.dataTable span.highlight {
+    background-color: yellow;
+    font-weight: bold;
+    color: black;
+}
+table#alleleRef {
+    clear: left;
+    margin: 20px 0;
+}
+table#alleleRef th:first-child {
+    width: 150px !important;
+}
+table#alleleRef td:nth-child(2) {
+    max-width: 110px;
+}
+table#alleleRef td:nth-child(3) {
+    max-width: 50px !important;
+}
+table#alleleRef td:nth-child(4) {
+    max-width: 40px !important;
+}
+
+table#alleleRef td {
+    font-size: 14px !important;
+}
+.hideMe {
+    display: none;
+}
+.alleleToggle {
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+}
+div.saveTable {
+    margin-top: -25px;
+    float: right;
+    font-size: 14px;
+}
+tr.hiddenMesh {
+    display: none;
+}
+table.dataTable tr td {
+    border-bottom: 1px solid lightgrey;
+}
+table.dataTable {
+    /*border-collapse: collapse;*/
+    margin: 0;
+    padding: 0;
+}
+table.dataTable div.dataTables_length {
+    padding-left: 5px;
+}
+div.innerData {
+    padding: 0 0 0 10px;
+    margin: 0;
+}
+div.innerData p {
+    padding: 0;
+    margin: 0;
+}
+p.meshTerms {
+    display: none;
+}
+div.alleles, div.showMe {
+    display: inline;
+}
+
+ul.agency {
+    margin: 0 0 0 50px;
+    border: none;
+    list-style: none;
+}
+table.dataTable thead tr {
+   display: none;
+}
+table.dataTable > caption {
+    background-color: lightgrey;
+    padding: 2px;
+    margin: 0;
+}
+table.dataTable > caption button {
+    margin: 0 20px 0 10px;
+    cursor: pointer;
+}
+div#alleleRef_info {
+    padding-top: 10px !important;
+}

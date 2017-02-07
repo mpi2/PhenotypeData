@@ -93,7 +93,7 @@ public class DccSqlUtils {
      */
     public static List<String> knownBadColonyIds = Arrays.asList(
             new String[] {
-                    "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG"
+                    "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG", "EUCJ0019_C12"
             }
     );
 
