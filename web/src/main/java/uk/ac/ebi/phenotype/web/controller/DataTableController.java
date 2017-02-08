@@ -1102,7 +1102,11 @@ public class DataTableController {
 
 	private HttpHeaders createResponseHeaders() {
 		HttpHeaders responseHeaders = new HttpHeaders();
-		//responseHeaders.setContentType(MediaType.APPLICATION_JSON); // this alone won't do UTF
+
+		// this returns json, but utf encoding failed
+		//responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+		// this returns html string, not json, and is utf encoded
 		responseHeaders.add("Content-Type", "text/html; charset=utf-8");
 
 
@@ -2825,7 +2829,7 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
-		//System.out.println("params: " + params);
+		System.out.println("params: " + params);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 
@@ -2836,6 +2840,7 @@ public class DataTableController {
 		String orderByStr = jParams.getString("orderBy");
 
 		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr);
+		System.out.println("content: " + content);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
