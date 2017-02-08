@@ -27,6 +27,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
@@ -34,6 +35,7 @@ import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
@@ -875,7 +877,13 @@ public class GenesController {
 		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
 		model.addAttribute("anatomogram",anatomogram);
 		
-		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		ExpressionImagesBean section = expressionService.getLacImageDataForGene(acc, null, "IMPC_ALZ_075_001", overview);
+		ExpressionImagesBean wholemount = expressionService.getLacImageDataForGene(acc, null,"IMPC_ALZ_076_001", overview);
+		model.addAttribute("sectionExpressionImagesBean", section);
+		model.addAttribute("wholemountExpressionImagesBean", wholemount);
+		model.addAttribute("topLevelMaCountsSection", section.getFilteredTopLevelAnatomyTerms());
+		model.addAttribute("haveImpcAdultImagesSection", section.getHaveImpcImages());
+		model.addAttribute("haveImpcAdultImagesWholemount", wholemount.getHaveImpcImages());
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}
 	
@@ -895,7 +903,10 @@ public class GenesController {
 		boolean overview=true;
 		boolean embryoOnly=true;
 		//get embryo images
-		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		//solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_064_001" + " OR "
+		//+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");
+		ExpressionImagesBean wholemount =expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_064_001",overview);
+		ExpressionImagesBean section =expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_063_001",overview);
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 		
 	}

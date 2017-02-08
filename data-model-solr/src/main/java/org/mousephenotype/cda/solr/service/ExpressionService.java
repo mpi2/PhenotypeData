@@ -29,6 +29,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
@@ -191,7 +192,10 @@ public class ExpressionService extends BasicService {
 		return response;
 	}
 
-	private QueryResponse getAdultLaczImageFacetsForGene(String mgiAccession, String... fields) throws SolrServerException, IOException  {
+	private QueryResponse getAdultLaczImageFacetsForGene(String mgiAccession, String parameterStableId, String... fields) throws SolrServerException, IOException  {
+		
+		//solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
+		//		+ ":\"LacZ Images Wholemount\"");// reduce the number to image
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -200,8 +204,7 @@ public class ExpressionService extends BasicService {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
-		solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
-				+ ":\"LacZ Images Wholemount\"");// reduce the number to image
+		solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":" +parameterStableId);// reduce the number to image
 													// parameters only as we are
 													// talking about images not
 													// expression data here
@@ -209,7 +212,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
 		solrQuery.addFacetField(ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
-		solrQuery.setRows(100000);
+		solrQuery.setRows(Integer.MAX_VALUE);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
 	}
@@ -254,8 +257,10 @@ public class ExpressionService extends BasicService {
 		return categoryParameterFields.get(0).getValues();
 	}
 
-	private QueryResponse getEmbryoLaczImageFacetsForGene(String mgiAccession, String... fields)
+	private QueryResponse getEmbryoLaczImageFacetsForGene(String mgiAccession, String parameterStableId, String... fields)
 			throws SolrServerException, IOException  {
+		//solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_064_001" + " OR "
+				//+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -264,8 +269,7 @@ public class ExpressionService extends BasicService {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
-		solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_064_001" + " OR "
-				+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");// reduce
+		solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":"+parameterStableId);// reduce
 																		// the
 																		// number
 																		// to
@@ -285,7 +289,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
 		solrQuery.addFacetField(ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
-		solrQuery.setRows(100000);
+		solrQuery.setRows(Integer.MAX_VALUE);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
 	}
@@ -296,6 +300,7 @@ public class ExpressionService extends BasicService {
 	 *            mgi_accession for gene
 	 * @param topMaNameFilter
 	 *            Only include images under the top level ma term specified here
+	 * @param parameterStableId TODO
 	 * @param imagesOverview
 	 *            If imagesOverview true then restrict response to only certain
 	 *            fields as we are only displaying annotations for a dataset not
@@ -308,14 +313,18 @@ public class ExpressionService extends BasicService {
 	 * @throws SolrServerException, IOException
 	 * @throws SQLException
 	 */
-	public void getLacImageDataForGene(String acc, String topMaNameFilter, boolean imagesOverview, boolean embryoOnly,
-			Model model) throws SolrServerException, IOException  {
+	public ExpressionImagesBean  getLacImageDataForGene(String acc, String topMaNameFilter, String parameterStableId, boolean imagesOverview) throws SolrServerException, IOException  {
+		//options currently used as parameters
+		//expressionService.getLacImageDataForGene(acc, null, "IMPC_ALZ_075_001", overview, embryoOnly, model);
+		//expressionService.getLacImageDataForGene(acc, null,"IMPC_ALZ_076_001", overview, embryoOnly, model);
+//		expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_064_001",overview, embryoOnly, model);
+//		expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_063_001",overview, embryoOnly, model);
 		QueryResponse laczResponse = null;
 		String noTopTermId = "";
 		String topLevelField = "";// type ma or emap imageDTO field for top
 									// level terms
 		String termIdField = "";
-		if (embryoOnly) { // use EMAP terms and top level terms
+		if (parameterStableId.contains("ELZ")) { // use EMAP terms and top level terms
 			noTopTermId = "TS20 embryo or Unassigned";// currently if unassigned
 														// they either have
 														// embryo TS20 as there
@@ -331,14 +340,14 @@ public class ExpressionService extends BasicService {
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
 			termIdField = ImageDTO.ANATOMY_ID;
 			if (imagesOverview) {
-				laczResponse = getEmbryoLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL, topLevelField,
-						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ANATOMY_ID,
-						ImageDTO.ANATOMY_TERM);
-			} else {
-				laczResponse = getEmbryoLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL, topLevelField,
-						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
-						ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
+				laczResponse = getEmbryoLaczImageFacetsForGene(acc, parameterStableId, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL,
+						topLevelField, ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE,
 						ImageDTO.ANATOMY_ID, ImageDTO.ANATOMY_TERM);
+			} else {
+				laczResponse = getEmbryoLaczImageFacetsForGene(acc, parameterStableId, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL,
+						topLevelField, ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE,
+						ImageDTO.ZYGOSITY, ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL,
+						ImageDTO.IMAGE_LINK, ImageDTO.ANATOMY_ID, ImageDTO.ANATOMY_TERM);
 			}
 
 		} else {
@@ -346,11 +355,11 @@ public class ExpressionService extends BasicService {
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
 			termIdField = ImageDTO.ANATOMY_ID;
 			if (imagesOverview) {
-				laczResponse = getAdultLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL, topLevelField,
+				laczResponse = getAdultLaczImageFacetsForGene(acc,parameterStableId, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL, ImageDTO.THUMBNAIL_URL, topLevelField,
 						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ANATOMY_ID,
 						ImageDTO.UBERON_ID, ImageDTO.EFO_ID);
 			} else {
-				laczResponse = getAdultLaczImageFacetsForGene(acc, ImageDTO.OMERO_ID, ImageDTO.JPEG_URL,  ImageDTO.THUMBNAIL_URL, topLevelField,
+				laczResponse = getAdultLaczImageFacetsForGene(acc, parameterStableId,   ImageDTO.OMERO_ID, ImageDTO.JPEG_URL,  ImageDTO.THUMBNAIL_URL, topLevelField,
 						ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 						ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL, ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
 						ImageDTO.ANATOMY_ID, ImageDTO.UBERON_ID, ImageDTO.EFO_ID);
@@ -429,18 +438,20 @@ public class ExpressionService extends BasicService {
 		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelAnatomyTerms);
 		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 
-		
-		if (embryoOnly) {
-			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelAnatomyTerms);
-			model.addAttribute("haveImpcEmbryoImages", haveImpcImages);
-			model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
-
-		} else {
-			model.addAttribute("impcAdultExpressionImageFacets", filteredTopLevelAnatomyTerms);
-			model.addAttribute("haveImpcAdultImages", haveImpcImages);
-			model.addAttribute("impcAdultExpressionFacetToDocs", expFacetToDocs);
-		}
+		ExpressionImagesBean bean=null;
+//		if (parameterStableId.contains("EZ")) {//embryo
+			
+//			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelAnatomyTerms);
+//			model.addAttribute("haveImpcEmbryoImages", haveImpcImages);
+//			model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
+			bean=new ExpressionImagesBean(filteredTopLevelAnatomyTerms, haveImpcImages, expFacetToDocs );
+//		} else {
+//			model.addAttribute("impcAdultExpressionImageFacets", filteredTopLevelAnatomyTerms);
+//			model.addAttribute("haveImpcAdultImages", haveImpcImages);
+//			model.addAttribute("impcAdultExpressionFacetToDocs", expFacetToDocs);
+//		}
 		// }
+			return bean;
 	}
 
 	/**
