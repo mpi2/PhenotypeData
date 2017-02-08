@@ -87,7 +87,7 @@ MDOC.stats = {
 
 MDOC.alleles = {
 		'generalPanel'         				: '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   				: baseUrl + '/documentation/graph-help'
+		'generalPanelDocUrl'   				: docuBase + '/doc-explore#tabs-5'
 };
 
 MDOC.phenome = {
