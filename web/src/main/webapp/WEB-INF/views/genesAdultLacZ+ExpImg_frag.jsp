@@ -13,11 +13,13 @@
 
 <!-- <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
 -->
-<div class="accordion-body"
-     style="display: block;">
 
-    <a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
-    <c:forEach var="entry" items="${impcAdultExpressionImageFacets}"
+    <h3><a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
+    </h3>
+    <div class="accordion-body"
+     style="display: block;">
+    <h3>LacZ Wholemount Images</h3>
+    <c:forEach var="entry" items="${wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms}"
                varStatus="status">
                
                
@@ -30,14 +32,40 @@
             <t:impcimgdisplay2
                     category="${entry.name}(${entry.count})" 
                     href="${fn:escapeXml(href)}"
-                    img="${impcAdultExpressionFacetToDocs[entry.name][0]}"
+                    img="${wholemountExpressionImagesBean.expFacetToDocs[entry.name][0]}"
                     impcMediaBaseUrl="${impcMediaBaseUrl}"
                     >
             </t:impcimgdisplay2>
         </ul>
 
     </c:forEach> <!-- solrFacets end -->
+    
+    </div>
+    
+    <div class="accordion-body"
+     style="display: block;">
+   <h3>LacZ Section Images</h3>
+     <c:forEach var="entry" items="${sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}"
+               varStatus="status">
+               
+               
+ <%--  value="${baseUrl}/imageComparator?&acc=${acc}&anatomy_term=${entry.name}"></c:set> --%><!--  &acc=${acc}&parameter_stable_id=IMPC_ALZ_076_001 -->
+        <c:set var="href"
+               scope="page"
+             
+               value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
+        <ul>
+            <t:impcimgdisplay2
+                    category="${entry.name}(${entry.count})" 
+                    href="${fn:escapeXml(href)}"
+                    img="${sectionExpressionImagesBean.expFacetToDocs[entry.name][0]}"
+                    impcMediaBaseUrl="${impcMediaBaseUrl}"
+                    >
+            </t:impcimgdisplay2>
+        </ul>
 
-</div>
+    </c:forEach> <!-- solrFacets end -->
+	</div>
+
 
 

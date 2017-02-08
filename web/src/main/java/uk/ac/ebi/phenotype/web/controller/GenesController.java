@@ -881,9 +881,15 @@ public class GenesController {
 		ExpressionImagesBean wholemount = expressionService.getLacImageDataForGene(acc, null,"IMPC_ALZ_076_001", overview);
 		model.addAttribute("sectionExpressionImagesBean", section);
 		model.addAttribute("wholemountExpressionImagesBean", wholemount);
-		model.addAttribute("topLevelMaCountsSection", section.getFilteredTopLevelAnatomyTerms());
-		model.addAttribute("haveImpcAdultImagesSection", section.getHaveImpcImages());
-		model.addAttribute("haveImpcAdultImagesWholemount", wholemount.getHaveImpcImages());
+		
+//		model.addAttribute("haveImpcAdultImagesSection", section.getHaveImpcImages());
+//		model.addAttribute("haveImpcAdultImagesWholemount", wholemount.getHaveImpcImages());
+		
+		//need to do these for section and wholemount
+//		model.addAttribute("impcAdultExpressionImageFacetsSection", section.getFilteredTopLevelAnatomyTerms());
+//		model.addAttribute("impcAdultExpressionFacetToDocsSection", section.getExpFacetToDocs());
+//		model.addAttribute("impcAdultExpressionImageFacetsWholemount", wholemount.getFilteredTopLevelAnatomyTerms());
+//		model.addAttribute("impcAdultExpressionFacetToDocsWholemount", wholemount.getExpFacetToDocs());
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}
 	
@@ -905,8 +911,20 @@ public class GenesController {
 		//get embryo images
 		//solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_064_001" + " OR "
 		//+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");
+		
+		//impcEmbryoExpressionFacetToDocsWholemount
 		ExpressionImagesBean wholemount =expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_064_001",overview);
 		ExpressionImagesBean section =expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_063_001",overview);
+		model.addAttribute("sectionExpressionEmbryoImagesBean", section);
+		model.addAttribute("wholemountExpressionImagesEmbryoBean", wholemount);
+//		model.addAttribute("impcEmbryoExpressionImageFacetsWholemount", wholemount.getExpFacetToDocs());
+//		model.addAttribute("impcEmbryoExpressionImageFacetsSection", section.getExpFacetToDocs());
+//		
+//		
+//		model.addAttribute("topLevelMaCountsEmbryoWholemount", wholemount.getFilteredTopLevelAnatomyTerms());
+//		model.addAttribute("topLevelMaCountsEmbryoSection", section.getFilteredTopLevelAnatomyTerms());
+//		model.addAttribute("haveImpcAdultImagesEmbryoSection", section.getHaveImpcImages());
+//		model.addAttribute("haveImpcAdultImagesEmbryoWholemount", wholemount.getHaveImpcImages());
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 		
 	}
