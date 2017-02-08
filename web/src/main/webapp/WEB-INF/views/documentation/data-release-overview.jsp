@@ -12,7 +12,7 @@
       <%@ include file="doc-data-release.jsp" %>
     </div>
 
-    <br/> <br/>
+    <br/> <br/> <br/> <br/>
 
     <div id="doc-graps">
       <%@ include file="doc-graphs.jsp" %>
