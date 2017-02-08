@@ -26,7 +26,6 @@ import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
-import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,8 +164,8 @@ public class ExtractDccExperiments implements CommandLineRunner {
         }
 
         if (centerProcedures.size() == 0) {
-            logger.error("{} failed to unmarshall", filename);
-            throw new DataLoadException(filename + " failed to unmarshall.", new XMLloadingException());
+            logger.info("experiment file {} is empty.", filename);
+            return;
         }
 
         logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
@@ -450,7 +449,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
     private void insertOntology(OntologyParameter ontologyParameter, long procedurePk) {
         long ontologyParameterPk = dccSqlUtils.insertOntologyParameter(ontologyParameter, procedurePk);
         for (String term : ontologyParameter.getTerm()) {
-            dccSqlUtils.insertOntologyParameterTerm(term, ontologyParameterPk);
+            dccSqlUtils.insertOntologyParameterTerm(term, ontologyParameterPk, ontologyParameter);
         }
     }
 
