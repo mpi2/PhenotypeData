@@ -14,8 +14,8 @@
 <!-- <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
 -->
 
-    <h3><a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
-    </h3>
+    <h4><a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
+    </h4>
     <div class="accordion-body"
      style="display: block;">
     <h3>LacZ Wholemount Images</h3>
@@ -27,7 +27,7 @@
         <c:set var="href"
                scope="page"
              
-               value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
+               value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_076_001"></c:set>
         <ul>
             <t:impcimgdisplay2
                     category="${entry.name}(${entry.count})" 
@@ -53,7 +53,7 @@
         <c:set var="href"
                scope="page"
              
-               value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
+               value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_075_001"></c:set>
         <ul>
             <t:impcimgdisplay2
                     category="${entry.name}(${entry.count})" 
