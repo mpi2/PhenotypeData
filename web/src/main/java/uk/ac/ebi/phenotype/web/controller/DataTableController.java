@@ -1102,7 +1102,10 @@ public class DataTableController {
 
 	private HttpHeaders createResponseHeaders() {
 		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+		//responseHeaders.setContentType(MediaType.APPLICATION_JSON); // this alone won't do UTF
+		responseHeaders.add("Content-Type", "text/html; charset=utf-8");
+
+
 		return responseHeaders;
 	}
 
