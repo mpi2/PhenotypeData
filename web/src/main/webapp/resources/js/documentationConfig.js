@@ -38,39 +38,40 @@ MDOC.search = {
 		'facetPanelDocUrl'  : baseUrl + '/documentation/doc-search'
 };
 
-var docuBase = baseUrl + '/documentation/doc-explore';
+var docuBase = baseUrl + '/documentation';
+
 MDOC.gene = {
 		'summarySection'         			: '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
-		'summarySectionDocUrl'   			: docuBase + '#summarySection0',
+		'summarySectionDocUrl'   			: docuBase + '/doc-explore#summarySection0',
 		'phenoAssocSection'              	: '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',
-		'phenoAssocSectionDocUrl'        	: docuBase + '#phenoAssocSection0',
+		'phenoAssocSectionDocUrl'        	: docuBase + '/doc-explore#phenoAssocSection0',
 		'heatmapSection'           			: '<p>Analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
-		'heatmapSectionDocUrl'     			: docuBase + '#heatmapSection0',
+		'heatmapSectionDocUrl'     			: docuBase + '/doc-explore#heatmapSection0',
 		'expressionSection'       		    : '<p>Expression of IMPC images associated to this gene.</p><p>Click the help icon for more detail.</p>',
-		'expressionSectionDocUrl' 		    : docuBase + '#expressionSection0',
+		'expressionSectionDocUrl' 		    : docuBase + '/doc-explore#expressionSection0',
 		'phenoAssocImgSection'      		: '<p>Image data used by the phenotyping centers to score the presence or absence of an abnormal phenotyp</p><p>Click the help icon for more detail.</p>',
-		'phenoAssocImgSectionDocUrl'		: docuBase + '#phenoAssocImgSection0',
+		'phenoAssocImgSectionDocUrl'		: docuBase + '/doc-explore#phenoAssocImgSection0',
 		'diseaseSection'           		    : '<p>Human disease models found to be associated with mouse phenotypes.</p><p>Click the help icon for more detail.</p>',
-		'diseaseSectionDocUrl'     		    : docuBase + '#diseaseSection0',
+		'diseaseSectionDocUrl'     		    : docuBase + '/doc-explore#diseaseSection0',
 		'orderSection'          			: '<p>Ordering information for alleles and ES cells of this gene produced from the IKMC project.  When available to order a link to the correspondiong repository will be included.</p><p>Click the help icon for more detail.</p>',
-		'orderSectionDocUrl'    			: docuBase + '#orderSection0',
+		'orderSectionDocUrl'    			: docuBase + '/doc-explore#orderSection0',
 };
 MDOC.phenotypes = {
 		'summarySection'         			: "<p> Phenotype summary panel.<p> <p>Click the help icon for more detail.</p>",
-		'summarySectionDocUrl'   			: docuBase + '#summarySection1',
+		'summarySectionDocUrl'   			: docuBase + '/doc-explore#summarySection1',
 		'phenotypeStatsSection'  			: "<p> Find out more about how we obtain the stats and associations presented in this panel. <p>",
-		'phenotypeStatsSectionDocUrl'		: docuBase + '#phenotypeStatsSection1',
+		'phenotypeStatsSectionDocUrl'		: docuBase + '/doc-explore#phenotypeStatsSection1',
 		'geneVariantSection'       			: "<p>Allele associated with current phenotype. You can filter the table using the dropdown checkbox filters over the table, sort by one column and export the data. <p>Click the help icon for more detail.</p>",
-		'geneVariantSectionDocUrl' 			: docuBase + '#geneVariantSection1',
+		'geneVariantSectionDocUrl' 			: docuBase + '/doc-explore#geneVariantSection1',
 
 };
 MDOC.diseases = {
 	'summarySection'         				: "<p> Disease summary.<p> <p>Click the help icon for more detail.</p>",
-	'summarySectionDocUrl'   				: docuBase + '#summarySection2',
+	'summarySectionDocUrl'   				: docuBase + '/doc-explore#summarySection2',
 	'orthologySection'  					: "<p>For details about how disease model association by gene orthology is calculated, please click the help icon.<p>",
-	'orthologySectionDocUrl'				: docuBase + '#orthologySection2',
+	'orthologySectionDocUrl'				: docuBase + '/doc-explore#orthologySection2',
 	'similaritySection'       				: "<p>For details about how disease model association by phenotype similarity is calculated, please click the help icon.</p>",
-	'similaritySectionDocUrl' 				: docuBase + '#similaritySection2',
+	'similaritySectionDocUrl' 				: docuBase + '/doc-explore#similaritySection2',
 
 };
 
@@ -81,12 +82,12 @@ MDOC.images = {
 
 MDOC.stats = {
 		'generalPanel'         				: '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   				: baseUrl + '/documentation/graph-help'
+		'generalPanelDocUrl'   				: docuBase + '/doc-explore#tabs-5'
 };
 
 MDOC.alleles = {
 		'generalPanel'         				: '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   				: baseUrl + '/documentation/graph-help'
+		'generalPanelDocUrl'   				: docuBase + '/doc-explore#tabs-5'
 };
 
 MDOC.phenome = {
@@ -96,7 +97,7 @@ MDOC.phenome = {
 
 MDOC.parallel = {
 		'parallelPanel'         			: '<p>Select one or more procedures to be displayed in a parallel coordinates chart. You can select ranges to filter the data for multiple parameters. The values displayed are the genotype effect for each strain.</p> <p>Click the help icon for more details.</p>',
-		'parallelPanelDocUrl'   			: baseUrl + '/documentation/parallel-help'
+		'parallelPanelDocUrl'   			: docuBase + '/doc-method#tools'
 };
 
 

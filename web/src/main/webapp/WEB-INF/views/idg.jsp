@@ -45,25 +45,31 @@
 
 
         		<div class="section">
-							<div class=inner>
-									<div class="floatright">
-										<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
-									</div>
-									<h3>Illuminating the Druggable Genome (IDG)</h3>
-									<p>
-										IDG is an NIH Common Fund project focused on collecting, integrating and making available biological data on 395 genes from three key druggable protein families that have been identified as potential therapeutic targets: non-olfactory G-protein coupled receptors (GPCRs), ion channels, and protein kinases. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
-									</p>
-							</div>
-						</div>	<!-- section -->
+                    <h1 class="title">Illuminating the Druggable Genome (IDG)</h1>
+					<div class=inner>
+						<div class="floatright">
+							<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
+						</div>
+						<p>
+                            <a href="https://commonfund.nih.gov/idg/index">IDG</a> is an NIH Common Fund project focused on collecting, integrating and making available biological data on 395
+                            human genes from three key druggable protein families that have been identified as potential therapeutic targets: non-olfactory
+                            G-protein coupled receptors (GPCRs), ion channels, and protein kinases. The <a href="${baseUrl}/documentation/aboutImpc#whatisimpc">IMPC consortium</a>
+                            is creating where possible knockout mouse strains for the IDG project to better understand the function of these proteins.
+						</p>
+                    </div>
+                </div>	<!-- section -->
 
 
 						<div class="section" >
-								<h2 class="title"	id="section-associations"> IMPC Production Status for IDG Gene Set </h2>
+								<h1 id="section-associations">IMPC data representation for IDG genes</h1>
 		           					 <div class="inner">
 		            	<p>
-		            	The IMPC consortium is using different complementary targeting strategies to produce Knockout alleles, namely ES cell based chromosome engineering and CRISPR/Cas-mediated genome engineering. Mice are then produced and submitted to phenotyping pipelines. 77.4 % of IDG
-		            	<a href="${baseUrl}/secondaryproject/idg/mapping">orthologs</a> have data representation in the IMPC. Statistics representing the IMPC production status for IDG orthologs are shown below.
+                            We mapped Human to mouse IDG <a href="${baseUrl}/secondaryproject/idg/mapping">orthologs</a> using HomoloGene.
+                            The IMPC consortium is using different complementary <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">targeting strategies</a>
+                            to produce Knockout strains. Mice are produced and submitted to standardised <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">phenotyping pipelines</a>. About 77.4 % of mouse
+                            IDG gene have data representation in IMPC, the bar charts and heatmap below capture the IMPC data representation at different levels.
 		            	</p>
+
 									<div  class="half">
 										<div id="idgOrthologPie">
 			            		<script type="text/javascript">
@@ -79,29 +85,26 @@
 										</div>
 									</div>
 		            	  <div class="clear"></div>
-		            </div>
 
-		        </div> <!-- section -->
+                <br/><br/>
+                 <h6 >IMPC IDG data Heat Map</h6>
 
-        <div class="section">
-
-            <h2 class="title">Gene to Phenotype Heat Map</h2>
-
-            <div class=inner>
                 <p>
-                    Heat Map representing the data status of IDG orthologs in IMPC.
+                    The heat map indicates the detailed IDG gene data representation in IMPC, from product availability to phenotypes.
+                    Phenotypes are grouped by <a href="${baseUrl}/ontologyBrowser?termId=MP:0005375">biological systems</a>.
                 </p>
+
                 <div id="geneHeatmap" class="geneHeatMap" style="overflow: hidden; overflow-x: auto;">
                 </div>
-            </div>
-
+                                         <div class="clear both"></div>
         </div>
-
+                        </div>
         <div class="section" id="phenotypePValueDistribution">
-            <h2 class="title" id="section-associations">Phenotype Associations</h2>
+            <h1 id="section-associations">Phenotype Associations</h1>
             <div class="inner">
-
-                <h3>All</h3>
+                <p>The following chord diagrams represent the various <a href="${baseUrl}/ontologyBrowser?termId=MP:0005375">biological systems</a> phenotype associations for IDG genes categorized both in all and in each family group. The line thickness is correlated with the strength of the association.
+                    Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>
+                <h3>All families</h3>
                 <div id="chordContainer" class="half"></div>
                 <svg id="chordDiagramSvg" width="960" height="960"></svg>
                 <script>
