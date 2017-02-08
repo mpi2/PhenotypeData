@@ -161,7 +161,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Map<String, Integer>                  cdaParameter_idMap = new HashMap<>();
     private Map<String, String>                   cdaParameterNameMap = new HashMap<>();              // map of impress parameter names keyed by stable_parameter_id
     private Set<String>                           requiredImpressParameters = new HashSet<>();
-    private Map<String, BiologicalSample>         samplesMap = new HashMap<>();                       // keyed by external_id
+    private Map<String, BiologicalSample>         samplesMap = new HashMap<>();                       // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
     private Map<String, PhenotypedColony>         phenotypedColonyMap = new HashMap<>();
 
     // DCC parameter lookup maps, keyed by procedure_pk
@@ -541,7 +541,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         if (dccExperimentDTO.isLineLevel()) {
             biologicalSamplePk = null;
         } else {
-            BiologicalSample bs = samplesMap.get(dccExperimentDTO.getSpecimenId());
+            String bsKey = dccExperimentDTO.getSpecimenId() + "_" + cdaOrganisation_idMap.get(dccExperimentDTO.getPhenotypingCenter());
+            BiologicalSample bs = samplesMap.get(bsKey);
             if (bs == null) {
                 missingSamples.add(dccExperimentDTO.getSpecimenId());
 
@@ -789,21 +790,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int missing = ((procedureStatus != null) || parameterStatus != null ||
                 (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : 0);
         int populationId = 0;
-        BiologicalSample sample = samplesMap.get(parameterPk);
-        if (sample == null) {
-            logger.warn("Experiment {}, center {}: null sampleId for mediaParameter {}", dccExperimentDTO.getExperimentId(), dccExperimentDTO.getPhenotypingCenter(),  parameterStableId);
-            nullSamples.add(parameterStableId);
-            return;
-        }
-
-        int samplePk = sample.getId();
-
         int organisationPk = cdaOrganisation_idMap.get(parameterPk);
 
         int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
                                                           parameterStatus, parameterStatusMessage,
-                                                          mediaParameter, dccExperimentDTO, samplePk, organisationPk);
+                                                          mediaParameter, dccExperimentDTO, biologicalSamplePk, organisationPk);
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
@@ -830,7 +822,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         String          parameterStatus        = rawParameterStatus[0];
         String          parameterStatusMessage = rawParameterStatus[1];
         int             missing                = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
-        int             samplePk               = samplesMap.get(parameterPk).getId();
         int             organisationPk         = cdaOrganisation_idMap.get(parameterPk);
 
         String info              = mediaSampleParameter.getParameterID() + mediaSampleParameter.getParameterStatus();
@@ -863,7 +854,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                     observationPk = cdaSqlUtils.insertObservation(
                             dbId, biologicalSamplePk, parameterStableId, parameterPk, sequenceId, populationId,
                             observationType, missing, parameterStatus, parameterStatusMessage, mediaSampleParameter,
-                            mediaFile, dccExperimentDTO, samplePk, organisationPk, experimentPk,
+                            mediaFile, dccExperimentDTO, biologicalSamplePk, organisationPk, experimentPk,
                             simpleParameterList, ontologyParameterList);
                 }
             }
@@ -900,14 +891,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
         int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
-        BiologicalSample sample = samplesMap.get(parameterPk);
-        if (sample == null) {
-            logger.warn("Experiment {}, center {}: null sampleId for seriesMediaParameter {}", dccExperimentDTO.getExperimentId(), dccExperimentDTO.getPhenotypingCenter(),  parameterStableId);
-            nullSamples.add(parameterStableId);
-            return;
-        }
 
-        int samplePk = sample.getId();
         int organisationPk = cdaOrganisation_idMap.get(parameterPk);
 
         for (SeriesMediaParameterValue value : seriesMediaParameter.getValue()) {
@@ -918,7 +902,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                               sequenceId, populationId, observationType, missing,
                                                               parameterStatus, parameterStatusMessage,
-                                                              value, dccExperimentDTO, samplePk, organisationPk,
+                                                              value, dccExperimentDTO, biologicalSamplePk, organisationPk,
                                                               experimentPk, simpleParameterList, ontologyParameterList);
 
             // Insert experiment_observation
