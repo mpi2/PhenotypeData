@@ -1572,11 +1572,12 @@ public class DccSqlUtils {
      * @param ontologyParameterTerm the ontology parameter term to be inserted
      * @param ontologyParameterPk the ontology parameter primary key
      * @param ontologyParameter the ontology parameter instance (for logging purposes only)
+     * @param filename the data filename currently being loaded
      *
      *
      * @return the ontologyParameterTerm primary key
      */
-    public long insertOntologyParameterTerm(String ontologyParameterTerm, long ontologyParameterPk, OntologyParameter ontologyParameter) {
+    public long insertOntologyParameterTerm(String ontologyParameterTerm, long ontologyParameterPk, OntologyParameter ontologyParameter, String filename) {
         String insert = "INSERT INTO ontologyParameterTerm(term, ontologyParameter_pk) "
                       + "VALUES (:term, :ontologyParameterPk)";
 
@@ -1595,8 +1596,8 @@ public class DccSqlUtils {
             }
 
         } catch (DuplicateKeyException dke) {
-            logger.info("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}",
-                         ontologyParameterTerm, ontologyParameterPk, ontologyParameter.getParameterID());
+            logger.info("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}, filename {}",
+                         ontologyParameterTerm, ontologyParameterPk, ontologyParameter.getParameterID(), filename);
         }
 
         return 0;
