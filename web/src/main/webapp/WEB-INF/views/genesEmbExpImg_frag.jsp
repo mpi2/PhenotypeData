@@ -20,10 +20,10 @@
 
     <c:set var="href"
            scope="page"
-           value="${baseUrl}/impcImages/embryolaczimages/${acc}/${entry.name}"></c:set>
+           value='${baseUrl}/imageComparator?acc=${acc}&anatomy_term="${entry.name}"&parameter_stable_id=IMPC_ELZ_064_001'></c:set>
     <ul>
       <t:impcimgdisplay2
-              category="${fn:replace(entry.name, 'TS20 ','')}(${entry.count})" href="${href}"
+              category="${fn:replace(entry.name, 'TS20 ','')}(${entry.count})" href="${fn:escapeXml(href)}"
               img="${wholemountExpressionImagesEmbryoBean.expFacetToDocs[entry.name][0]}"
               impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
     </ul>
@@ -35,10 +35,10 @@
 
     <c:set var="href"
            scope="page"
-           value="${baseUrl}/impcImages/embryolaczimages/${acc}/${entry.name}"></c:set>
+           value='${baseUrl}/imageComparator?acc=${acc}&anatomy_term="${entry.name}"&parameter_stable_id=IMPC_ELZ_063_001'></c:set>
     <ul>
       <t:impcimgdisplay2
-              category="${fn:replace(entry.name, 'TS20 ','')}(${entry.count})" href="${href}"
+              category="${fn:replace(entry.name, 'TS20 ','')}(${entry.count})" href="${fn:escapeXml(href)}"
               img="${sectionExpressionImagesEmbryoBean.expFacetToDocs[entry.name][0]}"
               impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
     </ul>
