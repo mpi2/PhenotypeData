@@ -135,8 +135,9 @@
 
                                         var tableHeader = "<thead><th></th></thead>";
                                         var tableCols = 1;
+                                        var isAlleleRef = true;
 
-                                        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
+                                        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef", isAlleleRef);
                                         $('div#alleleRef').append(dTable);
 
                                         var oConf = {};

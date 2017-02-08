@@ -304,13 +304,13 @@
 
 					$.ajax({
 						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
-						//'dataType': 'jsonp',
 						'async': true,
 						'jsonp': 'json.wrf',
-						'success': function (json) {
-							// console.log(json);
+						'success': function (jsonstr) {
+							// utf encoded
+							var j = JSON.parse(jsonstr);
 							oTable.fnClearTable();
-							oTable.fnAddData(json.aaData)
+							oTable.fnAddData(j.aaData)
 
 						},
                         'error' : function(jqXHR, textStatus, errorThrown) {
@@ -893,7 +893,7 @@
 		return hashParams;
 	};
 
-	$.fn.fetchEmptyTable = function(theadStr, colNum, id, pageReload) {
+	$.fn.fetchEmptyTable = function(theadStr, colNum, id, isAlleleRef) {
 
 		var table = $('<table></table>').attr({
 			'id' : id,
@@ -917,8 +917,13 @@
 			tds += "<td></td>";
 		}
 		var tbody = $('<tbody><tr>' + tds + '</tr></tbody>');
-		table.append(caption, thead, tbody);
-        //table.append(thead, tbody);
+
+		if (isAlleleRef) {
+            table.append(caption, thead, tbody);
+        }
+        else {
+            table.append(thead, tbody);
+        }
 
 		return table;
 	};
