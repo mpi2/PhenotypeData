@@ -54,7 +54,8 @@ Each data point corresponds to a significant hit for a specific mutant line.
 
 <h3 id="phenotype-table">Phenotype table</h3>
 
-<p>The detailed phenotype section of the phenome page shows all the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms for a specific phenotyping center.
+<p>The detailed phenotype section of the phenome page shows all the association of genes to
+ <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms for a specific phenotyping center.
     The table mirrors the graph view and displays the following information in sortable columns:</p>
 <ul>
     <li>Gene / Allele</li>
