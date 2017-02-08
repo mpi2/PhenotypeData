@@ -657,20 +657,19 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             if (dccDate.before(minDate)) {
 
-                logger.warn("Experiment {}, center {} has date {}, which is before 01-January-1975. Skipping ...", experimentId, dccExperiment.getPhenotypingCenter(), dccDate);
+                logger.warn("Invalid date {} for experiment {}, center {}. Date is before 01-January-1975. Skipping ...", dccDate, experimentId, dccExperiment.getPhenotypingCenter());
                 return null;
 
             } else if (dccDate.after(maxDate)) {
 
-                logger.warn("Experiment {}, center {} has date {}, which is after today's date. Skipping ...", experimentId, dccExperiment.getPhenotypingCenter(), dccDate);
+                logger.warn("Invalid date {} for experiment {}, center {}. Date is after today's date. Skipping ...", dccDate, experimentId, dccExperiment.getPhenotypingCenter());
                 return null;
             }
 
             dateOfExperiment = dccDate;
 
         } catch (Exception e) {
-
-            logger.warn("Experiment {}, center {} has invalid date {}. Skipping ...", experimentId, dccExperiment.getPhenotypingCenter(), dccDate);
+            logger.warn("Invalid date {} for experiment {}, center {}. Skipping ...", dccDate, experimentId, dccExperiment.getPhenotypingCenter());
             return null;
         }
 
