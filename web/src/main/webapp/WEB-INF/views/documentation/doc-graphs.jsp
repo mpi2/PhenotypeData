@@ -5,12 +5,7 @@
   Time: 14:46
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>Title</title>
-</head>
-    <body>
+
         <h1>More information about the way IMPC uses graphs.</h1>
         <br/>
         <h3 id="data">Where is the data coming from?</h3>
@@ -171,11 +166,11 @@
         <h3 id="types">Types of Charts and Equations</h3>
         <p>The following types of chart exist in the IMPC portal from the IMPC:</p>
         <ol>
-            <li><a href="graph-help#categorical-graphs">Categorical Bar Graphs</a></li>
-            <li><a href="graph-help#undimensional-graphs">Unidimensional Scatter and Box Plot Graphs</a></li>
-            <li><a href="graph-help#time-graphs">Time Series Graphs</a></li>
-            <li><a href="graph-help#pie-graphs">Pie Graphs graphing viability</a></li>
-            <li><a href="graph-help#abr-graphs">ABR graphs showing auditory brain stem response</a></li>
+            <li><a href="#categorical-graphs">Categorical Bar Graphs</a></li>
+            <li><a href="#undimensional-graphs">Unidimensional Scatter and Box Plot Graphs</a></li>
+            <li><a href="#time-graphs">Time Series Graphs</a></li>
+            <li><a href="#pie-graphs">Pie Graphs graphing viability</a></li>
+            <li><a href="#abr-graphs">ABR graphs showing auditory brain stem response</a></li>
         </ol>
         <br/><br/>
 
@@ -185,7 +180,7 @@
         <p>Categorical charts contain data where an observation can be categorised into one of two or more groups e.g. Abnormal
             Eye or Normal Eye.
             Charts are presented as bar charts with a table underneath. If IMPC data is available this will be displayed (see <a
-                    href="statistics-help.html">
+                    href="documentation/doc-method#statistics">
                 statistics help</a> for more information).
         </p>
 
@@ -273,8 +268,3 @@
             For each parameter we plot the mean of it's respective measurements. If one parameter does not have any points it
             means no data is available.
         </p>
-
-        </div>
-
-    </body>
-</html>
