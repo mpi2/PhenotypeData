@@ -118,6 +118,234 @@
 
 	};
 
+    $.fn.fetchAlleleRefDataTable = function(oConf) {
+
+        var baseUrl = oConf.baseUrl;
+        //var aDataTblCols = [0,1,2,3,4,5,6];
+        var oTable = $('table#alleleRef').dataTable({
+            "bSort": true, // true is default
+            "processing": true,
+            "paging": false,
+            //"serverSide": false,  // do not want sorting to be processed from server, false by default
+            "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
+            "sPaginationType": "bootstrap",
+            "searchHighlight": true,
+            "iDisplayLength": 200,
+            "oLanguage": {
+                "sSearch": "Filter: "
+            },
+            "columnDefs": [
+                //  { "type": "alt-string", targets: 4 },   //4th col sorted using alt-string
+                {
+                    "targets": [7], // 7th col
+                    "visible": false
+                }
+
+            ],
+            "aaSorting": [[3, "desc"]],  // default sort column: 4th col
+            "aoColumns": [
+                {"bSearchable": true, "sType": "string", "bSortable": true},
+                {"bSearchable": true, "sType": "html", "bSortable": true},
+                {"bSearchable": true, "sType": "string", "bSortable": true},
+                {"bSearchable": true, "sType": "string", "bSortable": true},
+                {"bSearchable": true, "sType": "string", "bSortable": true},
+                {"bSearchable": true, "sType": "html", "bSortable": true},
+                {"bSearchable": true, "sType": "string", "bSortable": false},
+                {"bSearchable": true, "sType": "string", "bSortable": false}
+            ],
+            "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
+
+                // download tool
+
+                oConf.fileName = 'impc_allele_references';
+                oConf.iDisplayStart = 0;
+                oConf.iDisplayLength = 5000;
+                oConf.dataType = "alleleRef";
+
+                var paramStr = "mode=all";
+                $.each(oConf, function (i, val) {
+                    paramStr += "&" + i + "=" + val;
+                });
+                //console.log(paramStr)
+
+                var fileTypeTsv = "fileType=tsv";
+                var fileTypeXls = "fileType=xls";
+
+                var urltsvA = baseUrl+"/export2?" + paramStr + "&" + fileTypeTsv;
+                var urlxlsA = baseUrl+"/export2?" + paramStr + "&" + fileTypeXls;
+
+                var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
+                    + '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
+                    + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
+                //+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
+
+                $("div.saveTable").html(toolBox);
+
+                //$.fn.initDataTableDumpControl(oConf);
+
+
+                $('.alleleToggle', this).click(function () {
+                    console.log("toggle");
+                    if (!$(this).hasClass('showMe')) {
+                        $(this).addClass('showMe').text('Show fewer alleles ...');
+                        //console.log($(this).siblings("div.hideMe").html());
+                        $(this).siblings().addClass('showMe');
+                    }
+                    else {
+                        var num = $(this).attr('rel');
+                        $(this).removeClass('showMe').text('Show all ' + num + ' alleles ...');
+                        $(this).siblings().removeClass('showMe');
+                    }
+                });
+
+
+                $('body').removeClass('footerToBottom');
+            },
+            "sAjaxSource": baseUrl + '/dataTableAlleleRef',
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    {
+                        "name": "doAlleleRef",
+                        "value": JSON.stringify(oConf, null, 2)
+                    }
+                );
+            }
+        });
+    }
+    $.fn.fetchAlleleRefDataTable2 = function(oConf) {
+
+        var baseUrl = oConf.baseUrl;
+        //var aDataTblCols = [0,1,2,3,4,5,6];
+        var oTable = $('table#alleleRef').dataTable({
+            "bSort": false, // true is default
+            "processing": true,
+            "paging": true,
+            //"serverSide": false,  // do not want sorting to be processed from server, false by default
+            "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
+            "sPaginationType": "bootstrap",
+            "searchHighlight": true,
+            "iDisplayLength": 10,
+            "oLanguage": {
+                "sSearch": "Filter: "
+            },
+            // "columnDefs": [
+            //     //  { "type": "alt-string", targets: 4 },   //4th col sorted using alt-string
+            //     {
+            //         "targets": [7], // 7th col
+            //         "visible": false
+            //     }
+            //
+            // ],
+            // "aaSorting": [[3, "desc"]],  // default sort column: 4th col
+            // "aoColumns": [
+            //     {"bSearchable": true, "sType": "string", "bSortable": true},
+            //     {"bSearchable": true, "sType": "html", "bSortable": true},
+            //     {"bSearchable": true, "sType": "string", "bSortable": true},
+            //     {"bSearchable": true, "sType": "string", "bSortable": true},
+            //     {"bSearchable": true, "sType": "string", "bSortable": true},
+            //     {"bSearchable": true, "sType": "html", "bSortable": true},
+            //     {"bSearchable": true, "sType": "string", "bSortable": false},
+            //     {"bSearchable": true, "sType": "string", "bSortable": false}
+            // ],
+            "aoColumns": [
+               {"bSearchable": true, "sType": "html", "bSortable": true}
+            ],
+            //"fnDrawCallback": function (oSettings) {  // when dataTable is loaded
+            "initComplete": function (oSettings, json) {  // when dataTable is loaded
+
+
+                // download tool
+                oConf.fileName = 'impc_allele_references';
+                oConf.iDisplayStart = 0;
+                oConf.iDisplayLength = 5000;
+                oConf.dataType = "alleleRef";
+                oConf.rowFormat = true;
+
+                var paramStr = "mode=all";
+                $.each(oConf, function (i, val) {
+                    paramStr += "&" + i + "=" + val;
+                });
+                //console.log(paramStr)
+
+                var fileTypeTsv = "fileType=tsv";
+                var fileTypeXls = "fileType=xls";
+
+                var urltsvA = baseUrl+"/export2?" + paramStr + "&" + fileTypeTsv;
+                var urlxlsA = baseUrl+"/export2?" + paramStr + "&" + fileTypeXls;
+
+                var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
+                    + '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
+                    + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
+                //+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
+
+                $("div.saveTable").html(toolBox);
+
+				// sort by date_of_publication and reload table with new content
+				$('.dataTable  > caption button').click(function(){
+					// var sortCols = [];
+					// $(this).siblings("input").each(function () {
+					// 	var thisChkbox = $(this);
+					// 	if (thisChkbox.is(':checked')) {
+					// 		sortCols.push(thisChkbox.val());
+					// 	}
+					// })
+					// var sortStr = sortCols.join();
+					//oConf.orderBy = "date_of_publication";
+
+
+					if ($(this).siblings("i").hasClass("fa-caret-down")){
+                        $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
+						oConf.orderBy = "date_of_publication ASC";
+					}
+					else {
+                        $(this).siblings("i").removeClass("fa-caret-up").addClass("fa-caret-down");
+                        oConf.orderBy = "date_of_publication DESC";
+					}
+
+					$.ajax({
+						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
+						'async': true,
+						'jsonp': 'json.wrf',
+						'success': function (jsonstr) {
+							// utf encoded
+							var j = JSON.parse(jsonstr);
+							oTable.fnClearTable();
+							oTable.fnAddData(j.aaData)
+
+						},
+                        'error' : function(jqXHR, textStatus, errorThrown) {
+                           alert("error: " + errorThrown);
+                        }
+					});
+				});
+
+                $('.alleleToggle', this).click(function () {
+                    if (!$(this).hasClass('showMe')) {
+                        $(this).addClass('showMe').text('Show fewer alleles ...');
+                        //console.log($(this).siblings("div.hideMe").html());
+                        $(this).siblings().addClass('showMe');
+                    }
+                    else {
+                        var num = $(this).attr('rel');
+                        $(this).removeClass('showMe').text('Show all ' + num + ' alleles ...');
+                        $(this).siblings().removeClass('showMe');
+                    }
+                });
+
+                $('body').removeClass('footerToBottom');
+            },
+            "sAjaxSource": baseUrl + '/dataTableAlleleRef2',
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    {
+                        "name": "doAlleleRef",
+                        "value": JSON.stringify(oConf, null, 2)
+                    }
+                );
+            }
+        });
+    }
+
 	function _facetRefresh(json, selectorBase) {
 
 		// refresh main facet sum count
@@ -665,19 +893,38 @@
 		return hashParams;
 	};
 
-	$.fn.fetchEmptyTable = function(theadStr, colNum, id, pageReload) {
+	$.fn.fetchEmptyTable = function(theadStr, colNum, id, isAlleleRef) {
 
 		var table = $('<table></table>').attr({
 			'id' : id,
 			'class' : 'table tableSorter'
 		});
+
+        var sortFields = ["date_of_publication", "title", "journal"];
+        var sortChkboxes = "";
+        // for (var i=0; i<sortFields.length; i++){
+        //     var label = sortFields[i].replace(/_/g, " ");
+        //     var fieldName = sortFields[i];
+        //     var checked = fieldName == "date_of_publication" ? "checked" : "";
+        //     sortChkboxes += "<input type='checkbox' name='sortField' value='" + sortFields[i] + "'" + checked + ">" + label;
+        // }
+        //var caption = "<caption>Sort by " + sortChkboxes + "<button>Sort</button></caption>";
+        var caption = "<caption><button>Sort by date of publication</button><i class='fa fa-caret-down'></i></caption>";
+
 		var thead = theadStr;
 		var tds = '';
 		for (var i = 0; i < colNum; i++) {
 			tds += "<td></td>";
 		}
 		var tbody = $('<tbody><tr>' + tds + '</tr></tbody>');
-		table.append(thead, tbody);
+
+		if (isAlleleRef) {
+            table.append(caption, thead, tbody);
+        }
+        else {
+            table.append(thead, tbody);
+        }
+
 		return table;
 	};
 
@@ -1656,7 +1903,6 @@ $.extend($.fn.dataTableExt.oSort, {
 		return a.match(/alt="(.*?)"/)[1].toLowerCase();
 	},
 	"alt-string-asc" : function(a, b) {
-		console.log("SOORTING");
 		return ((a < b) ? -1 : ((a > b) ? 1 : 0));
 
 	},

@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -8,58 +9,12 @@
     <jsp:attribute name="header">
         
         <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-        <link href="${baseUrl}/css/default.css" rel="stylesheet" />
-        
-        <style type="text/css">
-            div#alleleRef_filter {
-            	float: left;
-            	clear: right;
+        <%--<link href="${baseUrl}/css/default.css" rel="stylesheet" />--%>
+        <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
+        <style>
+            div#alleleRef {
+                margin-top: 30px;
             }
-            table.dataTable span.highlight {
-                background-color: yellow;
-                font-weight: bold;
-                color: black;
-            }
-            table#alleleRef {
-            	clear: left;
-                margin-top: 20px;
-            }
-            table#alleleRef th:first-child {
-                width: 150px !important;
-            }
-            table#alleleRef td:nth-child(2) {
-                max-width: 110px;
-            }
-            table#alleleRef td:nth-child(3) {
-                max-width: 50px !important;
-            }
-            table#alleleRef td:nth-child(4) {
-                max-width: 40px !important;
-            }
-
-            table#alleleRef td {
-                font-size: 14px !important;
-            }
-            .hideMe {
-                display: none;
-            }
-            /*.showMe {*/
-                /*display: block;*/
-            /*}*/
-            ul li.showMe {
-                list-style-type: solid circle !important;
-            }
-            .alleleToggle {
-                cursor: pointer;
-                font-size: 11px;
-                font-weight: bold;
-            }
-            div.saveTable {
-                margin-bottom: 30px;
-                float: right;
-                margin-right: 30px;
-            }
-
         </style>
         
         <script type='text/javascript'>
@@ -71,120 +26,27 @@
                 //var baseUrl = '//dev.mousephenotype.org/data';
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
                 
-                var baseUrl = "${baseUrl}";
-                var solrUrl = "${internalSolrUrl};"
+                //var solrUrl = "${internalSolrUrl};"
 
-                //var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Pmid</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
-                //var tableCols = 7;
-                var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>PMID</th><th>Paper link</th><th>Mesh</th></thead>";
-                //var tableHeader = "<thead><th>Paper title</th><th>Allele symbol</th><th>Journal</th><th>Date of publication</th><th title='Grant agency cited in manuscript'>Grant agency</th><th>Paper link</th></thead>";
+                var tableHeader = "<thead><th></th></thead>";
+                var tableCols = 1;
+                var isAlleleRef = true;
 
-                var tableCols = 8;
-
-
-                var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
+                var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef", isAlleleRef);
                 $('div#alleleRef').append(dTable);
 
                 var oConf = {};
-                oConf.doAlleleRef = true;
                 oConf.iDisplayLength = 10;
                 oConf.iDisplayStart = 0;
+                oConf.kw = "";
+                oConf.baseUrl = "${baseUrl}";
+                oConf.rowFormat = true;
+                oConf.orderBy = "date_of_publication DESC"; // default
 
-                fetchAlleleRefDataTable(oConf);
+                $.fn.fetchAlleleRefDataTable2(oConf);
             });
 
-            function fetchAlleleRefDataTable(oConf) {
 
-            	//var aDataTblCols = [0,1,2,3,4,5,6];
-                var oTable = $('table#alleleRef').dataTable({
-                    "bSort": true, // true is default 
-                    "processing": true,
-                    "paging": false,
-                    //"serverSide": false,  // do not want sorting to be processed from server, false by default
-                    "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
-                    "sPaginationType": "bootstrap",
-                    "searchHighlight": true,
-                    "iDisplayLength": 200,
-                    "oLanguage": {
-                        "sSearch": "Filter: "
-                    },
-                    "columnDefs": [
-                      //  { "type": "alt-string", targets: 4 },   //4th col sorted using alt-string
-                        { "targets": [7], // 7th col
-                          "visible": false
-                        }
-
-                    ],
-                    "aaSorting": [[ 3, "desc" ]],  // default sort column: 4th col
-                    "aoColumns": [
-                        {"bSearchable": true, "sType": "string", "bSortable": true},
-                        {"bSearchable": true, "sType": "html", "bSortable": true},
-                        {"bSearchable": true, "sType": "string", "bSortable": true},
-                        {"bSearchable": true, "sType": "string", "bSortable": true},
-                        {"bSearchable": true, "sType": "string", "bSortable": true},
-                        {"bSearchable": true, "sType": "html", "bSortable": true},
-                        {"bSearchable": true, "sType": "string", "bSortable": false},
-                        {"bSearchable": true, "sType": "string", "bSortable": false}
-                    ],
-                    "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
-
-                        // download tool
-
-                        oConf.fileName = 'impc_allele_references';
-                        oConf.iDisplayStart = 0;
-                        oConf.iDisplayLength = 5000;
-                        oConf.dataType = "alleleRef";
-                        oConf.kw = ""; // default
-
-                        var paramStr = "mode=all";
-                        $.each(oConf, function(i, val){
-                            paramStr += "&" + i + "=" + val;
-                        });
-                        console.log(paramStr)
-
-                        var fileTypeTsv = "fileType=tsv";
-                        var fileTypeXls = "fileType=xls";
-
-                        var urltsvA = "${baseUrl}/export2?" + paramStr + "&" + fileTypeTsv;
-                        var urlxlsA = "${baseUrl}/export2?" + paramStr + "&" + fileTypeXls;
-
-                        var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
-                                + '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
-                                + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
-                        //+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
-
-                        $("div.saveTable").html(toolBox);
-
-                        //$.fn.initDataTableDumpControl(oConf);
-
-
-                        $('.alleleToggle', this).click(function () {
-                            console.log("toggle");
-                            if (!$(this).hasClass('showMe')) {
-                                $(this).addClass('showMe').text('Show fewer alleles ...');
-                                console.log($(this).siblings("div.hideMe").html());
-                                $(this).siblings().addClass('showMe');
-                            }
-                            else {
-                                var num = $(this).attr('rel');
-                                $(this).removeClass('showMe').text('Show all ' + num + ' alleles ...');
-                                $(this).siblings().removeClass('showMe');
-                            }
-                        });
-
-
-                        $('body').removeClass('footerToBottom');
-                    },
-                    "sAjaxSource": baseUrl + '/dataTableAlleleRef',
-                    "fnServerParams": function (aoData) {
-                        aoData.push(
-                                {"name": "doAlleleRef",
-                                    "value": JSON.stringify(oConf, null, 2)
-                                }
-                        );
-                    }
-                });
-            }
         </script>
         
         <script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>  
