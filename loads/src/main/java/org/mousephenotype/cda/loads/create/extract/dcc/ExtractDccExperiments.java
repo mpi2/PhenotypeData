@@ -306,7 +306,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         // ontologyParameter and ontologyParameterTerm
         if (experiment.getProcedure().getOntologyParameter() != null) {
             for (OntologyParameter ontologyParameter : experiment.getProcedure().getOntologyParameter()) {
-                insertOntology(ontologyParameter, procedurePk);
+                insertOntology(ontologyParameter, procedurePk, filename);
             }
         }
 
@@ -400,7 +400,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         // ontologyParameter and ontologyParameterTerm
         if (line.getProcedure().getOntologyParameter() != null) {
             for (OntologyParameter ontologyParameter : line.getProcedure().getOntologyParameter()) {
-                insertOntology(ontologyParameter, procedurePk);
+                insertOntology(ontologyParameter, procedurePk, filename);
             }
         }
 
@@ -446,10 +446,10 @@ public class ExtractDccExperiments implements CommandLineRunner {
         dccSqlUtils.insertProcedure_procedureMetadata(procedurePk, procedureMetadataPk);
     }
 
-    private void insertOntology(OntologyParameter ontologyParameter, long procedurePk) {
+    private void insertOntology(OntologyParameter ontologyParameter, long procedurePk, String filename) {
         long ontologyParameterPk = dccSqlUtils.insertOntologyParameter(ontologyParameter, procedurePk);
         for (String term : ontologyParameter.getTerm()) {
-            dccSqlUtils.insertOntologyParameterTerm(term, ontologyParameterPk, ontologyParameter);
+            dccSqlUtils.insertOntologyParameterTerm(term, ontologyParameterPk, ontologyParameter, filename);
         }
     }
 
