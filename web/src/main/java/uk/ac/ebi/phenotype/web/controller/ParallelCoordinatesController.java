@@ -95,7 +95,7 @@ public class ParallelCoordinatesController {
 						   	Model model, HttpServletRequest request)
 			throws SolrServerException, IOException, URISyntaxException {
 
-		List<String> geneList = (genes != null && genes.contains(":")) ? Arrays.stream(genes.split("[ ,\t\n]+")).collect(Collectors.toList()) : null;
+		List<String> geneList = (genes != null && !genes.contains(".")) ? Arrays.stream(genes.split("[ ,\t\n]+")).collect(Collectors.toList()) : null;
 
 		long totalTime = System.currentTimeMillis();
 		if (procedureIds == null) {
