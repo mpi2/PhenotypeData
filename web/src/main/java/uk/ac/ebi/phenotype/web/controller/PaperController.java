@@ -153,8 +153,8 @@ public class PaperController {
 
 		// make sure do not insert duplicate pmid
 		PreparedStatement insertStatement = conn.prepareStatement("INSERT IGNORE INTO allele_ref "
-				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)");
+				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh, author) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
 
 		String status = "";
 		String failStatus = "";
@@ -246,8 +246,8 @@ public class PaperController {
 
 		// make sure do not insert duplicate pmid
 		PreparedStatement insertStatement = conn.prepareStatement("REPLACE INTO allele_ref "
-				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)");
+				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh, author) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
 
 		String status = "";
 		String failStatus = "";
@@ -489,7 +489,7 @@ public class PaperController {
 			}
 		}
 		insertStatement.setString(17, mterms.size() > 0 ? StringUtils.join(mterms, delimiter) : "");
-
+		insertStatement.setString(18, pub.getAuthor());
 
 		try {
 			int count = insertStatement.executeUpdate();
@@ -642,6 +642,7 @@ public class PaperController {
 				}
 				pub.setMeshTerms(meshTerms);
 
+				pub.setAuthor(r.getString("authorString"));
 			}
 		}
 
@@ -685,6 +686,7 @@ public class PaperController {
 		String alleleAccs;
 		String alleleSymbols;
 		String reviewed;
+		String author;
 
 		public String getGeneAccs() {
 			return geneAccs;
@@ -774,6 +776,14 @@ public class PaperController {
 			this.reviewed = reviewed;
 		}
 
+		public String getAuthor() {
+			return author;
+		}
+
+		public void setAuthor(String author) {
+			this.author = author;
+		}
+
 		@Override
 		public String toString() {
 			return "Pubmed{" +
@@ -788,6 +798,7 @@ public class PaperController {
 					", alleleAccs='" + alleleAccs + '\'' +
 					", alleleSymbols='" + alleleSymbols + '\'' +
 					", reviewed='" + reviewed + '\'' +
+					", author='" + author + '\'' +
 					'}';
 		}
 	}
