@@ -93,7 +93,7 @@ public class DccSqlUtils {
      */
     public static List<String> knownBadColonyIds = Arrays.asList(
             new String[] {
-                    "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG"
+                    "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG", "EUCJ0019_C12"
             }
     );
 
@@ -792,57 +792,18 @@ public class DccSqlUtils {
         return list;
     }
 
-    private class SimpleParameterEx {
-        private long procedure_pk;
-        private SimpleParameter simpleParameter;
-
-        public long getProcedure_pk() {
-            return procedure_pk;
-        }
-
-        public void setProcedure_pk(long procedure_pk) {
-            this.procedure_pk = procedure_pk;
-        }
-
-        public SimpleParameter getSimpleParameter() {
-            return simpleParameter;
-        }
-
-        public void setSimpleParameter(SimpleParameter simpleParameter) {
-            this.simpleParameter = simpleParameter;
-        }
-    }
-    private class SimpleParameterExRowMapper implements RowMapper<SimpleParameterEx> {
-
-        @Override
-        public SimpleParameterEx mapRow(ResultSet rs, int rowNum) throws SQLException {
-            SimpleParameterEx simpleParameterEx = new SimpleParameterEx();
-
-            simpleParameterEx.setProcedure_pk(rs.getLong("procedure_pk"));
-            simpleParameterEx.setSimpleParameter(new SimpleParameterRowMapper().mapRow(rs, rowNum));
-
-            return simpleParameterEx;
-        }
-    }
-    public Map<Long, List<SimpleParameter>> getSimpleParameters() {
+    public List<SimpleParameter> getSimpleParameters(long procedure_pk) {
         Map<Long, List<SimpleParameter>> retVal = new HashMap<>();
 
         final String query =
-                "SELECT * FROM simpleParameter";
+                "SELECT * FROM simpleParameter WHERE procedure_pk = :procedure_pk";
 
         Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("procedure_pk", procedure_pk);
 
-        List<SimpleParameterEx> list = npJdbcTemplate.query(query, parameterMap, new SimpleParameterExRowMapper());
-        for (SimpleParameterEx spEx : list) {
-            List<SimpleParameter> spList = retVal.get(spEx.getProcedure_pk());
-            if (spList == null) {
-                spList = new ArrayList<>();
-                retVal.put(spEx.getProcedure_pk(), spList);
-            }
-            spList.add(spEx.getSimpleParameter());
-        }
+        List<SimpleParameter> list = npJdbcTemplate.query(query, parameterMap, new SimpleParameterRowMapper());
 
-        return retVal;
+        return list;
     }
 
     /**
@@ -1610,10 +1571,13 @@ public class DccSqlUtils {
      *
      * @param ontologyParameterTerm the ontology parameter term to be inserted
      * @param ontologyParameterPk the ontology parameter primary key
+     * @param ontologyParameter the ontology parameter instance (for logging purposes only)
+     * @param filename the data filename currently being loaded
+     *
      *
      * @return the ontologyParameterTerm primary key
      */
-    public long insertOntologyParameterTerm(String ontologyParameterTerm, long ontologyParameterPk) {
+    public long insertOntologyParameterTerm(String ontologyParameterTerm, long ontologyParameterPk, OntologyParameter ontologyParameter, String filename) {
         String insert = "INSERT INTO ontologyParameterTerm(term, ontologyParameter_pk) "
                       + "VALUES (:term, :ontologyParameterPk)";
 
@@ -1631,9 +1595,9 @@ public class DccSqlUtils {
                 return pk;
             }
 
-        } catch (Exception e) {
-            logger.error("INSERT to ontologyParameterTerm failed for ontologyParameterTerm {}, ontologyParameterPk {}. Reason:\n\t{}",
-                         ontologyParameterTerm, ontologyParameterPk, e.getLocalizedMessage());
+        } catch (DuplicateKeyException dke) {
+            logger.info("IGNORED DUPLICATE INSERT to ontologyParameterTerm for ontologyParameterTerm {}, ontologyParameterPk {}, parameterId {}, filename {}",
+                         ontologyParameterTerm, ontologyParameterPk, ontologyParameter.getParameterID(), filename);
         }
 
         return 0;

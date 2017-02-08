@@ -40,9 +40,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -91,9 +91,11 @@ public class ParallelCoordinatesController {
 	@RequestMapping(value = "/parallelFrag", method = RequestMethod.GET)
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds,
 							@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
-							@RequestParam(required = false, value = "genes") List<String> genes,
+							@RequestParam(required = false, value = "gene_acc_list") String genes,
 						   	Model model, HttpServletRequest request)
-			throws SolrServerException, IOException, MalformedURLException, IOException, URISyntaxException {
+			throws SolrServerException, IOException, URISyntaxException {
+
+		List<String> geneList = (genes != null && !genes.contains(".")) ? Arrays.stream(genes.split("[ ,\t\n]+")).collect(Collectors.toList()) : null;
 
 		long totalTime = System.currentTimeMillis();
 		if (procedureIds == null) {
@@ -112,7 +114,7 @@ public class ParallelCoordinatesController {
 			}
 			procedures += "}";
 
-			model.addAttribute("dataJs", getData(procedureIds, phenotypingCenter, request) + ";");
+			model.addAttribute("dataJs", getData(procedureIds, phenotypingCenter, geneList, request) + ";");
 			model.addAttribute("selectedProcedures", procedures);
 			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
 
@@ -142,14 +144,15 @@ public class ParallelCoordinatesController {
 	}
 
 
-	private String getData(List<String> procedureIds, List<String> phenotypingCenter, HttpServletRequest request) throws IOException, SolrServerException, URISyntaxException {
+	private String getData(List<String> procedureIds, List<String> phenotypingCenter, List<String> genes, HttpServletRequest request) throws IOException, SolrServerException, URISyntaxException {
 
 		String key =  procedureIds != null ? procedureIds.toString() : "" ;
 		key += phenotypingCenter != null ? phenotypingCenter.toString() : "";
+		key += genes != null ? genes.hashCode() : "";
 		if (!cache.containsKey(key)){
 			String mappedHostname = (String) request.getAttribute("mappedHostname") + (String) request.getAttribute("baseUrl");
 			List<ParameterDTO> parameters = impressService.getParametersByProcedure(procedureIds, "unidimensional");
-			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname), parameters);
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname, genes), parameters);
 			cache.put(key, data);
 		}
 

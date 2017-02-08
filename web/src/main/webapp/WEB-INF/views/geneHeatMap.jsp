@@ -85,7 +85,7 @@
         $(document).ready(function () {
             $('#secondaryGeneHeatmap').DataTable({
                 sortable: true,
-                paginate: false
+                "sPaginationType": "bootstrap"
             });
 
         });
