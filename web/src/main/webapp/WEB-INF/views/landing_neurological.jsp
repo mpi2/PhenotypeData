@@ -14,7 +14,9 @@
     <jsp:attribute name="header">
 
 	<!-- CSS Local Imports -->
-	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+    <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
+
+    <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
 
@@ -70,8 +72,9 @@
 
                                         var tableHeader = "<thead><th></th></thead>";
                                         var tableCols = 1;
+                                        var isAlleleRef = true;
 
-                                        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef");
+                                        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef", isAlleleRef);
                                         $('div#alleleRef').append(dTable);
 
                                         var oConf = {};
