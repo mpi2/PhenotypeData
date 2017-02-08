@@ -38,7 +38,7 @@
                  value="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">
           </c:set> 
           <c:choose>
-          <c:when test="${haveImpcAdultImagesSection[entry.key] || haveImpcAdultImagesWholemount[entry.key]}">
+          <c:when test="${wholemountExpressionImagesBean.haveImpcImages[entry.key] || sectionExpressionImagesBean.haveImpcImages[entry.key]}">
           
          
           <tr>
@@ -47,7 +47,7 @@
           	</td>
           	<td>
           		<c:choose>
-          			<c:when test="${haveImpcAdultImagesWholemount[entry.key]}">
+          			<c:when test="${wholemountExpressionImagesBean.haveImpcImages[entry.key]}">
           			<a title="Wholemount Images available" href="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.key}&parameter_stable_id=IMPC_ALZ_076_001"><i class="fa fa-image"></i></a>
           			</c:when>
           			<c:otherwise>
@@ -56,7 +56,7 @@
           	</td>
           	<td>
           		<c:choose>
-          			<c:when test="${haveImpcAdultImagesSection[entry.key]}">
+          			<c:when test="${sectionExpressionImagesBean.haveImpcImages[entry.key]}">
           		<a title="Section Images Available" href="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.key}&parameter_stable_id=IMPC_ALZ_075_001"><i class="fa fa-image"></i></a>
           		</c:when>
           		<c:otherwise></c:otherwise>

@@ -15,7 +15,7 @@
      style="display: block;">
 
   <a href="${baseUrl}/impcImages/embryolaczimages/${acc}">All Images</a>
-  <c:forEach var="entry" items="${impcEmbryoExpressionImageFacets}"
+  <c:forEach var="entry" items="${wholemountExpressionImagesEmbryoBean.filteredTopLevelAnatomyTerms}"
              varStatus="status">
 
     <c:set var="href"
@@ -24,7 +24,22 @@
     <ul>
       <t:impcimgdisplay2
               category="${fn:replace(entry.name, 'TS20 ','')}(${entry.count})" href="${href}"
-              img="${impcEmbryoExpressionFacetToDocs[entry.name][0]}"
+              img="${wholemountExpressionImagesEmbryoBean.expFacetToDocs[entry.name][0]}"
+              impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+    </ul>
+
+  </c:forEach> <!-- solrFacets end -->
+  
+   <c:forEach var="entry" items="${sectionExpressionImagesEmbryoBean.filteredTopLevelAnatomyTerms}"
+             varStatus="status">
+
+    <c:set var="href"
+           scope="page"
+           value="${baseUrl}/impcImages/embryolaczimages/${acc}/${entry.name}"></c:set>
+    <ul>
+      <t:impcimgdisplay2
+              category="${fn:replace(entry.name, 'TS20 ','')}(${entry.count})" href="${href}"
+              img="${sectionExpressionImagesEmbryoBean.expFacetToDocs[entry.name][0]}"
               impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
     </ul>
 
