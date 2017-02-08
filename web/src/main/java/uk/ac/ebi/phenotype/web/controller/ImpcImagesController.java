@@ -67,7 +67,7 @@ public class ImpcImagesController {
 		System.out.println("calling laczImages web page");
 		addGeneToPage(acc, model);
 		boolean overview=false;
-		expressionService.getLacImageDataForGene(acc, topLevelMa,overview, false, model);
+		expressionService.getLacImageDataForGene(acc, topLevelMa,null, overview);
 		return "laczImages";
 	}
 
@@ -76,7 +76,7 @@ public class ImpcImagesController {
 			throws SolrServerException, IOException , URISyntaxException {
 		addGeneToPage(acc, model);
 		boolean overview=false;
-		expressionService.getLacImageDataForGene(acc, null, overview, false, model);
+		expressionService.getLacImageDataForGene(acc, null, null, overview);
 		return "laczImages";
 	}
 	
@@ -89,8 +89,7 @@ public class ImpcImagesController {
 		System.out.println("calling embryolaczImages web page with specific term="+topLevelEmap);
 		addGeneToPage(acc, model);
 		boolean overview=false;
-		boolean embryoOnly=true;
-		expressionService.getLacImageDataForGene(acc, topLevelEmap,overview, embryoOnly, model);
+		expressionService.getLacImageDataForGene(acc, topLevelEmap,null, overview);
 
 		return "laczImages";
 	}
@@ -101,8 +100,7 @@ public class ImpcImagesController {
 		System.out.println("calling embryolaczImages web page");
 		addGeneToPage(acc, model);
 		boolean overview=false;
-		boolean embryoOnly=true;
-		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		expressionService.getLacImageDataForGene(acc, null, null, overview);
 
 		return "laczImages";
 	}
