@@ -51,10 +51,11 @@
 							<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
 						</div>
 						<p>
-                            <a href="https://commonfund.nih.gov/idg/index">IDG</a> is an NIH Common Fund project focused on collecting, integrating and making available biological data on 395
-                            human genes from three key druggable protein families that have been identified as potential therapeutic targets: non-olfactory
-                            G-protein coupled receptors (GPCRs), ion channels, and protein kinases. The <a href="${baseUrl}/documentation/aboutImpc#whatisimpc">IMPC consortium</a>
-                            is creating where possible knockout mouse strains for the IDG project to better understand the function of these proteins.
+                            <a href="https://commonfund.nih.gov/idg/index">IDG</a> is an NIH Common Fund project focused on collecting, integrating and making available biological
+                            data on 395 human genes from three key druggable protein families that have been identified
+                            as potential therapeutic targets: non-olfactory G-protein coupled receptors (GPCRs), ion channels,
+                            and protein kinases. The <a href="http://dev.mousephenotype.org/data/documentation/aboutImpc">IMPC consortium</a> is creating knockout mouse strains for the IDG project to
+                            better understand the function of these proteins.
 						</p>
                     </div>
                 </div>	<!-- section -->
@@ -64,11 +65,12 @@
 								<h1 id="section-associations">IMPC data representation for IDG genes</h1>
 		           					 <div class="inner">
 		            	<p>
-                            We mapped Human to mouse IDG <a href="${baseUrl}/secondaryproject/idg/mapping">orthologs</a> using HomoloGene.
-                            The IMPC consortium is using different complementary <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">targeting strategies</a>
-                            to produce Knockout strains. Mice are produced and submitted to standardised <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">phenotyping pipelines</a>. About 77.4 % of mouse
-                            IDG gene have data representation in IMPC, the bar charts and heatmap below capture the IMPC data representation at different levels.
-		            	</p>
+                            IDG human genes are mapped to mouse orthologs using <a href="${baseUrl}/secondaryproject/idg/mapping">HomoloGene</a>. The
+                            <a href="${baseUrl}/documentation/aboutImpc#whatisimpc">IMPC consortium</a> is using different <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">complementary
+                            targeting strategies</a> to produce Knockout strains. Mice are produced and submitted to standardised phenotyping pipelines.
+                            Currently 77.4 % of mouse IDG gene have data representation in IMPC, the bar charts and heatmap below capture the
+                            IMPC data representation at different levels. The percentage might increase as we get more data and this page will reflect the change.
+                        </p>
 
 									<div  class="half">
 										<div id="idgOrthologPie">

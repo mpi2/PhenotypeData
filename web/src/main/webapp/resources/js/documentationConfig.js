@@ -77,12 +77,12 @@ MDOC.diseases = {
 
 MDOC.images = {
 		'generalPanel'         				: "<p>All images associated with current phenotype.</p> <p>Click the help icon for more detail.</p>",
-		'generalPanelDocUrl'   				: baseUrl + '/documentation/image-help',
+		'generalPanelDocUrl'   				: docuBase + '/doc-search#images5',
 };
 
 MDOC.stats = {
 		'generalPanel'         				: '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   				: docuBase + '/doc-explore#tabs-5'
+		'generalPanelDocUrl'   				: docuBase + '/doc-explore#4'
 };
 
 MDOC.alleles = {
