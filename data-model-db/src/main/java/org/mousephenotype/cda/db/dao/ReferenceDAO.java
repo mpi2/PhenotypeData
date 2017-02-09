@@ -186,7 +186,7 @@ public class ReferenceDAO {
                         //+ "GROUP BY pmid\n"
                         + "ORDER BY " + orderBy + "\n";
 
-        System.out.println("alleleRef query: " + query);
+        //System.out.println("alleleRef query: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {

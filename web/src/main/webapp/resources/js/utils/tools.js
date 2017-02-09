@@ -118,6 +118,59 @@
 
 	};
 
+	// fetch paper data points for highCharts
+	$.fn.fetchAllelePaperDataPoints = function(chartId){
+        $.ajax({
+            'url': baseUrl + '/fetchPaperStats',
+            'async': true,
+            'jsonp': 'json.wrf',
+            'success': function (jsonstr){
+				var j = JSON.parse(jsonstr);
+				//console.log(j)
+
+                var series = [];
+
+				Object.keys(j.data).sort().reverse().forEach(function(timepoint,index){
+                    var tc = {};
+                    tc.name = timepoint;
+                    tc.data = j.data[timepoint];
+                    series.push(tc);
+				});
+
+                var xStart = parseInt(j.years[0]);
+
+                Highcharts.chart(chartId, {
+                    title: {
+                        text: 'Number of papers by year'
+                    },
+                    subtitle: {
+                        text: 'Sources: Mousemine, Europubmed, manual curation'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Number of papers'
+                        }
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle'
+                    },
+                    plotOptions: {
+                        series: {
+                            pointStart: xStart
+                        }
+                    },
+                    series: series
+                });
+            },
+            'error' : function(jqXHR, textStatus, errorThrown) {
+                alert("error: " + errorThrown);
+            }
+        });
+	}
+
+
     $.fn.fetchAlleleRefDataTable = function(oConf) {
 
         var baseUrl = oConf.baseUrl;
