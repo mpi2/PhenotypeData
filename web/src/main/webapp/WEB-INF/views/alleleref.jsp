@@ -16,12 +16,22 @@
                 margin-top: 30px;
             }
         </style>
-        
+
+        <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>--%>
+        <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>--%>
+
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
         <script type='text/javascript'>
         
             $(document).ready(function () {
                 'use strict';
-                
+
+                // get paper number data points
+                var chartId = "chartSec";
+                $.fn.fetchAllelePaperDataPoints(chartId);
+
 				// test only
                 //var baseUrl = '//dev.mousephenotype.org/data';
                 //var baseUrl = 'http://localhost:8080/phenotype-archive';
@@ -48,6 +58,8 @@
 
 
         </script>
+
+
         
         <script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>  
         <script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>  
@@ -68,6 +80,9 @@
                 <div class='content'>
                     <div class="node node-gene">
                         <h1 class="title" id="top">Publications using IKMC and IMPC resources</h1>
+
+                        <div id="chartSec" style="width:100%; height:400px;"></div>
+
                         <div class="section">
                             <div class="inner">
                                 <div class="clear"></div>
@@ -76,6 +91,7 @@
                                 <div class="HomepageTable" id="alleleRef"></div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
