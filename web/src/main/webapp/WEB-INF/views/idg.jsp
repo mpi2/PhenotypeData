@@ -54,7 +54,7 @@
                             <a href="https://commonfund.nih.gov/idg/index">IDG</a> is an NIH Common Fund project focused on collecting, integrating and making available biological
                             data on 395 human genes from three key druggable protein families that have been identified
                             as potential therapeutic targets: non-olfactory G-protein coupled receptors (GPCRs), ion channels,
-                            and protein kinases. The IMPC consortium is creating knockout mouse strains for the IDG project to
+                            and protein kinases. The <a href="http://dev.mousephenotype.org/data/documentation/aboutImpc">IMPC consortium</a> is creating knockout mouse strains for the IDG project to
                             better understand the function of these proteins.
 						</p>
                     </div>
