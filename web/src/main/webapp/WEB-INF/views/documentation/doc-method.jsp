@@ -50,8 +50,8 @@
           <div id="doc-methods-tools" class="srchdocTab">
               <%@ include file="doc-methods-tools.jsp" %>
           </div>
-
       </div>
+
       <script>
           $(function() {
               // find out which tab to open from hash tag

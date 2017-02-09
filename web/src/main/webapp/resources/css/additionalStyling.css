@@ -4,7 +4,17 @@
 /* EBI icons font */
 @font-face {
 	font-family: 'EBI-Species';
-	src:    url('../fonts/EBI-Species.ttf?mscl4l') format('truetype');
+	src:    url('../fonts/EBI-Species.eot?mscl4l');
+	src:    url('../fonts/EBI-Species.eot?mscl4l#iefix') format('embedded-opentype'),
+	url('../fonts/EBI-Species.ttf?mscl4l') format('truetype'),
+	url('../fonts/EBI-Species.woff?mscl4l') format('woff'),
+	url('../fonts/EBI-Species.svg?mscl4l#EBI-Species') format('svg');
+
+	/*src:    url('http://www.ebi.ac.uk/web_guidelines//fonts/EBI-Species.eot?mscl4l');*/
+	/*src:    url('http://www.ebi.ac.uk/web_guidelines//fonts/EBI-Species.eot?mscl4l#iefix') format('embedded-opentype'),*/
+	/*url('http://www.ebi.ac.uk/web_guidelines//fonts/EBI-Species.ttf?mscl4l') format('truetype'),*/
+	/*url('http://www.ebi.ac.uk/web_guidelines//fonts/EBI-Species.woff?mscl4l') format('woff'),*/
+	/*url('http://www.ebi.ac.uk/web_guidelines/fonts/EBI-Species/fonts/EBI-Species.svg?mscl4l#EBI-Species') format('svg');*/
 	font-weight: normal;
 	font-style: normal;
 }
