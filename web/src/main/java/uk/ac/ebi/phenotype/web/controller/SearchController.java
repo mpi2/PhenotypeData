@@ -358,6 +358,14 @@ public class SearchController {
 		return "batchQuery2";
 	}
 
+	@RequestMapping(value="/mesh", method=RequestMethod.GET)
+	public String mesh(
+			HttpServletRequest request,
+			Model model) {
+
+		return "mesh";
+	}
+
 	@RequestMapping(value = "/chrlen", method = RequestMethod.GET)
 	public @ResponseBody Integer chrlen(
 			@RequestParam(value = "chr", required = true) String chr,
