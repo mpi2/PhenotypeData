@@ -2576,7 +2576,8 @@ public class DataTableController {
 		JSONObject j = new JSONObject();
 
 		String sqla = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
-		String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=?, falsepositive=?, mesh=? WHERE dbid=?";
+		//String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=?, falsepositive=?, mesh=? WHERE dbid=?";
+		String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, datasource=?, falsepositive=?, mesh=? WHERE dbid=?";
 
 		// when symbol is set to be empty, reviewed should have been set to "yes" by curator
 		if (reviewed.equals("yes") && alleleSymbol.isEmpty()) {
@@ -2767,12 +2768,15 @@ public class DataTableController {
 			String alleleSymbol, String falsepositive, Integer dbid,
 			String meshTerms) throws SQLException {
 		//System.out.println(updateSql + " 1: " + alleleAccsStr + " 2: " + geneAccsStr + " 3: " + alleleSymbol + " 6: "  + falsepositive + " 7: " + meshTerms  + " 8: " +  dbid);
+		//String updateSql = "UPDATE allele_ref SET 1. acc=?, 2. gacc=?, 3. symbol=?, 4. reviewed=?, 5. datasource=?, 6. falsepositive=?, 7. mesh=? WHERE 8. dbid=?";
+
 		PreparedStatement stmt = conn.prepareStatement(updateSql);
 		stmt.setString(1, alleleAccsStr);
 		stmt.setString(2, geneAccsStr);
 		stmt.setString(3, alleleSymbol);
 		stmt.setString(4, "yes");
-		stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis())));
+		//stmt.setString(5, String.valueOf(new Timestamp(System.currentTimeMillis()))); // leave time as it is for stats purpose
+		stmt.setString(5, "manual");
 		stmt.setString(6, falsepositive);
 		stmt.setString(7, meshTerms);
 		stmt.setInt(8, dbid);
