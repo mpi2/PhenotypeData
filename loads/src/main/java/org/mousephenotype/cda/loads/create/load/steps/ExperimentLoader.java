@@ -305,14 +305,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         Iterator<String> missingSamplesIt = missingSamples.iterator();
         while (missingSamplesIt.hasNext()) {
-            String parameterStableId = missingSamplesIt.next();
-            logger.warn("Missing samples for parameter stable id '" + parameterStableId + "'");
-        }
-
-        Iterator<String> nullSamplesIt = nullSamples.iterator();
-        while (nullSamplesIt.hasNext()) {
-            String parameterStableId = nullSamplesIt.next();
-            logger.warn("Null samples for parameter stable id '" + parameterStableId + "'");
+            logger.warn(missingSamplesIt.next());
         }
 
         logger.info("Skipped {} experiments because of known bad colony id", skippedExperimentsCount);
@@ -364,8 +357,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     private Set<String> missingProjects   = new HashSet<>();
     private Set<String> missingPipelines  = new HashSet<>();
     private Set<String> missingProcedures = new HashSet<>();
-    private Set<String> missingSamples    = new HashSet<>();        // value = specimenId
-    private Set<String> nullSamples       = new HashSet<>();        // value = parameterStableId
+    private Set<String> missingSamples    = new HashSet<>();        // value = specimenId + "_" + cda organisationPk
 
     private Experiment createExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
         Experiment experiment = new Experiment();
@@ -544,7 +536,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String bsKey = dccExperimentDTO.getSpecimenId() + "_" + organisationPk;
             BiologicalSample bs = samplesMap.get(bsKey);
             if (bs == null) {
-                missingSamples.add(dccExperimentDTO.getSpecimenId());
+                String message = "Missing samples for experiment " + dccExperimentDTO.getExperimentId() + ", experimentPk " + experimentPk + ", specimenId " + dccExperimentDTO.getSpecimenId() + ", organisationPk " + organisationPk;
+                missingSamples.add(message);
 
                 return;
             }
