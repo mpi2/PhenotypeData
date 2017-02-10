@@ -292,10 +292,10 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         while (badDatesIt.hasNext()) {
             logger.warn(badDatesIt.next());
         }
-        
-        Iterator<String> missingSamplesIt = experimentsMissingSamples.iterator();
-        while (missingSamplesIt.hasNext()) {
-            logger.warn(missingSamplesIt.next());
+
+        Iterator<String> experimentsMissingSamplesIt = experimentsMissingSamples.iterator();
+        while (experimentsMissingSamplesIt.hasNext()) {
+            logger.warn(experimentsMissingSamplesIt.next());
         }
         
         Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
