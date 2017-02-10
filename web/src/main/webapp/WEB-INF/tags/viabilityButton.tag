@@ -22,7 +22,7 @@
 		<c:forEach var="call" items="${callList}" varStatus="loop">
 			<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
 			<span class="left">${call}</span>
-			<c:if test="${!loop.last}">   </c:if>
+			<c:if test="${!loop.last}">&nbsp;&nbsp;&nbsp;</c:if>
 		</c:forEach> 
 	<!--/span-->
 </c:if>
