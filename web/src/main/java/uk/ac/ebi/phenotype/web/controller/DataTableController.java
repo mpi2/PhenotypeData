@@ -2833,7 +2833,7 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
-		System.out.println("params: " + params);
+		//System.out.println("params: " + params);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 
@@ -2844,7 +2844,7 @@ public class DataTableController {
 		String orderByStr = jParams.getString("orderBy");
 
 		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr);
-		System.out.println("content: " + content);
+		//System.out.println("content: " + content);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
@@ -3154,7 +3154,7 @@ public class DataTableController {
 
 			rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
 			rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
-			rowData.add("<p>" + reference.getJournal() + ", " + reference.getDateOfPublication() + "</p>");
+			rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
 			rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
 			if ( alLinks.size() > 0) {
 				rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alLinks, ", ") + "</div>");
