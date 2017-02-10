@@ -362,7 +362,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @return
 	 * @throws SolrServerException, IOException
 	 */
-	public List<ParameterDTO> getParametersByProcedure(List<String> procedureStableIds, String observationType)
+	public List<ParameterDTO> getParameters(List<String> procedureStableIds, String observationType, String toplevelMpId)
 	throws SolrServerException, IOException {
 
 		
@@ -372,11 +372,15 @@ public class ImpressService extends BasicService implements WebStatus {
 		if (procedureStableIds != null){
 			query.setFilterQueries(ImpressDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedureStableIds, "* OR " + ImpressDTO.PROCEDURE_STABLE_ID + ":") + "*");
 		}
-		query.setFields(ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.PARAMETER_STABLE_KEY,
-				ImpressDTO.UNITX,ImpressDTO.UNITY, ImpressDTO.REQUIRED, ImpressDTO.PROCEDURE_NAME);
 		if (observationType != null){
 			query.addFilterQuery(ImpressDTO.OBSERVATION_TYPE + ":" + observationType);
 		}
+		if (toplevelMpId != null){
+			query.addFilterQuery(ImpressDTO.TOP_LEVEL_MP_ID + ":\"" + toplevelMpId + "\"");
+		}
+		query.setFields(ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.PARAMETER_STABLE_KEY,
+				ImpressDTO.UNITX,ImpressDTO.UNITY, ImpressDTO.REQUIRED, ImpressDTO.PROCEDURE_NAME);
+
 		query.setRows(Integer.MAX_VALUE);
 
 		QueryResponse response = solr.query(query);
