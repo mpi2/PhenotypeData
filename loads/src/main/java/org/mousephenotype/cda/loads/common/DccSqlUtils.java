@@ -93,7 +93,8 @@ public class DccSqlUtils {
      */
     public static List<String> knownBadColonyIds = Arrays.asList(
             new String[] {
-                    "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG", "EUCJ0019_C12"
+                    "(Deluca)<Deluca>", "EPD0038_2_A04", "internal", "Trm1", "MAG", "EUCJ0019_C12",
+                    "EPD0130_2_C06"     // Even though this colonyId is in Hugh's list, Jeremy's research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment.
             }
     );
 

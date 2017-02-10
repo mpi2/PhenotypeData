@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -53,6 +54,7 @@ import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
 import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.uniprot.jaxb.InteractantType;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -95,6 +97,113 @@ public class PaperController {
     @Autowired
 	private GenomicFeatureDAO genesDao;
 
+
+    // allele ref data points: number grouped by year at start of month
+	@RequestMapping(value = "/fetchPaperStats", method = RequestMethod.GET)
+	public @ResponseBody
+	String paperStats(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException {
+
+		return fetchPaperStats(); // json string
+	}
+
+    public String fetchPaperStats() throws SQLException {
+
+		Connection conn = admintoolsDataSource.getConnection();
+
+		Set<String> uniqYears = new HashSet<>();
+
+		// prevent sql injection
+		String query = "select * from paper_stats order by year";
+
+		JSONObject dataJson = new JSONObject();
+
+		Map<String, List<Map<String, Integer>>> dm = new HashMap<>();
+
+		try (PreparedStatement p = conn.prepareStatement(query)) {
+			ResultSet resultSet = p.executeQuery();
+
+			JSONObject dj = new JSONObject();
+
+			while (resultSet.next()) {
+				String timeTaken = resultSet.getString("date");
+				String year = resultSet.getString("year");
+				int count = resultSet.getInt("count");
+
+				uniqYears.add(year);
+
+				if (!dm.containsKey(timeTaken)) {
+					dm.put(timeTaken, new ArrayList<Map<String, Integer>>());
+				}
+				Map<String, Integer> dobj = new HashMap<>();
+				dobj.put(year, count);
+				dm.get(timeTaken).add(dobj);
+			}
+
+
+			List sorrtedYearList = new ArrayList(uniqYears);
+			Collections.sort(sorrtedYearList);
+
+			Map<String, List<Integer>> timeVallist = new HashMap<>();
+
+			System.out.println(sorrtedYearList);
+
+			Iterator it = dm.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pair = (Map.Entry) it.next();
+				String timeTaken2 = pair.getKey().toString();
+
+				List<String> thisYlist = new ArrayList<>();
+
+				List<Map<String, Integer>> yc = (ArrayList<Map<String, Integer>>)pair.getValue();
+				for (Map<String, Integer> yco : yc) {
+					thisYlist.add(yco.keySet().toArray()[0].toString());
+				}
+
+				ArrayList missingYears = (java.util.ArrayList) CollectionUtils.disjunction(sorrtedYearList, new ArrayList(thisYlist));
+
+				for (Object my : missingYears) {
+					Map<String, Integer> ob = new HashMap<>();
+					ob.put(my.toString(), 0);
+					dm.get(timeTaken2).add(ob);
+
+					System.out.println(timeTaken2 + " ----- missing year: " + my + " ====> " + dm.get(timeTaken2));
+				}
+
+				List<Integer> counts = new ArrayList<>();
+
+				for (Object year : sorrtedYearList) {
+					System.out.println("doing " + year.toString());
+
+					for (Map<String, Integer> ob : dm.get(timeTaken2)) {
+						String yr = ob.keySet().toArray()[0].toString();
+						if (yr.equals(year)) {
+							counts.add(ob.get(yr));
+							break;
+						}
+					}
+				}
+
+				timeVallist.put(timeTaken2, counts); // counts ordered by year
+				System.out.println(timeTaken2 + " --> " + counts);
+
+				it.remove(); // avoids a ConcurrentModificationException
+			}
+
+			dataJson.put("years", sorrtedYearList);
+
+			dataJson.put("data", timeVallist);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			conn.close();
+		}
+
+		return dataJson.toString();
+	}
 
 	// allele reference stuff
 	@RequestMapping(value = "/alleleRefLogin", method = RequestMethod.POST)
@@ -153,8 +262,8 @@ public class PaperController {
 
 		// make sure do not insert duplicate pmid
 		PreparedStatement insertStatement = conn.prepareStatement("INSERT IGNORE INTO allele_ref "
-				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)");
+				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh, author) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
 
 		String status = "";
 		String failStatus = "";
@@ -246,8 +355,8 @@ public class PaperController {
 
 		// make sure do not insert duplicate pmid
 		PreparedStatement insertStatement = conn.prepareStatement("REPLACE INTO allele_ref "
-				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)");
+				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh, author) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
 
 		String status = "";
 		String failStatus = "";
@@ -489,7 +598,7 @@ public class PaperController {
 			}
 		}
 		insertStatement.setString(17, mterms.size() > 0 ? StringUtils.join(mterms, delimiter) : "");
-
+		insertStatement.setString(18, pub.getAuthor());
 
 		try {
 			int count = insertStatement.executeUpdate();
@@ -642,6 +751,7 @@ public class PaperController {
 				}
 				pub.setMeshTerms(meshTerms);
 
+				pub.setAuthor(r.getString("authorString"));
 			}
 		}
 
@@ -685,6 +795,7 @@ public class PaperController {
 		String alleleAccs;
 		String alleleSymbols;
 		String reviewed;
+		String author;
 
 		public String getGeneAccs() {
 			return geneAccs;
@@ -774,6 +885,14 @@ public class PaperController {
 			this.reviewed = reviewed;
 		}
 
+		public String getAuthor() {
+			return author;
+		}
+
+		public void setAuthor(String author) {
+			this.author = author;
+		}
+
 		@Override
 		public String toString() {
 			return "Pubmed{" +
@@ -788,6 +907,7 @@ public class PaperController {
 					", alleleAccs='" + alleleAccs + '\'' +
 					", alleleSymbols='" + alleleSymbols + '\'' +
 					", reviewed='" + reviewed + '\'' +
+					", author='" + author + '\'' +
 					'}';
 		}
 	}
