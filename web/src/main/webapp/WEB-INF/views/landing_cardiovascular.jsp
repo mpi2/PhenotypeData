@@ -12,7 +12,9 @@
         Pages</a> &nbsp;&raquo; ${systemName}</jsp:attribute>
 
     <jsp:attribute name="header">
-
+        <!-- CSS Local Imports -->
+		<link rel="stylesheet" href="${baseUrl}/css/vendor/slick.grid.css" type="text/css" media="screen"/>
+		<link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" />
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
 
         <!-- JS Imports -->
@@ -22,6 +24,18 @@
         <script src="//d3js.org/d3.v4.min.js"></script>
         <script src="//d3js.org/queue.v1.min.js"></script>
         <script type="text/javascript" src="${baseUrl}/js/charts/chordDiagram.js?v=${version}"></script>
+
+        <!-- parallel coordinates JavaScriptdependencies -->
+
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.csv.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
+        <script src="${baseUrl}/js/vendor/jquery/jquery.event.drag-2.0.min.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.core.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.grid.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.dataview.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.pager.js"></script>
 
 	</jsp:attribute>
 
