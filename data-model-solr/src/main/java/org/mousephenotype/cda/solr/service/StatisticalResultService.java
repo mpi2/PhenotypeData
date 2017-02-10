@@ -393,12 +393,16 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	}
 
 
-	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl, List<String> genes)
+	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedureStableId,
+		List<String> phenotypingCenters, Boolean requiredParamsOnly,
+		String baseUrl, List<String> genes, String topLevelMpId)
 	throws SolrServerException, IOException, URISyntaxException{
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
-    	query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedueStableId, "* OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + "*");
+    	if (procedureStableId != null) {
+			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedureStableId, "* OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + "*");
+		}
     	query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":unidimensional");
     	query.setFacet(true);
     	query.setFacetMinCount(1);
@@ -413,7 +417,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		List<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
 		TreeSet<ParameterDTO> parameterUniqueByStableId = new TreeSet<>(ParameterDTO.getComparatorByName());
 
-    	for (ParameterDTO param : impressService.getParametersByProcedure(procedueStableId, "unidimensional")){
+    	for (ParameterDTO param : impressService.getParameters(procedureStableId, "unidimensional", topLevelMpId)){
     		if (parameterStableIds.contains(param.getStableId()) && (param.isRequired() || !requiredParamsOnly) && !parameterUniqueByStableId.contains(param)){
     			parameterUniqueByStableId.add(param);
         	}

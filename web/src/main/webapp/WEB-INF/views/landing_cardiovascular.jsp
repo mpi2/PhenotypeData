@@ -44,7 +44,6 @@
                         <c:import url="landing_overview_frag.jsp"/>
                         <br/><br/>
 
-
                         <div class="section">
                             <h2 class="title">Approach</h2>
                              <div class="inner">

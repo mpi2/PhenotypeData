@@ -92,35 +92,41 @@ public class ParallelCoordinatesController {
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds,
 							@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter,
 							@RequestParam(required = false, value = "gene_acc_list") String genes,
-						   	Model model, HttpServletRequest request)
-			throws SolrServerException, IOException, URISyntaxException {
+							@RequestParam(required = false, value = "top_level_mp_id") String topLevelMpId,
+						   	Model model, HttpServletRequest request) {
 
-		List<String> geneList = (genes != null && !genes.contains(".")) ? Arrays.stream(genes.split("[ ,\t\n]+")).collect(Collectors.toList()) : null;
+		try {
+			List<String> geneList = (genes != null && !genes.contains(".")) ? Arrays.stream(genes.split("[ ,\t\n]+")).collect(Collectors.toList()) : null;
+			long totalTime = System.currentTimeMillis();
+			if (procedureIds == null && topLevelMpId == null) {
+				model.addAttribute("procedure", "");
+				model.addAttribute("dataJs", getJsonForParallelCoordinates(null, null) + ";");
+			} else {
+				String procedures;
+				if (procedureIds == null) {
+					procedures = "{}";
+				} else {
+					procedures = "{";
+					for (int i = 0; i < procedureIds.size(); i++) {
+						String p = procedureIds.get(i);
+						ProcedureDTO proc = impressService.getProcedureByStableId(p + "*");
+						procedures += (i != 0) ? "," : "";
+						procedures += "\"" + proc.getName() + "\":\"" + ImpressService.getProcedureUrl(proc.getStableKey()) + "\"";
+					}
+					procedures += "}";
+				}
+				model.addAttribute("dataJs", getData(procedureIds, phenotypingCenter, geneList, topLevelMpId, request) + ";");
+				model.addAttribute("selectedProcedures", procedures);
+				model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
 
-		long totalTime = System.currentTimeMillis();
-		if (procedureIds == null) {
-
-			model.addAttribute("procedure", "");
-			model.addAttribute("dataJs", getJsonForParallelCoordinates(null, null) + ";");
-
-		} else {
-
-			String procedures = "{";
-			for (int i = 0; i < procedureIds.size(); i++) {
-				String p = procedureIds.get(i);
-				ProcedureDTO proc = impressService.getProcedureByStableId(p + "*");
-				procedures += (i != 0) ? "," : "";
-				procedures += "\"" + proc.getName() + "\":\"" + ImpressService.getProcedureUrl(proc.getStableKey()) + "\"";
 			}
-			procedures += "}";
 
-			model.addAttribute("dataJs", getData(procedureIds, phenotypingCenter, geneList, request) + ";");
-			model.addAttribute("selectedProcedures", procedures);
-			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
+			System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - totalTime) + " ms.");
 
+		} catch ( Exception e){
+			e.printStackTrace();
 		}
 
-		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - totalTime) + " ms.");
 		return "parallelFrag";
 	}
 
@@ -144,15 +150,16 @@ public class ParallelCoordinatesController {
 	}
 
 
-	private String getData(List<String> procedureIds, List<String> phenotypingCenter, List<String> genes, HttpServletRequest request) throws IOException, SolrServerException, URISyntaxException {
+	private String getData(List<String> procedureIds, List<String> phenotypingCenter, List<String> genes, String topLevelMpId,
+	HttpServletRequest request) throws IOException, SolrServerException, URISyntaxException {
 
 		String key =  procedureIds != null ? procedureIds.toString() : "" ;
 		key += phenotypingCenter != null ? phenotypingCenter.toString() : "";
 		key += genes != null ? genes.hashCode() : "";
 		if (!cache.containsKey(key)){
 			String mappedHostname = (String) request.getAttribute("mappedHostname") + (String) request.getAttribute("baseUrl");
-			List<ParameterDTO> parameters = impressService.getParametersByProcedure(procedureIds, "unidimensional");
-			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname, genes), parameters);
+			List<ParameterDTO> parameters = impressService.getParameters(procedureIds, "unidimensional", topLevelMpId);
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname, genes, topLevelMpId), parameters);
 			cache.put(key, data);
 		}
 
@@ -168,7 +175,7 @@ public class ParallelCoordinatesController {
 	 * @return Parsed rows into the json format needed for the parallel coordinates
 	 */
 	protected String getJsonForParallelCoordinates(Map<String, ParallelCoordinatesDTO> rows, List<ParameterDTO> parameters){
-		
+
 		StringBuffer data = new StringBuffer();
 		data.append("[");
 		String defaultMeans = "";

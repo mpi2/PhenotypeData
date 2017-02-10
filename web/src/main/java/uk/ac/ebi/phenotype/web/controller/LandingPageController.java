@@ -164,6 +164,8 @@ public class LandingPageController {
         model.addAttribute("systemName", mpDTO.getMpTerm().replace(" phenotype", ""));
         model.addAttribute("procedures", procedures);
 
+//        model.addAttribute("dataJs", getData(null, null, null, mpDTO.getAccession(), request) + ";");
+//
         return "landing_" + page;
 
     }
