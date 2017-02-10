@@ -156,6 +156,7 @@ public class ParallelCoordinatesController {
 		String key =  procedureIds != null ? procedureIds.toString() : "" ;
 		key += phenotypingCenter != null ? phenotypingCenter.toString() : "";
 		key += genes != null ? genes.hashCode() : "";
+		key += topLevelMpId != null ? topLevelMpId : "";
 		if (!cache.containsKey(key)){
 			String mappedHostname = (String) request.getAttribute("mappedHostname") + (String) request.getAttribute("baseUrl");
 			List<ParameterDTO> parameters = impressService.getParameters(procedureIds, "unidimensional", topLevelMpId);
