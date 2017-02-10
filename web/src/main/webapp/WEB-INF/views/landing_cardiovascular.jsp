@@ -93,6 +93,31 @@
                             </div>
                         </div>
 
+
+                        <div class="section">
+                            <h2 class="title">Parallel coordinates for ${systemName} parameters</h2>
+                            <div class="inner">
+
+                                <div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
+                                <div id="chart-and-table"> </div>
+                                <script>
+                                    $(document).ready(function(){
+                                        var base_url = '${baseUrl}';
+                                        var tableUrl = base_url + "/parallelFrag?top_level_mp_id=${mpId}";
+                                        $.ajax({
+                                            url: tableUrl,
+                                            cache: false
+                                        })
+                                            .done(function( html ) {
+                                                $( '#spinner' ).hide();
+                                                $( '#chart-and-table' ).html( html );
+                                            });
+                                    })
+                                </script>
+                            </div>
+                        </div>
+
+
                         <div class="section">
 
                             <h2 class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>

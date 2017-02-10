@@ -95,7 +95,7 @@ public class ParallelCoordinatesController {
 							@RequestParam(required = false, value = "top_level_mp_id") String topLevelMpId,
 						   	Model model, HttpServletRequest request) {
 
-		try {
+		try { // keep try-catch instead of throws as Spring hides [some] pf the exceptions.
 			List<String> geneList = (genes != null && !genes.contains(".")) ? Arrays.stream(genes.split("[ ,\t\n]+")).collect(Collectors.toList()) : null;
 			long totalTime = System.currentTimeMillis();
 			if (procedureIds == null && topLevelMpId == null) {
