@@ -138,7 +138,16 @@
 
             <td>
                 <c:if
-                        test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
+                        test="${mutantImagesAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
+                    <a
+                            href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND anatomy_id:"${mapEntry.value.abnormalAnatomyId}" AND marker_symbol:"${gene.markerSymbol}")'><i
+                            title="Images available (click on this icon to view images)"
+                            class="fa fa-image"
+                            alt="Images">(${mutantImagesAnatomyToRow[mapEntry.key].numberOfImages})</i>
+                    </a>
+                </c:if>
+                <c:if
+                        test="${mutantImagesAnatomyToRow[mapEntry.key].sectionImagesAvailable}">
                     <a
                             href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND anatomy_id:"${mapEntry.value.abnormalAnatomyId}" AND marker_symbol:"${gene.markerSymbol}")'><i
                             title="Images available (click on this icon to view images)"
