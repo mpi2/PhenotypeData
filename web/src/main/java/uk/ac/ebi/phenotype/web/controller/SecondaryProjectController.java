@@ -147,12 +147,12 @@ public class SecondaryProjectController {
                 colorsForPie.add(nonSigColor);
 
                 Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
-                totalLabelToNumber.put("Mouse Orthologs with IMPC Data",278);
-                totalLabelToNumber.put("Mouse Orthologs without IMPC Data", 81);
+                totalLabelToNumber.put("IDG gene with IMPC Data",278);
+                totalLabelToNumber.put("IDG gene with no IMPC Data", 81);
 
-                String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG Orthologs Representation in the IMPC", "",colorsForPie);
+                String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG genes IMPC data status", "",colorsForPie);
                 model.addAttribute("idgOrthologPie", idgOrthologPie);
-                model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG Orthologs Datasets", "idgChart", colorsForPie));
+                model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG genes IMPC production status", "idgChart", colorsForPie));
 
             } catch (SQLException e) {
                 e.printStackTrace();

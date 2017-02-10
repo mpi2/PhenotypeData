@@ -227,7 +227,8 @@ public class CdaSqlUtils {
 
     /**
      *
-     * @return a map of {@link BiologicalSample}, keyed by specimen external_id (AKA stableId).
+     * @return a map of {@link BiologicalSample}, keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
+     *         NOTE: The external_id in {@link BiologicalSample} is called stableId.
      */
     public Map<String, BiologicalSample> getBiologicalSamples() {
 
@@ -236,7 +237,7 @@ public class CdaSqlUtils {
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
-            map.put(sample.getStableId(), sample);
+            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId(), sample);
         }
 
         return map;
@@ -1765,12 +1766,12 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("mediaSampleLocalId", null);
             parameterMap.put("mediaSectionId", null);
             parameterMap.put("organisationPk", organisationPk);
-            parameterMap.put("fullResolutionPath", fullResolutionFilePath);
+            parameterMap.put("fullResolutionFilePath", fullResolutionFilePath);
 
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
-                logger.error("INSERT to image_record_observation table for MediaSampleParameter failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionPath {}. Reason:\n\t{}",
+                logger.error("INSERT to image_record_observation table for MediaSampleParameter failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
                              parameterStableId, observationType.toString(), observationPk, samplePk, URI, mediaFile.getLink(), mediaFile.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
@@ -1866,12 +1867,12 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("mediaSampleLocalId", null);
             parameterMap.put("mediaSectionId", null);
             parameterMap.put("organisationPk", organisationPk);
-            parameterMap.put("fullResolutionPath", fullResolutionFilePath);
+            parameterMap.put("fullResolutionFilePath", fullResolutionFilePath);
 
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
-                logger.error("INSERT to image_record_observation table for MediaParameter failed for parameterStableId {}, observationType {}, observationPk {}, imnageLink {}, fileType {}, organisationPk {}, fullResolutionPath {}. Reason:\n\t{}",
+                logger.error("INSERT to image_record_observation table for MediaParameter failed for parameterStableId {}, observationType {}, observationPk {}, imnageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
                              parameterStableId, observationType.toString(), observationPk, mediaParameter.getLink(), mediaParameter.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
@@ -2020,12 +2021,12 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("mediaSampleLocalId", null);
             parameterMap.put("mediaSectionId", null);
             parameterMap.put("organisationPk", organisationPk);
-            parameterMap.put("fullResolutionPath", fullResolutionFilePath);
+            parameterMap.put("fullResolutionFilePath", fullResolutionFilePath);
 
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
-                logger.error("INSERT to image_record_observation table for SeriesMediaParameterValue failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk, fullResolutionPath {}. Reason:\n\t{}",
+                logger.error("INSERT to image_record_observation table for SeriesMediaParameterValue failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk, fullResolutionFilePath {}. Reason:\n\t{}",
                              parameterStableId, observationType.toString(), observationPk, samplePk, seriesMediaParameterValue.getURI(), seriesMediaParameterValue.getLink(),
                              seriesMediaParameterValue.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
