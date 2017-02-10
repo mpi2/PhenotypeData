@@ -38,6 +38,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
+
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -51,6 +53,8 @@ import java.util.*;
 @Service
 public class ExpressionService extends BasicService {
 
+	public static final String SECTION_PARAM_NAME="LacZ images Section";
+	public static final String WHOLEMOUNT_PARAM_NAME="LacZ images wholemount";
 	@Autowired
 	@Qualifier("experimentCore")
 	private SolrClient experimentSolr;
@@ -187,7 +191,7 @@ public class ExpressionService extends BasicService {
 		// solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
 		// solrQuery.addFacetField("ma_term");
-		solrQuery.setRows(100000);
+		solrQuery.setRows(Integer.MAX_VALUE);
 		QueryResponse response = experimentSolr.query(solrQuery);
 		return response;
 	}
@@ -664,7 +668,7 @@ public class ExpressionService extends BasicService {
 		QueryResponse laczImagesResponse = null;
 
 		laczImagesResponse = getExpressionTableDataImages(acc, embryo, ImageDTO.ZYGOSITY,
-				ImageDTO.PARAMETER_ASSOCIATION_NAME, ObservationDTO.OBSERVATION_TYPE,
+				ImageDTO.PARAMETER_ASSOCIATION_NAME, ImageDTO.PARAMETER_NAME, ObservationDTO.OBSERVATION_TYPE,
 				ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList imagesMutantResponse = laczImagesResponse.getResults();
 		Map<String, ExpressionRowBean> mutantImagesAnatomyToRow = new TreeMap<>();
@@ -846,7 +850,17 @@ public class ExpressionService extends BasicService {
 																									// image
 																									// with
 																									// parameterAssociation
+					
+					//seperate images based on wholemount or section
+					//System.out.println("parameter_name="+doc);
 					row = homImages(row, doc);
+					String paramName=(String)doc.get(ObservationDTO.PARAMETER_NAME);
+					if(paramName.equalsIgnoreCase(WHOLEMOUNT_PARAM_NAME)){
+						row.setWholemountImagesAvailable(true);
+					}
+					if(paramName.equalsIgnoreCase(SECTION_PARAM_NAME)){
+						row.setSectionImagesAvailable(true);
+					}
 					row.setImagesAvailable(true);
 					row.setNumberOfImages(row.getNumberOfImages() + 1);
 				}
@@ -1053,6 +1067,7 @@ public class ExpressionService extends BasicService {
 		boolean noTissueAvailable = false;
 
 		private boolean imagesAvailable;
+		
 
 		public boolean isImagesAvailable() {
 			return imagesAvailable;
@@ -1060,6 +1075,27 @@ public class ExpressionService extends BasicService {
 
 		public void setImagesAvailable(boolean b) {
 			this.imagesAvailable = b;
+		}
+		
+		private boolean sectionImagesAvailable=false;
+		public boolean isSectionImagesAvailable() {
+			return sectionImagesAvailable;
+		}
+
+		public void setSectionImagesAvailable(boolean sectionImagesAvailable) {
+			this.sectionImagesAvailable = sectionImagesAvailable;
+		}
+
+		private boolean wholemountImagesAvailable=false;
+		
+		
+
+		public boolean isWholemountImagesAvailable() {
+			return wholemountImagesAvailable;
+		}
+
+		public void setWholemountImagesAvailable(boolean wholemountImagesAvailable) {
+			this.wholemountImagesAvailable = wholemountImagesAvailable;
 		}
 
 		Map<String, Specimen> specimenExpressed = new HashMap<>();
