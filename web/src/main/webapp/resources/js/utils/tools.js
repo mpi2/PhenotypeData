@@ -350,7 +350,7 @@
 
                 var xStart = parseInt(j.years[0]);
 
-                Highcharts.chart(chartId, {
+                var chart = Highcharts.chart(chartId, {
                 	chart: {
                 		zoomType: "x"
 					},
@@ -410,6 +410,7 @@
                     },
                     series: series
                 });
+                return chart;
             },
             'error' : function(jqXHR, textStatus, errorThrown) {
                 alert("error: " + errorThrown);
