@@ -2273,7 +2273,9 @@ public class DccSqlUtils {
     public List<DccExperimentDTO> getExperiments() {
 
         final String query =
-                "SELECT\n" +
+                "-- dccExperimentDTO_load.sql\n" +
+                        "\n" +
+                        "SELECT\n" +
                         "  s.datasourceShortName,\n" +
                         "  e.experimentId,\n" +
                         "  e.sequenceId,\n" +
@@ -2293,7 +2295,7 @@ public class DccSqlUtils {
                         "JOIN center_procedure                 cp  ON cp .pk            = e  .center_procedure_pk\n" +
                         "JOIN center                           c   ON c  .pk            = cp .center_pk\n" +
                         "JOIN procedure_                       p   ON p  .pk            = cp .procedure_pk\n" +
-                        "JOIN experiment_specimen              es  ON es .pk            = e  .pk\n" +
+                        "JOIN experiment_specimen              es  ON es .experiment_pk = e  .pk\n" +
                         "JOIN specimen                         s   ON s  .pk            = es .specimen_pk\n" +
                         "LEFT OUTER JOIN experiment_statuscode esc ON esc.experiment_pk = e  .pk\n" +
                         "LEFT OUTER JOIN statuscode            sc  ON sc .pk            = esc.statuscode_pk\n" +
@@ -2301,8 +2303,8 @@ public class DccSqlUtils {
                         "SELECT\n" +
                         "  l.datasourceShortName,\n" +
                         "  CONCAT(p.procedureId, '-', l.colonyId) AS experimentId,\n" +
-                        "  null,\n" +
-                        "  null,\n" +
+                        "  NULL,\n" +
+                        "  NULL,\n" +
                         "  c.centerId AS phenotypingCenter,\n" +
                         "  NULL       AS productionCenter,\n" +
                         "  c.pipeline,\n" +

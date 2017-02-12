@@ -41,7 +41,7 @@
 						effect which accounts for different variation sources like batch effects. Only continuous variable can be vizualised. 
 						More information about the statistical methods used is available in the <a href="/documentation/statistics-help">statistics documentation</a>.
 						</p> <br/>
-						<form class="tablefiltering no-style" id="target" action="destination.html">
+						<form class="tablefiltering no-style" id="target">
 							<select id="proceduresFilter" class="impcdropdown"  multiple="multiple" title="Select procedures to display">
 		                    	<c:forEach var="procedure" items="${procedures}">
 		                    		<option value="${procedure.getStableId().substring(0,8)}">${procedure.getName()}</option>
