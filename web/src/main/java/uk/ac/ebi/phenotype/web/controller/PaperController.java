@@ -287,7 +287,7 @@ public class PaperController {
 			//---------------------------------
 			String querySum = "select date, datasource, sum(count) as sum " +
 					"from datasource_by_year_weekly_increase " +
-					"where date > '2017-02-10' " +  // where we started to collect weekly data
+					"where date > '2017-02-09' " +  // where we started to collect weekly data
 					"group by date, datasource order by date desc";
 
 			PreparedStatement p4 = conn.prepareStatement(querySum);
