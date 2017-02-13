@@ -118,7 +118,7 @@
 
 	};
 	// fetch paper data points for highCharts
-    $.fn.fetchAllelePaperDataPointsIncrementWeekly = function(chartId) {
+    $.fn.fetchAllelePaperDataPointsIncrement = function(chartMonth, chartWeek) {
 
         $.ajax({
             'url': baseUrl + '/fetchPaperStats',
@@ -128,20 +128,19 @@
                 var j = JSON.parse(jsonstr);
 
                 var colorCode = {mousemine: "#8B668B", manual: "#CDB7B5", europubmed: "#BABABA"};
-                var series = [];
+                var wkseries = [];
 
-               // dsSum.get(ds).put(date, sum);
-                // papers by year in line chart
+                // weekly increase of papers in bar chart
 				var timepoints = [];
 				var mousemineCount = [];
 				var manualCount = [];
 				var europubCount = [];
                 var dsCount = {"mousemine": mousemineCount, "manual": manualCount, "europubmed": europubCount};
-                Object.keys(j.datasourceIncrement).sort().reverse().forEach(function (timepoint, index) {
+                Object.keys(j.datasourceWeeklyIncrement).sort().reverse().forEach(function (timepoint, index) {
                 	timepoints.push(timepoint);
 
-                    Object.keys(j.datasourceIncrement[timepoint]).sort().reverse().forEach(function (dsname, index) {
-                    	var count = j.datasourceIncrement[timepoint][dsname];
+                    Object.keys(j.datasourceWeeklyIncrement[timepoint]).sort().reverse().forEach(function (dsname, index) {
+                    	var count = j.datasourceWeeklyIncrement[timepoint][dsname];
                         dsCount[dsname].push(count);
                     });
                 });
@@ -152,10 +151,10 @@
                 	o.data = dsCount[dsname];
                 	//o.pointWidth = 5;
                 	o.color = colorCode[dsname];
-                	series.push(o);
+                	wkseries.push(o);
                 }
 
-                Highcharts.chart(chartId, {
+                Highcharts.chart(chartWeek, {
                     chart: {
                         type: 'bar',
                         inverted: true
@@ -207,38 +206,26 @@
                            // groupPadding: 0
                         }
                     },
-                    series: series
+                    series: wkseries
                 });
-            }
-        });
-    }
 
-    $.fn.fetchAllelePaperDataPointsIncrementMonthly = function(chartId) {
-
-        $.ajax({
-            'url': baseUrl + '/fetchPaperStats',
-            'async': true,
-            'jsonp': 'json.wrf',
-            'success': function (jsonstr) {
-                var j = JSON.parse(jsonstr);
-
-                var colorCode = {mousemine: "#8B668B", manual: "#CDB7B5", europubmed: "#BABABA"};
-                var series = [];
-
+                // monthly increase of paper in line chart
                 // papers by year in line chart
-                Object.keys(j.paperByYear).sort().reverse().forEach(function(timepoint,index){
+
+                var mseries = [];
+                Object.keys(j.monthlyPaperIncreaseByYearOfPublication).sort().reverse().forEach(function(timepoint,index){
                     var tc = {};
                     // tc.type: 'spline';
                     tc.type = 'line';
                     tc.name = timepoint;
-                    tc.data = j.paperByYear[timepoint];
+                    tc.data = j.monthlyPaperIncreaseByYearOfPublication[timepoint];
                     // tc.color = Highcharts.getOptions().colors[3];
-                    series.push(tc);
+                    mseries.push(tc);
                 });
 
                 var xStart = parseInt(j.years[0]);
 
-                Highcharts.chart(chartId, {
+                Highcharts.chart(chartMonth, {
                     chart: {
                         zoomType: "x"
                     },
@@ -283,13 +270,16 @@
                         }
 
                     },
-                    series: series
+                    series: mseries
                 });
+
             }
         });
     }
+
+
 	// fetch paper data points for highCharts
-	$.fn.fetchAllelePaperDataPoints = function(chartId){
+	$.fn.fetchAllelePaperDataPointsDsByYear = function(chartId){
 
         $.ajax({
             'url': baseUrl + '/fetchPaperStats',
@@ -302,11 +292,7 @@
                 var colorCode = {mousemine:"#8B668B", manual:"#CDB7B5", europubmed:"#BABABA"};
                 var series = [];
 
-
-
 				// datasources by year in column chart
-				// column stacking colors alternating
-				//colorCode2 = {mousemine:"#8B668B", manual:"#CDB7B5", europubmed:"#BABABA"};
 
                 var ds = ["mousemine", "manual", "europubmed"];
                 Object.keys(j.datasourceByYear).sort().reverse().forEach(function(timepoint,index){
@@ -410,7 +396,6 @@
                     },
                     series: series
                 });
-                return chart;
             },
             'error' : function(jqXHR, textStatus, errorThrown) {
                 alert("error: " + errorThrown);
