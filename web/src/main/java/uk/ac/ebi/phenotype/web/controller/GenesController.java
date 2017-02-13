@@ -915,7 +915,7 @@ public class GenesController {
 		//impcEmbryoExpressionFacetToDocsWholemount
 		ExpressionImagesBean wholemount =expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_064_001",overview);
 		ExpressionImagesBean section =expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_063_001",overview);
-		model.addAttribute("sectionExpressionEmbryoImagesBean", section);
+		model.addAttribute("sectionExpressionImagesEmbryoBean", section);
 		model.addAttribute("wholemountExpressionImagesEmbryoBean", wholemount);
 //		model.addAttribute("impcEmbryoExpressionImageFacetsWholemount", wholemount.getExpFacetToDocs());
 //		model.addAttribute("impcEmbryoExpressionImageFacetsSection", section.getExpFacetToDocs());

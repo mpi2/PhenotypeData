@@ -14,7 +14,7 @@
 <div class="accordion-body"
      style="display: block;">
 
-  <a href="${baseUrl}/impcImages/embryolaczimages/${acc}">All Images</a>
+ <%--  <a href="${baseUrl}/impcImages/embryolaczimages/${acc}">All Images</a> --%>
   <c:forEach var="entry" items="${wholemountExpressionImagesEmbryoBean.filteredTopLevelAnatomyTerms}"
              varStatus="status">
 

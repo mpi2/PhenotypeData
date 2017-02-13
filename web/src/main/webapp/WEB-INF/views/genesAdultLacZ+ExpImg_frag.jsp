@@ -14,8 +14,7 @@
 <!-- <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
 -->
 
-    <h4><a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
-    </h4>
+    
     <div class="accordion-body"
      style="display: block;">
     <h3>LacZ Wholemount Images</h3>

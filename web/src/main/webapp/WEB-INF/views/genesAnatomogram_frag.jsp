@@ -33,10 +33,10 @@
        <%-- <tr><th>Anatomy</th><th>Wholemounts</th><th>Sections</th></tr> --%>
         <c:forEach var="entry" items="${topLevelMaCounts}"
                    varStatus="status">
-         <c:set var="href"
+        <%--  <c:set var="href"
                  scope="page"
                  value="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">
-          </c:set> 
+          </c:set>  --%>
           <c:choose>
           <c:when test="${wholemountExpressionImagesBean.haveImpcImages[entry.key] || sectionExpressionImagesBean.haveImpcImages[entry.key]}">
           
