@@ -12,7 +12,9 @@
         Pages</a> &nbsp;&raquo; ${systemName}</jsp:attribute>
 
     <jsp:attribute name="header">
-
+        <!-- CSS Local Imports -->
+		<link rel="stylesheet" href="${baseUrl}/css/vendor/slick.grid.css" type="text/css" media="screen"/>
+		<link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" />
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
 
         <!-- JS Imports -->
@@ -22,6 +24,18 @@
         <script src="//d3js.org/d3.v4.min.js"></script>
         <script src="//d3js.org/queue.v1.min.js"></script>
         <script type="text/javascript" src="${baseUrl}/js/charts/chordDiagram.js?v=${version}"></script>
+
+        <!-- parallel coordinates JavaScriptdependencies -->
+
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.csv.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
+        <script src="${baseUrl}/js/vendor/jquery/jquery.event.drag-2.0.min.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.core.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.grid.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.dataview.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.pager.js"></script>
 
 	</jsp:attribute>
 
@@ -43,7 +57,6 @@
 
                         <c:import url="landing_overview_frag.jsp"/>
                         <br/><br/>
-
 
                         <div class="section">
                             <h2 class="title">Approach</h2>
@@ -93,6 +106,31 @@
                                 </script>
                             </div>
                         </div>
+
+
+                        <div class="section">
+                            <h2 class="title">Parallel coordinates for ${systemName} parameters</h2>
+                            <div class="inner">
+
+                                <div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
+                                <div id="chart-and-table"> </div>
+                                <script>
+                                    $(document).ready(function(){
+                                        var base_url = '${baseUrl}';
+                                        var tableUrl = base_url + "/parallelFrag?top_level_mp_id=${mpId}";
+                                        $.ajax({
+                                            url: tableUrl,
+                                            cache: false
+                                        })
+                                            .done(function( html ) {
+                                                $( '#spinner' ).hide();
+                                                $( '#chart-and-table' ).html( html );
+                                            });
+                                    })
+                                </script>
+                            </div>
+                        </div>
+
 
                         <div class="section">
 
