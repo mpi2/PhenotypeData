@@ -118,18 +118,18 @@ public class PaperController {
 		Connection conn = admintoolsDataSource.getConnection();
 
 		Set<String> uniqYears = new HashSet<>();
-
-		String query = "select * from paper_by_year order by year";
-
 		JSONObject dataJson = new JSONObject();
 
 		Map<String, List<Map<String, Integer>>> dm = new HashMap<>();
 
 		try {
 
-			//--------------------------------------
-			// line data: paper by year
-			//--------------------------------------
+
+			//-----------------------------------------------------------
+			// line data: monthly paper increase by year of publication
+			//-----------------------------------------------------------
+
+			String query = "select * from paper_by_year_monthly_increase order by year";
 			PreparedStatement p = conn.prepareStatement(query);
 			ResultSet resultSet = p.executeQuery();
 
@@ -165,7 +165,7 @@ public class PaperController {
 
 				List<String> thisYlist = new ArrayList<>();
 
-				List<Map<String, Integer>> yc = (ArrayList<Map<String, Integer>>)pair.getValue();
+				List<Map<String, Integer>> yc = (ArrayList<Map<String, Integer>>) pair.getValue();
 				for (Map<String, Integer> yco : yc) {
 					thisYlist.add(yco.keySet().toArray()[0].toString());
 				}
@@ -201,12 +201,11 @@ public class PaperController {
 			}
 
 			dataJson.put("years", sorrtedYearList);
-			dataJson.put("paperByYear", timeVallist);
+			dataJson.put("monthlyPaperIncreaseByYearOfPublication", timeVallist);
 
 			//--------------------------------------
 			// bar chart: datasource by year
 			//--------------------------------------
-			//String query2 = "select * from datasource_by_year order by year";
 			String query2 = "select curdate() as date, " +
 					"left(date_of_publication,4) as year, " +
 					"datasource, count(*) as count " +
@@ -226,22 +225,20 @@ public class PaperController {
 				String ds = resultSet2.getString("datasource");
 				Integer count = resultSet2.getInt("count");
 
-				if ( !dby.containsKey(timeTaken)){
+				if (!dby.containsKey(timeTaken)) {
 					dby.put(timeTaken, new HashMap<String, Datasource>());
 				}
-				if ( ! dby.get(timeTaken).containsKey(year)){
+				if (!dby.get(timeTaken).containsKey(year)) {
 					Datasource dso = new Datasource();
 					dby.get(timeTaken).put(year, dso);
 				}
 				Datasource dso = dby.get(timeTaken).get(year);
 
-				if (ds.equals(MOUSEMiNE)){
+				if (ds.equals(MOUSEMiNE)) {
 					dso.setMousemine(count);
-				}
-				else if (ds.equals(MANUAL)){
+				} else if (ds.equals(MANUAL)) {
 					dso.setManual(count);
-				}
-				else if (ds.equals(EUROPUBMED)){
+				} else if (ds.equals(EUROPUBMED)) {
 					dso.setEuropubmed(count);
 				}
 			}
@@ -272,8 +269,7 @@ public class PaperController {
 						barDs.get(MOUSEMiNE).add(ds.getMousemine());
 						barDs.get(MANUAL).add(ds.getManual());
 						barDs.get(EUROPUBMED).add(ds.getEuropubmed());
-					}
-					else {
+					} else {
 						barDs.get(MOUSEMiNE).add(0);
 						barDs.get(MANUAL).add(0);
 						barDs.get(EUROPUBMED).add(0);
@@ -290,8 +286,8 @@ public class PaperController {
 			// bar chart: weekly increments
 			//---------------------------------
 			String querySum = "select date, datasource, sum(count) as sum " +
-					"from datasource_by_year " +
-					"where date > '2017-02-10' " +
+					"from datasource_by_year_weekly_increase " +
+					"where date > '2017-02-10' " +  // where we started to collect weekly data
 					"group by date, datasource order by date desc";
 
 			PreparedStatement p4 = conn.prepareStatement(querySum);
@@ -341,7 +337,7 @@ public class PaperController {
 			}
 
 			//System.out.println("ddc: "+ ddc);
-			dataJson.put("datasourceIncrement", ddc);
+			dataJson.put("datasourceWeeklyIncrement", ddc);
 
 			//-----------------------------------------------
 			// pie chart: current datasource distribution
