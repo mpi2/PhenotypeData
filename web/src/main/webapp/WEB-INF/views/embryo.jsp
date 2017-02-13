@@ -122,7 +122,7 @@
                             	<div class="half">
                             		<h2>Embryo LacZ</h2>
                             		<img src="${baseUrl}/img/Tmem100_het.jpeg" height="200" style="width:auto" class="twothird"/>
-                            		<a class="onethird" href="${baseUrl}/impcImages/embryolaczimages/MGI:1915138/TS20%20embryo%20or%20Unassigned">Tmem100</a>
+                            		<a class="onethird" href="${baseUrl}/imageComparator?acc=MGI:1915138&anatomy_term=TS20%20embryo%20or%20Unassigned&parameter_stable_id=IMPC_ELZ_064_001">Tmem100</a>
                             		<div class="clear"></div> 
                             		<p class="minpadding"> The majority of IMPC knockout strains replace a critical protein coding exon with a LacZ gene expression 
                             		reporter element. Heterozygote E12.5 embryos from IMPC strains are treated to determine in situ expression of the targeted gene.

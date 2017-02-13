@@ -211,10 +211,12 @@ public class ExpressionService extends BasicService {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
+		if(!StringUtils.isEmpty(parameterStableId)){
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":" +parameterStableId);// reduce the number to image
 													// parameters only as we are
 													// talking about images not
 													// expression data here
+		}
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -331,7 +333,7 @@ public class ExpressionService extends BasicService {
 		String topLevelField = "";// type ma or emap imageDTO field for top
 									// level terms
 		String termIdField = "";
-		if (parameterStableId.contains("ELZ")) { // use EMAP terms and top level terms
+		if (parameterStableId!=null && parameterStableId.contains("ELZ")) { // use EMAP terms and top level terms
 			noTopTermId = "TS20 embryo or Unassigned";// currently if unassigned
 														// they either have
 														// embryo TS20 as there
