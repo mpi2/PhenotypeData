@@ -297,7 +297,6 @@ public class LandingPageController {
 //                CollectionUtils.intersection(allSets.get(keysIndex.get(1)), CollectionUtils.intersection(allSets.get(keysIndex.get(2)),allSets.get(keysIndex.get(3))))).size();
 //        sets.add(getSetVennFormat(null, currentSets, intersectionSize));
 
-        System.out.println("SIZES HERE :::: " + sets);
         System.out.println("SETS HERE :::: " + wholeSets);
 
         // return in right format for venn diagram http://benfred.github.io/venn.js/examples/styled.html
