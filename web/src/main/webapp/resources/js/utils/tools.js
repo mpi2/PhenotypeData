@@ -117,52 +117,300 @@
 				});
 
 	};
-
 	// fetch paper data points for highCharts
-	$.fn.fetchAllelePaperDataPoints = function(chartId){
+    $.fn.fetchAllelePaperDataPointsIncrementWeekly = function(chartId) {
+
         $.ajax({
             'url': baseUrl + '/fetchPaperStats',
             'async': true,
             'jsonp': 'json.wrf',
-            'success': function (jsonstr){
-				var j = JSON.parse(jsonstr);
-				//console.log(j)
+            'success': function (jsonstr) {
+                var j = JSON.parse(jsonstr);
 
+                var colorCode = {mousemine: "#8B668B", manual: "#CDB7B5", europubmed: "#BABABA"};
                 var series = [];
 
-				Object.keys(j.data).sort().reverse().forEach(function(timepoint,index){
+               // dsSum.get(ds).put(date, sum);
+                // papers by year in line chart
+				var timepoints = [];
+				var mousemineCount = [];
+				var manualCount = [];
+				var europubCount = [];
+                var dsCount = {"mousemine": mousemineCount, "manual": manualCount, "europubmed": europubCount};
+                Object.keys(j.datasourceIncrement).sort().reverse().forEach(function (timepoint, index) {
+                	timepoints.push(timepoint);
+
+                    Object.keys(j.datasourceIncrement[timepoint]).sort().reverse().forEach(function (dsname, index) {
+                    	var count = j.datasourceIncrement[timepoint][dsname];
+                        dsCount[dsname].push(count);
+                    });
+                });
+
+                for(var dsname in dsCount){
+                	var o = {};
+                	o.name = dsname;
+                	o.data = dsCount[dsname];
+                	//o.pointWidth = 5;
+                	o.color = colorCode[dsname];
+                	series.push(o);
+                }
+
+                Highcharts.chart(chartId, {
+                    chart: {
+                        type: 'bar',
+                        inverted: true
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    title: {
+                        text: 'Weekly addition of curated papers separated by datasources'
+                    },
+                    subtitle: {
+                        style: {
+                            position: 'absolute',
+                            right: '0px',
+                            bottom: '10px'
+                        }
+                    },
+                    legend: {
+                        // layout: 'vertical',
+                        // align: 'right',
+                        // verticalAlign: 'top',
+                        // x: -10,
+                        // y: 30,
+                        // floating: true,
+                        borderWidth: 1,
+                        //backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+                    },
+                    xAxis: {
+                        categories: timepoints,
+                        alternateGridColor: '#F2F2F2'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Number of papers'
+                        },
+                        labels: {
+                            formatter: function () {
+                                return this.value;
+                            }
+                        },
+                        min: 0
+                    },
+                    plotOptions: {
+                        area: {
+                            fillOpacity: 0.5
+                        },
+                        series: {
+                            pointWidth: 5,
+                           // groupPadding: 0
+                        }
+                    },
+                    series: series
+                });
+            }
+        });
+    }
+
+    $.fn.fetchAllelePaperDataPointsIncrementMonthly = function(chartId) {
+
+        $.ajax({
+            'url': baseUrl + '/fetchPaperStats',
+            'async': true,
+            'jsonp': 'json.wrf',
+            'success': function (jsonstr) {
+                var j = JSON.parse(jsonstr);
+
+                var colorCode = {mousemine: "#8B668B", manual: "#CDB7B5", europubmed: "#BABABA"};
+                var series = [];
+
+                // papers by year in line chart
+                Object.keys(j.paperByYear).sort().reverse().forEach(function(timepoint,index){
                     var tc = {};
+                    // tc.type: 'spline';
+                    tc.type = 'line';
                     tc.name = timepoint;
-                    tc.data = j.data[timepoint];
+                    tc.data = j.paperByYear[timepoint];
+                    // tc.color = Highcharts.getOptions().colors[3];
                     series.push(tc);
-				});
+                });
 
                 var xStart = parseInt(j.years[0]);
 
                 Highcharts.chart(chartId, {
+                    chart: {
+                        zoomType: "x"
+                    },
+                    credits: {
+                        enabled: false
+                    },
                     title: {
-                        text: 'Number of papers by year'
+                        text: 'Monthly increase of IMPC related papers by year of publication'
                     },
                     subtitle: {
-                        text: 'Sources: Mousemine, Europubmed, manual curation'
+                        text: 'Datasources: Mousemine, Europubmed, manual curation'
                     },
                     yAxis: {
                         title: {
                             text: 'Number of papers'
                         }
                     },
+                    // xAxis: {
+                    //     categories: ['2007', '2008', '2009', '2010', '2011']
+                    // },
                     legend: {
                         layout: 'vertical',
                         align: 'right',
                         verticalAlign: 'middle'
+                        // enabled: false
                     },
                     plotOptions: {
-                        series: {
+                        series :{
                             pointStart: xStart
+                        },
+                        line: {
+                            series: {
+                                cursor: 'pointer',
+                                point: {
+                                    events: {
+                                        click: function () {
+                                            alert('Category: ' + this.category + ', value: ' + this.y);
+                                        }
+                                    }
+                                }
+                            }
                         }
+
                     },
                     series: series
                 });
+            }
+        });
+    }
+	// fetch paper data points for highCharts
+	$.fn.fetchAllelePaperDataPoints = function(chartId){
+
+        $.ajax({
+            'url': baseUrl + '/fetchPaperStats',
+            'async': true,
+            'jsonp': 'json.wrf',
+            'success': function (jsonstr){
+				var j = JSON.parse(jsonstr);
+				console.log(j)
+
+                var colorCode = {mousemine:"#8B668B", manual:"#CDB7B5", europubmed:"#BABABA"};
+                var series = [];
+
+
+
+				// datasources by year in column chart
+				// column stacking colors alternating
+				//colorCode2 = {mousemine:"#8B668B", manual:"#CDB7B5", europubmed:"#BABABA"};
+
+                var ds = ["mousemine", "manual", "europubmed"];
+                Object.keys(j.datasourceByYear).sort().reverse().forEach(function(timepoint,index){
+                	for(var i=0; i<ds.length; i++) {
+                		console.log(ds[i]);
+                        var dso = {};
+                        dso.type = 'column';
+                        dso.name = ds[i];
+                        dso.data = j.datasourceByYear[timepoint][ds[i]];
+                        dso.stack = ds[i];
+                        dso.color =  colorCode[ds[i]]; //Highcharts.getOptions().colors[colorCode[ds[i]]];
+                        series.push(dso);
+                    }
+                });
+
+                // current datasources in pie chart
+                var pie = {};
+                pie.type = 'pie';
+                pie.title = "Current papers from the datasources";
+                pie.name = "Current number of papers in this datasource";
+                //tc.data = j.datasourceByYear[timepoint][ds[i]];
+				var pielist = [];
+
+                Object.keys(j.pie).sort().forEach(function(ds,index){
+                	var pd = {};
+                	pd.name = ds;
+                	pd.y = j.pie[ds];
+					pielist.push(pd);
+                    pd.color = colorCode[ds]; //Highcharts.getOptions().colors[colorCode[ds]];
+                });
+				pie.data = pielist;
+                pie.center = [200, 110];
+                pie.size = 100;
+                //pie.showInLegend = true;
+                pie.dataLabels = {
+                    enabled: true
+                };
+
+                series.push(pie);
+
+
+                var xStart = parseInt(j.years[0]);
+
+                var chart = Highcharts.chart(chartId, {
+                	chart: {
+                		zoomType: "x"
+					},
+                    credits: {
+                        enabled: false
+                    },
+                    title: {
+                        text: 'View of IMPC related papers by year of publication and datasources'
+                    },
+                    subtitle: {
+                        text: 'Datasources: Mousemine, Europubmed, manual curation'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Number of papers'
+                        }
+                    },
+                    // xAxis: {
+                    //     categories: ['2007', '2008', '2009', '2010', '2011']
+                    // },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle'
+                        // enabled: false
+                    },
+                    plotOptions: {
+                		series :{
+                        	pointStart: xStart
+						},
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                                // style: {
+                                //     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                // }
+                            }
+                        },
+						column: {
+						},
+                		line: {
+                			series: {
+                                cursor: 'pointer',
+                                point: {
+                                    events: {
+                                        click: function () {
+                                            alert('Category: ' + this.category + ', value: ' + this.y);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    },
+                    series: series
+                });
+                return chart;
             },
             'error' : function(jqXHR, textStatus, errorThrown) {
                 alert("error: " + errorThrown);
@@ -274,7 +522,7 @@
             "processing": true,
             "paging": true,
             //"serverSide": false,  // do not want sorting to be processed from server, false by default
-            "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
+            "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
             "sPaginationType": "bootstrap",
             "searchHighlight": true,
             "iDisplayLength": 10,

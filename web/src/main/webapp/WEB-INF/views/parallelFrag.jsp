@@ -1,4 +1,4 @@
-	<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 
@@ -37,7 +37,10 @@
 
 <script type="text/javascript">
 	
-	var selectedProcedures =  ${selectedProcedures};
+	var selectedProcedures =  [];
+	<c:if test="${selectedProcedures != null}">
+    	selectedProcedures= ${selectedProcedures};
+	</c:if>
 	var significanceMap; // <gene, <booleanTruthValues>>
 
 	$(function() {
@@ -236,8 +239,8 @@
 			.replace(/\0/g, "\\0"); // replace nulls with 0
 		};
 
-
     });
+
 </script>
 	
     

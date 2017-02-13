@@ -21,6 +21,8 @@
     <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
     <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
 
+
+
 	</jsp:attribute>
 
 
@@ -47,6 +49,8 @@
                                 <c:import url="landing_procedures_frag.jsp"/>
                             </div>
                         </div>
+
+
 
                         <div class="section">
                                 <%--IMPC images--%>
