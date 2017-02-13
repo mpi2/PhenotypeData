@@ -55,6 +55,9 @@ public class ExpressionService extends BasicService {
 
 	public static final String SECTION_PARAM_NAME="LacZ images Section";
 	public static final String WHOLEMOUNT_PARAM_NAME="LacZ images wholemount";
+	
+	public static final String SECTION_EMBRYO_LACZ="IMPC_ELZ_063_001";
+	public static final String WHOLEOMOUNT_EMBRYO_LACZ="IMPC_ELZ_064_001";
 	@Autowired
 	@Qualifier("experimentCore")
 	private SolrClient experimentSolr;
@@ -859,6 +862,13 @@ public class ExpressionService extends BasicService {
 						row.setWholemountImagesAvailable(true);
 					}
 					if(paramName.equalsIgnoreCase(SECTION_PARAM_NAME)){
+						row.setSectionImagesAvailable(true);
+					}
+					//for embryo data
+					if(paramName.equalsIgnoreCase(WHOLEOMOUNT_EMBRYO_LACZ)){
+						row.setWholemountImagesAvailable(true);
+					}
+					if(paramName.equalsIgnoreCase(SECTION_EMBRYO_LACZ)){
 						row.setSectionImagesAvailable(true);
 					}
 					row.setImagesAvailable(true);
