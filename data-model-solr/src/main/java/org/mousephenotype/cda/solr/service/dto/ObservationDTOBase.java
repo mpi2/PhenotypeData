@@ -372,12 +372,26 @@ public class ObservationDTOBase {
 		this.anatomyId = anatomyId;
 	}
 
+	public void addAnatomyId(List<String> anatomyId) {
+		if (this.anatomyId == null) { this.anatomyId = new ArrayList<>();}
+		this.anatomyId.addAll(anatomyId);
+	}
+
 	public List<String> getAnatomyTerm() {
 		return anatomyTerm;
 	}
 
 	public void setAnatomyTerm(List<String> anatomyTerm) {
 		this.anatomyTerm = anatomyTerm;
+	}
+
+	public void addAnatomyTerm(List<String> anatomyTerm) {
+
+		if (this.anatomyTerm == null){
+			this.anatomyTerm = new ArrayList<>();
+		}
+
+		this.anatomyTerm.addAll(anatomyTerm);
 	}
 
 	public List<String> getAnatomyIdTerm() {
