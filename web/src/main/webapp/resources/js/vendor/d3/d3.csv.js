@@ -1,11 +1,11 @@
-(function(){d3.csv = function(url, callback) {
-  d3.text(url, "text/csv", function(text) {
-    callback(text && d3.csv.parse(text));
+(function(){d3_v3.csv = function(url, callback) {
+  d3_v3.text(url, "text/csv", function(text) {
+    callback(text && d3_v3.csv.parse(text));
   });
 };
-d3.csv.parse = function(text) {
+d3_v3.csv.parse = function(text) {
   var header;
-  return d3.csv.parseRows(text, function(row, i) {
+  return d3_v3.csv.parseRows(text, function(row, i) {
     if (i) {
       var o = {}, j = -1, m = header.length;
       while (++j < m) o[header[j]] = row[j];
@@ -17,7 +17,7 @@ d3.csv.parse = function(text) {
   });
 };
 
-d3.csv.parseRows = function(text, f) {
+d3_v3.csv.parseRows = function(text, f) {
   var EOL = {}, // sentinel value for end-of-line
       EOF = {}, // sentinel value for end-of-file
       rows = [], // output rows
@@ -76,15 +76,15 @@ d3.csv.parseRows = function(text, f) {
 
   return rows;
 };
-d3.csv.format = function(rows) {
-  return rows.map(d3_csv_formatRow).join("\n");
+d3_v3.csv.format = function(rows) {
+  return rows.map(d3_v3_csv_formatRow).join("\n");
 };
 
-function d3_csv_formatRow(row) {
-  return row.map(d3_csv_formatValue).join(",");
+function d3_v3_csv_formatRow(row) {
+  return row.map(d3_v3_csv_formatValue).join(",");
 }
 
-function d3_csv_formatValue(text) {
+function d3_v3_csv_formatValue(text) {
   return /[",\n]/.test(text)
       ? "\"" + text.replace(/\"/g, "\"\"") + "\""
       : text;
