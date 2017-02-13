@@ -83,9 +83,14 @@ public class ImageComparatorController {
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
-		if(StringUtils.isEmpty(anatomyId) && !StringUtils.isEmpty(anatomyTerm)){
-			AnatomyDTO anatomyDto = anatomyService.getTermByName(anatomyTerm);
-			anatomyId=anatomyDto.getAnatomyId();
+		if(StringUtils.isEmpty(anatomyId) && !StringUtils.isEmpty(anatomyTerm) && !anatomyTerm.contains("Unassigned")){
+			try {
+				AnatomyDTO anatomyDto = anatomyService.getTermByName(anatomyTerm);
+				anatomyId=anatomyDto.getAnatomyId();
+			} catch (Exception e) {
+				//if anatomy id is not found it will be set to null and carry on.
+				e.printStackTrace();
+			}
 		}
 		List<ImageDTO> mutants=new ArrayList<>();
 		QueryResponse responseExperimental = imageService
