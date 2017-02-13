@@ -26,7 +26,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
 
         if (error) throw error;
 
-        else {a
+        else {
             var labels = json.labels;
 
             var matrix = json.matrix;
