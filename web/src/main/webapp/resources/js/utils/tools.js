@@ -246,7 +246,7 @@
                         enabled: false
                     },
                     title: {
-                        text: 'Monthly addition of curated papers separated by datasources'
+                        text: 'Monthly increase of IMPC related papers by year of publication'
                     },
                     subtitle: {
                         text: 'Datasources: Mousemine, Europubmed, manual curation'
@@ -358,7 +358,7 @@
                         enabled: false
                     },
                     title: {
-                        text: 'Yearly and datasource view of curated papers'
+                        text: 'View of IMPC related papers by year of publication and datasources'
                     },
                     subtitle: {
                         text: 'Datasources: Mousemine, Europubmed, manual curation'
