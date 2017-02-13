@@ -439,7 +439,8 @@
 								</h2>
 
 								<div class="inner" style="display: block;">
-									<c:if test="${empty impcAdultExpressionImageFacets
+									<c:if test="${empty impcAdultExpressionImageFacetsWholemount
+										and empty impcAdultExpressionImageFacetsSection
 										and empty expressionAnatomyToRow
 										and empty impcEmbryoExpressionImageFacets
 										and empty embryoExpressionAnatomyToRow
@@ -448,7 +449,8 @@
 									</c:if>
 
 
-									<c:if test="${not empty impcAdultExpressionImageFacets
+									<c:if test="${not empty impcAdultExpressionImageFacetsWholemount
+										or not empty impcAdultExpressionImageFacetsSection
 										or not empty expressionAnatomyToRow
 										or not empty impcEmbryoExpressionImageFacets
 										or not empty embryoExpressionAnatomyToRow}">
@@ -499,7 +501,7 @@
 
 												<!-- section for expression data here -->
 												<c:choose>
-													<c:when test="${not empty impcAdultExpressionImageFacets}">
+													<c:when test="${not empty wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms && not empty sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}">
 														<div id="tabs-3">
 															<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
 														</div>
@@ -524,7 +526,7 @@
 													</c:otherwise>
 												</c:choose>
 												<c:choose>
-													<c:when  test="${not empty impcEmbryoExpressionImageFacets}">
+													<c:when  test="${not empty wholemountExpressionImagesEmbryoBean.expFacetToDocs || not empty sectionExpressionEmbryoImagesBean.expFacetToDocs}">
 														<div id="tabs-5">
 															<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
 														</div>

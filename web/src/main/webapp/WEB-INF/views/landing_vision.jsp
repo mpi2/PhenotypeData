@@ -134,7 +134,7 @@
                                 <script>
                                     $(document).ready(function(){
                                     var base_url = '${baseUrl}';
-                                    var tableUrl = base_url + "/parallelFrag?top_level_mp_id=${mpId}";
+                                    var tableUrl = base_url + "/parallelFrag?top_level_mp_id=${mpId}&selectedProcedures=null";
                                     $.ajax({
                                         url: tableUrl,
                                         cache: false

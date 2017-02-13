@@ -37,7 +37,10 @@
 
 <script type="text/javascript">
 	
-	var selectedProcedures =  ${selectedProcedures != null ? selectedProcedures : []	};
+	var selectedProcedures =  [];
+	<c:if test="${selectedProcedures != null}">
+    	selectedProcedures= ${selectedProcedures};
+	</c:if>
 	var significanceMap; // <gene, <booleanTruthValues>>
 
 	$(function() {

@@ -111,18 +111,26 @@ public class PaperController {
 
     public String fetchPaperStats() throws SQLException {
 
+		final String MOUSEMiNE = "mousemine";
+		final String MANUAL = "manual";
+		final String EUROPUBMED = "europubmed";
+
 		Connection conn = admintoolsDataSource.getConnection();
 
 		Set<String> uniqYears = new HashSet<>();
-
-		// prevent sql injection
-		String query = "select * from paper_stats order by year";
-
 		JSONObject dataJson = new JSONObject();
 
 		Map<String, List<Map<String, Integer>>> dm = new HashMap<>();
 
-		try (PreparedStatement p = conn.prepareStatement(query)) {
+		try {
+
+
+			//-----------------------------------------------------------
+			// line data: monthly paper increase by year of publication
+			//-----------------------------------------------------------
+
+			String query = "select * from paper_by_year_monthly_increase order by year";
+			PreparedStatement p = conn.prepareStatement(query);
 			ResultSet resultSet = p.executeQuery();
 
 			JSONObject dj = new JSONObject();
@@ -148,7 +156,7 @@ public class PaperController {
 
 			Map<String, List<Integer>> timeVallist = new HashMap<>();
 
-			System.out.println(sorrtedYearList);
+			//System.out.println(sorrtedYearList);
 
 			Iterator it = dm.entrySet().iterator();
 			while (it.hasNext()) {
@@ -157,7 +165,7 @@ public class PaperController {
 
 				List<String> thisYlist = new ArrayList<>();
 
-				List<Map<String, Integer>> yc = (ArrayList<Map<String, Integer>>)pair.getValue();
+				List<Map<String, Integer>> yc = (ArrayList<Map<String, Integer>>) pair.getValue();
 				for (Map<String, Integer> yco : yc) {
 					thisYlist.add(yco.keySet().toArray()[0].toString());
 				}
@@ -169,13 +177,13 @@ public class PaperController {
 					ob.put(my.toString(), 0);
 					dm.get(timeTaken2).add(ob);
 
-					System.out.println(timeTaken2 + " ----- missing year: " + my + " ====> " + dm.get(timeTaken2));
+					//System.out.println(timeTaken2 + " ----- missing year: " + my + " ====> " + dm.get(timeTaken2));
 				}
 
 				List<Integer> counts = new ArrayList<>();
 
 				for (Object year : sorrtedYearList) {
-					System.out.println("doing " + year.toString());
+					//System.out.println("doing " + year.toString());
 
 					for (Map<String, Integer> ob : dm.get(timeTaken2)) {
 						String yr = ob.keySet().toArray()[0].toString();
@@ -187,14 +195,168 @@ public class PaperController {
 				}
 
 				timeVallist.put(timeTaken2, counts); // counts ordered by year
-				System.out.println(timeTaken2 + " --> " + counts);
+				//System.out.println(timeTaken2 + " --> " + counts);
 
 				it.remove(); // avoids a ConcurrentModificationException
 			}
 
 			dataJson.put("years", sorrtedYearList);
+			dataJson.put("monthlyPaperIncreaseByYearOfPublication", timeVallist);
 
-			dataJson.put("data", timeVallist);
+			//--------------------------------------
+			// bar chart: datasource by year
+			//--------------------------------------
+			String query2 = "select curdate() as date, " +
+					"left(date_of_publication,4) as year, " +
+					"datasource, count(*) as count " +
+					"from allele_ref where falsepositive='no' " +
+					"group by left(date_of_publication,4), datasource";
+
+			Map<String, List<Map<String, Integer>>> dm2 = new HashMap<>();
+
+			PreparedStatement p2 = conn.prepareStatement(query2);
+			ResultSet resultSet2 = p2.executeQuery();
+
+			Map<String, Map<String, Datasource>> dby = new HashMap<>();
+
+			while (resultSet2.next()) {
+				String timeTaken = resultSet2.getString("date");
+				String year = resultSet2.getString("year");
+				String ds = resultSet2.getString("datasource");
+				Integer count = resultSet2.getInt("count");
+
+				if (!dby.containsKey(timeTaken)) {
+					dby.put(timeTaken, new HashMap<String, Datasource>());
+				}
+				if (!dby.get(timeTaken).containsKey(year)) {
+					Datasource dso = new Datasource();
+					dby.get(timeTaken).put(year, dso);
+				}
+				Datasource dso = dby.get(timeTaken).get(year);
+
+				if (ds.equals(MOUSEMiNE)) {
+					dso.setMousemine(count);
+				} else if (ds.equals(MANUAL)) {
+					dso.setManual(count);
+				} else if (ds.equals(EUROPUBMED)) {
+					dso.setEuropubmed(count);
+				}
+			}
+
+			// String: timeTaken, String: datasource, List<Integer>: [data points across the years]
+			Map<String, Map<String, List<Integer>>> dsby = new HashMap<>();
+
+			// put counts by year and datasource in order
+			Iterator it2 = dby.entrySet().iterator();
+			while (it2.hasNext()) {
+
+				Map.Entry pair = (Map.Entry) it2.next();
+				String timeTaken2 = pair.getKey().toString();
+
+				Map<String, List<Integer>> barDs = new HashMap<>();
+				barDs.put(MOUSEMiNE, new ArrayList<Integer>());
+				barDs.put(MANUAL, new ArrayList<Integer>());
+				barDs.put(EUROPUBMED, new ArrayList<Integer>());
+
+				Map<String, Datasource> yds = (Map<String, Datasource>) pair.getValue();
+
+				List<Integer> yrc = new ArrayList<>();
+				for (Object yr : sorrtedYearList) {
+					String year = yr.toString();
+					if (dby.get(timeTaken2).containsKey(year)) {
+						Datasource ds = dby.get(timeTaken2).get(year);
+
+						barDs.get(MOUSEMiNE).add(ds.getMousemine());
+						barDs.get(MANUAL).add(ds.getManual());
+						barDs.get(EUROPUBMED).add(ds.getEuropubmed());
+					} else {
+						barDs.get(MOUSEMiNE).add(0);
+						barDs.get(MANUAL).add(0);
+						barDs.get(EUROPUBMED).add(0);
+					}
+				}
+
+				dsby.put(timeTaken2, barDs);
+			}
+
+			//System.out.println("datasourceByYear" + dsby.toString());
+			dataJson.put("datasourceByYear", dsby);
+
+			//---------------------------------
+			// bar chart: weekly increments
+			//---------------------------------
+			String querySum = "select date, datasource, sum(count) as sum " +
+					"from datasource_by_year_weekly_increase " +
+					"where date > '2017-02-09' " +  // where we started to collect weekly data
+					"group by date, datasource order by date desc";
+
+			PreparedStatement p4 = conn.prepareStatement(querySum);
+			ResultSet resultSet4 = p4.executeQuery();
+
+			// String: datasource, String: date, Integer: sum count
+			Map<String, Map<String, Integer>> dsSum = new HashMap<>();
+			//Map<String, List<Object>> increment = new HashMap<>();
+
+			LinkedHashSet<String> dates = new LinkedHashSet<>();
+			while (resultSet4.next()) {
+				String date = resultSet4.getString("date");
+				String ds = resultSet4.getString("datasource");
+				Integer sum = resultSet4.getInt("sum");
+
+				dates.add(date);
+
+				if ( ! dsSum.containsKey(ds)) {
+					dsSum.put(ds, new HashMap<String, Integer>());
+				}
+				dsSum.get(ds).put(date, sum);
+			}
+
+			Map<String, Map<String, List<Integer>>> ddc = new HashMap<>();
+			List<String> dsnames = new ArrayList<>(Arrays.asList(MOUSEMiNE, EUROPUBMED, MANUAL));
+			for (String date : dates){
+				for (String dsname : dsnames){
+					int sum = 0;
+					if (dsSum.containsKey(dsname)) {
+						if ( dsSum.get(dsname).containsKey(date)) {
+							sum = dsSum.get(dsname).get(date);
+						}
+					}
+					if ( !ddc.containsKey(date)){
+						ddc.put(date, new HashMap<String, List<Integer>>());
+					}
+
+					if ( ! ddc.get(date).containsKey(dsname)){
+						List<Integer> listCount = new ArrayList<>();
+						listCount.add(sum);
+						ddc.get(date).put(dsname, listCount);
+					}
+					else {
+						ddc.get(date).get(dsname).add(sum);
+					}
+				}
+			}
+
+			//System.out.println("ddc: "+ ddc);
+			dataJson.put("datasourceWeeklyIncrement", ddc);
+
+			//-----------------------------------------------
+			// pie chart: current datasource distribution
+			//-----------------------------------------------
+			String query3 = "select datasource, count(*) as count from allele_ref where falsepositive = 'no'  group by datasource";
+
+			PreparedStatement p3 = conn.prepareStatement(query3);
+			ResultSet resultSet3 = p3.executeQuery();
+
+			Map<String, Integer> pie = new HashMap<>();
+
+			while (resultSet3.next()) {
+				String ds = resultSet3.getString("datasource");
+				Integer count = resultSet3.getInt("count");
+				pie.put(ds, count);
+			}
+
+			dataJson.put("pie", pie);
+
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -781,6 +943,45 @@ public class PaperController {
 		// Return the response data as JSON object
 		JSONObject json = JSONObject.fromObject(jsonStr);
 		return json;
+	}
+
+	public class Datasource {
+		int mousemine;
+		int manual;
+		int europubmed;
+
+		public int getMousemine() {
+			return mousemine;
+		}
+
+		public void setMousemine(int mousemine) {
+			this.mousemine = mousemine;
+		}
+
+		public int getManual() {
+			return manual;
+		}
+
+		public void setManual(int manual) {
+			this.manual = manual;
+		}
+
+		public int getEuropubmed() {
+			return europubmed;
+		}
+
+		public void setEuropubmed(int europubmed) {
+			this.europubmed = europubmed;
+		}
+
+		@Override
+		public String toString() {
+			return "Datasource{" +
+					"mousemine=" + mousemine +
+					", manual=" + manual +
+					", europubmed=" + europubmed +
+					'}';
+		}
 	}
 
 	public class Pubmed {

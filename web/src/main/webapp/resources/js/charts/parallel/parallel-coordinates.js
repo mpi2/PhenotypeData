@@ -167,8 +167,8 @@
 			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("x", 5).attr("transform", function(d) {
 				return "rotate(-90)";
 			}).text(String).classed("axis-label", true).attr("class", function(d) {
-				return groups[d].replace(/ |\(|\)/g, "_") + " " + axisColors[groups[d]];
-			}).attr("id", function(d){ return "id"+d.replace(/ |\(|\)/g, "_");}).append("svg:title").text(String);
+				return replaceCharaceters(groups[d]) + " " + axisColors[groups[d]];
+			}).attr("id", function(d){ return "id"+replaceCharaceters(d);}).append("svg:title").text(String);
 
 			// Add and store a brush for each axis.
 			g.append("svg:g").attr("class", "brush").each(function(d) {
@@ -296,6 +296,11 @@
                 return aFromMask;
             }
 
+			function replaceCharaceters(s){
+            	return s.replace(/ |\(|\||\/|\)/g, "_");
+			}
+
+
 
 			self.highlight = function(i) {
 
@@ -332,10 +337,10 @@
                         var significanceArray = arrayFromMaskArray(d.significantMask, axes.length - 1);
                         axes.forEach(function(axis){
                             if(axis != "gene" && isSignificant(significanceArray,axes.indexOf(axis)-1)){ // first column is actually the gene, therefore also substract 1 otherwise bitmask will be offset
-                                d3.select("#id" + axis.replace(/ |\(|\)/g, "_")).style("font-weight", "bold").attr("class", "significant_pc");
+                                d3.select("#id" + replaceCharaceters(axis)).style("font-weight", "bold").attr("class", "significant_pc");
 							} else {
-                                d3.select("#id" + axis.replace(/ |\(|\)/g, "_")).style("font-weight", "normal").attr("class", function(d) {
-                                    return groups[d].replace(/ |\(|\)/g, "_") + " " + axisColors[groups[d]];
+                                d3.select("#id" + replaceCharaceters(axis)).style("font-weight", "normal").attr("class", function(d) {
+                                    return replaceCharaceters(groups[d]) + " " + axisColors[groups[d]];
                                 });
 							}
 						});
@@ -380,4 +385,4 @@
 		return self;
 	};
 
-})(d3);
+})(d3_v3);
