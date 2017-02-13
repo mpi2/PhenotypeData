@@ -125,16 +125,7 @@
 				</c:forEach></td> --%>
 
             <td>
-                <c:if
-                        test="${embryoMutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
-                    <a
-                            href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Embryo LacZ" AND anatomy_id:"${mapEntry.value.abnormalAnatomyId}" AND marker_symbol:"${gene.markerSymbol}")'><i
-                            title="Images available (click on this icon to view images)"
-                            class="fa fa-image"
-                            alt="Images">(${embryoMutantImagesAnatomyToRow[mapEntry.key].numberOfImages})</i>
-                    </a>
-                </c:if>
-                
+                               
                 <c:if
                         test="${embryoMutantImagesAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
                         <!-- imageComparator?acc=MGI:1859162&anatomy_term=respiratory%20system&parameter_stable_id=IMPC_ALZ_075_001 -->
