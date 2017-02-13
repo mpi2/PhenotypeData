@@ -65,28 +65,10 @@
             }
 
             /*------ highcharts stuff --------*/
-            div#chartSec {
-                margin: 30px 0;
+            div.chart {
                 border: 1px solid lightgrey;
                 width: 100%;
-            }
-            div#chartSec2, div#chartSec3 {
-                display: inline;
-                float: left;
-                overflow: auto;
-            }
-            div#chartSec2 {
-                width: 40%;
-            }
-            div#chartSec3 {
-                width: 56%;
-                margin-left: 20px;
-                border-left: 1px solid lightgrey;
-            }
-            div#mw {
-                border: 1px solid lightgrey;
-                overflow: auto;
-                margin-bottom: 30px;
+                margin: 30px 0;
             }
             div.clear {
                 clear: both;
@@ -114,14 +96,16 @@
                         // need to load highcharts after a tab is activated to ensure the width of charts
                         // will stay inside the parent container
                         if ( ui.newTab.index() == 1){
-                            var chartId = "chartSec";
-                            $.fn.fetchAllelePaperDataPoints(chartId);
+                            var chartWeek = "chartWeek";
+                            var chartMonth = "chartMonth";
+                            $.fn.fetchAllelePaperDataPointsIncrement(chartMonth, chartWeek);
 
-                            var chartId2 = "chartSec2";
-                            $.fn.fetchAllelePaperDataPointsIncrementWeekly(chartId2);
+//                            var chartId2 = "chartSec2";
+//                            $.fn.fetchAllelePaperDataPointsIncrementWeekly(chartId2);
+                            var chartYear = "chartYear";
+                            $.fn.fetchAllelePaperDataPointsDsByYear(chartYear);
 
-                            var chartId3 = "chartSec3";
-                            $.fn.fetchAllelePaperDataPointsIncrementMonthly(chartId3);
+
                         }
                     }
                 });
@@ -191,11 +175,9 @@
                                     <div class="clear"></div>
                                     <div id="tabs-2">
 
-                                        <div id="chartSec" class="chart" style="width:100%; height:auto;"></div>
-                                        <div id="mw">
-                                            <div id="chartSec2"></div>
-                                            <div id="chartSec3"></div>
-                                        </div>
+                                        <div id="chartMonth" class="chart"></div>
+                                        <div id="chartWeek" class="chart"></div>
+                                        <div id="chartYear" class="chart"></div>
                                         <div class="clear"></div>
 
                                     </div>
