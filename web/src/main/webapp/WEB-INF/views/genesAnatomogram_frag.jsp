@@ -29,6 +29,8 @@
     <div class='aleft'>
       <div>Tissues/organs lacZ+ expression</div><br>
       <ul id='expList'>
+       <table>
+       <%-- <tr><th>Anatomy</th><th>Wholemounts</th><th>Sections</th></tr> --%>
         <c:forEach var="entry" items="${topLevelMaCounts}"
                    varStatus="status">
          <c:set var="href"
@@ -36,18 +38,42 @@
                  value="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">
           </c:set> 
           <c:choose>
-          <c:when test="${haveImpcAdultImages[entry.key]}">
-          <li class="showAdultImage" title="images available">
-          		<a href="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">${entry.key} </a>
-          </li>
+          <c:when test="${wholemountExpressionImagesBean.haveImpcImages[entry.key] || sectionExpressionImagesBean.haveImpcImages[entry.key]}">
+          
+         
+          <tr>
+          	<td class="showAdultImage" title="images available">
+          		${entry.key}
+          	</td>
+          	<td>
+          		<c:choose>
+          			<c:when test="${wholemountExpressionImagesBean.haveImpcImages[entry.key]}">
+          			<a title="Wholemount Images available" href="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.key}&parameter_stable_id=IMPC_ALZ_076_001"><i class="fa fa-image"></i></a>
+          			</c:when>
+          			<c:otherwise>
+          			</c:otherwise>
+          		</c:choose>
+          	</td>
+          	<td>
+          		<c:choose>
+          			<c:when test="${sectionExpressionImagesBean.haveImpcImages[entry.key]}">
+          		<a title="Section Images Available" href="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.key}&parameter_stable_id=IMPC_ALZ_075_001"><i class="fa fa-image"></i></a>
+          		</c:when>
+          		<c:otherwise></c:otherwise>
+          		</c:choose>
+          	</td>
+          </tr>
+          
+          
           </c:when>
           <c:otherwise>
-          	<li class="showAdultImage" title="no images available, only categorical data - click the expression table link to the right to see data">
+          	<td class="showAdultImage" title="no images available, only categorical data - click the expression table link to the right to see data">
           		${entry.key}
-          	</li>
+          	</td>
           </c:otherwise>
           </c:choose>
         </c:forEach>
+        </table>
       </ul>
     </div>
 </div>
