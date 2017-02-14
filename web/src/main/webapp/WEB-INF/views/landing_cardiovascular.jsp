@@ -109,7 +109,7 @@
 
 
                         <div class="section">
-                            <h2 class="title">Parallel coordinates for ${systemName} continuous parameters</h2>
+                            <h2 class="title">Gene KO effect comparator for ${systemName} system continuous parameters</h2>
                             <div class="inner">
                                 <p>Visualize multiple strain across several continuous parameters used for ${systemName} phenotyping.
                                 The measurement values are corrected to account for batch effects to represent the true genotype effect thus allowing
@@ -119,8 +119,10 @@
                                 <p>How to use the tool?</p>
                                 <p>You can unselect/select ${systemName} procedures by clicking on the term directly.
                                     The graph is interactive and allows filtering on each axis (parameter) by selecting the region of interest. Several regions of interests can be selected one by one.
-                                    Clicking on a line will select the corresponding gene, if any significant phenotype are associated with a parameter, the parameter colour will change to orange.
-                                    To remove all filters , click on the clear filter button.</p>
+                                    Clicking on a chosen line on the graph or on a gene row from the table will highlight the corresponding gene. For a selected gene,
+                                    if any significant phenotype is associated with a parameter, the parameter colour will change to orange.
+                                </p>
+
                                 <div id="widgets_pc" class="widgets">	</div>
                                 <div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
                                 <div id="chart-and-table"> </div>
