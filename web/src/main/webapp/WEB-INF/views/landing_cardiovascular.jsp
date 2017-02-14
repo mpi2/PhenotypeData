@@ -109,7 +109,9 @@
 
 
                         <div class="section">
+
                             <h2 class="title">Gene KO effect comparator for ${systemName} system continuous parameters</h2>
+
                             <div class="inner">
                                 <p>Visualize multiple strain across several continuous parameters used for ${systemName} phenotyping.
                                 The measurement values are corrected to account for batch effects to represent the true genotype effect thus allowing
