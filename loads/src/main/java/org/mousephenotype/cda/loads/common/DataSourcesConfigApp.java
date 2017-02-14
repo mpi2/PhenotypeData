@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.common;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -69,32 +70,7 @@ public class DataSourcesConfigApp {
     @Value("${datasource.cdabase.password}")
     String password;
 
-//    @Bean(name = "cdabaseDataSource", destroyMethod = "close")
-//    public DataSource cdabaseDataSource() {
-//
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(cdabaseUrl)
-//                .username(username)
-//                .password(password)
-//                .type(BasicDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//        ((BasicDataSource) ds).setInitialSize(4);
-//
-//
-//        ((BasicDataSource) ds).setLogAbandoned(false);
-//        ((BasicDataSource) ds).setRemoveAbandoned(false);
-//
-//        try {
-//            logger.info("Using cdasource database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-//    }
-
-//    @Bean(name = "cdabaseDataSource", destroyMethod = "close")
-    @Bean(name = "cdabaseDataSource")
+    @Bean(name = "cdabaseDataSource", destroyMethod = "close")
     public DataSource cdabaseDataSource() {
 
         DataSource ds = DataSourceBuilder
@@ -102,16 +78,41 @@ public class DataSourcesConfigApp {
                 .url(cdabaseUrl)
                 .username(username)
                 .password(password)
-                .type(DriverManagerDataSource.class)
+                .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
+        ((BasicDataSource) ds).setInitialSize(4);
+
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
 
         try {
-            logger.info("Using cdasource database {}", ds.getConnection().getCatalog());
+            logger.info("Using cdasource database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
 
         } catch (Exception e) { }
 
         return ds;
     }
+
+
+//    @Bean(name = "cdabaseDataSource")
+//    public DataSource cdabaseDataSource() {
+//
+//        DataSource ds = DataSourceBuilder
+//                .create()
+//                .url(cdabaseUrl)
+//                .username(username)
+//                .password(password)
+//                .type(DriverManagerDataSource.class)
+//                .driverClassName("com.mysql.jdbc.Driver").build();
+//
+//        try {
+//            logger.info("Using cdasource database {}", ds.getConnection().getCatalog());
+//
+//        } catch (Exception e) { }
+//
+//        return ds;
+//    }
 
     @Bean(name = "jdbcCdabase")
     public NamedParameterJdbcTemplate jdbcCdabase() {
