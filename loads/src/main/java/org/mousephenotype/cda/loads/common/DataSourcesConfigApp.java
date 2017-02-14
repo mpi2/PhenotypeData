@@ -94,6 +94,9 @@ public class DataSourcesConfigApp {
         return ds;
     }
 
+// 2017-02-14 (mrelac) The data source below consistently causes a DataLoadException. Using the BasicDataSource above works, and it completes in 7 minutes, as opposed to over an hour!
+// DataLoadException: org.springframework.jdbc.CannotGetJdbcConnectionException: Could not get JDBC Connection; nested exception is com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+
 
 //    @Bean(name = "cdabaseDataSource")
 //    public DataSource cdabaseDataSource() {
