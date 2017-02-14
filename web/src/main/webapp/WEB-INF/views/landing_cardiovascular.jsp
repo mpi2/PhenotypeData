@@ -112,6 +112,7 @@
                             <h2 class="title">Parallel coordinates for ${systemName} parameters</h2>
                             <div class="inner">
 
+                                <div id="widgets_pc" class="widgets">	</div>
                                 <div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
                                 <div id="chart-and-table"> </div>
                                 <script>
