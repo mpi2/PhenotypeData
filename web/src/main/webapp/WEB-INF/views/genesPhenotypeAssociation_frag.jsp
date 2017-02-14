@@ -36,7 +36,7 @@
             <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All ${gene.markerSymbol} Measurements</a>
         </c:if>
         <c:if test="${gene.embryoDataAvailable}">
-            <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">3D Embryo Imaging</a>
+            <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}">3D Embryo Imaging</a>
         </c:if>
 
         <c:if test="${hasVignette}">
