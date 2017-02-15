@@ -147,7 +147,9 @@
 					<%-- inputbox to add pmid --%>
 					<form id="pmidbox">
 						<fieldset>
-							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID.<br>Separate by comma for multiple papers.</legend>
+							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID.<br>Separate by comma for multiple papers.<br>
+							Eg. 23652019, 25036884
+							</legend>
 							<textarea></textarea>
 							<input type="button" value="Submit papers"/>
 							<input type="reset" value="Clear">
@@ -156,7 +158,9 @@
 
 					<form id="pmidAllelebox">
 						<fieldset>
-							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID and alleles.<br>Separate by tab or space for PMID and alleles.<br>Use comma or semicolon as separator for multiple alleles.</legend>
+							<legend>Add paper containing EUCOMM/KOMP allele(s) by PMID <b>and</b> alleles.<br>Separate by tab or space for PMID and alleles.<br>Use comma or semicolon as separator for multiple alleles.<br>
+							Eg. 28069890 cdbp<sup>tm1(KOMP)Vlcg</sup>, Sdpr<sup>tm1(KOMP)Vlcg</sup> (Use < > for superscript)
+							</legend>
 							<textarea></textarea>
 							<input type="button" value="Submit papers"/>
 							<input type="reset" value="Clear">
