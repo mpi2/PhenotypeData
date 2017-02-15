@@ -203,6 +203,16 @@ public class PhisService {
                     image.setParameterStableId(pImage.getParameter().trim().replaceAll(" ", "_"));
                     image.setParameterName(pImage.getParameter());
                 }
+			} else {
+				// We need a parameter id so we'll put the procedure - closest infor to a parameter we have.
+				if(pImage.getProcedure()!=null){
+					if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
+						image.setParameterStableId("NULL_" + pImage.getProcedure());
+					} else { // text name of procedure; procedure not in IMPRESS
+						image.setParameterStableId("NULL_" + pImage.getProcedure().trim().replaceAll(" ", "_"));
+						image.setProcedureName(pImage.getProcedure().trim());
+					}
+				}
 			}
 
 			if(pImage.getSex()!=null){

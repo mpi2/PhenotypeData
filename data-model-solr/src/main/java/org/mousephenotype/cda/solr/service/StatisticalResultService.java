@@ -447,6 +447,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.addField(StatisticalResultDTO.SIGNIFICANT);
     	query.setRows(Integer.MAX_VALUE);
 
+		System.out.println("S_R:::   " + query);
+
     	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
     		query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
     	}
