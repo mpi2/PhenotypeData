@@ -46,7 +46,12 @@
 			
 			var bounds = [ $(container[0]).width(), $(container[0]).height() ], m = [ 170, 10, 10, 10 ], w = bounds[0] - m[1] - m[3], h = bounds[1] - m[0] - m[2] - 2 * (cellPadding + cellHeight);
 			var x = d3.scale.ordinal().rangePoints([ 0, w ], 1), y = {};
-			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
+			var legend = container.append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", (cellHeight*2 + cellPadding)).append("svg:g").attr("class", "highcharts-legend");
+			legend.append("text")
+                .attr("dy", ".35em")
+                .attr("x", 0)
+                .attr("y", 5)
+				.text("Procedures");
 			var labelXStart = []; 
 			
 			legend.selectAll("g.legendCells")
@@ -54,7 +59,7 @@
 			    .enter()
 			    .append("g")
 			    .attr("class", "legendCells")
-			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 0)"})
+			    .attr("transform", function(d,i) { return "translate(" + getXTransform(d,i) + ", 15)"})
 			    .classed("legendCellInactive", function(d){ return (inactiveGroups.indexOf(d) >= 0 );});
 			
 			legend.selectAll("g.legendCells")
