@@ -19,8 +19,8 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -47,7 +47,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
     Set<String> missingOrganisations = ConcurrentHashMap.newKeySet();
     Set<String> missingProjects = ConcurrentHashMap.newKeySet();
 
-    private       LoaderUtils loaderUtils = new LoaderUtils();
+    private final LoadUtils   loadUtils   = new LoadUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
     public final  Set<String> errMessages = ConcurrentHashMap.newKeySet();       // This is the java 8 way to create a concurrent hash set.
 
@@ -137,46 +137,46 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         }
         newPhenotypedColony.setGene(gene);
 
-        String mappedOrganisation = loaderUtils.translateTerm(newPhenotypedColony.getProductionCentre().getName());
+        String mappedOrganisation = loadUtils.translateTerm(newPhenotypedColony.getProductionCentre().getName());
         Organisation productionCentre = organisations.get(mappedOrganisation);
         if (productionCentre == null) {
-            missingOrganisations.add("Skipped unknown productionCentre " + newPhenotypedColony.getProductionCentre().getName());
+            missingOrganisations.add("Skipped unknown productionCentre::translated " + newPhenotypedColony.getProductionCentre().getName() + "::" + mappedOrganisation);
             return null;
         } else {
             newPhenotypedColony.setProductionCentre(productionCentre);
         }
 
-        String mappedProject = loaderUtils.translateTerm(newPhenotypedColony.getProductionConsortium().getName());
+        String mappedProject = loadUtils.translateTerm(newPhenotypedColony.getProductionConsortium().getName());
         Project productionConsortium = projects.get(mappedProject);
         if (productionConsortium == null) {
-            missingProjects.add("Skipped unknown productionConsortium " + newPhenotypedColony.getProductionConsortium().getName());
+            missingProjects.add("Skipped unknown productionConsortium::translated " + newPhenotypedColony.getProductionConsortium().getName() + "::" + mappedProject);
             return null;
         } else {
             newPhenotypedColony.setProductionConsortium(productionConsortium);
         }
 
-        String mappedPhenotypingCentre = loaderUtils.translateTerm(newPhenotypedColony.getPhenotypingCentre().getName());
+        String mappedPhenotypingCentre = loadUtils.translateTerm(newPhenotypedColony.getPhenotypingCentre().getName());
         Organisation phenotypingCentre = organisations.get(mappedPhenotypingCentre);
         if (phenotypingCentre == null) {
-            missingOrganisations.add("Skipped unknown phenotypingCentre " + newPhenotypedColony.getPhenotypingCentre().getName());
+            missingOrganisations.add("Skipped unknown phenotypingCentre::translated " + newPhenotypedColony.getPhenotypingCentre().getName() + "::" + mappedPhenotypingCentre);
             return null;
         } else {
             newPhenotypedColony.setPhenotypingCentre(phenotypingCentre);
         }
 
-        String mappedPhenotypingConsortium = loaderUtils.translateTerm(newPhenotypedColony.getPhenotypingConsortium().getName());
+        String mappedPhenotypingConsortium = loadUtils.translateTerm(newPhenotypedColony.getPhenotypingConsortium().getName());
         Project phenotypingConsortium = projects.get(mappedPhenotypingConsortium);
         if (phenotypingConsortium == null) {
-            missingProjects.add("Skipped unknown phenotypingConsortium " + newPhenotypedColony.getPhenotypingConsortium().getName());
+            missingProjects.add("Skipped unknown phenotypingConsortium::translated " + newPhenotypedColony.getPhenotypingConsortium().getName() + "::" + mappedPhenotypingConsortium);
             return null;
         } else {
             newPhenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
         }
 
-        String mappedCohortProductionCentre = loaderUtils.translateTerm(newPhenotypedColony.getCohortProductionCentre().getName());
+        String mappedCohortProductionCentre = loadUtils.translateTerm(newPhenotypedColony.getCohortProductionCentre().getName());
         Organisation cohortProductionCentre = organisations.get(mappedCohortProductionCentre);
         if (cohortProductionCentre == null) {
-            missingOrganisations.add("Skipped unknown cohortProductionCentre " + newPhenotypedColony.getCohortProductionCentre().getName());
+            missingOrganisations.add("Skipped unknown cohortProductionCentre::translated " + newPhenotypedColony.getCohortProductionCentre().getName() + "::" + mappedCohortProductionCentre);
             return null;
         } else {
             newPhenotypedColony.setCohortProductionCentre(cohortProductionCentre);

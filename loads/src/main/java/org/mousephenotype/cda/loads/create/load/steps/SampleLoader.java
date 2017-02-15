@@ -253,7 +253,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
             return counts;
         } else {
             phenotypingCenterId = phenotypedColony.getPhenotypingCentre().getId();
-            productionCenterId = phenotypedColony.getProductionCentre().getId();
+            productionCenterId = phenotypedColony.getCohortProductionCentre().getId();
         }
 
         String zygosity;

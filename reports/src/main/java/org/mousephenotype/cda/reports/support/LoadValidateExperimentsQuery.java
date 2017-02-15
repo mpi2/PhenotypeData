@@ -53,41 +53,45 @@ public class LoadValidateExperimentsQuery {
 
         RunStatus status = new RunStatus();
 
-//        for (LoadsQuery loadsQuery : loadsQueryList) {
-//
-//            try {
-//
-//                logger.info("Query {}:\n{}", loadsQuery.getName(), loadsQuery.getQuery());
-//                List<String[]> missing = sqlUtils.queryDiff(jdbcPrevious, jdbcCurrent, loadsQuery.getQuery());
-//                if (!missing.isEmpty()) {
-//
-//                    logger.warn("{} ROWS MISSING", missing.size());
-//                    String[] summary = new String[]{Integer.toString(missing.size()) + " " + loadsQuery.getName() + ":"};
-//                    if (status.hasErrors())
-//                        csvWriter.writeNext(AbstractReport.EMPTY_ROW);
-//                    csvWriter.writeNext(summary);
-//                    csvWriter.writeAll(missing);
-//                    status.addError("missing rows");
-//                } else {
-//                    System.out.println("SUCCESS");
-//                }
-//
-//                System.out.println();
+//        try {
 //
 //
-//            } catch (Exception e) {
 //
-//                throw new ReportException(e);
+//
+//
+//
+//
+//
+//
+//            logger.info("Query {}:\n{}", loadsQuery.getName(), loadsQuery.getQuery());
+//            List<String[]> missing = sqlUtils.queryDiff(jdbcPrevious, jdbcCurrent, loadsQuery.getQuery());
+//            if (!missing.isEmpty()) {
+//
+//                logger.warn("{} ROWS MISSING", missing.size());
+//                String[] summary = new String[]{Integer.toString(missing.size()) + " " + loadsQuery.getName() + ":"};
+//                if (status.hasErrors())
+//                    csvWriter.writeNext(AbstractReport.EMPTY_ROW);
+//                csvWriter.writeNext(summary);
+//                csvWriter.writeAll(missing);
+//                status.addError("missing rows");
+//            } else {
+//                System.out.println("SUCCESS");
 //            }
+//
+//            System.out.println();
+//
+//
+//        } catch (Exception e) {
+//
+//            throw new ReportException(e);
 //        }
 
         return status;
     }
 
-    private final String queryDetail =
-            "-- series parameter with metadata\n" +
+    private final String query =
+            "-- cdaExperimentWithDetail\n" +
                     "\n" +
-                    "-- explain\n" +
                     "SELECT\n" +
                     "  edb.name                              AS e_short_name,\n" +
                     "  e.external_id                         AS e_external_id,\n" +
@@ -95,9 +99,8 @@ public class LoadValidateExperimentsQuery {
                     "  e.date_of_experiment,\n" +
                     "  eorg.name                             AS e_organisation,\n" +
                     "  pr.name                               AS project_id,\n" +
-                    "  pi.name                               AS pipeline_id,\n" +
                     "  e.pipeline_stable_id,\n" +
-                    "  proc.name                             AS procedure_id,\n" +
+                    "  proc.stable_id                        AS procedure_id,\n" +
                     "  e.biological_model_id,\n" +
                     "  e.colony_id,\n" +
                     "  e.metadata_combined,\n" +
@@ -107,13 +110,13 @@ public class LoadValidateExperimentsQuery {
                     "  \n" +
                     "  'OBSERVATION',\n" +
                     "  obdb.name                             AS ob_short_name,\n" +
-                    "  ob.parameter_stable_id,\n" +
+                    "  ob.parameter_stable_id                AS ob_parameter_stable_id,\n" +
                     "  ob.sequence_id                        AS ob_sequence_id,\n" +
                     "  ob.population_id,\n" +
                     "  ob.observation_type,\n" +
                     "  ob.missing,\n" +
-                    "  ob.parameter_status                   AS obParameterStatus,\n" +
-                    "  ob.parameter_status_message           AS obParameterStatusMessage,\n" +
+                    "  ob.parameter_status                   AS ob_parameter_status,\n" +
+                    "  ob.parameter_status_message           AS ob_parameter_status_message,\n" +
                     "  \n" +
                     "  'BIOLOGICAL_SAMPLE',\n" +
                     "  bs.external_id                        AS bs_external_id,\n" +
@@ -174,10 +177,10 @@ public class LoadValidateExperimentsQuery {
                     "          AND pmdin.experiment_id = e.id)\n" +
                     "                                        AS ob_metadata_group,\n" +
                     "    'PARAMETER_ASSOCIATION',\n" +
-                    "    pa.parameter_id,\n" +
-                    "    pa.sequence_id,\n" +
-                    "    pa.dim_id,\n" +
-                    "    pa.parameter_association_value\n" +
+                    "    pa.parameter_id                     AS pa_parameter_id,\n" +
+                    "    pa.sequence_id                      AS pa_sequence_id,\n" +
+                    "    pa.dim_id                           AS pa_dim_id,\n" +
+                    "    pa.parameter_association_value      AS pa_parameter_association_value\n" +
                     "\n" +
                     "FROM             experiment                     e\n" +
                     "JOIN             external_db                    edb     ON edb      .id                 = e     .db_id\n" +
@@ -207,5 +210,11 @@ public class LoadValidateExperimentsQuery {
                     "LEFT OUTER JOIN parameter_association           pa      ON pa       .observation_id     = ob    .id\n" +
                     "\n" +
                     "LEFT OUTER JOIN procedure_meta_data             pmdob   ON pmdob    .experiment_id      = e.id AND pmdob.observation_id = ob.id\n" +
-                    "WHERE e.external_id = :experimentId AND bsorg.name = :centerId";
+                    "  \n" +
+                    "WHERE e.external_id = '12429_41' AND bsorg.name = 'ICS'\n" +
+                    "ORDER BY e_short_name, e_external_id, e_sequence_id, procedure_id,e_procedure_status,e_procedure_status_message,observation_type,\n" +
+                    "ob_parameter_stable_id,ob_parameter_status,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
+                    "oob_sequence_id,tob.text,tsob_discrete_point,tsob_data_point,uob_data_point,ob_metadata_combined,ob_metadata_group,\n" +
+                    "pa_parameter_id,pa_sequence_id,pa_parameter_association_value\n" +
+                    "WHERE e.external_id = :experimentId AND bsorg.name = :phenotypingCenter";
 }

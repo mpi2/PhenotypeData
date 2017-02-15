@@ -299,7 +299,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         }
 
         System.out.println(borderRow);
-        System.out.println("**** COUNTS for " + cdaSqlUtils.getDbName());
+        System.out.println("**** COUNTS for " + cdaSqlUtils.getDbName() + " data loaded from " + dccSqlUtils.getDbName());
         System.out.println("**** " + StringUtils.join(headingList, "    "));
         System.out.println("**** " + countsRow);
         System.out.println(borderRow);
