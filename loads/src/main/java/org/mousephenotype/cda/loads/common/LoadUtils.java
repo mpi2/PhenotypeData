@@ -83,18 +83,43 @@ public class LoadUtils {
      * Maps external dcc project names to cda project.name.
      */
     public static final Map<String, String> mappedExternalProjectNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
-        put("BaSH",                     "BaSH");                        // center.project -> project.name
-        put("DTCC",                     "DTCC");                        // center.project -> project.name
         put("EUCOMM-EUMODIC",           "EUMODIC");                     // center.project -> project.name
         put("Eumodic",                  "EUMODIC");                     // center.project -> project.name
-        put("Helmholtz GMC",            "Helmholtz GMC");               // center.project -> project.name
-        put("JAX",                      "JAX");                         // center.project -> project.name
-        put("MARC",                     "MARC");                        // center.project -> project.name
-        put("MGP",                      "MGP");                         // center.project -> project.name
         put("MGP Legacy",               "MGP");                         // center.project -> project.name
-        put("MRC",                      "MRC");                         // center.project -> project.name
-        put("NorCOMM2",                 "NorCOMM2");                    // center.project -> project.name
-        put("Phenomin",                 "Phenomin");                    // center.project -> project.name
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
     }};
+
+
+    /**
+     * Maps external input names to CDA known names for project, organisation, ontology term, etc.
+     *
+     * Key terms in this array (column 0) should be entered in lowercase.
+     */
+    private final Map<String, String> mappedTerms = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+        //   External name        CDA name
+        put("coisogenic strain", "coisogenic");
+        put("congenic strain",   "congenic");
+        put("eucomm-eumodic",    "EUMODIC");
+        put("harwell",           "MRC Harwell");
+        put("mgp legacy",        "MGP");
+        put("monterotondo",      "EMBL Monterotondo");
+        put("narlabs",           "NARLabs");
+        put("Ning",              "NING");
+        put("riken brc",         "RBRC");
+        put("ucd",               "UC Davis");
+        put("ucd-komp",          "UC Davis");
+    }};
+
+
+    /**
+     * Translates a term case insensitively, lowercasing {@code term} and returning the standard CDA translated term,
+     * if found; the orignal term, untranslated, otherwise.
+     *
+     * @param term the term to be translated
+     *
+     * @return the translated term, if found; the orignal term, untranslated, otherwise.
+     */
+    public String translateTerm(String term) {
+        return (mappedTerms.containsKey(term) ? mappedTerms.get(term) : term);
+    }
 }
