@@ -72,6 +72,18 @@ public class LoadUtils {
         put("Wtsi",                     "WTSI");                        // center.centerId -> organisation.name
     }};
 
+    /**
+     * Translates a center namee insensitively, lowercasing {@code name} and returning the standard CDA translated name,
+     * if found; the orignal name, untranslated, otherwise.
+     *
+     * @param name the center name to be translated
+     *
+     * @return the translated name, if found; the orignal name, untranslated, otherwise.
+     */
+    public String translateCenterName(String name) {
+        return (mappedExternalCenterNames.containsKey(name) ? mappedExternalCenterNames.get(name) : name);
+    }
+
     public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
         return sourceMap.entrySet().stream().collect(
                 Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey,
@@ -83,18 +95,43 @@ public class LoadUtils {
      * Maps external dcc project names to cda project.name.
      */
     public static final Map<String, String> mappedExternalProjectNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
-        put("BaSH",                     "BaSH");                        // center.project -> project.name
-        put("DTCC",                     "DTCC");                        // center.project -> project.name
         put("EUCOMM-EUMODIC",           "EUMODIC");                     // center.project -> project.name
         put("Eumodic",                  "EUMODIC");                     // center.project -> project.name
-        put("Helmholtz GMC",            "Helmholtz GMC");               // center.project -> project.name
-        put("JAX",                      "JAX");                         // center.project -> project.name
-        put("MARC",                     "MARC");                        // center.project -> project.name
-        put("MGP",                      "MGP");                         // center.project -> project.name
         put("MGP Legacy",               "MGP");                         // center.project -> project.name
-        put("MRC",                      "MRC");                         // center.project -> project.name
-        put("NorCOMM2",                 "NorCOMM2");                    // center.project -> project.name
-        put("Phenomin",                 "Phenomin");                    // center.project -> project.name
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
     }};
+
+    /**
+     * Translates a project namee insensitively, lowercasing {@code name} and returning the standard CDA translated name,
+     * if found; the orignal name, untranslated, otherwise.
+     *
+     * @param name the project name to be translated
+     *
+     * @return the translated name, if found; the orignal name, untranslated, otherwise.
+     */
+    public String translateProjectName(String name) {
+        return (mappedExternalProjectNames.containsKey(name) ? mappedExternalProjectNames.get(name) : name);
+    }
+
+
+    /**
+     * Maps external ontology terms to cda ontology terms.
+     */
+    public static final Map<String, String> mappedExternalOntologyTermNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+        //   External name        CDA name
+        put("coisogenic strain", "coisogenic");
+        put("congenic strain",   "congenic");
+    }};
+
+    /**
+     * Translates a term case insensitively, lowercasing {@code term} and returning the standard CDA translated term,
+     * if found; the orignal term, untranslated, otherwise.
+     *
+     * @param term the term to be translated
+     *
+     * @return the translated term, if found; the orignal term, untranslated, otherwise.
+     */
+    public String translateOntologyTerm(String term) {
+        return (mappedExternalOntologyTermNames.containsKey(term) ? mappedExternalOntologyTermNames.get(term) : term);
+    }
 }

@@ -59,6 +59,7 @@ public class CdaSqlUtils {
     private Map<String, Strain>           strainsByName;    // keyed by strain name
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
+    private final LoadUtils   loadUtils   = new LoadUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
 
     public static final String FEATURES_UNKNOWN    = "unknown";
@@ -1452,7 +1453,7 @@ public class CdaSqlUtils {
     * @throws DataLoadException
     */
     public OntologyTerm getMappedBiotype(int dbId, String term) throws DataLoadException {
-        String mappedTerm = loaderUtils.translateTerm(term);
+        String mappedTerm = loadUtils.translateOntologyTerm(term);
 
         return getOntologyTerm(dbId, mappedTerm);
     }
