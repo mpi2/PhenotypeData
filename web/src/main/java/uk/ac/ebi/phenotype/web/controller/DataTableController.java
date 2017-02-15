@@ -2875,7 +2875,7 @@ public class DataTableController {
 		try (PreparedStatement p1 = conn.prepareStatement(query)) {
 
 			if (sSearch != "") {
-				for (int i = 1; i < 6; i++) {
+				for (int i = 1; i < 7; i++) {
 					p1.setString(i, like);
 				}
 			}
