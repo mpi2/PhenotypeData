@@ -19,8 +19,8 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.LoadUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -47,7 +47,6 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
     Set<String> missingOrganisations = ConcurrentHashMap.newKeySet();
     Set<String> missingProjects = ConcurrentHashMap.newKeySet();
 
-    private       LoaderUtils loaderUtils = new LoaderUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
     public final  Set<String> errMessages = ConcurrentHashMap.newKeySet();       // This is the java 8 way to create a concurrent hash set.
 
@@ -137,7 +136,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         }
         newPhenotypedColony.setGene(gene);
 
-        String mappedOrganisation = loaderUtils.translateTerm(newPhenotypedColony.getProductionCentre().getName());
+        String mappedOrganisation = LoadUtils.mappedExternalCenterNames.get(newPhenotypedColony.getProductionCentre().getName());
         Organisation productionCentre = organisations.get(mappedOrganisation);
         if (productionCentre == null) {
             missingOrganisations.add("Skipped unknown productionCentre " + newPhenotypedColony.getProductionCentre().getName());
@@ -146,7 +145,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             newPhenotypedColony.setProductionCentre(productionCentre);
         }
 
-        String mappedProject = loaderUtils.translateTerm(newPhenotypedColony.getProductionConsortium().getName());
+        String mappedProject = LoadUtils.mappedExternalProjectNames.get(newPhenotypedColony.getProductionConsortium().getName());
         Project productionConsortium = projects.get(mappedProject);
         if (productionConsortium == null) {
             missingProjects.add("Skipped unknown productionConsortium " + newPhenotypedColony.getProductionConsortium().getName());
@@ -155,7 +154,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             newPhenotypedColony.setProductionConsortium(productionConsortium);
         }
 
-        String mappedPhenotypingCentre = loaderUtils.translateTerm(newPhenotypedColony.getPhenotypingCentre().getName());
+        String mappedPhenotypingCentre = LoadUtils.mappedExternalCenterNames.get(newPhenotypedColony.getPhenotypingCentre().getName());
         Organisation phenotypingCentre = organisations.get(mappedPhenotypingCentre);
         if (phenotypingCentre == null) {
             missingOrganisations.add("Skipped unknown phenotypingCentre " + newPhenotypedColony.getPhenotypingCentre().getName());
@@ -164,7 +163,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             newPhenotypedColony.setPhenotypingCentre(phenotypingCentre);
         }
 
-        String mappedPhenotypingConsortium = loaderUtils.translateTerm(newPhenotypedColony.getPhenotypingConsortium().getName());
+        String mappedPhenotypingConsortium = LoadUtils.mappedExternalProjectNames.get(newPhenotypedColony.getPhenotypingConsortium().getName());
         Project phenotypingConsortium = projects.get(mappedPhenotypingConsortium);
         if (phenotypingConsortium == null) {
             missingProjects.add("Skipped unknown phenotypingConsortium " + newPhenotypedColony.getPhenotypingConsortium().getName());
@@ -173,7 +172,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             newPhenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
         }
 
-        String mappedCohortProductionCentre = loaderUtils.translateTerm(newPhenotypedColony.getCohortProductionCentre().getName());
+        String mappedCohortProductionCentre = LoadUtils.mappedExternalCenterNames.get(newPhenotypedColony.getCohortProductionCentre().getName());
         Organisation cohortProductionCentre = organisations.get(mappedCohortProductionCentre);
         if (cohortProductionCentre == null) {
             missingOrganisations.add("Skipped unknown cohortProductionCentre " + newPhenotypedColony.getCohortProductionCentre().getName());
