@@ -237,7 +237,7 @@ public class CdaSqlUtils {
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
-            map.put(sample.getStableId() + "_" + sample.getProductionCenter().getId(), sample);
+            map.put(sample.getStableId() + "_" + sample.getOrganisation().getId(), sample);
         }
 
         return map;
@@ -1371,6 +1371,35 @@ public class CdaSqlUtils {
         }
 
         return term;
+    }
+
+    /**
+     *
+     * @return a 2-row list of table counts. The first row contains the table names. The second row contains the counts.
+     */
+    public List<List<String>> getLoadCounts() {
+        List<List<String>> results = new ArrayList<>();
+
+        List<String> tableNames = Arrays.asList(
+                "experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation",
+                "categorical_observation", "datetime_observation", "image_record_observation", "text_observation",
+                "time_series_observation", "unidimensional_observation"
+        );
+        List<String> counts = new ArrayList<>();
+
+        results.add(tableNames);
+
+        for (String tableName : tableNames) {
+            String query = "SELECT COUNT(*) FROM " + tableName;
+            Map<String, Object> parameterMap = new HashMap<>();
+
+            Long result = jdbcCda.queryForObject(query, parameterMap, Long.class);
+            counts.add(Long.toString(result));
+        }
+
+        results.add(counts);
+
+        return results;
     }
 
     /**
