@@ -1453,7 +1453,7 @@ public class CdaSqlUtils {
     * @throws DataLoadException
     */
     public OntologyTerm getMappedBiotype(int dbId, String term) throws DataLoadException {
-        String mappedTerm = loadUtils.translateOntologyTerm(term);
+        String mappedTerm = loadUtils.translateTerm(term);
 
         return getOntologyTerm(dbId, mappedTerm);
     }

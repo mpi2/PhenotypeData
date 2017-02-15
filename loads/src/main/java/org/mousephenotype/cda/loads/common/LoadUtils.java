@@ -72,18 +72,6 @@ public class LoadUtils {
         put("Wtsi",                     "WTSI");                        // center.centerId -> organisation.name
     }};
 
-    /**
-     * Translates a center namee insensitively, lowercasing {@code name} and returning the standard CDA translated name,
-     * if found; the orignal name, untranslated, otherwise.
-     *
-     * @param name the center name to be translated
-     *
-     * @return the translated name, if found; the orignal name, untranslated, otherwise.
-     */
-    public String translateCenterName(String name) {
-        return (mappedExternalCenterNames.containsKey(name) ? mappedExternalCenterNames.get(name) : name);
-    }
-
     public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
         return sourceMap.entrySet().stream().collect(
                 Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey,
@@ -101,27 +89,27 @@ public class LoadUtils {
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
     }};
 
-    /**
-     * Translates a project namee insensitively, lowercasing {@code name} and returning the standard CDA translated name,
-     * if found; the orignal name, untranslated, otherwise.
-     *
-     * @param name the project name to be translated
-     *
-     * @return the translated name, if found; the orignal name, untranslated, otherwise.
-     */
-    public String translateProjectName(String name) {
-        return (mappedExternalProjectNames.containsKey(name) ? mappedExternalProjectNames.get(name) : name);
-    }
-
 
     /**
-     * Maps external ontology terms to cda ontology terms.
+     * Maps external input names to CDA known names for project, organisation, ontology term, etc.
+     *
+     * Key terms in this array (column 0) should be entered in lowercase.
      */
-    public static final Map<String, String> mappedExternalOntologyTermNames = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
+    private final Map<String, String> mappedTerms = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER) {{
         //   External name        CDA name
         put("coisogenic strain", "coisogenic");
         put("congenic strain",   "congenic");
+        put("eucomm-eumodic",    "EUMODIC");
+        put("harwell",           "MRC Harwell");
+        put("mgp legacy",        "MGP");
+        put("monterotondo",      "EMBL Monterotondo");
+        put("narlabs",           "NARLabs");
+        put("Ning",              "NING");
+        put("riken brc",         "RBRC");
+        put("ucd",               "UC Davis");
+        put("ucd-komp",          "UC Davis");
     }};
+
 
     /**
      * Translates a term case insensitively, lowercasing {@code term} and returning the standard CDA translated term,
@@ -131,7 +119,7 @@ public class LoadUtils {
      *
      * @return the translated term, if found; the orignal term, untranslated, otherwise.
      */
-    public String translateOntologyTerm(String term) {
-        return (mappedExternalOntologyTermNames.containsKey(term) ? mappedExternalOntologyTermNames.get(term) : term);
+    public String translateTerm(String term) {
+        return (mappedTerms.containsKey(term) ? mappedTerms.get(term) : term);
     }
 }
