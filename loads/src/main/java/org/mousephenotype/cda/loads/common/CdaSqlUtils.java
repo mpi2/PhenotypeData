@@ -25,7 +25,6 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BiologicalModelAggregator;
 import org.mousephenotype.cda.loads.create.load.support.EuroPhenomeStrainMapper;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.mousephenotype.cda.loads.legacy.LoaderUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.slf4j.Logger;
@@ -60,7 +59,6 @@ public class CdaSqlUtils {
     private Map<String, Strain>           strainsByName;    // keyed by strain name
     private Map<String, List<Synonym>>    synonyms;         // keyed by accession id
 
-    private       LoaderUtils loaderUtils = new LoaderUtils();
     private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
 
     public static final String FEATURES_UNKNOWN    = "unknown";
