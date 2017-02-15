@@ -259,14 +259,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info("Loading lookup maps finished");
 
 
-        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.DISABLE);
         cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.DISABLE);
         cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.DISABLE);
         cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("time_series_observation", CdaSqlUtils.IndexAction.DISABLE);
+        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.DISABLE);
 
         int experimentCount = 0;
         int skippedExperimentsCount = 0;
@@ -286,8 +287,26 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
+        // Print out the counts.
+        List<List<String>> loadCounts = cdaSqlUtils.getLoadCounts();
+        List<String> headingList = Arrays.asList("experiment", "biological_sample", "live_sample", "procedure_meta_data", "observation", "categorical", "date_time", "image_record", "text", "time_series", "unidimensional");
+        String borderRow = StringUtils.repeat("*", StringUtils.join(headingList, "    ").length() + 10);
+        String countsRow = "";
+        for (int i = 0; i < headingList.size(); i++) {
+            if (i > 0)
+                countsRow += "    ";
+            countsRow += String.format("%" + headingList.get(i).length() + "." + headingList.get(i).length() + "s", loadCounts.get(1).get(i));
+        }
+
+        System.out.println(borderRow);
+        System.out.println("**** COUNTS for " + cdaSqlUtils.getDbName());
+        System.out.println("**** " + StringUtils.join(headingList, "    "));
+        System.out.println("**** " + countsRow);
+        System.out.println(borderRow);
+
+
         // Log warning sets
-        
+
         Iterator<String> badDatesIt = badDates.iterator();
         while (badDatesIt.hasNext()) {
             logger.warn(badDatesIt.next());
@@ -354,29 +373,34 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
         logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
 
+
+        // ENABLE INDEXES
+        logger.info("Enabling indexes for experiment");
+        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.ENABLE);
+
         logger.info("Enabling indexes for observation");
         cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for unidimensional_observation");
-        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for categorical_observation");
-        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.ENABLE);
 
         logger.info("Enabling indexes for procedure_meta_data");
         cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.ENABLE);
 
-        logger.info("Enabling indexes for experiment");
-        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for text_observation");
-        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.ENABLE);
+        logger.info("Enabling indexes for categorical_observation");
+        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.ENABLE);
 
         logger.info("Enabling indexes for datetime_observation");
         cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.ENABLE);
 
         logger.info("Enabling indexes for image_record_observation");
         cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.ENABLE);
+
+        logger.info("Enabling indexes for text_observation");
+        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.ENABLE);
+
+        logger.info("Enabling indexes for time_series_observation");
+        cdaSqlUtils.manageIndexes("time_series_observation", CdaSqlUtils.IndexAction.ENABLE);
+
+        logger.info("Enabling indexes for unidimensional_observation");
+        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.ENABLE);
 
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
@@ -592,7 +616,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String bsKey = dccExperiment.getSpecimenId() + "_" + organisationPk;
             BiologicalSample bs = samplesMap.get(bsKey);
             if (bs == null) {
-                experimentsMissingSamples.add("Missing sample '" + dccExperiment.getSpecimenId() + "'\tcenter::experiment::experimentPk::organisationPk\t" +
+                experimentsMissingSamples.add("Missing sample '" + dccExperiment.getSpecimenId() + "'\tcenter::experiment::cdaExperimentPk::organisationPk\t" +
                                                dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId() + "::" + experimentPk + "::" + organisationPk);
 
                 return;
@@ -699,6 +723,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         String experimentId = dccExperiment.getExperimentId();
         Date dccDate = dccExperiment.getDateOfExperiment();
+        String message = "Invalid date '" + dccDate + "'    center::experiment    " + dccExperiment.getPhenotypingCenter() + "::" + experimentId;
 
         try {
 
@@ -706,20 +731,18 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             Date minDate = dateFormat.parse("1975-01-01");
 
             if (dccDate.before(minDate)) {
-
-                logger.warn("Invalid date {} for experiment {}, center {}. Date is before 01-January-1975. Skipping ...", dccDate, experimentId, dccExperiment.getPhenotypingCenter());
+                badDates.add(message);
                 return null;
 
             } else if (dccDate.after(maxDate)) {
-
-                logger.warn("Invalid date {} for experiment {}, center {}. Date is after today's date. Skipping ...", dccDate, experimentId, dccExperiment.getPhenotypingCenter());
+                badDates.add(message);
                 return null;
             }
 
             dateOfExperiment = dccDate;
 
         } catch (Exception e) {
-            logger.warn("Invalid date {} for experiment {}, center {}. Skipping ...", dccDate, experimentId, dccExperiment.getPhenotypingCenter());
+            badDates.add(message);
             return null;
         }
 
