@@ -740,12 +740,17 @@ public class GeneService extends BasicService implements WebStatus{
 	 * @return Returns SolrDocument because that;s what the method to produce the status icons gets.
 	 * @throws SolrServerException, IOException
 	 */
-	public List<SolrDocument> getProductionStatusForGeneSet(Set<String> geneIds)
+	public List<SolrDocument> getProductionStatusForGeneSet(Set<String> geneIds, Set<String> humanGeneSymbols)
 	throws SolrServerException, IOException {
 			
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
+		if (geneIds != null) {
+			solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
+		}
+		if (humanGeneSymbols != null){
+			solrQuery.setFilterQueries(GeneDTO.HUMAN_GENE_SYMBOL + ":(" + StringUtils.join(humanGeneSymbols, " OR ")+ ")");
+		}
 		solrQuery.setRows(Integer.MAX_VALUE);
 
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID , GeneDTO.HUMAN_GENE_SYMBOL ,GeneDTO.MARKER_SYMBOL ,GeneDTO.ALLELE_NAME ,GeneDTO.MOUSE_STATUS ,GeneDTO.LATEST_ES_CELL_STATUS ,GeneDTO.LATEST_PHENOTYPE_STATUS,
