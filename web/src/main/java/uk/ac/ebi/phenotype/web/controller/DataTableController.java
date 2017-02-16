@@ -2998,10 +2998,14 @@ public class DataTableController {
 				List<String> links = new ArrayList<>();
 
 				// show multiple papers as the sources may not have the same format for the same paper
+				int pCount = 0;
 				for (int p=0; p<urls.length; p++) {
-					if (p<3) {
+					if (pCount<3) {
 						String linkName = urls.length == 1 ? "Link" : "Link"+ (p+1);
-						links.add("<a target='_blank' href='" + urls[p] + "'>" + linkName + "</a>");
+						if ( ! urls[p].isEmpty()) {
+							links.add("<a target='_blank' href='" + urls[p] + "'>" + linkName + "</a>");
+							pCount++;
+						}
 					}
 				}
 				rowData.add(StringUtils.join(links, "<br>"));
