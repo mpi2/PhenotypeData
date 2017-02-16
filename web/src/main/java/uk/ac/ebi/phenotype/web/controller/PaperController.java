@@ -799,23 +799,32 @@ public class PaperController {
 				pub.setPmid(pmid);
 
 				if (r.containsKey("title")) {
-					pub.setTitle(r.getString("title"));
+					// sometime paper title is within "[]", remove this: trouble from Europubmed
+					String title = r.getString("title");
+					title = title.replaceAll("\\[", "").replaceAll("\\]","");
+					pub.setTitle(title);
 				} else {
 					pub.setTitle("");
 				}
 
-				if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("dateOfPublication")) {
-					String dateOfPublication = r.getJSONObject("journalInfo").getString("dateOfPublication");
-					//System.out.println("dateOfPublication: " + dateOfPublication);
-					pub.setDateOfPublication(dateOfPublication);
-				} else {
+				if (r.containsKey("firstPublicationDate")){
+					pub.setDateOfPublication(r.getString("firstPublicationDate"));
+				}
+				else if (r.containsKey("electronicPublicationDate")){
+					pub.setDateOfPublication(r.getString("electronicPublicationDate"));
+				}
+				else if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("printPublicationDate")) {
+					pub.setDateOfPublication(r.getJSONObject("journalInfo").getString("printPublicationDate"));
+				}
+				else if (r.containsKey("pubYear")){
+					pub.setDateOfPublication(r.getString("pubYear") + "-00-00");
+				}
+				else {
 					pub.setDateOfPublication("");
 				}
 
-
 				if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("journal")) {
-					String journal = r.getJSONObject("journalInfo").getJSONObject("journal").getString("title");
-					pub.setJournal(journal);
+					pub.setJournal(r.getJSONObject("journalInfo").getJSONObject("journal").getString("title"));
 				} else {
 					pub.setJournal("");
 				}
