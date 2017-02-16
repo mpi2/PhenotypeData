@@ -972,14 +972,15 @@ CREATE TABLE dimension (
 
 DROP TABLE IF EXISTS parameter_association;
 CREATE TABLE parameter_association (
-	id                         INT(11) NOT NULL AUTO_INCREMENT,
-	observation_id             VARCHAR(45) NOT NULL,
-	parameter_id               VARCHAR(45) NOT NULL,
-	sequence_id                INT(11) DEFAULT NULL,
-	dim_id                     VARCHAR(45) DEFAULT NULL,
-	parameter_association_value					VARCHAR(45) DEFAULT NULL,
+	id                         		INT(11) NOT NULL AUTO_INCREMENT,
+	observation_id             		INT(11) NOT NULL,
+	parameter_id               		VARCHAR(45) NOT NULL,
+	sequence_id                		INT(11) DEFAULT NULL,
+	dim_id                     		VARCHAR(45) DEFAULT NULL,
+	parameter_association_value		VARCHAR(45) DEFAULT NULL,
 
-	PRIMARY KEY (id)
+	PRIMARY KEY (id),
+	KEY observation_id_idx (observation_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 

@@ -127,32 +127,125 @@ public class SqlUtils {
 		return found;
 	}
 
+
+    public class ExperimentDetail {
+        private List<String> headings = new ArrayList<>();
+        private List<List<String>> row1 = new ArrayList<>();
+        private List<List<String>> row2 = new ArrayList<>();
+        private List<List<Integer>> differences = new ArrayList<>();
+
+        public List<String> getHeadings() {
+            return headings;
+        }
+
+        public void setHeadings(List<String> headings) {
+            this.headings = headings;
+        }
+
+        public List<List<String>> getRow1() {
+            return row1;
+        }
+
+        public void setRow1(List<List<String>> row1) {
+            this.row1 = row1;
+        }
+
+        public List<List<String>> getRow2() {
+            return row2;
+        }
+
+        public void setRow2(List<List<String>> row2) {
+            this.row2 = row2;
+        }
+
+        public List<List<Integer>> getDifferences() {
+            return differences;
+        }
+
+        public void setDifferences(List<List<Integer>> differences) {
+            this.differences = differences;
+        }
+    }
     /**
-     * Given two {@link JdbcTemplate} instances and a query, executes the query against {@code jdbcPrevious}, then
-     * against {@code jdbcCurrent}, returning the set difference of the results found in {@code jdbcPrevious} but not
-     * found in {@code jdbcCurrent}. If there are no differences, an empty list is returned. If results are returned,
+     * Given two {@link NamedParameterJdbcTemplate} instances and a query, executes the query against {@code jdbc1}, then
+     * against {@code jdbc2}, returning the set difference of the results found in {@code jdbc1} but not
+     * found in {@code jdbc2}. If there are no differences, an empty list is returned. If results are returned,
      * the first row is the column headings. Subsequent rows are the data.
      *
-     * @param jdbcPrevious the previous {@link JdbcTemplate} instance
-     * @param jdbcCurrent the current {@link JdbcTemplate} instance
-     * @param query the query to execute against both {@link JdbcTemplate} instances
+     * @param jdbc1 the first {@link NamedParameterJdbcTemplate} instance
+     * @param jdbc2 the second {@link NamedParameterJdbcTemplate} instance
+     * @param query the query to execute against both {@link NamedParameterJdbcTemplate} instances
      *
-     * @return the set difference of the results found in jdbc1 but not found in jdbc2Q. If there are no differences,
-     *         null is returned.
+     * @return the set difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
+     *         an empty list is returned.
      *
      * @throws Exception
      */
-    public List<String[]> queryDiff(JdbcTemplate jdbcPrevious, JdbcTemplate jdbcCurrent, String query) throws Exception {
+    public ExperimentDetail queryDetail(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, String query, Map<String, Object> parameterMap, List<String> headings) throws Exception {
+        ExperimentDetail results = new ExperimentDetail();
+
+        List<List<String>> results1 = new ArrayList<>();
+        SqlRowSet         rs1      = jdbc1.queryForRowSet(query, parameterMap);
+        while (rs1.next()) {
+            results1.add(getData(rs1));
+        }
+
+        List<List<String>> results2 = new ArrayList<>();
+        SqlRowSet rs2 = jdbc2.queryForRowSet(query, parameterMap);
+        while (rs2.next()) {
+            results2.add(getData(rs2));
+        }
+
+        List<String> columnNames = Arrays.asList(rs1.getMetaData().getColumnNames());
+        results.setHeadings(columnNames);
+
+        results.setRow1(results1);
+        results.setRow2(results2);
+        for (int rowIndex = 0; rowIndex < Math.min(results1.size(), results2.size()); rowIndex++) {           // Compute differences.
+            List<String> row1 = results1.get(rowIndex);
+            List<String> row2 = results2.get(rowIndex);
+
+            List<Integer> rowDifferences = new ArrayList<>();
+            results.getDifferences().add(rowDifferences);
+
+            for (int colIndex = 0; colIndex < row1.size(); colIndex++) {
+                String cell1 = row1.get(colIndex);
+                String cell2 = row2.get(colIndex);
+                if ( ! cell1.equals(cell2)) {
+                    rowDifferences.add(colIndex);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Given two {@link JdbcTemplate} instances and a query, executes the query against {@code jdbc1}, then
+     * against {@code jdbc2}, returning the set difference of the results found in {@code jdbc1} but not
+     * found in {@code jdbc2}. If there are no differences, an empty list is returned. If results are returned,
+     * the first row is the column headings. Subsequent rows are the data.
+     *
+     * @param jdbc1 the first {@link JdbcTemplate} instance
+     * @param jdbc2 the second {@link JdbcTemplate} instance
+     * @param query the query to execute against both {@link JdbcTemplate} instances
+     *
+     * @return the set difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
+     *         an empty list is returned.
+     *
+     * @throws Exception
+     */
+    public List<String[]> queryDiff(JdbcTemplate jdbc1, JdbcTemplate jdbc2, String query) throws Exception {
         List<String[]> results = new ArrayList<>();
 
         Set<List<String>> results1 = new HashSet<>();
-        SqlRowSet         rs1      = jdbcPrevious.queryForRowSet(query);
+        SqlRowSet         rs1      = jdbc1.queryForRowSet(query);
         while (rs1.next()) {
             results1.add(getData(rs1));
         }
 
         Set<List<String>> results2 = new HashSet<>();
-        SqlRowSet rs2 = jdbcCurrent.queryForRowSet(query);
+        SqlRowSet rs2 = jdbc2.queryForRowSet(query);
         while (rs2.next()) {
             results2.add(getData(rs2));
         }
