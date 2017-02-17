@@ -317,7 +317,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				res.put(img.getGeneSymbol(), new HashSet<>());
 			}
 			Set<String> current = res.get(img.getGeneSymbol());
-			current.add(img.getProcedureName().toLowerCase());
+			current.add(img.getProcedureName().toLowerCase().replaceAll("[ -_]", ""));
 			res.put(img.getGeneSymbol(), current);
 		}
 		return res;

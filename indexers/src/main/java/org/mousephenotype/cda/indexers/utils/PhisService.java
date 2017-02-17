@@ -169,7 +169,8 @@ public class PhisService {
 			}
 
 			// Now that we have the gene and procedure information check if we want to load this image. If we have images from the same procedure  for the same gene from Harwell, we want to keep those.
-			if (primaryGenesProcedures.containsKey(image.getGeneSymbol())&& primaryGenesProcedures.get(image.getGeneSymbol()).contains(image.getProcedureName().toLowerCase())){
+			if (primaryGenesProcedures.containsKey(image.getGeneSymbol())&& primaryGenesProcedures.get(image.getGeneSymbol()).contains(image.getProcedureName().toLowerCase().replaceAll("[ _-]", ""))){
+
 				continue;
 			}
 
