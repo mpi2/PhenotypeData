@@ -102,8 +102,8 @@
 
 //                            var chartId2 = "chartSec2";
 //                            $.fn.fetchAllelePaperDataPointsIncrementWeekly(chartId2);
-                            var chartYear = "chartYear";
-                            $.fn.fetchAllelePaperDataPointsDsByYear(chartYear);
+//                            var chartYear = "chartYear";
+//                            $.fn.fetchAllelePaperDataPointsDsByYear(chartYear);
 
 
                         }
