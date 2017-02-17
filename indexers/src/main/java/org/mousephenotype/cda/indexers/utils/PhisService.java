@@ -36,11 +36,11 @@ public class PhisService {
 		q.setQuery(PImageDTO.HOST_NAME + ":WTSI").setRows(Integer.MAX_VALUE); // WTSI -> brain histopath images
 		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class));
 
-		q.setQuery(PImageDTO.HOST_NAME + ":\"IMPC Portal\"");
+//		q.setQuery(PImageDTO.HOST_NAME + ":\"IMPC Portal\"");
 //		q.setFilterQueries("-" + PImageDTO.PROCEDURE + ":IMPC_XRY_001"); // WTSI already exported XRay images through Harwell. There are more images in PhIS but we need a strategy to avoid duplication
 //		q.addFilterQuery("-" + PImageDTO.PROCEDURE + ":IMPC_EYE_001"); // They also exported IMPC_EYE_001, same as above
 
-		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class)); // IMPC Portal -> Sanger old images
+//		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class)); // IMPC Portal -> Sanger old images
 		logger.info("PhenoImageshare images loaded: " + phisImages.size());
 
 		return this.convertPhisImageToImages(phisImages, primaryGenesProcedures);
