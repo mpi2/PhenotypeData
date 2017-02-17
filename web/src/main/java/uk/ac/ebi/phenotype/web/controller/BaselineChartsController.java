@@ -124,7 +124,7 @@ public class BaselineChartsController {
 			double upper = (double)baseLine.getMean()+(double)baseLine.getStddev();
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)upper, decimalPlaces)));
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMax(), decimalPlaces)));
-			//System.out.println(baseLine.getMin()+ " " +baseLine.getMean()+" "+baseLine.getMax());
+			//System.out.println(baseLine.getMin()+ " " +baseLine.getGenotypeEffect()+" "+baseLine.getMax());
 			boxColumns.add(boxColumn);
 			//System.out.println("boxColumn="+boxColumn);
 		}
