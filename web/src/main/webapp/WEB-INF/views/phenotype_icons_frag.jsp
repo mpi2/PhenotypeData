@@ -6,8 +6,8 @@
 	<div class="abnormalities">
 		<div class="allicons"></div>
 	
-		<div class="no-sprite sprite_embryogenesis_phenotype" data-hasqtip="27"
-			title="${gene.markerSymbol} embryogenesis phenotype measurements"></div>
+		<div class="no-sprite sprite_embryo_phenotype" data-hasqtip="27"
+			title="${gene.markerSymbol} embryo phenotype measurements"></div>
 		<div class="no-sprite sprite_reproductive_system_phenotype"
 			data-hasqtip="27" title="${gene.markerSymbol}reproductive system phenotype measurments"></div>
 		<div class="no-sprite sprite_mortality_aging" data-hasqtip="27"
