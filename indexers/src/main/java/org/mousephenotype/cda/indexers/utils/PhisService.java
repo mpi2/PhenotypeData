@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class PhisService {
 
@@ -26,7 +28,7 @@ public class PhisService {
 	HttpSolrClient phisSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/images/");
     HttpSolrClient phisChannelSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/channels/");
 
-	public List<ImageDTO> getPhenoImageShareImageDTOs() throws SolrServerException, IOException {
+	public List<ImageDTO> getPhenoImageShareImageDTOs(Map<String, Set<String>> primaryGenesProcedures) throws SolrServerException, IOException {
 
 		List<PImageDTO> phisImages = new ArrayList<>();
 		SolrQuery q = new SolrQuery();
@@ -35,13 +37,13 @@ public class PhisService {
 		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class));
 
 		q.setQuery(PImageDTO.HOST_NAME + ":\"IMPC Portal\"");
-		q.setFilterQueries("-" + PImageDTO.PROCEDURE + ":IMPC_XRY_001"); // WTSI already exported XRay images through Harwell. There are more images in PhIS but we need a strategy to avoid duplication
-		q.addFilterQuery("-" + PImageDTO.PROCEDURE + ":IMPC_EYE_001"); // They also exported IMPC_EYE_001, same as above
+//		q.setFilterQueries("-" + PImageDTO.PROCEDURE + ":IMPC_XRY_001"); // WTSI already exported XRay images through Harwell. There are more images in PhIS but we need a strategy to avoid duplication
+//		q.addFilterQuery("-" + PImageDTO.PROCEDURE + ":IMPC_EYE_001"); // They also exported IMPC_EYE_001, same as above
 
 		phisImages.addAll(phisSolr.query(q).getBeans(PImageDTO.class)); // IMPC Portal -> Sanger old images
 		logger.info("PhenoImageshare images loaded: " + phisImages.size());
 
-		return this.convertPhisImageToImages(phisImages);
+		return this.convertPhisImageToImages(phisImages, primaryGenesProcedures);
 
 	}
 
@@ -52,11 +54,12 @@ public class PhisService {
 
 	}
 
-	private List<ImageDTO> convertPhisImageToImages(List<PImageDTO> phisImages) throws IOException, SolrServerException {
+	private List<ImageDTO> convertPhisImageToImages(List<PImageDTO> phisImages, Map<String, Set<String>> primaryGenesProcedures) throws IOException, SolrServerException {
 
 		List<ImageDTO> images = new ArrayList<>();
 
 		for (PImageDTO pImage : phisImages) {
+
 
 			ImageDTO image = new ImageDTO();
 
@@ -76,6 +79,37 @@ public class PhisService {
                     logger.warn("Symbol in Phis is not 1 for image.");
                 }
 			}
+			// Genes in expression images are stored in a different field. Need to check the expressed bag too
+			// Allele and gene ids are stored in the same field as this is only used for querying. You can get them from the associated roi.
+			if (pImage.getExpressedGfIdBag() != null && pImage.getExpressedGfIdBag().size() >= 1) {
+
+				List<PChannelDTO> channelDTOs = getPhenoImageShareChannelDTOs(pImage.getId());
+				if (channelDTOs.size() == 0) {
+					logger.warn("No Channel doc found." + pImage.getId());
+				} else {
+					PChannelDTO channel = channelDTOs.get(0); // Sanger images have one channel only.AlleleIndex
+
+					if (channel.getGeneId() != null) {
+						image.setGeneAccession(channel.getGeneId());
+					} else {
+						logger.warn("No gene accession " + channel.getId());
+					}
+					//TODO get gene symbol from allele2
+					if (channel.getGeneSymbol() != null) {
+						image.setGeneSymbol(channel.getGeneSymbol());
+					}
+
+					if (channel.getGeneticFeatureId() != null) {
+						image.setAlleleAccession(channel.getGeneticFeatureId());
+					} else {
+						logger.warn("No allele accession " + channel.getId());
+					}
+					//TODO get allele symbol from allele2
+					if (channel.getGeneticFeatureSymbol() != null) {
+						image.setAlleleSymbol(channel.getGeneticFeatureSymbol());
+					}
+				}
+			}
 
 			if(pImage.getGeneticFeatureIds() != null && pImage.getGeneticFeatureIds().size() >= 1){
 				image.setAlleleAccession(pImage.getGeneticFeatureIds().get(0));
@@ -92,37 +126,52 @@ public class PhisService {
                 }
             }
 
-            // Genes in expression images are stored in a different field. Need to check the expressed bag too
-            // Allele and gene ids are stored in the same field as this is only used for querying. You can get them from the associated roi.
-            if (pImage.getExpressedGfIdBag() != null && pImage.getExpressedGfIdBag().size() >= 1){
+			if(pImage.getPipeline() != null){
+				image.setPipelineStableId(pImage.getPipeline());
+			}
 
-                List<PChannelDTO> channelDTOs = getPhenoImageShareChannelDTOs(pImage.getId());
-                if (channelDTOs.size() == 0){
-                    logger.warn("No Channel doc found." + pImage.getId());
-                } else {
-                    PChannelDTO channel = channelDTOs.get(0); // Sanger images have one channel only.AlleleIndex
+			if(pImage.getProcedure()!=null){
+				if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
+					image.setProcedureStableId(pImage.getProcedure());
+				} else { // text name of procedure; procedure not in IMPRESS
+					image.setProcedureStableId(pImage.getProcedure().trim().replaceAll(" ", "_"));
+					image.setProcedureName(pImage.getProcedure().trim());
+				}
+			}
 
-                    if (channel.getGeneId() != null){
-                        image.setGeneAccession(channel.getGeneId());
-                    } else {
-                    	logger.warn("No gene accession " + channel.getId());
+			//observations seem to contain the procedure name - loop over these and see if they have procedure at the start and if so add them to procedure name (or get it from our impress? how generic can we be?)
+			if(pImage.getObservations().size()>=1){
+				for(String obs: pImage.getObservations()){
+					if(obs.startsWith("Procedure name: ")){
+						String procedureName=obs.substring(obs.indexOf(": ")+2, obs.length() );
+						image.setProcedureName(procedureName);
 					}
-                    //TODO get gene symbol from allele2
-                    if (channel.getGeneSymbol() != null){
-                        image.setGeneSymbol(channel.getGeneSymbol());
-                    }
+				}
+			}
 
-                    if (channel.getGeneticFeatureId() != null){
-                        image.setAlleleAccession(channel.getGeneticFeatureId());
-                    } else {
-						logger.warn("No allele accession " + channel.getId());
+			if(pImage.getParameter()!=null){
+				if (pImage.getParameter().contains("_")) {
+					image.setParameterStableId(pImage.getParameter());
+				} else {
+					image.setParameterStableId(pImage.getParameter().trim().replaceAll(" ", "_"));
+					image.setParameterName(pImage.getParameter());
+				}
+			} else {
+				// We need a parameter id so we'll put the procedure - closest infor to a parameter we have.
+				if(pImage.getProcedure()!=null){
+					if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
+						image.setParameterStableId("NULL_" + pImage.getProcedure());
+					} else { // text name of procedure; procedure not in IMPRESS
+						image.setParameterStableId("NULL_" + pImage.getProcedure().trim().replaceAll(" ", "_"));
+						image.setProcedureName(pImage.getProcedure().trim());
 					}
-                    //TODO get allele symbol from allele2
-                    if (channel.getGeneticFeatureSymbol() != null){
-                        image.setAlleleSymbol(channel.getGeneticFeatureSymbol());
-                    }
-                }
-            }
+				}
+			}
+
+			// Now that we have the gene and procedure information check if we want to load this image. If we have images from the same procedure  for the same gene from Harwell, we want to keep those.
+			if (primaryGenesProcedures.containsKey(image.getGeneSymbol())&& primaryGenesProcedures.get(image.getGeneSymbol()).contains(image.getProcedureName().toLowerCase())){
+				continue;
+			}
 
 			image.setFullResolutionFilePath(pImage.getImageUrl());
 			image.setJpegUrl(pImage.getImageUrl());
@@ -173,47 +222,6 @@ public class PhisService {
 				image.setGroup(BiologicalSampleType.control.toString());
 			}
 
-			if(pImage.getPipeline() != null){
-				image.setPipelineStableId(pImage.getPipeline());
-			}
-
-			if(pImage.getProcedure()!=null){
-				if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
-					image.setProcedureStableId(pImage.getProcedure());
-				} else { // text name of procedure; procedure not in IMPRESS
-                    image.setProcedureStableId(pImage.getProcedure().trim().replaceAll(" ", "_"));
-                    image.setProcedureName(pImage.getProcedure().trim());
-                }
-			}
-
-            //observations seem to contain the procedure name - loop over these and see if they have procedure at the start and if so add them to procedure name (or get it from our impress? how generic can we be?)
-            if(pImage.getObservations().size()>=1){
-                for(String obs: pImage.getObservations()){
-                    if(obs.startsWith("Procedure name: ")){
-                        String procedureName=obs.substring(obs.indexOf(": ")+2, obs.length() );
-                        image.setProcedureName(procedureName);
-                    }
-                }
-            }
-
-			if(pImage.getParameter()!=null){
-			    if (pImage.getParameter().contains("_")) {
-                    image.setParameterStableId(pImage.getParameter());
-                } else {
-                    image.setParameterStableId(pImage.getParameter().trim().replaceAll(" ", "_"));
-                    image.setParameterName(pImage.getParameter());
-                }
-			} else {
-				// We need a parameter id so we'll put the procedure - closest infor to a parameter we have.
-				if(pImage.getProcedure()!=null){
-					if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
-						image.setParameterStableId("NULL_" + pImage.getProcedure());
-					} else { // text name of procedure; procedure not in IMPRESS
-						image.setParameterStableId("NULL_" + pImage.getProcedure().trim().replaceAll(" ", "_"));
-						image.setProcedureName(pImage.getProcedure().trim());
-					}
-				}
-			}
 
 			if(pImage.getSex()!=null){
 				String sex=pImage.getSex();
