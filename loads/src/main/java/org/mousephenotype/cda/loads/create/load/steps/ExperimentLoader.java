@@ -616,8 +616,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String bsKey = dccExperiment.getSpecimenId() + "_" + organisationPk;
             BiologicalSample bs = samplesMap.get(bsKey);
             if (bs == null) {
-                experimentsMissingSamples.add("Missing sample '" + dccExperiment.getSpecimenId() + "'\tcenter::experiment::cdaExperimentPk::organisationPk\t" +
-                                               dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId() + "::" + experimentPk + "::" + organisationPk);
+                String message = "Missing sample '" + dccExperiment.getSpecimenId() + "'\tcenter::experiment::cdaExperimentPk::organisationPk::colonyId\t" +
+                                               dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId() + "::" + experimentPk + "::" + organisationPk +
+                                               "::" + dccExperiment.getColonyId();
+logger.warn(message);
+                experimentsMissingSamples.add("Missing sample '" + dccExperiment.getSpecimenId() + "'\tcenter::experiment::cdaExperimentPk::organisationPk::colonyId\t" +
+                                               dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId() + "::" + experimentPk + "::" + organisationPk +
+                                               "::" + dccExperiment.getColonyId());
 
                 return;
             }
