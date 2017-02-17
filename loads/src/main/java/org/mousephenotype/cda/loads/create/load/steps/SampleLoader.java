@@ -71,7 +71,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
     private OntologyTerm developmentalStageMouse;
     private OntologyTerm sampleTypeMouseEmbryoStage;
-    private OntologyTerm sampleTypeWholeOrganism;
+    private OntologyTerm sampleTypePostnatalMouse;
 
     private Map<String, Allele>           allelesBySymbolMap = new HashMap<>();
     private Map<String, Integer>          cdaOrganisation_idMap;
@@ -109,7 +109,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         developmentalStageMouse = cdaSqlUtils.getOntologyTermByName("postnatal");
         sampleTypeMouseEmbryoStage = cdaSqlUtils.getOntologyTermByName("mouse embryo stage");
-        sampleTypeWholeOrganism = cdaSqlUtils.getOntologyTermByName("whole organism");
+        sampleTypePostnatalMouse = cdaSqlUtils.getOntologyTerm("MA:0002405");                // postnatal mouse
         this.euroPhenomeStrainMapper = new EuroPhenomeStrainMapper(cdaSqlUtils);
         this.efoDbId = cdaSqlUtils.getExternalDbId("EFO");
 
@@ -119,7 +119,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
 
         Assert.notNull(developmentalStageMouse, "developmentalStageMouse must be set");
         Assert.notNull(sampleTypeMouseEmbryoStage, "xsampleTypeMouseEmbryoStagex must be set");
-        Assert.notNull(sampleTypeWholeOrganism, "sampleTypeWholeOrganism must be set");
+        Assert.notNull(sampleTypePostnatalMouse, "sampleTypePostnatalMouse must be set");
         Assert.notNull(jdbcCda, "jdbcCda must be set");
         Assert.notNull(stepBuilderFactory, "stepBuilderFactory must be set");
         Assert.notNull(cdaSqlUtils, "cdaSqlUtils must be set");
@@ -306,7 +306,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         if (specimen instanceof Mouse) {
             dateOfBirth = ((Mouse) specimen).getDOB().getTime();
             developmentalStage = developmentalStageMouse;
-            sampleType = sampleTypeWholeOrganism;
+            sampleType = sampleTypePostnatalMouse;
 
         } else if (specimen instanceof Embryo) {
             dateOfBirth = null;
@@ -448,7 +448,7 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
         backgroundStrain = getBackgroundStrain(specimen);
 
         externalId = specimen.getSpecimenID();
-        sampleType = (specimen instanceof Mouse ? sampleTypeWholeOrganism : sampleTypeMouseEmbryoStage);
+        sampleType = (specimen instanceof Mouse ? sampleTypePostnatalMouse : sampleTypeMouseEmbryoStage);
         sampleGroup = "control";
 
         phenotypingCenterId = cdaOrganisation_idMap.get(specimen.getPhenotypingCentre().value());
