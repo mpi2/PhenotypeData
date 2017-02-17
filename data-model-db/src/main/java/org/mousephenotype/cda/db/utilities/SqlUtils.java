@@ -167,10 +167,9 @@ public class SqlUtils {
         }
     }
     /**
-     * Given two {@link NamedParameterJdbcTemplate} instances and a query, executes the query against {@code jdbc1}, then
-     * against {@code jdbc2}, returning the set difference of the results found in {@code jdbc1} but not
-     * found in {@code jdbc2}. If there are no differences, an empty list is returned. If results are returned,
-     * the first row is the column headings. Subsequent rows are the data.
+     * Given two {@link NamedParameterJdbcTemplate} instances, a query, and a {@code parameterMap}, executes the query
+     * against {@code jdbc1}, then against {@code jdbc2}, returning an {@link ExperimentDetail} instance with all
+     * mismatches. If there are no mismatches, all collections in {@link }ExperimentDetail} are empty.
      *
      * @param jdbc1 the first {@link NamedParameterJdbcTemplate} instance
      * @param jdbc2 the second {@link NamedParameterJdbcTemplate} instance
