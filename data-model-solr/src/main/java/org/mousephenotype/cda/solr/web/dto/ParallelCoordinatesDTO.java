@@ -38,7 +38,7 @@ public class ParallelCoordinatesDTO {
 	String group;
 	String geneSymbol;
 	String geneAccession;
-	HashMap<String, MeanBean> values;
+	HashMap<String, MaxGenotypeEffectBean> values;
 	List<ParameterDTO> allColumns;
 
 
@@ -52,21 +52,21 @@ public class ParallelCoordinatesDTO {
 
 		for (ParameterDTO parameter: allColumns){
 			if (getSortValue(parameter.getStableId()) % 100 != 0){
-				values.put(parameter.getName(), new MeanBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null, false));
+				values.put(parameter.getName(), new MaxGenotypeEffectBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null, false));
 			}
 		}
 	}
 
 	public void addValue( ParameterDTO parameter, Double mean, Boolean significant){
 
-		boolean overalllSignificant = significant;
+		boolean overallSignificant = significant;
 		if (values.containsKey(parameter.getName())){
-			overalllSignificant = overalllSignificant || values.get(parameter.getName()).getSignificant();
+			overallSignificant = overallSignificant || values.get(parameter.getName()).getSignificant();
 		}
 
 		if (getSortValue(parameter.getStableId()) % 100 != 0){ // we want to display the param, convention in sort IDs
-			if (!values.containsKey(parameter.getName()) || (values.containsKey(parameter.getName()) && (values.get(parameter.getName()).mean == null || Math.abs(values.get(parameter.getName()).mean) > Math.abs(mean)))){
-				values.put(parameter.getName(), new MeanBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), mean, overalllSignificant));
+			if (!values.containsKey(parameter.getName()) || (values.containsKey(parameter.getName()) && (values.get(parameter.getName()).genotypeEffect == null || Math.abs(values.get(parameter.getName()).genotypeEffect) > Math.abs(mean)))){
+				values.put(parameter.getName(), new MaxGenotypeEffectBean( parameter.getUnitX(), parameter.getStableId(), parameter.getName(), parameter.getStableKey(), mean, overallSignificant));
 			}
 		}
 
@@ -85,12 +85,12 @@ public class ParallelCoordinatesDTO {
 
 			if (this.values.values().size() > 0){
 
-                List <MeanBean> values = new ArrayList<MeanBean>(this.values.values());
+                List <MaxGenotypeEffectBean> values = new ArrayList<MaxGenotypeEffectBean>(this.values.values());
 				Collections.sort(values, this.values.values().iterator().next().getComparatorByTerry());
 
-				for (MeanBean mean : values){
+				for (MaxGenotypeEffectBean mean : values){
 					res += "\"" + mean.getParameterName() + "\": ";
-					res += mean.mean;
+					res += mean.genotypeEffect;
 					i++;
 					if (i < this.values.size()){
 						res +=", ";
@@ -111,8 +111,8 @@ public class ParallelCoordinatesDTO {
 	public boolean isComplete(){
 
 		boolean complete = true;
-		for (MeanBean row: values.values()){
-			if (row.mean == null){
+		for (MaxGenotypeEffectBean row: values.values()){
+			if (row.genotypeEffect == null){
 				complete = false;
 				System.out.println(this.geneSymbol + " not complete");
 				break;
@@ -126,36 +126,36 @@ public class ParallelCoordinatesDTO {
 		JSONObject obj = new JSONObject();
 		obj.accumulate("name", this.geneSymbol);
 		obj.accumulate("group", "default gene group");
-		for (MeanBean mean: this.values.values()){
-			obj.accumulate(mean.parameterName, mean.mean);
+		for (MaxGenotypeEffectBean mean: this.values.values()){
+			obj.accumulate(mean.parameterName, mean.genotypeEffect);
 		}
 		return obj;
 	}
 
-	public HashMap<String, MeanBean> getValues(){
+	public HashMap<String, MaxGenotypeEffectBean> getValues(){
 		return values;
 	}
 
-	public class MeanBean{
+	public class MaxGenotypeEffectBean {
 
 		String unit;
 		String parameterStableId;
 		String parameterName;
 		Integer parameterStableKey;
-		Double mean;
+		Double genotypeEffect;
 		Boolean significant;
 
-		public MeanBean(String unit, String parameterStableId,
-		String parameterName, Integer parameterStableKey, Double mean, Boolean significant){
+		public MaxGenotypeEffectBean(String unit, String parameterStableId,
+									 String parameterName, Integer parameterStableKey, Double mean, Boolean significant){
 			this.unit = unit;
 			this.parameterName = parameterName;
 			this.parameterStableId = parameterStableId;
 			this.parameterStableKey = parameterStableKey;
-			this.mean = mean;
+			this.genotypeEffect = mean;
 			this.significant = significant;
 		}
-		public Double getMean(){
-			return mean;
+		public Double getGenotypeEffect(){
+			return genotypeEffect;
 		}
 		public String getUnit() {
 			return unit;
@@ -181,8 +181,8 @@ public class ParallelCoordinatesDTO {
 		public void setParameterStableKey(Integer parameterStableKey) {
 			this.parameterStableKey = parameterStableKey;
 		}
-		public void setMean(Double mean) {
-			this.mean = mean;
+		public void setGenotypeEffect(Double genotypeEffect) {
+			this.genotypeEffect = genotypeEffect;
 		}
 
 		public Boolean getSignificant() {
@@ -197,11 +197,11 @@ public class ParallelCoordinatesDTO {
 		 * @author tudose
 		 * @return
 		 */
-		public Comparator<MeanBean> getComparatorByParameterName()
+		public Comparator<MaxGenotypeEffectBean> getComparatorByParameterName()
 		{
-			Comparator<MeanBean> comp = new Comparator<MeanBean>(){
+			Comparator<MaxGenotypeEffectBean> comp = new Comparator<MaxGenotypeEffectBean>(){
 		    @Override
-		    public int compare(MeanBean s1, MeanBean s2)
+		    public int compare(MaxGenotypeEffectBean s1, MaxGenotypeEffectBean s2)
 		    {
 		        return s1.parameterName.compareTo(s2.parameterName);
 		    }
@@ -214,11 +214,11 @@ public class ParallelCoordinatesDTO {
 		 * @since 2015/08/04
 		 * @return
 		 */
-		public Comparator<MeanBean> getComparatorByTerry()
+		public Comparator<MaxGenotypeEffectBean> getComparatorByTerry()
 		{
-			Comparator<MeanBean> comp = new Comparator<MeanBean>(){
+			Comparator<MaxGenotypeEffectBean> comp = new Comparator<MaxGenotypeEffectBean>(){
 			    @Override
-			    public int compare(MeanBean a, MeanBean b)
+			    public int compare(MaxGenotypeEffectBean a, MaxGenotypeEffectBean b)
 			    {
 			    	Integer valA = getSortValue(a.getParameterStableId());
 			    	Integer valB = getSortValue(b.getParameterStableId());
@@ -302,9 +302,9 @@ public class ParallelCoordinatesDTO {
 			sortMap.put("IMPC_HEM_033_001",1120); //Monocyte differential count,20,1100
 			sortMap.put("IMPC_HEM_040_001",1123); //Large Unstained Cell (LUC) differential count,23,1100
 			sortMap.put("IMPC_HEM_039_001",1117); //Large Unstained Cell (LUC) count,17,1100
-			sortMap.put("IMPC_GRS_009_001",1202); //Forelimb and hindlimb grip strength measurement mean,2,1200
+			sortMap.put("IMPC_GRS_009_001",1202); //Forelimb and hindlimb grip strength measurement genotypeEffect,2,1200
 			sortMap.put("IMPC_GRS_003_001",1203); //Body weight,3,1200
-			sortMap.put("IMPC_GRS_008_001",1201); //Forelimb grip strength measurement mean,1,1200
+			sortMap.put("IMPC_GRS_008_001",1201); //Forelimb grip strength measurement genotypeEffect,1,1200
 			sortMap.put("IMPC_GRS_011_001",1205); //Forelimb and hindlimb grip strength normalised against body weight,5,1200
 			sortMap.put("IMPC_GRS_010_001",1204); //Forelimb grip strength normalised against body weight,4,1200
 			sortMap.put("JAX_LDT_009_001",1305); //Percent time in light,5,1300
@@ -321,19 +321,19 @@ public class ParallelCoordinatesDTO {
 			sortMap.put("JAX_PLC_005_001",1405); //Free fatty acids,5,1400
 			sortMap.put("JAX_PLC_001_001",1402); //Total cholesterol,2,1400
 			sortMap.put("JAX_PLC_002_001",1403); //HDL cholesterol,3,1400
-			sortMap.put("JAX_SLW_009_001",1504); //Dark sleep bout lengths mean,4,1500
+			sortMap.put("JAX_SLW_009_001",1504); //Dark sleep bout lengths genotypeEffect,4,1500
 			sortMap.put("JAX_SLW_010_001",1505); //Dark sleep bout lengths standard deviation,5,1500
 			sortMap.put("JAX_SLW_001_001",1500); //Data confidence level,0,1500
-			sortMap.put("JAX_SLW_007_001",1501); //Light sleep bout lengths mean,1,1500
+			sortMap.put("JAX_SLW_007_001",1501); //Light sleep bout lengths genotypeEffect,1,1500
 			sortMap.put("JAX_SLW_008_001",1502); //Light sleep bout lengths standard deviation,2,1500
 			sortMap.put("JAX_SLW_012_001",1513); //Peak wake with respect to dark onset median,13,1500
-			sortMap.put("JAX_SLW_005_001",1508); //Sleep bout lengths mean,8,1500
+			sortMap.put("JAX_SLW_005_001",1508); //Sleep bout lengths genotypeEffect,8,1500
 			sortMap.put("JAX_SLW_006_001",1509); //Sleep bout lengths standard deviation,9,1500
 			sortMap.put("JAX_SLW_002_001",1507); //Sleep daily percent,7,1500
 			sortMap.put("JAX_SLW_004_001",1506); //Sleep dark phase percent,6,1500
 			sortMap.put("JAX_SLW_003_001",1503); //Sleep light phase percent,3,1500
 			sortMap.put("JAX_SLW_015_001",1500); //Test duration,0,1500
-			sortMap.put("JAX_SLW_013_001",1510); //Breath rate during sleep mean,10,1500
+			sortMap.put("JAX_SLW_013_001",1510); //Breath rate during sleep genotypeEffect,10,1500
 			sortMap.put("JAX_SLW_014_001",1511); //Breath rate during sleep standard deviation,11,1500
 			sortMap.put("JAX_SLW_011_001",1512); //Activity onset with respect to dark onset median,12,1500
 			sortMap.put("JAX_ROT_003_001",1605); //Learning difference,5,1600
