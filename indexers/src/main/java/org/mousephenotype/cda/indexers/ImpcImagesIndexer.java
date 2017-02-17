@@ -45,10 +45,7 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * class to load the image data into the solr core - use for impc data first
@@ -113,6 +110,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private Map<String, String> parameterStableIdToEmapaTermIdMap = new HashMap<>(); // key: EMAPA id;
 	private Map<String, String> parameterStableIdToMpTermIdMap;
 	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
+	private Map<String, Set<String>> primaryGenesProcedures; //  we need to know which genes have images for which procedures so that we don't overwrite them from PhenoImageShare.
 
 	private String impcAnnotationBaseUrl;
 
@@ -163,12 +161,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		try {
-			this.secondaryProjectImageList=populateSecondaryProjectImages(runStatus);
-		} catch (Exception e2) {
-			e2.printStackTrace();
-		}
 
 		imageBeans = populateImageUrls();
 		logger.info(" Added {} total Image URL beans", imageBeans.size());
@@ -198,6 +190,14 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			impcImagesCore.deleteByQuery("*:*");
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 			List<ImageDTO> imagePrimaryList = experimentCore.query(query).getBeans(ImageDTO.class);
+			primaryGenesProcedures = getPrimaryImagesByGeneAndProcedure(imagePrimaryList);
+
+			try {
+				this.secondaryProjectImageList=populateSecondaryProjectImages(runStatus);
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+
 			imageList.addAll(secondaryProjectImageList);
 			imageList.addAll(imagePrimaryList);
 		
@@ -306,6 +306,22 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				commonUtils.msToHms(System.currentTimeMillis() - start));
 
 		return runStatus;
+	}
+
+
+	private Map<String,Set<String>> getPrimaryImagesByGeneAndProcedure(List<ImageDTO> imagePrimaryList) {
+
+		Map<String, Set<String>> res = new HashMap<>();
+		for (ImageDTO img : imagePrimaryList){
+			if (!res.containsKey(img.getGeneSymbol())){
+				res.put(img.getGeneSymbol(), new HashSet<>());
+			}
+			Set<String> current = res.get(img.getGeneSymbol());
+			current.add(img.getProcedureName().toLowerCase());
+			res.put(img.getGeneSymbol(), current);
+		}
+		return res;
+
 	}
 
 
@@ -426,7 +442,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	}
 
 	private List<ImageDTO> populatePhisImages() throws SolrServerException, IOException {
-		List<ImageDTO> phisImages = phisService.getPhenoImageShareImageDTOs();
+		List<ImageDTO> phisImages = phisService.getPhenoImageShareImageDTOs(primaryGenesProcedures);
 		return phisImages;
 	}
 
