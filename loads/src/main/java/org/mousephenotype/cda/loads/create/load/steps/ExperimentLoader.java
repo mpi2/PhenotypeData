@@ -272,8 +272,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int experimentCount = 0;
         int skippedExperimentsCount = 0;
         for (DccExperimentDTO dccExperiment : dccExperiments) {
-if ( ! dccExperiment.equals("31326_WTSI"))
-    continue;
+
             // Skip any experiments with known bad colony ids.
             if (DccSqlUtils.knownBadColonyIds.contains(dccExperiment.getColonyId())) {
                 skippedExperiments.add(dccExperiment.getDatasourceShortName() + " experiment " + dccExperiment.getExperimentId());
