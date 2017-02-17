@@ -415,7 +415,6 @@ public class PaperController {
 		List<String> pmidStrs = Arrays.asList(idStr.split(","));
 		int pmidCount = pmidStrs.size();
 
-		System.out.println("Got paper id str: "+idStr);
 		for( String pmidStr : pmidStrs ){
 			pmidQrys.add("ext_id:" + pmidStr);
 		}
@@ -440,7 +439,6 @@ public class PaperController {
 			status = "Paper id(s) not found in pubmed database";
 		}
 		else {
-			//System.out.println("found " + pubmeds.size() + " papers");
 			List<String> failedPmids = new ArrayList<>();
 			List<String> failedPmidsMsg = new ArrayList<>();
 			List<String> foundPmids = new ArrayList<>();
@@ -454,11 +452,8 @@ public class PaperController {
 
 				Pubmed pub = (Pubmed) pair.getValue();
 
-				//System.out.println("found paper: "+pmidStr);
-
 				String msg = savePmidData(pub, insertStatement);
 
-				//System.out.println("insert status: "+msg);
 				if (msg.contains("duplicate ")){
 					ignoreStatus += pub.getPmid() + "\n";
 					ignoredCount++;
@@ -500,6 +495,7 @@ public class PaperController {
 
 			}
 		}
+
 		conn.close();
 		return status;
 	}
@@ -697,18 +693,18 @@ public class PaperController {
 
 		// (1.gacc, 2.acc, 3.symbol, 4.name, 5.pmid, 6.date_of_publication,
 		// 7.reviewed, 8.grant_id, 9.agency, 10.acronym, 11.title,
-		// 12.journal, 13.paper_url, 14.datasource, 15.timestamp, 16.falsepositive, 17.mesh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
+		// 12.journal, 13.paper_url, 14.datasource, 15.timestamp, 16.falsepositive, 17.mesh, 18 author) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
 
 		final String delimiter = "|||";
 		int pmid = pub.getPmid();
 
-		insertStatement.setString(1, pub.getGeneAccs().isEmpty() ? "" : pub.getGeneAccs());
-		insertStatement.setString(2, pub.getAlleleAccs().isEmpty() ? "" : pub.getAlleleAccs());
-		insertStatement.setString(3, pub.getAlleleSymbols().isEmpty() ? "" : pub.getAlleleSymbols());
+		insertStatement.setString(1, pub.getGeneAccs() == null || pub.getGeneAccs().isEmpty() ? "" : pub.getGeneAccs());
+		insertStatement.setString(2, pub.getAlleleAccs() == null || pub.getAlleleAccs().isEmpty() ? "" : pub.getAlleleAccs());
+		insertStatement.setString(3, pub.getAlleleSymbols() == null || pub.getAlleleSymbols().isEmpty()  ? "" : pub.getAlleleSymbols());
 		insertStatement.setString(4, "");
 		insertStatement.setInt(5, pmid);
 		insertStatement.setString(6, pub.getDateOfPublication());
-		insertStatement.setString(7, pub.getReviewed().isEmpty() ? "no" : "yes"); // reviewed, default is no
+		insertStatement.setString(7, pub.getReviewed() == null || pub.getReviewed().isEmpty() ? "no" : "yes"); // reviewed, default is no
 
 		// grant info: we can have multiple grants for a paper
 
@@ -746,7 +742,7 @@ public class PaperController {
 		}
 		insertStatement.setString(13, paper_urls.size() > 0 ? StringUtils.join(paper_urls, delimiter) : "");
 
-		insertStatement.setString(14, "europubmed");
+		insertStatement.setString(14, "manual");
 		insertStatement.setTimestamp(15, new Timestamp(System.currentTimeMillis()));
 		insertStatement.setString(16, "no");
 
@@ -764,7 +760,6 @@ public class PaperController {
 
 		try {
 			int count = insertStatement.executeUpdate();
-			//System.out.println("INSERTED counter: " + count);
 			if (count==0){
 				return "duplicate " + pmid;
 			}
@@ -804,23 +799,32 @@ public class PaperController {
 				pub.setPmid(pmid);
 
 				if (r.containsKey("title")) {
-					pub.setTitle(r.getString("title"));
+					// sometime paper title is within "[]", remove this: trouble from Europubmed
+					String title = r.getString("title");
+					title = title.replaceAll("\\[", "").replaceAll("\\]","");
+					pub.setTitle(title);
 				} else {
 					pub.setTitle("");
 				}
 
-				if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("dateOfPublication")) {
-					String dateOfPublication = r.getJSONObject("journalInfo").getString("dateOfPublication");
-					//System.out.println("dateOfPublication: " + dateOfPublication);
-					pub.setDateOfPublication(dateOfPublication);
-				} else {
+				if (r.containsKey("firstPublicationDate")){
+					pub.setDateOfPublication(r.getString("firstPublicationDate"));
+				}
+				else if (r.containsKey("electronicPublicationDate")){
+					pub.setDateOfPublication(r.getString("electronicPublicationDate"));
+				}
+				else if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("printPublicationDate")) {
+					pub.setDateOfPublication(r.getJSONObject("journalInfo").getString("printPublicationDate"));
+				}
+				else if (r.containsKey("pubYear")){
+					pub.setDateOfPublication(r.getString("pubYear") + "-00-00");
+				}
+				else {
 					pub.setDateOfPublication("");
 				}
 
-
 				if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("journal")) {
-					String journal = r.getJSONObject("journalInfo").getJSONObject("journal").getString("title");
-					pub.setJournal(journal);
+					pub.setJournal(r.getJSONObject("journalInfo").getJSONObject("journal").getString("title"));
 				} else {
 					pub.setJournal("");
 				}

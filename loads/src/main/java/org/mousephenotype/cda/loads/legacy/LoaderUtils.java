@@ -22,6 +22,7 @@ import java.util.TreeMap;
 /**
  * Created by mrelac on 20/07/16.
  */
+@Deprecated
 public class LoaderUtils {
 
 
