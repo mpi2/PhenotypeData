@@ -95,7 +95,7 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
         Map<String,String>accessionToGroupLabelMap=SecondaryProjectBean.getAccessionsToLabelMapFromBeans(projectBeans);
 		
 		String url = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl");
-		List<SolrDocument> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions);
+		List<SolrDocument> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
 		Map<String, GeneRowForHeatMap> rows = statisticalResultService.getSecondaryProjectMapForGeneList(accessions, parameters);
 
 		for (SolrDocument doc : geneToMouseStatus) {

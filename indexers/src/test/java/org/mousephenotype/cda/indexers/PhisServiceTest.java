@@ -1,19 +1,19 @@
 package org.mousephenotype.cda.indexers;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.indexers.beans.PImageDTO;
 import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.assertTrue;
 
 //import org.springframework.web.client.RestTemplate;
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -27,7 +27,8 @@ public class PhisServiceTest {
 		//http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.3/images/select?q=host_name:WTSI&rows=200
 		PhisService phisService=new PhisService();
 		try {
-			List<ImageDTO> imageDtos = phisService.getPhenoImageShareImageDTOs();
+			Map<String, Set<String>> primaryGenesProcedures = new HashMap<>();
+			List<ImageDTO> imageDtos = phisService.getPhenoImageShareImageDTOs(primaryGenesProcedures);
 			assertTrue(imageDtos.size()>162);
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
