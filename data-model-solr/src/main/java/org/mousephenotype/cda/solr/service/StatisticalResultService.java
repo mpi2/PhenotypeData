@@ -506,8 +506,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	    }
 
 		for (ParallelCoordinatesDTO pc : beans.values()){
-			pc.getValues().values().stream().filter(val -> val.getMean() != null).forEach(val -> {
-				sum.put(val.getParameterName(), (sum.get(val.getParameterName()) + val.getMean()));
+			pc.getValues().values().stream().filter(val -> val.getGenotypeEffect() != null).forEach(val -> {
+				sum.put(val.getParameterName(), (sum.get(val.getParameterName()) + val.getGenotypeEffect()));
 				n.put(val.getParameterName(), (n.get(val.getParameterName()) + 1));
 			});
 		}

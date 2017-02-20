@@ -96,7 +96,7 @@ public class ParallelCoordinatesController {
 						   	Model model, HttpServletRequest request) {
 
 		try { // keep try-catch instead of throws as Spring hides [some] pf the exceptions.
-			List<String> geneList = (genes != null && !genes.contains(".")) ? Arrays.stream(genes.split("[ ,\t\n]+")).collect(Collectors.toList()) : null;
+			List<String> geneList = (genes != null && !genes.contains(".")) ? Arrays.stream(genes.split("[ ,\t\n]+")).map(item -> {return item.trim();}).collect(Collectors.toList()) : null;
 			long totalTime = System.currentTimeMillis();
 			if (procedureIds == null && topLevelMpId == null) {
 				model.addAttribute("procedure", "");
@@ -163,7 +163,6 @@ public class ParallelCoordinatesController {
 			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname, genes, topLevelMpId), parameters);
 			cache.put(key, data);
 		}
-
 		return cache.get(key);
 	}
 

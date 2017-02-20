@@ -119,7 +119,9 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ExpressionMpOverlapReport laczMpReport;
-    
+
+    @Autowired
+    private IDRReport idrReport;
 
 
     private ReportsManagerParser parser = new ReportsManagerParser();
@@ -151,7 +153,8 @@ public class ReportsManager implements CommandLineRunner {
         VIABILITY("viability", "Viability report"),
         LACZMPOVERLAP("laczmpoverlap", "Lacz and MP call overlap report"),
         ZYGOSITY("zygosity", "Zygosity report"),
-        EBIDCC("ebidcc", "EBI-DCC call comparison report");
+        EBIDCC("ebidcc", "EBI-DCC call comparison report"),
+        IDR("idr", "IDR report");
 
         String tag;
         String description;
@@ -357,6 +360,11 @@ public class ReportsManager implements CommandLineRunner {
                         zygosityReport.run(args);
                         file = zygosityReport.targetFile;
                         break;
+
+//                    case IDR:
+//                        idrReport.run(args);
+//                        file = idrReport.targetFile;
+//                        break;
 //                    case LACZMPOVERLAP: // This is not ready for users, used internally only, at the moment.
 //                    	laczMpReport.run(args);
 //                    	file = laczMpReport.targetFile;
