@@ -67,8 +67,9 @@
             /*------ highcharts stuff --------*/
             div.chart {
                 border: 1px solid lightgrey;
-                width: 100%;
-                margin: 30px 0;
+                width: 99%;
+                margin: 30px auto;
+
             }
             div.clear {
                 clear: both;
@@ -81,6 +82,10 @@
 
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/data.js"></script>
+        <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+
 
         <script type='text/javascript'>
 
@@ -98,14 +103,7 @@
                         if ( ui.newTab.index() == 1){
                             var chartWeek = "chartWeek";
                             var chartMonth = "chartMonth";
-                            $.fn.fetchAllelePaperDataPointsIncrement(chartMonth, chartWeek);
-
-//                            var chartId2 = "chartSec2";
-//                            $.fn.fetchAllelePaperDataPointsIncrementWeekly(chartId2);
-//                            var chartYear = "chartYear";
-//                            $.fn.fetchAllelePaperDataPointsDsByYear(chartYear);
-
-
+                            $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter);
                         }
                     }
                 });
@@ -174,10 +172,9 @@
                                     </div>
                                     <div class="clear"></div>
                                     <div id="tabs-2">
-
-                                        <div id="chartMonth" class="chart"></div>
-                                        <div id="chartWeek" class="chart"></div>
-                                        <div id="chartYear" class="chart"></div>
+                                        <div id="chartYearIncrease" class="chart"></div>
+                                        <div id="chartQuarter" class="chart"></div>
+                                        <div id="chartMonthIncrease" class="chart"></div>
                                         <div class="clear"></div>
 
                                     </div>
