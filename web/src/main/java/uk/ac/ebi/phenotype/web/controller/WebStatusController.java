@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
@@ -86,7 +87,9 @@ public class WebStatusController {
 	ProductService productService;
 
 	List<WebStatus> nonEssentialWebStatusObjects;
-	Model savedModel = null;
+	private Model savedModel = null;
+	private Integer cacheHit = 0;
+	private Integer cacheMiss = 0;
 
 	@PostConstruct
 	public void initialise() {
@@ -116,16 +119,37 @@ public class WebStatusController {
 		nonEssentialWebStatusObjects.add(productService);
 	}
 
+	@RequestMapping("/clearCache")
+	public ModelAndView clearCache() {
+		synchronized (this) {
+			savedModel = null;
+		}
+		return new ModelAndView("redirect:webstatus");
+
+
+	}
+
 	@RequestMapping("/webstatus")
 	public String webStatus(Model model, HttpServletResponse response) {
 
 		if (savedModel != null && savedModel.containsAttribute("webStatusModels") && Math.random() < 0.95) {
+			synchronized (this) {
+				cacheHit += 1;
+			}
 
 			model.addAllAttributes(savedModel.asMap());
+
+			model.addAttribute("hits", cacheHit);
+			model.addAttribute("misses", cacheMiss);
+			model.addAttribute("ratio", cacheHit+cacheMiss>0 ? ((float)cacheHit / (cacheHit+cacheMiss)): "Not available yet");
+
 			return "webStatus";
 		}
 
 		logger.info("Updating webstatus model values");
+		synchronized (this) {
+			cacheMiss += 1;
+		}
 
 		ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -154,8 +178,16 @@ public class WebStatusController {
 				if (future!=null) {future.cancel(true);}
 
 				ok = false;
+
+				// Do not cache the model if it is not ok.  This will force the status check
+				// to occur on subsequent page loads.
+				synchronized (this) {
+					savedModel = null;
+				}
+
 				logger.error("Essential service {} is not available", name);
 				e.printStackTrace();
+				break;
 			}
 
 			WebStatusModel wModel = new WebStatusModel(name, number);
@@ -205,12 +237,16 @@ public class WebStatusController {
 		}
 		model.addAttribute("ok", ok);
 		model.addAttribute("nonEssentialOk",nonEssentialOk);
+		model.addAttribute("hits", cacheHit);
+		model.addAttribute("misses", cacheMiss);
+		model.addAttribute("ratio", cacheHit+cacheMiss>0 ? ((float)cacheHit / (cacheHit+cacheMiss)): "Not available yet");
 
-		// Cache the model to be used later
+		// If everything is ok, cache the model to be used later
 		synchronized (this) {
-			savedModel = model;
+			if (ok) {
+				savedModel = model;
+			}
 		}
-		
 
 		return "webStatus";
 	}
