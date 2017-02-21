@@ -127,10 +127,11 @@
             'success': function (jsonstr) {
                 var j = JSON.parse(jsonstr);
 
-                console.log(j)
                 var colorCode = {mousemine: "#8B668B", manual: "#CDB7B5", europubmed: "#BABABA"};
 
+                //-----------------------------------------------------
                 // yearly paper increase over the years (accumulated)
+                //-----------------------------------------------------
                 var yearSeries = [];
                 var cat = [];
                 var dp = [];
@@ -183,18 +184,35 @@
                     series: yearSeries
                 });
 
-                // weekly increase of papers in bar chart
-                var wkseries = [];
-				var timepoints = [];
-				var dp = [];
-				var o = {};
-				o.name = "";
-                Object.keys(j.paperMonthlyIncrement).sort().forEach(function (date, index) {
-                	timepoints.push(date);
-                    dp.push(j.paperMonthlyIncrement[date]);
+                //----------------------------------------
+                // chart quarter by year of publication
+                //----------------------------------------
+                var monthSeriesData = [];
+                var weekDrillDownSeriesData = [];
+                var monthTotal = 0;
+                Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function(yearmm, index) {
+                    var ymo = {};
+                    var wo = {};
+                    wo.name = yearmm;
+                    wo.id = yearmm;
+                    wo.data = [];
+                    var sum = 0;
+                    Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function(mmdd, index) {
+                        var wc = [];
+                        var weekCnt = j.paperMonthlyIncrementWeekDrilldown[yearmm][mmdd];
+                        sum += weekCnt;
+                        monthTotal += weekCnt;
+                        wc.push(mmdd);
+                        wc.push(weekCnt)
+                        wo.data.push(wc);
+                    });
+                    weekDrillDownSeriesData.push(wo);
+
+                    ymo.name = yearmm;
+                    ymo.y = sum;
+                    ymo.drilldown = yearmm;
+                    monthSeriesData.push(ymo);
                 });
-                o.data = dp;
-                wkseries.push(o);
 
                 Highcharts.chart(chartMonthIncrease, {
                     chart: {
@@ -204,47 +222,54 @@
                         text: 'Monthly increase of IKMC/IMPC related papers'
                     },
                     subtitle: {
-                        text: ''
+                        text: 'Click the month columns for weekly breakdown'
                     },
                     xAxis: {
-                        categories: timepoints,
-                        title :{
-                            text: 'Timeline'
-                        }
+                        type: 'category'
                     },
                     yAxis: {
-                        min: 0,
                         title: {
                             text: 'Number of papers'
-                        },
-                        labels: {
-                            overflow: 'justify'
                         }
-                    },
-                    tooltip: {
-                        valueSuffix: ''
-                    },
-                    plotOptions: {
-                        column: {
-                            dataLabels: {
-                                enabled: true
-                            }
-                        },
-                        series: {
-                            pointWidth: 5,
-                            groupPadding: 0
-                        }
+
                     },
                     legend: {
                         enabled: false
                     },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            pointWidth: 20,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y}',
+                                // formatter:function() {
+                                //     var pcnt = (this.y / monthTotal) * 100;
+                                //     return Highcharts.numberFormat(pcnt) + '%';
+                                // }
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + monthTotal + '<br/>'
+                    },
                     credits: {
                         enabled: false
                     },
-                    series: wkseries
+                    series: [{
+                        name: 'month column',
+                        colorByPoint: true,
+                        data : monthSeriesData
+                    }],
+                    drilldown: {
+                        series : weekDrillDownSeriesData
+                    }
                 });
 
+                //---------------------------------------
                 // chart quarter by year of publication
+                //---------------------------------------
                 var yearSeriesData = [];
                 var drillDownSeriesData = [];
                 var total = 0;

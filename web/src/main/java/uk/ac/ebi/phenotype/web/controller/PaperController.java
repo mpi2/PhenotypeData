@@ -150,29 +150,46 @@ public class PaperController {
 
 			dataJson.put("yearlyIncrease", yearAddedCount);
 
-			//---------------------------------------------------------------
-			// bar chart: weekly increments by counts (merge of datasources)
-			//---------------------------------------------------------------
+			//-----------------------------------------------------------------------------------
+			// bar chart: monthly increments (weekly drilldown) by counts (merge of datasources)
+			//-----------------------------------------------------------------------------------
 
-			String querySum2 = "select left(date, 7) as date, sum(count) as sum  " +
+			String querySum2 = "select date, count(*) as count " +
 					"from datasource_by_year_weekly_increase " +
 					"where date > '2017-02-09' " +
-					"group by left(date, 7)";
+					"group by date";
 
 
 			PreparedStatement p5 = conn.prepareStatement(querySum2);
 			ResultSet resultSet5 = p5.executeQuery();
 
 			// String: datasource, String: date, Integer: sum count
-			Map<String, Integer> dsMonthIncrease = new HashMap<>();
+			Map<String, Map<String, Integer>> monthIncreaseWeekDrilldown = new HashMap<>();
 
 			while (resultSet5.next()) {
 				String date = resultSet5.getString("date");
-				Integer sum = resultSet5.getInt("sum");
-				dsMonthIncrease.put(date, sum);
+				Integer count = resultSet5.getInt("count");
+
+				String[] dateParts = StringUtils.split(date, "-");
+				String yyyy = dateParts[0];
+				String mm = dateParts[1];
+				String dd = dateParts[2];
+				String key = yyyy + "-" + mm;
+				String key2 = mm + "-" + dd;
+
+				if ( !monthIncreaseWeekDrilldown.containsKey(key)){
+					monthIncreaseWeekDrilldown.put(key, new HashMap<String, Integer>());
+				}
+				if ( !monthIncreaseWeekDrilldown.get(key).containsKey(key2)) {
+					monthIncreaseWeekDrilldown.get(key).put(key2, count);
+				}
+				else {
+					int weekcnt = monthIncreaseWeekDrilldown.get(key).get(key2);
+					monthIncreaseWeekDrilldown.get(key).put(key2, weekcnt+count);
+				}
 			}
 
-			dataJson.put("paperMonthlyIncrement", dsMonthIncrease);
+			dataJson.put("paperMonthlyIncrementWeekDrilldown", monthIncreaseWeekDrilldown);
 
 
 			//-----------------------------------------------------------

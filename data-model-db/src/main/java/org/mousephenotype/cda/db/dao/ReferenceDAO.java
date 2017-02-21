@@ -131,81 +131,67 @@ public class ReferenceDAO {
         String searchClause = "";
 
         if ( ! filter.isEmpty()) {
-           // if ( filter.contains("|")){
-                int occurrence = findOccurrenceOfSubstr(filter, "|");
-                int loop = occurrence + 1;
+            int occurrence = findOccurrenceOfSubstr(filter, "|");
+            int loop = occurrence + 1;
 
-                List<String> cols = new ArrayList<>(Arrays.asList("title", "mesh"));
-                List<String> titleLikes = new ArrayList<>();
-                List<String> meshLikes = new ArrayList<>();
-                for( int oc=0; oc< loop; oc++){
-                    for (String col : cols){
-                        if (col.equals("title")){
-                            titleLikes.add(col + " LIKE ? ");
-                        }
-                        else {
-                            meshLikes.add(col + " LIKE ? ");
-                        }
+            List<String> cols = new ArrayList<>(Arrays.asList("title", "mesh"));
+            List<String> titleLikes = new ArrayList<>();
+            List<String> meshLikes = new ArrayList<>();
+            for( int oc=0; oc< loop; oc++){
+                for (String col : cols){
+                    if (col.equals("title")){
+                        titleLikes.add(col + " LIKE ? ");
+                    }
+                    else {
+                        meshLikes.add(col + " LIKE ? ");
                     }
                 }
+            }
 
-                searchClause =
-                        "  AND (\n"
-                        + "(" + StringUtils.join(titleLikes, " OR ") +")\n"
-                        + " OR (" +  StringUtils.join(meshLikes, " OR ") + "))\n";
-//                searchClause =
-//                        "  AND (\n"
-//                                + "(title LIKE ? or title LIKE ?)\n"
-//                                + " OR (mesh LIKE ? OR mesh LIKE ?))\n";
-
-           // }
-//            else {
-//                colCount = 2;
-//                searchClause =
-//                        "  AND (\n"
-//                                + "     title               LIKE ?\n"
-//                                + " OR mesh                LIKE ?)\n";
-//            }
+            searchClause =
+                    "  AND (\n"
+                    + "(" + StringUtils.join(titleLikes, " OR ") +")\n"
+                    + " OR (" +  StringUtils.join(meshLikes, " OR ") + "))\n";
         }
 
         String whereClause =
-                "WHERE\n"
-                        + " reviewed = 'yes'\n"
-                        + " AND falsepositive = 'no'"
-                        + " AND symbol != ''\n"
+            "WHERE\n"
+                    + " reviewed = 'yes'\n"
+                    + " AND falsepositive = 'no'"
+                    + " AND symbol != ''\n"
 
-                        // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
-                        // + " AND gacc != ''\n"
-                        // + " AND acc != ''\n"
-                        + notInClause
-                        + searchClause;
+                    // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
+                    // + " AND gacc != ''\n"
+                    // + " AND acc != ''\n"
+                    + notInClause
+                    + searchClause;
 
         //    + " AND pmid=24652767 "; // for test
         String query =
-                "SELECT\n"
-                        + "  symbol AS alleleSymbols\n"
-                        + ", acc AS alleleAccessionIds\n"
-                        + ", gacc AS geneAccessionIds\n"
-                        + ", name AS alleleNames\n"
+            "SELECT\n"
+                    + "  symbol AS alleleSymbols\n"
+                    + ", acc AS alleleAccessionIds\n"
+                    + ", gacc AS geneAccessionIds\n"
+                    + ", name AS alleleNames\n"
 //              + "  GROUP_CONCAT( symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
 //              + ", GROUP_CONCAT( acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
 //              + ", GROUP_CONCAT( gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
 //              + ", GROUP_CONCAT( name      SEPARATOR \"|||\") AS alleleNames\n"
-                        + ", title\n"
-                        + ", journal\n"
-                        + ", pmid\n"
-                        + ", date_of_publication\n"
-                        + ", grant_id AS grantIds\n"
-                        + ", agency AS grantAgencies\n"
-                        + ", paper_url AS paperUrls\n"
-                        + ", mesh\n"
-                        + ", author\n"
-                        + "FROM allele_ref AS ar\n"
-                        + whereClause
-                        //+ "GROUP BY pmid\n"
-                        + "ORDER BY " + orderBy + "\n";
+                    + ", title\n"
+                    + ", journal\n"
+                    + ", pmid\n"
+                    + ", date_of_publication\n"
+                    + ", grant_id AS grantIds\n"
+                    + ", agency AS grantAgencies\n"
+                    + ", paper_url AS paperUrls\n"
+                    + ", mesh\n"
+                    + ", author\n"
+                    + "FROM allele_ref AS ar\n"
+                    + whereClause
+                    //+ "GROUP BY pmid\n"
+                    + "ORDER BY " + orderBy + "\n";
 
-        System.out.println("alleleRef query: " + query);
+        //System.out.println("alleleRef query: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
