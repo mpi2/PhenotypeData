@@ -149,7 +149,7 @@
 
                 Highcharts.chart(chartYearIncrease, {
                     title: {
-                        text: 'Yearly increase of IKMC/IMPC related papers',
+                        text: 'Yearly increase of IKMC/IMPC related publications',
                         x: -20 //center
                     },
                     subtitle: {
@@ -161,7 +161,7 @@
                     },
                     yAxis: {
                         title: {
-                            text: 'number of papers'
+                            text: 'number of publications'
                         }
                         // plotLines: [{
                         //     value: 0,
@@ -219,7 +219,7 @@
                         type: 'column'
                     },
                     title: {
-                        text: 'Monthly increase of IKMC/IMPC related papers'
+                        text: 'Monthly increase of IKMC/IMPC related publications'
                     },
                     subtitle: {
                         text: 'Click the month columns for weekly breakdown'
@@ -229,7 +229,7 @@
                     },
                     yAxis: {
                         title: {
-                            text: 'Number of papers'
+                            text: 'Number of publications'
                         }
 
                     },
@@ -302,7 +302,7 @@
                         type: 'column'
                     },
                     title: {
-                        text: 'IKMC/IMPC related papers by year of publication'
+                        text: 'IKMC/IMPC related publications by year of publication'
                     },
                     subtitle: {
                         text: 'Click the year columns for quarterly breakdown'
@@ -312,7 +312,7 @@
                     },
                     yAxis: {
                         title: {
-                            text: 'Number of papers'
+                            text: 'Number of publications'
                         }
 
                     },
@@ -325,11 +325,11 @@
                             pointWidth: 20,
                             dataLabels: {
                                 enabled: true,
-                                //format: '{point.y}',
-                                formatter:function() {
-                                    var pcnt = (this.y / total) * 100;
-                                    return Highcharts.numberFormat(pcnt) + '%';
-                                }
+                                format: '{point.y}',
+                                // formatter:function() {
+                                //     var pcnt = (this.y / total) * 100;
+                                //     return Highcharts.numberFormat(pcnt) + '%';
+                                // }
                             }
                         }
                     },
@@ -344,7 +344,7 @@
                         name: 'year column',
                         colorByPoint: true,
                         data : yearSeriesData
-                     }],
+                    }],
                     drilldown: {
                         series : drillDownSeriesData
                     }
