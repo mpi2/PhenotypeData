@@ -82,6 +82,9 @@ public class ReportsManager implements CommandLineRunner {
     private ExtractValidateImpressReport extractValidateImpressReport;
 
     @Autowired
+    private LoadValidateCdaExperimentReport loadValidateCdaExperimentReport;
+
+    @Autowired
     private LoadValidateCdaReport loadValidateCdaReport;
 
     @Autowired
@@ -142,6 +145,7 @@ public class ReportsManager implements CommandLineRunner {
         EXTRACT_VALIDATE_IMPRESS("extractValidateImpress", "Extract Validate Impress report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
         LOAD_VALIDATE_CDA("loadValidateCda", "Load Validate cda report"),
+        LOAD_VALIDATE_CDA_EXPERIMENT("loadValidateCdaExperiment", "Load Validate cda experiment report"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
         METABOLISM_CBC("metabolismCBC", "Metabolism CBC"),
         METABOLISM_DEXA("metabolismDEXA", "Metabolism DEXA"),
@@ -324,6 +328,11 @@ public class ReportsManager implements CommandLineRunner {
                     case EXTRACT_VALIDATE_IMPRESS:
                         extractValidateImpressReport.run(args);
                         file = extractValidateImpressReport.targetFile;
+                        break;
+
+                    case LOAD_VALIDATE_CDA_EXPERIMENT:
+                        loadValidateCdaExperimentReport.run(args);
+                        file = loadValidateCdaExperimentReport.targetFile;
                         break;
 
                     case LOAD_VALIDATE_CDA:

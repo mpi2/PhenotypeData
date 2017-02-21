@@ -307,24 +307,24 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         // Log warning sets
 
-        Iterator<String> badDatesIt = badDates.iterator();
-        while (badDatesIt.hasNext()) {
-            logger.warn(badDatesIt.next());
+        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
+        while (missingColonyIdsIt.hasNext()) {
+            logger.warn(missingColonyIdsIt.next());
+        }
+
+        Iterator<String> experimentsMissingColonyIdsIt = experimentsMissingColonyIds.iterator();
+        while (experimentsMissingColonyIdsIt.hasNext()) {
+            logger.warn(experimentsMissingColonyIdsIt.next());
         }
 
         Iterator<String> experimentsMissingSamplesIt = experimentsMissingSamples.iterator();
         while (experimentsMissingSamplesIt.hasNext()) {
             logger.warn(experimentsMissingSamplesIt.next());
         }
-        
-        Iterator<String> missingColonyIdsIt = missingColonyIds.iterator();
-        while (missingColonyIdsIt.hasNext()) {
-            logger.warn(missingColonyIdsIt.next());
-        }
-        
-        Iterator<String> experimentsMissingColonyIdsIt = experimentsMissingColonyIds.iterator();
-        while (experimentsMissingColonyIdsIt.hasNext()) {
-            logger.warn(experimentsMissingColonyIdsIt.next());
+
+        Iterator<String> badDatesIt = badDates.iterator();
+        while (badDatesIt.hasNext()) {
+            logger.warn(badDatesIt.next());
         }
         
         Iterator<String> missingProjectsIt = missingProjects.iterator();
@@ -616,13 +616,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String bsKey = dccExperiment.getSpecimenId() + "_" + organisationPk;
             BiologicalSample bs = samplesMap.get(bsKey);
             if (bs == null) {
-                String message = "Missing sample '" + dccExperiment.getSpecimenId() + "'\tcenter::experiment::cdaExperimentPk::organisationPk::colonyId\t" +
-                                               dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId() + "::" + experimentPk + "::" + organisationPk +
-                                               "::" + dccExperiment.getColonyId();
-logger.warn(message);
-                experimentsMissingSamples.add("Missing sample '" + dccExperiment.getSpecimenId() + "'\tcenter::experiment::cdaExperimentPk::organisationPk::colonyId\t" +
-                                               dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId() + "::" + experimentPk + "::" + organisationPk +
-                                               "::" + dccExperiment.getColonyId());
+                experimentsMissingSamples.add("Missing sample    organisationPk::center::colonyId\t" +
+                                               organisationPk + "::" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId());
 
                 return;
             }
