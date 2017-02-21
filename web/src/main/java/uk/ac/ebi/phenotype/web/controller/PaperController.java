@@ -20,6 +20,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -49,6 +50,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import scala.Int;
 import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
 import uk.ac.ebi.phenodigm.web.AssociationSummary;
@@ -70,6 +72,8 @@ import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.Integer.parseInt;
 
 
 @Controller
@@ -124,238 +128,337 @@ public class PaperController {
 
 		try {
 
+			//----------------------------------------------------
+			// line data: yearly paper increase over the years
+			//----------------------------------------------------
+
+			String qry = "select left(date_of_publication,4) as year, count(*) as count " +
+					"from allele_ref where falsepositive = 'no' group by left(date_of_publication,4) order by year";
+
+			PreparedStatement py = conn.prepareStatement(qry);
+			ResultSet resultSety = py.executeQuery();
+
+			int addedCount = 0;
+			Map<String, Integer> yearAddedCount = new HashMap<>();
+
+			while (resultSety.next()) {
+				String year = resultSety.getString("year");
+				int count = resultSety.getInt("count");
+				addedCount += count;
+				yearAddedCount.put(year, addedCount);
+			}
+
+			dataJson.put("yearlyIncrease", yearAddedCount);
+
+			//---------------------------------------------------------------
+			// bar chart: weekly increments by counts (merge of datasources)
+			//---------------------------------------------------------------
+
+			String querySum2 = "select left(date, 7) as date, sum(count) as sum  " +
+					"from datasource_by_year_weekly_increase " +
+					"where date > '2017-02-09' " +
+					"group by left(date, 7)";
+
+
+			PreparedStatement p5 = conn.prepareStatement(querySum2);
+			ResultSet resultSet5 = p5.executeQuery();
+
+			// String: datasource, String: date, Integer: sum count
+			Map<String, Integer> dsMonthIncrease = new HashMap<>();
+
+			while (resultSet5.next()) {
+				String date = resultSet5.getString("date");
+				Integer sum = resultSet5.getInt("sum");
+				dsMonthIncrease.put(date, sum);
+			}
+
+			dataJson.put("paperMonthlyIncrement", dsMonthIncrease);
+
+
+			//-----------------------------------------------------------
+			// bar data: quarterly paper increase by year of publication
+			//-----------------------------------------------------------
+
+			String querySum3 = "select left(date_of_publication, 7) as yymm, count(*) as count " +
+				"from allele_ref where falsepositive = 'no' group by left(date_of_publication , 7);";
+
+			PreparedStatement pQuarter = conn.prepareStatement(querySum3);
+			ResultSet resultSetQ = pQuarter.executeQuery();
+
+			Map<String, Map<String, Integer>> yearQuarterSum = new HashMap<>();
+			Map<String, String> quarters = new HashedMap();
+			quarters.put("01", "Q1");
+			quarters.put("02", "Q1");
+			quarters.put("03", "Q1");
+
+			quarters.put("04", "Q2");
+			quarters.put("05", "Q2");
+			quarters.put("06", "Q2");
+
+			quarters.put("07", "Q3");
+			quarters.put("08", "Q3");
+			quarters.put("09", "Q3");
+
+			quarters.put("10", "Q4");
+			quarters.put("11", "Q4");
+			quarters.put("12", "Q4");
+
+
+			while (resultSetQ.next()) {
+				String yymm = resultSetQ.getString("yymm");
+				String[] ym = yymm.split("-");
+				String year = ym[0];
+				String quarter  = quarters.get(ym[1]);
+				Integer count = resultSetQ.getInt("count");
+
+				if ( ! yearQuarterSum.containsKey(year)){
+					yearQuarterSum.put(year, new HashMap<String, Integer>());
+				}
+
+				if ( ! yearQuarterSum.get(year).containsKey(quarter)){
+					yearQuarterSum.get(year).put(quarter, count);
+				}
+				else {
+					int addedCount2 = yearQuarterSum.get(year).get(quarter);
+					yearQuarterSum.get(year).put(quarter, count+addedCount2);
+				}
+			}
+
+			dataJson.put("yearQuarterSum", yearQuarterSum);
 
 			//-----------------------------------------------------------
 			// line data: monthly paper increase by year of publication
 			//-----------------------------------------------------------
 
-			String query = "select * from paper_by_year_monthly_increase order by year";
-			PreparedStatement p = conn.prepareStatement(query);
-			ResultSet resultSet = p.executeQuery();
+//			String query = "select * from paper_by_year_monthly_increase order by year";
+//			PreparedStatement p = conn.prepareStatement(query);
+//			ResultSet resultSet = p.executeQuery();
+//
+//			JSONObject dj = new JSONObject();
+//
+//			while (resultSet.next()) {
+//				String timeTaken = resultSet.getString("date");
+//				String year = resultSet.getString("year");
+//				int count = resultSet.getInt("count");
+//
+//				uniqYears.add(year);
+//
+//				if (!dm.containsKey(timeTaken)) {
+//					dm.put(timeTaken, new ArrayList<Map<String, Integer>>());
+//				}
+//				Map<String, Integer> dobj = new HashMap<>();
+//				dobj.put(year, count);
+//				dm.get(timeTaken).add(dobj);
+//			}
+//
+//
+//			List sorrtedYearList = new ArrayList(uniqYears);
+//			Collections.sort(sorrtedYearList);
+//
+//			Map<String, List<Integer>> timeVallist = new HashMap<>();
+//
+//			//System.out.println(sorrtedYearList);
+//
+//			Iterator it = dm.entrySet().iterator();
+//			while (it.hasNext()) {
+//				Map.Entry pair = (Map.Entry) it.next();
+//				String timeTaken2 = pair.getKey().toString();
+//
+//				List<String> thisYlist = new ArrayList<>();
+//
+//				List<Map<String, Integer>> yc = (ArrayList<Map<String, Integer>>) pair.getValue();
+//				for (Map<String, Integer> yco : yc) {
+//					thisYlist.add(yco.keySet().toArray()[0].toString());
+//				}
+//
+//				ArrayList missingYears = (java.util.ArrayList) CollectionUtils.disjunction(sorrtedYearList, new ArrayList(thisYlist));
+//
+//				for (Object my : missingYears) {
+//					Map<String, Integer> ob = new HashMap<>();
+//					ob.put(my.toString(), 0);
+//					dm.get(timeTaken2).add(ob);
+//
+//					//System.out.println(timeTaken2 + " ----- missing year: " + my + " ====> " + dm.get(timeTaken2));
+//				}
+//
+//				List<Integer> counts = new ArrayList<>();
+//
+//				for (Object year : sorrtedYearList) {
+//					//System.out.println("doing " + year.toString());
+//
+//					for (Map<String, Integer> ob : dm.get(timeTaken2)) {
+//						String yr = ob.keySet().toArray()[0].toString();
+//						if (yr.equals(year)) {
+//							counts.add(ob.get(yr));
+//							break;
+//						}
+//					}
+//				}
+//
+//				timeVallist.put(timeTaken2, counts); // counts ordered by year
+//				//System.out.println(timeTaken2 + " --> " + counts);
+//
+//				it.remove(); // avoids a ConcurrentModificationException
+//			}
+//
+//			dataJson.put("years", sorrtedYearList);
+//			dataJson.put("monthlyPaperIncreaseByYearOfPublication", timeVallist);
 
-			JSONObject dj = new JSONObject();
+//			//--------------------------------------
+//			// bar chart: datasource by year
+//			//--------------------------------------
+//			String query2 = "select curdate() as date, " +
+//					"left(date_of_publication,4) as year, " +
+//					"datasource, count(*) as count " +
+//					"from allele_ref where falsepositive='no' " +
+//					"group by left(date_of_publication,4), datasource";
+//
+//			Map<String, List<Map<String, Integer>>> dm2 = new HashMap<>();
+//
+//			PreparedStatement p2 = conn.prepareStatement(query2);
+//			ResultSet resultSet2 = p2.executeQuery();
+//
+//			Map<String, Map<String, Datasource>> dby = new HashMap<>();
+//
+//			while (resultSet2.next()) {
+//				String timeTaken = resultSet2.getString("date");
+//				String year = resultSet2.getString("year");
+//				String ds = resultSet2.getString("datasource");
+//				Integer count = resultSet2.getInt("count");
+//
+//				if (!dby.containsKey(timeTaken)) {
+//					dby.put(timeTaken, new HashMap<String, Datasource>());
+//				}
+//				if (!dby.get(timeTaken).containsKey(year)) {
+//					Datasource dso = new Datasource();
+//					dby.get(timeTaken).put(year, dso);
+//				}
+//				Datasource dso = dby.get(timeTaken).get(year);
+//
+//				if (ds.equals(MOUSEMiNE)) {
+//					dso.setMousemine(count);
+//				} else if (ds.equals(MANUAL)) {
+//					dso.setManual(count);
+//				} else if (ds.equals(EUROPUBMED)) {
+//					dso.setEuropubmed(count);
+//				}
+//			}
+//
+//			// String: timeTaken, String: datasource, List<Integer>: [data points across the years]
+//			Map<String, Map<String, List<Integer>>> dsby = new HashMap<>();
+//
+//			// put counts by year and datasource in order
+//			Iterator it2 = dby.entrySet().iterator();
+//			while (it2.hasNext()) {
+//
+//				Map.Entry pair = (Map.Entry) it2.next();
+//				String timeTaken2 = pair.getKey().toString();
+//
+//				Map<String, List<Integer>> barDs = new HashMap<>();
+//				barDs.put(MOUSEMiNE, new ArrayList<Integer>());
+//				barDs.put(MANUAL, new ArrayList<Integer>());
+//				barDs.put(EUROPUBMED, new ArrayList<Integer>());
+//
+//				Map<String, Datasource> yds = (Map<String, Datasource>) pair.getValue();
+//
+//				List<Integer> yrc = new ArrayList<>();
+//				for (Object yr : sorrtedYearList) {
+//					String year = yr.toString();
+//					if (dby.get(timeTaken2).containsKey(year)) {
+//						Datasource ds = dby.get(timeTaken2).get(year);
+//
+//						barDs.get(MOUSEMiNE).add(ds.getMousemine());
+//						barDs.get(MANUAL).add(ds.getManual());
+//						barDs.get(EUROPUBMED).add(ds.getEuropubmed());
+//					} else {
+//						barDs.get(MOUSEMiNE).add(0);
+//						barDs.get(MANUAL).add(0);
+//						barDs.get(EUROPUBMED).add(0);
+//					}
+//				}
+//
+//				dsby.put(timeTaken2, barDs);
+//			}
+//
+//			//System.out.println("datasourceByYear" + dsby.toString());
+//			dataJson.put("datasourceByYear", dsby);
 
-			while (resultSet.next()) {
-				String timeTaken = resultSet.getString("date");
-				String year = resultSet.getString("year");
-				int count = resultSet.getInt("count");
+			//--------------------------------------------
+			// bar chart: weekly increments by datasource
+			//--------------------------------------------
+//			String querySum = "select date, datasource, sum(count) as sum " +
+//					"from datasource_by_year_weekly_increase " +
+//					"where date > '2017-02-09' " +  // where we started to collect weekly data
+//					"group by date, datasource order by date desc";
+//
+//			PreparedStatement p4 = conn.prepareStatement(querySum);
+//			ResultSet resultSet4 = p4.executeQuery();
+//
+//			// String: datasource, String: date, Integer: sum count
+//			Map<String, Map<String, Integer>> dsSum = new HashMap<>();
+//			//Map<String, List<Object>> increment = new HashMap<>();
+//
+//			LinkedHashSet<String> dates = new LinkedHashSet<>();
+//			while (resultSet4.next()) {
+//				String date = resultSet4.getString("date");
+//				String ds = resultSet4.getString("datasource");
+//				Integer sum = resultSet4.getInt("sum");
+//
+//				dates.add(date);
+//
+//				if ( ! dsSum.containsKey(ds)) {
+//					dsSum.put(ds, new HashMap<String, Integer>());
+//				}
+//				dsSum.get(ds).put(date, sum);
+//			}
+//
+//			Map<String, Map<String, List<Integer>>> ddc = new HashMap<>();
+//			List<String> dsnames = new ArrayList<>(Arrays.asList(MOUSEMiNE, EUROPUBMED, MANUAL));
+//			for (String date : dates){
+//				for (String dsname : dsnames){
+//					int sum = 0;
+//					if (dsSum.containsKey(dsname)) {
+//						if ( dsSum.get(dsname).containsKey(date)) {
+//							sum = dsSum.get(dsname).get(date);
+//						}
+//					}
+//					if ( !ddc.containsKey(date)){
+//						ddc.put(date, new HashMap<String, List<Integer>>());
+//					}
+//
+//					if ( ! ddc.get(date).containsKey(dsname)){
+//						List<Integer> listCount = new ArrayList<>();
+//						listCount.add(sum);
+//						ddc.get(date).put(dsname, listCount);
+//					}
+//					else {
+//						ddc.get(date).get(dsname).add(sum);
+//					}
+//				}
+//			}
+//
+//			//System.out.println("ddc: "+ ddc);
+//			dataJson.put("datasourceWeeklyIncrement", ddc);
 
-				uniqYears.add(year);
 
-				if (!dm.containsKey(timeTaken)) {
-					dm.put(timeTaken, new ArrayList<Map<String, Integer>>());
-				}
-				Map<String, Integer> dobj = new HashMap<>();
-				dobj.put(year, count);
-				dm.get(timeTaken).add(dobj);
-			}
-
-
-			List sorrtedYearList = new ArrayList(uniqYears);
-			Collections.sort(sorrtedYearList);
-
-			Map<String, List<Integer>> timeVallist = new HashMap<>();
-
-			//System.out.println(sorrtedYearList);
-
-			Iterator it = dm.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry pair = (Map.Entry) it.next();
-				String timeTaken2 = pair.getKey().toString();
-
-				List<String> thisYlist = new ArrayList<>();
-
-				List<Map<String, Integer>> yc = (ArrayList<Map<String, Integer>>) pair.getValue();
-				for (Map<String, Integer> yco : yc) {
-					thisYlist.add(yco.keySet().toArray()[0].toString());
-				}
-
-				ArrayList missingYears = (java.util.ArrayList) CollectionUtils.disjunction(sorrtedYearList, new ArrayList(thisYlist));
-
-				for (Object my : missingYears) {
-					Map<String, Integer> ob = new HashMap<>();
-					ob.put(my.toString(), 0);
-					dm.get(timeTaken2).add(ob);
-
-					//System.out.println(timeTaken2 + " ----- missing year: " + my + " ====> " + dm.get(timeTaken2));
-				}
-
-				List<Integer> counts = new ArrayList<>();
-
-				for (Object year : sorrtedYearList) {
-					//System.out.println("doing " + year.toString());
-
-					for (Map<String, Integer> ob : dm.get(timeTaken2)) {
-						String yr = ob.keySet().toArray()[0].toString();
-						if (yr.equals(year)) {
-							counts.add(ob.get(yr));
-							break;
-						}
-					}
-				}
-
-				timeVallist.put(timeTaken2, counts); // counts ordered by year
-				//System.out.println(timeTaken2 + " --> " + counts);
-
-				it.remove(); // avoids a ConcurrentModificationException
-			}
-
-			dataJson.put("years", sorrtedYearList);
-			dataJson.put("monthlyPaperIncreaseByYearOfPublication", timeVallist);
-
-			//--------------------------------------
-			// bar chart: datasource by year
-			//--------------------------------------
-			String query2 = "select curdate() as date, " +
-					"left(date_of_publication,4) as year, " +
-					"datasource, count(*) as count " +
-					"from allele_ref where falsepositive='no' " +
-					"group by left(date_of_publication,4), datasource";
-
-			Map<String, List<Map<String, Integer>>> dm2 = new HashMap<>();
-
-			PreparedStatement p2 = conn.prepareStatement(query2);
-			ResultSet resultSet2 = p2.executeQuery();
-
-			Map<String, Map<String, Datasource>> dby = new HashMap<>();
-
-			while (resultSet2.next()) {
-				String timeTaken = resultSet2.getString("date");
-				String year = resultSet2.getString("year");
-				String ds = resultSet2.getString("datasource");
-				Integer count = resultSet2.getInt("count");
-
-				if (!dby.containsKey(timeTaken)) {
-					dby.put(timeTaken, new HashMap<String, Datasource>());
-				}
-				if (!dby.get(timeTaken).containsKey(year)) {
-					Datasource dso = new Datasource();
-					dby.get(timeTaken).put(year, dso);
-				}
-				Datasource dso = dby.get(timeTaken).get(year);
-
-				if (ds.equals(MOUSEMiNE)) {
-					dso.setMousemine(count);
-				} else if (ds.equals(MANUAL)) {
-					dso.setManual(count);
-				} else if (ds.equals(EUROPUBMED)) {
-					dso.setEuropubmed(count);
-				}
-			}
-
-			// String: timeTaken, String: datasource, List<Integer>: [data points across the years]
-			Map<String, Map<String, List<Integer>>> dsby = new HashMap<>();
-
-			// put counts by year and datasource in order
-			Iterator it2 = dby.entrySet().iterator();
-			while (it2.hasNext()) {
-
-				Map.Entry pair = (Map.Entry) it2.next();
-				String timeTaken2 = pair.getKey().toString();
-
-				Map<String, List<Integer>> barDs = new HashMap<>();
-				barDs.put(MOUSEMiNE, new ArrayList<Integer>());
-				barDs.put(MANUAL, new ArrayList<Integer>());
-				barDs.put(EUROPUBMED, new ArrayList<Integer>());
-
-				Map<String, Datasource> yds = (Map<String, Datasource>) pair.getValue();
-
-				List<Integer> yrc = new ArrayList<>();
-				for (Object yr : sorrtedYearList) {
-					String year = yr.toString();
-					if (dby.get(timeTaken2).containsKey(year)) {
-						Datasource ds = dby.get(timeTaken2).get(year);
-
-						barDs.get(MOUSEMiNE).add(ds.getMousemine());
-						barDs.get(MANUAL).add(ds.getManual());
-						barDs.get(EUROPUBMED).add(ds.getEuropubmed());
-					} else {
-						barDs.get(MOUSEMiNE).add(0);
-						barDs.get(MANUAL).add(0);
-						barDs.get(EUROPUBMED).add(0);
-					}
-				}
-
-				dsby.put(timeTaken2, barDs);
-			}
-
-			//System.out.println("datasourceByYear" + dsby.toString());
-			dataJson.put("datasourceByYear", dsby);
-
-			//---------------------------------
-			// bar chart: weekly increments
-			//---------------------------------
-			String querySum = "select date, datasource, sum(count) as sum " +
-					"from datasource_by_year_weekly_increase " +
-					"where date > '2017-02-09' " +  // where we started to collect weekly data
-					"group by date, datasource order by date desc";
-
-			PreparedStatement p4 = conn.prepareStatement(querySum);
-			ResultSet resultSet4 = p4.executeQuery();
-
-			// String: datasource, String: date, Integer: sum count
-			Map<String, Map<String, Integer>> dsSum = new HashMap<>();
-			//Map<String, List<Object>> increment = new HashMap<>();
-
-			LinkedHashSet<String> dates = new LinkedHashSet<>();
-			while (resultSet4.next()) {
-				String date = resultSet4.getString("date");
-				String ds = resultSet4.getString("datasource");
-				Integer sum = resultSet4.getInt("sum");
-
-				dates.add(date);
-
-				if ( ! dsSum.containsKey(ds)) {
-					dsSum.put(ds, new HashMap<String, Integer>());
-				}
-				dsSum.get(ds).put(date, sum);
-			}
-
-			Map<String, Map<String, List<Integer>>> ddc = new HashMap<>();
-			List<String> dsnames = new ArrayList<>(Arrays.asList(MOUSEMiNE, EUROPUBMED, MANUAL));
-			for (String date : dates){
-				for (String dsname : dsnames){
-					int sum = 0;
-					if (dsSum.containsKey(dsname)) {
-						if ( dsSum.get(dsname).containsKey(date)) {
-							sum = dsSum.get(dsname).get(date);
-						}
-					}
-					if ( !ddc.containsKey(date)){
-						ddc.put(date, new HashMap<String, List<Integer>>());
-					}
-
-					if ( ! ddc.get(date).containsKey(dsname)){
-						List<Integer> listCount = new ArrayList<>();
-						listCount.add(sum);
-						ddc.get(date).put(dsname, listCount);
-					}
-					else {
-						ddc.get(date).get(dsname).add(sum);
-					}
-				}
-			}
-
-			//System.out.println("ddc: "+ ddc);
-			dataJson.put("datasourceWeeklyIncrement", ddc);
 
 			//-----------------------------------------------
 			// pie chart: current datasource distribution
 			//-----------------------------------------------
-			String query3 = "select datasource, count(*) as count from allele_ref where falsepositive = 'no'  group by datasource";
-
-			PreparedStatement p3 = conn.prepareStatement(query3);
-			ResultSet resultSet3 = p3.executeQuery();
-
-			Map<String, Integer> pie = new HashMap<>();
-
-			while (resultSet3.next()) {
-				String ds = resultSet3.getString("datasource");
-				Integer count = resultSet3.getInt("count");
-				pie.put(ds, count);
-			}
-
-			dataJson.put("pie", pie);
+//			String query3 = "select datasource, count(*) as count from allele_ref where falsepositive = 'no'  group by datasource";
+//
+//			PreparedStatement p3 = conn.prepareStatement(query3);
+//			ResultSet resultSet3 = p3.executeQuery();
+//
+//			Map<String, Integer> pie = new HashMap<>();
+//
+//			while (resultSet3.next()) {
+//				String ds = resultSet3.getString("datasource");
+//				Integer count = resultSet3.getInt("count");
+//				pie.put(ds, count);
+//			}
+//
+//			dataJson.put("pie", pie);
 
 		}
 		catch (Exception e) {
@@ -807,11 +910,11 @@ public class PaperController {
 					pub.setTitle("");
 				}
 
-				if (r.containsKey("firstPublicationDate")){
-					pub.setDateOfPublication(r.getString("firstPublicationDate"));
-				}
-				else if (r.containsKey("electronicPublicationDate")){
+				if (r.containsKey("electronicPublicationDate")){
 					pub.setDateOfPublication(r.getString("electronicPublicationDate"));
+				}
+				else if (r.containsKey("firstPublicationDate")){
+					pub.setDateOfPublication(r.getString("firstPublicationDate"));
 				}
 				else if (r.containsKey("journalInfo") && r.getJSONObject("journalInfo").containsKey("printPublicationDate")) {
 					pub.setDateOfPublication(r.getJSONObject("journalInfo").getString("printPublicationDate"));
