@@ -26,6 +26,7 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -79,6 +80,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	@Autowired
 	@Qualifier("alleleCore")
 	SolrClient alleleCore;
+
+	@Autowired
+	ImpressService impressService;
 
 	@Autowired
 	@Qualifier("komp2DataSource")
@@ -442,7 +446,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	}
 
 	private List<ImageDTO> populatePhisImages() throws SolrServerException, IOException {
-		List<ImageDTO> phisImages = phisService.getPhenoImageShareImageDTOs(primaryGenesProcedures);
+		List<ImageDTO> phisImages = phisService.getPhenoImageShareImageDTOs(primaryGenesProcedures, impressService);
 		return phisImages;
 	}
 
