@@ -118,7 +118,7 @@
 
 	};
 	// fetch paper data points for highCharts
-    $.fn.fetchAllelePaperDataPointsIncrement = function(chartMonth, chartWeek) {
+    $.fn.fetchAllelePaperDataPointsIncrement = function(chartYearIncrease, chartMonthIncrease, chartQuarter) {
 
         $.ajax({
             'url': baseUrl + '/fetchPaperStats',
@@ -127,152 +127,203 @@
             'success': function (jsonstr) {
                 var j = JSON.parse(jsonstr);
 
+                console.log(j)
                 var colorCode = {mousemine: "#8B668B", manual: "#CDB7B5", europubmed: "#BABABA"};
-                var wkseries = [];
 
-                // weekly increase of papers in bar chart
-				var timepoints = [];
-				var mousemineCount = [];
-				var manualCount = [];
-				var europubCount = [];
-                var dsCount = {"mousemine": mousemineCount, "manual": manualCount, "europubmed": europubCount};
-                Object.keys(j.datasourceWeeklyIncrement).sort().reverse().forEach(function (timepoint, index) {
-                	timepoints.push(timepoint);
-
-                    Object.keys(j.datasourceWeeklyIncrement[timepoint]).sort().reverse().forEach(function (dsname, index) {
-                    	var count = j.datasourceWeeklyIncrement[timepoint][dsname];
-                        dsCount[dsname].push(count);
-                    });
+                // yearly paper increase over the years (accumulated)
+                var yearSeries = [];
+                var cat = [];
+                var dp = [];
+                var tc = {};
+                tc.type = 'line';
+                tc.name = 'year';
+                tc.showInLegend = false;
+                    Object.keys(j.yearlyIncrease).sort().forEach(function (year, index) {
+                    dp.push(j.yearlyIncrease[year]);
+                    cat.push(year);
+                    // tc.color = Highcharts.getOptions().colors[3];
                 });
+                tc.data = dp;
+                yearSeries.push(tc);
 
-                for(var dsname in dsCount){
-                	var o = {};
-                	o.name = dsname;
-                	o.data = dsCount[dsname];
-                	//o.pointWidth = 5;
-                	o.color = colorCode[dsname];
-                	wkseries.push(o);
-                }
-
-                Highcharts.chart(chartWeek, {
-                    chart: {
-                        type: 'bar',
-                        inverted: true
+                Highcharts.chart(chartYearIncrease, {
+                    title: {
+                        text: 'Yearly increase of IKMC/IMPC related papers',
+                        x: -20 //center
+                    },
+                    subtitle: {
+                        text: '',
+                        x: -20
+                    },
+                    xAxis: {
+                        categories: cat
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'number of papers'
+                        }
+                        // plotLines: [{
+                        //     value: 0,
+                        //     width: 1,
+                        //     color: '#808080'
+                        // }]
+                    },
+                    tooltip: {
+                        valueSuffix: ''
                     },
                     credits: {
                         enabled: false
                     },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: yearSeries
+                });
+
+                // weekly increase of papers in bar chart
+                var wkseries = [];
+				var timepoints = [];
+				var dp = [];
+				var o = {};
+				o.name = "";
+                Object.keys(j.paperMonthlyIncrement).sort().forEach(function (date, index) {
+                	timepoints.push(date);
+                    dp.push(j.paperMonthlyIncrement[date]);
+                });
+                o.data = dp;
+                wkseries.push(o);
+
+                Highcharts.chart(chartMonthIncrease, {
+                    chart: {
+                        type: 'column'
+                    },
                     title: {
-                        text: 'Weekly addition of curated papers separated by datasources'
+                        text: 'Monthly increase of IKMC/IMPC related papers'
                     },
                     subtitle: {
-                        style: {
-                            position: 'absolute',
-                            right: '0px',
-                            bottom: '10px'
-                        }
-                    },
-                    legend: {
-                        // layout: 'vertical',
-                        // align: 'right',
-                        // verticalAlign: 'top',
-                        // x: -10,
-                        // y: 30,
-                        // floating: true,
-                        borderWidth: 1,
-                        //backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+                        text: ''
                     },
                     xAxis: {
                         categories: timepoints,
-                        alternateGridColor: '#F2F2F2'
+                        title :{
+                            text: 'Timeline'
+                        }
                     },
                     yAxis: {
+                        min: 0,
                         title: {
                             text: 'Number of papers'
                         },
                         labels: {
-                            formatter: function () {
-                                return this.value;
-                            }
-                        },
-                        min: 0
+                            overflow: 'justify'
+                        }
+                    },
+                    tooltip: {
+                        valueSuffix: ''
                     },
                     plotOptions: {
-                        area: {
-                            fillOpacity: 0.5
+                        column: {
+                            dataLabels: {
+                                enabled: true
+                            }
                         },
                         series: {
                             pointWidth: 5,
-                           // groupPadding: 0
+                            groupPadding: 0
                         }
                     },
-                    series: wkseries
-                });
-
-                // monthly increase of paper in line chart
-                // papers by year in line chart
-
-                var mseries = [];
-                Object.keys(j.monthlyPaperIncreaseByYearOfPublication).sort().reverse().forEach(function(timepoint,index){
-                    var tc = {};
-                    // tc.type: 'spline';
-                    tc.type = 'line';
-                    tc.name = timepoint;
-                    tc.data = j.monthlyPaperIncreaseByYearOfPublication[timepoint];
-                    // tc.color = Highcharts.getOptions().colors[3];
-                    mseries.push(tc);
-                });
-
-                var xStart = parseInt(j.years[0]);
-
-                Highcharts.chart(chartMonth, {
-                    chart: {
-                        zoomType: "x"
+                    legend: {
+                        enabled: false
                     },
                     credits: {
                         enabled: false
                     },
+                    series: wkseries
+                });
+
+                // chart quarter by year of publication
+                var yearSeriesData = [];
+                var drillDownSeriesData = [];
+                var total = 0;
+                Object.keys(j.yearQuarterSum).sort().forEach(function(year, index) {
+                    var yo = {};
+                    var qo = {};
+                    qo.name = year;
+                    qo.id = year;
+                    qo.data = [];
+                    var sum = 0;
+                    Object.keys(j.yearQuarterSum[year]).sort().forEach(function(quarter, index) {
+                        var qc = [];
+                        var quarterCnt = j.yearQuarterSum[year][quarter];
+                        sum += quarterCnt;
+                        total += quarterCnt;
+                        qc.push(quarter);
+                        qc.push(quarterCnt)
+                        qo.data.push(qc);
+                    });
+                    drillDownSeriesData.push(qo);
+
+                    yo.name = year;
+                    yo.y = sum;
+                    yo.drilldown = year;
+                    yearSeriesData.push(yo);
+                });
+
+                Highcharts.chart(chartQuarter, {
+                    chart: {
+                        type: 'column'
+                    },
                     title: {
-                        text: 'Monthly increase of IMPC related papers by year of publication'
+                        text: 'IKMC/IMPC related papers by year of publication'
                     },
                     subtitle: {
-                        text: 'Datasources: Mousemine, Europubmed, manual curation'
+                        text: 'Click the year columns for quarterly breakdown'
+                    },
+                    xAxis: {
+                        type: 'category'
                     },
                     yAxis: {
                         title: {
                             text: 'Number of papers'
                         }
+
                     },
-                    // xAxis: {
-                    //     categories: ['2007', '2008', '2009', '2010', '2011']
-                    // },
                     legend: {
-                        layout: 'vertical',
-                        align: 'right',
-                        verticalAlign: 'middle'
-                        // enabled: false
+                        enabled: false
                     },
                     plotOptions: {
-                        series :{
-                            pointStart: xStart
-                        },
-                        line: {
-                            series: {
-                                cursor: 'pointer',
-                                point: {
-                                    events: {
-                                        click: function () {
-                                            alert('Category: ' + this.category + ', value: ' + this.y);
-                                        }
-                                    }
+                        series: {
+                            borderWidth: 0,
+                            pointWidth: 20,
+                            dataLabels: {
+                                enabled: true,
+                                //format: '{point.y}',
+                                formatter:function() {
+                                    var pcnt = (this.y / total) * 100;
+                                    return Highcharts.numberFormat(pcnt) + '%';
                                 }
                             }
                         }
-
                     },
-                    series: mseries
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + total + '<br/>'
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'year column',
+                        colorByPoint: true,
+                        data : yearSeriesData
+                     }],
+                    drilldown: {
+                        series : drillDownSeriesData
+                    }
                 });
-
             }
         });
     }
