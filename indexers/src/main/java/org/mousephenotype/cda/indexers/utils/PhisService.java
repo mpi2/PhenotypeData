@@ -10,9 +10,13 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.PChannelDTO;
 import org.mousephenotype.cda.indexers.beans.PImageDTO;
 import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,15 +24,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Component
 public class PhisService {
 
-	
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
-	
+	ImpressService impressService;
+
 	HttpSolrClient phisSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/images/");
     HttpSolrClient phisChannelSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/channels/");
 
-	public List<ImageDTO> getPhenoImageShareImageDTOs(Map<String, Set<String>> primaryGenesProcedures) throws SolrServerException, IOException {
+	public List<ImageDTO> getPhenoImageShareImageDTOs(Map<String, Set<String>> primaryGenesProcedures, ImpressService impressService) throws SolrServerException, IOException {
+
+		this.impressService = impressService;
 
 		List<PImageDTO> phisImages = new ArrayList<>();
 		SolrQuery q = new SolrQuery();
@@ -130,43 +137,13 @@ public class PhisService {
 				image.setPipelineStableId(pImage.getPipeline());
 			}
 
-			if(pImage.getProcedure()!=null){
-				if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
-					image.setProcedureStableId(pImage.getProcedure());
-				} else { // text name of procedure; procedure not in IMPRESS
-					image.setProcedureStableId(pImage.getProcedure().trim().replaceAll(" ", "_"));
-					image.setProcedureName(pImage.getProcedure().trim());
-				}
-			}
+			ImpressBaseDTO procedure = getImpressLikeProcedureIds(pImage.getProcedure(), pImage.getObservations());
+			image.setProcedureStableId(procedure.getStableId());
+			image.setProcedureName(procedure.getName());
 
-			//observations seem to contain the procedure name - loop over these and see if they have procedure at the start and if so add them to procedure name (or get it from our impress? how generic can we be?)
-			if(pImage.getObservations().size()>=1){
-				for(String obs: pImage.getObservations()){
-					if(obs.startsWith("Procedure name: ")){
-						String procedureName=obs.substring(obs.indexOf(": ")+2, obs.length() );
-						image.setProcedureName(procedureName);
-					}
-				}
-			}
-
-			if(pImage.getParameter()!=null){
-				if (pImage.getParameter().contains("_")) {
-					image.setParameterStableId(pImage.getParameter());
-				} else {
-					image.setParameterStableId(pImage.getParameter().trim().replaceAll(" ", "_"));
-					image.setParameterName(pImage.getParameter());
-				}
-			} else {
-				// We need a parameter id so we'll put the procedure - closest infor to a parameter we have.
-				if(pImage.getProcedure()!=null){
-					if (pImage.getProcedure().contains("_")) { // is  IMPRESS id
-						image.setParameterStableId("NULL_" + pImage.getProcedure());
-					} else { // text name of procedure; procedure not in IMPRESS
-						image.setParameterStableId("NULL_" + pImage.getProcedure().trim().replaceAll(" ", "_"));
-						image.setProcedureName(pImage.getProcedure().trim());
-					}
-				}
-			}
+			ImpressBaseDTO parameter = getImpressLikeParameterIds(pImage.getParameter(), procedure);
+			image.setParameterStableId(parameter.getStableId());
+			image.setParameterName(parameter.getName());
 
 			// Now that we have the gene and procedure information check if we want to load this image. If we have images from the same procedure  for the same gene from Harwell, we want to keep those.
 			if (primaryGenesProcedures.containsKey(image.getGeneSymbol())&& primaryGenesProcedures.get(image.getGeneSymbol()).contains(image.getProcedureName().toLowerCase().replaceAll("[ _-]", ""))){
@@ -223,7 +200,6 @@ public class PhisService {
 				image.setGroup(BiologicalSampleType.control.toString());
 			}
 
-
 			if(pImage.getSex()!=null){
 				String sex=pImage.getSex();
 				SexType assignedSex=SexType.no_data;
@@ -273,6 +249,76 @@ public class PhisService {
 		}
 
 		return images;
-
 	}
+
+
+	private ImpressBaseDTO getImpressLikeParameterIds(String parameter, ImpressBaseDTO procedure){
+
+		ImpressBaseDTO res =  new ImpressBaseDTO();
+		if (parameter != null){
+			if (parameter.contains("_")) {
+				res.setStableId(parameter);
+				try {
+					ParameterDTO param = impressService.getParameterByStableId(parameter);
+					if (param != null){
+						res.setName(param.getName());
+					}
+				} catch (SolrServerException | IOException e) {
+					logger.warn("No netry found for IMPRES id " + parameter);
+					e.printStackTrace();
+				}
+			} else {
+				res.setStableId(procedure.getStableId() + "_param");
+				res.setName(parameter);
+			}
+		} else {
+			// We need a parameter id so we'll put the procedure - closest infor to a parameter we have.
+			res.setStableId(procedure.getStableId() + "_param");
+			res.setName(procedure.getName());
+		}
+		return res;
+	}
+
+
+	private ImpressBaseDTO getImpressLikeProcedureIds(String procedure, List<String> observation){
+		// PhIS has only 1 field for procedure. If there is an IMPRESS procedure that maps well, it will contain the stable id, otherwise it has the name from the original source.
+		// The observation field is free text and can contain a procedure name "Procedure: ______"
+		ImpressBaseDTO res = new ImpressBaseDTO();
+		if (procedure.contains("_")){ // IMPRESS stable id
+			res.setStableId(procedure.trim());
+		} else {
+			// we need to fabricate a PHIS-style id.
+			String stableId = "PhIS_";
+			if (procedure.trim().equalsIgnoreCase("Wholemount Expression")){
+				stableId += "ALZ_";
+				res.setName("Adult LacZ"); // we need the same name so they group together in the UI
+			} else if (procedure.trim().equalsIgnoreCase("Xray")){
+				stableId += "XRY_";
+				res.setName("X-ray");
+			} else if (procedure.trim().equalsIgnoreCase("Histology Slide")){ // Checked with Nat, we want to collapse this with histopathology
+				stableId += "HIS_";
+				res.setName("Histopathology");
+			}else if (procedure.trim().equalsIgnoreCase("Dysmorphology")){
+				stableId += "CSD_";
+				res.setName("Combined SHIRPA and Dysmorphology");
+			}
+			stableId += procedure.trim().replaceAll(" ", "_");
+			res.setStableId(stableId);
+		}
+
+		if (res.getName() == null){
+			if (!procedure.contains("_")){
+				res.setName(procedure.trim());
+			} else {
+				if(observation != null){
+					observation.stream().filter(item -> { return !item.contains("Procedure name: ");});
+					if (observation.size() > 0) {
+						res.setName(observation.get(0).trim().replace("Procedure name: ", ""));
+					}
+				} else res.setName(procedure);
+			}
+		}
+		return res;
+	}
+
 }
