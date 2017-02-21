@@ -18,6 +18,7 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.reports.support.LoadValidateExperimentsQuery;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
@@ -41,8 +42,9 @@ import java.util.List;
 @Component
 public class LoadValidateCdaExperimentReport extends AbstractReport {
 
-    private Logger   logger   = LoggerFactory.getLogger(this.getClass());
+    private Logger                       logger   = LoggerFactory.getLogger(this.getClass());
     private LoadValidateExperimentsQuery loadValidateExperimentsQuery;
+    private SqlUtils                     sqlUtils = new SqlUtils();
 
     @Autowired
     @NotNull
@@ -82,12 +84,12 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-//        try {
-//            String db1Name = jdbc1.getJdbcOperations().getDataSource().getConnection().getCatalog();
-//            String db2Name = jdbcCurrent.getDataSource().getConnection().getCatalog();
-//            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
-//
-//        } catch (Exception e) { }
+        try {
+            String db1Name = sqlUtils.getDatabaseName(jdbc1);
+            String db2Name = sqlUtils.getDatabaseName(jdbc2);
+            logger.info("VALIDATION STARTED AGAINST DATABASES {} AND {}", db1Name, db2Name);
+
+        } catch (Exception e) { }
 
         loadValidateExperimentsQuery.execute();
 
