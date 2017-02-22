@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 
@@ -131,6 +132,16 @@ public class ReportsConfig {
    	public JdbcTemplate jdbcCdaCurrent() {
    		return new JdbcTemplate(cdaCurrent());
    	}
+
+   	@Bean(name = "jdbcCda1")
+	public NamedParameterJdbcTemplate jdbcCda1() {
+    	return new NamedParameterJdbcTemplate(cdaPrevious());
+	}
+
+	@Bean(name = "jdbcCda2")
+	public NamedParameterJdbcTemplate jdbcCda2() {
+		return new NamedParameterJdbcTemplate(cdaCurrent());
+}
 
 
 

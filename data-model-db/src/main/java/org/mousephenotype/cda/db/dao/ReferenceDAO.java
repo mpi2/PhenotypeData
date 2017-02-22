@@ -130,85 +130,88 @@ public class ReferenceDAO {
         String notInClause = (pmidsToOmit.isEmpty() ? "" : "  AND pmid NOT IN (" + pmidsToOmit + ")\n");
         String searchClause = "";
 
-        int colCount = 0;
-
         if ( ! filter.isEmpty()) {
-            if ( filter.contains("|")){
-                searchClause =
-                        "  AND (\n"
-                                + "(title LIKE ? or title LIKE ?)\n"
-                                + " OR (mesh LIKE ? OR mesh LIKE ?))\n";
-                colCount = 4;
+            int occurrence = findOccurrenceOfSubstr(filter, "|");
+            int loop = occurrence + 1;
+
+            List<String> cols = new ArrayList<>(Arrays.asList("title", "mesh"));
+            List<String> titleLikes = new ArrayList<>();
+            List<String> meshLikes = new ArrayList<>();
+            for( int oc=0; oc< loop; oc++){
+                for (String col : cols){
+                    if (col.equals("title")){
+                        titleLikes.add(col + " LIKE ? ");
+                    }
+                    else {
+                        meshLikes.add(col + " LIKE ? ");
+                    }
+                }
             }
-            else {
-                colCount = 2;
-                searchClause =
-                        "  AND (\n"
-                                + "     title               LIKE ?\n"
-                                + " OR mesh                LIKE ?)\n";
-            }
+
+            searchClause =
+                    "  AND (\n"
+                    + "(" + StringUtils.join(titleLikes, " OR ") +")\n"
+                    + " OR (" +  StringUtils.join(meshLikes, " OR ") + "))\n";
         }
 
         String whereClause =
-                "WHERE\n"
-                        + " reviewed = 'yes'\n"
-                        + " AND falsepositive = 'no'"
-                        + " AND symbol != ''\n"
+            "WHERE\n"
+                    + " reviewed = 'yes'\n"
+                    + " AND falsepositive = 'no'"
+                    + " AND symbol != ''\n"
 
-                        // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
-                        // + " AND gacc != ''\n"
-                        // + " AND acc != ''\n"
-                        + notInClause
-                        + searchClause;
+                    // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
+                    // + " AND gacc != ''\n"
+                    // + " AND acc != ''\n"
+                    + notInClause
+                    + searchClause;
 
         //    + " AND pmid=24652767 "; // for test
         String query =
-                "SELECT\n"
-                        + "  symbol AS alleleSymbols\n"
-                        + ", acc AS alleleAccessionIds\n"
-                        + ", gacc AS geneAccessionIds\n"
-                        + ", name AS alleleNames\n"
+            "SELECT\n"
+                    + "  symbol AS alleleSymbols\n"
+                    + ", acc AS alleleAccessionIds\n"
+                    + ", gacc AS geneAccessionIds\n"
+                    + ", name AS alleleNames\n"
 //              + "  GROUP_CONCAT( symbol    SEPARATOR \"|||\") AS alleleSymbols\n"
 //              + ", GROUP_CONCAT( acc       SEPARATOR \"|||\") AS alleleAccessionIds\n"
 //              + ", GROUP_CONCAT( gacc      SEPARATOR \"|||\") AS geneAccessionIds\n"
 //              + ", GROUP_CONCAT( name      SEPARATOR \"|||\") AS alleleNames\n"
-                        + ", title\n"
-                        + ", journal\n"
-                        + ", pmid\n"
-                        + ", date_of_publication\n"
-                        + ", grant_id AS grantIds\n"
-                        + ", agency AS grantAgencies\n"
-                        + ", paper_url AS paperUrls\n"
-                        + ", mesh\n"
-                        + ", author\n"
-                        + "FROM allele_ref AS ar\n"
-                        + whereClause
-                        //+ "GROUP BY pmid\n"
-                        + "ORDER BY " + orderBy + "\n";
+                    + ", title\n"
+                    + ", journal\n"
+                    + ", pmid\n"
+                    + ", date_of_publication\n"
+                    + ", grant_id AS grantIds\n"
+                    + ", agency AS grantAgencies\n"
+                    + ", paper_url AS paperUrls\n"
+                    + ", mesh\n"
+                    + ", author\n"
+                    + "FROM allele_ref AS ar\n"
+                    + whereClause
+                    //+ "GROUP BY pmid\n"
+                    + "ORDER BY " + orderBy + "\n";
 
-        System.out.println("alleleRef query: " + query);
+        //System.out.println("alleleRef query: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             if ( ! searchClause.isEmpty()) {
                 // Replace the parameter holder ? with the values.
 
-                String like1, like2 = null;
                 if (filter.contains("|")){
-                    String[] fltr = StringUtils.split(filter,"|");
-                    like1 = "%" + fltr[0] + "%";
-                    like2 = "%" + fltr[1] + "%";
-
-                    for (int i = 0; i < colCount; i=i+2) {                                   // If a search clause was specified, load the parameters.
-                        ps.setString(i + 1, like1);
-                        ps.setString(i + 2, like2);
+                    List<String> fltrs = Arrays.asList(StringUtils.split(filter,"|"));
+                    int ctr = 0;
+                    for(String fltr : fltrs){
+                        ctr++;
+                        ps.setString(ctr, "%" + fltr + "%");
+                        ps.setString(ctr+1, "%" + fltr + "%");
+                        ctr++;
                     }
                 }
                 else {
-                    like1 = "%" + filter + "%";
-                    for (int i = 0; i < colCount; i++) {                                   // If a search clause was specified, load the parameters.
-                        ps.setString(i + 1, like1);
-                    }
+                    String like = "%" + filter + "%";
+                    ps.setString(1, like);
+                    ps.setString(2, like);
                 }
             }
 
@@ -254,7 +257,23 @@ public class ReferenceDAO {
         return results;
     }
 
-     public List<ReferenceDTO> getReferenceRows(String filter) throws SQLException {
+    private int findOccurrenceOfSubstr (String str, String substr){
+        int lastIndex = 0;
+        int count = 0;
+
+        while(lastIndex != -1){
+
+            lastIndex = str.indexOf(substr,lastIndex);
+
+            if(lastIndex != -1){
+                count ++;
+                lastIndex += substr.length();
+            }
+        }
+        return count;
+    }
+
+    public List<ReferenceDTO> getReferenceRows(String filter) throws SQLException {
 
     	Connection connection = admintoolsDataSource.getConnection();
     	// need to set max length for group_concat() otherwise some values would get chopped off !!
