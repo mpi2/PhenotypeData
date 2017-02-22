@@ -154,7 +154,7 @@
             <div class="block">
                 <div class='content'>
                     <div class="node node-gene">
-                        <h1 class="title" id="top">Publications using IKMC and IMPC resources</h1>
+                        <h1 class="title" id="top">IKMC/IMPC related publications</h1>
 
                         <div class="section">
                             <div class="inner">
@@ -162,8 +162,8 @@
 
                                 <div id="tabs">
                                     <ul>
-                                        <li><a href="#tabs-1">Browse paper</a></li>
-                                        <li><a href="#tabs-2">View paper by graphs</a></li>
+                                        <li><a href="#tabs-1">Browse publication</a></li>
+                                        <li><a href="#tabs-2">Publication stats</a></li>
                                     </ul>
                                     <div id="tabs-1">
                                         <!-- container to display dataTable -->
