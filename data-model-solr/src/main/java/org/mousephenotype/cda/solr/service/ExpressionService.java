@@ -28,7 +28,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -37,8 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-
-import ch.qos.logback.core.net.SyslogOutputStream;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -180,13 +177,13 @@ public class ExpressionService extends BasicService {
 		}
 		if (embryo) {
 			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
+			solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
+			solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
 			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
 		} else {
 			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+			solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
+			solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
 			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
 		}
 
@@ -238,8 +235,8 @@ public class ExpressionService extends BasicService {
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 
 		solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
-		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+		solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
+		solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
 		solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
 		solrQuery.addFilterQuery(ObservationDTO.CATEGORY + ":\"expression\"");// only
 																				// look
@@ -317,8 +314,6 @@ public class ExpressionService extends BasicService {
 	 * @param imagesOverview
 	 *            If true we want some images data/stats added to the model for
 	 *            display in the tabbed pane on the gene page.
-	 * @param model
-	 *            Spring MVC model
 	 * @throws SolrServerException, IOException
 	 * @throws SQLException
 	 */
