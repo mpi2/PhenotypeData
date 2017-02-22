@@ -26,7 +26,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import java.util.*;
 
 /**
- * * This class validates the specified experimentIdList against two databases.
+ * * This class validates the specified experimentIds against two databases.
  * <p>
  * Created by mrelac on 01/02/2017.
  */
@@ -43,7 +43,7 @@ public class LoadValidateExperimentsQuery {
     private String                     dbname1;
     private String                     dbname2;
     List<String>                       emptyExperiment          = new ArrayList<>();
-    private Set<String>                experimentIdList;
+    private List<String>               experimentIds;
     private Set<String>                ignoreAliasSet;
     private Set<Integer>               ignoreColumnIndexSet     = new HashSet<>();
     private NamedParameterJdbcTemplate jdbc1;
@@ -55,7 +55,7 @@ public class LoadValidateExperimentsQuery {
      * matches in type and value in jdbc1 and jdbc2.
      * <p>
      * Any mismatches are written to the cdaWriter, jdbc1 line detail followed by jdbc2 line detail (on the same row
-     * of the spreadsheet). The experimentIdList of any experiments that have no differences are written to the cdaWriter
+     * of the spreadsheet). The experimentIds of any experiments that have no differences are written to the cdaWriter
      * at the bottom of the spreadsheet. In summary, the cdaWriter contains the following after invocation:
      * <ul>
      * <li>{@code headings} the column headings</li>
@@ -67,25 +67,26 @@ public class LoadValidateExperimentsQuery {
      * @param jdbc1          the first {@link NamedParameterJdbcTemplate} instance
      * @param jdbc2          the second {@link NamedParameterJdbcTemplate} instance
      * @param csvWriter      the spreadsheet instance
-     * @param experimentList an optional List&lt;String&gt; containing experimentIdList to be validated
+     * @param experimentIds  an optional List&lt;String&gt; containing experimentIds to be validated
      * @param count          an optional count of the number of experiment ids to randomly generate and validate. This
-     *                       count is above and beyond any experiments in {@code experimentIdList}. The default is 100.
+     *                       count is above and beyond any experiments in {@code experimentIds}. The default is 100.
      * @param ignoreList     an optional List&lt;String&gt; of column aliases whose validation is to be ignored
      */
-    public LoadValidateExperimentsQuery(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, MpCSVWriter csvWriter, Set<String> experimentList, int count, Set<String> ignoreList) {
+    public LoadValidateExperimentsQuery(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, MpCSVWriter csvWriter, List<String> experimentIds, int count, Set<String> ignoreList) {
         this.jdbc1 = jdbc1;
         this.jdbc2 = jdbc2;
         this.csvWriter = csvWriter;
-        this.experimentIdList = experimentList;
+        this.experimentIds = experimentIds;
         this.count = count;
         this.ignoreAliasSet = ignoreList;
     }
+
 
     /**
      * Execute the query for each experimentId. For each experiment row that is not an exact match in both databases,
      * write each row on a single line, highlighting each cell difference using color. If an experiment row is an exact
      * match, save the center and experimentId for subsequent output to the worksheet, after all mismatches, to capture
-     * the center/experimentIdList that were compared and were equal.
+     * the center/experimentIds that were compared and were equal.
      *
      * @return a {@link RunStatus} with a list of errors
      * @throws ReportException
@@ -93,39 +94,13 @@ public class LoadValidateExperimentsQuery {
     public RunStatus execute() throws ReportException {
 
         Map<String, Object> parameterMap      = new HashMap<>();
-        boolean             populateHeadings  = true;
         RunStatus           status            = new RunStatus();
 
         try {
-            dbname1 = sqlUtils.getDatabaseName(jdbc1);
-            dbname2 = sqlUtils.getDatabaseName(jdbc2);
-
-            // Get column headings and populate column lookup maps.
-            SqlRowSet rs1 = jdbc1.queryForRowSet(query + "LIMIT 0\n", parameterMap);
-            for (int i = 0; i < rs1.getMetaData().getColumnCount(); i++) {
-                columnAliases.add(rs1.getMetaData().getColumnLabel(i + 1));                                           // column label indexes are 1-relative.
-            }
-            loadColumnMaps(columnAliases);
-
-            // Write spreadsheet heading
-            writeDbNames();
-            writeHeadings();
-
-            for (int i = 0; i < columnAliases.size(); i++) {                                                            // Populate emptyExperiment.
-                emptyExperiment.add("");
-            }
-
-            // populate the ignoreColumnIndex set.
-            ignoreColumnIndexSet.add(columnIndexesByName.get("observation_id"));                                        // Always ignore the observation_id (primary key).
-            for (String ignoreAlias : ignoreAliasSet) {
-                Integer colIndex = columnIndexesByName.get(ignoreAlias);
-                if (colIndex != null) {
-                    ignoreColumnIndexSet.add(colIndex);
-                }
-            }
+            initialise();
 
             // Validate experiments.
-            for (String experimentId : experimentIdList) {
+            for (String experimentId : experimentIds) {
 
                 parameterMap.put("experimentId", experimentId);
                 List<ExperimentDetail> detailList = queryDetail(jdbc1, jdbc2, query + whereClause + orderByClause, parameterMap);
@@ -144,6 +119,7 @@ public class LoadValidateExperimentsQuery {
 
         return status;
     }
+
 
     private final String query =
             "-- cdaExperimentWithDetail\n" +
@@ -274,12 +250,69 @@ public class LoadValidateExperimentsQuery {
                     "LEFT OUTER JOIN procedure_meta_data             pmdob   ON pmdob    .experiment_id      = e.id AND pmdob.observation_id = ob.id\n";
 
     private final String whereClause = "WHERE e.external_id = :experimentId\n";
+
     private final String orderByClause =
             "ORDER BY e_short_name,e_experiment_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
             "ob_parameter_stable_id,ob_parameter_status,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
             "oob_sequence_id,tob.text,tsob_discrete_point,tsob_data_point,uob_data_point,ob_metadata_combined,ob_metadata_group,\n" +
             "pa_parameter_id,pa_sequence_id,pa_parameter_association_value\n";
 
+
+    // PRIVATE METHODS
+
+
+    private void initialise() {
+
+        dbname1 = sqlUtils.getDatabaseName(jdbc1);
+        dbname2 = sqlUtils.getDatabaseName(jdbc2);
+
+        // Get column headings and populate column lookup maps.
+        SqlRowSet rs1 = jdbc1.queryForRowSet(query + "LIMIT 0\n", new HashMap<>());
+        for (int i = 0; i < rs1.getMetaData().getColumnCount(); i++) {
+            columnAliases.add(rs1.getMetaData().getColumnLabel(i + 1));                                              // column label indexes are 1-relative.
+        }
+        loadColumnMaps(columnAliases);
+
+        // Write spreadsheet heading
+        writeDbNames();
+        writeHeadings();
+
+        for (int i = 0; i < columnAliases.size(); i++) {                                                                // Populate emptyExperiment.
+            emptyExperiment.add("");
+        }
+
+        // populate the ignoreColumnIndex set.
+        ignoreColumnIndexSet.add(columnIndexesByName.get("observation_id"));                                            // Always ignore the observation_id (primary key).
+        for (String ignoreAlias : ignoreAliasSet) {
+            Integer colIndex = columnIndexesByName.get(ignoreAlias);
+            if (colIndex != null) {
+                ignoreColumnIndexSet.add(colIndex);
+            }
+        }
+
+        // If count > 0, select a randomised list of experimentIds.
+        List<String> allExperimentIds = new ArrayList<>();
+        if (count > 0) {
+            SqlRowSet rs = jdbc1.queryForRowSet("SELECT external_id FROM experiment", new HashMap<>());
+            while (rs.next()) {
+                allExperimentIds.add(rs.getString("external_id"));
+            }
+
+            Collections.shuffle(allExperimentIds);                                                                      // Randomise all experimentIds.
+
+            // Remove duplicates and truncate the list as directed by 'count'.
+            allExperimentIds.removeAll(experimentIds);                                                                // Remove any experimentIds already accounted for in experimentIds (to avoid duplicates).
+            allExperimentIds = allExperimentIds.subList(0, count);
+            experimentIds.addAll(allExperimentIds);
+        }
+    }
+
+    private void loadColumnMaps(List<String> columnNames) {
+        for (int i = 0; i < columnNames.size(); i++) {
+            columnIndexesByName.put(columnNames.get(i), i);
+            columnNamesByColumnIndex.put(i, columnNames.get(i));
+        }
+    }
 
     /**
      * Given two {@link NamedParameterJdbcTemplate} instances, a query, and a {@code parameterMap}, executes the query
@@ -351,24 +384,8 @@ public class LoadValidateExperimentsQuery {
         return results;
     }
 
-    private void loadColumnMaps(List<String> columnNames) {
-        for (int i = 0; i < columnNames.size(); i++) {
-            columnIndexesByName.put(columnNames.get(i), i);
-            columnNamesByColumnIndex.put(i, columnNames.get(i));
-        }
-    }
-
     private void writeDbNames() {
         csvWriter.writeNext(new String[] { "Experiment differences between " + dbname1 + " and " + dbname2 });
-    }
-
-    private void writeHeadings() {
-        List<String> row = new ArrayList<>();
-        row.add("e_phenotyping_center");
-        row.add("e_experiment_id");
-        row.add("observation_id");
-
-        csvWriter.writeRow(row);
     }
 
     private void writeDifferences(ExperimentDetail detail) {
@@ -387,6 +404,15 @@ public class LoadValidateExperimentsQuery {
             String db2Value = detail.getRow2().get(detail.getColIndexDifference().get(i));
             row.add(columnName + "::" + db1Value + "::" + db2Value);
         }
+
+        csvWriter.writeRow(row);
+    }
+
+    private void writeHeadings() {
+        List<String> row = new ArrayList<>();
+        row.add("e_phenotyping_center");
+        row.add("e_experiment_id");
+        row.add("observation_id");
 
         csvWriter.writeRow(row);
     }
