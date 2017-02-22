@@ -190,7 +190,7 @@ dataset can be downloaded using the download icon.
                             <h2 class="title">Related papers citing IMPC resources</h2>
                             <div class="inner">
                                 <%--<p>These papers shown have title or MESH terms containing "<span id='kw'></span>".--%>
-                                    <p>These papers shown have title or MESH terms containing "cardio" or "cardia" or "heart".
+                                    <%--<p>These papers shown have title or MESH terms containing "cardio" or "cardia" or "heart".--%>
                                     </p>
                                 <br/> <br/>
                                 <div class="HomepageTable" id="alleleRef"></div>

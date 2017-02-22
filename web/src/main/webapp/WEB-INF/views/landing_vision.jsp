@@ -90,7 +90,7 @@
 
                             <h2 class="title">Related papers citing IMPC resources</h2>
                             <div class="inner">
-                                <p>These papers shown have MESH terms containing "<span id='kw'></span>".
+                                <%--<p>These papers shown have MESH terms containing "<span id='kw'></span>".--%>
                                 </p>
                                 <br/> <br/>
                                 <div class="HomepageTable" id="alleleRef"></div>
@@ -110,7 +110,7 @@
                                         var oConf = {};
                                         oConf.iDisplayLength = 10;
                                         oConf.iDisplayStart = 0;
-                                        oConf.kw = "vision";
+                                        oConf.kw = "vision|eye";
                                         oConf.baseUrl = "${baseUrl}";
                                         oConf.rowFormat = true;
                                         oConf.orderBy = "date_of_publication DESC"; // default
