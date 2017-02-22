@@ -168,7 +168,18 @@
 
                             <a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
 
+									<p>
+									These Venn diagram represent different sets mouse genes potentially associated to cardiovascular diseases using different methodologies. 
+The human curated gene set contains mouse genes orthologs to known genes causing cardiovascular disease in humans. 
+The IMPC phenotype set contains all genes displaying cardiovascular disease phenotypes. 
+Finally the IMPC predicted or MGI predicted set contains predicted mouse gene candidates to cardiovascular diseases based on the phenotypic similarity of the disease clinical symptoms and the mouse phenotype annotations. As stated the source of the mouse model phenotype is either MGI (http://www.informatics.jax.org/) which is a curate mouse models from the literature or IMPC produced mice. The phenotypic similarity is calculated using the PhenoDigm algorithm (link to (https://www.mousephenotype.org/data/documentation/aboutImpc#howdoesimpcwork) developed by the Monarch Initiative which allow integration of data from model organisms to identify gene candidates for human genetic diseases.
+dataset can be downloaded using the download icon.
+
+									</p>
                             </div>
+                            
+                            
+                            
                         </div>
 
                         <div class="section">
