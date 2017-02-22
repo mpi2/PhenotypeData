@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.db.utilities;
 
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -16,6 +17,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 
 
 /**
@@ -24,7 +26,8 @@ import java.util.*;
 @Component
 public class SqlUtils {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger      logger      = LoggerFactory.getLogger(this.getClass());
+    private CommonUtils commonUtils = new CommonUtils();
 
     /**
      * Overloaded helper methods for preparing SQL statement
@@ -126,98 +129,6 @@ public class SqlUtils {
 
 		return found;
 	}
-
-
-    public class ExperimentDetail {
-        private List<String> headings = new ArrayList<>();
-        private List<List<String>> row1 = new ArrayList<>();
-        private List<List<String>> row2 = new ArrayList<>();
-        private List<List<Integer>> differences = new ArrayList<>();
-
-        public List<String> getHeadings() {
-            return headings;
-        }
-
-        public void setHeadings(List<String> headings) {
-            this.headings = headings;
-        }
-
-        public List<List<String>> getRow1() {
-            return row1;
-        }
-
-        public void setRow1(List<List<String>> row1) {
-            this.row1 = row1;
-        }
-
-        public List<List<String>> getRow2() {
-            return row2;
-        }
-
-        public void setRow2(List<List<String>> row2) {
-            this.row2 = row2;
-        }
-
-        public List<List<Integer>> getDifferences() {
-            return differences;
-        }
-
-        public void setDifferences(List<List<Integer>> differences) {
-            this.differences = differences;
-        }
-    }
-    /**
-     * Given two {@link NamedParameterJdbcTemplate} instances, a query, and a {@code parameterMap}, executes the query
-     * against {@code jdbc1}, then against {@code jdbc2}, returning an {@link ExperimentDetail} instance with all
-     * mismatches. If there are no mismatches, all collections in {@link }ExperimentDetail} are empty.
-     *
-     * @param jdbc1 the first {@link NamedParameterJdbcTemplate} instance
-     * @param jdbc2 the second {@link NamedParameterJdbcTemplate} instance
-     * @param query the query to execute against both {@link NamedParameterJdbcTemplate} instances
-     *
-     * @return the set difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
-     *         an empty list is returned.
-     *
-     * @throws Exception
-     */
-    public ExperimentDetail queryDetail(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, String query, Map<String, Object> parameterMap, List<String> headings) throws Exception {
-        ExperimentDetail results = new ExperimentDetail();
-
-        List<List<String>> results1 = new ArrayList<>();
-        SqlRowSet         rs1      = jdbc1.queryForRowSet(query, parameterMap);
-        while (rs1.next()) {
-            results1.add(getData(rs1));
-        }
-
-        List<List<String>> results2 = new ArrayList<>();
-        SqlRowSet rs2 = jdbc2.queryForRowSet(query, parameterMap);
-        while (rs2.next()) {
-            results2.add(getData(rs2));
-        }
-
-        List<String> columnNames = Arrays.asList(rs1.getMetaData().getColumnNames());
-        results.setHeadings(columnNames);
-
-        results.setRow1(results1);
-        results.setRow2(results2);
-        for (int rowIndex = 0; rowIndex < Math.min(results1.size(), results2.size()); rowIndex++) {           // Compute differences.
-            List<String> row1 = results1.get(rowIndex);
-            List<String> row2 = results2.get(rowIndex);
-
-            List<Integer> rowDifferences = new ArrayList<>();
-            results.getDifferences().add(rowDifferences);
-
-            for (int colIndex = 0; colIndex < row1.size(); colIndex++) {
-                String cell1 = row1.get(colIndex);
-                String cell2 = row2.get(colIndex);
-                if ( ! cell1.equals(cell2)) {
-                    rowDifferences.add(colIndex);
-                }
-            }
-        }
-
-        return results;
-    }
 
     /**
      * Given two {@link JdbcTemplate} instances and a query, executes the query against {@code jdbc1}, then
@@ -337,7 +248,7 @@ public class SqlUtils {
      *
      * @throws Exception
      */
-    private List<String> getData(SqlRowSet rs) throws Exception {
+    public List<String> getData(SqlRowSet rs) throws Exception {
         List<String> newRow = new ArrayList<>();
 
         SqlRowSetMetaData md = rs.getMetaData();
@@ -363,6 +274,24 @@ public class SqlUtils {
 
                 case Types.BIGINT:
                     newRow.add(Long.toString(rs.getLong(i)));
+                    break;
+
+                case Types.TIMESTAMP:
+                case Types.DATE:
+                    Timestamp ts = rs.getTimestamp(i);
+                    String formattedDate = "";
+                    if (ts != null)  {
+                        Date date = new Date(ts.getTime());
+                        if (date != null) {
+                            formattedDate = commonUtils.formattedDate(date);
+                        }
+                    }
+                    newRow.add(formattedDate);
+                    break;
+
+                case Types.REAL:
+                case Types.FLOAT:
+                    newRow.add(Double.toString(rs.getDouble(i)));
                     break;
 
                 default:
