@@ -23,13 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * * This class validates the specified experimentIds against two databases.
+ * * This class validates the specified experimentIdList against two databases.
  * <p>
  * Created by mrelac on 01/02/2017.
  */
@@ -39,11 +36,16 @@ public class LoadValidateExperimentsQuery {
     private SqlUtils sqlUtils = new SqlUtils();
 
     private MpCSVWriter                csvWriter;
-    Map<String, Integer> columnIndexesByName      = new HashMap<>();
-    Map<Integer, String> columnNamesByColumnIndex = new HashMap<>();
+    private List<String>               columnAliases            = new ArrayList<>();
+    private Map<String, Integer>       columnIndexesByName      = new HashMap<>();
+    private Map<Integer, String>       columnNamesByColumnIndex = new HashMap<>();
+    private int                        count;
     private String                     dbname1;
     private String                     dbname2;
-    private List<String>               experimentIds;
+    List<String>                       emptyExperiment          = new ArrayList<>();
+    private Set<String>                experimentIdList;
+    private Set<String>                ignoreAliasSet;
+    private Set<Integer>               ignoreColumnIndexSet     = new HashSet<>();
     private NamedParameterJdbcTemplate jdbc1;
     private NamedParameterJdbcTemplate jdbc2;
 
@@ -53,7 +55,7 @@ public class LoadValidateExperimentsQuery {
      * matches in type and value in jdbc1 and jdbc2.
      * <p>
      * Any mismatches are written to the cdaWriter, jdbc1 line detail followed by jdbc2 line detail (on the same row
-     * of the spreadsheet). The experimentIds of any experiments that have no differences are written to the cdaWriter
+     * of the spreadsheet). The experimentIdList of any experiments that have no differences are written to the cdaWriter
      * at the bottom of the spreadsheet. In summary, the cdaWriter contains the following after invocation:
      * <ul>
      * <li>{@code headings} the column headings</li>
@@ -62,31 +64,34 @@ public class LoadValidateExperimentsQuery {
      * <li>A 0-relative list of the columns that differ</li>
      * </ul>
      *
-     * @param jdbc1         the first {@link NamedParameterJdbcTemplate} instance
-     * @param jdbc2         the second {@link NamedParameterJdbcTemplate} instance
-     * @param csvWriter     the spreadsheet instance
-     * @param experimentIds a List&lt;String&gt; containing the experimentIds to be validated
-     * @throws Exception
+     * @param jdbc1          the first {@link NamedParameterJdbcTemplate} instance
+     * @param jdbc2          the second {@link NamedParameterJdbcTemplate} instance
+     * @param csvWriter      the spreadsheet instance
+     * @param experimentList an optional List&lt;String&gt; containing experimentIdList to be validated
+     * @param count          an optional count of the number of experiment ids to randomly generate and validate. This
+     *                       count is above and beyond any experiments in {@code experimentIdList}. The default is 100.
+     * @param ignoreList     an optional List&lt;String&gt; of column aliases whose validation is to be ignored
      */
-    public LoadValidateExperimentsQuery(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, MpCSVWriter csvWriter, List<String> experimentIds) {
+    public LoadValidateExperimentsQuery(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, MpCSVWriter csvWriter, Set<String> experimentList, int count, Set<String> ignoreList) {
         this.jdbc1 = jdbc1;
         this.jdbc2 = jdbc2;
-        this.experimentIds = experimentIds;
         this.csvWriter = csvWriter;
+        this.experimentIdList = experimentList;
+        this.count = count;
+        this.ignoreAliasSet = ignoreList;
     }
 
     /**
      * Execute the query for each experimentId. For each experiment row that is not an exact match in both databases,
      * write each row on a single line, highlighting each cell difference using color. If an experiment row is an exact
      * match, save the center and experimentId for subsequent output to the worksheet, after all mismatches, to capture
-     * the center/experimentIds that were compared and were equal.
+     * the center/experimentIdList that were compared and were equal.
      *
      * @return a {@link RunStatus} with a list of errors
      * @throws ReportException
      */
     public RunStatus execute() throws ReportException {
 
-        List<String>        emptyExperiment   = new ArrayList<>();
         Map<String, Object> parameterMap      = new HashMap<>();
         boolean             populateHeadings  = true;
         RunStatus           status            = new RunStatus();
@@ -95,40 +100,39 @@ public class LoadValidateExperimentsQuery {
             dbname1 = sqlUtils.getDatabaseName(jdbc1);
             dbname2 = sqlUtils.getDatabaseName(jdbc2);
 
-            for (String experimentId : experimentIds) {
+            // Get column headings and populate column lookup maps.
+            SqlRowSet rs1 = jdbc1.queryForRowSet(query + "LIMIT 0\n", parameterMap);
+            for (int i = 0; i < rs1.getMetaData().getColumnCount(); i++) {
+                columnAliases.add(rs1.getMetaData().getColumnLabel(i + 1));                                           // column label indexes are 1-relative.
+            }
+            loadColumnMaps(columnAliases);
+
+            // Write spreadsheet heading
+            writeDbNames();
+            writeHeadings();
+
+            for (int i = 0; i < columnAliases.size(); i++) {                                                            // Populate emptyExperiment.
+                emptyExperiment.add("");
+            }
+
+            // populate the ignoreColumnIndex set.
+            ignoreColumnIndexSet.add(columnIndexesByName.get("observation_id"));                                        // Always ignore the observation_id (primary key).
+            for (String ignoreAlias : ignoreAliasSet) {
+                Integer colIndex = columnIndexesByName.get(ignoreAlias);
+                if (colIndex != null) {
+                    ignoreColumnIndexSet.add(colIndex);
+                }
+            }
+
+            // Validate experiments.
+            for (String experimentId : experimentIdList) {
 
                 parameterMap.put("experimentId", experimentId);
-                ExperimentDetail detail = queryDetail(jdbc1, jdbc2, query, parameterMap, populateHeadings);
-                if (populateHeadings) {
-                    populateHeadings = false;
+                List<ExperimentDetail> detailList = queryDetail(jdbc1, jdbc2, query + whereClause + orderByClause, parameterMap);
 
-                    writeDbNames();
-                    if ( ! detail.getDifferences().isEmpty()) {
-                        writeHeadings(detail);
-                    }
-                }
-
-                if ( ! detail.getDifferences().isEmpty()) {
-                    List<List<String>> list1 = detail.getRow1();
-                    List<List<String>> list2 = detail.getRow2();
-
-                    for (int i = 0; i < Math.max(list1.size(), list2.size()); i++) {
-                        List<String> db1Experiment = new ArrayList<>();
-                        List<String> db2Experiment = new ArrayList<>();
-
-                        if (i < list1.size()) {
-                            db1Experiment.addAll(list1.get(i));
-                        } else {
-                            db1Experiment.addAll(emptyExperiment);
-                        }
-
-                        if (i < list2.size()) {
-                            db2Experiment.addAll(list2.get(i));
-                        } else {
-                            db2Experiment.addAll(emptyExperiment);
-                        }
-
-                        writeDifferences(db1Experiment, db2Experiment, detail.getDifferences().get(i));
+                for (ExperimentDetail detail : detailList) {
+                    if ( ! detail.getColIndexDifference().isEmpty()) {
+                        writeDifferences(detail);
                     }
                 }
             }
@@ -267,13 +271,14 @@ public class LoadValidateExperimentsQuery {
                     "LEFT OUTER JOIN unidimensional_observation      uob     ON uob      .id                 = ob    .id\n" +
                     "LEFT OUTER JOIN parameter_association           pa      ON pa       .observation_id     = ob    .id\n" +
                     "\n" +
-                    "LEFT OUTER JOIN procedure_meta_data             pmdob   ON pmdob    .experiment_id      = e.id AND pmdob.observation_id = ob.id\n" +
-                    "  \n" +
-                    "WHERE e.external_id = :experimentId\n" +
-                    "ORDER BY e_short_name,e_experiment_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
-                    "ob_parameter_stable_id,ob_parameter_status,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
-                    "oob_sequence_id,tob.text,tsob_discrete_point,tsob_data_point,uob_data_point,ob_metadata_combined,ob_metadata_group,\n" +
-                    "pa_parameter_id,pa_sequence_id,pa_parameter_association_value\n";
+                    "LEFT OUTER JOIN procedure_meta_data             pmdob   ON pmdob    .experiment_id      = e.id AND pmdob.observation_id = ob.id\n";
+
+    private final String whereClause = "WHERE e.external_id = :experimentId\n";
+    private final String orderByClause =
+            "ORDER BY e_short_name,e_experiment_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
+            "ob_parameter_stable_id,ob_parameter_status,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
+            "oob_sequence_id,tob.text,tsob_discrete_point,tsob_data_point,uob_data_point,ob_metadata_combined,ob_metadata_group,\n" +
+            "pa_parameter_id,pa_sequence_id,pa_parameter_association_value\n";
 
 
     /**
@@ -286,67 +291,61 @@ public class LoadValidateExperimentsQuery {
      * @param jdbc2            the second {@link NamedParameterJdbcTemplate} instance
      * @param query            the query to execute against both {@link NamedParameterJdbcTemplate} instances
      * @param parameterMap     initialised parameter map
-     * @param populateHeadings if true, the headings are returned; if false, the headings are not returned.
      * @return the list difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
      * an empty list is returned.
      * @throws Exception
      */
-    private ExperimentDetail queryDetail(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, String query, Map<String, Object> parameterMap, boolean populateHeadings) throws Exception {
-        ExperimentDetail results = new ExperimentDetail();
+    private List<ExperimentDetail> queryDetail(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, String query, Map<String, Object> parameterMap) throws Exception {
+        List<ExperimentDetail> results  = new ArrayList<>();
+        List<List<String>>     results1 = new ArrayList<>();
+        List<List<String>>     results2 = new ArrayList<>();
+        SqlRowSet              rs1      = jdbc1.queryForRowSet(query, parameterMap);
+        SqlRowSet              rs2      = jdbc2.queryForRowSet(query, parameterMap);
 
-        List<List<String>> results1 = new ArrayList<>();
-        SqlRowSet          rs1      = jdbc1.queryForRowSet(query, parameterMap);
         while (rs1.next()) {
             results1.add(sqlUtils.getData(rs1));
         }
 
-        List<List<String>> results2 = new ArrayList<>();
-        SqlRowSet          rs2      = jdbc2.queryForRowSet(query, parameterMap);
         while (rs2.next()) {
             results2.add(sqlUtils.getData(rs2));
         }
 
-        if (populateHeadings) {
-            List<String> columnNames = new ArrayList<>();
-            for (int i = 0; i < rs1.getMetaData().getColumnCount(); i++) {
-                columnNames.add(rs1.getMetaData().getColumnLabel(i + 1));                                           // column label indexes are 1-relative.
-            }
+        for (int rowIndex = 0; rowIndex < Math.max(results1.size(), results2.size()); rowIndex++) {                     // Capture differences.
 
-            results.setHeadings(columnNames);
+            ExperimentDetail detail = new ExperimentDetail();
+            List<Integer> detailRowDifferences = new ArrayList<>();
+            List<String> detailRow1 = (rowIndex < results1.size()  ? results1.get(rowIndex) : emptyExperiment);
+            List<String> detailRow2 = (rowIndex < results2.size() ? results2.get(rowIndex) : emptyExperiment);
+            detail.setRow1(detailRow1);
+            detail.setRow2(detailRow2);
+            detail.setColIndexDifference(detailRowDifferences);
 
-            loadColumnMaps(columnNames);
-        }
+            for (int colIndex = 0; colIndex < detailRow1.size(); colIndex++) {
 
-        results.setRow1(results1);
-        results.setRow2(results2);
-        for (int rowIndex = 0; rowIndex < Math.min(results1.size(), results2.size()); rowIndex++) {                     // Compute differences.
-            List<String> row1 = results1.get(rowIndex);
-            List<String> row2 = results2.get(rowIndex);
-
-            List<Integer> rowDifferences = new ArrayList<>();
-            results.getDifferences().add(rowDifferences);
-
-            for (int colIndex = 0; colIndex < row1.size(); colIndex++) {
-
-                // Exclude observation_id, which will likely be different between the two databases.
-                if (colIndex == columnIndexesByName.get("observation_id")) {
+                // Skip columns requested to be ignored
+                if (ignoreColumnIndexSet.contains(colIndex)) {
                     continue;
                 }
 
-                String cell1 = row1.get(colIndex);
-                String cell2 = row2.get(colIndex);
+                String cell1 = detailRow1.get(colIndex);
+                String cell2 = detailRow2.get(colIndex);
                 if (cell1 == null) {
                     if (cell2 != null) {
-                        rowDifferences.add(colIndex);
+                        detailRowDifferences.add(colIndex);
                     }
                 } else if (cell2 == null) {
                     if (cell1 != null) {
-                        rowDifferences.add(colIndex);
+                        detailRowDifferences.add(colIndex);
                     }
                 } else if ( ! cell1.equals(cell2)) {
-                    rowDifferences.add(colIndex);
+                    detailRowDifferences.add(colIndex);
                 }
             }
+
+            if ( ! detailRowDifferences.isEmpty()) {
+                results.add(detail);
+            }
+
         }
 
         return results;
@@ -363,7 +362,7 @@ public class LoadValidateExperimentsQuery {
         csvWriter.writeNext(new String[] { "Experiment differences between " + dbname1 + " and " + dbname2 });
     }
 
-    private void writeHeadings(ExperimentDetail detail) {
+    private void writeHeadings() {
         List<String> row = new ArrayList<>();
         row.add("e_phenotyping_center");
         row.add("e_experiment_id");
@@ -372,20 +371,20 @@ public class LoadValidateExperimentsQuery {
         csvWriter.writeRow(row);
     }
 
-    private void writeDifferences(List<String> diff1Row, List<String> diff2Row, List<Integer> differences) {
+    private void writeDifferences(ExperimentDetail detail) {
         List<String> row = new ArrayList<>();
         int phenotypingCenterColumIndex = columnIndexesByName.get("e_phenotyping_center");
         int experimentIdColumnIndex = columnIndexesByName.get("e_experiment_id");
         int observationIdColumnIndex = columnIndexesByName.get("observation_id");
 
-        row.add(diff1Row.get(phenotypingCenterColumIndex));
-        row.add(diff1Row.get(experimentIdColumnIndex));
-        row.add(diff1Row.get(observationIdColumnIndex) + "::" + diff2Row.get(observationIdColumnIndex));
+        row.add(detail.getRow1().get(phenotypingCenterColumIndex));
+        row.add(detail.getRow1().get(experimentIdColumnIndex));
+        row.add(detail.getRow1().get(observationIdColumnIndex) + "::" + detail.getRow2().get(observationIdColumnIndex));
 
-        for (int i = 0; i < differences.size(); i++) {
-            String columnName = columnNamesByColumnIndex.get(differences.get(i));
-            String db1Value = diff1Row.get(differences.get(i));
-            String db2Value = diff2Row.get(differences.get(i));
+        for (int i = 0; i < detail.getColIndexDifference().size(); i++) {
+            String columnName = columnNamesByColumnIndex.get(detail.getColIndexDifference().get(i));
+            String db1Value = detail.getRow1().get(detail.getColIndexDifference().get(i));
+            String db2Value = detail.getRow2().get(detail.getColIndexDifference().get(i));
             row.add(columnName + "::" + db1Value + "::" + db2Value);
         }
 

@@ -16,20 +16,19 @@
 
 package org.mousephenotype.cda.reports.support;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by mrelac on 20/02/2017.
  *
- * This class encapsulates the code and data necessary to represent differences between cda experiment detail rows.
+ * This class encapsulates the code and data necessary to represent differences between cda-schema'd experiment detail rows.
  */
 
 public class ExperimentDetail {
-    private List<String>        headings    = new ArrayList<>();
-    private List<List<String>>  row1        = new ArrayList<>();
-    private List<List<String>>  row2        = new ArrayList<>();
-    private List<List<Integer>> differences = new ArrayList<>();
+    private List<String> headings;
+    private List<String>  row1;
+    private List<String>  row2;
+    private List<Integer> colIndexDifference;
 
     public List<String> getHeadings() {
         return headings;
@@ -39,27 +38,27 @@ public class ExperimentDetail {
         this.headings = headings;
     }
 
-    public List<List<String>> getRow1() {
+    public List<String> getRow1() {
         return row1;
     }
 
-    public void setRow1(List<List<String>> row1) {
+    public void setRow1(List<String> row1) {
         this.row1 = row1;
     }
 
-    public List<List<String>> getRow2() {
+    public List<String> getRow2() {
         return row2;
     }
 
-    public void setRow2(List<List<String>> row2) {
+    public void setRow2(List<String> row2) {
         this.row2 = row2;
     }
 
-    public List<List<Integer>> getDifferences() {
-        return differences;
+    public List<Integer> getColIndexDifference() {
+        return colIndexDifference;
     }
 
-    public void setDifferences(List<List<Integer>> differences) {
-        this.differences = differences;
+    public void setColIndexDifference(List<Integer> colIndexDifference) {
+        this.colIndexDifference = colIndexDifference;
     }
 }
