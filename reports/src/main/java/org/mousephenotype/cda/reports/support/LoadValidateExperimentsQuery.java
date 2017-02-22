@@ -23,7 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * * This class validates the specified experimentIds against two databases.
@@ -35,10 +38,14 @@ public class LoadValidateExperimentsQuery {
     private Logger   logger   = LoggerFactory.getLogger(this.getClass());
     private SqlUtils sqlUtils = new SqlUtils();
 
+    private MpCSVWriter                csvWriter;
+    Map<String, Integer> columnIndexesByName      = new HashMap<>();
+    Map<Integer, String> columnNamesByColumnIndex = new HashMap<>();
+    private String                     dbname1;
+    private String                     dbname2;
+    private List<String>               experimentIds;
     private NamedParameterJdbcTemplate jdbc1;
     private NamedParameterJdbcTemplate jdbc2;
-    private List<String>               experimentIds;
-    private MpCSVWriter                csvWriter;
 
 
     /**
@@ -79,15 +86,14 @@ public class LoadValidateExperimentsQuery {
      */
     public RunStatus execute() throws ReportException {
 
-        int                 centerColumnIndex = -1;
-        String[]            emptyColumn      = new String[] { "" };
-        List<String>        emptyExperiment  = new ArrayList<>();
-        List<String>        noDifferences    = new ArrayList<>();
-        Map<String, Object> parameterMap     = new HashMap<>();
-        boolean             populateHeadings = true;
-        RunStatus           status           = new RunStatus();
+        List<String>        emptyExperiment   = new ArrayList<>();
+        Map<String, Object> parameterMap      = new HashMap<>();
+        boolean             populateHeadings  = true;
+        RunStatus           status            = new RunStatus();
 
         try {
+            dbname1 = sqlUtils.getDatabaseName(jdbc1);
+            dbname2 = sqlUtils.getDatabaseName(jdbc2);
 
             for (String experimentId : experimentIds) {
 
@@ -95,54 +101,40 @@ public class LoadValidateExperimentsQuery {
                 ExperimentDetail detail = queryDetail(jdbc1, jdbc2, query, parameterMap, populateHeadings);
                 if (populateHeadings) {
                     populateHeadings = false;
-                    writeDbNames(detail);
-                    centerColumnIndex = computeCenterColumnIndex(detail);
-                    csvWriter.writeRow(detail.getHeadings());                                                           // Write the jdbc1 headings.
-                    csvWriter.writeNext(emptyColumn);                                                                   // Write an empty column.
-                    csvWriter.writeRow(detail.getHeadings());                                                           // Write the jdbc1 headings.
-                    for (int i = 0; i < detail.getHeadings().size(); i++) {                                             // Populate the empty experiment list
-                        emptyExperiment.add("");
+
+                    writeDbNames();
+                    if ( ! detail.getDifferences().isEmpty()) {
+                        writeHeadings(detail);
                     }
                 }
 
-                if (detail.getDifferences().isEmpty()) {
-                    noDifferences.add(detail.getRow1().get(centerColumnIndex) + "::" + experimentId);
-                } else {
+                if ( ! detail.getDifferences().isEmpty()) {
                     List<List<String>> list1 = detail.getRow1();
                     List<List<String>> list2 = detail.getRow2();
 
                     for (int i = 0; i < Math.max(list1.size(), list2.size()); i++) {
+                        List<String> db1Experiment = new ArrayList<>();
+                        List<String> db2Experiment = new ArrayList<>();
+
                         if (i < list1.size()) {
-                            csvWriter.writeRow(list1.get(i));
+                            db1Experiment.addAll(list1.get(i));
                         } else {
-                            csvWriter.writeRow(emptyExperiment);
+                            db1Experiment.addAll(emptyExperiment);
                         }
-                        csvWriter.writeNext(emptyColumn);
+
                         if (i < list2.size()) {
-                            csvWriter.writeRow(list2.get(i));
+                            db2Experiment.addAll(list2.get(i));
                         } else {
-                            csvWriter.writeRow(emptyExperiment);
+                            db2Experiment.addAll(emptyExperiment);
                         }
+
+                        writeDifferences(db1Experiment, db2Experiment, detail.getDifferences().get(i));
                     }
                 }
             }
 
-            csvWriter.writeNext(emptyColumn);                                                                           // Write an empty row before the experiments with no differences.
-
-            List<String> row = new ArrayList<>();
-            for (int i = 0; i < noDifferences.size(); i++) {
-                row.add(noDifferences.get(i));
-                if (i % 1000 == 0) {
-                    csvWriter.writeRow(row);
-                    row.clear();
-                }
-            }
-            if ( ! row.isEmpty()) {
-                csvWriter.writeRow(row);
-            }
-
         } catch (Exception e) {
-
+            e.printStackTrace();
             throw new ReportException(e);
         }
 
@@ -155,10 +147,10 @@ public class LoadValidateExperimentsQuery {
                     "-- explain\n" +
                     "SELECT\n" +
                     "  edb.name                              AS e_short_name,\n" +
-                    "  e.external_id                         AS e_external_id,\n" +
+                    "  e.external_id                         AS e_experiment_id,\n" +
                     "  e.sequence_id                         AS e_sequence_id,\n" +
                     "  e.date_of_experiment                  AS e_date_of_experiment,            -- timestamp\n" +
-                    "  eorg.name                             AS e_phenotypingCenter,\n" +
+                    "  eorg.name                             AS e_phenotyping_center,\n" +
                     "  pr.name                               AS e_project,\n" +
                     "  e.pipeline_stable_id                  AS e_pipeline_stable_id,\n" +
                     "  e.procedure_stable_id                 AS e_procedure_stable_id,\n" +
@@ -169,6 +161,7 @@ public class LoadValidateExperimentsQuery {
                     "  e.procedure_status_message            AS e_procedure_status_message,\n" +
                     "  \n" +
                     "  'OBSERVATION',\n" +
+                    "  ob.id                                 AS observation_id,\n" +
                     "  obdb.name                             AS ob_short_name,\n" +
                     "  ob.parameter_stable_id                AS ob_parameter_stable_id,\n" +
                     "  ob.sequence_id                        AS ob_sequence_id,\n" +
@@ -277,7 +270,7 @@ public class LoadValidateExperimentsQuery {
                     "LEFT OUTER JOIN procedure_meta_data             pmdob   ON pmdob    .experiment_id      = e.id AND pmdob.observation_id = ob.id\n" +
                     "  \n" +
                     "WHERE e.external_id = :experimentId\n" +
-                    "ORDER BY e_short_name,e_external_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
+                    "ORDER BY e_short_name,e_experiment_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
                     "ob_parameter_stable_id,ob_parameter_status,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
                     "oob_sequence_id,tob.text,tsob_discrete_point,tsob_data_point,uob_data_point,ob_metadata_combined,ob_metadata_group,\n" +
                     "pa_parameter_id,pa_sequence_id,pa_parameter_association_value\n";
@@ -314,13 +307,19 @@ public class LoadValidateExperimentsQuery {
         }
 
         if (populateHeadings) {
-            List<String> columnNames = Arrays.asList(rs1.getMetaData().getColumnNames());
+            List<String> columnNames = new ArrayList<>();
+            for (int i = 0; i < rs1.getMetaData().getColumnCount(); i++) {
+                columnNames.add(rs1.getMetaData().getColumnLabel(i + 1));                                           // column label indexes are 1-relative.
+            }
+
             results.setHeadings(columnNames);
+
+            loadColumnMaps(columnNames);
         }
 
         results.setRow1(results1);
         results.setRow2(results2);
-        for (int rowIndex = 0; rowIndex < Math.min(results1.size(), results2.size()); rowIndex++) {           // Compute differences.
+        for (int rowIndex = 0; rowIndex < Math.min(results1.size(), results2.size()); rowIndex++) {                     // Compute differences.
             List<String> row1 = results1.get(rowIndex);
             List<String> row2 = results2.get(rowIndex);
 
@@ -328,9 +327,23 @@ public class LoadValidateExperimentsQuery {
             results.getDifferences().add(rowDifferences);
 
             for (int colIndex = 0; colIndex < row1.size(); colIndex++) {
+
+                // Exclude observation_id, which will likely be different between the two databases.
+                if (colIndex == columnIndexesByName.get("observation_id")) {
+                    continue;
+                }
+
                 String cell1 = row1.get(colIndex);
                 String cell2 = row2.get(colIndex);
-                if (!cell1.equals(cell2)) {
+                if (cell1 == null) {
+                    if (cell2 != null) {
+                        rowDifferences.add(colIndex);
+                    }
+                } else if (cell2 == null) {
+                    if (cell1 != null) {
+                        rowDifferences.add(colIndex);
+                    }
+                } else if ( ! cell1.equals(cell2)) {
                     rowDifferences.add(colIndex);
                 }
             }
@@ -339,28 +352,43 @@ public class LoadValidateExperimentsQuery {
         return results;
     }
 
-    private int computeCenterColumnIndex(ExperimentDetail detail) {
-        for (int i = 0; i < detail.getHeadings().size(); i++) {
-            if (detail.getHeadings().get(i).equals("e_organisation")) {
-                return i;
-            }
+    private void loadColumnMaps(List<String> columnNames) {
+        for (int i = 0; i < columnNames.size(); i++) {
+            columnIndexesByName.put(columnNames.get(i), i);
+            columnNamesByColumnIndex.put(i, columnNames.get(i));
         }
-
-        return -1;
     }
 
-    private void writeDbNames(ExperimentDetail detail) {
-        String[] cells = new String[detail.getHeadings().size()];
-        for (int i = 0; i < cells.length; i++) {
-            cells[i] = "";
+    private void writeDbNames() {
+        csvWriter.writeNext(new String[] { "Experiment differences between " + dbname1 + " and " + dbname2 });
+    }
+
+    private void writeHeadings(ExperimentDetail detail) {
+        List<String> row = new ArrayList<>();
+        row.add("e_phenotyping_center");
+        row.add("e_experiment_id");
+        row.add("observation_id");
+
+        csvWriter.writeRow(row);
+    }
+
+    private void writeDifferences(List<String> diff1Row, List<String> diff2Row, List<Integer> differences) {
+        List<String> row = new ArrayList<>();
+        int phenotypingCenterColumIndex = columnIndexesByName.get("e_phenotyping_center");
+        int experimentIdColumnIndex = columnIndexesByName.get("e_experiment_id");
+        int observationIdColumnIndex = columnIndexesByName.get("observation_id");
+
+        row.add(diff1Row.get(phenotypingCenterColumIndex));
+        row.add(diff1Row.get(experimentIdColumnIndex));
+        row.add(diff1Row.get(observationIdColumnIndex) + "::" + diff2Row.get(observationIdColumnIndex));
+
+        for (int i = 0; i < differences.size(); i++) {
+            String columnName = columnNamesByColumnIndex.get(differences.get(i));
+            String db1Value = diff1Row.get(differences.get(i));
+            String db2Value = diff2Row.get(differences.get(i));
+            row.add(columnName + "::" + db1Value + "::" + db2Value);
         }
 
-        String dbname1 = jdbc1.queryForObject("SELECT DBNAME()", new HashMap<String, Object>(), String.class);
-        String dbname2 = jdbc2.queryForObject("SELECT DBNAME()", new HashMap<String, Object>(), String.class);
-        cells[0] = dbname1;
-        csvWriter.writeNext(cells);
-        csvWriter.writeNext(new String[] {""});     // Blank column
-        cells[0] = dbname2;
-        csvWriter.writeNext(cells);
+        csvWriter.writeRow(row);
     }
 }
