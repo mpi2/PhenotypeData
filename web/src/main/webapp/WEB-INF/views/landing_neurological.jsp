@@ -60,7 +60,7 @@
 
                             <h2 class="title">Related papers citing IMPC resources</h2>
                             <div class="inner">
-                                <p>These papers shown have MESH terms containing "neurologic" or "behavior" or "behaviour".
+                                <%--<p>These papers shown have MESH terms containing "neurologic" or "behavior" or "behaviour".--%>
                                 </p>
                                 <br/> <br/>
                                 <div class="HomepageTable" id="alleleRef"></div>
