@@ -313,7 +313,7 @@ public class LandingPageController {
      * @param label
      * @param sets
      * @param size
-     * @return JSON objects in the format required by venn diagram library. At the moment used on biliogical system pages.
+     * @return JSON objects in the format required by venn diagram library. At the moment used on biological system pages.
      */
     private JSONObject getSetVennFormat(String label, JSONArray sets, Integer size) {
 
