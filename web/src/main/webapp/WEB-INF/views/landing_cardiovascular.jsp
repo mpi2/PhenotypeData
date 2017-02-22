@@ -16,6 +16,7 @@
 		<link rel="stylesheet" href="${baseUrl}/css/vendor/slick.grid.css" type="text/css" media="screen"/>
 		<link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" />
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
+        <link href="${baseUrl}/css/biological_system/style.css" rel="stylesheet" />
 
         <!-- JS Imports -->
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
@@ -110,7 +111,7 @@
 
                         <div class="section">
 
-                            <h2 class="title">Gene KO effect comparator for ${systemName} system continuous parameters</h2>
+                            <h2 class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
 
                             <div class="inner">
                                 <p>Visualize multiple strain across several continuous parameters used for ${systemName} phenotyping.
@@ -150,6 +151,17 @@
 
                             <h2 class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>
                             <div class="inner">
+                            
+                            <p>
+									<b>These Venn diagram represents different sets of mouse genes potentially associated to cardiovascular diseases using different methodologies.</b>
+									</p>
+									<p> 
+The human curated gene set contains mouse genes orthologs to known genes causing cardiovascular disease in humans. 
+The <span class="ven_phenotype">IMPC phenotype</span> set contains all genes displaying cardiovascular disease phenotypes. 
+Finally the IMPC predicted or MGI predicted set contains predicted mouse gene candidates to cardiovascular diseases based on the phenotypic similarity of the disease clinical symptoms and the mouse phenotype annotations. As stated the source of the mouse model phenotype is either the <a href="http://www.informatics.jax.org/">MGI</a> which is a curated set of mouse models from the literature or IMPC produced mice. The phenotypic similarity is calculated using the <a href="https://www.mousephenotype.org/data/documentation/aboutImpc#howdoesimpcwork">PhenoDigm</a> algorithm developed by the Monarch Initiative which allows integration of data from model organisms to identify gene candidates for human genetic diseases.
+dataset can be downloaded using the download icon.
+
+									</p>
 
                             <div class="half">
                                 <jsp:include page="gene_orthologs_frag.jsp" >
@@ -168,7 +180,9 @@
 
                             <a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
 
+			
                             </div>
+       
                         </div>
 
                         <div class="section">
