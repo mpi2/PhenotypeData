@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,9 +52,9 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
     private LoadValidateExperimentsQuery loadValidateExperimentsQuery;
     private SqlUtils                     sqlUtils = new SqlUtils();
 
-    private int         count            = 100;
-    private Set<String> experimentIdList = new HashSet<>();
-    private Set<String> ignoreList       = new HashSet<>();
+    private int         count             = 100;
+    private List<String> experimentIdList = new ArrayList<>();
+    private Set<String> ignoreList        = new HashSet<>();
 
     @Autowired
     @NotNull
@@ -107,6 +108,8 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
                 logger.error(message);
                 throw new ReportException(message);
             }
+
+            this.count = count;
         }
 
         if (options.hasArgument("ignore")) {
