@@ -189,42 +189,7 @@ The complete dataset can be downloaded using the download icon.
                         </div>
 
                         <div class="section">
-
-                            <h2 class="title">Related papers citing IMPC resources</h2>
-                            <div class="inner">
-                                <%--<p>These papers shown have title or MESH terms containing "<span id='kw'></span>".--%>
-                                    <%--<p>These papers shown have title or MESH terms containing "cardio" or "cardia" or "heart".--%>
-                                    </p>
-                                <br/> <br/>
-                                <div class="HomepageTable" id="alleleRef"></div>
-
-                                <script type="text/javascript">
-                                    $(document).ready(function () {
-
-                                        'use strict';
-
-                                        var tableHeader = "<thead><th></th></thead>";
-                                        var tableCols = 1;
-                                        var isAlleleRef = true;
-
-                                        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef", isAlleleRef);
-                                        $('div#alleleRef').append(dTable);
-
-                                        var oConf = {};
-                                        oConf.iDisplayLength = 10;
-                                        oConf.iDisplayStart = 0;
-                                        oConf.kw = "cardio|cardia|heart";
-                                        oConf.baseUrl = "${baseUrl}";
-                                        oConf.rowFormat = true;
-                                        oConf.orderBy = "date_of_publication DESC"; // default
-
-                                        $('span#kw').text(oConf.kw);
-                                        $.fn.fetchAlleleRefDataTable2(oConf);
-
-                                    });
-                                </script>
-
-                            </div>
+                            <jsp:include page="paper_frag.jsp"></jsp:include>
                         </div>
 
                     </div>

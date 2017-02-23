@@ -1014,7 +1014,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             Float discretePoint = null;
 
             if (missing == 0) {
-                if ((simpleValue != null) && (!simpleValue.equals("null")) && (!simpleValue.trim().isEmpty())) {
+                if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.trim().isEmpty())) {
                     try {
                         dataPoint = Float.parseFloat(simpleValue);                                                      // dataPoint for all cases.
                         missing = 0;
