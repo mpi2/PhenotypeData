@@ -139,7 +139,7 @@ public class LoadValidateExperimentsQuery {
                     "\n" +
                     "-- explain\n" +
                     "SELECT\n" +
-                    "  edb.name                              AS e_short_name,\n" +
+                    "  edb.short_name                        AS e_short_name,\n" +
                     "  e.external_id                         AS e_experiment_id,\n" +
                     "  e.sequence_id                         AS e_sequence_id,\n" +
                     "  e.date_of_experiment                  AS e_date_of_experiment,            -- timestamp\n" +
@@ -155,7 +155,7 @@ public class LoadValidateExperimentsQuery {
                     "  \n" +
                     "  'OBSERVATION',\n" +
                     "  ob.id                                 AS observation_id,\n" +
-                    "  obdb.name                             AS ob_short_name,\n" +
+                    "  obdb.short_name                       AS ob_short_name,\n" +
                     "  ob.parameter_stable_id                AS ob_parameter_stable_id,\n" +
                     "  ob.sequence_id                        AS ob_sequence_id,\n" +
                     "  ob.population_id                      AS ob_population_id,                -- int\n" +
@@ -165,15 +165,15 @@ public class LoadValidateExperimentsQuery {
                     "  ob.parameter_status_message           AS ob_parameter_status_message,\n" +
                     "  \n" +
                     "  'BIOLOGICAL_MODEL',\n" +
-                    "  -- bmdb.name                             AS bm_short_name,\n" +
+                    "  -- bmdb.short_name                             AS bm_short_name,\n" +
                     "  bm.allelic_composition                AS bm_allelic_composition,\n" +
                     "  bm.genetic_background                 AS bm_genetic_background,\n" +
                     "  \n" +
                     "  'BIOLOGICAL_SAMPLE',\n" +
                     "  bs.external_id                        AS bs_external_id,\n" +
-                    "  bsdb.name                             AS bs_short_name,\n" +
+                    "  bsdb.short_name                       AS bs_short_name,\n" +
                     "  bs.sample_type_acc                    AS bs_sample_type_acc,\n" +
-                    "  bsstdb.name                           AS bs_sample_type_short_name,\n" +
+                    "  bsstdb.short_name                     AS bs_sample_type_short_name,\n" +
                     "  bs.sample_group                       AS bs_sample_group,\n" +
                     "  bsorg.name                            AS bs_organisation,\n" +
                     "  bspc.name                             AS bs_production_center,\n" +
