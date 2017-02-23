@@ -9,10 +9,12 @@ CREATE TABLE experiment (
   dateOfExperiment DATE NOT NULL,
   experimentId VARCHAR(255) NOT NULL,
   sequenceId VARCHAR(255) DEFAULT NULL,
+  datasourceShortName VARCHAR(40) NOT NULL,
   center_procedure_pk INT UNSIGNED NOT NULL,
 
   KEY dateOfExperiment_idx(dateOfExperiment),
-  KEY experimentId_idx(experimentId)
+  KEY experimentId_idx(experimentId),
+  KEY center_procedure_pk_idx(center_procedure_pk)
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
