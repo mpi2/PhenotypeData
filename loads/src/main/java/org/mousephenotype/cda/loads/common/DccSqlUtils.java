@@ -1610,9 +1610,10 @@ public class DccSqlUtils {
      * @param parentalStrain the parentalStrain to be inserted
      * @param specimenPk the specimen primary key
      *
-     * @return the parentalStrain, with primary key loaded
+     * @return the parentalStrain primary key if the insert was successful; 0 otherwise
      */
-    public ParentalStrain insertParentalStrain(ParentalStrain parentalStrain, long specimenPk) {
+    public long insertParentalStrain(ParentalStrain parentalStrain, long specimenPk) {
+        long pk;
         String insert = "INSERT INTO parentalStrain (percentage, mgiStrainId, gender, level, specimen_pk) "
                       + "VALUES (:percentage, :mgiStrainId, :gender, :level, :specimenPk)";
 
@@ -1627,17 +1628,18 @@ public class DccSqlUtils {
 
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
             int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
             if (count > 0) {
-                long pk = keyholder.getKey().longValue();
-                parentalStrain.setHjid(pk);
+                pk = keyholder.getKey().longValue();
+                return pk;
             }
 
         } catch (DuplicateKeyException e) {
 
         }
 
-        return parentalStrain;
+        return 0;
     }
 
     /**
@@ -1979,7 +1981,9 @@ public class DccSqlUtils {
                 specimen.setHjid(pk);
             }
         } catch (DuplicateKeyException e ) {
-
+            String query = "SELECT pk FROM specimen WHERE phenotypingCenter = :phenotypingCenter AND specimenId = :specimenId";
+            Long id = npJdbcTemplate.queryForObject(query, parameterMap, Long.class);
+            specimen.setHjid(id);
         }
         
         return specimen;
