@@ -73,7 +73,8 @@ CREATE TABLE specimen (
   KEY colonyIdIndex (colonyId),
   KEY specimenIdIndex (specimenId),
   KEY strainIdIndex (strainId),
-  KEY statuscode_pk (statuscode_pk)
+  KEY statuscode_pk (statuscode_pk),
+  UNIQUE KEY (phenotypingCenter, specimenId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS chromosomalAlteration;
