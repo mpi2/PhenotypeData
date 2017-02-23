@@ -2060,38 +2060,40 @@ public class DccSqlUtils {
     }
 
     /**
-     * Returns the {@link Experiment} primary key identified by {@code} experiment and center_procedure primary key. The
-     * data is first inserted into the experiment table if it does not yet exist.
+     * Inserts the {@link Experiment} into the experiment table and returns the primary key of the newly inserted row.
      *
      * @param experiment The experiment instance to be fetched/inserted
+     * @param datasourceShortName the data source short name (e.g. EuroPhenome, IMPC, 3I, etc.)
      * @param center_procedurePk The center_procedure primary key
      *
-     * @return the {@link Experiment} primary key identified by {@code} experiment and center_procedure primary key. The
-     * data is first inserted into the experiment table if it does not yet exist.
+     * @return the {@link Experiment} primary key
      */
-    public long selectOrInsertExperiment(Experiment experiment, long center_procedurePk) {
+    public long insertExperiment(Experiment experiment, String datasourceShortName, long center_procedurePk) throws DataLoadException {
         long pk = 0L;
 
-        pk = getExperimentPkByExperimentId(experiment.getExperimentID(), center_procedurePk);
-        if (pk == 0) {
-            String insert = "INSERT INTO experiment (center_procedure_pk, dateOfExperiment, experimentId, sequenceId) "
-                          + "VALUES (:center_procedurePk, :dateOfExperiment, :experimentId, :sequenceId)";
-            
-            Map<String, Object> parameterMap = new HashMap<>();
-            parameterMap.put("center_procedurePk", center_procedurePk);
-            parameterMap.put("dateOfExperiment", experiment.getDateOfExperiment());
-            parameterMap.put("experimentId", experiment.getExperimentID());
-            parameterMap.put("sequenceId", experiment.getSequenceID());
+        String insert =
+                "INSERT INTO experiment (dateOfExperiment, experimentId, sequenceId, datasourceShortName, center_procedure_pk) " +
+                "VALUES (:dateOfExperiment, :experimentId, :sequenceId, :datasourceShortName, :center_procedurePk)";
 
-            KeyHolder keyholder = new GeneratedKeyHolder();
-            SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dateOfExperiment", experiment.getDateOfExperiment());
+        parameterMap.put("experimentId", experiment.getExperimentID());
+        parameterMap.put("sequenceId", experiment.getSequenceID());
+        parameterMap.put("datasourceShortName", datasourceShortName);
+        parameterMap.put("center_procedurePk", center_procedurePk);
 
-            int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
-            if (count > 0) {
-                pk = keyholder.getKey().longValue();
-            }
+        KeyHolder          keyholder       = new GeneratedKeyHolder();
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = npJdbcTemplate.update(insert, parameterSource, keyholder);
+        if (count > 0) {
+            pk = keyholder.getKey().longValue();
+        } else {
+            throw new DataLoadException("INSERT experiment::datasourceShortName::center_procedure_pk failed. " +
+                                                experiment.getExperimentID() + "::" + datasourceShortName + "::" +
+                                                center_procedurePk);
         }
-        
+
         return pk;
     }
 
@@ -2280,7 +2282,7 @@ public class DccSqlUtils {
                 "-- dccExperimentDTO_load.sql\n" +
                         "\n" +
                         "SELECT\n" +
-                        "  s.datasourceShortName,\n" +
+                        "  e.datasourceShortName,\n" +
                         "  e.experimentId,\n" +
                         "  e.sequenceId,\n" +
                         "  e.dateOfExperiment,\n" +
