@@ -408,5 +408,23 @@ public class CommonUtils {
 
     }
 
+    /**
+     * Given a collection of {@link String}, returns a single string with each value in {@code values} wrapped in
+     * {@code delimeter} and separated by a comma.
+     * @param values
+     * @param delimeter
+     * @return
+     */
+    public String wrapInQuotes(Collection<String> values, char delimeter) {
+        StringBuilder retVal = new StringBuilder();
 
+        int i = 0;
+        for (String value : values) {
+            if (i++ > 0)
+                retVal.append(",");
+            retVal.append(delimeter + value + delimeter);
+        }
+
+        return retVal.toString();
+    }
 }

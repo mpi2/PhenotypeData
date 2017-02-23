@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.reports.support;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,20 +33,24 @@ import java.util.*;
  */
 public class LoadValidateExperimentsQuery {
 
-    private Logger   logger   = LoggerFactory.getLogger(this.getClass());
-    private SqlUtils sqlUtils = new SqlUtils();
+    private Logger      logger      = LoggerFactory.getLogger(this.getClass());
+    private CommonUtils commonUtils = new CommonUtils();
+    private SqlUtils    sqlUtils    = new SqlUtils();
 
     private MpCSVWriter                csvWriter;
-    private List<String>               columnAliases            = new ArrayList<>();
-    private Map<String, Integer>       columnIndexesByName      = new HashMap<>();
-    private Map<Integer, String>       columnNamesByColumnIndex = new HashMap<>();
+    private List<String>               columnAliases                = new ArrayList<>();
+    private Map<String, Integer>       columnIndexesByName          = new HashMap<>();
+    private Map<Integer, String>       columnNamesByColumnIndex     = new HashMap<>();
     private int                        count;
     private String                     dbname1;
     private String                     dbname2;
-    List<String>                       emptyExperiment          = new ArrayList<>();
-    private List<String>               experimentIds;
-    private Set<String>                ignoreAliasSet;
-    private Set<Integer>               ignoreColumnIndexSet     = new HashSet<>();
+    List<String>                       emptyExperiment              = new ArrayList<>();
+
+    private List<String> experimentIds;
+    private Set<String>  skipColumns;
+    private Set<String>  skipParameters;
+    private Set<Integer> skipColumnIndexSet    = new HashSet<>();
+
     private NamedParameterJdbcTemplate jdbc1;
     private NamedParameterJdbcTemplate jdbc2;
 
@@ -70,20 +75,22 @@ public class LoadValidateExperimentsQuery {
      * @param experimentIds  an optional List&lt;String&gt; containing experimentIds to be validated
      * @param count          an optional count of the number of experiment ids to randomly generate and validate. This
      *                       count is above and beyond any experiments in {@code experimentIds}. The default is 100.
-     * @param ignoreList     an optional List&lt;String&gt; of column aliases whose validation is to be ignored
+     * @param skipColumns     an optional collection of column aliases to exclude from validation
+     * @param skipParameters  an optional collection of parameter stable ids to exclude from validation
      */
-    public LoadValidateExperimentsQuery(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, MpCSVWriter csvWriter, List<String> experimentIds, int count, Set<String> ignoreList) {
+    public LoadValidateExperimentsQuery(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, MpCSVWriter csvWriter, List<String> experimentIds, int count, Set<String> skipColumns, Set<String> skipParameters) {
         this.jdbc1 = jdbc1;
         this.jdbc2 = jdbc2;
         this.csvWriter = csvWriter;
         this.experimentIds = experimentIds;
         this.count = count;
-        this.ignoreAliasSet = ignoreList;
+        this.skipColumns = skipColumns;
+        this.skipParameters = skipParameters;
     }
 
 
     /**
-     * Execute the query for each experimentId. For each experiment row that is not an exact match in both databases,
+     * Execute the baseQuery for each experimentId. For each experiment row that is not an exact match in both databases,
      * write each row on a single line, highlighting each cell difference using color. If an experiment row is an exact
      * match, save the center and experimentId for subsequent output to the worksheet, after all mismatches, to capture
      * the center/experimentIds that were compared and were equal.
@@ -103,7 +110,13 @@ public class LoadValidateExperimentsQuery {
             for (String experimentId : experimentIds) {
 
                 parameterMap.put("experimentId", experimentId);
-                List<ExperimentDetail> detailList = queryDetail(jdbc1, jdbc2, query + whereClause + orderByClause, parameterMap);
+                StringBuilder query = new StringBuilder(baseQuery).append(whereClause);
+                if ( ! skipParameters.isEmpty()) {
+                    String parameterList = commonUtils.wrapInQuotes(skipParameters, '\'');
+                    query.append(baseOmitParameterClause.replace("PARAMETER_REPLACE_TEMPLATE", parameterList));
+                }
+                query.append(orderByClause);
+                List<ExperimentDetail> detailList = queryDetail(jdbc1, jdbc2, query.toString(), parameterMap);
 
                 for (ExperimentDetail detail : detailList) {
                     if ( ! detail.getColIndexDifference().isEmpty()) {
@@ -121,12 +134,12 @@ public class LoadValidateExperimentsQuery {
     }
 
 
-    private final String query =
+    private final String baseQuery =
             "-- cdaExperimentWithDetail\n" +
                     "\n" +
                     "-- explain\n" +
                     "SELECT\n" +
-                    "  edb.name                              AS e_short_name,\n" +
+                    "  edb.short_name                        AS e_short_name,\n" +
                     "  e.external_id                         AS e_experiment_id,\n" +
                     "  e.sequence_id                         AS e_sequence_id,\n" +
                     "  e.date_of_experiment                  AS e_date_of_experiment,            -- timestamp\n" +
@@ -142,7 +155,7 @@ public class LoadValidateExperimentsQuery {
                     "  \n" +
                     "  'OBSERVATION',\n" +
                     "  ob.id                                 AS observation_id,\n" +
-                    "  obdb.name                             AS ob_short_name,\n" +
+                    "  obdb.short_name                       AS ob_short_name,\n" +
                     "  ob.parameter_stable_id                AS ob_parameter_stable_id,\n" +
                     "  ob.sequence_id                        AS ob_sequence_id,\n" +
                     "  ob.population_id                      AS ob_population_id,                -- int\n" +
@@ -152,15 +165,15 @@ public class LoadValidateExperimentsQuery {
                     "  ob.parameter_status_message           AS ob_parameter_status_message,\n" +
                     "  \n" +
                     "  'BIOLOGICAL_MODEL',\n" +
-                    "  -- bmdb.name                             AS bm_short_name,\n" +
+                    "  -- bmdb.short_name                             AS bm_short_name,\n" +
                     "  bm.allelic_composition                AS bm_allelic_composition,\n" +
                     "  bm.genetic_background                 AS bm_genetic_background,\n" +
                     "  \n" +
                     "  'BIOLOGICAL_SAMPLE',\n" +
                     "  bs.external_id                        AS bs_external_id,\n" +
-                    "  bsdb.name                             AS bs_short_name,\n" +
+                    "  bsdb.short_name                       AS bs_short_name,\n" +
                     "  bs.sample_type_acc                    AS bs_sample_type_acc,\n" +
-                    "  bsstdb.name                           AS bs_sample_type_short_name,\n" +
+                    "  bsstdb.short_name                     AS bs_sample_type_short_name,\n" +
                     "  bs.sample_group                       AS bs_sample_group,\n" +
                     "  bsorg.name                            AS bs_organisation,\n" +
                     "  bspc.name                             AS bs_production_center,\n" +
@@ -251,6 +264,8 @@ public class LoadValidateExperimentsQuery {
 
     private final String whereClause = "WHERE e.external_id = :experimentId\n";
 
+    private final String baseOmitParameterClause = "AND ob.parameter_stable_id NOT IN (PARAMETER_REPLACE_TEMPLATE)\n";
+
     private final String orderByClause =
             "ORDER BY e_short_name,e_experiment_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
             "ob_parameter_stable_id,ob_parameter_status,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
@@ -267,7 +282,7 @@ public class LoadValidateExperimentsQuery {
         dbname2 = sqlUtils.getDatabaseName(jdbc2);
 
         // Get column headings and populate column lookup maps.
-        SqlRowSet rs1 = jdbc1.queryForRowSet(query + "LIMIT 0\n", new HashMap<>());
+        SqlRowSet rs1 = jdbc1.queryForRowSet(baseQuery + "LIMIT 0\n", new HashMap<>());
         for (int i = 0; i < rs1.getMetaData().getColumnCount(); i++) {
             columnAliases.add(rs1.getMetaData().getColumnLabel(i + 1));                                              // column label indexes are 1-relative.
         }
@@ -282,11 +297,11 @@ public class LoadValidateExperimentsQuery {
         }
 
         // populate the ignoreColumnIndex set.
-        ignoreColumnIndexSet.add(columnIndexesByName.get("observation_id"));                                            // Always ignore the observation_id (primary key).
-        for (String ignoreAlias : ignoreAliasSet) {
+        skipColumnIndexSet.add(columnIndexesByName.get("observation_id"));                                            // Always ignore the observation_id (primary key).
+        for (String ignoreAlias : skipColumns) {
             Integer colIndex = columnIndexesByName.get(ignoreAlias);
             if (colIndex != null) {
-                ignoreColumnIndexSet.add(colIndex);
+                skipColumnIndexSet.add(colIndex);
             }
         }
 
@@ -315,14 +330,14 @@ public class LoadValidateExperimentsQuery {
     }
 
     /**
-     * Given two {@link NamedParameterJdbcTemplate} instances, a query, and a {@code parameterMap}, executes the query
+     * Given two {@link NamedParameterJdbcTemplate} instances, a baseQuery, and a {@code parameterMap}, executes the baseQuery
      * against {@code jdbc1}, then against {@code jdbc2}, returning an {@link ExperimentDetail} instance with all
      * mismatches. If there are no mismatches, {@link ExperimentDetail}.differences is empty. The remainder of the
      * {@link ExperimentDetail} collections are filled out as appropriate.
      *
      * @param jdbc1            the first {@link NamedParameterJdbcTemplate} instance
      * @param jdbc2            the second {@link NamedParameterJdbcTemplate} instance
-     * @param query            the query to execute against both {@link NamedParameterJdbcTemplate} instances
+     * @param query            the baseQuery to execute against both {@link NamedParameterJdbcTemplate} instances
      * @param parameterMap     initialised parameter map
      * @return the list difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
      * an empty list is returned.
@@ -356,7 +371,7 @@ public class LoadValidateExperimentsQuery {
             for (int colIndex = 0; colIndex < detailRow1.size(); colIndex++) {
 
                 // Skip columns requested to be ignored
-                if (ignoreColumnIndexSet.contains(colIndex)) {
+                if (skipColumnIndexSet.contains(colIndex)) {
                     continue;
                 }
 
