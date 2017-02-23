@@ -52,9 +52,10 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
     private LoadValidateExperimentsQuery loadValidateExperimentsQuery;
     private SqlUtils                     sqlUtils = new SqlUtils();
 
-    private int         count             = 100;
+    private int          count            = 100;
     private List<String> experimentIdList = new ArrayList<>();
-    private Set<String> ignoreList        = new HashSet<>();
+    private Set<String>  skipColumns      = new HashSet<>();
+    private Set<String>  skipParameters   = new HashSet<>();
 
     @Autowired
     @NotNull
@@ -67,9 +68,10 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
     private NamedParameterJdbcTemplate jdbc2;
 
 
-    public static final String COUNT_ARG = "count";
-    public static final String IGNORE_ARG = "ignore";
-    public static final String EXPERIMENT_ARG = "experiment";
+    public static final String COUNT_ARG          = "count";
+    public static final String SKIP_COLUMN_ARG    = "skipcolumn";
+    public static final String SKIP_PARAMETER_ARG = "skipparameter";
+    public static final String EXPERIMENT_ARG     = "experiment";
 
     /****************************
      * DATABASES: e.g. cda, komp2_base
@@ -85,24 +87,27 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
 
         PropertySource ps = new SimpleCommandLinePropertySource(args);
 
-        // Possible properties for this report: --count, --ignore
+        // Possible properties for this report: --count, --skipcolumn, --skipparameter
         OptionParser parser = new OptionParser();
 
         // parameter to indicate the count of experiment ids to generate and validate
-        parser.accepts("count").withRequiredArg().ofType(Integer.class);
+        parser.accepts(COUNT_ARG).withRequiredArg().ofType(Integer.class);
 
         // parameter to indicate the column alias(es) to ignore
-        parser.accepts("ignore").withRequiredArg().ofType(String.class);
+        parser.accepts(SKIP_COLUMN_ARG).withRequiredArg().ofType(String.class);
+
+        // parameter to indicate the parameter stable id(s) to ignore
+        parser.accepts(SKIP_PARAMETER_ARG).withRequiredArg().ofType(String.class);
 
         // parameter to indicate any experimentIds to test
-        parser.accepts("experiment").withRequiredArg().ofType(String.class);
+        parser.accepts(EXPERIMENT_ARG).withRequiredArg().ofType(String.class);
 
         parser.allowsUnrecognizedOptions();         // Ignore options already processed at a higher level.
 
         OptionSet options = parser.parse(args);
 
-        if (options.hasArgument("count")) {
-            Integer count = commonUtils.tryParseInt(options.valueOf("count"));
+        if (options.hasArgument(COUNT_ARG)) {
+            Integer count = commonUtils.tryParseInt(options.valueOf(COUNT_ARG));
             if (count == null) {
                 message = "Invalid count {}";
                 logger.error(message);
@@ -112,15 +117,19 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
             this.count = count;
         }
 
-        if (options.hasArgument("ignore")) {
-            ignoreList.addAll((List<String>) options.valuesOf("ignore"));
+        if (options.hasArgument(SKIP_COLUMN_ARG)) {
+            skipColumns.addAll((List<String>) options.valuesOf(SKIP_COLUMN_ARG));
         }
 
-        if (options.hasArgument("experiment")) {
-            experimentIdList.addAll((List<String>) options.valuesOf("experiment"));
+        if (options.hasArgument(SKIP_PARAMETER_ARG)) {
+            skipParameters.addAll((List<String>) options.valuesOf(SKIP_PARAMETER_ARG));
         }
 
-        loadValidateExperimentsQuery = new LoadValidateExperimentsQuery(jdbc1, jdbc2, csvWriter, experimentIdList, count, ignoreList);
+        if (options.hasArgument(EXPERIMENT_ARG)) {
+            experimentIdList.addAll((List<String>) options.valuesOf(EXPERIMENT_ARG));
+        }
+
+        loadValidateExperimentsQuery = new LoadValidateExperimentsQuery(jdbc1, jdbc2, csvWriter, experimentIdList, count, skipColumns, skipParameters);
     }
 
     @Override
