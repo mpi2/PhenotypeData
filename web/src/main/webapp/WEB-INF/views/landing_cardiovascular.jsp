@@ -63,7 +63,7 @@
                             <h2 class="title">Approach</h2>
                              <div class="inner">
 
-                                <p> To measure cardiovascular function in the mouse, IMPC uses a series of standardised protolcols. These protocols are described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). </p>
+                                <p> To measure ${systemName} function in the mouse, IMPC uses a series of standardised protolcols. These protocols are described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). </p>
                                 <p>Heart and vascular function/physiology are measured through several procedures like echocardiography and electrocardiogram, Non-Invasive blood pressure for example. Cardiovascular system morphology is assessed through macroscopic and microscopic measurements, like heart weight, gross pathology and gross morphology in both embryo and adult animals. A complete list of protocols and related phenotypes are presented in the table below. Links to impress are provided for more details on the procedure. </p>
                                 <br/><br/>
                                 <c:import url="landing_procedures_frag.jsp"/>
@@ -153,13 +153,16 @@
                             <div class="inner">
                             
                             <p>
-									<b>These Venn diagram represents different sets of mouse genes potentially associated to cardiovascular diseases using different methodologies.</b>
+									<b>These Venn diagrams represent different sets of mouse genes potentially associated to ${systemName} diseases using different methodologies.</b>
 									</p>
 									<p> 
-The human curated gene set contains mouse genes orthologs to known genes causing cardiovascular disease in humans. 
-The <span class="ven_phenotype">IMPC phenotype</span> set contains all genes displaying cardiovascular disease phenotypes. 
-Finally the IMPC predicted or MGI predicted set contains predicted mouse gene candidates to cardiovascular diseases based on the phenotypic similarity of the disease clinical symptoms and the mouse phenotype annotations. As stated the source of the mouse model phenotype is either the <a href="http://www.informatics.jax.org/">MGI</a> which is a curated set of mouse models from the literature or IMPC produced mice. The phenotypic similarity is calculated using the <a href="https://www.mousephenotype.org/data/documentation/aboutImpc#howdoesimpcwork">PhenoDigm</a> algorithm developed by the Monarch Initiative which allows integration of data from model organisms to identify gene candidates for human genetic diseases.
-dataset can be downloaded using the download icon.
+The human curated gene set contains mouse gene orthologs to known genes causing ${systemName} diseases in humans.
+The <span class="ven_phenotype">IMPC phenotype</span> set contains all genes displaying ${systemName} phenotypes.
+Finally, the IMPC predicted or MGI predicted set contains predicted mouse gene candidates for ${systemName} diseases based on the phenotypic similarity of the disease clinical symptoms
+and the mouse phenotype annotations. As stated, the source of the mouse model phenotype is either <a href="http://www.informatics.jax.org/">Mouse Genome Informatics</a>, which is a curated set of mouse models
+ from the literature, or IMPC produced mice. The phenotypic similarity is calculated using the <a href="https://www.mousephenotype.org/data/documentation/aboutImpc#howdoesimpcwork">PhenoDigm</a>
+  algorithm developed by the Monarch Initiative which allows integration of data from model organisms to identify gene candidates for human genetic diseases.
+The complete dataset can be downloaded using the download icon.
 
 									</p>
 

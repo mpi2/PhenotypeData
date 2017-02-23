@@ -187,10 +187,9 @@ public class ExpressionService extends BasicService {
 			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
 		}
 
-		// solrQuery.setFacetMinCount(1);
-		// solrQuery.setFacet(true);
+		solrQuery.addSort(ImageDTO.ID, SolrQuery.ORDER.asc);
 		solrQuery.setFields(fields);
-		// solrQuery.addFacetField("ma_term");
+
 		solrQuery.setRows(Integer.MAX_VALUE);
 		QueryResponse response = experimentSolr.query(solrQuery);
 		return response;
@@ -237,22 +236,8 @@ public class ExpressionService extends BasicService {
 		solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
 		solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
 		solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
-		solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
-		solrQuery.addFilterQuery(ObservationDTO.CATEGORY + ":\"expression\"");// only
-																				// look
-																				// for
-																				// expresssion
-																				// at
-																				// the
-																				// moment
-																				// as
-																				// that
-																				// is
-																				// all
-																				// the
-																				// anatamogram
-																				// can
-																				// display
+		solrQuery.addFilterQuery(ObservationDTO.CATEGORY + ":\"expression\"");
+		// only look for expresssion at the moment as that is all the anatamogram can  display
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -260,6 +245,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setRows(0);
 		QueryResponse response = experimentSolr.query(solrQuery);
 		List<FacetField> categoryParameterFields = response.getFacetFields();
+
 		return categoryParameterFields.get(0).getValues();
 	}
 
@@ -276,21 +262,7 @@ public class ExpressionService extends BasicService {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":"+parameterStableId);// reduce
-																		// the
-																		// number
-																		// to
-																		// image
-																		// parameters
-																		// only
-																		// as we
-																		// are
-																		// talking
-																		// about
-																		// images
-																		// not
-																		// expression
-																		// data
-																		// here
+		// the number to image parameters only as we are talking about images not expression data here
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -329,18 +301,7 @@ public class ExpressionService extends BasicService {
 									// level terms
 		String termIdField = "";
 		if (parameterStableId!=null && parameterStableId.contains("ELZ")) { // use EMAP terms and top level terms
-			noTopTermId = "TS20 embryo or Unassigned";// currently if unassigned
-														// they either have
-														// embryo TS20 as there
-														// EMAP id but our
-														// system doesn't find
-														// any
-														// selected_top_level
-														// emap or nothing is
-														// assigned but we know
-														// they are embryo so
-														// assign this id to
-														// unassigned
+			noTopTermId = "TS20 embryo or Unassigned";// currently if unassigned they either have embryo TS20 as there EMAP id but our system doesn't find any selected_top_level emap or nothing is assigned but we know they are embryo so assign this id to unassigned
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
 			termIdField = ImageDTO.ANATOMY_ID;
 			if (imagesOverview) {
@@ -384,12 +345,8 @@ public class ExpressionService extends BasicService {
 			List<String> tops = getListFromCollection(doc.getFieldValues(topLevelField));
 
 			// work out list of uberon/efo ids with/without expressions
-			
-
 			// noTopLevelCount.setCount(c);
-			if (tops.isEmpty()) {// if no top level found this image then add it
-									// to the "No top level" term docs so we can
-									// display orphaned terms and images
+			if (tops.isEmpty()) {// if no top level found this image then add it to the "No top level" term docs so we can display orphaned terms and images
 				expFacetToDocs.get(noTopTermId).add(doc);
 			} else {
 
@@ -1290,3 +1247,4 @@ public class ExpressionService extends BasicService {
 	
 	
 }
+
