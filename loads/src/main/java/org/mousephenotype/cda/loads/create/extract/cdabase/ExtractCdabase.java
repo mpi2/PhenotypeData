@@ -126,7 +126,7 @@ public class ExtractCdabase implements CommandLineRunner {
         }
 
         Job[] jobs = new Job[]{
-//                downloaderJob(),
+                downloaderJob(),
                 dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -214,13 +214,12 @@ public class ExtractCdabase implements CommandLineRunner {
 
         return jobBuilderFactory.get("dbLoaderJob")
                                 .incrementer(new RunIdIncrementer())
-//                                .start(ontologyFlow)
-//                                .next(markersFlow)
-//                                .next(allelesFlow)
-//                                .next(strainsFlow)
-//                                .next(bioModelsFlow)
-//                                .next(phenotypedColoniesFlow)
-.start(phenotypedColoniesFlow)
+                                .start(ontologyFlow)
+                                .next(markersFlow)
+                                .next(allelesFlow)
+                                .next(strainsFlow)
+                                .next(bioModelsFlow)
+                                .next(phenotypedColoniesFlow)
                                 .end()
                                 .build();
     }
