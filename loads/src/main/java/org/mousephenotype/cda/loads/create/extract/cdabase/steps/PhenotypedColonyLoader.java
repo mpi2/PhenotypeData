@@ -69,7 +69,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             , "colonyName"                  // C - Colony Name
             , "esCellName"                  // D - Es Cell Name
             , "backgroundStrainName"        // E - Colony Background Strain Name
-            , "productionCentre"            // F - Production Centre
+            , "productionCentre"            // F - Production Centre        (IGNORED)
             , "productionConsortium"        // G - Production Consortium
             , "phenotypingCentre"           // H - Phenotyping Centre
             , "phenotypingConsortium"       // I - Phenotyping Consortium
@@ -119,6 +119,8 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
         public PhenotypedColony mapFieldSet(FieldSet fs) throws BindException {
             PhenotypedColony phenotypedColony = new PhenotypedColony();
 
+            phenotypedColony.setColonyName(fs.readString("colonyName"));
+
             GenomicFeature gene = new GenomicFeature();
             gene.setSymbol(fs.readString("markerSymbol"));
             DatasourceEntityId dsId = new DatasourceEntityId();
@@ -126,19 +128,11 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             gene.setId(dsId);
             phenotypedColony.setGene(gene);
 
-            phenotypedColony.setColonyName(fs.readString("colonyName"));
+            phenotypedColony.setAlleleSymbol(fs.readString("alleleSymbol"));
 
             phenotypedColony.setEs_cell_name(fs.readString("esCellName"));
 
-            phenotypedColony.setBackgroundStrainName(fs.readString("backgroundStrainName"));
-
-            Organisation productionCentre = new Organisation();
-            productionCentre.setName(fs.readString("productionCentre"));
-            phenotypedColony.setProductionCentre(productionCentre);
-
-            Project productionConsortium = new Project();
-            productionConsortium.setName(fs.readString("productionConsortium"));
-            phenotypedColony.setProductionConsortium(productionConsortium);
+            phenotypedColony.setBackgroundStrain(fs.readString("backgroundStrainName"));
 
             Organisation phenotypingCentre = new Organisation();
             phenotypingCentre.setName(fs.readString("phenotypingCentre"));
@@ -148,11 +142,16 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             phenotypingConsortium.setName(fs.readString("phenotypingConsortium"));
             phenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
 
-            Organisation cohortProductionCentre = new Organisation();
-            cohortProductionCentre.setName(fs.readString("cohortProductionCentre"));
-            phenotypedColony.setCohortProductionCentre(cohortProductionCentre);
+            /**
+             * The imits column 'cohortProductionCentre' maps to our productionCentre.
+             */
+            Organisation productionCentre = new Organisation();
+            productionCentre.setName(fs.readString("cohortProductionCentre"));
+            phenotypedColony.setProductionCentre(productionCentre);
 
-            phenotypedColony.setAlleleSymbol(fs.readString("alleleSymbol"));
+            Project productionConsortium = new Project();
+            productionConsortium.setName(fs.readString("productionConsortium"));
+            phenotypedColony.setProductionConsortium(productionConsortium);
 
             return phenotypedColony;
         }

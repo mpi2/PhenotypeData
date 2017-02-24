@@ -2330,30 +2330,29 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public int insertPhenotypedColonies(List<PhenotypedColony> phenotypedColonies) throws DataLoadException {
         int count = 0;
 
-        String query = "INSERT INTO phenotyped_colony (" +
-                       " colony_name," +
-                       " es_cell_name," +
-                       " gf_acc," +
-                       " gf_db_id," +
-                       " allele_symbol," +
-                       " background_strain_name," +
-                       " production_centre_organisation_id," +
-                       " production_consortium_project_id," +
-                       " phenotyping_centre_organisation_id," +
-                       " phenotyping_consortium_project_id," +
-                       " cohort_production_centre_organisation_id)" +
-                       " VALUES (" +
-                       " :colony_name," +
-                       " :es_cell_name," +
-                       " :gf_acc," +
-                       " :gf_db_id," +
-                       " :allele_symbol," +
-                       " :background_strain_name," +
-                       " :production_centre_organisation_id," +
-                       " :production_consortium_project_id," +
-                       " :phenotyping_centre_organisation_id," +
-                       " :phenotyping_consortium_project_id," +
-                       " :cohort_production_centre_organisation_id)";
+        String query =
+                "INSERT INTO phenotyped_colony (" +
+                        " colony_name," +
+                        " es_cell_name," +
+                        " gf_acc," +
+                        " gf_db_id," +
+                        " allele_symbol," +
+                        " background_strain_name," +
+                        " phenotyping_centre_organisation_id," +
+                        " phenotyping_consortium_project_id," +
+                        " production_centre_organisation_id," +
+                        " production_consortium_project_id)" +
+                        " VALUES (" +
+                        " :colony_name," +
+                        " :es_cell_name," +
+                        " :gf_acc," +
+                        " :gf_db_id," +
+                        " :allele_symbol," +
+                        " :background_strain_name," +
+                        " :phenotyping_centre_organisation_id," +
+                        " :phenotyping_consortium_project_id," +
+                        " :production_centre_organisation_id," +
+                        " :production_consortium_project_id)";
 
         // Insert PhenotypedColonies if they do not exist. Ignore any duplicates.
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
@@ -2364,12 +2363,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                 parameterMap.put("gf_acc", phenotypedColony.getGene().getId().getAccession());
                 parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
                 parameterMap.put("allele_symbol", phenotypedColony.getAlleleSymbol());
-                parameterMap.put("background_strain_name", phenotypedColony.getBackgroundStrainName());
-                parameterMap.put("production_centre_organisation_id", phenotypedColony.getProductionCentre().getId());
-                parameterMap.put("production_consortium_project_id", phenotypedColony.getProductionConsortium().getId());
+                parameterMap.put("background_strain_name", phenotypedColony.getBackgroundStrain());
                 parameterMap.put("phenotyping_centre_organisation_id", phenotypedColony.getPhenotypingCentre().getId());
                 parameterMap.put("phenotyping_consortium_project_id", phenotypedColony.getPhenotypingConsortium().getId());
-                parameterMap.put("cohort_production_centre_organisation_id", phenotypedColony.getCohortProductionCentre().getId());
+                parameterMap.put("production_centre_organisation_id", phenotypedColony.getProductionCentre().getId());
+                parameterMap.put("production_consortium_project_id", phenotypedColony.getProductionConsortium().getId());
 
                 count = jdbcCda.update(query, parameterMap);
 
@@ -3106,7 +3104,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
         //  - Filter the iMits background strain name through the EuroPhenomeStrainMapper
         //  - If the filtered background strain does not exist, create it and add it to the strain table.
         try {
-            backgroundStrainName = strainMapper.filterEuroPhenomeGeneticBackground(colony.getBackgroundStrainName());
+            backgroundStrainName = strainMapper.filterEuroPhenomeGeneticBackground(colony.getBackgroundStrain());
             backgroundStrain = getStrainByName(backgroundStrainName);
             if (backgroundStrain == null) {
                 backgroundStrain = createAndInsertStrain(backgroundStrainName);
@@ -3114,7 +3112,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
         } catch (DataLoadException e) {
 
-            message = "Insert strain " + colony.getBackgroundStrainName() + " for dcc-supplied colony '" + colony.getColonyName() + "' failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
+            message = "Insert strain " + colony.getBackgroundStrain() + " for dcc-supplied colony '" + colony.getColonyName() + "' failed. Reason: " + e.getLocalizedMessage() + ". Skipping...";
             logger.error(message);
             throw new DataLoadException(message, e);
         }
@@ -3329,15 +3327,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             phenotypedColony.setAlleleSymbol(rs.getString("allele_symbol"));
 
-            phenotypedColony.setBackgroundStrainName(rs.getString("background_strain_name"));
-
-            Organisation productionCenter = new Organisation();
-            productionCenter.setId(rs.getInt("production_centre_organisation_id"));
-            phenotypedColony.setProductionCentre(productionCenter);
-
-            Project productionConsortium = new Project();
-            productionConsortium.setId(rs.getInt("production_consortium_project_id"));
-            phenotypedColony.setProductionConsortium(productionConsortium);
+            phenotypedColony.setBackgroundStrain(rs.getString("background_strain_name"));
 
             Organisation phenotypingCenter = new Organisation();
             phenotypingCenter.setId(rs.getInt("phenotyping_centre_organisation_id"));
@@ -3347,9 +3337,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             phenotypingConsortium.setId(rs.getInt("phenotyping_consortium_project_id"));
             phenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
 
-            Organisation cohortProduction = new Organisation();
-            cohortProduction.setId(rs.getInt("cohort_production_centre_organisation_id"));
-            phenotypedColony.setCohortProductionCentre(cohortProduction);
+            Organisation production = new Organisation();
+            production.setId(rs.getInt("production_centre_organisation_id"));
+            phenotypedColony.setProductionCentre(production);
+
+            Project productionConsortium = new Project();
+            productionConsortium.setId(rs.getInt("production_consortium_project_id"));
+            phenotypedColony.setProductionConsortium(productionConsortium);
 
             return phenotypedColony;
         }
