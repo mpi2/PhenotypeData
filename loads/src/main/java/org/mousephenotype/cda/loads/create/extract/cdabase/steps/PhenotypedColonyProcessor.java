@@ -86,6 +86,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
                 , newPhenotypedColony.getColonyName()
                 , newPhenotypedColony.getEs_cell_name()
                 , newPhenotypedColony.getBackgroundStrain()
+                , newPhenotypedColony.getProductionCentre().getName()
                 , newPhenotypedColony.getProductionConsortium().getName()
                 , newPhenotypedColony.getPhenotypingCentre().getName()
                 , newPhenotypedColony.getPhenotypingConsortium().getName()
