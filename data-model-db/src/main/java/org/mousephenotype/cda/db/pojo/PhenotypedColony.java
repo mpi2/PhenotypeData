@@ -21,16 +21,15 @@ package org.mousephenotype.cda.db.pojo;
  */
 public class PhenotypedColony {
     private int id;
-    private GenomicFeature gene;
     private String colonyName;
     private String es_cell_name;
+    private GenomicFeature gene;
+    private String alleleSymbol;
     private String backgroundStrain;
-    private Organisation productionCentre;
-    private Project productionConsortium;
     private Organisation phenotypingCentre;
     private Project phenotypingConsortium;
-    private Organisation CohortProductionCentre;
-    private String alleleSymbol;
+    private Organisation productionCentre;
+    private Project productionConsortium;
 
     public int getId() {
         return id;
@@ -38,14 +37,6 @@ public class PhenotypedColony {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public GenomicFeature getGene() {
-        return gene;
-    }
-
-    public void setGene(GenomicFeature gene) {
-        this.gene = gene;
     }
 
     public String getColonyName() {
@@ -64,28 +55,28 @@ public class PhenotypedColony {
         this.es_cell_name = es_cell_name;
     }
 
-    public String getBackgroundStrainName() {
+    public GenomicFeature getGene() {
+        return gene;
+    }
+
+    public void setGene(GenomicFeature gene) {
+        this.gene = gene;
+    }
+
+    public String getAlleleSymbol() {
+        return alleleSymbol;
+    }
+
+    public void setAlleleSymbol(String alleleSymbol) {
+        this.alleleSymbol = alleleSymbol;
+    }
+
+    public String getBackgroundStrain() {
         return backgroundStrain;
     }
 
-    public void setBackgroundStrainName(String backgroundStrain) {
+    public void setBackgroundStrain(String backgroundStrain) {
         this.backgroundStrain = backgroundStrain;
-    }
-
-    public Organisation getProductionCentre() {
-        return productionCentre;
-    }
-
-    public void setProductionCentre(Organisation productionCentre) {
-        this.productionCentre = productionCentre;
-    }
-
-    public Project getProductionConsortium() {
-        return productionConsortium;
-    }
-
-    public void setProductionConsortium(Project productionConsortium) {
-        this.productionConsortium = productionConsortium;
     }
 
     public Organisation getPhenotypingCentre() {
@@ -104,36 +95,35 @@ public class PhenotypedColony {
         this.phenotypingConsortium = phenotypingConsortium;
     }
 
-    public Organisation getCohortProductionCentre() {
-        return CohortProductionCentre;
+    public Organisation getProductionCentre() {
+        return productionCentre;
     }
 
-    public void setCohortProductionCentre(Organisation cohortProductionCentre) {
-        CohortProductionCentre = cohortProductionCentre;
+    public void setProductionCentre(Organisation productionCentre) {
+        this.productionCentre = productionCentre;
     }
 
-    public String getAlleleSymbol() {
-        return alleleSymbol;
+    public Project getProductionConsortium() {
+        return productionConsortium;
     }
 
-    public void setAlleleSymbol(String alleleSymbol) {
-        this.alleleSymbol = alleleSymbol;
+    public void setProductionConsortium(Project productionConsortium) {
+        this.productionConsortium = productionConsortium;
     }
 
     @Override
     public String toString() {
         return "PhenotypedColony{" +
                 "id=" + id +
-                ", gene=" + gene +
                 ", colonyName='" + colonyName + '\'' +
                 ", es_cell_name='" + (es_cell_name == null ? "null" : es_cell_name) + '\'' +
+                ", gene=" + gene +
+                ", alleleSymbol=" + alleleSymbol +
                 ", backgroundStrain=" + backgroundStrain +
-                ", productionCentre=" + productionCentre +
-                ", productionConsortium=" + productionConsortium +
                 ", phenotypingCentre=" + phenotypingCentre +
                 ", phenotypingConsortium=" + phenotypingConsortium +
-                ", CohortProductionCentre=" + CohortProductionCentre +
-                ", alleleSymbol=" + alleleSymbol +
+                ", productionCentre=" + productionCentre +
+                ", productionConsortium=" + productionConsortium +
                 '}';
     }
 }
