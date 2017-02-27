@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 
 import java.net.URLDecoder;
@@ -491,22 +493,22 @@ public class Tools {
 		String checked = "";
 		String checkedClass = "";
 
-		String htmlStrGene = getCheckBoxes(geneAttrs, friendlyNameMap, corename);
+		String htmlStrGene = getCheckBoxes(geneAttrs, friendlyNameMap, "Gene");
 		htmlStr += "<fieldset id='genefs'><legend>Mouse gene attributes</legend>" + htmlStrGene + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrAllele = getCheckBoxes(alleleAttrs, friendlyNameMap, corename);
+		String htmlStrAllele = getCheckBoxes(alleleAttrs, friendlyNameMap, "Allele");
 		htmlStr += "<fieldset><legend>Mouse allele attributes</legend>" + htmlStrAllele + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrPhentype = getCheckBoxes(phenotypeAttrs, friendlyNameMap, corename);
+		String htmlStrPhentype = getCheckBoxes(phenotypeAttrs, friendlyNameMap, "Phenotype");
 		htmlStr += "<fieldset><legend>Mouse phenotype attributes</legend>" + htmlStrPhentype + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrAnatomy = getCheckBoxes(anatomyAttrs, friendlyNameMap, corename);
+		String htmlStrAnatomy = getCheckBoxes(anatomyAttrs, friendlyNameMap, "Anatomy");
 		htmlStr += "<fieldset><legend>Mouse anatomy attributes</legend>" + htmlStrAnatomy + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrDisease = getCheckBoxes(diseaseAttrs, friendlyNameMap, corename);
+		String htmlStrDisease = getCheckBoxes(diseaseAttrs, friendlyNameMap, "DiseaseModdelAssociation");
 		htmlStr += "<fieldset class='human'><legend class='human'>Human disease attributes</legend>" + htmlStrDisease + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrHuman = getCheckBoxes(humanAttrs, friendlyNameMap, corename);
+		String htmlStrHuman = getCheckBoxes(humanAttrs, friendlyNameMap, "Hp");
 		htmlStr += "<fieldset class='human'><legend class='human'>Human phenotype attributes</legend>" + htmlStrHuman + checkAlltheseAtt+ "</fieldset>";
 
 		String hrStr = "<hr>";
@@ -536,6 +538,100 @@ public class Tools {
 		}
 
 		return htmlStr;
+	}
+
+	public static String  buildCypherQueries(String dataType, String idlist, JSONObject jLabelFieldsParam){
+
+		Map<String, String> dataTypeCol = new HashMap<>();
+		dataTypeCol.put("geneId", "g.mgi_accession_id");
+		dataTypeCol.put("ensembl", "g.ensembl_gene_id");
+		dataTypeCol.put("mouse_marker_symbol", "g.marker_symbol");
+		dataTypeCol.put("mpId", "p.mp_id");
+		dataTypeCol.put("mpTerm", "p.mp_term");
+		dataTypeCol.put("anatomy", "an.anatomy_id");
+
+		String whereField = dataTypeCol.get(dataType);
+
+		Map<String, String> labelShort = new HashMap<>();
+		labelShort.put("Gene", "g");
+		labelShort.put("Allele", "a");
+		labelShort.put("Phenotype", "p");
+		labelShort.put("Anatomy", "an");
+		labelShort.put("Hp", "h");
+		labelShort.put("MouseModel", "mm");
+		labelShort.put("DiseaseModelAssociation", "dma");
+		labelShort.put("DiseaseGeneSummary", "dgs");
+
+		List<String> cypher = new ArrayList<>();
+
+		Set<String> labels = jLabelFieldsParam.keySet();
+		System.out.println(labels);
+
+		Iterator<String> keys = jLabelFieldsParam.keys();
+		while(keys.hasNext()){
+			String key = keys.next();
+			String val = null;
+			try{
+				JSONArray fields = jLabelFieldsParam.getJSONArray(key);
+				for (int i=0; i<fields.size(); i++) {
+					cypher.add(labelShort.get(key) + "." + fields.get(i).toString());
+				}
+			}catch(Exception e){
+				System.out.println("Error: " + e.getMessage());
+			}
+		}
+
+		String cols = StringUtils.join(cypher, ", ");
+
+		String qry = null;
+		if (! labels.contains("DiseaseModelAssociation")){
+			if (labels.contains("Allele") && labels.contains("Phenotype") && labels.contains("Anatomy")){
+				qry = "MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype)-[HAS_INFERRED_ANATOMY]->(an:Anatomy) WHERE "
+					+ whereField
+					+ " IN ["
+					+ idlist + "] RETURN "
+					+ cols;
+			}
+			else if (labels.contains("Allele") && labels.contains("Phenotype")){
+				qry = "MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype) WHERE "
+						+ whereField
+						+ " IN ["
+						+ idlist + "] RETURN "
+						+ cols;
+			}
+			else if (labels.contains("Phenotype") && labels.contains("Anatomy")){
+				qry = "MATCH (g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype)-[HAS_INFERRED_ANATOMY]->(an:Anatomy) WHERE "
+						+ whereField
+						+ " IN ["
+						+ idlist + "] RETURN "
+						+ cols;
+			}
+			else if (labels.contains("Allele")){
+				qry = "MATCH (a:Allele)-[OF_GENE]->(g:Gene) WHERE "
+						+ whereField
+						+ " IN ["
+						+ idlist + "] RETURN "
+						+ cols;
+			}
+			else if (labels.contains("Phenotype")){
+				qry = "MATCH (g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype) WHERE "
+						+ whereField
+						+ " IN ["
+						+ idlist + "] RETURN "
+						+ cols;
+			}
+			else if (labels.contains("Anatomy")){
+				qry = "MATCH (g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype)-[HAS_INFERRED_ANATOMY]->(an:Anatomy) WHERE "
+						+ whereField
+						+ " IN ["
+						+ idlist + "] RETURN "
+						+ cols;
+			}
+		}
+
+		System.out.println(qry);
+
+		return qry;
 	}
 
 }
