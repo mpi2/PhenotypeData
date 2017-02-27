@@ -124,34 +124,7 @@ public class DataSourcesConfigApp {
 
 
 
-//    @Bean(name = "cdaDataSource", destroyMethod = "close")
-//    @Primary
-//    public DataSource cdaDataSource() {
-//
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(cdaUrl)
-//                .username(username)
-//                .password(password)
-//                .type(BasicDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//        ((BasicDataSource) ds).setInitialSize(4);
-//
-//
-//        ((BasicDataSource) ds).setLogAbandoned(false);
-//        ((BasicDataSource) ds).setRemoveAbandoned(false);
-//
-//
-//        try {
-//            logger.info("Using cda database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-//    }
-
-//    @Bean(name = "cdaDataSource", destroyMethod = "close")
-    @Bean(name = "cdaDataSource")
+    @Bean(name = "cdaDataSource", destroyMethod = "close")
     @Primary
     public DataSource cdaDataSource() {
 
@@ -160,16 +133,43 @@ public class DataSourcesConfigApp {
                 .url(cdaUrl)
                 .username(username)
                 .password(password)
-                .type(DriverManagerDataSource.class)
+                .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
+        ((BasicDataSource) ds).setInitialSize(4);
+
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
+
 
         try {
-            logger.info("Using cda database {}", ds.getConnection().getCatalog());
+            logger.info("Using cda database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
 
         } catch (Exception e) { }
 
         return ds;
     }
+
+//    @Bean(name = "cdaDataSource", destroyMethod = "close")
+//    @Bean(name = "cdaDataSource")
+//    @Primary
+//    public DataSource cdaDataSource() {
+//
+//        DataSource ds = DataSourceBuilder
+//                .create()
+//                .url(cdaUrl)
+//                .username(username)
+//                .password(password)
+//                .type(DriverManagerDataSource.class)
+//                .driverClassName("com.mysql.jdbc.Driver").build();
+//
+//        try {
+//            logger.info("Using cda database {}", ds.getConnection().getCatalog());
+//
+//        } catch (Exception e) { }
+//
+//        return ds;
+//    }
 
     @Bean(name = "jdbcCda")
     public NamedParameterJdbcTemplate jdbcCda() {
