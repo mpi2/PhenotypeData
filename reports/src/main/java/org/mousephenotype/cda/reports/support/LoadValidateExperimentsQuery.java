@@ -148,8 +148,14 @@ public class LoadValidateExperimentsQuery {
                     "  e.pipeline_stable_id                  AS e_pipeline_stable_id,\n" +
                     "  e.procedure_stable_id                 AS e_procedure_stable_id,\n" +
                     "  e.colony_id                           AS e_colony_id,\n" +
-                    "  e.metadata_combined                   AS e_metadata_combined,\n" +
-                    "  e.metadata_group                      AS e_metadata_group,\n" +
+                    "  ( SELECT GROUP_CONCAT(DISTINCT CONCAT(pp.name, ' = ', pmdin.value) ORDER BY pmdin.parameter_id ASC SEPARATOR '::')\n" +
+                    "    FROM procedure_meta_data pmdin\n" +
+                    "    JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id\n" +
+                    "      WHERE e.id=pmdin.experiment_id AND pp.name NOT LIKE '%Experimenter%') AS e_metadata_combined,\n" +
+                    "  ( SELECT IF(GROUP_CONCAT(DISTINCT pmdin.value) IS NULL, '', MD5(GROUP_CONCAT(DISTINCT CONCAT(pp.name, ' = ', pmdin.value) ORDER BY pmdin.parameter_id ASC SEPARATOR '::')))\n" +
+                    "    FROM procedure_meta_data pmdin\n" +
+                    "    JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id\n" +
+                    "    WHERE pp.data_analysis=1 AND pmdin.experiment_id=e.id) AS e_metadata_group,\n" +
                     "  e.procedure_status                    AS e_procedure_status,\n" +
                     "  e.procedure_status_message            AS e_procedure_status_message,\n" +
                     "  \n" +
