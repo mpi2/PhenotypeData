@@ -28,7 +28,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -37,8 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-
-import ch.qos.logback.core.net.SyslogOutputStream;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -55,7 +52,7 @@ public class ExpressionService extends BasicService {
 
 	public static final String SECTION_PARAM_NAME="LacZ images Section";
 	public static final String WHOLEMOUNT_PARAM_NAME="LacZ images wholemount";
-	
+
 	public static final String SECTION_EMBRYO_LACZ="IMPC_ELZ_063_001";
 	public static final String WHOLEOMOUNT_EMBRYO_LACZ="IMPC_ELZ_064_001";
 	@Autowired
@@ -85,7 +82,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl, String impressServiceUrl,
-			String anatomyServiceUrl) {
+							 String anatomyServiceUrl) {
 
 		experimentSolr = new HttpSolrClient(experimentSolrUrl);
 		imagesSolr = new HttpSolrClient(imagesSolrUrl);
@@ -101,8 +98,8 @@ public class ExpressionService extends BasicService {
 	}
 
 	public QueryResponse getExpressionImagesForGeneByAnatomy(String mgiAccession, String anatomy,
-			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex, String metadataGroup, String strain)
-					throws SolrServerException, IOException  {
+															 String experimentOrControl, int numberOfImagesToRetrieve, SexType sex, String metadataGroup, String strain)
+			throws SolrServerException, IOException  {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
@@ -155,6 +152,8 @@ public class ExpressionService extends BasicService {
 
 		solrQuery.setFields(fields);
 		solrQuery.setRows(100000);
+		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
 	}
@@ -180,27 +179,27 @@ public class ExpressionService extends BasicService {
 		}
 		if (embryo) {
 			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
+			solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
+			solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
 			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
 		} else {
 			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+			solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
+			solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
 			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
 		}
 
-		// solrQuery.setFacetMinCount(1);
-		// solrQuery.setFacet(true);
+		solrQuery.addSort(ImageDTO.ID, SolrQuery.ORDER.asc);
 		solrQuery.setFields(fields);
-		// solrQuery.addFacetField("ma_term");
 		solrQuery.setRows(Integer.MAX_VALUE);
+		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+
 		QueryResponse response = experimentSolr.query(solrQuery);
 		return response;
 	}
 
 	private QueryResponse getAdultLaczImageFacetsForGene(String mgiAccession, String parameterStableId, String... fields) throws SolrServerException, IOException  {
-		
+
 		//solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
 		//		+ ":\"LacZ Images Wholemount\"");// reduce the number to image
 		// e.g.
@@ -212,10 +211,10 @@ public class ExpressionService extends BasicService {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		if(!StringUtils.isEmpty(parameterStableId)){
-		solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":" +parameterStableId);// reduce the number to image
-													// parameters only as we are
-													// talking about images not
-													// expression data here
+			solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":" +parameterStableId);// reduce the number to image
+			// parameters only as we are
+			// talking about images not
+			// expression data here
 		}
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
@@ -238,24 +237,10 @@ public class ExpressionService extends BasicService {
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 
 		solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
-		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
-		solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
-		solrQuery.addFilterQuery(ObservationDTO.CATEGORY + ":\"expression\"");// only
-																				// look
-																				// for
-																				// expresssion
-																				// at
-																				// the
-																				// moment
-																				// as
-																				// that
-																				// is
-																				// all
-																				// the
-																				// anatamogram
-																				// can
-																				// display
+		solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
+		solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+		solrQuery.addFilterQuery(ObservationDTO.CATEGORY + ":\"expression\"");
+		// only look for expresssion at the moment as that is all the anatamogram can  display
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -263,13 +248,14 @@ public class ExpressionService extends BasicService {
 		solrQuery.setRows(0);
 		QueryResponse response = experimentSolr.query(solrQuery);
 		List<FacetField> categoryParameterFields = response.getFacetFields();
+
 		return categoryParameterFields.get(0).getValues();
 	}
 
 	private QueryResponse getEmbryoLaczImageFacetsForGene(String mgiAccession, String parameterStableId, String... fields)
 			throws SolrServerException, IOException  {
 		//solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_064_001" + " OR "
-				//+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");
+		//+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -279,26 +265,13 @@ public class ExpressionService extends BasicService {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":"+parameterStableId);// reduce
-																		// the
-																		// number
-																		// to
-																		// image
-																		// parameters
-																		// only
-																		// as we
-																		// are
-																		// talking
-																		// about
-																		// images
-																		// not
-																		// expression
-																		// data
-																		// here
+		// the number to image parameters only as we are talking about images not expression data here
 		solrQuery.setFacetMinCount(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
 		solrQuery.addFacetField(ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		solrQuery.setRows(Integer.MAX_VALUE);
+		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
 	}
@@ -317,8 +290,6 @@ public class ExpressionService extends BasicService {
 	 * @param imagesOverview
 	 *            If true we want some images data/stats added to the model for
 	 *            display in the tabbed pane on the gene page.
-	 * @param model
-	 *            Spring MVC model
 	 * @throws SolrServerException, IOException
 	 * @throws SQLException
 	 */
@@ -331,21 +302,10 @@ public class ExpressionService extends BasicService {
 		QueryResponse laczResponse = null;
 		String noTopTermId = "";
 		String topLevelField = "";// type ma or emap imageDTO field for top
-									// level terms
+		// level terms
 		String termIdField = "";
 		if (parameterStableId!=null && parameterStableId.contains("ELZ")) { // use EMAP terms and top level terms
-			noTopTermId = "TS20 embryo or Unassigned";// currently if unassigned
-														// they either have
-														// embryo TS20 as there
-														// EMAP id but our
-														// system doesn't find
-														// any
-														// selected_top_level
-														// emap or nothing is
-														// assigned but we know
-														// they are embryo so
-														// assign this id to
-														// unassigned
+			noTopTermId = "TS20 embryo or Unassigned";// currently if unassigned they either have embryo TS20 as there EMAP id but our system doesn't find any selected_top_level emap or nothing is assigned but we know they are embryo so assign this id to unassigned
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM;
 			termIdField = ImageDTO.ANATOMY_ID;
 			if (imagesOverview) {
@@ -389,12 +349,8 @@ public class ExpressionService extends BasicService {
 			List<String> tops = getListFromCollection(doc.getFieldValues(topLevelField));
 
 			// work out list of uberon/efo ids with/without expressions
-			
-
 			// noTopLevelCount.setCount(c);
-			if (tops.isEmpty()) {// if no top level found this image then add it
-									// to the "No top level" term docs so we can
-									// display orphaned terms and images
+			if (tops.isEmpty()) {// if no top level found this image then add it to the "No top level" term docs so we can display orphaned terms and images
 				expFacetToDocs.get(noTopTermId).add(doc);
 			} else {
 
@@ -409,17 +365,17 @@ public class ExpressionService extends BasicService {
 			}
 		}
 
-		
+
 		List<Count> topLevelAnatomyTerms = new ArrayList<>();
 		List<Count> filteredTopLevelAnatomyTerms = new ArrayList<>();
 		// if (fields.get(0).getValues().size() > 0) {
 
 		topLevelAnatomyTerms.addAll(fields.get(0).getValues());
 		if (expFacetToDocs.get(noTopTermId).size() > 0) {// only add this
-															// facet for no
-															// top levels
-															// found if
-															// there are any
+			// facet for no
+			// top levels
+			// found if
+			// there are any
 			Count dummyCountForImagesWithNoHigherLevelAnatomy = new Count(new FacetField(noTopTermId), noTopTermId,
 					expFacetToDocs.get(noTopTermId).size());
 			topLevelAnatomyTerms.add(dummyCountForImagesWithNoHigherLevelAnatomy);
@@ -434,14 +390,14 @@ public class ExpressionService extends BasicService {
 		} else {
 			filteredTopLevelAnatomyTerms = topLevelAnatomyTerms;
 		}
-		
+
 		for(Count count: filteredTopLevelAnatomyTerms){
 			Boolean hasImages=false;
 			if(count.getCount()>0){
 				hasImages=true;
 			}
 			haveImpcImages.put(count.getName(),hasImages );
-			
+
 		}
 
 		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelAnatomyTerms);
@@ -449,22 +405,22 @@ public class ExpressionService extends BasicService {
 
 		ExpressionImagesBean bean=null;
 //		if (parameterStableId.contains("EZ")) {//embryo
-			
+
 //			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelAnatomyTerms);
 //			model.addAttribute("haveImpcEmbryoImages", haveImpcImages);
 //			model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
-			bean=new ExpressionImagesBean(filteredTopLevelAnatomyTerms, haveImpcImages, expFacetToDocs );
+		bean=new ExpressionImagesBean(filteredTopLevelAnatomyTerms, haveImpcImages, expFacetToDocs );
 //		} else {
 //			model.addAttribute("impcAdultExpressionImageFacets", filteredTopLevelAnatomyTerms);
 //			model.addAttribute("haveImpcAdultImages", haveImpcImages);
 //			model.addAttribute("impcAdultExpressionFacetToDocs", expFacetToDocs);
 //		}
 		// }
-			return bean;
+		return bean;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param anatomogramDataBeans
 	 * @return
 	 * @throws SolrServerException, IOException
@@ -486,9 +442,9 @@ public class ExpressionService extends BasicService {
 
 		return topLevelMaToCountMap;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param anatomogramDataBeans
 	 * @return
 	 * @throws SolrServerException, IOException
@@ -498,7 +454,7 @@ public class ExpressionService extends BasicService {
 		Set<String> topLevelMaToCountMap = new HashSet<>();
 		for (AnatomogramDataBean bean : anatomogramDataBeans) {
 			for (String topMaId : bean.getTopLevelMaIds()) {
-					topLevelMaToCountMap.add(topMaId);
+				topLevelMaToCountMap.add(topMaId);
 			}
 		}
 
@@ -512,13 +468,13 @@ public class ExpressionService extends BasicService {
 		if(abnormalMaFromImpress ==null || abnormalMaFromImpress.size()==0){
 			this.initialiseAbnormalOntologyMaps();
 		}
-		
+
 		for (Count count : parameterCounts) {
 			AnatomogramDataBean bean = new AnatomogramDataBean();
 			bean.setParameterId(count.getName());
 			bean.setPatameterName(count.getName());
 			bean.setCount(count.getCount());
-			
+
 			if (abnormalMaFromImpress.containsKey(count.getName())) {
 				OntologyBean ontologyBean = abnormalMaFromImpress.get(count.getName());
 				bean.setMaId(ontologyBean.getId());
@@ -587,12 +543,12 @@ public class ExpressionService extends BasicService {
 	private void addAnatomogramSpecialIds(AnatomogramDataBean dataBean, JSONArray expList, JSONArray allPaths, List<String> uberonEfoIdsForAnatomogram,
 //				  Map<String, Set<String>> maId2Uberon,
 //				  Map<String, Set<String>> uberon2MaId,
-				  Map<String, Set<String>> maId2MappedUberonEfo,
-				  Map<String, Set<String>> mappedUberonEfo2MaId,
-				  Map<String, String> maId2maName,
-				  Map<String, String> maName2maId,
-				  Map<String, List<String>> maId2topLevelName,
-				  Map<String, Set<String>> topLevelName2maId ) {
+										  Map<String, Set<String>> maId2MappedUberonEfo,
+										  Map<String, Set<String>> mappedUberonEfo2MaId,
+										  Map<String, String> maId2maName,
+										  Map<String, String> maName2maId,
+										  Map<String, List<String>> maId2topLevelName,
+										  Map<String, Set<String>> topLevelName2maId ) {
 
 		String maTermId = dataBean.getMaId();
 
@@ -718,10 +674,10 @@ public class ExpressionService extends BasicService {
 
 	}
 
-	
+
 	public List<AnatomyPageTableRow> getLacZDataForAnatomy(String anatomyId,List<String> anatomyTerms, List<String> phenotypingCenter,
-		List<String> procedure, List<String> paramAssoc, String baseUrl)
-					throws SolrServerException, IOException  {
+														   List<String> procedure, List<String> paramAssoc, String baseUrl)
+			throws SolrServerException, IOException  {
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&fq=(anatomy_id:%22MA:0000031%22%20OR%20intermediate_anatomy_id:%22MA:0000031%22%20OR%20selected_top_level_anatomy_id:%22MA0000031%22)
 		SolrQuery query = new SolrQuery();
@@ -737,17 +693,18 @@ public class ExpressionService extends BasicService {
 				.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
 				.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
 						+ ":\"expression\"" + ")") // only have expressed and
-													// not expressed ingnore
-													// ambiguous and no tissue
+				// not expressed ingnore
+				// ambiguous and no tissue
 				.setRows(Integer.MAX_VALUE).setFields(ObservationDTO.SEX, ObservationDTO.ALLELE_SYMBOL,
-						ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.ANATOMY_ID,
-						ObservationDTO.ANATOMY_TERM, ObservationDTO.PROCEDURE_STABLE_ID, ObservationDTO.DATASOURCE_NAME,
-						// ObservationDTO.PARAMETER_ASSOCIATION_VALUE,
-						ObservationDTO.GENE_SYMBOL, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.PARAMETER_NAME,
-						ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PROCEDURE_NAME,
-						ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.INTERMEDIATE_ANATOMY_ID,
-						ObservationDTO.INTERMEDIATE_ANATOMY_TERM, ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID,
-						ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, ObservationDTO.CATEGORY);
+				ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.ANATOMY_ID,
+				ObservationDTO.ANATOMY_TERM, ObservationDTO.PROCEDURE_STABLE_ID, ObservationDTO.DATASOURCE_NAME,
+				// ObservationDTO.PARAMETER_ASSOCIATION_VALUE,
+				ObservationDTO.GENE_SYMBOL, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.PARAMETER_NAME,
+				ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PROCEDURE_NAME,
+				ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.INTERMEDIATE_ANATOMY_ID,
+				ObservationDTO.INTERMEDIATE_ANATOMY_TERM, ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID,
+				ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, ObservationDTO.CATEGORY)
+				.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
 		if (anatomyTerms != null) {
 			query.addFilterQuery(ObservationDTO.ANATOMY_TERM + ":\""
@@ -761,13 +718,13 @@ public class ExpressionService extends BasicService {
 			query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\""
 					+ StringUtils.join(procedure, "\" OR " + ObservationDTO.PROCEDURE_NAME + ":\"") + "\"");
 		}
-		 if (paramAssoc != null) {
-		 query.addFilterQuery(ObservationDTO.CATEGORY
-		 + ":\""
-		 + StringUtils.join(paramAssoc, "\" OR "
-		 + ObservationDTO.CATEGORY + ":\"")
-		 + "\"");
-		 }
+		if (paramAssoc != null) {
+			query.addFilterQuery(ObservationDTO.CATEGORY
+					+ ":\""
+					+ StringUtils.join(paramAssoc, "\" OR "
+					+ ObservationDTO.CATEGORY + ":\"")
+					+ "\"");
+		}
 
 		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(experimentSolr) + "/select?" + query);
 		List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
@@ -796,33 +753,33 @@ public class ExpressionService extends BasicService {
 	 * @author ilinca
 	 * @since 2016/07/08
 	 * @param anatomyId
-	 * @return List of gene ids with positive expression in given anatomy term. 
+	 * @return List of gene ids with positive expression in given anatomy term.
 	 * @throws SolrServerException, IOException
 	 */
 	public List<String> getGenesWithExpression(String anatomyId) throws SolrServerException, IOException {
-		
+
 		List<String> geneIds = new ArrayList<>();
 		SolrQuery q = new SolrQuery();
 		q.setQuery(ObservationDTO.CATEGORY + ":\"expression\"" )
-			.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"");
+				.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"");
 		if (anatomyId != null){
 			q.setFilterQueries(ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\" OR " +ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\"" );
 		}
 		q.setFacet(true)
-			.setFacetMinCount(1)
-			.setFacetLimit(-1)
-			.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
-		
+				.setFacetMinCount(1)
+				.setFacetLimit(-1)
+				.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
+
 		for (Count value: experimentSolr.query(q).getFacetFields().get(0).getValues()){
 			geneIds.add(value.getName());
 		}
 		return geneIds;
-		
+
 	}
-	
-	
+
+
 	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs,
-			boolean embryo) {
+											boolean embryo) {
 
 		ExpressionRowBean row = new ExpressionRowBean();
 		if (anatomyToDocs.containsKey(anatomy)) {
@@ -852,10 +809,10 @@ public class ExpressionService extends BasicService {
 					row = getExpressionCountForAnatomyTerm(anatomy, row, doc);
 				} else if (doc.get(ObservationDTO.OBSERVATION_TYPE).equals("image_record")
 						&& doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP).equals("experimental")) {// assume
-																									// image
-																									// with
-																									// parameterAssociation
-					
+					// image
+					// with
+					// parameterAssociation
+
 					//seperate images based on wholemount or section
 					//System.out.println("parameter_name="+doc);
 					row = homImages(row, doc);
@@ -912,7 +869,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	private ExpressionRowBean getExpressionCountForAnatomyTerm(String anatomy, ExpressionRowBean row,
-			SolrDocument doc) {
+															   SolrDocument doc) {
 
 		if (doc.containsKey(ImageDTO.PARAMETER_NAME)) {
 			String paramAssName = (String) doc.get(ObservationDTO.PARAMETER_NAME);
@@ -1079,7 +1036,7 @@ public class ExpressionService extends BasicService {
 		boolean noTissueAvailable = false;
 
 		private boolean imagesAvailable;
-		
+
 
 		public boolean isImagesAvailable() {
 			return imagesAvailable;
@@ -1088,7 +1045,7 @@ public class ExpressionService extends BasicService {
 		public void setImagesAvailable(boolean b) {
 			this.imagesAvailable = b;
 		}
-		
+
 		private boolean sectionImagesAvailable=false;
 		public boolean isSectionImagesAvailable() {
 			return sectionImagesAvailable;
@@ -1099,8 +1056,8 @@ public class ExpressionService extends BasicService {
 		}
 
 		private boolean wholemountImagesAvailable=false;
-		
-		
+
+
 
 		public boolean isWholemountImagesAvailable() {
 			return wholemountImagesAvailable;
@@ -1216,33 +1173,33 @@ public class ExpressionService extends BasicService {
 
 	public Map<String, Set<String>> getFacets(String anatomyId)
 			throws SolrServerException, IOException  {
-				Map<String, Set<String>> res = new HashMap<>();
-				SolrQuery query = getBasicExpressionQuery(anatomyId); // only have expressed and
-													// not expressed ingnore
-													// ambiguous and no tissue
-				//query.addFilterQuery("(" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"no expression\" OR " + ImageDTO.PARAMETER_ASSOCIATION_VALUE
-				//		+ ":\"expression\"" + ")");
-				query.setFacet(true);
-				query.setFacetLimit(-1);
-				query.setFacetMinCount(1);
-				query.addFacetField(ObservationDTO.ANATOMY_TERM);
-				query.addFacetField(ObservationDTO.PHENOTYPING_CENTER);
-				query.addFacetField(ObservationDTO.PROCEDURE_NAME);
-				query.addFacetField(ObservationDTO.CATEGORY);
+		Map<String, Set<String>> res = new HashMap<>();
+		SolrQuery query = getBasicExpressionQuery(anatomyId); // only have expressed and
+		// not expressed ingnore
+		// ambiguous and no tissue
+		//query.addFilterQuery("(" + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"no expression\" OR " + ImageDTO.PARAMETER_ASSOCIATION_VALUE
+		//		+ ":\"expression\"" + ")");
+		query.setFacet(true);
+		query.setFacetLimit(-1);
+		query.setFacetMinCount(1);
+		query.addFacetField(ObservationDTO.ANATOMY_TERM);
+		query.addFacetField(ObservationDTO.PHENOTYPING_CENTER);
+		query.addFacetField(ObservationDTO.PROCEDURE_NAME);
+		query.addFacetField(ObservationDTO.CATEGORY);
 
-				QueryResponse response = experimentSolr.query(query);
-				for (FacetField facetField : response.getFacetFields()) {
-					Set<String> filter = new TreeSet<>();
-					for (Count facet : facetField.getValues()) {
-							filter.add(facet.getName());
-						
-					}
-					
-					res.put(facetField.getName(), filter);
-				}
+		QueryResponse response = experimentSolr.query(query);
+		for (FacetField facetField : response.getFacetFields()) {
+			Set<String> filter = new TreeSet<>();
+			for (Count facet : facetField.getValues()) {
+				filter.add(facet.getName());
 
-				return res;
+			}
+
+			res.put(facetField.getName(), filter);
 		}
+
+		return res;
+	}
 
 	private SolrQuery getBasicExpressionQuery(String anatomyId) {
 		SolrQuery query = new SolrQuery();
@@ -1253,11 +1210,11 @@ public class ExpressionService extends BasicService {
 					+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
 		}
 		query.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
-		.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
-				+ ":\"expression\"" + ")");
+				.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
+						+ ":\"expression\"" + ")");
 		return query;
 	}
-	
+
 	/**
 	 * Method that checks the impc images and categorical obeservations for expression data which is either expressed or not expressed.
 	 * @param anatomyId
@@ -1272,7 +1229,7 @@ public class ExpressionService extends BasicService {
 		if(response.getResults().getNumFound() >0){
 			expressionData= true;
 		}
-		
+
 		//check the impc images core
 		if(this.impcImagesHasExpression(anatomyId)){
 			expressionData=true;
@@ -1288,10 +1245,11 @@ public class ExpressionService extends BasicService {
 		if(imagesSolr.query(solrQuery).getResults().getNumFound()>0){
 			return true;
 		}
-		
+
 		return false;
 	}
-	
-	
-	
+
+
+
 }
+
