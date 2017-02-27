@@ -1740,7 +1740,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             MediaFile mediaFile,
             DccExperimentDTO dccExperimentDTO,
             int samplePk,
-            int organisationPk,
+            String phenotypingCenter,
+            int phenotypingCenterPk,
             int experimentPk,
             List<SimpleParameter> simpleParameterList,
             List<OntologyParameter> ontologyParameterList
@@ -1781,7 +1782,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
                             ")";
 
-            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
+            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, phenotypingCenter, parameterStableId);
             String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, URI);
 
             parameterMap.clear();
@@ -1793,14 +1794,14 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("fileType", mediaFile.getFileType());
             parameterMap.put("mediaSampleLocalId", null);
             parameterMap.put("mediaSectionId", null);
-            parameterMap.put("organisationPk", organisationPk);
+            parameterMap.put("organisationPk", phenotypingCenterPk);
             parameterMap.put("fullResolutionFilePath", fullResolutionFilePath);
 
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
                 logger.error("INSERT to image_record_observation table for MediaSampleParameter failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
-                             parameterStableId, observationType.toString(), observationPk, samplePk, URI, mediaFile.getLink(), mediaFile.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
+                             parameterStableId, observationType.toString(), observationPk, samplePk, URI, mediaFile.getLink(), mediaFile.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
                 logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
@@ -1845,7 +1846,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             MediaParameter mediaParameter,
             DccExperimentDTO dccExperimentDTO,
             int samplePk,
-            int organisationPk
+            String phenotypingCenter,
+            int phenotypingCenterPk
     ) throws DataLoadException {
 
         KeyHolder keyholder     = new GeneratedKeyHolder();
@@ -1882,7 +1884,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
                             ")";
 
-            String filePathWithoutName    = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
+            String filePathWithoutName    = createNfsPathWithoutName(dccExperimentDTO, phenotypingCenter, parameterStableId);
             String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, mediaParameter.getURI());
 
             parameterMap.clear();
@@ -1894,14 +1896,14 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("fileType", mediaParameter.getFileType());
             parameterMap.put("mediaSampleLocalId", null);
             parameterMap.put("mediaSectionId", null);
-            parameterMap.put("organisationPk", organisationPk);
+            parameterMap.put("organisationPk", phenotypingCenterPk);
             parameterMap.put("fullResolutionFilePath", fullResolutionFilePath);
 
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
                 logger.error("INSERT to image_record_observation table for MediaParameter failed for parameterStableId {}, observationType {}, observationPk {}, imnageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
-                             parameterStableId, observationType.toString(), observationPk, mediaParameter.getLink(), mediaParameter.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
+                             parameterStableId, observationType.toString(), observationPk, mediaParameter.getLink(), mediaParameter.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
@@ -1996,7 +1998,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             SeriesMediaParameterValue seriesMediaParameterValue,
             DccExperimentDTO dccExperimentDTO,
             int samplePk,
-            int organisationPk,
+            String phenotypingCenter,
+            int phenotypingCenterPk,
             int experimentPk,
             List<SimpleParameter> simpleParameterList,
             List<OntologyParameter> ontologyParameterList
@@ -2036,7 +2039,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
                             ":observationPk, :samplePk, :downloadFilePath, :imageLink, :incrementValue, :fileType, :mediaSampleLocalId, :mediaSectionId, :organisationPk, :fullResolutionFilePath" +
                             ")";
 
-            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, parameterStableId);
+            String filePathWithoutName = createNfsPathWithoutName(dccExperimentDTO, phenotypingCenter, parameterStableId);
             String fullResolutionFilePath = getFullResolutionFilePath(filePathWithoutName, seriesMediaParameterValue.getURI());
 
             parameterMap.clear();
@@ -2044,11 +2047,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             parameterMap.put("samplePk", samplePk);
             parameterMap.put("downloadFilePath", seriesMediaParameterValue.getURI().toLowerCase());
             parameterMap.put("imageLink", seriesMediaParameterValue.getLink());
-            parameterMap.put("incrementValue", null);
+            parameterMap.put("incrementValue", seriesMediaParameterValue.getIncrementValue());
             parameterMap.put("fileType", seriesMediaParameterValue.getFileType());
             parameterMap.put("mediaSampleLocalId", null);
             parameterMap.put("mediaSectionId", null);
-            parameterMap.put("organisationPk", organisationPk);
+            parameterMap.put("organisationPk", phenotypingCenterPk);
             parameterMap.put("fullResolutionFilePath", fullResolutionFilePath);
 
             try {
@@ -2056,7 +2059,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             } catch (Exception e) {
                 logger.error("INSERT to image_record_observation table for SeriesMediaParameterValue failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk, fullResolutionFilePath {}. Reason:\n\t{}",
                              parameterStableId, observationType.toString(), observationPk, samplePk, seriesMediaParameterValue.getURI(), seriesMediaParameterValue.getLink(),
-                             seriesMediaParameterValue.getFileType(), organisationPk, fullResolutionFilePath, e.getLocalizedMessage());
+                             seriesMediaParameterValue.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
@@ -3509,8 +3512,8 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     // PRIVATE METHODS
 
 
-    private String createNfsPathWithoutName(DccExperimentDTO dccExperimentDTO, String parameterStableId) {
-        return dccExperimentDTO.getPhenotypingCenter() + "/" + dccExperimentDTO.getPipeline() + "/" + dccExperimentDTO.getProcedureId() + "/" + parameterStableId;
+    private String createNfsPathWithoutName(DccExperimentDTO dccExperimentDTO, String phenotypingCenter, String parameterStableId) {
+        return phenotypingCenter + "/" + dccExperimentDTO.getPipeline() + "/" + dccExperimentDTO.getProcedureId() + "/" + parameterStableId;
     }
 
 

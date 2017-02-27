@@ -819,16 +819,19 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
 
-        // Check for null/empty values. Values are not required - sometimes there is a parameterStatus instead, and sometimes an optional, empty or null value is provided. Ignore in all such cases.
+        // If the parameter is not already marked as missing, check for null/empty values. Values are not required - sometimes
+        // there is a parameterStatus instead, and sometimes an optional, empty or null value is provided. Ignore in all such cases.
         String value = simpleParameter.getValue();
-        if ((value == null) || value.trim().isEmpty()) {
-            if ((simpleParameter.getParameterStatus() == null) || (simpleParameter.getParameterStatus().trim().isEmpty())) {
-                if (requiredImpressParameters.contains(simpleParameter.getParameterID())) {
-                    logger.warn("Experiment {} has null/empty value and status for required simpleParameter {}",
-                                dccExperiment, simpleParameter.getParameterID());
+        if (missing == 0) {
+            if ((value == null) || value.trim().isEmpty()) {
+                if ((simpleParameter.getParameterStatus() == null) || (simpleParameter.getParameterStatus().trim().isEmpty())) {
+                    if (requiredImpressParameters.contains(simpleParameter.getParameterID())) {
+                        logger.warn("Experiment {} has null/empty value and status for required simpleParameter {}",
+                                    dccExperiment, simpleParameter.getParameterID());
+                    }
                 }
+                return;
             }
-            return;
         }
 
         int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
