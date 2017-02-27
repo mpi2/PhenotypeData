@@ -1,10 +1,10 @@
         var width = 222,
         height = 200;
         
-	    var cluster = d3.layout.cluster()
+	    var cluster = d3_v3.layout.cluster()
 	        .size([height, width - 160]);
 	
-	    var diagonal = d3.svg.diagonal()
+	    var diagonal = d3_v3.svg.diagonal()
 	        .projection(function(d) { return [d.y, d.x]; });
 	
 
@@ -20,22 +20,22 @@
 	 	    y: function(d) { return d.x; }
 	    };
 
-	    d3.select("#parentChild").style("width", width*2 + "px");
-	    d3.select("#childDiv").style("width", width + "px");
-	    d3.select("#parentDiv").style("width", width + "px");
+	    d3_v3.select("#parentChild").style("width", width*2 + "px");
+	    d3_v3.select("#childDiv").style("width", width + "px");
+	    d3_v3.select("#parentDiv").style("width", width + "px");
 	
 	    
 	    var svgP;
 
 	    if ((hasChildren == true) && (hasParents == true)){
-		    d3.select("#childDiv").style("width", width + "px");
-		    d3.select("#parentDiv").style("width", width + "px");
+		    d3_v3.select("#childDiv").style("width", width + "px");
+		    d3_v3.select("#parentDiv").style("width", width + "px");
 	    } else if ((hasChildren == true) && (hasParents != true)){
-		    d3.select("#childDiv").style("width", width*2 + "px");
-    		d3.selectAll("#childDiv").classed("half", false);
+		    d3_v3.select("#childDiv").style("width", width*2 + "px");
+    		d3_v3.selectAll("#childDiv").classed("half", false);
 	    } else if ((hasChildren != true) && (hasParents == true)){
-		    d3.select("#parentDiv").style("width", width*2 + "px");
-    		d3.selectAll("#parentDiv").classed("half", false);
+		    d3_v3.select("#parentDiv").style("width", width*2 + "px");
+    		d3_v3.selectAll("#parentDiv").classed("half", false);
 	    } 	    
 	    
 	    function shortenLabel(label){	    	
@@ -47,15 +47,15 @@
 	    }
 
 	    if (hasParents){
-		    d3.json("../" + ontPrefix + "Tree/json/" + ont_id + "?type=parents", function(error, root) {
+		    d3_v3.json("../" + ontPrefix + "Tree/json/" + ont_id + "?type=parents", function(error, root) {
 		    	
-		    	svgP = d3.select("#parentDiv").append("svg")
+		    	svgP = d3_v3.select("#parentDiv").append("svg")
 			        .attr("width", width)
 			        .attr("height", height)
 			        .append("g")
 			        .attr("transform", "translate(120,0)");
 		    	 
-			     var diagonalP = d3.svg.diagonal()
+			     var diagonalP = d3_v3.svg.diagonal()
 		        	.projection(function(d) { return [d.y, d.x]; });
 		    	
 			     if (error){ 
@@ -70,7 +70,7 @@
 			          .data(links)
 			          .enter().append("path")
 			          .attr("class", "link")
-			          .attr("d", d3.svg.diagonal().projection(function(d) { return [orientation_left.x(d), orientation_left.y(d)]; }));
+			          .attr("d", d3_v3.svg.diagonal().projection(function(d) { return [orientation_left.x(d), orientation_left.y(d)]; }));
 			
 			     var node = svgP.selectAll(".node")
 			          .data(nodes)
@@ -96,8 +96,8 @@
 		  		      .on('click', function(d, i) {
 						  window.location.href = "../" + page + "/"  + d.id;
 		  		      })
-			          .on("mouseover", function(){return d3.select(this.parentNode).select('text.tooltip').style("visibility", "visible");})
-			          .on("mouseout", function(){return d3.select(this.parentNode).select('text.tooltip').style("visibility", "hidden");});
+			          .on("mouseover", function(){return d3_v3.select(this.parentNode).select('text.tooltip').style("visibility", "visible");})
+			          .on("mouseout", function(){return d3_v3.select(this.parentNode).select('text.tooltip').style("visibility", "hidden");});
 		
 			     node.append("text")
 			          .attr("x", function(d) { return d.children ?  8 : -8; })
@@ -116,9 +116,9 @@
 	    }
 	    
 	    if (hasChildren){
-		    d3.json("../" + ontPrefix + "Tree/json/" + ont_id + "?type=children", function(error, root) {
+		    d3_v3.json("../" + ontPrefix + "Tree/json/" + ont_id + "?type=children", function(error, root) {
 		    	  
-			    var svg = d3.select("#childDiv").append("svg")
+			    var svg = d3_v3.select("#childDiv").append("svg")
 			        .attr("width", width)
 			        .attr("height", height)
 			        .append("g")
@@ -136,7 +136,7 @@
 			          .data(links)
 			          .enter().append("path")
 			          .attr("class", "link")
-			          .attr("d", d3.svg.diagonal().projection(function(d) { return [orientation_right.x(d), orientation_right.y(d)]; }));
+			          .attr("d", d3_v3.svg.diagonal().projection(function(d) { return [orientation_right.x(d), orientation_right.y(d)]; }));
 		
 			     var node = svg.selectAll(".node")
 			          .data(nodes)
@@ -162,8 +162,8 @@
 		   		      .on('click', function(d, i) {
 						  window.location.href = "../" + page + "/"  + d.id;
 					   })
-				      .on("mouseover", function(){return d3.select(this.parentNode).select('text.tooltip').style("visibility", "visible");})
-				      .on("mouseout", function(){return d3.select(this.parentNode).select('text.tooltip').style("visibility", "hidden");}); // width of the node labels; 
+				      .on("mouseover", function(){return d3_v3.select(this.parentNode).select('text.tooltip').style("visibility", "visible");})
+				      .on("mouseout", function(){return d3_v3.select(this.parentNode).select('text.tooltip').style("visibility", "hidden");}); // width of the node labels; 
 			     
 			     node.append("text")
 			          .attr("x", function(d) { return d.children ?  -8 : 8; })
@@ -179,5 +179,5 @@
 	    }
 	     
 	   
-	    d3.select(self.frameElement).style("height", height + "px");
+	    d3_v3.select(self.frameElement).style("height", height + "px");
 	    
