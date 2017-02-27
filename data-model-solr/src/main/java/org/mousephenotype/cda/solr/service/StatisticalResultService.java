@@ -324,6 +324,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			query.set("group", true);
 			query.set("group.field", StatisticalResultDTO.PROCEDURE_NAME);
 			query.setRows(10000);
+			query.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 			query.set("group.limit", 1);
 			if (!includeWilcoxon){
 				query.addFilterQuery("-" + StatisticalResultDTO.STATISTICAL_METHOD + ":Wilcoxon*");
@@ -446,6 +447,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.addField(StatisticalResultDTO.MARKER_SYMBOL);
 		query.addField(StatisticalResultDTO.SIGNIFICANT);
     	query.setRows(Integer.MAX_VALUE);
+		query.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
 		System.out.println("S_R:::   " + query);
 
@@ -586,6 +588,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.setQuery(q);
 		query.addFilterQuery("(" + StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[4 TO 100000] OR " + StatisticalResultDTO.MALE_CONTROL_COUNT + ":[4 TO 100000])");
 		query.setRows(10000000);
+		query.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 		query.setFields(StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.FEMALE_CONTROL_MEAN, StatisticalResultDTO.MARKER_SYMBOL,
 			StatisticalResultDTO.FEMALE_MUTANT_MEAN, StatisticalResultDTO.MALE_CONTROL_MEAN, StatisticalResultDTO.MALE_MUTANT_MEAN,
 			StatisticalResultDTO.FEMALE_CONTROL_COUNT, StatisticalResultDTO.FEMALE_MUTANT_COUNT, StatisticalResultDTO.MALE_CONTROL_COUNT, StatisticalResultDTO.MALE_MUTANT_COUNT);
@@ -1105,7 +1108,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.addFacetField(StatisticalResultDTO.PROCEDURE_NAME );
 		query.addFacetField(StatisticalResultDTO.MARKER_SYMBOL);
 		query.addFacetField(StatisticalResultDTO.MP_TERM_NAME );
-		query.set("sort", "p_value asc");
+		query.setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc);
 		query.setRows(10000000);
 		query.set("wt", "json");
 		query.set("version", "2.2");
@@ -1268,7 +1271,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.addField(StatisticalResultDTO.MARKER_SYMBOL)
 				.addField(StatisticalResultDTO.STATUS)
 				.addField(StatisticalResultDTO.SIGNIFICANT)
-				.setRows(Integer.MAX_VALUE);
+				.setRows(Integer.MAX_VALUE)
+				.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
 		q.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*"); // Ignore MPATH or other types of associations
 		q.add("group", "true");
@@ -1322,7 +1326,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	        .addField(StatisticalResultDTO.MARKER_SYMBOL)
 	        .addField(StatisticalResultDTO.STATUS)
 	        .addField(StatisticalResultDTO.P_VALUE)
-	        .setRows(10000000);
+	        .setRows(10000000)
+			.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 	        q.add("group", "true");
 	        q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
 	        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
@@ -1413,6 +1418,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	SolrQuery q = new SolrQuery()
           	.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
           	.setRows(10000);
+
     	q.add("group", "true");
     	q.add("group.field", StatisticalResultDTO.PROCEDURE_NAME);
     	q.add("group.rows", "1");
@@ -1524,7 +1530,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
 				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " +
 				StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":\"" + mpId + "\" OR " +
-				StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")").setRows(10000);
+				StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")")
+				.setRows(10000)
+				.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 		q.set("group.field", "" + StatisticalResultDTO.MARKER_SYMBOL);
 		q.set("group", true);
 		q.set("group.limit", 0);
@@ -1549,11 +1557,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.addField(StatisticalResultDTO.PHENOTYPING_CENTER)
 				.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
 				.addField(StatisticalResultDTO.PARAMETER_NAME)
-				.addField(StatisticalResultDTO.P_VALUE);
+				.addField(StatisticalResultDTO.P_VALUE)
+				.setRows(Integer.MAX_VALUE)
+				.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
-		QueryResponse response = solr.query(q);
-		Long rows = response.getResults().getNumFound();
-		q.setRows(Integer.parseInt(rows.toString()));
 		List<StatisticalResultDTO> result = solr.query(q).getBeans(StatisticalResultDTO.class);
 
 		return result;
