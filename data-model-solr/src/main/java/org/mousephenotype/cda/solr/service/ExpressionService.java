@@ -152,6 +152,8 @@ public class ExpressionService extends BasicService {
 
 		solrQuery.setFields(fields);
 		solrQuery.setRows(100000);
+		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
 	}
@@ -189,8 +191,9 @@ public class ExpressionService extends BasicService {
 
 		solrQuery.addSort(ImageDTO.ID, SolrQuery.ORDER.asc);
 		solrQuery.setFields(fields);
-
 		solrQuery.setRows(Integer.MAX_VALUE);
+		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+
 		QueryResponse response = experimentSolr.query(solrQuery);
 		return response;
 	}
@@ -268,6 +271,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFields(fields);
 		solrQuery.addFacetField(ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		solrQuery.setRows(Integer.MAX_VALUE);
+		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 		QueryResponse response = imagesSolr.query(solrQuery);
 		return response;
 	}
@@ -699,7 +703,8 @@ public class ExpressionService extends BasicService {
 						ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PROCEDURE_NAME,
 						ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.INTERMEDIATE_ANATOMY_ID,
 						ObservationDTO.INTERMEDIATE_ANATOMY_TERM, ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID,
-						ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, ObservationDTO.CATEGORY);
+						ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, ObservationDTO.CATEGORY)
+				.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
 		if (anatomyTerms != null) {
 			query.addFilterQuery(ObservationDTO.ANATOMY_TERM + ":\""
