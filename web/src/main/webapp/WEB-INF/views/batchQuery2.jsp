@@ -321,8 +321,9 @@
 
 
                 if ( window.location.search != ""){
+				alert(window.location.search)
                     var oConf = convertParamToObject(decodeURIComponent(window.location.search));
-                    console.log(oConf);
+                    console.log("oConf: " + oConf);
 
                     prepare_dataTable(oConf.fllist);
                     fetchBatchQueryDataTable(oConf);
@@ -395,7 +396,7 @@
                 //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
                 $('textarea#pastedList').val("For example:\n" + $('input#geneId').attr("value"));
 
-                freezeDefaultCheckboxes(); // not doing this for now: allow default ones to be selectable
+                //freezeDefaultCheckboxes(); // not doing this for now: allow default ones to be selectable
                 //chkboxAllert();  for now, don't want automatic resubmit each time a checkbox is clicked
                 var currDataType  = false;
 
@@ -482,7 +483,7 @@
                                 //console.log(htmlStr);
                             	$('div#fieldList').html(htmlStr);
                                 addAttrChecker();
-                            	freezeDefaultCheckboxes();
+                            	//freezeDefaultCheckboxes();
                             	toggleAllFields();
                             	//chkboxAllert();
                             },
@@ -797,18 +798,19 @@
             	}
             	else { 
             		var currDataType = $('input.bq:checked').attr('id');
-alert(currDataType)
+//alert(currDataType)
             		idList = parsePastedList($('textarea#pastedList').val(), currDataType);
 
-            		if ( idList !== false ){
-            			var fllist = fetchSelectedFieldList();
 
-                     	prepare_dataTable(fllist);
+            		if ( idList !== false ){
+            			var kv = fetchSelectedFieldList();
+
+                     	prepare_dataTable(kv.fllist);
                      	
                      	var oConf = {};
                      	oConf.idlist = idList;
-                     	oConf.fllist = fllist;
-                     	oConf.corename = currDataType;
+                     	oConf.labelFllist = kv.labelFllist;
+                     	oConf.dataType = currDataType;
 
                      	fetchBatchQueryDataTable(oConf);
             		}
@@ -845,13 +847,12 @@ alert(currDataType)
 	                      		$('div#errBlock').html("UPLOAD ERROR: unprocessed identifier(s): " + j.badIdList).show();
 	                      	}
 	                      		
-	                		var fllist = fetchSelectedFieldList();
-	                     	prepare_dataTable(fllist);
+	                		var kv = fetchSelectedFieldList();
+	                     	prepare_dataTable(kv.fllist);
 	                     	
 	                     	var oConf = {};
 	                     	oConf.idlist = j.goodIdList;
-	                     	oConf.fllist = fllist;
-	                     	oConf.corename = currDataType;
+	                     	oConf.labelFllist = kv.labelFllist
 	                     	
 	                     	fetchBatchQueryDataTable(oConf);
 	                 	},
@@ -860,53 +861,41 @@ alert(currDataType)
             	}
             	return false; // so that the form can only be submitted via ajax
             }
-            
-            function fetchFullDataset(){
-            	
-            	 if ( $('input#fulldata').is(':checked') ){
-            		refreshResult(); // refresh first 
-            		
-            		var fllist = fetchSelectedFieldList();
-                 	var currDataType = $('input.bq:checked').attr('id') == 'marker_symbol' ? 'gene' : $('input.bq:checked').attr('id');
-                 	
-                 	prepare_dataTable(fllist);
-                 	
-                 	var oConf = {};
-                 	oConf.idlist = '*';
-                 	oConf.fllist = fllist;
-                 	oConf.corename = currDataType;
-                 	
-                 	fetchBatchQueryDataTable(oConf);
-                 }
-                 else {
-                 	alert ("Please tick the checkbox to fetch the full dataset");
-                 }
-                 return false;
-            }
-            
+
             function fetchSelectedFieldList(){
+                var kv = {};
+                var labelList = {};
                 var fllist = [];
                 $("div#fieldList").find("input:checked").each(function(){
+                    var dbLabel = $(this).attr("name");
+                    if ( ! (dbLabel in labelList) ){
+                        labelList[dbLabel] = [];
+                    }
+                    labelList[dbLabel].push($(this).val());
                     fllist.push($(this).val());
-				});
 
-            	return fllist.join(",");
+                    //console.log(dbLabel + " -- " + $(this).val());
+				});
+                kv.labelFllist = JSON.stringify(labelList);
+                kv.fllist = fllist;
+
+            	return kv;
             }
             
-            function prepare_dataTable(fllist){
-            	
-            	var flList = fllist.split(',');
-            	
+            function prepare_dataTable(flList){
+
+                console.log("list: "+ flList);
             	var th = '';
             	for ( var i=0; i<flList.length; i++){
-            		th += "<th>" + flList[i] + "</th>";
+            	    var colname = flList[i].replace(/_/g, " ");
+            		th += "<th>" + colname + "</th>";
             	}
-            	
+
             	var tableHeader = "<thead>" + th + "</thead>";
             	var tableCols = flList.length;
-            	
+
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "batchq");
-                
+
                 $('div#bqResult').append(dTable);
             }
             
@@ -960,7 +949,7 @@ alert(currDataType)
             }
             
             function fetchBatchQueryDataTable(oConf) {
-
+                console.log(oConf);
             	// deals with duplicates and take a max of first 10 records to show the users
             	oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
 	            //oConf.idlist = getUniqIdsStr(oConf.idlist);
@@ -1012,7 +1001,8 @@ alert(currDataType)
                    		
                    		$('button.gridDump').click(function(){
                     		
-                    		var fllist = fetchSelectedFieldList();
+                    		var kv = fetchSelectedFieldList();
+                    		var fllist = kv.fllist;
                     		var errMsg = 'AJAX error trying to export dataset';
                     		var currDataType = $('input.bq:checked').attr('id');
                     		var idList = null;

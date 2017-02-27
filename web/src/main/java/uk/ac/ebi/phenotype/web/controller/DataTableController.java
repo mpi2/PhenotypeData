@@ -64,6 +64,7 @@ import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,93 +198,6 @@ public class DataTableController {
 		//System.out.println("mgi id: " + mgiIds);
 
 		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, oriDataTypeName, queryIds);
-		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
-	}
-	@RequestMapping(value = "/dataTable_bq2", method = RequestMethod.POST)
-	public ResponseEntity<String> bqDataTableJson2(
-			@RequestParam(value = "idlist", required = true) String idlist,
-			@RequestParam(value = "fllist", required = true) String fllist,
-			@RequestParam(value = "corename", required = true) String dataTypeName,
-
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Model model) throws IOException, URISyntaxException, SolrServerException {
-
-		String content = null;
-
-		String oriDataTypeName = dataTypeName;
-		List<String> queryIds = new ArrayList<>();
-
-		System.out.println("dataTypename: " + dataTypeName);
-
-		if ( dataTypeName.equals("geneChr")){
-
-			dataTypeName = oriDataTypeName = "gene";
-
-			Pattern pattern = Pattern.compile("^\"Chr(\\w+):(\\d+)-(\\d+)");
-			Matcher matcher = pattern.matcher(idlist);
-
-			String chr = null;
-			String chrStart = null;
-			String chrEnd = null;
-			while (matcher.find()) {
-				chr = matcher.group(1);
-				chrStart = matcher.group(2);
-				chrEnd = matcher.group(3);
-			}
-			String mode = "show10";
-			queryIds = solrIndex.fetchQueryIdsFromChrRange(chr, chrStart, chrEnd, "show10");
-		}
-		else if ( dataTypeName.equals("geneId")){
-			dataTypeName = oriDataTypeName = "gene";
-			queryIds = Arrays.asList(idlist.split(","));
-		}
-		else if (dataTypeName.equals("mpTerm")) {
-
-		}
-		else {
-			queryIds = Arrays.asList(idlist.split(","));
-		}
-
-		Long time = System.currentTimeMillis();
-
-		List<String> mgiIds = new ArrayList<>();
-		List<org.mousephenotype.cda.solr.service.dto.GeneDTO> genes = new ArrayList<>();
-		List<QueryResponse> solrResponses = new ArrayList<>();
-
-		List<String> batchIdList = new ArrayList<>();
-		String batchIdListStr = null;
-
-		int counter = 0;
-
-		//System.out.println("id length: "+ queryIds.size());
-		// will show only 10 records to the users to show how the data look like
-		for ( String id : queryIds ) {
-			counter++;
-
-			// limit the batch size
-			//if ( counter < 11 ){
-			batchIdList.add(id);
-			//}
-		}
-		queryIds = batchIdList;
-
-		// batch solr query
-		batchIdListStr = StringUtils.join(batchIdList, ",");
-		if ( !batchIdListStr.startsWith("\"") && !batchIdListStr.endsWith("\"")){
-			batchIdListStr = "\"" + batchIdListStr + "\"";
-		}
-		//System.out.println("idstr: "+ batchIdListStr);
-		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
-		/*
-		if ( genes.size() == 0 ){
-			mgiIds = queryIds;
-		}*/
-
-		//System.out.println("Get " + mgiIds.size() + " out of " + queryIds.size() + " mgi genes by ensembl id/marker_symbol took: " + (System.currentTimeMillis() - time));
-		//System.out.println("mgi id: " + mgiIds);
-
-		content = fetchBatchQueryDataTableJson2(request, solrResponses, fllist, oriDataTypeName, queryIds);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
 
