@@ -20,11 +20,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-
         <selenium.version>2.41.0</selenium.version>
         <selenium-firefox.version>2.44.0</selenium-firefox.version>
-
     </properties>
 
     <dependencies>
@@ -41,11 +38,29 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.mousephenotype.cda</groupId>-->
-            <!--<artifactId>data-model</artifactId>-->
-            <!--<version>0.0.1</version>-->
-        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-parent</artifactId>
+        </dependency>
+
+        <!-- ensure that the embedded servlet container doesn’t interfere with the servlet container to which the war file will be deployed -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
@@ -102,6 +117,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
 
 
         <!-- servlet API is provided by the container -->
