@@ -56,17 +56,16 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
     private CdaSqlUtils cdaSqlUtils;
 
     private final String[] expectedHeadings = new String[] {
-              "Marker Symbol"
-            , "MGI Accession ID"
-            , "Colony Name"
-            , "Es Cell Name"
-            , "Colony Background Strain"
-            , "Production Centre"
-            , "Production Consortium"
-            , "Phenotyping Centre"
-            , "Phenotyping Consortium"
-            , "Cohort Production Centre"
-            , "Allele Symbol"
+            "Marker Symbol"
+          , "MGI Accession ID"
+          , "Colony Name"
+          , "Es Cell Name"
+          , "Colony Background Strain"
+          , "Cohort Production Centre"
+          , "Production Consortium"
+          , "Phenotyping Centre"
+          , "Phenotyping Consortium"
+          , "Allele Symbol"
     };
 
 
@@ -82,17 +81,16 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         // Validate the file using the heading names and initialize any collections.
         if (lineNumber == 1) {
             String[] actualHeadings = new String[] {
-                  newPhenotypedColony.getGene().getSymbol()
-                , newPhenotypedColony.getGene().getId().getAccession()
-                , newPhenotypedColony.getColonyName()
-                , newPhenotypedColony.getEs_cell_name()
-                , newPhenotypedColony.getBackgroundStrainName()
-                , newPhenotypedColony.getProductionCentre().getName()
-                , newPhenotypedColony.getProductionConsortium().getName()
-                , newPhenotypedColony.getPhenotypingCentre().getName()
-                , newPhenotypedColony.getPhenotypingConsortium().getName()
-                , newPhenotypedColony.getCohortProductionCentre().getName()
-                , newPhenotypedColony.getAlleleSymbol()
+                    newPhenotypedColony.getGene().getSymbol()
+                  , newPhenotypedColony.getGene().getId().getAccession()
+                  , newPhenotypedColony.getColonyName()
+                  , newPhenotypedColony.getEs_cell_name()
+                  , newPhenotypedColony.getBackgroundStrain()
+                  , newPhenotypedColony.getProductionCentre().getName()
+                  , newPhenotypedColony.getProductionConsortium().getName()
+                  , newPhenotypedColony.getPhenotypingCentre().getName()
+                  , newPhenotypedColony.getPhenotypingConsortium().getName()
+                  , newPhenotypedColony.getAlleleSymbol()
             };
 
             for (int i = 0; i < expectedHeadings.length; i++) {
@@ -137,15 +135,6 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         }
         newPhenotypedColony.setGene(gene);
 
-        String mappedOrganisation = loadUtils.translateTerm(newPhenotypedColony.getProductionCentre().getName());
-        Organisation productionCentre = organisations.get(mappedOrganisation);
-        if (productionCentre == null) {
-            missingOrganisations.add("Skipped unknown productionCentre::translated " + newPhenotypedColony.getProductionCentre().getName() + "::" + mappedOrganisation);
-            return null;
-        } else {
-            newPhenotypedColony.setProductionCentre(productionCentre);
-        }
-
         String mappedProject = loadUtils.translateTerm(newPhenotypedColony.getProductionConsortium().getName());
         Project productionConsortium = projects.get(mappedProject);
         if (productionConsortium == null) {
@@ -173,13 +162,13 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             newPhenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
         }
 
-        String mappedCohortProductionCentre = loadUtils.translateTerm(newPhenotypedColony.getCohortProductionCentre().getName());
-        Organisation cohortProductionCentre = organisations.get(mappedCohortProductionCentre);
-        if (cohortProductionCentre == null) {
-            missingOrganisations.add("Skipped unknown cohortProductionCentre::translated " + newPhenotypedColony.getCohortProductionCentre().getName() + "::" + mappedCohortProductionCentre);
+        String mappedProductionCentre = loadUtils.translateTerm(newPhenotypedColony.getProductionCentre().getName());
+        Organisation productionCentre = organisations.get(mappedProductionCentre);
+        if (productionCentre == null) {
+            missingOrganisations.add("Skipped unknown productionCentre::translated " + newPhenotypedColony.getProductionCentre().getName() + "::" + mappedProductionCentre);
             return null;
         } else {
-            newPhenotypedColony.setCohortProductionCentre(cohortProductionCentre);
+            newPhenotypedColony.setProductionCentre(productionCentre);
         }
 
         addedPhenotypedColoniesCount++;
