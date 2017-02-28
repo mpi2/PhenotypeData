@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This class encapsulates the time series parameters used by the web and selenium-tests modules.
+ * This class encapsulates the time series parameters used by the web and tests modules.
  *
  * Created by mrelac on 14/07/2015.
  */
