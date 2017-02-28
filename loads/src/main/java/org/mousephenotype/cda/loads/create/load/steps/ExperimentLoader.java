@@ -450,6 +450,27 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
             return null;
         }
+
+        PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+        if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
+            missingColonyIds.add("Missing colony '" + dccExperiment.getColonyId() + "'");
+            if (dccExperiment.isLineLevel()) {
+                experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+            } else {
+                experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+            }
+            return null;
+        }
+
+        // EuroPhenome experiments with project 'MGP' in the imits list must override their experiment's db_id and project with the key for MGP.
+        if (dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.EUROPHENOME)) {
+            if (phenotypedColony.getPhenotypingConsortium().getName().equals(CdaSqlUtils.MGP)) {
+                dccExperiment.setProject(CdaSqlUtils.MGP);
+                dccExperiment.setDatasourceShortName(CdaSqlUtils.MGP);
+                dbId = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
+            }
+        }
+
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
         if (projectPk == null) {
             missingProjects.add("Missing project '" + dccExperiment.getProject() + "'");
@@ -498,17 +519,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         //  - null colony_id
         //  - null biological_model_id
         if (dccExperiment.isLineLevel()) {
-
-            PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
-            if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                missingColonyIds.add("Missing colony '" + dccExperiment.getColonyId() + "'");
-                if (dccExperiment.isLineLevel()) {
-                    experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
-                } else {
-                    experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
-                }
-                return null;
-            }
 
             colonyId = phenotypedColony.getColonyName();
             dateOfExperiment = null;

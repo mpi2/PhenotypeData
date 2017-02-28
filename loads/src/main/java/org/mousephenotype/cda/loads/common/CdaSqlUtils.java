@@ -73,6 +73,9 @@ public class CdaSqlUtils {
     public static final String BIOTYPE_TM1A_STRING = "Targeted (Floxed/Frt)";
     public static final String BIOTYPE_TM1E_STRING = "Targeted (Reporter)";
 
+    public static final String EUROPHENOME = "EuroPhenome";         // The datasourceShortName for dcc_europhenome_final loads
+    public static final String MGP         = "MGP";                 // The MGP project name
+
 
     public static final String OBSERVATION_INSERT = "INSERT INTO observation (" +
             "db_id, biological_sample_id, parameter_id, parameter_stable_id, sequence_id, population_id," +
@@ -1569,11 +1572,32 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
     public Map<String, PhenotypedColony> getPhenotypedColonies() {
 
         Map<String, PhenotypedColony> list = new HashMap<>();
-        String query = "SELECT\n" +
-                "  pc.*,\n" +
+        String query =
+                "-- PhenotypedColonyRowMapper.sql\n" +
+                "\n" +
+                "SELECT\n" +
+                "  pc.id,\n" +
+                "  pc.colony_name,\n" +
+                "  pc.es_cell_name,\n" +
+                "  pc.gf_acc,\n" +
+                "  pc.gf_db_id,\n" +
+                "  pc.allele_symbol,\n" +
+                "  pc.background_strain_name,\n" +
+                "  pc.phenotyping_centre_organisation_id,\n" +
+                "  pcphorg.name                              AS pc_phenotyping_centre_name,\n" +
+                "  pc.phenotyping_consortium_project_id,\n" +
+                "  pcphprj.name                              AS pc_phenotyping_project_name,\n" +
+                "  pc.production_centre_organisation_id,\n" +
+                "  pcprorg.name                              AS pc_production_centre_name,\n" +
+                "  pc.production_consortium_project_id,\n" +
+                "  pcprprj.name                              AS pc_production_project_name,\n" +
                 "  gf.*\n" +
-                "FROM phenotyped_colony pc\n" +
-                "JOIN genomic_feature gf ON gf.db_id = gf_db_id AND gf.acc = pc.gf_acc";
+                "FROM phenotyped_colony  pc\n" +
+                "            JOIN genomic_feature    gf          ON gf       .db_id  = gf_db_id AND gf.acc = pc.gf_acc\n" +
+                "            JOIN organisation       pcphorg     ON pcphorg  .id     = pc.phenotyping_centre_organisation_id\n" +
+                "            JOIN project            pcphprj     ON pcphprj  .id     = pc.phenotyping_consortium_project_id\n" +
+                "LEFT OUTER  JOIN organisation       pcprorg     ON pcprorg  .id     = pc.phenotyping_centre_organisation_id\n" +
+                "LEFT OUTER  JOIN project            pcprprj     ON pcprprj  .id     = pc.phenotyping_consortium_project_id";
 
         List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<>(), new PhenotypedColonyRowMapper());
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
@@ -3334,18 +3358,22 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             Organisation phenotypingCenter = new Organisation();
             phenotypingCenter.setId(rs.getInt("phenotyping_centre_organisation_id"));
+            phenotypingCenter.setName(rs.getString("pc_phenotyping_centre_name"));
             phenotypedColony.setPhenotypingCentre(phenotypingCenter);
 
             Project phenotypingConsortium = new Project();
             phenotypingConsortium.setId(rs.getInt("phenotyping_consortium_project_id"));
+            phenotypingConsortium.setName(rs.getString("pc_phenotyping_project_name"));
             phenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
 
-            Organisation production = new Organisation();
-            production.setId(rs.getInt("production_centre_organisation_id"));
-            phenotypedColony.setProductionCentre(production);
+            Organisation productionCenter = new Organisation();
+            productionCenter.setId(rs.getInt("production_centre_organisation_id"));
+            productionCenter.setName(rs.getString("pc_production_centre_name"));
+            phenotypedColony.setProductionCentre(productionCenter);
 
             Project productionConsortium = new Project();
             productionConsortium.setId(rs.getInt("production_consortium_project_id"));
+            productionConsortium.setName(rs.getString("pc_production_project_name"));
             phenotypedColony.setProductionConsortium(productionConsortium);
 
             return phenotypedColony;
