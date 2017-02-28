@@ -32,11 +32,11 @@
         <selenium.version>2.48.0</selenium.version>
     </properties>
 
-    <artifactId>selenium-tests</artifactId>
+    <artifactId>tests</artifactId>
     <packaging>jar</packaging>
 
-    <name>selenium-tests</name>
-    <description>Code for selenium web tests
+    <name>tests</name>
+    <description>Code for PhenotypeArchive tests, including selenium tests and tomcat regression tests
     </description>
 
     <dependencies>
