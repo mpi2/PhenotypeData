@@ -25,6 +25,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
@@ -141,7 +142,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      * @param idgClass one of [GPCRs, Ion Channels, Ion Channels]
      * @return
      */
-    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException {
+    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, JSONException {
 
 
         try {
