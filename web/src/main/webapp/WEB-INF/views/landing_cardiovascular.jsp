@@ -71,8 +71,9 @@
                         </div>
 
 
-                        <div class="section">
-                            <%--IMPC images--%>
+                        <%--removed images section until we have appropriate associated images
+                         <div class="section">
+                            IMPC images
                             <c:if test="${not empty impcImageGroups}">
                                 <div class="section" id="imagesSection">
                                     <h2 class="title">Associated Images </h2>
@@ -81,7 +82,7 @@
                                     </div>
                                 </div>
                             </c:if>
-                        </div>
+                        </div> --%>
 
 
                         <div class="section">
