@@ -15,48 +15,24 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
-import org.mousephenotype.cda.solr.generic.util.Tools;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import scala.Int;
-import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.GeneIdentifier;
-import uk.ac.ebi.phenodigm.web.AssociationSummary;
-import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.ebi.uniprot.jaxb.InteractantType;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -67,13 +43,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.sql.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.lang.Integer.parseInt;
 
 
 @Controller
