@@ -180,7 +180,7 @@ public class Tools {
 		Map<String, String> friendlyNameMap = new HashMap<>();
 		friendlyNameMap.put("mgi_accession_id", "MGI gene id");
 		friendlyNameMap.put("marker_symbol", "MGI gene symbol");
-		friendlyNameMap.put("human_gene_symbol", "HGNC gene symbol");
+		friendlyNameMap.put("human_gene_symbol", "Human ortholog");
 		friendlyNameMap.put("marker_name", "MGI marker name");
 		friendlyNameMap.put("marker_synonym", "MGI marker synonym");
 		friendlyNameMap.put("marker_type", "MGI marker type");
@@ -420,27 +420,26 @@ public class Tools {
 		Map<String, String> diseaseAttrs = new LinkedHashMap<>();
 		Map<String, String> humanAttrs = new LinkedHashMap<>();
 
-		geneAttrs.put("mgi_accession_id", "default");
-		geneAttrs.put("ensembl_gene_id", "default");
 		geneAttrs.put("marker_symbol", "default");
-		geneAttrs.put("human_gene_symbol", "default");
-		geneAttrs.put("marker_name", "default");
-		geneAttrs.put("marker_synonym", "default");
-		geneAttrs.put("marker_type", "default");
+		geneAttrs.put("mgi_accession_id", "");
+		geneAttrs.put("ensembl_gene_id", "");
+		geneAttrs.put("human_gene_symbol", "");
+		geneAttrs.put("marker_name", "");
+		geneAttrs.put("marker_synonym", "");
+		geneAttrs.put("marker_type", "");
 		geneAttrs.put("seq_region_id", "");
 		geneAttrs.put("seq_region_start", "");
 		geneAttrs.put("seq_region_end", "");
 
-		alleleAttrs.put("allele_mgi_accession_id", "default");
-		alleleAttrs.put("allele_name", "default");
-		alleleAttrs.put("es_cell_status", "default");
-		alleleAttrs.put("mouse_status", "default");
-		alleleAttrs.put("phenotype_status", "default");
-		alleleAttrs.put("mutation_type", "default");
-		alleleAttrs.put("allele_description", "default");
+		alleleAttrs.put("allele_mgi_accession_id", "");
+		alleleAttrs.put("allele_name", "");
+		alleleAttrs.put("es_cell_status", "");
+		alleleAttrs.put("mouse_status", "" );
+		alleleAttrs.put("phenotype_status", "");
+		alleleAttrs.put("allele_description", "");
 
-		diseaseAttrs.put("disease_id", "default");
-		diseaseAttrs.put("disease_term", "default");
+		diseaseAttrs.put("disease_id", "");
+		diseaseAttrs.put("disease_term", "");
 		diseaseAttrs.put("disease_classes", "");
 		diseaseAttrs.put("disease_locus", "");
 		diseaseAttrs.put("human_curated", "");  // ortholog
@@ -453,18 +452,18 @@ public class Tools {
 		diseaseAttrs.put("impc_novel_predicted_in_locus", "");
 		diseaseAttrs.put("impc_novel_predicted_in_locus", "");
 
-		phenotypeAttrs.put("mp_id", "default");
-		phenotypeAttrs.put("mp_term", "default");
+		phenotypeAttrs.put("mp_id", "");
+		phenotypeAttrs.put("mp_term", "");
 		phenotypeAttrs.put("mp_definition", "");
 		phenotypeAttrs.put("top_level_mp_id", "");
 		phenotypeAttrs.put("top_level_mp_term", "");
 		phenotypeAttrs.put("p_value", "");
 		phenotypeAttrs.put("hasQc", "");
 
-		anatomyAttrs.put("ma_id", "default");
-		anatomyAttrs.put("ma_term", "default");
-		anatomyAttrs.put("selected_top_level_ma_id", "");
-		anatomyAttrs.put("selected_top_level_ma_term", "");
+//		anatomyAttrs.put("ma_id", "default");
+//		anatomyAttrs.put("ma_term", "default");
+//		anatomyAttrs.put("selected_top_level_ma_id", "");
+//		anatomyAttrs.put("selected_top_level_ma_term", "");
 
 		humanAttrs.put("hp_id", "");
 		humanAttrs.put("hp_term", "");
@@ -473,7 +472,7 @@ public class Tools {
 		friendlyNameMap.put("mgi_accession_id", "MGI gene id");
 		friendlyNameMap.put("ensembl_gene_id", "Ensembl mouse gene id");
 		friendlyNameMap.put("marker_symbol", "MGI gene symbol");
-		friendlyNameMap.put("human_gene_symbol", "HGNC gene symbol");
+		friendlyNameMap.put("human_gene_symbol", "Human ortholog");
 		friendlyNameMap.put("marker_name", "MGI gene name");
 		friendlyNameMap.put("marker_synonym", "MGI gene synonym");
 		friendlyNameMap.put("marker_type", "MGI gene type");
@@ -502,8 +501,8 @@ public class Tools {
 		String htmlStrPhentype = getCheckBoxes(phenotypeAttrs, friendlyNameMap, "Phenotype");
 		htmlStr += "<fieldset><legend>Mouse phenotype attributes</legend>" + htmlStrPhentype + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrAnatomy = getCheckBoxes(anatomyAttrs, friendlyNameMap, "Anatomy");
-		htmlStr += "<fieldset><legend>Mouse anatomy attributes</legend>" + htmlStrAnatomy + checkAlltheseAtt+ "</fieldset>";
+//		String htmlStrAnatomy = getCheckBoxes(anatomyAttrs, friendlyNameMap, "Anatomy");
+//		htmlStr += "<fieldset><legend>Mouse anatomy attributes</legend>" + htmlStrAnatomy + checkAlltheseAtt+ "</fieldset>";
 
 		String htmlStrDisease = getCheckBoxes(diseaseAttrs, friendlyNameMap, "DiseaseModdelAssociation");
 		htmlStr += "<fieldset class='human'><legend class='human'>Human disease attributes</legend>" + htmlStrDisease + checkAlltheseAtt+ "</fieldset>";
@@ -540,7 +539,7 @@ public class Tools {
 		return htmlStr;
 	}
 
-	public static String  buildCypherQueries(String dataType, String idlist, JSONObject jLabelFieldsParam){
+	public static String  buildCypherQueries(String dataType, String idlist, List<String> cypherCols, JSONObject jLabelFieldsParam){
 
 		Map<String, String> dataTypeCol = new HashMap<>();
 		dataTypeCol.put("geneId", "g.mgi_accession_id");
@@ -550,86 +549,57 @@ public class Tools {
 		dataTypeCol.put("mpTerm", "p.mp_term");
 		dataTypeCol.put("anatomy", "an.anatomy_id");
 
-		String whereField = dataTypeCol.get(dataType);
-
-		Map<String, String> labelShort = new HashMap<>();
-		labelShort.put("Gene", "g");
-		labelShort.put("Allele", "a");
-		labelShort.put("Phenotype", "p");
-		labelShort.put("Anatomy", "an");
-		labelShort.put("Hp", "h");
-		labelShort.put("MouseModel", "mm");
-		labelShort.put("DiseaseModelAssociation", "dma");
-		labelShort.put("DiseaseGeneSummary", "dgs");
-
-		List<String> cypher = new ArrayList<>();
-
 		Set<String> labels = jLabelFieldsParam.keySet();
 		System.out.println(labels);
 
-		Iterator<String> keys = jLabelFieldsParam.keys();
-		while(keys.hasNext()){
-			String key = keys.next();
-			String val = null;
-			try{
-				JSONArray fields = jLabelFieldsParam.getJSONArray(key);
-				for (int i=0; i<fields.size(); i++) {
-					cypher.add(labelShort.get(key) + "." + fields.get(i).toString());
-				}
-			}catch(Exception e){
-				System.out.println("Error: " + e.getMessage());
+		String whereField = dataTypeCol.get(dataType);
+
+		List<String> cypherCols2 = new ArrayList<>();
+		for(String col : cypherCols){
+			if (!col.startsWith("g.")){
+				cypherCols2.add("collect(distinct " + col + ") as " + col.replaceAll("^\\w*\\.", ""));
+			}
+			else {
+				cypherCols2.add(col + " as " + col.replaceAll("^\\w*\\.", ""));
 			}
 		}
 
-		String cols = StringUtils.join(cypher, ", ");
+		String cols = StringUtils.join(cypherCols2, ", ");
 
 		String qry = null;
 		if (! labels.contains("DiseaseModelAssociation")){
-			if (labels.contains("Allele") && labels.contains("Phenotype") && labels.contains("Anatomy")){
-				qry = "MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype)-[HAS_INFERRED_ANATOMY]->(an:Anatomy) WHERE "
+			if (labels.contains("Allele") && labels.contains("Phenotype")){
+				qry = "MATCH (g:Gene) WHERE "
 					+ whereField
-					+ " IN ["
-					+ idlist + "] RETURN "
+					+ "IN ["
+					+ idlist + "]"
+					+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
+					+ "RETURN "
 					+ cols;
 			}
-			else if (labels.contains("Allele") && labels.contains("Phenotype")){
-				qry = "MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype) WHERE "
-						+ whereField
-						+ " IN ["
-						+ idlist + "] RETURN "
-						+ cols;
-			}
-			else if (labels.contains("Phenotype") && labels.contains("Anatomy")){
-				qry = "MATCH (g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype)-[HAS_INFERRED_ANATOMY]->(an:Anatomy) WHERE "
-						+ whereField
-						+ " IN ["
-						+ idlist + "] RETURN "
-						+ cols;
-			}
 			else if (labels.contains("Allele")){
-				qry = "MATCH (a:Allele)-[OF_GENE]->(g:Gene) WHERE "
+				qry = "MATCH (g:Gene) WHERE "
 						+ whereField
-						+ " IN ["
-						+ idlist + "] RETURN "
+						+ "IN ["
+						+ idlist + "]"
+						+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene) "
+						+ "RETURN "
 						+ cols;
 			}
 			else if (labels.contains("Phenotype")){
-				qry = "MATCH (g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype) WHERE "
+				qry = "MATCH (g:Gene) WHERE "
 						+ whereField
-						+ " IN ["
-						+ idlist + "] RETURN "
-						+ cols;
-			}
-			else if (labels.contains("Anatomy")){
-				qry = "MATCH (g:Gene)-[HAS_PHENOTYOE]->(p:Phenotype)-[HAS_INFERRED_ANATOMY]->(an:Anatomy) WHERE "
-						+ whereField
-						+ " IN ["
-						+ idlist + "] RETURN "
+						+ "IN ["
+						+ idlist + "]"
+						+ "OPTIONAL MATCH (g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
+						+ "RETURN "
 						+ cols;
 			}
 		}
+		qry += " LIMIT 10"; // for batchQuery interface, only show max of 10; complete result needs to be exported
 
 		System.out.println(qry);
+
 
 		return qry;
 	}
