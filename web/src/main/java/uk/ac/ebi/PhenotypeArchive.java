@@ -2,7 +2,8 @@ package uk.ac.ebi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ImportResource;
 
 
@@ -11,9 +12,13 @@ import org.springframework.context.annotation.ImportResource;
  */
 
 @SpringBootApplication
-@ComponentScan(value= "uk.ac.ebi")
 @ImportResource("file:/Users/ilinca/IdeaProjects/PhenotypeData/web/src/main/webapp/WEB-INF/app-config.xml")
-public class PhenotypeArchive {
+public class PhenotypeArchive extends SpringBootServletInitializer {
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(PhenotypeArchive.class);
+    }
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(PhenotypeArchive.class, args);
