@@ -5,7 +5,7 @@
 
 
 <%-- -------------------------------------------------------------------------- --%>
-<%-- NOTE: All "magic" variables are defined in the DeploymentInterceptor class --%>s
+<%-- NOTE: All "magic" variables are defined in the DeploymentInterceptor class --%>
 <%-- This includes such variables isbaseUrl, drupalBaseUrl and releaseVersion.. --%>
 <%-- -------------------------------------------------------------------------- --%>
 
