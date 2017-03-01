@@ -451,19 +451,19 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return null;
         }
 
-        PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
-        if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-            missingColonyIds.add("Missing colony '" + dccExperiment.getColonyId() + "'");
-            if (dccExperiment.isLineLevel()) {
-                experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
-            } else {
-                experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
-            }
-            return null;
-        }
-
         // EuroPhenome experiments with project 'MGP' in the imits list must override their experiment's db_id and project with the key for MGP.
-        if (dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.EUROPHENOME)) {
+        // Ignore mice with colonyId starting with 'baseline', as these specimens are not in imits.
+        if ((dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.EUROPHENOME) &&
+                ( ! dccExperiment.getColonyId().toLowerCase().startsWith("baseline")))) {
+
+            PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+            if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
+                logger.warn("Unable to get phenotypedColony for experiment samples for colonyId {} to apply special MGP" +
+                            " remap rule for EuroPhenome. Rule NOT applied.",
+                            dccExperiment.getColonyId());
+                return null;
+            }
+
             if (phenotypedColony.getPhenotypingConsortium().getName().equals(CdaSqlUtils.MGP)) {
                 dccExperiment.setProject(CdaSqlUtils.MGP);
                 dccExperiment.setDatasourceShortName(CdaSqlUtils.MGP);
@@ -519,6 +519,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         //  - null colony_id
         //  - null biological_model_id
         if (dccExperiment.isLineLevel()) {
+
+            PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
+            if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
+                missingColonyIds.add("Missing colony '" + dccExperiment.getColonyId() + "'");
+                if (dccExperiment.isLineLevel()) {
+                    experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+                } else {
+                    experimentsMissingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getExperimentId());
+                }
+                return null;
+            }
 
             colonyId = phenotypedColony.getColonyName();
             dateOfExperiment = null;
