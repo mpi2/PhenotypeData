@@ -800,7 +800,7 @@
   <!-- ping/healthcheck -->
   <requestHandler name="/admin/ping" class="solr.PingRequestHandler" startup="lazy" >
     <lst name="invariants">
-      <str name="q">solrpingquery</str>
+      <str name="q">*:*</str>
     </lst>
     <lst name="defaults">
       <str name="echoParams">all</str>
