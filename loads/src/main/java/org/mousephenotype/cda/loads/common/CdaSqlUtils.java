@@ -1763,7 +1763,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             MediaSampleParameter mediaSampleParameter,
             MediaFile mediaFile,
             DccExperimentDTO dccExperimentDTO,
-            int samplePk,
             String phenotypingCenter,
             int phenotypingCenterPk,
             int experimentPk,
@@ -1811,7 +1810,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
-            parameterMap.put("samplePk", samplePk);
+            parameterMap.put("samplePk", biologicalSamplePk);
             parameterMap.put("downloadFilePath", URI.toLowerCase());
             parameterMap.put("imageLink", mediaFile.getLink());
             parameterMap.put("incrementValue", null);
@@ -1824,8 +1823,13 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
-                logger.error("INSERT to image_record_observation table for MediaSampleParameter failed for parameterStableId {}, observationType {}, observationPk {}, samplePk {}, downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
-                             parameterStableId, observationType.toString(), observationPk, samplePk, URI, mediaFile.getLink(), mediaFile.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
+                logger.error("INSERT to image_record_observation table for MediaSampleParameter failed for" +
+                             " center {}, parameterStableId {}, observationType {}, observationPk {}, biologicalSamplePk {}," +
+                             " downloadFilePath {}, imageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}." +
+                             " Reason:\n\t{}",
+                             phenotypingCenter, parameterStableId, observationType.toString(), observationPk, biologicalSamplePk, URI,
+                             mediaFile.getLink(), mediaFile.getFileType(), phenotypingCenterPk, fullResolutionFilePath,
+                             e.getLocalizedMessage());
             }
             if (count == 0) {
                 logger.warn("Insert MediaSampleParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
@@ -1869,7 +1873,6 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             String parameterStatusMessage,
             MediaParameter mediaParameter,
             DccExperimentDTO dccExperimentDTO,
-            int samplePk,
             String phenotypingCenter,
             int phenotypingCenterPk
     ) throws DataLoadException {
@@ -1913,7 +1916,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
 
             parameterMap.clear();
             parameterMap.put("observationPk", observationPk);
-            parameterMap.put("samplePk", samplePk);
+            parameterMap.put("samplePk", biologicalSamplePk);
             parameterMap.put("downloadFilePath", mediaParameter.getURI().toLowerCase());
             parameterMap.put("imageLink", mediaParameter.getLink());
             parameterMap.put("incrementValue", null);
@@ -1926,8 +1929,11 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             try {
                 count = jdbcCda.update(insert, parameterMap);
             } catch (Exception e) {
-                logger.error("INSERT to image_record_observation table for MediaParameter failed for parameterStableId {}, observationType {}, observationPk {}, imnageLink {}, fileType {}, organisationPk {}, fullResolutionFilePath {}. Reason:\n\t{}",
-                             parameterStableId, observationType.toString(), observationPk, mediaParameter.getLink(), mediaParameter.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
+                logger.error("INSERT to image_record_observation table for MediaParameter failed for parameterStableId {}," +
+                             " observationType {}, observationPk {}, imnageLink {}, fileType {}, phenotypingCenterPk {}," +
+                             " fullResolutionFilePath {}. Reason:\n\t{}",
+                             parameterStableId, observationType.toString(), observationPk, mediaParameter.getLink(),
+                             mediaParameter.getFileType(), phenotypingCenterPk, fullResolutionFilePath, e.getLocalizedMessage());
             }
             if (count == 0) {
                 logger.warn("Insert MediaParameter failed for parameterSource {}. Marking it as missing ...", parameterSource);
