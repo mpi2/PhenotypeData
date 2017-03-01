@@ -70,7 +70,7 @@ public class TestConfig {
     @Value("${solr.host}")
     private String solrHost;
 
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
     @Value("${internalSolrUrl}")
