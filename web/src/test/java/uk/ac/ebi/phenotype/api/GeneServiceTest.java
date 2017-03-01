@@ -61,7 +61,7 @@ public class GeneServiceTest {
 	static class ContextConfiguration {
 
 		@NotNull
-		@Value("${baseUrl}")
+		@Value("${base_url}")
 		private String baseUrl;
 
 		@NotNull

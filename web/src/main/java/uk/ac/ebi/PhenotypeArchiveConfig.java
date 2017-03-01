@@ -45,15 +45,13 @@ public class PhenotypeArchiveConfig {
     @Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        DataSource ds = DataSourceBuilder.create().build();
-        return ds;
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.admintools")
     public DataSource admintoolsDataSource() {
-        DataSource ds = DataSourceBuilder.create().build();
-        return ds;
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
 
@@ -105,7 +103,7 @@ public class PhenotypeArchiveConfig {
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
         Map<String, String> map = new HashMap<>();
-        map.put("baseUrl", "${baseUrl}");
+        map.put("baseUrl", "${base_url}");
         map.put("drupalBaseUrl", "${drupalBaseUrl}");
         map.put("solrUrl", "${solrUrl}");
         map.put("internalSolrUrl", "${internalSolrUrl}");
