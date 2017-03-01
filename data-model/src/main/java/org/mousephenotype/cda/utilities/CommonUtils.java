@@ -155,28 +155,71 @@ public class CommonUtils {
     }
 
     /**
-     * Given an Impress rawStatus in the form "xxx[:yyy]" (where ":yyy" is optional), returns xxx as the first element, and yyy
-     * (if it exists) as the second element. Any/all missing parts are returned as null strings in the returned array.
+     * Given an Impress rawStatus in the form "[xxx[dyyy]]", xxx (optional) is the parameterStatus, and dyyy (optional)
+     * is a single-character delimiter (d) and yyy is the parameterStatusValue. The parameterStatus is returned in
+     * array element 0, and the parameterStatusValue is returned in array element 1. If either or both is missing/null,
+     * a null value is placed in the appropriate array element(s).
+     *
      * The returned array is guaranteed to always have exactly two elements.
      * @param rawStatus the status to parse
      * @return the status in element[0], the status message in element[1]. Either/all elements may be null.
+     * @throws Exception if parameterStatus does not look valid (e.g. non-digits followed by digits)
      */
-    public String[] parseImpressStatus(String rawStatus) {
+    public String[] parseImpressStatus(String rawStatus) throws Exception {
         String[] retVal = new String[] { null, null };
 
         if ((rawStatus == null) || rawStatus.trim().isEmpty()) {
             return retVal;
         }
 
-        // Can't use String.split, as tokens can contain multiple ":", and we only want to split on the first occurence.
-        int idx = rawStatus.indexOf(":");
-        if (idx == -1) {
-            retVal[0] = rawStatus;
-        } else {
-            retVal[0] = rawStatus.substring(0, idx);
-            try {       // Just in case colon terminates the string
-                retVal[1] = rawStatus.substring(idx + 1);
-            } catch (Exception e) { }
+        char[] rawStatusCA = rawStatus.toCharArray();
+        boolean startsWithNonDigit = false;
+        boolean followsWithDigit = false;
+
+        int idx = 0;
+
+        for (int i = idx; i < rawStatus.length(); i++) {
+            char c = rawStatusCA[i];
+            idx = i;
+            if ( ! Character.isDigit(c)) {                              // Find first digit
+                startsWithNonDigit = true;
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        for (int i = idx; i < rawStatus.length(); i++) {
+            char c = rawStatusCA[i];
+            idx = i;
+            if (Character.isDigit(c)) {                                 // Find last digit
+                followsWithDigit = true;
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        if ( ! (startsWithNonDigit && followsWithDigit)) {
+            throw new Exception("Invalid parameterStatus format");
+        }
+
+        if (Character.isDigit(rawStatusCA[idx])) {
+            idx++;                                                      // If idx is pointing to the last digit, skip over it.
+        }
+
+        retVal[0] = rawStatus.substring(0, idx).trim();
+
+        idx++;                                                          // Skip past the position where the delimiter would be
+        if (retVal[0].isEmpty())
+            retVal[0] = null;
+
+
+        if (idx < rawStatus.length()) {
+                retVal[1] = rawStatus.substring(idx).trim();
+
+            if (retVal[1].isEmpty())
+                retVal[1] = null;
         }
 
         return retVal;
