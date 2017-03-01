@@ -844,17 +844,29 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
-        int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
-                                                          sequenceId, populationId, observationType, missing,
-                                                          parameterStatus, parameterStatusMessage,
-                                                          simpleParameter);
+        int observationPk;
+        try {
+            observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
+                                                              sequenceId, populationId, observationType, missing,
+                                                              parameterStatus, parameterStatusMessage,
+                                                              simpleParameter);
+        } catch (Exception e) {
+            logger.warn("Insert of simple parameter observation for phenotyping center {} failed. Skipping... " +
+                        " biologicalSamplePk {}. parameterStableId {}." +
+                        " parameterPk {}. observationType {}. missing {}. parameterStatus {}, parameterStatusMessage {}." +
+                        " Reason: {}",
+                        dccExperiment.getPhenotypingCenter(), biologicalSamplePk, parameterStableId, parameterPk,
+                        observationType, missing, parameterStatus, parameterStatusMessage, e.getLocalizedMessage());
+            return;
+        }
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
     }
 
     private void insertMediaParameter(DccExperimentDTO dccExperiment, MediaParameter mediaParameter,
-                                      int experimentPk, int dbId, Integer biologicalSamplePk, String phenotypingCenter, int phenotypingCenterPk) throws DataLoadException
+                                      int experimentPk, int dbId, Integer biologicalSamplePk, String phenotypingCenter,
+                                      int phenotypingCenterPk) throws DataLoadException
     {
         if (dccExperiment.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperiment.getExperimentId() + " contains MediaParameters, which is currently unsupported. Skipping parameters.");
@@ -875,10 +887,21 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : 0);
         int populationId = 0;
 
-        int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
-                                                          sequenceId, populationId, observationType, missing,
-                                                          parameterStatus, parameterStatusMessage,
-                                                          mediaParameter, dccExperiment, biologicalSamplePk, phenotypingCenter, phenotypingCenterPk);
+        int observationPk;
+        try {
+            observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
+                                                              sequenceId, populationId, observationType, missing,
+                                                              parameterStatus, parameterStatusMessage,
+                                                              mediaParameter, dccExperiment, phenotypingCenter, phenotypingCenterPk);
+        } catch (Exception e) {
+            logger.warn("Insert of media parameter observation for phenotyping center {} failed. Skipping... " +
+                                " biologicalSamplePk {}. parameterStableId {}." +
+                                " parameterPk {}. observationType {}. missing {}. parameterStatus {}, parameterStatusMessage {}." +
+                                " Reason: {}",
+                        phenotypingCenter, biologicalSamplePk, parameterStableId, parameterPk,
+                        observationType, missing, parameterStatus, parameterStatusMessage, e.getLocalizedMessage());
+            return;
+        }
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
@@ -933,11 +956,22 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                     String URI = mediaFile.getURI();
                     missing = (missing == 1 || (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : 0);
 
-                    observationPk = cdaSqlUtils.insertObservation(
-                            dbId, biologicalSamplePk, parameterStableId, parameterPk, sequenceId, populationId,
-                            observationType, missing, parameterStatus, parameterStatusMessage, mediaSampleParameter,
-                            mediaFile, dccExperiment, biologicalSamplePk, phenotypingCenter, phenotypingCenterPk, experimentPk,
-                            simpleParameterList, ontologyParameterList);
+                    try {
+                        observationPk = cdaSqlUtils.insertObservation(
+                                dbId, biologicalSamplePk, parameterStableId, parameterPk, sequenceId, populationId,
+                                observationType, missing, parameterStatus, parameterStatusMessage, mediaSampleParameter,
+                                mediaFile, dccExperiment, phenotypingCenter, phenotypingCenterPk, experimentPk,
+                                simpleParameterList, ontologyParameterList);
+                    } catch (Exception e) {
+                        logger.warn("Insert of media sample parameter observation for phenotyping center {} failed. Skipping... " +
+                                            " biologicalSamplePk {}. parameterStableId {}." +
+                                            " parameterPk {}. observationType {}. missing {}. parameterStatus {}, parameterStatusMessage {}." +
+                                            " experimentPk {}. Reason: {}",
+                                    phenotypingCenter, biologicalSamplePk, parameterStableId, parameterPk,
+                                    observationType, missing, parameterStatus, parameterStatusMessage,
+                                    experimentPk, e.getLocalizedMessage());
+                        continue;
+                    }
                 }
             }
         }
@@ -980,12 +1014,24 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             String URI = value.getURI();
             missing = (observationType == ObservationType.image_record && (URI == null || URI.isEmpty() || URI.endsWith("/")) ? 1 : missing);
 
-            int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
+            int observationPk;
+            try {
+                observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                               sequenceId, populationId, observationType, missing,
                                                               parameterStatus, parameterStatusMessage,
                                                               value, dccExperiment, biologicalSamplePk, phenotypingCenter,
                                                               phenotypingCenterPk, experimentPk, simpleParameterList,
                                                               ontologyParameterList);
+            } catch (Exception e) {
+                logger.warn("Insert of series media parameter observation for phenotyping center {} failed. Skipping... " +
+                            " biologicalSamplePk {}. parameterStableId {}." +
+                            " parameterPk {}. observationType {}. missing {}. parameterStatus {}, parameterStatusMessage {}." +
+                            " URI {}. Reason: {}",
+                            phenotypingCenter, biologicalSamplePk, parameterStableId, parameterPk,
+                            observationType, missing, parameterStatus, parameterStatusMessage, value.getURI(),
+                            e.getLocalizedMessage());
+                continue;
+            }
 
             // Insert experiment_observation
             cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
@@ -1069,10 +1115,21 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 }
             }
 
-            observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
-                                                          sequenceId, populationId, observationType, missing,
-                                                          parameterStatus, parameterStatusMessage,
-                                                          seriesParameter, dataPoint, timePoint, discretePoint);
+            try {
+                observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
+                                                              sequenceId, populationId, observationType, missing,
+                                                              parameterStatus, parameterStatusMessage,
+                                                              seriesParameter, dataPoint, timePoint, discretePoint);
+            } catch (Exception e) {
+                logger.warn("Insert of series parameter observation for phenotyping center {} failed. Skipping... " +
+                                    " biologicalSamplePk {}. parameterStableId {}." +
+                                    " parameterPk {}. observationType {}. missing {}. parameterStatus {}, parameterStatusMessage {}." +
+                                    " dataPoint {}. timePoint {}. discretePoint {}. Reason: {}",
+                            dccExperiment.getPhenotypingCenter(), biologicalSamplePk, parameterStableId, parameterPk,
+                            observationType, missing, parameterStatus, parameterStatusMessage, dataPoint, timePoint,
+                            discretePoint, e.getLocalizedMessage());
+                return;
+            }
 
             // Insert experiment_observation
             cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
@@ -1099,10 +1156,22 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int missing = ((procedureStatus != null) || parameterStatus != null ? 1 : 0);
         int populationId = 0;
 
-        int observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
+        int observationPk;
+        try {
+            observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
                                                           parameterStatus, parameterStatusMessage,
                                                           ontologyParameter);
+        } catch (Exception e) {
+            logger.warn("Insert of ontology parameter observation for phenotyping center {} failed. Skipping... " +
+                                " biologicalSamplePk {}. parameterStableId {}." +
+                                " parameterPk {}. observationType {}. missing {}. parameterStatus {}, parameterStatusMessage {}." +
+                                " parameterId {}. Reason: {}",
+                        dccExperiment.getPhenotypingCenter(), biologicalSamplePk, parameterStableId, parameterPk,
+                        observationType, missing, parameterStatus, parameterStatusMessage, ontologyParameter.getParameterID(),
+                        e.getLocalizedMessage());
+            return;
+        }
 
         // Insert experiment_observation
         cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
