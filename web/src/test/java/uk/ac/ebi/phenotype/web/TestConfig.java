@@ -98,7 +98,7 @@ public class TestConfig {
 
     	Map <String, String> gc = new HashMap<>();
     	gc.put("baseUrl", "${baseUrl}");
-    	gc.put("drupalBaseUrl", drupalBaseUrl);
+    	gc.put("drupalBaseUrl", "${drupalBaseUrl}");
     	gc.put("solrUrl", "${solrUrl}");
     	gc.put("internalSolrUrl", "${internalSolrUrl}");
     	gc.put("mediaBaseUrl", "${mediaBaseUrl}");
