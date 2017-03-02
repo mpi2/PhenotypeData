@@ -16,6 +16,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
@@ -121,7 +122,7 @@ public class PhenotypeArchiveConfig {
         InternalResourceViewResolver viewResolver =
                 new InternalResourceViewResolver();
         viewResolver.setViewClass(JstlView.class);
-        viewResolver.setPrefix("/WEB-INF/views/jsp/");
+        viewResolver.setPrefix("/WEB-INF/views/");
         viewResolver.setSuffix(".jsp");
         return viewResolver;
     }
@@ -153,6 +154,7 @@ public class PhenotypeArchiveConfig {
 
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
                 logger.info("Adding WebMvc resources");
                 registry.addResourceHandler("/css/**").addResourceLocations("/resources/css/");
                 registry.addResourceHandler("/js/**").addResourceLocations("/resources/js/");
@@ -163,6 +165,9 @@ public class PhenotypeArchiveConfig {
                 registry.addResourceHandler("/image_compara/**").addResourceLocations("/resources/image_compara/");
                 registry.addResourceHandler("/dist/**").addResourceLocations("/resources/js/anatomogram/dist/");
                 registry.addResourceHandler("/fonts/**").addResourceLocations("/resources/fonts/");
+
+                super.addResourceHandlers(registry);
+
             }
 
         };
