@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -18,7 +19,6 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
@@ -43,6 +43,37 @@ import java.util.Properties;
 public class PhenotypeArchiveConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
+
+    @Value("${drupalBaseUrl}")
+    private String drupalBaseUrl;
+
+    @Value("${solrUrl}")
+    private String solrUrl;
+
+    @Value("${baseUrl}")
+    private String baseUrl;
+
+    @Value("${internalSolrUrl}")
+    private String internalSolrUrl;
+
+    @Value("${mediaBaseUrl}")
+    private String mediaBaseUrl;
+
+    @Value("${impcMediaBaseUrl}")
+    private String impcMediaBaseUrl;
+
+    @Value("${monarchUrl}")
+    private String monarchUrl;
+
+    @Value("${pdfThumbnailUrl}")
+    private String pdfThumbnailUrl;
+
+    @Value("${googleAnalytics}")
+    private String googleAnalytics;
+
+    @Value("${liveSite}")
+    private String liveSite;
+
 
     @Bean
     public ErrorPageFilter errorPageFilter() {
@@ -119,16 +150,16 @@ public class PhenotypeArchiveConfig {
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
         Map<String, String> map = new HashMap<>();
-        map.put("baseUrl", "${base_url}");
-        map.put("drupalBaseUrl", "${drupalBaseUrl}");
-        map.put("solrUrl", "${solrUrl}");
-        map.put("internalSolrUrl", "${internalSolrUrl}");
-        map.put("mediaBaseUrl", "${mediaBaseUrl}");
-        map.put("impcMediaBaseUrl", "${impcMediaBaseUrl}");
-        map.put("monarchUrl", "${monarchUrl}");
-        map.put("pdfThumbnailUrl", "${pdfThumbnailUrl}");
-        map.put("googleAnalytics", "${googleAnalytics}");
-        map.put("liveSite", "${liveSite}");
+        map.put("baseUrl", baseUrl);
+        map.put("drupalBaseUrl", drupalBaseUrl);
+        map.put("solrUrl", solrUrl);
+        map.put("internalSolrUrl", internalSolrUrl);
+        map.put("mediaBaseUrl", mediaBaseUrl);
+        map.put("impcMediaBaseUrl", impcMediaBaseUrl);
+        map.put("monarchUrl", monarchUrl);
+        map.put("pdfThumbnailUrl", pdfThumbnailUrl);
+        map.put("googleAnalytics", googleAnalytics);
+        map.put("liveSite", liveSite);
         return map;
     }
 
