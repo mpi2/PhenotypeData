@@ -14,14 +14,14 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda;
+package org.mousephenotype.cda.selenium;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.support.TestUtils;
+import org.mousephenotype.cda.selenium.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.By;

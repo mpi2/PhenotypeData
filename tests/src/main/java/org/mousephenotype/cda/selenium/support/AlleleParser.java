@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.support;
+package org.mousephenotype.cda.selenium.support;
 
 /**
  *

@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda;
+package org.mousephenotype.cda.selenium;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
@@ -23,8 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.support.GenePage;
-import org.mousephenotype.cda.support.TestUtils;
+import org.mousephenotype.cda.selenium.support.GenePage;
+import org.mousephenotype.cda.selenium.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;

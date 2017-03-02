@@ -14,7 +14,7 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda;
+package org.mousephenotype.cda.selenium;
 
 /**
  * This class acts as a spring bootstrap. No code requiring spring should be placed in this class, as, at this
@@ -23,7 +23,7 @@ package org.mousephenotype.cda;
  * Created by mrelac on 29/06/2015.
  */
 
-import org.mousephenotype.cda.exception.TestException;
+import org.mousephenotype.cda.selenium.exception.TestException;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

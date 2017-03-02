@@ -16,7 +16,7 @@
 
 
 
-package org.mousephenotype.cda.exception;
+package org.mousephenotype.cda.selenium.exception;
 
 /**
  *
