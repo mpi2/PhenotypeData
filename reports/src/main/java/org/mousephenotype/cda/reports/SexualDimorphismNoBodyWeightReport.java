@@ -45,7 +45,7 @@ public class SexualDimorphismNoBodyWeightReport extends AbstractReport {
     SexualDimorphismDAO sexualDimorphismDAO;
 
     @NotNull
-    @Value("${drupalBaseUrl}")
+    @Value("${drupal_base_url}")
     protected String drupalBaseUrl;
 
     public SexualDimorphismNoBodyWeightReport() {

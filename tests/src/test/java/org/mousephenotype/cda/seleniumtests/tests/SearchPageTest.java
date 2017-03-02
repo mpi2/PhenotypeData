@@ -120,14 +120,14 @@ public class SearchPageTest {
     private PhenotypePipelineDAO phenotypePipelineDAO;
 
     @NotNull
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
     @Value("${seleniumUrl}")
     private String seleniumUrl;
 
     @NotNull
-    @Value("${internalSolrUrl}")
+    @Value("${internal_solr_url}")
     private String solrUrl;
 
 
