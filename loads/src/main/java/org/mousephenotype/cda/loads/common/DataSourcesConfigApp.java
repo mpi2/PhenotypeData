@@ -150,7 +150,6 @@ public class DataSourcesConfigApp {
 //        return ds;
 //    }
 
-//    @Bean(name = "cdaDataSource", destroyMethod = "close")
     @Bean(name = "cdaDataSource")
     @Primary
     public DataSource cdaDataSource() {
