@@ -191,7 +191,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
                         centerPk = dccSqlUtils.insertCenter(centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
                     }
 
-                    insertExperiment(experiment, centerProcedure, centerPk);
+                    insertExperiment(experiment, datasourceShortName, centerProcedure, centerPk);
                     totalExperiments++;
 
                 } catch (Exception e) {
@@ -236,7 +236,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
     }
 
     @Transactional
-    public void insertExperiment(Experiment experiment, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
+    public void insertExperiment(Experiment experiment, String datasourceShortName, CentreProcedure centerProcedure, long centerPk) throws DataLoadException {
 
         Long procedurePk, center_procedurePk;
 
@@ -262,7 +262,7 @@ public class ExtractDccExperiments implements CommandLineRunner {
         center_procedurePk = dccSqlUtils.selectOrInsertCenter_procedure(centerPk, procedurePk);
 
         // experiment
-        long experimentPk = dccSqlUtils.selectOrInsertExperiment(experiment, center_procedurePk);
+        long experimentPk = dccSqlUtils.insertExperiment(experiment, datasourceShortName, center_procedurePk);
         if (experimentPk == 0) {
             logger.warn("SELECT/INSERT experimentId " + experiment.getExperimentID() + " failed. SKIPPING.");
             return;
