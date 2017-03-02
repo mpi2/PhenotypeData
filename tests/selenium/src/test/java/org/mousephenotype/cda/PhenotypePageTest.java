@@ -14,45 +14,45 @@
  * limitations under the License.
  */
 
-package org.mousephenotype.cda.seleniumtests.tests;
+package org.mousephenotype.cda;
 
  import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
-import org.mousephenotype.cda.seleniumtests.support.PhenotypeProcedure;
-import org.mousephenotype.cda.seleniumtests.support.TestUtils;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.cda.utilities.RunStatus;
-import org.openqa.selenium.*;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+ import org.apache.solr.client.solrj.SolrServerException;
+ import org.junit.After;
+ import org.junit.Before;
+ import org.junit.Test;
+ import org.junit.runner.RunWith;
+ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+ import org.mousephenotype.cda.exception.TestException;
+ import org.mousephenotype.cda.solr.service.MpService;
+ import org.mousephenotype.cda.solr.service.PostQcService;
+ import org.mousephenotype.cda.support.PhenotypePage;
+ import org.mousephenotype.cda.support.PhenotypeProcedure;
+ import org.mousephenotype.cda.support.TestUtils;
+ import org.mousephenotype.cda.utilities.CommonUtils;
+ import org.mousephenotype.cda.utilities.RunStatus;
+ import org.openqa.selenium.*;
+ import org.openqa.selenium.remote.DesiredCapabilities;
+ import org.openqa.selenium.remote.RemoteWebDriver;
+ import org.openqa.selenium.support.ui.ExpectedConditions;
+ import org.openqa.selenium.support.ui.WebDriverWait;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.beans.factory.annotation.Qualifier;
+ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.boot.test.context.SpringBootTest;
+ import org.springframework.core.env.Environment;
+ import org.springframework.test.context.TestPropertySource;
+ import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+ import javax.validation.constraints.NotNull;
+ import java.io.IOException;
+ import java.net.MalformedURLException;
+ import java.net.URL;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Date;
+ import java.util.List;
 
  /**
   *
