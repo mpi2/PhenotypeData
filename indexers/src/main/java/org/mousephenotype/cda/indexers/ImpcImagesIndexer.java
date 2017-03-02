@@ -62,11 +62,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 
 	@NotNull
-	@Value("${impcMediaBaseUrl}")
+	@Value("${impc_media_base_url}")
 	private String impcMediaBaseUrl;
 
 	@NotNull
-	@Value("${pdfThumbnailUrl}")
+	@Value("${pdf_thumbnail_url}")
 	private String pdfThumbnailUrl;
 
 	@Autowired

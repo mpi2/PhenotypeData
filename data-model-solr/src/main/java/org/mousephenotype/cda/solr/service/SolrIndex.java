@@ -39,7 +39,6 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.*;
 
 @Service
@@ -50,11 +49,11 @@ public class SolrIndex {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 	
 	@NotNull
-	@Value("${pdfThumbnailUrl}")
+	@Value("${pdf_thumbnail_url}")
 	private String pdfThumbnailUrl;
 
 	@NotNull
-	@Value("${impcMediaBaseUrl}")
+	@Value("${impc_media_base_url}")
 	private String impcMediaBaseUrl;
 
 	@Autowired

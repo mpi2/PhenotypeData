@@ -127,7 +127,7 @@ public class SearchPageTest {
     private String seleniumUrl;
 
     @NotNull
-    @Value("${internalSolrUrl}")
+    @Value("${internal_solr_url}")
     private String solrUrl;
 
 
