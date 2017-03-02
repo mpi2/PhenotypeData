@@ -12,7 +12,7 @@ import org.springframework.context.annotation.ImportResource;
  */
 
 @SpringBootApplication
-@ImportResource("file:/Users/ilinca/IdeaProjects/PhenotypeData/web/src/main/webapp/WEB-INF/app-config.xml")
+@ImportResource("file:/Users/ckchen/git/intelliJ/PhenotypeData/web/src/main/webapp/WEB-INF/app-config.xml")
 
 public class PhenotypeArchive extends SpringBootServletInitializer {
 
