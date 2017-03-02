@@ -178,6 +178,5 @@ if (hasChildren){
     });
 }
 
-
 d3_v3.select(self.frameElement).style("height", height + "px");
 	    

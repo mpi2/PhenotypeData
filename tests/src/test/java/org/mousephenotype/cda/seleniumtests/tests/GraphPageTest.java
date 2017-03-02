@@ -117,7 +117,7 @@ public class GraphPageTest {
     private PreQcService preQcService;
 
     @NotNull
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
     @Value("${seleniumUrl}")

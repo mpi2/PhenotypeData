@@ -81,7 +81,7 @@ public class ReleasePageTest {
     private Environment env;
 
     @NotNull
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
     @Value("${seleniumUrl}")

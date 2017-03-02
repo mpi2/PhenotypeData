@@ -50,7 +50,7 @@ import java.util.*;
 @Service
 public class ImpressService extends BasicService implements WebStatus {
 
-	@Value("${drupalBaseUrl}")
+	@Value("${drupal_base_url}")
 	public String DRUPAL_BASE_URL;
 
 	@Autowired
