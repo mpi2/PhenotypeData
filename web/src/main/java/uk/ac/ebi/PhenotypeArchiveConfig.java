@@ -44,34 +44,34 @@ public class PhenotypeArchiveConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
 
-    @Value("${drupalBaseUrl}")
+    @Value("${drupal_base_url}")
     private String drupalBaseUrl;
 
-    @Value("${solrUrl}")
+    @Value("${solr_url}")
     private String solrUrl;
 
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
-    @Value("${internalSolrUrl}")
+    @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
-    @Value("${mediaBaseUrl}")
+    @Value("${media_base_url}")
     private String mediaBaseUrl;
 
-    @Value("${impcMediaBaseUrl}")
+    @Value("${impc_media_base_url}")
     private String impcMediaBaseUrl;
 
-    @Value("${monarchUrl}")
+    @Value("${monarch_url}")
     private String monarchUrl;
 
-    @Value("${pdfThumbnailUrl}")
+    @Value("${pdf_thumbnail_url}")
     private String pdfThumbnailUrl;
 
-    @Value("${googleAnalytics}")
+    @Value("${google_analytics}")
     private String googleAnalytics;
 
-    @Value("${liveSite}")
+    @Value("${live_site}")
     private String liveSite;
 
 

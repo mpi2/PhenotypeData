@@ -73,7 +73,7 @@ public class TestConfig {
     @Value("${base_url}")
     private String baseUrl;
 
-    @Value("${internalSolrUrl}")
+    @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
     @PostConstruct

@@ -61,7 +61,7 @@ public class ImageService implements WebStatus{
 
 
 	@NotNull
-    @Value("${drupalBaseUrl}")
+    @Value("${drupal_base_url}")
     private String drupalBaseUrl;
 
     public List<ImageSummary> getImageSummary(String markerAccessionId)
