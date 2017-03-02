@@ -17,20 +17,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mousephenotype.cda.seleniumtests.tests;
+package org.mousephenotype.cda;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.mousephenotype.cda.seleniumtests.support.SearchFacetTable;
-import org.mousephenotype.cda.seleniumtests.support.SearchPage;
-import org.mousephenotype.cda.seleniumtests.support.SearchPage.Facet;
-import org.mousephenotype.cda.seleniumtests.support.TestUtils;
+import org.mousephenotype.cda.exception.TestException;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.support.SearchFacetTable;
+import org.mousephenotype.cda.support.SearchPage;
+import org.mousephenotype.cda.support.SearchPage.Facet;
+import org.mousephenotype.cda.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.utilities.UrlUtils;
