@@ -142,7 +142,7 @@ $(document).ready(function () {
 			var sortStr = "&sort=score desc";
 			$.ajax({
 				//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,
-				url: solrUrl + "/autosuggest/select?rows=5&fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + facetStr + sortStr,
+				url: solrUrl + "/autosuggest/select?rows=5&fq=!docType:gwas AND !docType:hp&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq + facetStr + sortStr,
 				dataType: "jsonp",
 				'jsonp': 'json.wrf',
 				data: {

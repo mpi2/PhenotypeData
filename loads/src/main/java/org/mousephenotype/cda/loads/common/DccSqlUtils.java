@@ -2287,7 +2287,9 @@ public class DccSqlUtils {
                         "  e.sequenceId,\n" +
                         "  e.dateOfExperiment,\n" +
                         "  c.centerId   AS phenotypingCenter,\n" +
-                        "  s.productionCenter,\n" +
+                        "  CASE WHEN s.productionCenter IS NULL THEN c.centerId\n" +
+                        "       ELSE s.productionCenter\n" +
+                        "  END AS productionCenter,\n" +
                         "  c.pipeline,\n" +
                         "  c.project,\n" +
                         "  p.procedureId,\n" +
