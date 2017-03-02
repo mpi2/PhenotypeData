@@ -73,7 +73,7 @@ public class ChartsPageTest {
     private DesiredCapabilities desiredCapabilities;
 
     @NotNull
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
     @Value("${seleniumUrl}")

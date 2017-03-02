@@ -85,8 +85,6 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
-	//	System.out.println("path: /search");
-
 		return processSearch("gene", "*", null, null, null, false, request, model, null, null);
 	}
 

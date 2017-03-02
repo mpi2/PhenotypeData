@@ -24,7 +24,7 @@
 
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/app-config.xml</param-value>
+		<param-value>/app-config.xml</param-value>
 	</context-param>
 
 	<context-param>
@@ -64,23 +64,23 @@
 		<listener-class>se.jiderhamn.classloader.leak.prevention.ClassLoaderLeakPreventor</listener-class>
 	</listener>
 
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
+	<!--<listener>-->
+		<!--<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>-->
+	<!--</listener>-->
 
-	<servlet>
-		<servlet-name>PhenotypeArchive</servlet-name>
-		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-		<init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value>/WEB-INF/mvc-config.xml</param-value>
-		</init-param>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>PhenotypeArchive</servlet-name>
-		<url-pattern>/</url-pattern>
-	</servlet-mapping>
+	<!--<servlet>-->
+		<!--<servlet-name>PhenotypeArchive</servlet-name>-->
+		<!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+		<!--<init-param>-->
+			<!--<param-name>contextConfigLocation</param-name>-->
+			<!--<param-value>/mvc-config.xml</param-value>-->
+		<!--</init-param>-->
+		<!--<load-on-startup>2</load-on-startup>-->
+	<!--</servlet>-->
+	<!--<servlet-mapping>-->
+		<!--<servlet-name>PhenotypeArchive</servlet-name>-->
+		<!--<url-pattern>/</url-pattern>-->
+	<!--</servlet-mapping>-->
 
 	<welcome-file-list>
     	<welcome-file>index.html</welcome-file>
