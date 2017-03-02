@@ -419,6 +419,7 @@ public class Tools {
 		Map<String, String> anatomyAttrs = new LinkedHashMap<>();
 		Map<String, String> diseaseAttrs = new LinkedHashMap<>();
 		Map<String, String> humanAttrs = new LinkedHashMap<>();
+		Map<String, String> humanGeneAttrs = new LinkedHashMap<>();
 
 		geneAttrs.put("marker_symbol", "default");
 		geneAttrs.put("mgi_accession_id", "");
@@ -460,6 +461,9 @@ public class Tools {
 		phenotypeAttrs.put("p_value", "");
 		phenotypeAttrs.put("hasQc", "");
 
+		humanGeneAttrs.put("human_gene_symbol", "");
+		humanGeneAttrs.put("marker_symbol", "");
+
 //		anatomyAttrs.put("ma_id", "default");
 //		anatomyAttrs.put("ma_term", "default");
 //		anatomyAttrs.put("selected_top_level_ma_id", "");
@@ -487,28 +491,35 @@ public class Tools {
 		friendlyNameMap.put("hp_id", "HP id");
 		friendlyNameMap.put("hp_term", "HP term");
 
+		Map<String, String> friendlyHumanNameMap = new HashMap<>();
+		friendlyHumanNameMap.put("human_gene_symbol", "HGNC gene symbol");
+		friendlyHumanNameMap.put("marker_symbol", "Mouse ortholog");
+
 		String checkAlltheseAtt = "<i class='fa fa-plus'></i>";
 		String htmlStr = "";
 		String checked = "";
 		String checkedClass = "";
 
-		String htmlStrGene = getCheckBoxes(geneAttrs, friendlyNameMap, "Gene");
-		htmlStr += "<fieldset id='genefs'><legend>Mouse gene attributes</legend>" + htmlStrGene + checkAlltheseAtt+ "</fieldset>";
+		String htmlStrMouseGene = getCheckBoxes(geneAttrs, friendlyNameMap, "Gene");
+		htmlStr += "<fieldset class='mouse' id='genefs'><legend><i class='icon icon-species'>M</i>Mouse gene attributes</legend>" + htmlStrMouseGene + checkAlltheseAtt+ "</fieldset>";
 
 		String htmlStrAllele = getCheckBoxes(alleleAttrs, friendlyNameMap, "Allele");
-		htmlStr += "<fieldset><legend>Mouse allele attributes</legend>" + htmlStrAllele + checkAlltheseAtt+ "</fieldset>";
+		htmlStr += "<fieldset class='mouse' ><legend><i class='icon icon-species'>M</i>Mouse allele attributes</legend>" + htmlStrAllele + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrPhentype = getCheckBoxes(phenotypeAttrs, friendlyNameMap, "Phenotype");
-		htmlStr += "<fieldset><legend>Mouse phenotype attributes</legend>" + htmlStrPhentype + checkAlltheseAtt+ "</fieldset>";
+		String htmlStrPhenotype = getCheckBoxes(phenotypeAttrs, friendlyNameMap, "Phenotype");
+		htmlStr += "<fieldset class='mouse' ><legend><i class='icon icon-species'>M</i>Mouse phenotype attributes</legend>" + htmlStrPhenotype + checkAlltheseAtt+ "</fieldset>";
 
-//		String htmlStrAnatomy = getCheckBoxes(anatomyAttrs, friendlyNameMap, "Anatomy");
+		//		String htmlStrAnatomy = getCheckBoxes(anatomyAttrs, friendlyNameMap, "Anatomy");
 //		htmlStr += "<fieldset><legend>Mouse anatomy attributes</legend>" + htmlStrAnatomy + checkAlltheseAtt+ "</fieldset>";
 
+		String htmlStrHumanGene = getCheckBoxes(humanGeneAttrs, friendlyHumanNameMap, "Gene");
+		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human gene attributes</legend>" + htmlStrHumanGene + checkAlltheseAtt+ "</fieldset>";
+
 		String htmlStrDisease = getCheckBoxes(diseaseAttrs, friendlyNameMap, "DiseaseModdelAssociation");
-		htmlStr += "<fieldset class='human'><legend class='human'>Human disease attributes</legend>" + htmlStrDisease + checkAlltheseAtt+ "</fieldset>";
+		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human disease attributes</legend>" + htmlStrDisease + checkAlltheseAtt+ "</fieldset>";
 
 		String htmlStrHuman = getCheckBoxes(humanAttrs, friendlyNameMap, "Hp");
-		htmlStr += "<fieldset class='human'><legend class='human'>Human phenotype attributes</legend>" + htmlStrHuman + checkAlltheseAtt+ "</fieldset>";
+		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human phenotype attributes</legend>" + htmlStrHuman + checkAlltheseAtt+ "</fieldset>";
 
 		String hrStr = "<hr>";
 		String checkAllBoxStr = "<button type='button' id='chkFields'>Check all fields</button>";

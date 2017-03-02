@@ -262,6 +262,10 @@
 				margin-left: 50%;
 				background-color: white;
 			}
+			legend i {
+				border: none !important;
+				margin: 3px 0 0 5px;
+			}
 			fieldset i {
 				float: right;
 				right: 10px;
@@ -325,14 +329,14 @@
                 $('div#batchQryLink').hide(); // hide batchquery link for batchquery page
 
 
-                if ( window.location.search != ""){
-                    alert(window.location.search)
-                    var oConf = convertParamToObject(decodeURIComponent(window.location.search));
-                    console.log("oConf: " + oConf);
-
-                    prepare_dataTable(oConf.fllist);
-                    fetchBatchQueryDataTable(oConf);
-                }
+//                if ( window.location.search != ""){
+//                    alert(window.location.search)
+//                    var oConf = convertParamToObject(decodeURIComponent(window.location.search));
+//                    console.log("oConf: " + oConf);
+//
+//                    prepare_dataTable(oConf.fllist);
+//                    fetchBatchQueryDataTable(oConf);
+//                }
 
                 addAttrChecker();
 
@@ -345,10 +349,10 @@
                     + '<li><a href="#tabs-2">Data fields</a></li>'
                     + '</ul>'
                     + '<div id="tabs-1">'
-                    + '<p>Query keywords can be either datatype-specific ID or IMPC marker symbol.<p>'
+                    + '<p>Query keywords can be either datatype-specific ID (eg, mouse gene id: MGI:2682306) or text (eg. mouse gene symbol).<p>'
                     + '<p>Simply click on one of the radio buttons on the left (the<b> Datatype Input panel</b>) to choose the datatype you want to search for.'
                     + '</p>'
-                    + '<p>The data fields for the chosen datatype will be shown dynamically on the right (the <b>Customized Output panel</b>) and can be added/removed using checkboxes.'
+                    + '<p>The data fields for the chosen datatype are shown on the right (the <b>Customized Output panel</b>) and can be added/removed using checkboxes.'
                     + '<p>'
                     + '<p>The sample of results (<b>maximum of 10 records</b>) will be updated automatically after checking checkboxes.'
                     + '<p>'
@@ -396,20 +400,14 @@
 
 
                 // reset to default when page loads
-                $('input#geneId').prop("checked", true) // check datatyep ID as gene by default
-                $('input#datatype').val("gene"); // default
-                //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
-                $('textarea#pastedList').val($('input#geneId').attr("value"));
+                $('input#mouse_marker_symbol').prop("checked", true) // check datatyep ID as gene by default
+                $('textarea#pastedList').val($('input#mouse_marker_symbol').attr("value"));
 
-                //freezeDefaultCheckboxes(); // not doing this for now: allow default ones to be selectable
+                // default fields checked
+                freezeDefaultCheckboxes();
                 //chkboxAllert();  for now, don't want automatic resubmit each time a checkbox is clicked
+
                 var currDataType  = false;
-
-                fetchChrSlider($('select#chrSel').find(":selected").text());
-
-                $('select#chrSel').on('change', function() {
-                    fetchChrSlider(this.value);
-                });
 
                 toggleAllFields();
 
@@ -425,13 +423,17 @@
                     $('textarea#pastedList').val('');
                 });
 
-                // fetch dynamic data fields as checkboxes
+                // fetch dynamic data fields as radios
                 $('input.bq').click(function(){
-                    if ( $(this).is(':checked') ){
+
+                    //if ( $(this).is(':checked') ){
 
 						$('div.srchBox').hide();
 
                         currDataType = $(this).attr('id');
+                    	checkDataTypeDefaultFields(currDataType);
+
+                        // check fields as default when search datatype changes
 
                         // assign to hidden field in fileupload section
                         $('input#datatype').val(currDataType);
@@ -443,41 +445,41 @@
 //                                theInput.val('search');
 //                            }
 
-                           // $('textarea#pastedList').val(theInput.val() == 'search' ? '' : theInput.val());
                             theSrchBox.show();
 
                             addAutosuggest(theInput);
                         }
                         else if (currDataType == "geneChr"){
                             $(this).next().next().show();
-                           // $('textarea#pastedList').val($(this).attr("value"));
                         }
 
-                            $('textarea#pastedList').val($(this).attr("value"));
+                        $('textarea#pastedList').val($(this).attr("value"));
 
 
-                        currDataType = parseCurrDataDype(currDataType);
+                        //currDataType = parseCurrDataDype(currDataType);
 
                         //console.log($(this).attr('id'));
                         //var id = $(this).attr('id');
                         //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='" + id + "'>" + "Export full IMPC dataset via " + currDataType2 + " identifiers");
                         $('div#fullDump').html("Please refer to our FTP site");
-                        // load dataset fields for selected datatype Id
-                        $.ajax({
-                            url: baseUrl + '/batchquery2-1?core=' + currDataType,
-                            success: function(htmlStr) {
-                                //console.log(htmlStr);
-                                $('div#fieldList').html(htmlStr);
-                                addAttrChecker();
-                                //freezeDefaultCheckboxes();
-                                toggleAllFields();
-                                //chkboxAllert();
-                            },
-                            error: function() {
-                                window.alert('AJAX error trying to fetch data');
-                            }
-                        });
-                    }
+
+                        // reload dataset fields for selected datatype Id
+
+//                        $.ajax({
+//                            url: baseUrl + '/batchquery2-1?core=' + currDataType,
+//                            success: function(htmlStr) {
+//                                //console.log(htmlStr);
+//                                $('div#fieldList').html(htmlStr);
+//                                addAttrChecker();
+//                                //freezeDefaultCheckboxes();
+//                                toggleAllFields();
+//                                //chkboxAllert();
+//                            },
+//                            error: function() {
+//                                window.alert('AJAX error trying to fetch data');
+//                            }
+//                        });
+                   // }
                 });
 
                 // $('textarea#pastedList').val(''); // reset
@@ -486,18 +488,48 @@
 
             });
 
-            function parseCurrDataDype(currDataType){
-                if (currDataType.startsWith("mp")){
-                    currDataType = "mp";
+            function checkDataTypeDefaultFields(currDataType){
+                var map = {
+                    geneId: "mgi_accession_id",
+                	ensembl: "ensembl_gene_id",
+                	geneChr: "marker_symbol",
+                	mp: "mp_id",
+                	human_marker_symbol: "human_gene_symbol",
+                	hp: "hp_id",
+                	disease: "disease_id"
+            	};
+
+                $('fieldset input').prop('checked', false); // reset first before checking for new field
+
+                if (currDataType == "human_marker_symbol") {
+                    $('fieldset.human').find("input[value='human_gene_symbol']").prop('checked', true);
                 }
-                else if (currDataType.startsWith("phenodigm")){
-                    currDataType = "phenodigm";
+                else if (currDataType == "geneChr"){
+                    $('fieldset.mouse').find("input[value='" + map[currDataType] + "']").prop('checked', true);
+				}
+                else {
+                    $('fieldset').find("input[value='" + map[currDataType] + "']").prop('checked', true);
+				}
+
+				// default
+				if ( ! $('fieldset.mouse').find("input[value='marker_symbol']").is(':checked') ) {
+                    $('fieldset.mouse').find("input[value='marker_symbol']").prop('checked', true);
                 }
-                else if (currDataType.startsWith("gene")){
-                    currDataType = "gene";
-                }
-                return currDataType;
+
             }
+
+//            function parseCurrDataDype(currDataType){
+//                if (currDataType.startsWith("mp")){
+//                    currDataType = "mp";
+//                }
+//                else if (currDataType.startsWith("phenodigm")){
+//                    currDataType = "phenodigm";
+//                }
+//                else if (currDataType.startsWith("gene")){
+//                    currDataType = "gene";
+//                }
+//                return currDataType;
+//            }
 
             function addAttrChecker() {
                 $('fieldset i').click(function () {
@@ -522,45 +554,6 @@
                 return oConf;
             }
 
-            function fetchChrSlider(chr){
-                $.ajax({
-                    url: baseUrl + '/chrlen?chr=' + chr,
-                    success: function(chrlen) {
-                        console.log(chrlen);
-                        var chunk = 1000;
-                        $('span#range').text("Chromosome " + chr + " (length: " + easyReadBp(chrlen) + " bps)");
-
-                        $("#chrSlider").slider({
-                            range: true,
-                            min: 1,
-                            max: chrlen,
-                            values: [chrlen/10, chrlen/2],
-                            slide: function (event, ui) {
-                                var v1 = ui.values[0];
-                                var v2 = ui.values[1];
-                                var val1 = Math.floor(v1/chunk);
-                                var val2 = Math.floor(v2/chunk);
-                                var ksepNum = easyReadBp(parseInt(v2-v1+1));
-
-                                $("#chrRange").val(val1 + "-" + val2 + " Kbps    (range: " + ksepNum + " bps)");
-                                $('textarea#pastedList').val("Chr" + chr + ":" + v1 + "-" + v2);
-                            }
-                        });
-                        var vL = $("#chrSlider").slider("values", 0);
-                        var vR = $("#chrSlider").slider("values", 1);
-                        var valL = Math.floor(vL/chunk);
-                        var valR = Math.floor(vR/chunk);
-                        var ksepNum = easyReadBp(parseInt(vR-vL+1));
-                        $("#chrRange").val(valL + "-" + valR + " Kbps    (range: " + ksepNum + " bps)");
-                        //$('textarea#pastedList').val("Chr" + chr + ":" + vL + "-" + vR);
-
-                    },
-                    error: function() {
-                        window.alert('AJAX error trying to fetch chromosome length data');
-                    }
-                });
-            }
-
             function easyReadBp(bp){
                 return bp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             }
@@ -576,9 +569,9 @@
                     docType = 'mp';
                     solrBq = "&bq=mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75";
                 }
-                else if ( inputType == 'srchHp'){{
+                else if ( inputType == 'srchHp'){
                     docType = 'hp';
-                    solrBq = "&bq=hp_term:*^90 hp_term_synonym:*^80 hp_narrow_synonym:*^75";
+                    solrBq = "&bq=hp_term:*^90 hp_term_synonym:*^80";
                 }
                 else if ( inputType == 'srchDisease'){
                     docType = 'disease';
@@ -752,7 +745,7 @@
                 });
             }
             function freezeDefaultCheckboxes(){
-                $('input.frozen').click(function(){
+                $('input.isDefault').click(function(){
                     return false;
                 })
             }
@@ -811,7 +804,7 @@
             function refreshResult(){
                 $('div#infoBlock, div#errBlock, div#bqResult').html(''); // refresh first
                 var sampleData = "<p><span id='sample'>Showing maximum of 10 records for how your data looks like.<br>For complete dataset of your search, please use export buttons.</span>";
-                $('div#infoBlock').html("Your datatype of search: " + parseCurrDataDype($('input.bq:checked').attr('id')).toUpperCase() + sampleData);
+                //$('div#infoBlock').html("Your datatype of search: " + parseCurrDataDype($('input.bq:checked').attr('id')).toUpperCase() + sampleData);
             }
 
             function uploadJqueryForm(){
@@ -1115,7 +1108,7 @@
 									<div id='query'>
 										<table id='dataInput'>
 											<tr>
-												<td><span class='cat'>Mouse (GRCm38):</span></td>
+												<td><span class='cat'><i class="icon icon-species">M</i>Mouse (GRCm38):</span></td>
 												<td>
 													<input type="radio" id="mouse_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq' checked="checked">MGI gene symbol<br>
 													<input type="radio" id="geneId" value="Eg. MGI:106209" name="dataType" class='bq' >MGI id<br>
@@ -1162,7 +1155,7 @@
 												</td>
 											</tr>
 											<tr id="humantr">
-												<td><span class='cat'>Human (GRCh38):</span></td>
+												<td><span class='cat'><i class="icon icon-species">H</i>Human (GRCh38):</span></td>
 												<td>
 													<input type="radio" id="human_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>HGNC gene symbol<br>
 
