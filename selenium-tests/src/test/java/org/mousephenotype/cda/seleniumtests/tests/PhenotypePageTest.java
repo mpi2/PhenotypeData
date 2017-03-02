@@ -97,7 +97,7 @@ public class PhenotypePageTest {
     private PhenotypePipelineDAO phenotypePipelineDAO;
 
     @NotNull
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
     @Value("${seleniumUrl}")

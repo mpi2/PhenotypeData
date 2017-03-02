@@ -50,7 +50,7 @@ public class GeneService extends BasicService implements WebStatus{
 	private SolrClient solr;
 
     @NotNull
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
 	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
