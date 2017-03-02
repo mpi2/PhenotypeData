@@ -11,7 +11,6 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
  */
 
 @SpringBootApplication
-//@ImportResource("classpath:contextConfigLocation")
 public class PhenotypeArchive extends SpringBootServletInitializer {
 
     @Override
