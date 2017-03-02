@@ -70,8 +70,12 @@ public class TestConfig {
     @Value("${solr.host}")
     private String solrHost;
 
-    @Value("${base_url}")
-    private String baseUrl;
+    @Value("${drupal_base_url}")
+    private String drupalBaseUrl;
+
+
+	@Value("${base_url}")
+	private String baseUrl;
 
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
@@ -94,7 +98,7 @@ public class TestConfig {
 
     	Map <String, String> gc = new HashMap<>();
     	gc.put("baseUrl", "${baseUrl}");
-    	gc.put("drupalBaseUrl", "${drupalBaseUrl}");
+    	gc.put("drupalBaseUrl", drupalBaseUrl);
     	gc.put("solrUrl", "${solrUrl}");
     	gc.put("internalSolrUrl", "${internalSolrUrl}");
     	gc.put("mediaBaseUrl", "${mediaBaseUrl}");
