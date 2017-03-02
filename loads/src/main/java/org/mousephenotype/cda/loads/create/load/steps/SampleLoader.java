@@ -251,10 +251,18 @@ public class SampleLoader implements Step, Tasklet, InitializingBean {
                 missingColonyIds.add(specimen.getColonyID());
             }
             return counts;
-        } else {
-            phenotypingCenterId = phenotypedColony.getPhenotypingCentre().getId();
-            productionCenterId = phenotypedColony.getCohortProductionCentre().getId();
         }
+
+        // EuroPhenome specimens with project 'MGP' in the imits list must get their biological_sample db_id set to the key for MGP.
+        if (specimenExtended.getDatasourceShortName().equals(CdaSqlUtils.EUROPHENOME)) {
+            if (phenotypedColony.getPhenotypingConsortium().getName().equals(CdaSqlUtils.MGP)) {
+                specimenExtended.setDatasourceShortName(CdaSqlUtils.MGP);
+                externalDbId = cdaSqlUtils.getExternalDbId(specimenExtended.getDatasourceShortName());                  // Remap MGP projects to MGP for EuroPhenome loads.
+            }
+        }
+
+        phenotypingCenterId = phenotypedColony.getPhenotypingCentre().getId();
+        productionCenterId = phenotypedColony.getProductionCentre().getId();
 
         String zygosity;
         switch (specimen.getZygosity().value()) {

@@ -27,7 +27,7 @@
         <module>indexers</module>
         <module>loads</module>
         <module>reports</module>
-        <module>selenium-tests</module>
+        <module>tests</module>
     </modules>
 
     <properties>

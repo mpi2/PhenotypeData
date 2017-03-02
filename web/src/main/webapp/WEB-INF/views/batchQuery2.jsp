@@ -571,13 +571,17 @@
                 // generic search input autocomplete javascript
                 var docType = null;
                 var inputType = thisInput.attr('id');
+                var solrBq = "";
                 if ( inputType == 'srchMp'){
                     docType = 'mp';
                     solrBq = "&bq=mp_term:*^90 mp_term_synonym:*^80 mp_narrow_synonym:*^75";
                 }
-                else {
+                else if ( inputType == 'srchHp'){{
                     docType = 'hp';
                     solrBq = "&bq=hp_term:*^90 hp_term_synonym:*^80 hp_narrow_synonym:*^75";
+                }
+                else if ( inputType == 'srchDisease'){
+                    docType = 'disease';
                 }
 
                 thisInput.autocomplete({

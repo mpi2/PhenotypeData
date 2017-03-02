@@ -150,7 +150,6 @@ public class DataSourcesConfigApp {
 //        return ds;
 //    }
 
-//    @Bean(name = "cdaDataSource", destroyMethod = "close")
     @Bean(name = "cdaDataSource")
     @Primary
     public DataSource cdaDataSource() {
@@ -178,31 +177,7 @@ public class DataSourcesConfigApp {
 
 
 
-//    @Bean(name = "dccDataSource", destroyMethod = "close")
-//    public DataSource dccDataSource() {
-//
-//        DataSource ds = DataSourceBuilder
-//                .create()
-//                .url(dccUrl)
-//                .username(username)
-//                .password(password)
-//                .type(BasicDataSource.class)
-//                .driverClassName("com.mysql.jdbc.Driver").build();
-//
-//
-//        ((BasicDataSource) ds).setLogAbandoned(false);
-//        ((BasicDataSource) ds).setRemoveAbandoned(false);
-//
-//        try {
-//            logger.info("Using dcc database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
-//
-//        } catch (Exception e) { }
-//
-//        return ds;
-//    }
-
-//    @Bean(name = "dccDataSource", destroyMethod = "close")
-    @Bean(name = "dccDataSource")
+    @Bean(name = "dccDataSource", destroyMethod = "close")
     public DataSource dccDataSource() {
 
         DataSource ds = DataSourceBuilder
@@ -210,16 +185,45 @@ public class DataSourcesConfigApp {
                 .url(dccUrl)
                 .username(username)
                 .password(password)
-                .type(DriverManagerDataSource.class)
+                .type(BasicDataSource.class)
                 .driverClassName("com.mysql.jdbc.Driver").build();
 
+        ((BasicDataSource) ds).setInitialSize(4);
+
+        ((BasicDataSource) ds).setLogAbandoned(false);
+        ((BasicDataSource) ds).setRemoveAbandoned(false);
+
         try {
-            logger.info("Using dcc database {}", ds.getConnection().getCatalog());
+            logger.info("Using dcc database {} with initial pool size {}", ds.getConnection().getCatalog(), ((BasicDataSource) ds).getInitialSize());
 
         } catch (Exception e) { }
 
         return ds;
     }
+
+    // 2017-02-26 (mrelac) The data source below consistently causes a DataLoadException.
+    // DataLoadException: org.springframework.jdbc.CannotGetJdbcConnectionException: Could not get JDBC Connection; nested exception is com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Could not create connection to database server. Attempted reconnect 3 times. Giving up.
+
+
+//    @Bean(name = "dccDataSource", destroyMethod = "close")
+//    @Bean(name = "dccDataSource")
+//    public DataSource dccDataSource() {
+//
+//        DataSource ds = DataSourceBuilder
+//                .create()
+//                .url(dccUrl)
+//                .username(username)
+//                .password(password)
+//                .type(DriverManagerDataSource.class)
+//                .driverClassName("com.mysql.jdbc.Driver").build();
+//
+//        try {
+//            logger.info("Using dcc database {}", ds.getConnection().getCatalog());
+//
+//        } catch (Exception e) { }
+//
+//        return ds;
+//    }
 
     @Bean(name = "jdbcDcc")
     public NamedParameterJdbcTemplate jdbcDcc() {
