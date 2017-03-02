@@ -22,19 +22,19 @@
  * should indeed be a graph present when the link is clicked.
  */
 
-package org.mousephenotype.cda;
+package org.mousephenotype.cda.selenium;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.exception.TestException;
+import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
-import org.mousephenotype.cda.support.GenePage;
-import org.mousephenotype.cda.support.GraphPage;
-import org.mousephenotype.cda.support.GraphValidatorPreqc;
-import org.mousephenotype.cda.support.TestUtils;
+import org.mousephenotype.cda.selenium.support.GenePage;
+import org.mousephenotype.cda.selenium.support.GraphPage;
+import org.mousephenotype.cda.selenium.support.GraphValidatorPreqc;
+import org.mousephenotype.cda.selenium.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;

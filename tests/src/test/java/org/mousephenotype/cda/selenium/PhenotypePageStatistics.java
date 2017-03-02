@@ -26,14 +26,14 @@
  * </ul>
  */
 
-package org.mousephenotype.cda;
+package org.mousephenotype.cda.selenium;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.support.TestUtils;
+import org.mousephenotype.cda.selenium.support.TestUtils;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
