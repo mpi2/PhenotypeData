@@ -26,12 +26,44 @@
 
     <dependencies>
 
-		<!-- JAXB dependency is needed for Uniprot parsing on gene summary -->
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.1</version>
-		</dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j.driver</groupId>
+            <artifactId>neo4j-java-driver</artifactId>
+            <version>1.0.6</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.neo4j/neo4j-kernel -->
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-kernel</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-cypher</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-cypher-compiler-2.1</artifactId>
+            <version>2.1.5</version>
+        </dependency>
+
+
+        <!-- JAXB dependency is needed for Uniprot parsing on gene summary -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.1</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -73,6 +105,16 @@
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
         </dependency>
 
         <dependency>
@@ -124,26 +166,26 @@
 
         <!-- servlet API is provided by the container -->
         <dependency>
-		    <groupId>javax.servlet</groupId>
-		    <artifactId>javax.servlet-api</artifactId>
-		    <version>3.0.1</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
             <scope>provided</scope>
         </dependency>
 
 
         <!-- JSON Dependencies -->
-    	<dependency>
+        <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
             <version>2.2.3</version>
             <classifier>jdk15</classifier>
-   		</dependency>
+        </dependency>
 
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20140107</version>
-		</dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20140107</version>
+        </dependency>
 
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
@@ -207,18 +249,18 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-		<!-- Apache Commons Upload -->
+        <!-- Apache Commons Upload -->
         <dependency>
-           <groupId>commons-fileupload</groupId>
-           <artifactId>commons-fileupload</artifactId>
-           <version>1.2.2</version>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2.2</version>
         </dependency>
 
         <!-- Apache Commons Upload -->
         <dependency>
-           <groupId>commons-io</groupId>
-           <artifactId>commons-io</artifactId>
-           <version>1.3.2</version>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.2</version>
         </dependency>
 
         <dependency>
@@ -279,12 +321,12 @@
         </dependency>
 
         <!-- View Dependencies -->
-        <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>jstl</groupId>-->
+            <!--<artifactId>jstl</artifactId>-->
+            <!--<version>1.2</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>com.google.code</groupId>
@@ -317,43 +359,43 @@
             </plugin>
 
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-war-plugin</artifactId>-->
-                <!--<version>2.2</version>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-war-plugin</artifactId>-->
+            <!--<version>2.2</version>-->
 
-                <!--<executions>-->
-                    <!--&lt;!&ndash; added for making the replace plugin run in the exploded phase &ndash;&gt;-->
-                    <!--<execution>-->
-                        <!--<id>prepare-war</id>-->
-                        <!--<phase>prepare-package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>exploded</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<executions>-->
+            <!--&lt;!&ndash; added for making the replace plugin run in the exploded phase &ndash;&gt;-->
+            <!--<execution>-->
+            <!--<id>prepare-war</id>-->
+            <!--<phase>prepare-package</phase>-->
+            <!--<goals>-->
+            <!--<goal>exploded</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
 
-                <!--<configuration>-->
+            <!--<configuration>-->
 
-                    <!--<archive>-->
-                        <!--<addMavenDescriptor>true</addMavenDescriptor>-->
-                        <!--<manifest>-->
-                            <!--<addDefaultImplementationEntries>true</addDefaultImplementationEntries>-->
-                            <!--<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>-->
-                        <!--</manifest>-->
-                    <!--</archive>-->
+            <!--<archive>-->
+            <!--<addMavenDescriptor>true</addMavenDescriptor>-->
+            <!--<manifest>-->
+            <!--<addDefaultImplementationEntries>true</addDefaultImplementationEntries>-->
+            <!--<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>-->
+            <!--</manifest>-->
+            <!--</archive>-->
 
-                <!--</configuration>-->
+            <!--</configuration>-->
             <!--</plugin>-->
 
             <!-- Ensures we are compiling at 1.8 level -->
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-compiler-plugin</artifactId>-->
-                <!--<version>2.3.2</version>-->
-                <!--<configuration>-->
-                    <!--<source>${java.version}</source>-->
-                    <!--<target>${java.version}</target>-->
-                <!--</configuration>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-compiler-plugin</artifactId>-->
+            <!--<version>2.3.2</version>-->
+            <!--<configuration>-->
+            <!--<source>${java.version}</source>-->
+            <!--<target>${java.version}</target>-->
+            <!--</configuration>-->
             <!--</plugin>-->
         </plugins>
     </build>

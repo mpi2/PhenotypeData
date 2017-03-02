@@ -62,7 +62,7 @@ public class ZygosityReport extends AbstractReport {
     ObservationService observationService;
 
     @NotNull
-    @Value("${drupalBaseUrl}")
+    @Value("${drupal_base_url}")
     protected String drupalBaseUrl;
 
     public static final String[] EMPTY_ROW = new String[]{""};

@@ -61,7 +61,8 @@ public class ParallelCoordinatesController {
 
 	@SuppressWarnings("unchecked") // synchronized map so it's thread safe
 	Map<String, String> cache = (Map<String, String>) Collections.synchronizedMap(new LinkedHashMap<String, String>(MAX_ENTRIES+1, .75F, true) {
-		private static final long serialVersionUID = 1L;
+
+        private static final long serialVersionUID = 1L;
 
 		// This method is called just after a new entry has been added
 		public boolean removeEldestEntry(Map.Entry eldest) {
@@ -71,17 +72,21 @@ public class ParallelCoordinatesController {
 
 
 	@RequestMapping(value = "/parallel", method = RequestMethod.GET)
-	public String getData(Model model, HttpServletRequest request, RedirectAttributes attributes)
-			throws SolrServerException, IOException {
+	public String getData(Model model, HttpServletRequest request, RedirectAttributes attributes) {
+        System.out.println("Parallel");
 
-		TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
-		procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success", false));
+        try {
+            TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
+            procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success", false));
 
-		TreeSet<String> centers = new TreeSet<>();
-		centers.addAll(srs.getCenters(null, "unidimensional", "IMPC", "Success"));
+            TreeSet<String> centers = new TreeSet<>();
+            centers.addAll(srs.getCenters(null, "unidimensional", "IMPC", "Success"));
 
-		model.addAttribute("procedures", procedures);
-		model.addAttribute("centers", centers);
+            model.addAttribute("procedures", procedures);
+            model.addAttribute("centers", centers);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 		return "parallel2";
 
@@ -207,7 +212,7 @@ public class ParallelCoordinatesController {
 	    	data.append("]");
 
 	    	res.append("var foods = ").append(data).append("; \n\n var defaults = ").append(defaultMeans).append(";");
-	    	
+
 	    	if (parameters != null){
 	    		res.append("var links = {");
 	    		String groups = "var groups = {";
@@ -225,9 +230,9 @@ public class ParallelCoordinatesController {
 	    		res.append("};");
 	    		res.append(groups);
 	    	}
-	    	
-		} 
-		
+
+		}
+
 		return res.toString();
 	}
 

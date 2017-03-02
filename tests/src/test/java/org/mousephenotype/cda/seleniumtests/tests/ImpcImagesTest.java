@@ -83,7 +83,7 @@ public class ImpcImagesTest {
     private PhenotypePipelineDAO phenotypePipelineDAO;
 
     @NotNull
-    @Value("${baseUrl}")
+    @Value("${base_url}")
     private String baseUrl;
 
     @Value("${seleniumUrl}")

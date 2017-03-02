@@ -70,10 +70,14 @@ public class TestConfig {
     @Value("${solr.host}")
     private String solrHost;
 
-    @Value("${baseUrl}")
-    private String baseUrl;
+    @Value("${drupal_base_url}")
+    private String drupalBaseUrl;
 
-    @Value("${internalSolrUrl}")
+
+	@Value("${base_url}")
+	private String baseUrl;
+
+    @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
     @PostConstruct

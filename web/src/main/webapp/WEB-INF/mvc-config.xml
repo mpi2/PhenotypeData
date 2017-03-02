@@ -6,15 +6,6 @@
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
                         http://www.springframework.org/schema/mvc     http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
 
-	<!-- <bean id="propertyPlaceholderConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="locations">
-			<list>
-				<value>classpath:appConfig.properties</value>
-			</list>
-		</property>
-	</bean> -->
-
 	<!-- The configuration for your 'PhenotypeArchive' Dispatcher Servlet. This
 		example uses component scanning to automatically pick up controllers. It
 		allow us to use Autowire, Required and Qualifier annotations. - Dependencies
