@@ -108,6 +108,16 @@
         </dependency>
 
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>2.3</version>
@@ -311,12 +321,12 @@
         </dependency>
 
         <!-- View Dependencies -->
-        <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>jstl</groupId>-->
+            <!--<artifactId>jstl</artifactId>-->
+            <!--<version>1.2</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>com.google.code</groupId>

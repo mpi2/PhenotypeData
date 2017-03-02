@@ -11,35 +11,35 @@
 
 
 	<!-- Define the global parameters used when deploying without maven -->
-	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
-		<property name="locations">
-			<list>
-				<value>file:${user.home}/configfiles/#{ systemProperties['profile'] }/application.properties</value>
-			</list>
-		</property>
-	</bean>
+	<!--<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
+		<!--<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />-->
+		<!--<property name="locations">-->
+			<!--<list>-->
+				<!--<value>file:${user.home}/configfiles/#{ systemProperties['profile'] }/application.properties</value>-->
+			<!--</list>-->
+		<!--</property>-->
+	<!--</bean>-->
 
-	<context:component-scan base-package="uk.ac.ebi" />
-	<context:component-scan base-package="org.mousephenotype.cda.solr" />
-	<context:component-scan base-package="org.mousephenotype.cda.utilities" />
-	<context:component-scan base-package="org.mousephenotype.cda.db">
-		<context:exclude-filter type="annotation" expression="org.mousephenotype.cda.annotations.ComponentScanNonParticipant"/>
-	</context:component-scan>
+	<!--<context:component-scan base-package="uk.ac.ebi" />-->
+	<!--<context:component-scan base-package="org.mousephenotype.cda.solr" />-->
+	<!--<context:component-scan base-package="org.mousephenotype.cda.utilities" />-->
+	<!--<context:component-scan base-package="org.mousephenotype.cda.db">-->
+		<!--<context:exclude-filter type="annotation" expression="org.mousephenotype.cda.annotations.ComponentScanNonParticipant"/>-->
+	<!--</context:component-scan>-->
 
-	<context:annotation-config />
+	<!--<context:annotation-config />-->
 
-	<mvc:resources mapping="/dist/**" location="/resources/js/anatomogram/dist/" />
-	<mvc:resources mapping="/css/**" location="/resources/css/" />
-	<mvc:resources mapping="/js/**" location="/resources/js/" />
-	<mvc:resources mapping="/fonts/**" location="/resources/fonts/" />
-	<mvc:resources mapping="/img/**" location="/resources/img/" />
-	<mvc:resources mapping="/documentation/**" location="/resources/documentation/" />
-	<mvc:resources mapping="/dalliance/**" location="/resources/dalliance/" />
-	<mvc:resources mapping="/release_notes/**" location="/resources/release_notes/" />
-	<mvc:resources mapping="/image_compara/**" location="/image_compara/" /><!-- first pass place to keep the omero image compara plugin -->
+	<!--<mvc:resources mapping="/dist/**" location="/resources/js/anatomogram/dist/" />-->
+	<!--<mvc:resources mapping="/css/**" location="/resources/css/" />-->
+	<!--<mvc:resources mapping="/js/**" location="/resources/js/" />-->
+	<!--<mvc:resources mapping="/fonts/**" location="/resources/fonts/" />-->
+	<!--<mvc:resources mapping="/img/**" location="/resources/img/" />-->
+	<!--<mvc:resources mapping="/documentation/**" location="/resources/documentation/" />-->
+	<!--<mvc:resources mapping="/dalliance/**" location="/resources/dalliance/" />-->
+	<!--<mvc:resources mapping="/release_notes/**" location="/resources/release_notes/" />-->
+	<!--<mvc:resources mapping="/image_compara/**" location="/image_compara/" />&lt;!&ndash; first pass place to keep the omero image compara plugin &ndash;&gt;-->
 
-	<context:component-scan base-package="uk.ac.ebi.phenotype.web.controller" />
+	<!--<context:component-scan base-package="uk.ac.ebi.phenotype.web.controller" />-->
 
 	<!-- <mvc:annotation-driven/> use this if you don't need extra converters -->
 	<mvc:annotation-driven>
@@ -50,118 +50,118 @@
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 
-	<mvc:interceptors>
-		<!-- An interceptor which keeps a hibernate session open to allow lazy
-			loading of form backing objects -->
-		<bean
-				class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">
-			<property name="sessionFactory" ref="sessionFactory" />
-		</bean>
-		<!--  add the deployment path to all pages -->
-		<bean class="uk.ac.ebi.phenotype.web.util.DeploymentInterceptor">
-			<!-- 			<property name="deploymentPath" value="${deploymentPath}" /> -->
-		</bean>
-	</mvc:interceptors>
+	<!--<mvc:interceptors>-->
+		<!--&lt;!&ndash; An interceptor which keeps a hibernate session open to allow lazy-->
+			<!--loading of form backing objects &ndash;&gt;-->
+		<!--<bean-->
+				<!--class="org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor">-->
+			<!--<property name="sessionFactory" ref="sessionFactory" />-->
+		<!--</bean>-->
+		<!--&lt;!&ndash;  add the deployment path to all pages &ndash;&gt;-->
+		<!--<bean class="uk.ac.ebi.phenotype.web.util.DeploymentInterceptor">-->
+			<!--&lt;!&ndash; 			<property name="deploymentPath" value="${deploymentPath}" /> &ndash;&gt;-->
+		<!--</bean>-->
+	<!--</mvc:interceptors>-->
 
-	<bean
-			class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix" value="/WEB-INF/views/" />
-		<property name="suffix" value=".jsp" />
-	</bean>
+	<!--<bean-->
+			<!--class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
+		<!--<property name="prefix" value="/WEB-INF/views/" />-->
+		<!--<property name="suffix" value=".jsp" />-->
+	<!--</bean>-->
 
-<bean primary="true" id="komp2DataSource" destroy-method="close"
-  class="org.apache.commons.dbcp.BasicDataSource">
-    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-    <property name="url" value="${datasource.komp2.url}"/>
-    <property name="username" value="${datasource.komp2.username}"/>
-    <property name="password" value="${datasource.komp2.password}"/>
-    <property name="initialSize" value="3"/>
-    <property name="testOnBorrow" value="true" />
-    <property name="validationQuery" value="SELECT 1" />
-    <property name="removeAbandoned" value="true"/>
-    <property name="removeAbandonedTimeout" value="60"/>
-    <property name="logAbandoned" value="true"/>
-</bean>
+<!--<bean primary="true" id="komp2DataSource" destroy-method="close"-->
+  <!--class="org.apache.commons.dbcp.BasicDataSource">-->
+    <!--<property name="driverClassName" value="com.mysql.jdbc.Driver"/>-->
+    <!--<property name="url" value="${datasource.komp2.url}"/>-->
+    <!--<property name="username" value="${datasource.komp2.username}"/>-->
+    <!--<property name="password" value="${datasource.komp2.password}"/>-->
+    <!--<property name="initialSize" value="3"/>-->
+    <!--<property name="testOnBorrow" value="true" />-->
+    <!--<property name="validationQuery" value="SELECT 1" />-->
+    <!--<property name="removeAbandoned" value="true"/>-->
+    <!--<property name="removeAbandonedTimeout" value="60"/>-->
+    <!--<property name="logAbandoned" value="true"/>-->
+<!--</bean>-->
 
-<bean id="admintoolsDataSource" destroy-method="close"
-  class="org.apache.commons.dbcp.BasicDataSource">
-    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-    <property name="url" value="${datasource.admintools.url}"/>
-    <property name="username" value="${datasource.admintools.username}"/>
-    <property name="password" value="${datasource.admintools.password}"/>
-    <property name="initialSize" value="3"/>
-    <property name="testOnBorrow" value="true" />
-    <property name="validationQuery" value="SELECT 1" />
-    <property name="removeAbandoned" value="true"/>
-    <property name="removeAbandonedTimeout" value="60"/>
-    <property name="logAbandoned" value="true"/>
-</bean>
+<!--<bean id="admintoolsDataSource" destroy-method="close"-->
+  <!--class="org.apache.commons.dbcp.BasicDataSource">-->
+    <!--<property name="driverClassName" value="com.mysql.jdbc.Driver"/>-->
+    <!--<property name="url" value="${datasource.admintools.url}"/>-->
+    <!--<property name="username" value="${datasource.admintools.username}"/>-->
+    <!--<property name="password" value="${datasource.admintools.password}"/>-->
+    <!--<property name="initialSize" value="3"/>-->
+    <!--<property name="testOnBorrow" value="true" />-->
+    <!--<property name="validationQuery" value="SELECT 1" />-->
+    <!--<property name="removeAbandoned" value="true"/>-->
+    <!--<property name="removeAbandonedTimeout" value="60"/>-->
+    <!--<property name="logAbandoned" value="true"/>-->
+<!--</bean>-->
 
 
 
-	<!-- Spring annotated objects -->
-	<bean id="sessionFactory"
-		  class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource" ref="komp2DataSource" />
-		<property name="packagesToScan" value="org.mousephenotype.cda.db" />
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
-				<prop key="hibernate.show_sql">false</prop>
-				<prop key="hibernate.connection.useUnicode">true</prop>
-				<prop key="hibernate.connection.charSet">UTF8</prop>
-			</props>
-		</property>
-	</bean>
+	<!--&lt;!&ndash; Spring annotated objects &ndash;&gt;-->
+	<!--<bean id="sessionFactory"-->
+		  <!--class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">-->
+		<!--<property name="dataSource" ref="komp2DataSource" />-->
+		<!--<property name="packagesToScan" value="org.mousephenotype.cda.db" />-->
+		<!--<property name="hibernateProperties">-->
+			<!--<props>-->
+				<!--<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>-->
+				<!--<prop key="hibernate.show_sql">false</prop>-->
+				<!--<prop key="hibernate.connection.useUnicode">true</prop>-->
+				<!--<prop key="hibernate.connection.charSet">UTF8</prop>-->
+			<!--</props>-->
+		<!--</property>-->
+	<!--</bean>-->
 
-	<!-- Drives transactions using Hibernate APIs when requested -->
-	<bean id="transactionManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory" />
-	</bean>
+	<!--&lt;!&ndash; Drives transactions using Hibernate APIs when requested &ndash;&gt;-->
+	<!--<bean id="transactionManager"-->
+		<!--class="org.springframework.orm.hibernate5.HibernateTransactionManager">-->
+		<!--<property name="sessionFactory" ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<!-- Weaves in transactional advice around annotated Transactional methods -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<!--&lt;!&ndash; Weaves in transactional advice around annotated Transactional methods &ndash;&gt;-->
+	<!--<tx:annotation-driven transaction-manager="transactionManager" />-->
 
 
 	<!--this is the phenodigm DAO implementation we are looking for... -->
-	<bean id="phenoDigmDao" class="uk.ac.ebi.phenodigm.dao.PhenoDigmWebDaoSolrImpl" />
+	<!--<bean id="phenoDigmDao" class="uk.ac.ebi.phenodigm.dao.PhenoDigmWebDaoSolrImpl" />-->
 
 
-	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
-		<property name="targetMapClass">
-			<value>java.util.HashMap</value>
-		</property>
-		<property name="sourceMap">
-			<map key-type="java.lang.String" value-type="java.lang.String">
-				<!--<entry key="version" value="${pom.version}" />-->
-				<entry key="baseUrl" value="${baseUrl}" />
-				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
-				<entry key="solrUrl" value="${solrUrl}" />
-				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
-				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
-				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
-				<entry key="monarchUrl" value="${monarchUrl}" />
-				<entry key="pdfThumbnailUrl" value="${pdfThumbnailUrl}" />
-				<entry key="googleAnalytics" value="${googleAnalytics}" />
-				<entry key="liveSite" value="${liveSite}" />
-			</map>
-		</property>
-	</bean>
+	<!--<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">-->
+		<!--<property name="targetMapClass">-->
+			<!--<value>java.util.HashMap</value>-->
+		<!--</property>-->
+		<!--<property name="sourceMap">-->
+			<!--<map key-type="java.lang.String" value-type="java.lang.String">-->
+				<!--&lt;!&ndash;<entry key="version" value="${pom.version}" />&ndash;&gt;-->
+				<!--<entry key="baseUrl" value="${baseUrl}" />-->
+				<!--<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />-->
+				<!--<entry key="solrUrl" value="${solrUrl}" />-->
+				<!--<entry key="internalSolrUrl" value="${internalSolrUrl}" />-->
+				<!--<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />-->
+				<!--<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />-->
+				<!--<entry key="monarchUrl" value="${monarchUrl}" />-->
+				<!--<entry key="pdfThumbnailUrl" value="${pdfThumbnailUrl}" />-->
+				<!--<entry key="googleAnalytics" value="${googleAnalytics}" />-->
+				<!--<entry key="liveSite" value="${liveSite}" />-->
+			<!--</map>-->
+		<!--</property>-->
+	<!--</bean>-->
 
 	<!--  file upload -->
-	<bean
-  	class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-  		<property name="prefix">
-   			<value>/WEB-INF/views/</value>
-  		</property>
-	  	<property name="suffix">
-	   		<value>.jsp</value>
-	  	</property>
- 	</bean>
+	<!--<bean-->
+  	<!--class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
+  		<!--<property name="prefix">-->
+   			<!--<value>/WEB-INF/views/</value>-->
+  		<!--</property>-->
+	  	<!--<property name="suffix">-->
+	   		<!--<value>.jsp</value>-->
+	  	<!--</property>-->
+ 	<!--</bean>-->
 
- 	<bean id="multipartResolver"
-  		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+ 	<!--<bean id="multipartResolver"-->
+  		<!--class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />-->
 
 </beans>
 
