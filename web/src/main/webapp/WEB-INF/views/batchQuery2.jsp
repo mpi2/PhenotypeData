@@ -451,6 +451,22 @@
                         }
                         else if (currDataType == "geneChr"){
                             $(this).next().next().show();
+
+                            //when input change, update $('textarea#pastedList')
+                            $('select#chrSel').change(function() {
+                                var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
+                                var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
+                                $('textarea#pastedList').val("chr" + this.value + ":" + chrStart + "-" + chrEnd);
+                            });
+
+							$('input#rstart, input#rend').keyup(function() {
+							    console.log("getting " + this.val);
+                                var chr = $('select#chrSel').val();
+							    var chrStart = $('input#rstart').val() == "" ? "empty" : $('input#rstart').val();
+                                var chrEnd = $('input#rend').val() == "" ? "empty" : $('input#rend').val();
+
+                                $('textarea#pastedList').val("chr" + chr + ":" + chrStart + "-" + chrEnd);
+                            });
                         }
 
                         $('textarea#pastedList').val($(this).attr("value"));
@@ -774,16 +790,58 @@
 
             function submitPastedList(){
 
-                refreshResult(); // refresh first
+                // verify chromosome coords
+                if ($('input.bq:checked').attr('id') == "geneChr"){
+                    var chr = $('select#chrSel').val();
+                    $.ajax({
+                        url: baseUrl + '/chrlen?chr=' + chr,
+                        success: function(chrlen) {
+
+                            var easyReadChrLen = chrlen.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                            console.log("chr range check " + chrlen);
+                            var chrStart = $('input#rstart').val();
+                            var chrEnd = $('input#rend').val();
+
+                            console.log("check: "+ chrStart > chrEnd);
+                            if (! chrStart.match(/^\d+$/)){
+                                alert("ERROR: start coordinate should be integer");
+                            }
+                            else if (! chrEnd.match(/^\d+$/)) {
+                                alert("ERROR: end coordinate should be integer");
+                            }
+                            else if (chrStart > chrEnd){
+                                alert("ERROR: start coord is larger than end coord");
+							}
+							else if (chrStart == chrEnd){
+                                alert("ERROR: start coord is same as end coord");
+							}
+                            else if (chrStart > chrlen) {
+                                alert("ERROR: start coord exceeds chromosome range: " + easyReadChrLen);
+                            }
+                            else if (chrEnd > chrlen) {
+                                alert("ERROR: end coord exceeds chromosome range: " + easyReadChrLen);
+                            }
+                            else if (chrStart < 1 || chrEnd < 1){
+                                alert("ERROR: coordinate cannot be less than 1");
+							}
+                            return false;
+                        },
+                        error: function() {
+                            window.alert('AJAX error trying to fetch length of chromosome' + chr);
+                        }
+                    });
+                }
 
                 if ( $('textarea#pastedList').val() == ''){
                     alert('Oops, search keyword is missing...');
                 }
                 else {
-                    var currDataType = $('input.bq:checked').attr('id');
-//alert(currDataType)
-                    idList = parsePastedList($('textarea#pastedList').val(), currDataType);
 
+                    refreshResult(); // refresh first
+
+                    var currDataType = $('input.bq:checked').attr('id');
+                    idList = parsePastedList($('textarea#pastedList').val(), currDataType);
 
                     if ( idList !== false ){
                         var kv = fetchSelectedFieldList();
@@ -1114,7 +1172,7 @@
 													<input type="radio" id="geneId" value="Eg. MGI:106209" name="dataType" class='bq' >MGI id<br>
 													<input type="radio" id="ensembl" value="Eg.. ENSMUSG00000011257" name="dataType" class='bq'>Ensembl id<br>
 
-													<input type="radio" id="geneChr" value="" name="dataType" class='bq'>Chromosomal coordinates<br>
+													<input type="radio" id="geneChr" value="Eg. chr12:53694976-56714605" name="dataType" class='bq'>Chromosomal coordinates<br>
 													<div id="rangeBox" class="srchBox">
 														Chr:
 														<select id="chrSel">

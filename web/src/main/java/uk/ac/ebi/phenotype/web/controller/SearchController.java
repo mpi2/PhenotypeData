@@ -364,30 +364,4 @@ public class SearchController {
 		return "mesh";
 	}
 
-	@RequestMapping(value = "/chrlen", method = RequestMethod.GET)
-	public @ResponseBody Integer chrlen(
-			@RequestParam(value = "chr", required = true) String chr,
-			HttpServletRequest request,
-			HttpServletResponse response,
-			Model model) throws IOException, URISyntaxException, SolrServerException, SQLException {
-
-		//fetchChrLenJson();
-		Connection connKomp2 = komp2DataSource.getConnection();
-
-		String sql = "SELECT length FROM seq_region WHERE name ='" + chr + "'";
-		Integer len = null;
-
-		try (PreparedStatement p = connKomp2.prepareStatement(sql)) {
-			ResultSet resultSet = p.executeQuery();
-
-			while (resultSet.next()) {
-				len = resultSet.getInt("length");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return len;
-	}
-
 }
