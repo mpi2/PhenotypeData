@@ -53,6 +53,7 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
     private SqlUtils                     sqlUtils = new SqlUtils();
 
     private int          count            = 100;
+    private boolean      includeDerived   = false;
     private List<String> experimentIdList = new ArrayList<>();
     private Set<String>  skipColumns      = new HashSet<>();
     private Set<String>  skipParameters   = new HashSet<>();
@@ -68,10 +69,11 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
     private NamedParameterJdbcTemplate jdbc2;
 
 
-    public static final String COUNT_ARG          = "count";
-    public static final String SKIP_COLUMN_ARG    = "skipcolumn";
-    public static final String SKIP_PARAMETER_ARG = "skipparameter";
-    public static final String EXPERIMENT_ARG     = "experiment";
+    public static final String COUNT_ARG           = "count";
+    public static final String SKIP_COLUMN_ARG     = "skipcolumn";
+    public static final String SKIP_PARAMETER_ARG  = "skipparameter";
+    public static final String EXPERIMENT_ARG      = "experiment";
+    public static final String INCLUDE_DERIVED_ARG = "includederived";
 
     /****************************
      * DATABASES: e.g. cda, komp2_base
@@ -102,6 +104,9 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
         // parameter to indicate any experimentIds to test
         parser.accepts(EXPERIMENT_ARG).withRequiredArg().ofType(String.class);
 
+        // parameter to indicate inclusion of derived experiments
+        parser.accepts(INCLUDE_DERIVED_ARG);
+
         parser.allowsUnrecognizedOptions();         // Ignore options already processed at a higher level.
 
         OptionSet options = parser.parse(args);
@@ -129,7 +134,19 @@ public class LoadValidateCdaExperimentReport extends AbstractReport {
             experimentIdList.addAll((List<String>) options.valuesOf(EXPERIMENT_ARG));
         }
 
-        loadValidateExperimentsQuery = new LoadValidateExperimentsQuery(jdbc1, jdbc2, csvWriter, experimentIdList, count, skipColumns, skipParameters);
+        if (options.has(INCLUDE_DERIVED_ARG)) {
+            includeDerived = true;
+        }
+
+        if ( ! skipColumns.isEmpty())
+            logger.info("skipColumns: [{}]", StringUtils.join(skipColumns, ", "));
+
+        if ( ! skipParameters.isEmpty())
+            logger.info("skipParameters: [{}]", StringUtils.join(skipParameters, ", "));
+
+        logger.info("{} derived experiments", includeDerived ? "Including " : "Omitting ");
+
+        loadValidateExperimentsQuery = new LoadValidateExperimentsQuery(jdbc1, jdbc2, csvWriter, experimentIdList, count, skipColumns, skipParameters, includeDerived);
     }
 
     @Override
