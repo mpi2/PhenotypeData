@@ -826,16 +826,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
         ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleParameter.getValue());
 
-        String[] rawParameterStatus;
-
-        try {
-            rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
-        } catch (Exception e) {
-            logger.warn("Invalid SimpleParameter {}, parameterStatus {} for phenotyping Center {}, experimentId {}. Skipping... ",
-                        simpleParameter.getParameterID(), simpleParameter.getParameterStatus(),
-                        dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
-            return;
-        }
+        String[] rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
 
@@ -912,16 +903,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         ObservationType observationType = ObservationType.image_record;
         String URI = mediaParameter.getURI();
 
-        String[] rawParameterStatus;
+        String[] rawParameterStatus = commonUtils.parseImpressStatus(mediaParameter.getParameterStatus());
 
-        try {
-            rawParameterStatus = commonUtils.parseImpressStatus(mediaParameter.getParameterStatus());
-        } catch (Exception e) {
-            logger.warn("Invalid MediaParameter {}, parameterStatus {} for phenotyping Center {}, experimentId {}. Skipping... ",
-                        mediaParameter.getParameterID(), mediaParameter.getParameterStatus(),
-                        dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
-            return;
-        }
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
 
@@ -965,16 +948,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int             populationId           = 0;
         String          sequenceId             = null;
         ObservationType observationType        = ObservationType.image_record;
-        String[]        rawParameterStatus;
 
-        try {
-            rawParameterStatus = commonUtils.parseImpressStatus(mediaSampleParameter.getParameterStatus());
-        } catch (Exception e) {
-            logger.warn("Invalid MediaSampleParameter {}, parameterStatus {} for phenotyping Center {}, experimentId {}. Skipping... ",
-                        mediaSampleParameter.getParameterID(), mediaSampleParameter.getParameterStatus(),
-                        dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
-            return;
-        }
+        String[] rawParameterStatus = commonUtils.parseImpressStatus(mediaSampleParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
 
@@ -1046,16 +1021,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = null;
         ObservationType observationType = ObservationType.image_record;
-        String[] rawParameterStatus;
 
-        try {
-            rawParameterStatus = commonUtils.parseImpressStatus(seriesMediaParameter.getParameterStatus());
-        } catch (Exception e) {
-            logger.warn("Invalid SeriesMediaParameter {}, parameterStatus {} for phenotyping Center {}, experimentId {}. Skipping... ",
-                        seriesMediaParameter.getParameterID(), seriesMediaParameter.getParameterStatus(),
-                        dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
-            return;
-        }
+        String[] rawParameterStatus = commonUtils.parseImpressStatus(seriesMediaParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
 
@@ -1105,16 +1072,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         List<ProcedureMetadata> dccMetadataList = dccSqlUtils.getProcedureMetadata(dccExperiment.getDcc_procedure_pk());
         String parameterStableId = seriesParameter.getParameterID();
 
-        String[] rawParameterStatus;
-
-        try {
-            rawParameterStatus = commonUtils.parseImpressStatus(seriesParameter.getParameterStatus());
-        } catch (Exception e) {
-            logger.warn("Invalid SeriesParameter {}, parameterStatus {} for phenotyping Center {}, experimentId {}. Skipping... ",
-                        seriesParameter.getParameterID(), seriesParameter.getParameterStatus(),
-                        dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
-            return;
-        }
+        String[] rawParameterStatus = commonUtils.parseImpressStatus(seriesParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
 
@@ -1210,16 +1168,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             return;
         }
 
-        String[] rawParameterStatus;
-
-        try {
-            rawParameterStatus = commonUtils.parseImpressStatus(ontologyParameter.getParameterStatus());
-        } catch (Exception e) {
-            logger.warn("Invalid OntologyParameter {}, parameterStatus {} for phenotyping Center {}, experimentId {}. Skipping... ",
-                        ontologyParameter.getParameterID(), ontologyParameter.getParameterStatus(),
-                        dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
-            return;
-        }
+        String[] rawParameterStatus = commonUtils.parseImpressStatus(ontologyParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
         String parameterStatusMessage = rawParameterStatus[1];
 
