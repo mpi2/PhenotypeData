@@ -15,7 +15,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
     }
     console.log(jsonSource);
 
-    var url = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? baseUrl + "/chordDiagram?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : baseUrl+ "/chordDiagram";
+    var url = (mpTopLevelTerms && mpTopLevelTerms.length > 0) ? baseUrl + "/chordDiagram?phenotype_name=" + mpTopLevelTerms.join("&phenotype_name=") : baseUrl+ "/chordDiagram?";
 
 
 
@@ -41,8 +41,8 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
 
             d3.select("#"+svgId).selectAll("*").remove(); //clear svg for in-place filters
             var svg = d3.select("#"+svgId),
-                width = +svg.attr("width"),
-                height = +svg.attr("height"),
+                width = +960,
+                height = +960,
                 outerRadius = Math.min(width, height) * 0.5 - 200,
                 innerRadius = outerRadius - 30;
 
@@ -78,11 +78,12 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                 .on("click", function (d) {
                     if (mpTopLevelTerms.indexOf(labels[d.index].name) < 0) { // top level is not already selected
                         if (openNewPage) {
+                        console.log("URL " + url);
                             window.open(url + "&phenotype_name=" + labels[d.index].name, "_self");
                         }
                         else {
                             mpTopLevelTerms.push(labels[d.index].name);
-                            drawChords(openNewPage, mpTopLevelTerms);
+                            drawChords(openNewPage, containerId, openNewPage, mpTopLevelTerms);
                         }
                     }
                 });

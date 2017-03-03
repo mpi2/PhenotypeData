@@ -225,6 +225,17 @@
             <artifactId>spring-aop</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-client</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
 		<!-- Apache Commons Upload -->
         <dependency>
            <groupId>commons-fileupload</groupId>
@@ -316,11 +327,6 @@
         	<groupId>junit</groupId>
         	<artifactId>junit</artifactId>
         	<version>4.12</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
         </dependency>
 
     </dependencies>
