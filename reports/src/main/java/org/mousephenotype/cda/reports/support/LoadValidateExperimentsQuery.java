@@ -47,9 +47,10 @@ public class LoadValidateExperimentsQuery {
     List<String>                       emptyExperiment              = new ArrayList<>();
 
     private List<String> experimentIds;
+    private boolean      includeDerived;
     private Set<String>  skipColumns;
     private Set<String>  skipParameters;
-    private Set<Integer> skipColumnIndexSet    = new HashSet<>();
+    private Set<Integer> skipColumnIndexSet = new HashSet<>();
 
     private NamedParameterJdbcTemplate jdbc1;
     private NamedParameterJdbcTemplate jdbc2;
@@ -77,13 +78,16 @@ public class LoadValidateExperimentsQuery {
      *                       count is above and beyond any experiments in {@code experimentIds}. The default is 100.
      * @param skipColumns     an optional collection of column aliases to exclude from validation
      * @param skipParameters  an optional collection of parameter stable ids to exclude from validation
+     * @param includeDerived  an optional flag to indicate that derived experiments should be included in the random selection
      */
-    public LoadValidateExperimentsQuery(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, MpCSVWriter csvWriter, List<String> experimentIds, int count, Set<String> skipColumns, Set<String> skipParameters) {
+    public LoadValidateExperimentsQuery(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, MpCSVWriter csvWriter, List<String> experimentIds,
+                                        int count, Set<String> skipColumns, Set<String> skipParameters, boolean includeDerived) {
         this.jdbc1 = jdbc1;
         this.jdbc2 = jdbc2;
         this.csvWriter = csvWriter;
         this.experimentIds = experimentIds;
         this.count = count;
+        this.includeDerived = includeDerived;
         this.skipColumns = skipColumns;
         this.skipParameters = skipParameters;
     }
@@ -314,7 +318,11 @@ public class LoadValidateExperimentsQuery {
         // If count > 0, select a randomised list of experimentIds.
         List<String> allExperimentIds = new ArrayList<>();
         if (count > 0) {
-            SqlRowSet rs = jdbc1.queryForRowSet("SELECT external_id FROM experiment", new HashMap<>());
+            StringBuilder query = new StringBuilder("SELECT external_id FROM experiment\n");
+            if ( ! includeDerived) {
+                query.append("WHERE external_id NOT LIKE 'derived%'");
+            }
+            SqlRowSet rs = jdbc1.queryForRowSet(query.toString(), new HashMap<>());
             while (rs.next()) {
                 allExperimentIds.add(rs.getString("external_id"));
             }
