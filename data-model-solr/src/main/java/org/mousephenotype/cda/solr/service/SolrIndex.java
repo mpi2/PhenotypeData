@@ -118,6 +118,7 @@ public class SolrIndex {
 				+ chrStart + " TO " + chrEnd + "]");
 		query.setFields("mgi_accession_id");
 
+		System.out.println("Query: " + query);
 		QueryResponse response = null;
 		if ( !mode.equals("export")) {
 			query.setRows(10); // default, display only a max of 10 records on batchQuery page
