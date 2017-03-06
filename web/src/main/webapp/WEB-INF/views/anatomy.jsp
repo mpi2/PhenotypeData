@@ -91,6 +91,7 @@
 										<c:if  test='${anatomy.getAnatomyId().startsWith("MA:")}'>adult</c:if>
 										<c:if  test='${anatomy.getAnatomyId().startsWith("EMAPA:")}'>embryo</c:if>
 									</p>
+									<p class="with-label"><span class="label">Ontology browser</span><a href="${baseUrl}/ontologyBrowser?termId=${anatomy.getAnatomyId()}">${anatomy.getAnatomyId()}</a></p>
 
 								</div>
 
