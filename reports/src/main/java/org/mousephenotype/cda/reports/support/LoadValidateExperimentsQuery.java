@@ -179,6 +179,9 @@ public class LoadValidateExperimentsQuery {
                     "  bm.allelic_composition                AS bm_allelic_composition,\n" +
                     "  bm.genetic_background                 AS bm_genetic_background,\n" +
                     "  \n" +
+                    "  'LIVE_SAMPLE',\n" +
+                    "  ls.colony_id                          AS ls_colony_id,\n" +
+                    "  \n" +
                     "  'BIOLOGICAL_SAMPLE',\n" +
                     "  bs.external_id                        AS bs_external_id,\n" +
                     "  bsdb.short_name                       AS bs_short_name,\n" +
@@ -254,6 +257,7 @@ public class LoadValidateExperimentsQuery {
                     "JOIN             external_db                    obdb    ON obdb     .id                 = ob    .db_id\n" +
                     "                \n" +
                     "JOIN             biological_sample              bs      ON bs       .id                 = ob    .biological_sample_id\n" +
+                    "JOIN             live_sample                    ls      ON ls       .id                 = ob    .biological_sample_id\n" +
                     "JOIN             external_db                    bsdb    ON bsdb     .id                 = bs    .db_id\n" +
                     "JOIN             external_db                    bsstdb  ON bsstdb   .id                 = bs    .sample_type_db_id\n" +
                     "JOIN             organisation                   bsorg   ON bsorg    .id                 = bs    .organisation_id\n" +
@@ -278,7 +282,7 @@ public class LoadValidateExperimentsQuery {
 
     private final String orderByClause =
             "ORDER BY e_short_name,e_experiment_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
-            "ob_parameter_stable_id,ob_parameter_status,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
+            "ob_parameter_stable_id,ob_parameter_status,bs_external_id,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
             "oob_sequence_id,tob.text,tsob_discrete_point,tsob_data_point,uob_data_point,ob_metadata_combined,ob_metadata_group,\n" +
             "pa_parameter_id,pa_sequence_id,pa_parameter_association_value\n";
 
@@ -308,6 +312,7 @@ public class LoadValidateExperimentsQuery {
 
         // populate the ignoreColumnIndex set.
         skipColumnIndexSet.add(columnIndexesByName.get("observation_id"));                                            // Always ignore the observation_id (primary key).
+        skipColumnIndexSet.add(columnIndexesByName.get("ls_colony_id"));                                            // Always ignore the ls_colony_id (min.
         for (String ignoreAlias : skipColumns) {
             Integer colIndex = columnIndexesByName.get(ignoreAlias);
             if (colIndex != null) {
@@ -422,10 +427,12 @@ public class LoadValidateExperimentsQuery {
         int phenotypingCenterColumIndex = columnIndexesByName.get("e_phenotyping_center");
         int experimentIdColumnIndex = columnIndexesByName.get("e_experiment_id");
         int observationIdColumnIndex = columnIndexesByName.get("observation_id");
+        int colonyIdColumnIndex = columnIndexesByName.get("ls_colony_id");
 
         row.add(detail.getRow1().get(phenotypingCenterColumIndex));
         row.add(detail.getRow1().get(experimentIdColumnIndex));
         row.add(detail.getRow1().get(observationIdColumnIndex) + "::" + detail.getRow2().get(observationIdColumnIndex));
+        row.add(detail.getRow1().get(colonyIdColumnIndex));
 
         for (int i = 0; i < detail.getColIndexDifference().size(); i++) {
             String columnName = columnNamesByColumnIndex.get(detail.getColIndexDifference().get(i));
@@ -442,6 +449,7 @@ public class LoadValidateExperimentsQuery {
         row.add("e_phenotyping_center");
         row.add("e_experiment_id");
         row.add("observation_id");
+        row.add("ls_colony_id");
 
         csvWriter.writeRow(row);
     }
