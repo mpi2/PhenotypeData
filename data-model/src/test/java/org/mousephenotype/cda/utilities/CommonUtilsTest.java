@@ -43,58 +43,42 @@ public class CommonUtilsTest {
 
 //@Ignore
     @Test
-    public void parseImpressStatusTest() throws Exception {
+    public void parseImpressStatusTest() {
         CommonUtils commonUtils = new CommonUtils();
 
         String[] retVal;
 
         retVal = commonUtils.parseImpressStatus(null);
-        Assert.assertArrayEquals(new String[] { null, null}, retVal);
+        Assert.assertArrayEquals(new String[]{null, null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("");
-        Assert.assertArrayEquals(new String[] { null, null}, retVal);
+        Assert.assertArrayEquals(new String[]{null, null}, retVal);
 
         retVal = commonUtils.parseImpressStatus(" ");
-        Assert.assertArrayEquals(new String[] { null, null}, retVal);
+        Assert.assertArrayEquals(new String[]{null, null}, retVal);
 
-        try {
-            retVal = commonUtils.parseImpressStatus(":");
-            Assert.fail("Expected exception");
-        } catch (Exception e) {
-            Assert.assertEquals("Invalid parameterStatus format", e.getLocalizedMessage());
-        }
+        retVal = commonUtils.parseImpressStatus(":");
+        Assert.assertArrayEquals(new String[]{null, null}, retVal);
 
-        try {
-            retVal = commonUtils.parseImpressStatus("?");
-            Assert.fail("Expected exception");
-        } catch (Exception e) {
-            Assert.assertEquals("Invalid parameterStatus format", e.getLocalizedMessage());
-        }
+        retVal = commonUtils.parseImpressStatus("?");
+        Assert.assertArrayEquals(new String[]{null, null}, retVal);
 
-        try {
-            retVal = commonUtils.parseImpressStatus("|");
-            Assert.fail("Expected exception");
-        } catch (Exception e) {
-            Assert.assertEquals("Invalid parameterStatus format", e.getLocalizedMessage());
-        }
+        retVal = commonUtils.parseImpressStatus("|");
+        Assert.assertArrayEquals(new String[]{"|", null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("IMPC_PARAMSC_005");
-        Assert.assertArrayEquals(new String[] {"IMPC_PARAMSC_005", null}, retVal);
+        Assert.assertArrayEquals(new String[]{"IMPC_PARAMSC_005", null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("IMPC_PARAMSC_005?");
-        Assert.assertArrayEquals(new String[] {"IMPC_PARAMSC_005", null}, retVal);
+        Assert.assertArrayEquals(new String[]{"IMPC_PARAMSC_005", null}, retVal);
 
-        try {
-            retVal = commonUtils.parseImpressStatus("Parameter not measured - Sample clotting");
-            Assert.fail("Expected exception");
-        } catch (Exception e) {
-            Assert.assertEquals("Invalid parameterStatus format", e.getLocalizedMessage());
-        }
+        retVal = commonUtils.parseImpressStatus("Parameter not measured - Sample clotting");
+        Assert.assertArrayEquals(new String[]{"Parameter not measured - Sample clotting", null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("IMPC_PARAMSC_005?Parameter not measured - Sample clotting");
-        Assert.assertArrayEquals(new String[] {"IMPC_PARAMSC_005", "Parameter not measured - Sample clotting"}, retVal);
+        Assert.assertArrayEquals(new String[]{"IMPC_PARAMSC_005", "Parameter not measured - Sample clotting"}, retVal);
 
         retVal = commonUtils.parseImpressStatus("IMPC_PARAMSC_005:    Parameter not measured - Sample clotting  ");
-        Assert.assertArrayEquals(new String[] {"IMPC_PARAMSC_005", "Parameter not measured - Sample clotting"}, retVal);
+        Assert.assertArrayEquals(new String[]{"IMPC_PARAMSC_005", "Parameter not measured - Sample clotting"}, retVal);
     }
 }
