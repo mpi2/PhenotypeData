@@ -267,9 +267,9 @@
                     }
                 });
 
-                //---------------------------------------
+                // ---------------------------------------
                 // chart quarter by year of publication
-                //---------------------------------------
+                // ---------------------------------------
                 var yearSeriesData = [];
                 var drillDownSeriesData = [];
                 var totalPapers = 0;
@@ -404,7 +404,7 @@
                 console.log(agencyNumPaperSeries);
                 console.log("b")
                 console.log(drillDownSeriesDataAgency);
-                var divHeight = 20 * agencyNames.length;
+                var divHeight = 22 * agencyNames.length;
 
                 var thisChart = Highcharts.chart(chartGrantQuarter, {
                     chart: {
