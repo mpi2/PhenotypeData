@@ -190,7 +190,7 @@
 			
 			function getStyles(d, plan){
 				var style = "";
-				if (d.group == "Normal" || d.group == "Mean") {
+				if (d.group == "No effect" || d.group == "Mean") {
 					style = "stroke-opacity: 1;";
 					if (plan == "background"){
 						style += " stroke:" + colors[d.group] + ";"
