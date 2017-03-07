@@ -122,6 +122,7 @@ public class OntologyParser {
         return res;
     }
 
+
     private Set<OWLClass> getDescendentsPartOf(OWLClass cls, int maxLevels, int currentLevel, Set<OWLClass> children ){
 
         Set<OWLClass> subclasses = getChildrenPartOf(cls);
@@ -232,7 +233,7 @@ public class OntologyParser {
     private OntologyTermDTO getDTO(OWLClass cls){
 
         OntologyTermDTO term = new OntologyTermDTO();
-        term.setAccessonId(getIdentifierShortForm(cls)); // i.e. MA:0100084
+        term.setAccessionId(getIdentifierShortForm(cls)); // i.e. MA:0100084
         term.setName(getLabel(cls));
         term.setDefinition(getDefinition(cls));
         term.setSynonyms(getSynonyms(cls));
@@ -252,7 +253,7 @@ public class OntologyParser {
         if ( altIds!= null && altIds.size() > 0){
             term.setAlternateIds(altIds);
         }
-        term.setChildIds(getChildIds(cls));
+        term = addChildrenInfo(cls, term);
         return term;
     }
 
@@ -274,16 +275,35 @@ public class OntologyParser {
     }
 
 
-    private Set<String> getChildIds(OWLClass cls){
+    /**
+     *
+     * @param cls
+     * @param term the ontology term dto where you want the child info to be added.
+     * @return Return the cls dto with added information about child classes: childIds and childTerms.
+     */
+    private OntologyTermDTO addChildrenInfo(OWLClass cls, OntologyTermDTO term){
 
-        Set<String> eqClasses = new HashSet<>();
-        for (OWLClassExpression classExpression : EntitySearcher.getSubClasses(cls, ontology)){
-            if (classExpression.isClassExpressionLiteral()){
-                eqClasses.add(getIdentifierShortForm(classExpression.asOWLClass()));
-            }
-        }
-        return  eqClasses;
+        EntitySearcher.getSubClasses(cls, ontology).stream()
+                .filter(classExpression -> classExpression.isClassExpressionLiteral())
+                .map(classExpression -> {term.addChildId(getIdentifierShortForm(classExpression.asOWLClass())); term.addChildName(getLabel(classExpression.asOWLClass())); return 0;});
+
+        return  term;
     }
+
+    /**
+     * @param term
+     * @param cls
+     * @return Return the cls dto with added information about child classes: childIds and childTerms.
+     */
+    private OntologyTermDTO addParentInfo(OWLClass cls, OntologyTermDTO term){
+
+        EntitySearcher.getSuperClasses(cls, ontology).stream()
+                .filter(classExpression -> classExpression.isClassExpressionLiteral())
+                .map(classExpression -> {term.addParentId(getIdentifierShortForm(classExpression.asOWLClass())); term.addParentName(getLabel(classExpression.asOWLClass())); return 0;});
+
+        return  term;
+    }
+
 
 
     private boolean isObsolete(OWLClass cls){

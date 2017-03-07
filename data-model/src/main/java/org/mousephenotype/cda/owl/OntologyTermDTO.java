@@ -2,6 +2,7 @@ package org.mousephenotype.cda.owl;
 
 import org.semanticweb.owlapi.model.OWLClass;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -9,12 +10,15 @@ import java.util.Set;
  */
 public class OntologyTermDTO {
 
-    String               accessonId;
+    String               accessionId;
     String               name;
     Set<String>          synonyms;
     Set<String>          narrowSynonyms;
     Set<OntologyTermDTO> equivalentClasses; // from equivalent classes
     Set<String>          childIds;
+    Set<String>          childNames;
+    Set<String>          parentIds;
+    Set<String>          parentNames;
     Set<String>          alternateIds;
     Set<String>          considerIds;
     Set<String>          broadSynonyms;
@@ -27,9 +31,7 @@ public class OntologyTermDTO {
         return equivalentClasses;
     }
 
-    public void setEquivalentClasses(Set<OntologyTermDTO> equivalentClasses) {
-        this.equivalentClasses = equivalentClasses;
-    }
+    public void setEquivalentClasses(Set<OntologyTermDTO> equivalentClasses) { this.equivalentClasses = equivalentClasses; }
 
     public OWLClass getCls() {
         return cls;
@@ -43,9 +45,7 @@ public class OntologyTermDTO {
         return replacementAccessionId;
     }
 
-    public void setReplacementAccessionId(String replacementAccessionId) {
-        this.replacementAccessionId = replacementAccessionId;
-    }
+    public void setReplacementAccessionId(String replacementAccessionId) {   this.replacementAccessionId = replacementAccessionId; }
 
     public boolean isObsolete() {
         return isObsolete;
@@ -56,11 +56,11 @@ public class OntologyTermDTO {
     }
 
     public String getAccessionId() {
-        return accessonId;
+        return accessionId;
     }
 
-    public void setAccessonId(String accessonId) {
-        this.accessonId = accessonId;
+    public void setAccessionId(String accessonId) {
+        this.accessionId = accessonId;
     }
 
     public String getName() {
@@ -119,9 +119,46 @@ public class OntologyTermDTO {
         this.definition = definition;
     }
 
-    public String getAccessonId() {
-        return accessonId;
+
+    public Set<String> getChildNames() {  return childNames;  }
+
+    public void setChildNames(Set<String> childNames) {   this.childNames = childNames;  }
+
+    public Set<String> getParentIds() {  return parentIds;}
+
+    public void setParentIds(Set<String> parentIds) { this.parentIds = parentIds; }
+
+    public void addParentId(String parentId) {
+        if (this.parentIds == null){
+            this.parentIds = new HashSet<>();
+        }
+        this.parentIds.add(parentId);
     }
+
+    public void addParentName(String parentName) {
+        if (this.parentNames == null){
+            this.parentNames = new HashSet<>();
+        }
+        this.parentNames.add(parentName);
+    }
+
+    public void addChildName(String childName) {
+        if (this.childNames == null){
+            this.childNames = new HashSet<>();
+        }
+        this.childNames.add(childName);
+    }
+
+    public void addChildId(String childId) {
+        if (this.childIds == null){
+            this.childIds = new HashSet<>();
+        }
+        this.childIds.add(childId);
+    }
+
+    public Set<String> getParentNames() { return parentNames; }
+
+    public void setParentNames(Set<String> parentNames) {  this.parentNames = parentNames; }
 
     public Set<String> getChildIds() {
         return childIds;
@@ -134,7 +171,7 @@ public class OntologyTermDTO {
     @Override
     public String toString() {
         return "OntologyTermDTO{" +
-                "accessonId='" + accessonId + '\'' +
+                "accessonId='" + accessionId + '\'' +
                 ", name='" + name + '\'' +
                 ", synonyms=" + synonyms +
                 ", narrowSynonyms=" + narrowSynonyms +
