@@ -22,6 +22,9 @@
         <p> The values displayed are the genotype effect, which accounts for different variation sources.
             Information about this and the statistical methods used is available in the <a href="statistics-help">statistics
                 documentation</a>.</p>
+
+        <p>  </p>
+
         <br/>
         <img class="well" src="img/parallel.png"/>
         <br/>
@@ -29,14 +32,12 @@
         <img class="well" src="img/parallel-filtered.png"/>
         <br/><br/>
         <p>The <b>clear</b> button removes existing filters.</p>
-        <p>The <b>shadows</b> button keeps a shadow of lines which have been filtered out.</p>
-        <p>The <b>opacity</b> allows the user to edit the transparency of the lines.</p>
         <p>The <b>export</b> button generates an export of the values in the table. If any filter is set, only the data
             displayed in the table will be exported.</p>
 
         <p> The generation of this chart is computationally intensive and the number of parameters that can be plotted may vary
             from one machine to the other.
-            If you notice the tool becoming too slow, please consider selecting fewer or smaller procedures.</p>
+            If you notice the tool becoming too slow, please consider selecting fewer procedures.</p>
 
 
 </body>
