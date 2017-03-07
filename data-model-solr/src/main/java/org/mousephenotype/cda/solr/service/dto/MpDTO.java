@@ -17,6 +17,8 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -628,9 +630,11 @@ public class MpDTO {
 	}
 
 
-	public void setMpTermSynonym(List<String> mpTermSynonym) {
+	public void setMpTermSynonym(Collection<String> mpTermSynonym) {
 
-		this.mpTermSynonym = mpTermSynonym;
+		this.mpTermSynonym = new ArrayList<>();
+		this.mpTermSynonym.addAll(mpTermSynonym);
+
 	}
 
     public List<String> getMpNarrowSynonym() {
@@ -659,9 +663,10 @@ public class MpDTO {
 	}
 
 
-	public void setAltMpIds(List<String> altMpId) {
+	public void setAltMpIds(Collection<String> altMpId) {
 
-		this.altMpId = altMpId;
+		this.altMpId = new ArrayList<>();
+		this.altMpId.addAll(altMpId);
 	}
 
 

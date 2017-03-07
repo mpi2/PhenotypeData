@@ -31,7 +31,6 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
@@ -126,8 +125,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     Map<String, List<MPHPBean>> mphpBeans;
     Map<String, List<Integer>> termNodeIds;
 
-    // Use single synonym hash
-    Map<String, List<String>> mpTermSynonyms;
     Map<String, List<String>> ontologySubsets;
     Map<String, List<String>> goIds;
 
@@ -181,8 +178,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
 
+
         try {
 
+            OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", null);
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", null);
         	// maps MP to number of phenotyping calls
         	populateMpCallMaps();
@@ -197,18 +196,18 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             PreparedStatement ps = ontoDbConnection.prepareStatement(q);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                String termId = rs.getString("term_id");
+                OntologyTermDTO mpDTO = mpParser.getOntologyTerm(rs.getString("term_id"));
+                String termId = mpDTO.getAccessionId();
 
                 MpDTO mp = new MpDTO();
                 mp.setDataType(rs.getString("dataType"));
                 mp.setMpId(termId);
-                mp.setMpTerm(rs.getString("name"));
-                mp.setMpDefinition(rs.getString("definition"));
+                mp.setMpTerm(mpDTO.getName());
+                mp.setMpDefinition(mpDTO.getDefinition());
 
                 // alternative MP ID
-                String alt_ids = rs.getString("alt_ids");
-                if ( !rs.wasNull() ) {
-                    mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
+                if ( !mpDTO.getAlternateIds().isEmpty() ) {
+                    mp.setAltMpIds(mpDTO.getAlternateIds());
                 }
 
                 mp.setMpNodeId(termNodeIds.get(termId));
@@ -245,7 +244,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     }
                 }
                 mp.setOntologySubset(ontologySubsets.get(termId));
-                mp.setMpTermSynonym(mpTermSynonyms.get(termId));
+                mp.setMpTermSynonym(mpDTO.getSynonyms());
                 mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp, runStatus);
@@ -327,26 +326,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
 
         int sumCount = 0;
-        int maleCount = 0;
-        int femaleCount = 0;
         for(DataTableRow r : uniqGenes){
             // want all counts, even if sex field has no data
             sumCount += r.getSexes().size();
-            // sex values: female, male, no data
-//            for (String s : r.getSexes()){
-//                if (s.equals("female")){
-//                    femaleCount++;
-//                }
-//                else if (s.equals("male")){
-//                    maleCount++;
-//                }
-//            }
         }
 
         Map<String, Integer> kv = new HashMap<>();
         kv.put("sumCount", sumCount);
-//        kv.put("femaleCount", femaleCount);
-//        kv.put("maleCount", maleCount);
 
         return kv;
     }
@@ -499,8 +485,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Grab all the supporting database content
             mphpBeans = getMPHPBeans();
             termNodeIds = getNodeIds();
-            // Use single synonym hash
-            mpTermSynonyms = getMPTermSynonyms();
             ontologySubsets = getOntologySubsets();
             goIds = getGOIds();
 
@@ -720,28 +704,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getMPTermSynonyms()
-    throws SQLException {
-
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select term_id, syn_name from mp_synonyms";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            String syn = rs.getString("syn_name");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(syn);
-            count ++;
-        }
-        logger.debug(" Added {} MP term synonyms", count);
-
-        return beans;
-    }
 
     private Map<String, List<MPTermNodeBean>> getMATermNodes()
     throws SQLException {
