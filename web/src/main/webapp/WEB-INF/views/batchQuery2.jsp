@@ -20,7 +20,8 @@
 				right: 0px;
 			}
 			table#dataInput td:first-child {
-				width: 120px;
+				width: 90px;
+				max-width: 90px;
 			}
 			table.dataTable span.highlight {
 				background-color: yellow;
@@ -46,12 +47,12 @@
 				padding: 0 0 0 25px;
 				width: 200px;
 			}
-			div.srchBox i.fa-search {position: relative; top: 0px; left: 20px;}
+			div.srchBox {position: relative;}
+			div.srchBox i.fa-search {position: absolute; top: 10px; left: 10px;}
 			div.srchBox i.fa-times {
-				position: relative;
-				float: right;
-				top: 8px;
-				right: 35px;
+				position: absolute;
+				top: 10px;
+				left: 210px;
 				cursor: pointer;
 			}
 			span.sugListPheno {
@@ -1166,7 +1167,7 @@
 									<div id='query'>
 										<table id='dataInput'>
 											<tr>
-												<td><span class='cat'><i class="icon icon-species">M</i>Mouse (GRCm38):</span></td>
+												<td><span class='cat'><i class="icon icon-species">M</i>Mouse<br>&nbsp;(GRCm38):</span></td>
 												<td>
 													<input type="radio" id="mouse_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq' checked="checked">MGI gene symbol<br>
 													<input type="radio" id="geneId" value="Eg. MGI:106209" name="dataType" class='bq' >MGI id<br>
@@ -1213,7 +1214,7 @@
 												</td>
 											</tr>
 											<tr id="humantr">
-												<td><span class='cat'><i class="icon icon-species">H</i>Human (GRCh38):</span></td>
+												<td><span class='cat'><i class="icon icon-species">H</i>Human<br>&nbsp;(GRCh38):</span></td>
 												<td>
 													<input type="radio" id="human_marker_symbol" value="Eg. Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>HGNC gene symbol<br>
 
