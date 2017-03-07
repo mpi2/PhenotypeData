@@ -6,9 +6,9 @@
 
 <t:genericpage>
 
-    <jsp:attribute name="title">IMPC Landing Pages </jsp:attribute>
+    <jsp:attribute name="title">Biological Systems Pages </jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-            href="${baseUrl}/landing">Landing Pages</a></jsp:attribute>
+            href="${baseUrl}/biological-systems">Biological Systems</a></jsp:attribute>
     <jsp:attribute name="bodyTag">
 		<body class="chartpage no-sidebars small-header">
 
@@ -24,7 +24,7 @@
                                   title="scroll to top"></i></a>
 
                 <ul>
-                    <li><a href="#top">Landing</a></li>
+                    <li><a href="#top">Biological Systems</a></li>
                 </ul>
 
                 <div class="clear"></div>
@@ -47,7 +47,7 @@
                 <div class="content">
                     <div class="node node-gene">
 
-                        <h1 class="title" id="top">Landing pages</h1>
+                        <h1 class="title" id="top">Biological Systems</h1>
 
                         <div class="section">
                             <div class=inner>

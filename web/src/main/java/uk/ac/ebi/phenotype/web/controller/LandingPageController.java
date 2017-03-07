@@ -69,11 +69,26 @@ public class LandingPageController {
             Model model,
             HttpServletRequest request) throws IOException {
 
+    	//JW: there was probably a reason that we had this configurable but now the pages seem pretty custom and hard coded that I don't think it's necessary so we could take this out and just have controller methods or java objects
         BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("landingPages.json").getFile()));
         if (in != null) {
             String json = in.lines().collect(Collectors.joining(" "));
             ObjectMapper mapper = new ObjectMapper();
             LandingPageDTO[] readValue = mapper.readValue(json, TypeFactory.defaultInstance().constructArrayType(LandingPageDTO.class));
+            LandingPageDTO[] readValueFiltered=new LandingPageDTO[1];
+            Boolean isLive = new Boolean((String) request.getAttribute("liveSite"));
+            if(isLive){//if live then filter out all except Cardiovascular page
+            	for(LandingPageDTO page: readValue){
+            		if(page.getTitle().equalsIgnoreCase("Cardiovascular Landing Page")){
+            			readValueFiltered[0]=page;
+            		}
+            	}
+            };
+            
+            if(isLive){
+            	readValue=readValueFiltered;//set to filtered if live
+            }
+            
             model.addAttribute("pages", new ArrayList<LandingPageDTO>(Arrays.asList(readValue)));
         }
         return "landing";
