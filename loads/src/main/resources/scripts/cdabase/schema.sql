@@ -2195,20 +2195,21 @@ INSERT INTO higher_level_annotation VALUES
 ,('MA:0002431')
 ,('MA:0000325')
 ,('MA:0000326')
-,('MA:0000017');
+,('MA:0000017')
+,('MA:0002887') 				-- set of connective tissues
+;
 
 INSERT INTO higher_level_annotation VALUES
- ('EMAP:31887')
-,('EMAP:31902')
-,('EMAP:33590')
-,('EMAP:33659')
-,('EMAP:3981')
-,('EMAP:3987')
-,('EMAP:4011')
-,('EMAP:4103')
-,('EMAP:4109')
-,('EMAP:4636')
-,('EMAP:4651')
+ ('EMAPA:16104')        -- cardiovascular system
+,('EMAPA:16192')        -- sensory organ system
+,('EMAPA:16246')        -- alimentary system
+,('EMAPA:16405')        -- limb
+,('EMAPA:16469')        -- nervous system
+,('EMAPA:16727')        -- respiratory system
+,('EMAPA:16748')        -- tail
+,('EMAPA:16840')        -- liver and biliary system
+,('EMAPA:17524')        -- integumental system
+,('EMAPA:31858')        -- head
 ;
 
 

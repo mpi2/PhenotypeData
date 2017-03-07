@@ -339,9 +339,9 @@
             <artifactId>spring-retry</artifactId>
         </dependency>
         <dependency>
-            <groupId>hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>1.8.0.10</version>
+        	<groupId>junit</groupId>
+        	<artifactId>junit</artifactId>
+        	<version>4.12</version>
         </dependency>
 
     </dependencies>
@@ -363,45 +363,16 @@
                 </executions>
             </plugin>
 
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-war-plugin</artifactId>-->
-            <!--<version>2.2</version>-->
-
-            <!--<executions>-->
-            <!--&lt;!&ndash; added for making the replace plugin run in the exploded phase &ndash;&gt;-->
-            <!--<execution>-->
-            <!--<id>prepare-war</id>-->
-            <!--<phase>prepare-package</phase>-->
-            <!--<goals>-->
-            <!--<goal>exploded</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-
-            <!--<configuration>-->
-
-            <!--<archive>-->
-            <!--<addMavenDescriptor>true</addMavenDescriptor>-->
-            <!--<manifest>-->
-            <!--<addDefaultImplementationEntries>true</addDefaultImplementationEntries>-->
-            <!--<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>-->
-            <!--</manifest>-->
-            <!--</archive>-->
-
-            <!--</configuration>-->
-            <!--</plugin>-->
-
             <!-- Ensures we are compiling at 1.8 level -->
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-compiler-plugin</artifactId>-->
-            <!--<version>2.3.2</version>-->
-            <!--<configuration>-->
-            <!--<source>${java.version}</source>-->
-            <!--<target>${java.version}</target>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
