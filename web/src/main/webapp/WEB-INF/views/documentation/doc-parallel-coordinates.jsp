@@ -23,7 +23,7 @@
             Information about this and the statistical methods used is available in the <a href="statistics-help">statistics
                 documentation</a>.</p>
 
-        <p>  </p>
+        <p> To help visualize we have added two special lines: <b>mean</b>, displaying the average genotype effect for all genes displayed and <b>no effect</b>, that runs through the zero values to help visualize how a gene with no genotype effect for the measured parameters would look like. For large datasetst the mean and no effect line usually converge. </p>
 
         <br/>
         <img class="well" src="img/parallel.png"/>
