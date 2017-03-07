@@ -515,11 +515,11 @@ public class Tools {
 		String htmlStrHumanGene = getCheckBoxes(humanGeneAttrs, friendlyHumanNameMap, "Gene");
 		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human gene attributes</legend>" + htmlStrHumanGene + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrDisease = getCheckBoxes(diseaseAttrs, friendlyNameMap, "DiseaseModdelAssociation");
-		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human disease attributes</legend>" + htmlStrDisease + checkAlltheseAtt+ "</fieldset>";
-
 		String htmlStrHuman = getCheckBoxes(humanAttrs, friendlyNameMap, "Hp");
 		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human phenotype attributes</legend>" + htmlStrHuman + checkAlltheseAtt+ "</fieldset>";
+
+		String htmlStrDisease = getCheckBoxes(diseaseAttrs, friendlyNameMap, "DiseaseModdelAssociation");
+		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human disease attributes</legend>" + htmlStrDisease + checkAlltheseAtt+ "</fieldset>";
 
 		String hrStr = "<hr>";
 		String checkAllBoxStr = "<button type='button' id='chkFields'>Check all fields</button>";
@@ -550,20 +550,13 @@ public class Tools {
 		return htmlStr;
 	}
 
-	public static String  buildCypherQueries(String dataType, String idlist, List<String> cypherCols, JSONObject jLabelFieldsParam){
+	public static String  buildCypherQueries(String dataType, String idlist, List<String> cypherCols, JSONObject jLabelFieldsParam, Map<String, String> dataTypeCol ){
 
-		Map<String, String> dataTypeCol = new HashMap<>();
-		dataTypeCol.put("geneId", "g.mgi_accession_id");
-		dataTypeCol.put("ensembl", "g.ensembl_gene_id");
-		dataTypeCol.put("mouse_marker_symbol", "g.marker_symbol");
-		dataTypeCol.put("mpId", "p.mp_id");
-		dataTypeCol.put("mpTerm", "p.mp_term");
-		dataTypeCol.put("anatomy", "an.anatomy_id");
 
 		Set<String> labels = jLabelFieldsParam.keySet();
-		System.out.println(labels);
+		System.out.println("Labels: "+ labels);
 
-		String whereField = dataTypeCol.get(dataType);
+		String whereField = "lower(" + dataTypeCol.get(dataType) + ")";
 
 		List<String> cypherCols2 = new ArrayList<>();
 		for(String col : cypherCols){
@@ -574,39 +567,71 @@ public class Tools {
 				cypherCols2.add(col + " as " + col.replaceAll("^\\w*\\.", ""));
 			}
 		}
+		String matchWhere = null;
+		String optionalMatch = null;
+
+		// match where
+		if (dataType.equals("mouse_marker_symbol") || dataType.equals("geneId") || dataType.equals("ensembl_gene_id") || dataType.equals("geneChr")){
+			matchWhere = "MATCH (g:Gene) WHERE ";
+			optionalMatch = fetchOptionalMatch(dataType, labels);
+		}
+		else if (dataType.equals("mp")){
+			matchWhere = "MATCH (p:Phenotype) WHERE ";
+		}
+		else if (dataType.equals("disease")){
+			matchWhere = "MATCH (dma:DiseaseModelAssociation) WHERE ";
+		}
+		else if (dataType.equals("hp")){
+			matchWhere = "MATCH (hp:Hp) WHERE ";
+		}
 
 		String cols = StringUtils.join(cypherCols2, ", ");
+		System.out.println("cols: " + cols);
 
 		String qry = null;
-		if (! labels.contains("DiseaseModelAssociation")){
-			if (labels.contains("Allele") && labels.contains("Phenotype")){
-				qry = "MATCH (g:Gene) WHERE "
-					+ whereField
-					+ "IN ["
-					+ idlist + "]"
-					+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
-					+ "RETURN "
-					+ cols;
-			}
-			else if (labels.contains("Allele")){
-				qry = "MATCH (g:Gene) WHERE "
-						+ whereField
-						+ "IN ["
-						+ idlist + "]"
-						+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene) "
-						+ "RETURN "
-						+ cols;
-			}
-			else if (labels.contains("Phenotype")){
-				qry = "MATCH (g:Gene) WHERE "
-						+ whereField
-						+ "IN ["
-						+ idlist + "]"
-						+ "OPTIONAL MATCH (g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
-						+ "RETURN "
-						+ cols;
-			}
-		}
+
+		qry = matchWhere
+				+ whereField
+				+ " IN ["
+				+ idlist + "] "
+
+		//if (dataType.equals("geneID") || dataType)
+
+				+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
+				+ "RETURN distinct "
+				+ cols;
+
+
+
+		//if (! labels.contains("DiseaseModelAssociation")){
+//			if (labels.contains("Allele") && labels.contains("Phenotype")){
+//				qry = "MATCH (g:Gene) WHERE "
+//					+ whereField
+//					+ "IN ["
+//					+ idlist + "]"
+//					+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
+//					+ "RETURN "
+//					+ cols;
+//			}
+//			else if (labels.contains("Allele")){
+//				qry = "MATCH (g:Gene) WHERE "
+//						+ whereField
+//						+ "IN ["
+//						+ idlist + "]"
+//						+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene) "
+//						+ "RETURN "
+//						+ cols;
+//			}
+//			else if (labels.contains("Phenotype")){
+//				qry = "MATCH (g:Gene) WHERE "
+//						+ whereField
+//						+ "IN ["
+//						+ idlist + "]"
+//						+ "OPTIONAL MATCH (g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
+//						+ "RETURN "
+//						+ cols;
+//			}
+		//}
 		qry += " LIMIT 10"; // for batchQuery interface, only show max of 10; complete result needs to be exported
 
 		System.out.println(qry);
@@ -615,4 +640,31 @@ public class Tools {
 		return qry;
 	}
 
+	private static String fetchOptionalMatch(String dataType, Set<String>labels){
+
+		String optMatch = "";
+
+		Map<String, Map<String, String>> dataTypelabelMatch = new HashMap<>();
+		dataTypelabelMatch.put("gene", new HashMap<>());
+		dataTypelabelMatch.get("gene").put("Allele", "OPTIONAL MATCH (g)-[HAS_ALLELE]->(a:Allele)");
+		dataTypelabelMatch.get("gene").put("Phenotype", "OPTIONAL MATCH (g)-[HAS_PHENOTYPE]->(p:Phenotype)");
+		dataTypelabelMatch.get("gene").put("Disease", "OPTIONAL MATCH (g)-[HAS_DISEASE]->(dma:DiseaseModelAssociation)");
+		dataTypelabelMatch.get("gene").put("Hp", "OPTIONAL MATCH (dma)-[HAS_HP]->(hp:Hp)");
+
+		dataTypelabelMatch.put("mp", new HashMap<>());
+		dataTypelabelMatch.get("mp").put("Gene", " (p)-[OF_GENE]->(g:Gene)");
+		dataTypelabelMatch.get("mp").put("Allele", "OPTIONAL MATCH (g)-[HAS_ALLELE]->(a:Allele)");
+		dataTypelabelMatch.get("mp").put("Disease", "OPTIONAL MATCH (p)->[HAS_DISEASE]->(dma:DiseaseModelAssociation)");
+		dataTypelabelMatch.get("mp").put("Hp", "OPTIONAL MATCH (dma)-[HAS_HP]->(hp:Hp)");
+
+		Map<String, String> om = dataTypelabelMatch.get(dataType);
+		for (String l : labels){
+			optMatch += om.get(l);
+		}
+
+		return optMatch;
+
+		//optMatch +=
+
+	}
 }

@@ -69,7 +69,6 @@
                 border: 1px solid lightgrey;
                 width: 99%;
                 margin: 30px auto;
-
             }
             div.clear {
                 clear: both;
@@ -103,7 +102,7 @@
                         if ( ui.newTab.index() == 1){
                             var chartWeek = "chartWeek";
                             var chartMonth = "chartMonth";
-                            $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter);
+                            $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
                         }
                     }
                 });
@@ -175,6 +174,7 @@
                                         <div id="chartYearIncrease" class="chart"></div>
                                         <div id="chartQuarter" class="chart"></div>
                                         <div id="chartMonthIncrease" class="chart"></div>
+                                        <div id="chartGrantQuarter" class="chart"></div>
                                         <div class="clear"></div>
 
                                     </div>

@@ -258,7 +258,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 						imageDTO.setThumbnailUrl(impcMediaBaseUrl + "/render_birds_eye_view/" + omeroId);
 					}
 				} else {
-					runStatus.addWarning(" omero id is 0 for " + downloadFilePath + " fullres filepath");
+					// PhenoImageShare documents currently end up here. Since Phis is a work in progress, we'll comment out the warning (jwarren, mrelac)
+//					runStatus.addWarning(" omero id is 0 for " + downloadFilePath + " fullres filepath");
 				}
 
 				// add the extra stuf we need for the searching and faceting
@@ -414,7 +415,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		// selected top levels - what we actually use
 		List<OntologyTermBean> selectedTopLevels = ontologyDAO.getSelectedTopLevel(termBean.getId(), 1);
 		if (selectedTopLevels.size() == 0){
-			runStatus.addWarning("No selected top level found for " + termId);
+			if ( ! termId.equals("EMAPA:16039")) {																		// Special case: ignore EMAPA:16039, 'embryo', as there are higher-level terms defined below this level.
+				runStatus.addWarning("No selected top level found for " + termId);
+			}
 		}
 		for (OntologyTermBean term : selectedTopLevels) {
 			imageDTO.addSelectedTopLevelAnatomyId(term.getId(), true);
