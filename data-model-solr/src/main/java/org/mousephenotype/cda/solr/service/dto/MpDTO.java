@@ -271,9 +271,6 @@ public class MpDTO {
 	@Field(DATA_TYPE)
 	private String dataType;
 
-	@Field(ONTOLOGY_SUBSET)
-	private List<String> ontologySubset;
-
 	@Field(MA_ID)
 	private List<String> maId;
 
@@ -960,19 +957,6 @@ public class MpDTO {
 
 		this.dataType = dataType;
 	}
-
-
-	public List<String> getOntologySubset() {
-
-		return ontologySubset;
-	}
-
-
-	public void setOntologySubset(List<String> ontologySubset) {
-
-		this.ontologySubset = ontologySubset;
-	}
-
 
 	public List<String> getMaId() {
 
@@ -2152,8 +2136,6 @@ public class MpDTO {
 		if (hpTermSynonym != null ? !hpTermSynonym.equals(mpDTO.hpTermSynonym) : mpDTO.hpTermSynonym != null)
 			return false;
 		if (dataType != null ? !dataType.equals(mpDTO.dataType) : mpDTO.dataType != null) return false;
-		if (ontologySubset != null ? !ontologySubset.equals(mpDTO.ontologySubset) : mpDTO.ontologySubset != null)
-			return false;
 		if (maId != null ? !maId.equals(mpDTO.maId) : mpDTO.maId != null) return false;
 		if (maTerm != null ? !maTerm.equals(mpDTO.maTerm) : mpDTO.maTerm != null) return false;
 		if (maTermSynonym != null ? !maTermSynonym.equals(mpDTO.maTermSynonym) : mpDTO.maTermSynonym != null)
@@ -2330,7 +2312,6 @@ public class MpDTO {
 		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
 		result = 31 * result + (hpTermSynonym != null ? hpTermSynonym.hashCode() : 0);
 		result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
-		result = 31 * result + (ontologySubset != null ? ontologySubset.hashCode() : 0);
 		result = 31 * result + (maId != null ? maId.hashCode() : 0);
 		result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
 		result = 31 * result + (maTermSynonym != null ? maTermSynonym.hashCode() : 0);
@@ -2460,7 +2441,6 @@ public class MpDTO {
 				", hpTerm=" + hpTerm +
 				", hpTermSynonym=" + hpTermSynonym +
 				", dataType='" + dataType + '\'' +
-				", ontologySubset=" + ontologySubset +
 				", maId=" + maId +
 				", maTerm=" + maTerm +
 				", maTermSynonym=" + maTermSynonym +

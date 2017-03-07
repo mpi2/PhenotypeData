@@ -243,7 +243,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                         mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     }
                 }
-                mp.setOntologySubset(ontologySubsets.get(termId));
+
                 mp.setMpTermSynonym(mpDTO.getSynonyms());
                 mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);

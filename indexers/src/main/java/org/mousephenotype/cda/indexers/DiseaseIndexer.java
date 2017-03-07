@@ -155,7 +155,6 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
                     disease.setChildMpId(gene.CHILD_MP_ID);
                     disease.setChildMpTerm(gene.CHILD_MP_TERM);
                     disease.setChildMpTermSynonym(gene.CHILD_MP_TERM_SYNONYM);
-                    disease.setOntologySubset(gene.ONTOLOGY_SUBSET);
 
                 }
 
@@ -273,9 +272,6 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
                     if (gene.getChildMpTermSynonym() != null) {
                         geneLookup.get(d).CHILD_MP_TERM_SYNONYM.addAll(gene.getChildMpTermSynonym());
                     }
-                    if (gene.getOntologySubset() != null) {
-                        geneLookup.get(d).ONTOLOGY_SUBSET.addAll(gene.getOntologySubset());
-                    }
                 }
             }
         }
@@ -319,6 +315,5 @@ public class DiseaseIndexer extends AbstractIndexer implements CommandLineRunner
         Set<String> CHILD_MP_ID = new HashSet<>();
         Set<String> CHILD_MP_TERM = new HashSet<>();
         Set<String> CHILD_MP_TERM_SYNONYM = new HashSet<>();
-        Set<String> ONTOLOGY_SUBSET = new HashSet<>();
     }
 }

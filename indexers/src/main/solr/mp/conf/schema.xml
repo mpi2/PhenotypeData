@@ -187,8 +187,6 @@
 
         <field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
-        <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
         <field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
