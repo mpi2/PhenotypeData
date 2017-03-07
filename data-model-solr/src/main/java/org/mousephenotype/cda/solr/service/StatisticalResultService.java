@@ -481,7 +481,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	private TreeMap<String, ParallelCoordinatesDTO> addDefaultValues(TreeMap<String, ParallelCoordinatesDTO> beans, List<ParameterDTO> allParameterNames) {
 
-		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, "Normal", allParameterNames);
+		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, "No effect", allParameterNames);
 
 		for (ParameterDTO param : allParameterNames){
 			currentBean.addValue(param, 0.0, false);
