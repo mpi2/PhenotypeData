@@ -449,8 +449,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.setRows(Integer.MAX_VALUE);
 		query.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
-		System.out.println("S_R:::   " + query);
-
 		if (phenotypingCenters != null && phenotypingCenters.size() > 0){
 			query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
 		}
@@ -483,7 +481,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	private TreeMap<String, ParallelCoordinatesDTO> addDefaultValues(TreeMap<String, ParallelCoordinatesDTO> beans, List<ParameterDTO> allParameterNames) {
 
-		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, "Normal", allParameterNames);
+		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, "No effect", allParameterNames);
 
 		for (ParameterDTO param : allParameterNames){
 			currentBean.addValue(param, 0.0, false);

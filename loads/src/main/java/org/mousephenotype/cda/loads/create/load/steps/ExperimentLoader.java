@@ -256,15 +256,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info("Loading lookup maps finished");
 
 
-        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("time_series_observation", CdaSqlUtils.IndexAction.DISABLE);
-        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("time_series_observation", CdaSqlUtils.IndexAction.DISABLE);
+//        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.DISABLE);
 
         int experimentCount = 0;
         int skippedExperimentsCount = 0;
@@ -371,33 +371,33 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         logger.info("Wrote {} line-Level procedures", lineLevelProcedureCount);
 
 
-        // ENABLE INDEXES
-        logger.info("Enabling indexes for experiment");
-        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for observation");
-        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for procedure_meta_data");
-        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for categorical_observation");
-        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for datetime_observation");
-        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for image_record_observation");
-        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for text_observation");
-        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for time_series_observation");
-        cdaSqlUtils.manageIndexes("time_series_observation", CdaSqlUtils.IndexAction.ENABLE);
-
-        logger.info("Enabling indexes for unidimensional_observation");
-        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.ENABLE);
+//        // ENABLE INDEXES
+//        logger.info("Enabling indexes for experiment");
+//        cdaSqlUtils.manageIndexes("experiment", CdaSqlUtils.IndexAction.ENABLE);
+//
+//        logger.info("Enabling indexes for observation");
+//        cdaSqlUtils.manageIndexes("observation", CdaSqlUtils.IndexAction.ENABLE);
+//
+//        logger.info("Enabling indexes for procedure_meta_data");
+//        cdaSqlUtils.manageIndexes("procedure_meta_data", CdaSqlUtils.IndexAction.ENABLE);
+//
+//        logger.info("Enabling indexes for categorical_observation");
+//        cdaSqlUtils.manageIndexes("categorical_observation", CdaSqlUtils.IndexAction.ENABLE);
+//
+//        logger.info("Enabling indexes for datetime_observation");
+//        cdaSqlUtils.manageIndexes("datetime_observation", CdaSqlUtils.IndexAction.ENABLE);
+//
+//        logger.info("Enabling indexes for image_record_observation");
+//        cdaSqlUtils.manageIndexes("image_record_observation", CdaSqlUtils.IndexAction.ENABLE);
+//
+//        logger.info("Enabling indexes for text_observation");
+//        cdaSqlUtils.manageIndexes("text_observation", CdaSqlUtils.IndexAction.ENABLE);
+//
+//        logger.info("Enabling indexes for time_series_observation");
+//        cdaSqlUtils.manageIndexes("time_series_observation", CdaSqlUtils.IndexAction.ENABLE);
+//
+//        logger.info("Enabling indexes for unidimensional_observation");
+//        cdaSqlUtils.manageIndexes("unidimensional_observation", CdaSqlUtils.IndexAction.ENABLE);
 
 
         logger.debug("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
