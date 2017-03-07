@@ -118,7 +118,7 @@
 
 	};
 	// fetch paper data points for highCharts
-    $.fn.fetchAllelePaperDataPointsIncrement = function(chartYearIncrease, chartMonthIncrease, chartQuarter) {
+    $.fn.fetchAllelePaperDataPointsIncrement = function(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter) {
 
         $.ajax({
             'url': baseUrl + '/fetchPaperStats',
@@ -272,7 +272,7 @@
                 //---------------------------------------
                 var yearSeriesData = [];
                 var drillDownSeriesData = [];
-                var total = 0;
+                var totalPapers = 0;
                 Object.keys(j.yearQuarterSum).sort().forEach(function(year, index) {
                     var yo = {};
                     var qo = {};
@@ -284,11 +284,12 @@
                         var qc = [];
                         var quarterCnt = j.yearQuarterSum[year][quarter];
                         sum += quarterCnt;
-                        total += quarterCnt;
+                        totalPapers += quarterCnt;
                         qc.push(quarter);
                         qc.push(quarterCnt)
                         qo.data.push(qc);
                     });
+
                     drillDownSeriesData.push(qo);
 
                     yo.name = year;
@@ -314,7 +315,6 @@
                         title: {
                             text: 'Number of publications'
                         }
-
                     },
                     legend: {
                         enabled: false
@@ -335,7 +335,7 @@
                     },
                     tooltip: {
                         headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + total + '<br/>'
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + totalPapers + '<br/>'
                     },
                     credits: {
                         enabled: false
@@ -347,6 +347,125 @@
                     }],
                     drilldown: {
                         series : drillDownSeriesData
+                    }
+                });
+
+                //-----------------------------------------------
+                // agency funded papers with drilldown to year
+                //------------------------------------------------
+
+                var agencyNumPaperSeries = [];
+                var drillDownSeriesDataAgency = [];
+                var agencyNames = [];
+
+
+                Object.keys(j.agencyPmidYear).sort().forEach(function (agency, index) {
+                    console.log(agency)
+                    agencyNames.push(agency);
+
+                    var agencyPapers = {};
+                    var yo = {};
+
+                    var pmidYear = j.agencyPmidYear[agency];
+                    var pmidNum = Object.keys(pmidYear).length;
+                    agencyPapers.y = pmidNum;
+                    agencyPapers.name = agency;
+                    agencyPapers.drilldown = agency;
+                    agencyNumPaperSeries.push(agencyPapers);
+
+                    yo.name = agency;  // as drilldown legend
+                    yo.id = agency;  // so that click on column will drilldown
+                    yo.data = [];
+
+                    var yearPapercount = {};
+
+                    Object.keys(pmidYear).forEach(function (pmid, index) {
+                        var year = pmidYear[pmid];
+                        if (! yearPapercount.hasOwnProperty(year)) {
+                            yearPapercount[year] = [];
+                        }
+                        yearPapercount[year].push(pmid);
+
+                        // console.log(agency + " ---- " + pmid + " - " + year);
+                    });
+
+                    for (var yr in yearPapercount) {
+                        var yodrill = [];
+                        yodrill.push(yr);
+                        yodrill.push(yearPapercount[yr].length);
+                        yo.data.push(yodrill);
+                    }
+
+                    console.log(agencyPapers.name + " -- " + agencyPapers.y + " --> ");
+                    console.log( yo);
+                    drillDownSeriesDataAgency.push(yo);
+                });
+                console.log("a")
+                console.log(agencyNumPaperSeries);
+                console.log("b")
+                console.log(drillDownSeriesDataAgency);
+                var divHeight = 20 * agencyNames.length;
+
+                var thisChart = Highcharts.chart(chartGrantQuarter, {
+                    chart: {
+                        type: 'column',
+                        inverted: true,
+                        height: divHeight,
+                        events: {
+                            drilldown: function(e) {
+
+                            },
+                            drillup: function(e) {
+
+                            }
+                        }
+                    },
+                    title: {
+                        text: 'Grant agency funded IKMC/IMPC related publications'
+                    },
+                    subtitle: {
+                        text: 'Click the agency columns for yearly breakdown'
+                    },
+                    xAxis: {
+                       categories: agencyNames
+                       //type: 'category'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Number of publications'
+                        }
+                    },
+                    legend: {
+                        enabled: true
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            pointWidth: 10,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y}'
+                                // formatter:function() {
+                                //     var pcnt = (this.y / total) * 100;
+                                //     return Highcharts.numberFormat(pcnt) + '%';
+                                // }
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of ' + totalPapers + '<br/>'
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'agency column',
+                        colorByPoint: true,
+                        data : agencyNumPaperSeries
+                    }],
+                    drilldown: {
+                        series : drillDownSeriesDataAgency
                     }
                 });
             }

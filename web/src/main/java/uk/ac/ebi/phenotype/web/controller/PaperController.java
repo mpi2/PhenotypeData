@@ -95,6 +95,24 @@ public class PaperController {
 		Set<String> uniqYears = new HashSet<>();
 		JSONObject dataJson = new JSONObject();
 
+		Map<String, String> quarters = new HashedMap();
+		quarters.put("01", "Q1");
+		quarters.put("02", "Q1");
+		quarters.put("03", "Q1");
+
+		quarters.put("04", "Q2");
+		quarters.put("05", "Q2");
+		quarters.put("06", "Q2");
+
+		quarters.put("07", "Q3");
+		quarters.put("08", "Q3");
+		quarters.put("09", "Q3");
+
+		quarters.put("10", "Q4");
+		quarters.put("11", "Q4");
+		quarters.put("12", "Q4");
+
+
 		Map<String, List<Map<String, Integer>>> dm = new HashMap<>();
 
 		try {
@@ -162,39 +180,22 @@ public class PaperController {
 
 			dataJson.put("paperMonthlyIncrementWeekDrilldown", monthIncreaseWeekDrilldown);
 
-
 			//-----------------------------------------------------------
 			// bar data: quarterly paper increase by year of publication
 			//-----------------------------------------------------------
 
-			String querySum3 = "select left(date_of_publication, 7) as yymm, count(*) as count " +
+			String querySum3 = "select left(date_of_publication, 7) as yyyymm, count(*) as count " +
 				"from allele_ref where falsepositive = 'no' group by left(date_of_publication , 7);";
 
 			PreparedStatement pQuarter = conn.prepareStatement(querySum3);
 			ResultSet resultSetQ = pQuarter.executeQuery();
 
 			Map<String, Map<String, Integer>> yearQuarterSum = new HashMap<>();
-			Map<String, String> quarters = new HashedMap();
-			quarters.put("01", "Q1");
-			quarters.put("02", "Q1");
-			quarters.put("03", "Q1");
-
-			quarters.put("04", "Q2");
-			quarters.put("05", "Q2");
-			quarters.put("06", "Q2");
-
-			quarters.put("07", "Q3");
-			quarters.put("08", "Q3");
-			quarters.put("09", "Q3");
-
-			quarters.put("10", "Q4");
-			quarters.put("11", "Q4");
-			quarters.put("12", "Q4");
 
 
 			while (resultSetQ.next()) {
-				String yymm = resultSetQ.getString("yymm");
-				String[] ym = yymm.split("-");
+				String yyyymm = resultSetQ.getString("yyyymm");
+				String[] ym = yyyymm.split("-");
 				String year = ym[0];
 				String quarter  = quarters.get(ym[1]);
 				Integer count = resultSetQ.getInt("count");
@@ -213,6 +214,65 @@ public class PaperController {
 			}
 
 			dataJson.put("yearQuarterSum", yearQuarterSum);
+
+			//----------------------------------------------------------------------------
+			// bar data: agency by number of papers and drilldown to year of that number
+			//----------------------------------------------------------------------------
+			String agentQry = "select left(date_of_publication, 4) as yyyy, pmid, agency from allele_ref where falsepositive = 'no'";
+
+			PreparedStatement pAgent = conn.prepareStatement(agentQry);
+			ResultSet resultSetAgent = pAgent.executeQuery();
+
+			Map<String, Map<String, String>> agencyPmidYear = new HashMap<>();
+
+
+			while (resultSetAgent.next()) {
+				String year = resultSetAgent.getString("yyyy");
+				String agencies = resultSetAgent.getString("agency");
+				String pmid = Integer.toString(resultSetAgent.getInt("pmid"));
+
+				for(String ag : StringUtils.split(agencies, "|||")){
+					Set<String> agencyList = new HashSet<String>(Arrays.asList(StringUtils.split(ag, ",")));
+					for(String agency : agencyList){
+						agency = agency.trim();
+						if (! agencyPmidYear.containsKey(agency)){
+							agencyPmidYear.put(agency, new HashMap<String, String>());
+						}
+						if (! agencyPmidYear.get(agency).containsKey(pmid)){
+							agencyPmidYear.get(agency).put(pmid, year);
+						}
+					}
+				}
+			}
+
+			dataJson.put("agencyPmidYear", agencyPmidYear);
+
+//			Map<String, Integer> agentPmidCount = new HashedMap();
+//			//Map<String, >
+//			Iterator itAgent = agencyPmidYear.entrySet().iterator();
+//			while (itAgent.hasNext()) {
+//				Map.Entry pair = (Map.Entry) itAgent.next();
+//				String agent = pair.getKey().toString();
+//				Map<Integer, String> pmidMap = (Map<Integer, String>) pair.getValue();
+//
+//				agentPmidCount.put(agent, pmidMap.keySet().size());
+//
+//				Map<String, Map<>>
+//				Iterator itAgent2 = pmidMap.entrySet().iterator();
+//				while (itAgent2.hasNext()) {
+//					Map.Entry pair2 = (Map.Entry) itAgent2.next();
+//					Integer pmid = (Integer) pair2.getKey();
+//					String year = pair2.getValue().toString();
+//
+//
+//					itAgent2.remove();
+//				}
+//				System.out.println(agent + " pmids: " + pmidMap.keySet());
+//				System.out.println("");
+//				itAgent.remove();
+//			}
+
+			//System.out.println(agencyPmidYear.keySet());
 
 			//-----------------------------------------------------------
 			// line data: monthly paper increase by year of publication
