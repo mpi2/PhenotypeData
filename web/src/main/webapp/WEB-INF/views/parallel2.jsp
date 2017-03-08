@@ -44,9 +44,7 @@
 							More information about the <a href="/documentation/doc-method#doc-methods-tools">KO effect comparator</a> and <a href="/documentation/doc-method#doc-methods-statistics">statistics</a>.
 						</p>
 						<p>
-							How to use the tool?
-						</p>
-						<p>
+							How to use the tool?<br/>
 							Select one or several procedure(s) (link to impress) using the procedure filter tab. Additional optional filtering include phenotyping center or mouse gene list of interest selection. If no genes are selected, the tool will show all genes in IMPC for the selected procedure(s) and/or center selected.
 						</p>
 						<p>
