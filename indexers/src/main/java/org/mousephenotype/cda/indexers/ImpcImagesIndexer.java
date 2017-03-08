@@ -360,7 +360,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		OntologyTermBean termBean = ontologyDAO.getTerm(termId);
 
 		if (termBean == null) {
-			logger.warn(" Cannot find MP ontology term for ID \"{}\",\n   OMERO ID: {},\n   URL: {}", termId, imageDTO.getOmeroId(), imageDTO.getFullResolutionFilePath());
+			String message = "Cannot find MP ontology term for ID " + termId + ",\n   OMERO ID " + imageDTO.getOmeroId() + ",\n   URL " + imageDTO.getFullResolutionFilePath();
+			logger.warn(message);
+			runStatus.addError(message);
 			return imageDTO;
 		}
 
