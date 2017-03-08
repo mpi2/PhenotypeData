@@ -4,21 +4,33 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {TestConfigIndexers.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
-@Transactional
+import javax.validation.constraints.NotNull;
+
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@SpringApplicationConfiguration(classes = {TestConfigIndexers.class} )
+//@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
+//@Transactional
+
+
+
+@RunWith(SpringRunner.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+@SpringBootTest(classes = TestConfigIndexers.class)
 public class EmbryoRestGetterTest {
+
+	@NotNull
+	@Value("${embryoViewerFilename}")
+	private String embryoViewerFilename;
 
 	@Test
 	public void getEmbryDataTest(){
 		System.out.println("in getEmbryoDataTest blah");
-		EmbryoRestGetter embryoRest=new EmbryoRestGetter("http://dev.mousephenotype.org/EmbryoViewerWebApp/rest/ready");
+		EmbryoRestGetter embryoRest=new EmbryoRestGetter(embryoViewerFilename);
 		EmbryoRestData embryoDataSet = embryoRest.getEmbryoRestData();
 		System.out.println(embryoDataSet);
 	}
