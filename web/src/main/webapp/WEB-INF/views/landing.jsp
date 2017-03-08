@@ -62,7 +62,7 @@
                                     </div>
                                     <c:if test="${page.image != null}">
                                         <div class="half">
-                                            <img src="${baseUrl}/${page.image}" width="80%">
+                                            <a href="${baseUrl}/${page.link}"><img src="${impcMediaBaseUrl}/${page.image}" width="80%"></a>
                                         </div>
                                     </c:if>
                                     </div>
@@ -73,7 +73,9 @@
                                     </c:if>
 
                                 </c:forEach>
+                                 Note: more systems pages coming soon.
                             </div>
+                           
                         </div>
                     </div>
 
