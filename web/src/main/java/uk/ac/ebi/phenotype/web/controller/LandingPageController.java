@@ -64,35 +64,23 @@ public class LandingPageController {
     @Autowired
     ImpressService is;
 
-    @RequestMapping("/biological-system")
-    public String getAlleles(
-            Model model,
-            HttpServletRequest request) throws IOException {
+	@RequestMapping("/biological-system")
+	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
 
-    	//JW: there was probably a reason that we had this configurable but now the pages seem pretty custom and hard coded that I don't think it's necessary so we could take this out and just have controller methods or java objects
-        BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("landingPages.json").getFile()));
-        if (in != null) {
-            String json = in.lines().collect(Collectors.joining(" "));
-            ObjectMapper mapper = new ObjectMapper();
-            LandingPageDTO[] readValue = mapper.readValue(json, TypeFactory.defaultInstance().constructArrayType(LandingPageDTO.class));
-            LandingPageDTO[] readValueFiltered=new LandingPageDTO[1];
-            Boolean isLive = new Boolean((String) request.getAttribute("liveSite"));
-            if(isLive){//if live then filter out all except Cardiovascular page
-            	for(LandingPageDTO page: readValue){
-            		if(page.getTitle().equalsIgnoreCase("Cardiovascular Landing Page")){
-            			readValueFiltered[0]=page;
-            		}
-            	}
-            };
-            
-            if(isLive){
-            	readValue=readValueFiltered;//set to filtered if live
-            }
-            
-            model.addAttribute("pages", new ArrayList<LandingPageDTO>(Arrays.asList(readValue)));
-        }
-        return "landing";
-    }
+		List<LandingPageDTO> bsPages = new ArrayList<>();
+		LandingPageDTO cardiovascular = new LandingPageDTO();
+
+		cardiovascular.setTitle("Cardiovascular Landing Page");
+		cardiovascular.setImage("render_thumbnail/211474/400/");
+		cardiovascular.setDescription(
+				"Cardiovascular system refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory system that are manifested through development and lifespan");
+		cardiovascular.setLink("biological-system/cardiovascular");
+		bsPages.add(cardiovascular);
+
+		model.addAttribute("pages", bsPages);
+
+		return "landing";
+	}
 
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)
     public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
@@ -124,35 +112,37 @@ public class LandingPageController {
         MpDTO mpDTO = null;
 
 
-        if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
-            mpDTO = mpService.getPhenotype("MP:0005377");
-            anatomyIds.add("MA:0002443");
-            anatomyIds.add("EMAPA:36002");
-            model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
-            pageTitle = "Hearing/Vestibular/Ear";
-
-        } else if (page.equalsIgnoreCase("cardiovascular")) {
+//        if (page.equalsIgnoreCase("deafness")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
+//            mpDTO = mpService.getPhenotype("MP:0005377");
+//            anatomyIds.add("MA:0002443");
+//            anatomyIds.add("EMAPA:36002");
+//            model.addAttribute("shortDescription", "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.");
+//            pageTitle = "Hearing/Vestibular/Ear";
+//
+//        } else
+        if (page.equalsIgnoreCase("cardiovascular")) {
             mpDTO = mpService.getPhenotype("MP:0005385");
             anatomyIds.add("MA:0000010");
             anatomyIds.add("EMAPA:16104");
             pageTitle = "Cardiovascular";
-        } else if (page.equalsIgnoreCase("metabolism")) {
-            mpDTO = mpService.getPhenotype("MP:0005376");
-            pageTitle = "Metabolism";
-        } else if (page.equalsIgnoreCase("vision")) {
-            mpDTO = mpService.getPhenotype("MP:0005391");
-            anatomyIds.add("EMAPA:36003");
-            anatomyIds.add("MA:0002444");
-            pageTitle = "Vision";
-        } else if (page.equalsIgnoreCase("nervous")) {
-            mpDTO = mpService.getPhenotype("MP:0003631");
-            anatomyIds.add("MA:0000016");
-            anatomyIds.add("EMAPA:16469");
-            pageTitle = "Nervous phenotypes";
-        } else if (page.equalsIgnoreCase("neurological")) {
-            mpDTO = mpService.getPhenotype("MP:0005386");
-            pageTitle = "Behavioural/neurological phenotypes";
         }
+//        } else if (page.equalsIgnoreCase("metabolism")) {
+//            mpDTO = mpService.getPhenotype("MP:0005376");
+//            pageTitle = "Metabolism";
+//        } else if (page.equalsIgnoreCase("vision")) {
+//            mpDTO = mpService.getPhenotype("MP:0005391");
+//            anatomyIds.add("EMAPA:36003");
+//            anatomyIds.add("MA:0002444");
+//            pageTitle = "Vision";
+//        } else if (page.equalsIgnoreCase("nervous")) {
+//            mpDTO = mpService.getPhenotype("MP:0003631");
+//            anatomyIds.add("MA:0000016");
+//            anatomyIds.add("EMAPA:16469");
+//            pageTitle = "Nervous phenotypes";
+//        } else if (page.equalsIgnoreCase("neurological")) {
+//            mpDTO = mpService.getPhenotype("MP:0005386");
+//            pageTitle = "Behavioural/neurological phenotypes";
+//        }
 
         // IMPC image display at the bottom of the page
         List<Group> groups = imageService.getPhenotypeAssociatedImages(null, mpDTO.getMpId(), anatomyIds, true, 1);
@@ -365,3 +355,46 @@ public class LandingPageController {
 
 
 }
+//just hold these here until we create the new set of pages from Nat, Terry and Violeta
+//{
+//    "title": "Embryo Landing Page",
+//    "description": "Each IMPC gene knockout strain is assessed for viability by examination of litters produced from mating heterozygous animals. Embryonic lethal and subviable lines are assessed in a dedicated phenotyping pipeline.",
+//    "image": "/img/Tmem100_het.jpeg" ,
+//    "link": "embryo"
+//  },
+//  {
+//    "title": "Deafness Landing Page",
+//    "image": "" ,
+//    "description": "We have undertaken a deafness screen in the IMPC cohort of mouse knockout strains. We detected known deafness genes and the vast majority of loci were novel.",
+//    "link": "biological-system/deafness"
+//  },
+//  {
+//    "title": "Metabolism Landing Page",
+//    "image": "" ,
+//    "description": "description....",
+//    "link": "biological-system/metabolism"
+//  },
+//  {
+//    "title": "Cardiovascular Landing Page",
+//    "image": "render_thumbnail/211474/400/" ,
+//    "description": "Cardiovascular system refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory system that are manifested through development and lifespan",
+//    "link": "biological-system/cardiovascular"
+//  },
+//  {
+//    "title": "Vision Landing Page",
+//    "image": "" ,
+//    "description": "Description...",
+//    "link": "biological-system/vision"
+//  },
+//  {
+//    "title": "Nervous System Landing Page",
+//    "image": "" ,
+//    "description": "Description...",
+//    "link": "biological-system/nervous"
+//  },
+//  {
+//    "title": "Neurological and Behavioural Landing Page",
+//    "image": "" ,
+//    "description": "Description...",
+//    "link": "biological-system/neurological"
+//  }
