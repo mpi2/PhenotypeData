@@ -58,10 +58,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private Connection komp2DbConnection;
 
-    @NotNull
-    @Value("${embryoRestUrl}")
-    private String embryoRestUrl;
-
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -69,6 +65,10 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("alleleCore")
     SolrClient alleleCore;
+
+    @NotNull
+   	@Value("${embryoViewerFilename}")
+    private String embryoViewerFilename;
 
     @Autowired
     @Qualifier("geneCore")
@@ -89,11 +89,12 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     PhenotypePipelineDAO phenotypePipelineDAO;
 
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
-    private Map<String, Map<String, String>> genomicFeatureCoordinates = new HashMap<>();
-    private Map<String, List<Xref>> genomicFeatureXrefs = new HashMap<>();
-    private Map<String, List<SangerImageDTO>> sangerImages = new HashMap<>();
-    private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
-    Map<String, List<EmbryoStrain>> embryoRestData=null;
+    private Map<String, Map<String, String>>       genomicFeatureCoordinates                    = new HashMap<>();
+    private Map<String, List<Xref>>                genomicFeatureXrefs                          = new HashMap<>();
+    private Map<String, List<SangerImageDTO>>      sangerImages                                 = new HashMap<>();
+    private Map<String, List<MpDTO>>               mgiAccessionToMP                             = new HashMap<>();
+    private Map<String, List<EmbryoStrain>>        embryoRestData                               = null;
+    private IndexerMap                             indexerMap                                   = new IndexerMap();
 
 
     @PostConstruct
@@ -607,12 +608,13 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 	// PRIVATE METHODS
 
 
+
     private void initialiseSupportingBeans() throws IndexerException {
         phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info(" mgiAccessionToMP size=" + mgiAccessionToMP.size());
-        embryoRestData=IndexerMap.populateEmbryoData(embryoRestUrl);
+        embryoRestData = indexerMap.populateEmbryoData(embryoViewerFilename);
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
     }
