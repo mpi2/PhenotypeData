@@ -1,16 +1,17 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mousephenotype.cda.utilities.HttpProxy;
-import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Class for getting the embryo data from the phenoDCC on embryo data available
@@ -18,95 +19,75 @@ import java.util.List;
  * @author jwarren
  *
  */
-@Service
+//@Service
 public class EmbryoRestGetter {
 
-	//@NotNull
-   // @Value("${embryoRestUrl}")
-	private String embryoRestUrl;//="http://dev.mousephenotype.org/EmbryoViewerWebApp/rest/ready";//default is dev - needs to be wired up properly with spring when going to beta and live
-
-	public EmbryoRestGetter() {
-	}
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private String embryoViewerFilename;
 
 
-	public EmbryoRestGetter(String embryoRestUrl) {
-		this.embryoRestUrl = embryoRestUrl;
-	}
+	@Inject
+	public EmbryoRestGetter(String embryoViewerFilename) {
+	    this.embryoViewerFilename = embryoViewerFilename;
+    }
 
-	// public EmbryoRestData getEmbryoRestData(){
-	// RestTemplate restTemplate = new RestTemplate();
-	// EmbryoRestData embryoData = restTemplate.getForObject(embryoRestUrl,
-	// EmbryoRestData.class);
-	// System.out.println(embryoData.toString());
-	// //embryoRestData.add(embryoData);
-	//
-	//
-	// return embryoData;
-	//
-	// }
-	//
 	public EmbryoRestData getEmbryoRestData() {
-		//to be replaced with SpringRestTemplate when json format redone by Neil
 
-		HttpProxy proxy = new HttpProxy();
-		EmbryoRestData data=new EmbryoRestData();
+        EmbryoRestData     data          = new EmbryoRestData();
+        String             content       = readEmbryoViewerFile();
+        List<EmbryoStrain> strains       = new ArrayList<>();
+        EmbryoStrain       embryoStrain;
+        JSONObject         json          = new JSONObject(content);
+        JSONArray          coloniesArray = json.getJSONArray("colonies");
 
-		try {
-			String content=null;
-			try {
-				content = proxy.getContent(new URL(embryoRestUrl),true);
-			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			List<EmbryoStrain> strains = new ArrayList<>();
+        for (int i = 0; i < coloniesArray.length(); i++) {
+            JSONObject jsonObject = coloniesArray.getJSONObject(i);
+            embryoStrain = new EmbryoStrain();
+            embryoStrain.setColonyId(jsonObject.getString("colony_id"));
+            embryoStrain.setMgi(jsonObject.getString("mgi"));
+            embryoStrain.setCentre(jsonObject.getString("centre"));
+            embryoStrain.setUrl(jsonObject.getString("url"));
 
-			EmbryoStrain embryoStrain = null;
+            List<String> procedureStableKeys = new ArrayList<String>();
+            List<String> parameterStableKeys = new ArrayList<String>();
+            List<String> modalities          = new ArrayList<String>();
 
-			JSONObject json=new JSONObject(content);
-//			System.out.println("json="+json.toString());
-			JSONArray coloniesArray=json.getJSONArray("colonies");
-			for(int i=0;i<coloniesArray.length(); i++){
-				JSONObject jsonObject = coloniesArray.getJSONObject(i);
-					embryoStrain = new EmbryoStrain();
-					embryoStrain.setColonyId(jsonObject.getString("colony_id"));
-					embryoStrain.setMgi(jsonObject.getString("mgi"));
-					embryoStrain.setCentre(jsonObject.getString("centre"));
-					embryoStrain.setUrl(jsonObject.getString("url"));
+            JSONArray jProcParam = jsonObject.getJSONArray("procedures_parameters");
+            for (int j = 0; j < jProcParam.length(); j++) {
 
-					List<String> procedureStableKeys = new ArrayList<String>();
-					List<String> parameterStableKeys = new ArrayList<String>();
-					List<String> modalities= new ArrayList<String>();
+                JSONObject jo = (JSONObject) jProcParam.get(j);
 
-					JSONArray jProcParam = jsonObject.getJSONArray("procedures_parameters");
-					for( int j=0; j<jProcParam.length(); j++){
+                // the procedure_id on the harwell RESTful interface is actually a stable_key
+                String procedure_stable_key = jo.getString("procedure_id");
+                String parameter_stable_key = jo.getString("parameter_id");
+                String modality             = jo.getString("modality");
+                procedureStableKeys.add(procedure_stable_key);
+                parameterStableKeys.add(parameter_stable_key);
 
-						JSONObject jo = (JSONObject) jProcParam.get(j);
-						
-						// the procedure_id on the harwell RESTful interface is actually a stable_key
-						String procedure_stable_key = jo.getString("procedure_id");
-						String parameter_stable_key = jo.getString("parameter_id");
-						String modality = jo.getString("modality");
-						procedureStableKeys.add(procedure_stable_key);
-						parameterStableKeys.add(parameter_stable_key);
-						
-						modalities.add(modality.replace("&#956", "micro"));
-					}
-					embryoStrain.setProcedureStableKeys(procedureStableKeys);
-					embryoStrain.setParameterStableKeys(parameterStableKeys);
-					embryoStrain.setModalities(modalities);
-					strains.add(embryoStrain);
-			}
+                modalities.add(modality.replace("&#956", "micro"));
+            }
+            embryoStrain.setProcedureStableKeys(procedureStableKeys);
+            embryoStrain.setParameterStableKeys(parameterStableKeys);
+            embryoStrain.setModalities(modalities);
+            strains.add(embryoStrain);
+        }
 
-			data.setStrains(strains);
-		} catch (ClientProtocolException e) {
+        data.setStrains(strains);
 
-			e.printStackTrace();
+        return data;
+    }
+
+	private String readEmbryoViewerFile() {
+		StringBuilder retVal = new StringBuilder();
+
+		try (Stream<String> stream = Files.lines(Paths.get(embryoViewerFilename))) {
+			stream.forEach(retVal::append);
 		} catch (IOException e) {
-
+			logger.warn("Unable to read Embryo Viewer file {}. Reason: {}", embryoViewerFilename, e.getLocalizedMessage());
 			e.printStackTrace();
+            return null;
 		}
 
-		return data;
+		return retVal.toString();
 	}
 }
