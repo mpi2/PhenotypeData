@@ -17,43 +17,42 @@
 package org.mousephenotype.cda.selenium;
 
  import org.apache.commons.lang3.StringUtils;
- import org.apache.solr.client.solrj.SolrServerException;
- import org.junit.After;
- import org.junit.Before;
- import org.junit.Ignore;
- import org.junit.Test;
- import org.junit.runner.RunWith;
- import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
- import org.mousephenotype.cda.selenium.exception.TestException;
- import org.mousephenotype.cda.selenium.support.PhenotypePage;
- import org.mousephenotype.cda.selenium.support.PhenotypeProcedure;
- import org.mousephenotype.cda.selenium.support.TestUtils;
- import org.mousephenotype.cda.solr.service.MpService;
- import org.mousephenotype.cda.solr.service.PostQcService;
- import org.mousephenotype.cda.utilities.CommonUtils;
- import org.mousephenotype.cda.utilities.RunStatus;
- import org.openqa.selenium.*;
- import org.openqa.selenium.remote.DesiredCapabilities;
- import org.openqa.selenium.remote.RemoteWebDriver;
- import org.openqa.selenium.support.ui.ExpectedConditions;
- import org.openqa.selenium.support.ui.WebDriverWait;
- import org.slf4j.LoggerFactory;
- import org.springframework.beans.factory.annotation.Autowired;
- import org.springframework.beans.factory.annotation.Qualifier;
- import org.springframework.beans.factory.annotation.Value;
- import org.springframework.boot.test.context.SpringBootTest;
- import org.springframework.core.env.Environment;
- import org.springframework.test.context.TestPropertySource;
- import org.springframework.test.context.junit4.SpringRunner;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.selenium.exception.TestException;
+import org.mousephenotype.cda.selenium.support.PhenotypePage;
+import org.mousephenotype.cda.selenium.support.PhenotypeProcedure;
+import org.mousephenotype.cda.selenium.support.TestUtils;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
+import org.openqa.selenium.*;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 
- import javax.validation.constraints.NotNull;
- import java.io.IOException;
- import java.net.MalformedURLException;
- import java.net.URL;
- import java.util.ArrayList;
- import java.util.Arrays;
- import java.util.Date;
- import java.util.List;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
  /**
   *
@@ -202,7 +201,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForEveryMPTermId() throws TestException {
         try {
             String testName = "testPageForEveryMPTermId";
@@ -224,7 +223,7 @@ public class PhenotypePageTest {
      * @throws TestException
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForEveryTopLevelMPTermId() throws TestException {
         String testName = "testPageForEveryTopLevelMPTermId";
         try {
@@ -247,7 +246,7 @@ public class PhenotypePageTest {
      * @throws TestException
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForEveryIntermediateLevelMPTermId() throws TestException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
 
@@ -265,7 +264,7 @@ public class PhenotypePageTest {
      *
      * @throws SolrServerException
      */
-@Ignore
+//@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
         RunStatus status = new RunStatus();
@@ -300,7 +299,7 @@ public class PhenotypePageTest {
 
      // Tests known phenotype pages that have historically been broken or are interesting cases, such as one with a download filename with a forward slash.
         @Test
-@Ignore
+//@Ignore
         public void testKnownPages() throws TestException {
             String testName = "testKnownPages";
 
@@ -319,7 +318,7 @@ public class PhenotypePageTest {
         }
 
      // Test the top section: Definition, synonyms, mapped hp terms, procedures, mpId.
-@Ignore
+//@Ignore
     @Test
     public void testTopSection() throws SolrServerException {
         String testName = "testTopSection";
