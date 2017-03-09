@@ -73,15 +73,17 @@ public class PaperController {
 	private GenomicFeatureDAO genesDao;
 
 
-//	@RequestMapping(value = "/mesh", method = RequestMethod.GET)
-//	public @ResponseBody
-//	String gettopmeshmapping(
-//			HttpServletRequest request,
-//			HttpServletResponse response,
-//			Model model) throws IOException, URISyntaxException, SQLException {
-//
-//		return "mesh"; // json string
-//	}
+	@RequestMapping(value = "/fetchMeshMapping", method = RequestMethod.GET)
+	public @ResponseBody
+	String gettopmeshmapping(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException {
+
+		String html = fetchMeshToTopMeshMapping();
+
+		return html;
+	}
 
 
     // allele ref data points: number grouped by year at start of month
@@ -93,6 +95,26 @@ public class PaperController {
 			Model model) throws IOException, URISyntaxException, SQLException {
 
 		return fetchPaperStats(); // json string
+	}
+
+	public String fetchMeshToTopMeshMapping() throws SQLException {
+		Connection conn = admintoolsDataSource.getConnection();
+
+		String sql = "SELECT top_mesh, number_mapped_mesh, number_mapped_pmid FROM paperMeshTopmesh";
+		PreparedStatement p = conn.prepareStatement(sql);
+		ResultSet resultSet = p.executeQuery();
+
+		String th = "<thead><th>Top level mesh term</th><th>No. mapped mesh terms</th><th>No. publications</th></thead>";
+		String trs = "";
+		while (resultSet.next()) {
+			String top_mesh = resultSet.getString("top_mesh");
+			int number_mapped_mesh = resultSet.getInt("number_mapped_mesh");
+			int number_mapped_pmid = resultSet.getInt("number_mapped_pmid");
+
+			trs += "<tr><td>" + top_mesh + "</td><td>" + number_mapped_mesh + "</td><td>" + number_mapped_pmid + "</td></tr>";
+		}
+		return "<table id='mesh'>" + th + trs + "</table>";
+
 	}
 
     public String fetchPaperStats() throws SQLException {
