@@ -111,7 +111,7 @@
 
     <img src="${baseUrl}/img/IMPC_map6.jpg" /><br>
     <h3>IMPC Members</h3>
-    <b>The IMPC is currently composed of 18 research institutions and 5 national funders from 11 countries.</b><p>
+    <b>The IMPC is currently composed of 19 research institutions and 5 national funders from 11 countries.</b><p>
 
     <ul class="about">
       <li>Global infrastructure recognised by the G7</li>
