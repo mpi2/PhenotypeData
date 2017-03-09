@@ -73,6 +73,17 @@ public class PaperController {
 	private GenomicFeatureDAO genesDao;
 
 
+//	@RequestMapping(value = "/mesh", method = RequestMethod.GET)
+//	public @ResponseBody
+//	String gettopmeshmapping(
+//			HttpServletRequest request,
+//			HttpServletResponse response,
+//			Model model) throws IOException, URISyntaxException, SQLException {
+//
+//		return "mesh"; // json string
+//	}
+
+
     // allele ref data points: number grouped by year at start of month
 	@RequestMapping(value = "/fetchPaperStats", method = RequestMethod.GET)
 	public @ResponseBody
@@ -675,7 +686,7 @@ public class PaperController {
 		//System.out.println("param: "+idAlleleStr);
 		for( String pmidAlleleStr : pmidAlleleStrs) {
 
-			System.out.println("pmidAlleleStr: " + pmidAlleleStr);
+			//System.out.println("pmidAlleleStr: " + pmidAlleleStr);
 			List<String> alleles = new ArrayList<>();
 			List<String> pmidQrys = new ArrayList<>();
 

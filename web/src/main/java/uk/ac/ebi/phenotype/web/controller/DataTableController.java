@@ -2988,22 +2988,6 @@ public class DataTableController {
 						// some allele id does not associate with a gene id in database yet
 						alleleSymbolinks.add("<span " + cssClass + ">" + symbol + "</span>");
 					}
-
-
-//					if (reference.getImpcGeneLinks() != null && reference.getImpcGeneLinks().size() != 0) {
-//						System.out.println(symbol + reference.getPmid());
-//
-//						if (reference.getImpcGeneLinks().get(i) != null) {
-//							System.out.println(symbol + " --- " + reference.getImpcGeneLinks().get(i));
-//							alleleSymbolinks.add("<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></span>");
-//						}
-//						else {
-//							alleleSymbolinks.add(symbol);
-//						}
-//					} else {
-//						// some allele id does not associate with a gene id in database yet
-//						alleleSymbolinks.add(symbol);
-//					}
 				}
 			}
 
@@ -3104,17 +3088,12 @@ public class DataTableController {
 				String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
 				rowData.add("<div class='meshTree'>Show mesh terms</div><div class='meshTerms'>" + meshTerms + "</div>");
 				//rowData.add("<span class='meshTree'>Show mesh tree</span><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div>");
-				System.out.println(meshTerms);
-
 				//rowData.add("<div class='meshTree'>Show mesh tree</div><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div><div class='meshTreeDiv'></div>");
 			}
 
 			if (rowFormat){
 				// single column
 				String inOneRow = StringUtils.join(rowData, "");
-
-				System.out.println(inOneRow);
-
 				List<String> rowData2 = new ArrayList<>();
 				rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
 				rowData = rowData2;
