@@ -52,9 +52,8 @@ public class ReferenceDAO {
         + "\tDate of publication"
         + "\tGrant id"
         + "\tGrant agency"
-        + "\tPaper link";
-
-
+        + "\tPaper link"
+        + "\tMesh term";
 
     @Autowired
     @Qualifier("admintoolsDataSource")
@@ -185,13 +184,14 @@ public class ReferenceDAO {
                     + ", agency AS grantAgencies\n"
                     + ", paper_url AS paperUrls\n"
                     + ", mesh\n"
+                    + ", meshtree\n"
                     + ", author\n"
                     + "FROM allele_ref AS ar\n"
                     + whereClause
                     //+ "GROUP BY pmid\n"
                     + "ORDER BY " + orderBy + "\n";
 
-        //System.out.println("alleleRef query: " + query);
+        System.out.println("alleleRef query: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -240,6 +240,7 @@ public class ReferenceDAO {
                 referenceRow.setGrantIds(Arrays.asList(resultSet.getString("grantIds").split(delimeter)));
                 referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
                 referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
+                referenceRow.setMeshJsonStr(resultSet.getString("meshtree"));
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setAuthor(resultSet.getString("author"));
 
@@ -356,6 +357,7 @@ public class ReferenceDAO {
               + ", agency AS grantAgencies\n"
               + ", paper_url AS paperUrls\n"
               + ", mesh\n"
+              + ", meshtree\n"
               + "FROM allele_ref AS ar\n"
               + whereClause
               //+ "GROUP BY pmid\n"
@@ -413,6 +415,7 @@ public class ReferenceDAO {
                 referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
                 referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
+                referenceRow.setMeshJsonStr(resultSet.getString("meshtree"));
 
                 results.add(referenceRow);
             }
