@@ -110,14 +110,14 @@
                 <div id="chordContainer" class="half"></div>
                 <svg id="chordDiagramSvg" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvg", "chordContainer", false, null, true, null);
+                    drawChords("chordDiagramSvg", "chordContainer", false, null, true, null, baseUrl);
                 </script>
 
                 <h3>Ion channels</h3>
                 <div id="chordContainerIonChannels" class="half"></div>
                 <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, null, true, "Ion Channels");
+                    drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, null, true, "Ion Channels", baseUrl);
                 </script>
 
 
@@ -125,7 +125,7 @@
                 <div id="chordContainerGPCRs" class="half"></div>
                 <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, null, true, "GPCRs");
+                    drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, null, true, "GPCRs", baseUrl);
                 </script>
 
 
@@ -133,7 +133,7 @@
                 <div id="chordContainerKinases" class="half"></div>
                 <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
                 <script>
-                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, null, true, "Kinases");
+                    drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, null, true, "Kinases", baseUrl);
                 </script>
             </div>
         </div>
