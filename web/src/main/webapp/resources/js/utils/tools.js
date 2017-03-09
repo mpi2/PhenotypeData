@@ -267,9 +267,9 @@
                     }
                 });
 
-                //---------------------------------------
+                // ---------------------------------------
                 // chart quarter by year of publication
-                //---------------------------------------
+                // ---------------------------------------
                 var yearSeriesData = [];
                 var drillDownSeriesData = [];
                 var totalPapers = 0;
@@ -358,66 +358,72 @@
                 var drillDownSeriesDataAgency = [];
                 var agencyNames = [];
 
+                //console.log(j.numAgency);
 
-                Object.keys(j.agencyPmidYear).sort().forEach(function (agency, index) {
-                    console.log(agency)
-                    agencyNames.push(agency);
-
-                    var agencyPapers = {};
-                    var yo = {};
-
-                    var pmidYear = j.agencyPmidYear[agency];
-                    var pmidNum = Object.keys(pmidYear).length;
-                    agencyPapers.y = pmidNum;
-                    agencyPapers.name = agency;
-                    agencyPapers.drilldown = agency;
-                    agencyNumPaperSeries.push(agencyPapers);
-
-                    yo.name = agency;  // as drilldown legend
-                    yo.id = agency;  // so that click on column will drilldown
-                    yo.data = [];
-
-                    var yearPapercount = {};
-
-                    Object.keys(pmidYear).forEach(function (pmid, index) {
-                        var year = pmidYear[pmid];
-                        if (! yearPapercount.hasOwnProperty(year)) {
-                            yearPapercount[year] = [];
-                        }
-                        yearPapercount[year].push(pmid);
-
-                        // console.log(agency + " ---- " + pmid + " - " + year);
-                    });
-
-                    for (var yr in yearPapercount) {
-                        var yodrill = [];
-                        yodrill.push(yr);
-                        yodrill.push(yearPapercount[yr].length);
-                        yo.data.push(yodrill);
-                    }
-
-                    console.log(agencyPapers.name + " -- " + agencyPapers.y + " --> ");
-                    console.log( yo);
-                    drillDownSeriesDataAgency.push(yo);
+                var paperCountList = Object.keys(j.numAgency).sort(function(a, b) {
+                    return +/\d+/.exec(b)[0] - +/\d+/.exec(a)[0];
                 });
+
+                //Object.keys(j.numAgency).sort().reverse().forEach(function (paperCount, index) {
+                for(var i=0; i<paperCountList.length; i++){
+                    var paperCount = paperCountList[i];
+                    var agencies = j.numAgency[paperCount];
+
+                    for(var a=0; a<agencies.length; a++) {
+                        var agency = agencies[a];
+                        agencyNames.push(agency);
+
+                        var agencyPapers = {};
+                        var yo = {};
+
+                        var pmidYear = j.agencyPmidYear[agency];
+                        var pmidNum = Object.keys(pmidYear).length;
+                        agencyPapers.y = pmidNum;
+                        agencyPapers.name = agency;
+                        agencyPapers.drilldown = agency;
+                        agencyNumPaperSeries.push(agencyPapers);
+
+                        yo.name = agency;  // as drilldown legend
+                        yo.id = agency;  // so that click on column will drilldown
+                        yo.data = [];
+
+                        var yearPapercount = {};
+
+                        Object.keys(pmidYear).forEach(function (pmid, index) {
+                            var year = pmidYear[pmid];
+                            if (!yearPapercount.hasOwnProperty(year)) {
+                                yearPapercount[year] = [];
+                            }
+                            yearPapercount[year].push(pmid);
+
+                            // console.log(agency + " ---- " + pmid + " - " + year);
+                        });
+
+                        for (var yr in yearPapercount) {
+                            var yodrill = [];
+                            yodrill.push(yr);
+                            yodrill.push(yearPapercount[yr].length);
+                            yo.data.push(yodrill);
+                        }
+
+                        console.log(agencyPapers.name + " -- " + agencyPapers.y + " --> ");
+                        console.log(yo);
+                        drillDownSeriesDataAgency.push(yo);
+                    }
+                }
                 console.log("a")
                 console.log(agencyNumPaperSeries);
                 console.log("b")
                 console.log(drillDownSeriesDataAgency);
-                var divHeight = 20 * agencyNames.length;
+                var divHeight = 22 * agencyNames.length;
 
-                var thisChart = Highcharts.chart(chartGrantQuarter, {
+                var grantChart = Highcharts.chart(chartGrantQuarter, {
                     chart: {
                         type: 'column',
                         inverted: true,
                         height: divHeight,
                         events: {
-                            drilldown: function(e) {
 
-                            },
-                            drillup: function(e) {
-
-                            }
                         }
                     },
                     title: {
@@ -427,8 +433,11 @@
                         text: 'Click the agency columns for yearly breakdown'
                     },
                     xAxis: {
-                       categories: agencyNames
-                       //type: 'category'
+                       //categories: agencyNames
+                       type: 'category',
+                       labels: {
+                           enabled: true
+                       }
                     },
                     yAxis: {
                         title: {
@@ -444,10 +453,9 @@
                             pointWidth: 10,
                             dataLabels: {
                                 enabled: true,
-                                format: '{point.y}'
+                               format: '{point.y}'
                                 // formatter:function() {
-                                //     var pcnt = (this.y / total) * 100;
-                                //     return Highcharts.numberFormat(pcnt) + '%';
+                                //     return this.value;
                                 // }
                             }
                         }
@@ -465,7 +473,8 @@
                         data : agencyNumPaperSeries
                     }],
                     drilldown: {
-                        series : drillDownSeriesDataAgency
+                        series : drillDownSeriesDataAgency,
+
                     }
                 });
             }
@@ -734,6 +743,19 @@
             //"fnDrawCallback": function (oSettings) {  // when dataTable is loaded
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
+                // // so that the event works with pagination
+                $('table#alleleRef').on("click", "div.meshTree", function(){
+                    console.log("mesh: "+ $(this).next().text());
+                    if ($(this).next().is(":visible")){
+                        $(this).next().hide();
+                        $(this).text("Show mesh terms");
+                    }
+                    else {
+                        $(this).next().show();
+                        $(this).text("Hide mesh terms");
+                        //showMeshTree($(this).next().text());
+                    }
+                });
 
                 // download tool
                 oConf.fileName = 'impc_allele_references';
@@ -800,16 +822,18 @@
 					});
 				});
 
-                $('.alleleToggle', this).click(function () {
+				// so that the event works with pagination
+                $('table#alleleRef').on("click", "div.alleleToggle", function(){
+
                     if (!$(this).hasClass('showMe')) {
-                        $(this).addClass('showMe').text('Show fewer alleles ...');
+                        $(this).addClass('showMe').text('Show fewer alleles');
                         //console.log($(this).siblings("div.hideMe").html());
-                        $(this).siblings().addClass('showMe');
+                        $(this).siblings('span.hideMe').addClass('showMe');
                     }
                     else {
                         var num = $(this).attr('rel');
-                        $(this).removeClass('showMe').text('Show all ' + num + ' alleles ...');
-                        $(this).siblings().removeClass('showMe');
+                        $(this).removeClass('showMe').text('Show all ' + num + ' alleles');
+                        $(this).siblings('span').removeClass('showMe');
                     }
                 });
 
@@ -826,6 +850,27 @@
             }
         });
     }
+
+    // function showMeshTree(meshJsonStr){
+	 //    console.log("mesh str :"+ meshJsonStr);
+    //     var mt = $('.meshTreeDiv').jstree({
+    //         core:{
+    //             data: meshJsonStr
+    //         },
+    //         "types" : {
+    //             "default" : {
+    //                 "icon" : "img/jstree/jstree-node.png"
+    //             },
+    //             "selected" : {
+    //                 "icon" : "img/jstree/jstree-node-selected.png"
+    //             }
+    //         },
+    //         "plugins" : [
+    //             "types"
+    //         ]
+    //     });
+    //
+    // }
 
 	function _facetRefresh(json, selectorBase) {
 

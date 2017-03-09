@@ -1271,6 +1271,12 @@ public class FileExportController {
 			row.add(StringUtils.join(reference.getGrantAgencies(), "|"));  //10
 			row.add(StringUtils.join(reference.getPaperUrls(), "|")); //11
 
+			if (reference.getMeshTerms() == null || reference.getMeshJsonStr().isEmpty() ){
+				row.add("not available"); //11
+			}
+			else {
+				row.add(StringUtils.join(reference.getMeshTerms(), "|")); //11
+			}
 			rowData.add(StringUtils.join(row, "\t"));
 		}
 
