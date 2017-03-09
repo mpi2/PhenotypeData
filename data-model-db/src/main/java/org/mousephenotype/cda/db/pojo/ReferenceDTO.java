@@ -49,6 +49,7 @@ public class ReferenceDTO {
     private List<String> grantAgencies;
     private List<String> paperUrls;
     private List<String> meshTerms;
+    private String meshJsonStr;
     private String author;
 
     public List<String> getAlleleSymbols() {
@@ -161,6 +162,14 @@ public class ReferenceDTO {
         this.meshTerms = meshTerms;
     }
 
+    public String getMeshJsonStr() {
+        return meshJsonStr;
+    }
+
+    public void setMeshJsonStr(String meshJsonStr) {
+        this.meshJsonStr = meshJsonStr;
+    }
+
     public String getAuthor() {
         return author;
     }
@@ -197,6 +206,7 @@ public class ReferenceDTO {
             return false;
         if (paperUrls != null ? !paperUrls.equals(that.paperUrls) : that.paperUrls != null) return false;
         if (meshTerms != null ? !meshTerms.equals(that.meshTerms) : that.meshTerms != null) return false;
+        if (meshJsonStr != null ? !meshJsonStr.equals(that.meshJsonStr) : that.meshJsonStr != null) return false;
         return author != null ? author.equals(that.author) : that.author == null;
     }
 
@@ -216,6 +226,7 @@ public class ReferenceDTO {
         result = 31 * result + (grantAgencies != null ? grantAgencies.hashCode() : 0);
         result = 31 * result + (paperUrls != null ? paperUrls.hashCode() : 0);
         result = 31 * result + (meshTerms != null ? meshTerms.hashCode() : 0);
+        result = 31 * result + (meshJsonStr != null ? meshJsonStr.hashCode() : 0);
         result = 31 * result + (author != null ? author.hashCode() : 0);
         return result;
     }
@@ -237,6 +248,7 @@ public class ReferenceDTO {
                 ", grantAgencies=" + grantAgencies +
                 ", paperUrls=" + paperUrls +
                 ", meshTerms=" + meshTerms +
+                ", meshJsonStr='" + meshJsonStr + '\'' +
                 ", author='" + author + '\'' +
                 '}';
     }
