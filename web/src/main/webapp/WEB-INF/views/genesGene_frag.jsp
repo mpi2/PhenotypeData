@@ -65,11 +65,6 @@
   </div>
 </c:if>
 
-<p class="with-label">
-  <span id="summaryMgiId" class="label">MGI Id</span>
-  <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
-</p>
-
 <c:if
         test="${!(prodStatusIcons == '')}">
   <p class="with-label">
@@ -80,15 +75,19 @@
 
 <p class="with-label">
   <span id="summaryLinks" class="label">Links</span>
-  <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Ensembl
+  <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}" title="see gene page at JAX">${gene.mgiAccessionId}</a>&nbsp;&nbsp;
+  <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}" title="visualise mouse gene with ensembl genome broswer">Ensembl
     Gene</a>&nbsp;&nbsp;
   <!--    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;-->
-  <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Ensembl
-    Compara</a>
+  <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}" title="visualise mouse-human gene orthologs with Ensembl comparative genomics   
+
+browser">Ensembl Orthologs</a>
     
     <c:if test="${gene.isIdgGene}">
-    	&nbsp;&nbsp;<a href="${baseUrl}/secondaryproject/idg">IDG</a>
+    	&nbsp;&nbsp;<a href="${baseUrl}/secondaryproject/idg" title="Illuminating the Draggable Genome mouse-human orthologue">IDG</a>
     </c:if>
+    
+    
   
   <%-- &nbsp; <a href="../genomeBrowser/${acc}" target="new"> IMPC Gene Browser</a> --%>
   <span
