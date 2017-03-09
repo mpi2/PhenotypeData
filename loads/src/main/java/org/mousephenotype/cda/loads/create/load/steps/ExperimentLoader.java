@@ -481,7 +481,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         // For EuroPhenome specimens only, the dcc appends the center name to the specimen id. We remove it here
         // because 1)it is not useful, 2)moreso, it would be confusing when the centers tried to look up their specimens
         // and couldn't find them because the specimen ids had the trailing center, and 3) we remove it in the specimenLoader.
-        if (dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.EUROPHENOME)) {
+        if ((dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.EUROPHENOME)) && (dccExperiment.getSpecimenId() != null)) {
             String truncatedSpecimen = dccExperiment.getSpecimenId();
             int    idx               = -1;
             if (truncatedSpecimen.endsWith("_MRC_Harwell")) {
