@@ -241,6 +241,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 
                 if(idgGenes.contains(gene.getMgiAccessionId())){
                 	gene.setIsIdgGene(true);
+                	System.out.println("setting idg gene");
                 }
 
                 if(genomicFeatureCoordinates!=null && genomicFeatureXrefs!=null){
@@ -622,12 +623,12 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         embryoRestData = indexerMap.populateEmbryoData(embryoViewerFilename);
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
-        idgGenes=this.getIdgGeneList();
+        idgGenes=this.populateIdgGeneList();
         
     }
 
 
-	private Set<String> getIdgGeneList() {
+	private Set<String> populateIdgGeneList() {
 
 		Set<String> idgGenes=new HashSet<>();
 		String queryString = "SELECT * FROM komp2.genes_secondary_project where secondary_project_id='idg'";
@@ -642,6 +643,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
           }catch(Exception e){
         	  e.printStackTrace();
           }
+      System.out.println("idg gene list size is "+idgGenes.size());
 		return idgGenes;
 	}
 
