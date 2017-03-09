@@ -70,10 +70,10 @@ public class LandingPageController {
 		List<LandingPageDTO> bsPages = new ArrayList<>();
 		LandingPageDTO cardiovascular = new LandingPageDTO();
 
-		cardiovascular.setTitle("Cardiovascular Landing Page");
+		cardiovascular.setTitle("Cardiovascular");
 		cardiovascular.setImage("render_thumbnail/211474/400/");
 		cardiovascular.setDescription(
-				"Cardiovascular system refers to the observable morphological and physiological characteristics of the mammalian heart, blood vessels, or circulatory system that are manifested through development and lifespan");
+				"This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
 		cardiovascular.setLink("biological-system/cardiovascular");
 		bsPages.add(cardiovascular);
 
