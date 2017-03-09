@@ -2565,9 +2565,4 @@ public class GeneDTO {
 				'}';
 	}
 
-	public void setIsIdgGene(boolean b) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
