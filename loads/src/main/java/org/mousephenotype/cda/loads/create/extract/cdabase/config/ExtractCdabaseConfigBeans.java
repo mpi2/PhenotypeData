@@ -155,8 +155,13 @@ public class ExtractCdabaseConfigBeans {
             , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele,         "http://www.informatics.jax.org/downloads/reports/NorCOMM_Allele.rpt", cdabaseWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
 
           // iMits phenotyped colony report
-            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "https://i-dcc.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
-
+//            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "https://i-dcc.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
+// fixme fixme fixme fixme fixme
+// fixme fixme fixme fixme fixme
+// fixme fixme fixme fixme fixme
+// fixme fixme fixme fixme fixme
+// fixme fixme fixme fixme fixme
+, new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "http://http://ves-ebi-d6:8089/beta/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
             // OWL ontologies
             , new DownloadOntologyFilename(DownloadFileEnum.eco,    "http://purl.obolibrary.org/obo/eco.owl", cdabaseWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
             , new DownloadOntologyFilename(DownloadFileEnum.efo,    "http://www.ebi.ac.uk/efo/efo.owl", cdabaseWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
