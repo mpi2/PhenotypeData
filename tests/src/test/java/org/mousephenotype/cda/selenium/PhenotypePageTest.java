@@ -20,15 +20,16 @@ package org.mousephenotype.cda.selenium;
  import org.apache.solr.client.solrj.SolrServerException;
  import org.junit.After;
  import org.junit.Before;
+ import org.junit.Ignore;
  import org.junit.Test;
  import org.junit.runner.RunWith;
  import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
  import org.mousephenotype.cda.selenium.exception.TestException;
- import org.mousephenotype.cda.solr.service.MpService;
- import org.mousephenotype.cda.solr.service.PostQcService;
  import org.mousephenotype.cda.selenium.support.PhenotypePage;
  import org.mousephenotype.cda.selenium.support.PhenotypeProcedure;
  import org.mousephenotype.cda.selenium.support.TestUtils;
+ import org.mousephenotype.cda.solr.service.MpService;
+ import org.mousephenotype.cda.solr.service.PostQcService;
  import org.mousephenotype.cda.utilities.CommonUtils;
  import org.mousephenotype.cda.utilities.RunStatus;
  import org.openqa.selenium.*;
@@ -165,6 +166,7 @@ public class PhenotypePageTest {
             try {
                 driver.get(target);
                 phenotypeLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
+                testUtils.scrollToTop(driver, phenotypeLink);
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
                 status.addError(message);
@@ -173,9 +175,9 @@ public class PhenotypePageTest {
             }
             try {
                 phenotypeLink.click();
-                WebElement mgiMpIdElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='templateBodyInsert']/table/tbody/tr[1]/td[1]")));
-                if ( ! mgiMpIdElement.getText().contains("MP term:")) {
-                    message = "Expected valid MGI MP page for " + phenotypeId + "(" + target + ").";
+                WebElement mgiMpIdElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='ontotree']")));
+                if ( ! mgiMpIdElement.getText().startsWith("Mammalian Phenotype Ontology")) {
+                    message = "Expected valid phenotype page for " + phenotypeId + "(" + target + ").";
                     status.addError(message);
                 }
 
@@ -200,7 +202,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForEveryMPTermId() throws TestException {
         try {
             String testName = "testPageForEveryMPTermId";
@@ -222,7 +224,7 @@ public class PhenotypePageTest {
      * @throws TestException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForEveryTopLevelMPTermId() throws TestException {
         String testName = "testPageForEveryTopLevelMPTermId";
         try {
@@ -245,7 +247,7 @@ public class PhenotypePageTest {
      * @throws TestException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForEveryIntermediateLevelMPTermId() throws TestException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
 
@@ -263,7 +265,7 @@ public class PhenotypePageTest {
      *
      * @throws SolrServerException
      */
-//@Ignore
+@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
         RunStatus status = new RunStatus();
@@ -298,7 +300,7 @@ public class PhenotypePageTest {
 
      // Tests known phenotype pages that have historically been broken or are interesting cases, such as one with a download filename with a forward slash.
         @Test
-//@Ignore
+@Ignore
         public void testKnownPages() throws TestException {
             String testName = "testKnownPages";
 
@@ -317,7 +319,7 @@ public class PhenotypePageTest {
         }
 
      // Test the top section: Definition, synonyms, mapped hp terms, procedures, mpId.
-//@Ignore
+@Ignore
     @Test
     public void testTopSection() throws SolrServerException {
         String testName = "testTopSection";
