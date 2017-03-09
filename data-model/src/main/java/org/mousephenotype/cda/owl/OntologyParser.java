@@ -254,6 +254,7 @@ public class OntologyParser {
             term.setAlternateIds(altIds);
         }
         term = addChildrenInfo(cls, term);
+        term = addParentInfo(cls, term);
         return term;
     }
 
@@ -283,10 +284,12 @@ public class OntologyParser {
      */
     private OntologyTermDTO addChildrenInfo(OWLClass cls, OntologyTermDTO term){
 
-        EntitySearcher.getSubClasses(cls, ontology).stream()
-                .filter(classExpression -> classExpression.isClassExpressionLiteral())
-                .map(classExpression -> {term.addChildId(getIdentifierShortForm(classExpression.asOWLClass())); term.addChildName(getLabel(classExpression.asOWLClass())); return 0;});
-
+        for (OWLClassExpression classExpression : EntitySearcher.getSubClasses(cls, ontology)){
+            if (classExpression.isClassExpressionLiteral()){
+                term.addChildId(getIdentifierShortForm(classExpression.asOWLClass()));
+                term.addChildName(getLabel(classExpression.asOWLClass()));
+            }
+        }
         return  term;
     }
 
@@ -297,10 +300,12 @@ public class OntologyParser {
      */
     private OntologyTermDTO addParentInfo(OWLClass cls, OntologyTermDTO term){
 
-        EntitySearcher.getSuperClasses(cls, ontology).stream()
-                .filter(classExpression -> classExpression.isClassExpressionLiteral())
-                .map(classExpression -> {term.addParentId(getIdentifierShortForm(classExpression.asOWLClass())); term.addParentName(getLabel(classExpression.asOWLClass())); return 0;});
-
+        for (OWLClassExpression classExpression : EntitySearcher.getSuperClasses(cls, ontology)){
+            if (classExpression.isClassExpressionLiteral()){
+                term.addParentId(getIdentifierShortForm(classExpression.asOWLClass()));
+                term.addParentName(getLabel(classExpression.asOWLClass()));
+            }
+        }
         return  term;
     }
 

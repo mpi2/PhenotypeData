@@ -180,7 +180,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
         try {
-
+            //TODO replace slim
             OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", null);
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", null);
         	// maps MP to number of phenotyping calls
@@ -191,7 +191,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpCore.commit();
 
             // Loop through the mp_term_infos
-            //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
             String q = " select distinct 'mp' as dataType, ti.term_id, ti.name, ti.definition, group_concat(distinct alt.alt_id) as alt_ids from mp_term_infos ti left join mp_alt_ids alt on ti.term_id=alt.term_id where ti.term_id != 'MP:0000001' group by ti.term_id";
             PreparedStatement ps = ontoDbConnection.prepareStatement(q);
             ResultSet rs = ps.executeQuery();
@@ -206,7 +205,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setMpDefinition(mpDTO.getDefinition());
 
                 // alternative MP ID
-                if ( !mpDTO.getAlternateIds().isEmpty() ) {
+                if ( mpDTO.getAlternateIds() != null && !mpDTO.getAlternateIds().isEmpty() ) {
                     mp.setAltMpIds(mpDTO.getAlternateIds());
                 }
 
@@ -236,8 +235,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                             mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
                         }
                     }
-                    if ( isOKForNarrowSynonyms(mp)){
-                        // get the children of MP not in our slim (narrow synonyms)
+                    // get the children of MP not in our slim (narrow synonyms)
+                    if (isOKForNarrowSynonyms(mp)){
                         mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     } else  {
                         mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
@@ -270,10 +269,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 documentCount++;
                 mpCore.addBean(mp, 60000);
-//
-//                if (documentCount % 100 == 0){
-//                	mpCore.commit();
-//                }
+
+                if (documentCount % 100 == 0){
+                    System.out.println("Added " + documentCount);
+                }
             }
 
             // Send a final commit
@@ -338,17 +337,16 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
 
-    private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {// Won't work with mp from slim!!
+    private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {
+        // Won't work with mp from slim file!!
 
         TreeSet<String> synonyms = new TreeSet<String>();
         long calls = sumPhenotypingCalls(mpFromFullOntology.getAccessionId());
 
         // get narrow synonyms from all children not in slim.
-        if (calls > 0 && mpFromFullOntology.getChildIds().size() > 0){
+        if (calls > 0 && mpFromFullOntology.getChildIds() != null && mpFromFullOntology.getChildIds().size() > 0){
 
             for (String childId : mpFromFullOntology.getChildIds()){
-//                System.out.println("CHILD ID " + childId);
-
                 if (!termNodeIds.containsKey(childId)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
@@ -365,7 +363,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
         }
 
-//        System.out.println("Restricted narrow syn for " + mpFromFullOntology.getAccessionId() + " " + synonyms);
         return  synonyms;
 
     }
@@ -373,13 +370,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private TreeSet<String> getNarrowSynonymsOutsideSlim(OntologyTermDTO mpFromFullOntology,  int levels, TreeSet<String> synonyms){
 
-//        System.out.println("-- outside NS " + mpFromFullOntology.getAccessionId());
         if (mpFromFullOntology != null &&  levels > 0) {
             if (!termNodeIds.containsKey(mpFromFullOntology.getAccessionId())) { // not in slim
                 synonyms.addAll(mpHpParser.getNarrowSynonyms(mpFromFullOntology, levels - 1));
                 synonyms.add(mpFromFullOntology.getName());
                 synonyms.addAll(mpFromFullOntology.getSynonyms());
-            } else {
+            } else if (mpFromFullOntology.getChildIds() != null){
                 for (String childId : mpFromFullOntology.getChildIds()) {
                     if (!termNodeIds.containsKey(childId) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
                         getNarrowSynonymsOutsideSlim(mpHpParser.getOntologyTerm(childId), levels - 1, synonyms);
@@ -1083,8 +1079,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    protected static void addIntermediateLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
 
+    protected static void addIntermediateLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
 
     	List<String> ids = new ArrayList<>();
       	List<String> names = new ArrayList<>();
@@ -1418,8 +1414,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     // PROTECTED METHODS
-
-
     public static void main(String[] args) throws IndexerException {
         SpringApplication.run(MPIndexer.class, args);
     }
