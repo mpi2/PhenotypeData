@@ -103,7 +103,7 @@
                                 <svg id="chordDiagramSvg" width="960" height="960"></svg>
                                 <script>
                                     var mpTopLevelTerms = ["cardiovascular system phenotype"];
-                                    drawChords("chordDiagramSvg", "chordContainer", false, mpTopLevelTerms, false);
+                                    drawChords("chordDiagramSvg", "chordContainer", false, mpTopLevelTerms, false, null);
                                 </script>
                             </div>
                         </div>

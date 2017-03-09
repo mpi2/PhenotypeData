@@ -138,7 +138,7 @@
 			foreground = svg.append("svg:g").attr("class", "foreground").selectAll("path").data(cars).enter().append("svg:path").attr("d", path)
 				.attr("style", function(d) {return "stroke:" + colors[d.group] + ";" + getStyles(d,"foreground");})
 				.attr("class", function(d) {return d.gene;})
-				.on("click", function (d,i){ highlighter.deselect(); d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;    <a href='genes/"+d.gene.split("(")[1].replace(/\)/g, "") + "'> " + d.gene.split("(")[0] + "</a>"); highlighter.select(geneList.indexOf(d.gene));});
+				.on("click", function (d,i){ highlighter.deselect(); d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;    <a href= '" + baseUrl + "/genes/" + d.gene.split("(")[1].replace(/\)/g, "") + "'> " + d.gene.split("(")[0] + "</a>"); highlighter.select(geneList.indexOf(d.gene));});
 
 			// Add a group element for each dimension.
 			var g = svg.selectAll(".dimension").data(dimensions).enter().append("svg:g").attr("class", "dimension").attr("transform", function(d) {
