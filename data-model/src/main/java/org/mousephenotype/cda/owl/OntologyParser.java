@@ -275,6 +275,17 @@ public class OntologyParser {
         return  eqClasses;
     }
 
+    /**
+     *
+     * @param cls
+     * @param topLevelTerms set of top Level terms
+     * @return
+     */
+    //TODO  private Set<OntologyTermDTO> getTopLevelTerms(OWLClass cls, Set<String> topLevelTerms){
+
+
+    //TODO public Set<OntologyTermDTO> getTermsInSlim(Set<String> idsToSeedSlim)
+
 
     /**
      *
