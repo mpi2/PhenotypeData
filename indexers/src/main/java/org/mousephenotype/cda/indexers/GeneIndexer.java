@@ -95,6 +95,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     private Map<String, List<MpDTO>>               mgiAccessionToMP                             = new HashMap<>();
     private Map<String, List<EmbryoStrain>>        embryoRestData                               = null;
     private IndexerMap                             indexerMap                                   = new IndexerMap();
+    private Set<String> idgGenes=new HashSet<>();
 
 
     @PostConstruct
@@ -236,6 +237,11 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 		gene.setEmbryoModalities(embryoModalitiesForGene);
                 	}
 
+                }
+                
+                if(idgGenes.contains(gene.getMgiAccessionId())){
+                	gene.setIsIdgGene(true);
+                	System.out.println("setting idg gene");
                 }
 
                 if(genomicFeatureCoordinates!=null && genomicFeatureXrefs!=null){
@@ -617,7 +623,29 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         embryoRestData = indexerMap.populateEmbryoData(embryoViewerFilename);
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
+        idgGenes=this.populateIdgGeneList();
+        
     }
+
+
+	private Set<String> populateIdgGeneList() {
+
+		Set<String> idgGenes=new HashSet<>();
+		String queryString = "SELECT * FROM komp2.genes_secondary_project where secondary_project_id='idg'";
+
+      try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+          ResultSet resultSet = p.executeQuery();
+
+          while (resultSet.next()) {
+        	  idgGenes.add(resultSet.getString("acc"));
+          }
+          
+          }catch(Exception e){
+        	  e.printStackTrace();
+          }
+      System.out.println("idg gene list size is "+idgGenes.size());
+		return idgGenes;
+	}
 
 
 	private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
