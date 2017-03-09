@@ -320,6 +320,8 @@
 		<field name="seq_region_end" type="int" indexed="true" stored="true" multiValued="false"/>
 		<field name="xref" type="string" indexed="true" stored="true" multiValued="true"/>
 		<field name="embryo_modalities" type="string" indexed="true" stored="true" multiValued="true"/>
+		<field name="is_idg_gene" type="boolean" indexed="true" stored="true" multiValued="false"/>
+		
 
 
 	</fields>

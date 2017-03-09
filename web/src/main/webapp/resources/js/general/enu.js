@@ -27,7 +27,7 @@ jQuery(document).ready(	function() {
 		success: function (response) {
 			console.log("success response="+response.count);
                     if(response.count>0){
-			$('#enu').html('&nbsp&nbsp&nbsp<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId='+gene_id+'">ENU('+response.count+')</a>');
+			$('#enu').html('&nbsp&nbsp&nbsp<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId='+gene_id+'" title="Australian Phenomics Facility ENU point mutations database">ENU('+response.count+')</a>');
                     }else{
                         $('#enu').html('');
                     }

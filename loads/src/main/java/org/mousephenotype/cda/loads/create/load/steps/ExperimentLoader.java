@@ -84,6 +84,8 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
     // lookup maps returning specified parameter type list given cda procedure primary key
     private Map<String, Allele> allelesBySymbolMap;
+    
+    private final boolean INCLUDE_DERIVED_PARAMETERS = false;
 
 
     @Inject
@@ -163,16 +165,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private Map<String, Integer>                  cdaDb_idMap = new HashMap<>();
-    private Map<String, Integer>                  cdaOrganisation_idMap = new HashMap<>();
-    private Map<String, Integer>                  cdaProject_idMap = new HashMap<>();
-    private Map<String, Integer>                  cdaPipeline_idMap = new HashMap<>();
-    private Map<String, Integer>                  cdaProcedure_idMap = new HashMap<>();
-    private Map<String, Integer>                  cdaParameter_idMap = new HashMap<>();
-    private Map<String, String>                   cdaParameterNameMap = new HashMap<>();              // map of impress parameter names keyed by stable_parameter_id
-    private Set<String>                           requiredImpressParameters = new HashSet<>();
-    private Map<String, BiologicalSample>         samplesMap = new HashMap<>();                       // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
-    private Map<String, PhenotypedColony>         phenotypedColonyMap = new HashMap<>();
+    private Map<String, Integer>          cdaDb_idMap = new HashMap<>();
+    private Map<String, Integer>          cdaOrganisation_idMap = new HashMap<>();
+    private Map<String, Integer>          cdaProject_idMap = new HashMap<>();
+    private Map<String, Integer>          cdaPipeline_idMap                 = new HashMap<>();
+    private Map<String, Integer>          cdaProcedure_idMap                = new HashMap<>();
+    private Map<String, Integer>          cdaParameter_idMap                = new HashMap<>();
+    private Map<String, String>           cdaParameterNameMap               = new HashMap<>();              // map of impress parameter names keyed by stable_parameter_id
+    private Set<String>                   derivedImpressParameters          = new HashSet<>();
+    private Set<String>                   metadataAndDataAnalysisParameters = new HashSet<>();
+    private Map<String, BiologicalSample> samplesMap                        = new HashMap<>();                       // keyed by external_id and organisation_id (e.g. "mouseXXX_12345")
+    private Map<String, PhenotypedColony> phenotypedColonyMap               = new HashMap<>();
 
     // DCC parameter lookup maps, keyed by procedure_pk
     private Map<Long, List<MediaParameter>>       mediaParameterMap = new HashMap<>();
@@ -224,9 +227,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         cdaParameterNameMap = cdaSqlUtils.getCdaParameterNames();
         logger.info("loaded {} parameterName rows", cdaParameterNameMap.size());
 
-        requiredImpressParameters.clear();
-        requiredImpressParameters = cdaSqlUtils.getRequiredImpressParameters();
-        logger.info("loaded {} requiredImpressParameter rows", requiredImpressParameters.size());
+        derivedImpressParameters.clear();
+        derivedImpressParameters = cdaSqlUtils.getImpressDerivedParameters();
+        logger.info("loaded {} derivedImpressParameter rows", derivedImpressParameters.size());
+
+        metadataAndDataAnalysisParameters.clear();
+        metadataAndDataAnalysisParameters = cdaSqlUtils.getImpressMetadataAndDataAnalysisParameters();
+        logger.info("loaded {} requiredImpressParameter rows", metadataAndDataAnalysisParameters.size());
 
         samplesMap.clear();
         samplesMap = cdaSqlUtils.getBiologicalSamples();
@@ -471,6 +478,24 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             }
         }
 
+        // For EuroPhenome specimens only, the dcc appends the center name to the specimen id. We remove it here
+        // because 1)it is not useful, 2)moreso, it would be confusing when the centers tried to look up their specimens
+        // and couldn't find them because the specimen ids had the trailing center, and 3) we remove it in the specimenLoader.
+        if ((dccExperiment.getDatasourceShortName().equals(CdaSqlUtils.EUROPHENOME)) && (dccExperiment.getSpecimenId() != null)) {
+            String truncatedSpecimen = dccExperiment.getSpecimenId();
+            int    idx               = -1;
+            if (truncatedSpecimen.endsWith("_MRC_Harwell")) {
+                idx = truncatedSpecimen.lastIndexOf(("_MRC_Harwell"));
+            } else {
+                idx = truncatedSpecimen.lastIndexOf("_");
+            }
+
+            if (idx >= 0) {
+                truncatedSpecimen = truncatedSpecimen.substring(0, idx);
+                dccExperiment.setSpecimenId(truncatedSpecimen);
+            }
+        }
+
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
         if (projectPk == null) {
             missingProjects.add("Missing project '" + dccExperiment.getProject() + "'");
@@ -581,7 +606,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         for (ProcedureMetadata metadata : dccMetadataList) {
             String parameterName = cdaParameterNameMap.get(metadata.getParameterID());
             metadataCombinedList.add(parameterName + " = " + metadata.getValue());
-            if (requiredImpressParameters.contains(metadata.getParameterID())) {
+            if (metadataAndDataAnalysisParameters.contains(metadata.getParameterID())) {
                 metadataGroupList.add(parameterName + " = " + metadata.getValue());
             }
         }
@@ -662,7 +687,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         if (simpleParameterList == null)
             simpleParameterList = new ArrayList<>();
         for (SimpleParameter simpleParameter : simpleParameterList) {
-            insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
+            if (INCLUDE_DERIVED_PARAMETERS) {
+                insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
+            } else {
+                if ( ! derivedImpressParameters.contains(simpleParameter.getParameterID())) {
+                    insertSimpleParameter(dccExperiment, simpleParameter, experimentPk, dbId, biologicalSamplePk, missing);
+                }
+            }
         }
 
 
@@ -706,6 +737,15 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         for (SeriesParameter seriesParameter : seriesParameterList) {
             List<SeriesParameterValue> values = dccSqlUtils.getSeriesParameterValues(seriesParameter.getHjid());
             seriesParameter.setValue(values);
+
+            if (INCLUDE_DERIVED_PARAMETERS) {
+                insertSeriesParameter(dccExperiment, seriesParameter, experimentPk, dbId, biologicalSamplePk, missing);
+            } else {
+                if ( ! derivedImpressParameters.contains(seriesParameter.getParameterID())) {
+                    insertSeriesParameter(dccExperiment, seriesParameter, experimentPk, dbId, biologicalSamplePk, missing);
+                }
+            }
+
             insertSeriesParameter(dccExperiment, seriesParameter, experimentPk, dbId, biologicalSamplePk, missing);
         }
 
@@ -824,6 +864,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         String parameterStableId = simpleParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().toString());
+
         ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleParameter.getValue());
 
         String[] rawParameterStatus = commonUtils.parseImpressStatus(simpleParameter.getParameterStatus());
@@ -859,7 +900,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         if (missing == 0) {
             if ((value == null) || value.trim().isEmpty()) {
                 if ((simpleParameter.getParameterStatus() == null) || (simpleParameter.getParameterStatus().trim().isEmpty())) {
-                    if (requiredImpressParameters.contains(simpleParameter.getParameterID())) {
+                    if (metadataAndDataAnalysisParameters.contains(simpleParameter.getParameterID())) {
                         logger.warn("Experiment {} has null/empty value and status for required simpleParameter {}",
                                     dccExperiment, simpleParameter.getParameterID());
                     }
@@ -1178,7 +1219,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         String parameterStableId = ontologyParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = null;
-        ObservationType observationType = ObservationType.image_record;
+        ObservationType observationType = ObservationType.ontological;
         int populationId = 0;
 
         int observationPk;
