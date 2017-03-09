@@ -241,7 +241,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 
                 if(idgGenes.contains(gene.getMgiAccessionId())){
                 	gene.setIsIdgGene(true);
-                	System.out.println("setting idg gene");
                 }
 
                 if(genomicFeatureCoordinates!=null && genomicFeatureXrefs!=null){
