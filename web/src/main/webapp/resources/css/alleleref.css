@@ -32,13 +32,18 @@ table#alleleRef td:nth-child(4) {
 table#alleleRef td {
     font-size: 14px !important;
 }
-.hideMe {
-    display: none;
-}
-.alleleToggle {
+
+div.alleleToggle, div.meshTree {
     cursor: pointer;
     font-size: 11px;
     font-weight: bold;
+    border: 1px solid grey;
+    paddig: 0 3px;
+    margin: 5px 0;
+    width: 100px;
+    text-align: center;
+    border-radius: 4px;
+
 }
 div.saveTable {
     margin-top: -25px;
@@ -62,19 +67,27 @@ table.dataTable div.dataTables_length {
 div.innerData {
     padding: 0 0 0 10px;
     margin: 0;
+    width: 100%;
 }
 div.innerData p {
     padding: 0;
     margin: 0;
 }
-p.meshTerms {
+div.meshTerms {
     display: none;
 }
 p.author {
     font-weight: bold;
 }
-div.alleles, div.showMe {
-    display: inline;
+div.alleles {
+    width: 100%;
+    display:inline-block;
+}
+div.alleles, span.showMe {
+    display:inline-block;
+}
+.hideMe {
+    display: none;
 }
 ul.agency {
     margin: 0 0 0 50px;
