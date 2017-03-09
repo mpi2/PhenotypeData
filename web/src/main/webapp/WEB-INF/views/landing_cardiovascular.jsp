@@ -8,8 +8,7 @@
 
     <jsp:attribute name="title">${systemName} landing page | IMPC Phenotype Information</jsp:attribute>
 
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/landing">Landing
-        Pages</a> &nbsp;&raquo; ${systemName}</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/biological-system">Biological Systems</a> &nbsp;&raquo; ${systemName}</jsp:attribute>
 
     <jsp:attribute name="header">
         <!-- CSS Local Imports -->
@@ -104,7 +103,7 @@
                                 <svg id="chordDiagramSvg" width="960" height="960"></svg>
                                 <script>
                                     var mpTopLevelTerms = ["cardiovascular system phenotype"];
-                                    drawChords("chordDiagramSvg", "chordContainer", false, mpTopLevelTerms, false);
+                                    drawChords("chordDiagramSvg", "chordContainer", false, mpTopLevelTerms, false, null);
                                 </script>
                             </div>
                         </div>

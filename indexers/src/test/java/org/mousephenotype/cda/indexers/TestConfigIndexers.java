@@ -37,7 +37,7 @@ import java.util.Properties;
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class TestConfigIndexers {
 
-	@Value("http:${solrUrl}")
+	@Value("http:${solr_url}")
 	String solrBaseUrl;
 
 	// Required for spring-data-solr repositories
