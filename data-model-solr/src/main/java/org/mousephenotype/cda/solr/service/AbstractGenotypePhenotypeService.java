@@ -249,7 +249,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             String mpTermId = p.getValue().toString();
             String mpName = p.getPivot().get(0).getValue().toString();
             int count = p.getPivot().get(0).getCount();
-            list.add(new CountTableRow(mpName, mpId, count));
+            list.add(new CountTableRow(mpName, mpTermId, count));
         }
 
         return list;
