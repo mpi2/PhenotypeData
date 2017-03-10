@@ -139,7 +139,7 @@
                 tc.type = 'line';
                 tc.name = 'year';
                 tc.showInLegend = false;
-                    Object.keys(j.yearlyIncrease).sort().forEach(function (year, index) {
+                Object.keys(j.yearlyIncrease).sort().forEach(function (year, index) {
                     dp.push(j.yearlyIncrease[year]);
                     cat.push(year);
                     // tc.color = Highcharts.getOptions().colors[3];
@@ -190,19 +190,21 @@
                 var monthSeriesData = [];
                 var weekDrillDownSeriesData = [];
                 var monthTotal = 0;
-                Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function(yearmm, index) {
+                Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function (yearmm, index) {
                     var ymo = {};
                     var wo = {};
                     wo.name = yearmm;
+                    var parts = yearmm.split("-");
+                    var year = parts[0];
                     wo.id = yearmm;
                     wo.data = [];
                     var sum = 0;
-                    Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function(mmdd, index) {
+                    Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function (mmdd, index) {
                         var wc = [];
                         var weekCnt = j.paperMonthlyIncrementWeekDrilldown[yearmm][mmdd];
                         sum += weekCnt;
                         monthTotal += weekCnt;
-                        wc.push(mmdd);
+                        wc.push(year + "-" + mmdd);
                         wc.push(weekCnt)
                         wo.data.push(wc);
                     });
@@ -260,10 +262,10 @@
                     series: [{
                         name: 'month column',
                         colorByPoint: true,
-                        data : monthSeriesData
+                        data: monthSeriesData
                     }],
                     drilldown: {
-                        series : weekDrillDownSeriesData
+                        series: weekDrillDownSeriesData
                     }
                 });
 
@@ -273,19 +275,19 @@
                 var yearSeriesData = [];
                 var drillDownSeriesData = [];
                 var totalPapers = 0;
-                Object.keys(j.yearQuarterSum).sort().forEach(function(year, index) {
+                Object.keys(j.yearQuarterSum).sort().forEach(function (year, index) {
                     var yo = {};
                     var qo = {};
                     qo.name = year;
                     qo.id = year;
                     qo.data = [];
                     var sum = 0;
-                    Object.keys(j.yearQuarterSum[year]).sort().forEach(function(quarter, index) {
+                    Object.keys(j.yearQuarterSum[year]).sort().forEach(function (quarter, index) {
                         var qc = [];
                         var quarterCnt = j.yearQuarterSum[year][quarter];
                         sum += quarterCnt;
                         totalPapers += quarterCnt;
-                        qc.push(quarter);
+                        qc.push(year + " " + quarter);
                         qc.push(quarterCnt)
                         qo.data.push(qc);
                     });
@@ -343,10 +345,10 @@
                     series: [{
                         name: 'year column',
                         colorByPoint: true,
-                        data : yearSeriesData
+                        data: yearSeriesData
                     }],
                     drilldown: {
-                        series : drillDownSeriesData
+                        series: drillDownSeriesData
                     }
                 });
 
@@ -430,14 +432,14 @@
                         text: 'Grant agency funded IKMC/IMPC related publications'
                     },
                     subtitle: {
-                        text: 'Click the agency columns for yearly breakdown'
+                        // text: 'Click the agency columns for yearly breakdown'
                     },
                     xAxis: {
-                       //categories: agencyNames
-                       type: 'category',
-                       labels: {
-                           enabled: true
-                       }
+                        //categories: agencyNames
+                        type: 'category',
+                        labels: {
+                            enabled: true
+                        }
                     },
                     yAxis: {
                         title: {
@@ -453,7 +455,7 @@
                             pointWidth: 10,
                             dataLabels: {
                                 enabled: true,
-                               format: '{point.y}'
+                                format: '{point.y}'
                                 // formatter:function() {
                                 //     return this.value;
                                 // }
@@ -471,15 +473,23 @@
                         name: 'agency column',
                         colorByPoint: true,
                         data : agencyNumPaperSeries
-                    }],
-                    drilldown: {
-                        series : drillDownSeriesDataAgency,
-
-                    }
+                    }]
+                    // drilldown: {
+                    // got problem with drill up xAxis lable being wrong
+                    //     series : drillDownSeriesDataAgency,
+                    //
+                    // }
                 });
+
             }
+
         });
     }
+
+    function grantAgencyChart(j,totalPapers, chartGrantQuarter ){
+
+    }
+
 
 
 	// fetch paper data points for highCharts
