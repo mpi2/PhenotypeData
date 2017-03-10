@@ -160,7 +160,7 @@ The human curated gene set contains mouse gene orthologs to known genes causing 
 The <span class="ven_phenotype">IMPC phenotype</span> set contains all genes displaying ${systemName} phenotypes.
 Finally, the IMPC predicted or MGI predicted set contains predicted mouse gene candidates for ${systemName} diseases based on the phenotypic similarity of the disease clinical symptoms
 and the mouse phenotype annotations. As stated, the source of the mouse model phenotype is either <a href="http://www.informatics.jax.org/">Mouse Genome Informatics</a>, which is a curated set of mouse models
- from the literature, or IMPC produced mice. The phenotypic similarity is calculated using the <a href="https://www.mousephenotype.org/data/documentation/aboutImpc#howdoesimpcwork">PhenoDigm</a>
+ from the literature, or IMPC produced mice. The phenotypic similarity is calculated using the <a target="_blank" href="http://www.sanger.ac.uk/science/tools/phenodigm">PhenoDigm</a>
   algorithm developed by the Monarch Initiative which allows integration of data from model organisms to identify gene candidates for human genetic diseases.
 The complete dataset can be downloaded using the download icon.
 

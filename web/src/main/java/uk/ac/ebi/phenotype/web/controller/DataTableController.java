@@ -2456,7 +2456,7 @@ public class DataTableController {
 		return new ObjectMapper().writeValueAsString(fetchPmidData(pmid));
 	}
 
-	private String fetchMeshTermsByPmid(Integer pmid) {
+	private String fetchMeshTermsByPmid(Integer pmid) throws SQLException {
 
 		List<String> pmidQryStr = new ArrayList<>();
 		pmidQryStr.add("ext_id:" + pmid);
@@ -2760,7 +2760,6 @@ public class DataTableController {
 		String orderByStr = jParams.getString("orderBy");
 
 		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr);
-		//System.out.println("content: " + content);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
@@ -2940,7 +2939,7 @@ public class DataTableController {
 	}
 
 	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr) throws SQLException, UnsupportedEncodingException {
-		final int DISPLAY_THRESHOLD = 4;
+		final int DISPLAY_THRESHOLD = 5;
 		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr);
 
 		JSONObject j = new JSONObject();
@@ -2951,65 +2950,46 @@ public class DataTableController {
 		for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
 
 			List<String> rowData = new ArrayList<>();
-			Map<String,String> alleleSymbolinks = new LinkedHashMap<String,String>();
-			List<String> alLinks = new ArrayList<>();
+			List<String> alleleSymbolinks = new ArrayList<>();
+
+			int totalAlleleCount = 0;
 
 			if (reference.getAlleleAccessionIds() != null) {
 
-				// show max of 50 alleles for a paper
-				int alleleAccessionIdCount = reference.getAlleleAccessionIds().size() > 50 ? 50 : reference.getAlleleAccessionIds().size();
+				totalAlleleCount = reference.getAlleleAccessionIds().size();
+				// show max of 10 alleles for a paper
+				int showCount = totalAlleleCount > DISPLAY_THRESHOLD ? DISPLAY_THRESHOLD : totalAlleleCount;
 
-				for (int i = 0; i < alleleAccessionIdCount; i++) {
+				for (int i = 0; i < totalAlleleCount; i++) {
 					String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
 
-					if (symbol.equals("N/A")){
+					if (symbol.equals("N/A")) {
 						continue;
 					}
 
-					String alleleLink;
-					//String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 					String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 
 					if (reference.getImpcGeneLinks() != null && reference.getImpcGeneLinks().size() != 0) {
 
+						String alleleLink = null;
 						if (i < reference.getImpcGeneLinks().size()) {
-							alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
+							alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></span>";
 						} else {
 							if (i > 0) {
-								alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></div>";
+								alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></span>";
 							} else {
-								alleleLink = alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
+								alleleLink = "<span " + cssClass + ">" + symbol + "</span>";
 							}
 						}
 
-						alleleSymbolinks.put(symbol, alleleLink);
+						alleleSymbolinks.add(alleleLink);
 					}
 					else {
 						// some allele id does not associate with a gene id in database yet
-						alleleSymbolinks.put(symbol, symbol);
+						alleleSymbolinks.add("<span " + cssClass + ">" + symbol + "</span>");
 					}
-				}
-
-				if (alleleSymbolinks.size() > 5) {
-					int num = alleleSymbolinks.size();
-					int totalNum = reference.getAlleleAccessionIds().size();
-					if (totalNum > num) {
-						alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show " + num + " of " + totalNum + " alleles...</div>");
-					} else {
-						alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
-					}
-				}
-
-				Iterator it = alleleSymbolinks.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry pair = (Map.Entry) it.next();
-					alLinks.add(pair.getValue().toString());
-					it.remove(); // avoids a ConcurrentModificationException
 				}
 			}
-//			else {
-//				alLinks.add("Not available");
-//			}
 
 			int pmid = reference.getPmid();
 			List<String> paperLinks = new ArrayList<>();
@@ -3076,8 +3056,12 @@ public class DataTableController {
 			rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
 			rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
 			rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
-			if ( alLinks.size() > 0) {
-				rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alLinks, ", ") + "</div>");
+
+			if (alleleSymbolinks.size() > 0){
+				if (totalAlleleCount > DISPLAY_THRESHOLD) {
+					alleleSymbolinks.add("<div class='alleleToggle' rel=" + alleleSymbolinks.size() + ">Show all " + alleleSymbolinks.size() + " alleles</div>");
+				}
+				rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alleleSymbolinks, "&nbsp;&nbsp;&nbsp;&nbsp;") + "</div>");
 			}
 
 			List<String> agencyList = new ArrayList();
@@ -3097,9 +3081,15 @@ public class DataTableController {
 			if (agencyList.size() >0) {
 				rowData.add("<p>Grant agency: " + StringUtils.join(agencyList, ", ") + "</p>");
 			}
+
+
 			// hidden in datatable: mesh terms
-			String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
-			rowData.add("<p class='meshTerms'>" + meshTerms + "</p>");
+			if (! (reference.getMeshTerms().size() == 1 && reference.getMeshTerms().get(0).isEmpty())) {
+				String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
+				rowData.add("<div class='meshTree'>Show mesh terms</div><div class='meshTerms'>" + meshTerms + "</div>");
+				//rowData.add("<span class='meshTree'>Show mesh tree</span><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div>");
+				//rowData.add("<div class='meshTree'>Show mesh tree</div><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div><div class='meshTreeDiv'></div>");
+			}
 
 			if (rowFormat){
 				// single column
@@ -3112,6 +3102,7 @@ public class DataTableController {
 
 		}
 
+//		System.out.println(j.toString());
 		return j.toString();
 	}
 

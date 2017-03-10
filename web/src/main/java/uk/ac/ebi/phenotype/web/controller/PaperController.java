@@ -73,6 +73,19 @@ public class PaperController {
 	private GenomicFeatureDAO genesDao;
 
 
+	@RequestMapping(value = "/fetchMeshMapping", method = RequestMethod.GET)
+	public @ResponseBody
+	String gettopmeshmapping(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException, SQLException {
+
+		String html = fetchMeshToTopMeshMapping();
+
+		return html;
+	}
+
+
     // allele ref data points: number grouped by year at start of month
 	@RequestMapping(value = "/fetchPaperStats", method = RequestMethod.GET)
 	public @ResponseBody
@@ -82,6 +95,26 @@ public class PaperController {
 			Model model) throws IOException, URISyntaxException, SQLException {
 
 		return fetchPaperStats(); // json string
+	}
+
+	public String fetchMeshToTopMeshMapping() throws SQLException {
+		Connection conn = admintoolsDataSource.getConnection();
+
+		String sql = "SELECT top_mesh, number_mapped_mesh, number_mapped_pmid FROM paperMeshTopmesh";
+		PreparedStatement p = conn.prepareStatement(sql);
+		ResultSet resultSet = p.executeQuery();
+
+		String th = "<thead><th>Top level mesh term</th><th>No. mapped mesh terms</th><th>No. publications</th></thead>";
+		String trs = "";
+		while (resultSet.next()) {
+			String top_mesh = resultSet.getString("top_mesh");
+			int number_mapped_mesh = resultSet.getInt("number_mapped_mesh");
+			int number_mapped_pmid = resultSet.getInt("number_mapped_pmid");
+
+			trs += "<tr><td>" + top_mesh + "</td><td>" + number_mapped_mesh + "</td><td>" + number_mapped_pmid + "</td></tr>";
+		}
+		return "<table id='mesh'>" + th + trs + "</table>";
+
 	}
 
     public String fetchPaperStats() throws SQLException {
@@ -225,7 +258,6 @@ public class PaperController {
 
 			Map<String, Map<String, String>> agencyPmidYear = new HashMap<>();
 
-
 			while (resultSetAgent.next()) {
 				String year = resultSetAgent.getString("yyyy");
 				String agencies = resultSetAgent.getString("agency");
@@ -245,34 +277,25 @@ public class PaperController {
 				}
 			}
 
+
+			// a map with number of papers as key and list of agency as values: for sorting purpose
+			Map<String, List<String>> numAgency = new HashedMap();
+			Iterator itAg = agencyPmidYear.entrySet().iterator();
+			while (itAg.hasNext()) {
+				Map.Entry pair = (Map.Entry) itAg.next();
+				String ag = pair.getKey().toString();
+				Map<String, String> pmidYear = (Map<String, String>) pair.getValue();
+				String pmidCount = String.valueOf(pmidYear.keySet().size());
+
+				if (! numAgency.containsKey(pmidCount)) {
+					numAgency.put(pmidCount, new ArrayList<String>());
+				}
+				numAgency.get(pmidCount).add(ag);
+				//itAg.remove();
+			}
+
 			dataJson.put("agencyPmidYear", agencyPmidYear);
-
-//			Map<String, Integer> agentPmidCount = new HashedMap();
-//			//Map<String, >
-//			Iterator itAgent = agencyPmidYear.entrySet().iterator();
-//			while (itAgent.hasNext()) {
-//				Map.Entry pair = (Map.Entry) itAgent.next();
-//				String agent = pair.getKey().toString();
-//				Map<Integer, String> pmidMap = (Map<Integer, String>) pair.getValue();
-//
-//				agentPmidCount.put(agent, pmidMap.keySet().size());
-//
-//				Map<String, Map<>>
-//				Iterator itAgent2 = pmidMap.entrySet().iterator();
-//				while (itAgent2.hasNext()) {
-//					Map.Entry pair2 = (Map.Entry) itAgent2.next();
-//					Integer pmid = (Integer) pair2.getKey();
-//					String year = pair2.getValue().toString();
-//
-//
-//					itAgent2.remove();
-//				}
-//				System.out.println(agent + " pmids: " + pmidMap.keySet());
-//				System.out.println("");
-//				itAgent.remove();
-//			}
-
-			//System.out.println(agencyPmidYear.keySet());
+			dataJson.put("numAgency", numAgency);
 
 			//-----------------------------------------------------------
 			// line data: monthly paper increase by year of publication
@@ -574,8 +597,8 @@ public class PaperController {
 
 		// make sure do not insert duplicate pmid
 		PreparedStatement insertStatement = conn.prepareStatement("INSERT IGNORE INTO allele_ref "
-				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh, author) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
+				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh, meshtree, author) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)");
 
 		String status = "";
 		String failStatus = "";
@@ -685,7 +708,7 @@ public class PaperController {
 		//System.out.println("param: "+idAlleleStr);
 		for( String pmidAlleleStr : pmidAlleleStrs) {
 
-			System.out.println("pmidAlleleStr: " + pmidAlleleStr);
+			//System.out.println("pmidAlleleStr: " + pmidAlleleStr);
 			List<String> alleles = new ArrayList<>();
 			List<String> pmidQrys = new ArrayList<>();
 
@@ -906,8 +929,10 @@ public class PaperController {
 				mterms.add(mt.meshHeading + " " + mq);
 			}
 		}
+
 		insertStatement.setString(17, mterms.size() > 0 ? StringUtils.join(mterms, delimiter) : "");
-		insertStatement.setString(18, pub.getAuthor());
+		insertStatement.setString(18, mterms.size() > 0 ? pub.getMeshJsonStr() : "");
+		insertStatement.setString(19, pub.getAuthor());
 
 		try {
 			int count = insertStatement.executeUpdate();
@@ -922,7 +947,28 @@ public class PaperController {
 
 	}
 
-	public Map<Integer, Pubmed> fetchEuropePubmedData(List<String> pmidQrys){
+	public String fetchTopLevelMesh(String mesh) throws SQLException {
+		String query = "SELECT top_mesh from mesh_mapping where mesh_heading = ?";
+		String topmesh = null;
+
+		try {
+			Connection connection = admintoolsDataSource.getConnection();
+			PreparedStatement p = connection.prepareStatement(query);
+
+			p.setString(1, mesh);
+
+			ResultSet r = p.executeQuery();
+			while (r.next()) {
+				topmesh = r.getString("top_mesh");
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+
+		return topmesh;
+	}
+
+	public Map<Integer, Pubmed> fetchEuropePubmedData(List<String> pmidQrys) throws SQLException {
 
 		Map<Integer, Pubmed> pubmeds = new HashMap<>();
 
@@ -1034,11 +1080,14 @@ public class PaperController {
 
 				// mesh terms
 				List<MeshTerm> meshTerms = new ArrayList<>();
+				JSONArray meshHeadings_modified = new JSONArray();
 
 				if ( r.containsKey("meshHeadingList") ){
 					JSONArray meshHeadings = r.getJSONObject("meshHeadingList").getJSONArray("meshHeading");
 					for ( int mh=0; mh<meshHeadings.size(); mh++ ){
 						JSONObject thisMeshHeading = (JSONObject) meshHeadings.get(mh);
+						JSONObject thisMeshHeading_modified = new JSONObject();
+
 						MeshTerm mt  = new MeshTerm();
 						//System.out.println(thisMeshHeading.toString());
 
@@ -1046,28 +1095,40 @@ public class PaperController {
 						mt.setMeshHeading("");
 						if ( thisMeshHeading.containsKey("descriptorName") ){
 							mt.setMeshHeading(thisMeshHeading.getString("descriptorName"));
+
+							String topMeshTerm = fetchTopLevelMesh(mt.meshHeading);
+							thisMeshHeading_modified.put("text", mt.meshHeading + "(<span class='topmesh'>" + topMeshTerm + "</span>)");
 						}
 
 						// mesh subheading
 						mt.setMeshQualifiers(new ArrayList<>());
 						if ( thisMeshHeading.containsKey("meshQualifierList") ) {
 							JSONArray meshQualifiers= thisMeshHeading.getJSONObject("meshQualifierList").getJSONArray("meshQualifier");
+							JSONArray meshQualifiers_modified = new JSONArray();
+
 							for (int mq = 0; mq < meshQualifiers.size(); mq++) {
 								JSONObject thisMeshQualifier = (JSONObject) meshQualifiers.get(mq);
 								if ( thisMeshQualifier.containsKey("qualifierName") ){
 									String qf = thisMeshQualifier.getString("qualifierName");
+
+									JSONObject thisMeshQualifier_modified = new JSONObject();
+									thisMeshQualifier_modified.put("text", qf);
+									meshQualifiers_modified.add(thisMeshQualifier_modified);
+
 									if ( ! mt.getMeshQualifiers().contains(qf)) {
 										mt.getMeshQualifiers().add(qf);
 									}
 								}
 							}
+							thisMeshHeading_modified.put("children", meshQualifiers_modified);
 						}
 
+						meshHeadings_modified.add(thisMeshHeading_modified);
 						meshTerms.add(mt);
 					}
 				}
 				pub.setMeshTerms(meshTerms);
-
+				pub.setMeshJsonStr(meshHeadings_modified.toString());
 				pub.setAuthor(r.getString("authorString"));
 			}
 		}
@@ -1147,6 +1208,7 @@ public class PaperController {
 		List<Grant> grants;
 		List<Paperurl> paperurls;
 		List<MeshTerm> meshTerms;
+		String meshJsonStr;
 		String geneAccs;
 		String alleleAccs;
 		String alleleSymbols;
@@ -1249,6 +1311,14 @@ public class PaperController {
 			this.author = author;
 		}
 
+		public String getMeshJsonStr() {
+			return meshJsonStr;
+		}
+
+		public void setMeshJsonStr(String meshJsonStr) {
+			this.meshJsonStr = meshJsonStr;
+		}
+
 		@Override
 		public String toString() {
 			return "Pubmed{" +
@@ -1259,6 +1329,7 @@ public class PaperController {
 					", grants=" + grants +
 					", paperurls=" + paperurls +
 					", meshTerms=" + meshTerms +
+					", meshJsonStr='" + meshJsonStr + '\'' +
 					", geneAccs='" + geneAccs + '\'' +
 					", alleleAccs='" + alleleAccs + '\'' +
 					", alleleSymbols='" + alleleSymbols + '\'' +
