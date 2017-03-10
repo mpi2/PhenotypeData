@@ -17,6 +17,9 @@
     <br/> <br/>
     <div class="HomepageTable" id="alleleRef"></div>
 
+    <script type='text/javascript' src='${baseUrl}/js/vendor/jquery/jquery.highlight.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/utils/dataTables.searchHighlight.min.js'></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
 

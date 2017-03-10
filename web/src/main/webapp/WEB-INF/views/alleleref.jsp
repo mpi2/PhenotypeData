@@ -11,6 +11,7 @@
         <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
         <%--<link href="${baseUrl}/css/default.css" rel="stylesheet" />--%>
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
+        <link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jstree.min.css"/>
 
         <style>
 
@@ -74,6 +75,7 @@
                 clear: both;
             }
 
+
          </style>
 
         <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>--%>
@@ -84,6 +86,7 @@
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/data.js"></script>
         <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+        <script type="text/javascript" src='${baseUrl}/js/vendor/jstree/jstree.min.js'></script>
 
 
         <script type='text/javascript'>
@@ -135,8 +138,8 @@
 
         </script>
 
-        <script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>
-        <script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>
+        <script type='text/javascript' src='${baseUrl}/js/vendor/jquery/jquery.highlight.js'></script>
+        <script type='text/javascript' src='${baseUrl}/js/utils/dataTables.searchHighlight.min.js'></script>
         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
 
     </jsp:attribute>
