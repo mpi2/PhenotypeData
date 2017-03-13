@@ -57,14 +57,6 @@
             <version>2.1.5</version>
         </dependency>
 
-
-        <!-- JAXB dependency is needed for Uniprot parsing on gene summary -->
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.1</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
