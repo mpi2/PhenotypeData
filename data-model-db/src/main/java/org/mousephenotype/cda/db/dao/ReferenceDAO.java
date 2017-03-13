@@ -53,7 +53,8 @@ public class ReferenceDAO {
         + "\tGrant id"
         + "\tGrant agency"
         + "\tPaper link"
-        + "\tMesh term";
+        + "\tMesh term"
+        + "\tConsortium paper";
 
     @Autowired
     @Qualifier("admintoolsDataSource")
@@ -96,7 +97,7 @@ public class ReferenceDAO {
      * @throws SQLException
      */
     public List<ReferenceDTO> getReferenceRows() throws SQLException {
-        return getReferenceRows("");
+        return getReferenceRows();
     }
 
     /**
@@ -113,7 +114,7 @@ public class ReferenceDAO {
      *
      */
 
-    public List<ReferenceDTO> getReferenceRows(String filter, String orderBy) throws SQLException {
+    public List<ReferenceDTO> getReferenceRows(String filter, String orderBy, Boolean consortium) throws SQLException {
         Connection connection = admintoolsDataSource.getConnection();
         // need to set max length for group_concat() otherwise some values would get chopped off !!
 //    	String gcsql = "SET SESSION GROUP_CONCAT_MAX_LEN = 100000000";
@@ -153,19 +154,20 @@ public class ReferenceDAO {
                     + " OR (" +  StringUtils.join(meshLikes, " OR ") + "))\n";
         }
 
-        String whereClause =
-            "WHERE\n"
+        String whereClause = "";
+
+        if (consortium){
+            whereClause = "WHERE consortium_paper='yes' ";
+        }
+        else {
+            whereClause = "WHERE\n"
                     + " reviewed = 'yes'\n"
                     + " AND falsepositive = 'no'"
-                    + " AND symbol != ''\n"
-
-                    // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
-                    // + " AND gacc != ''\n"
-                    // + " AND acc != ''\n"
+                    + " AND symbol != '' "
                     + notInClause
                     + searchClause;
+        }
 
-        //    + " AND pmid=24652767 "; // for test
         String query =
             "SELECT\n"
                     + "  symbol AS alleleSymbols\n"
@@ -186,12 +188,13 @@ public class ReferenceDAO {
                     + ", mesh\n"
                     + ", meshtree\n"
                     + ", author\n"
+                    + ", consortium_paper\n"
                     + "FROM allele_ref AS ar\n"
                     + whereClause
                     //+ "GROUP BY pmid\n"
                     + "ORDER BY " + orderBy + "\n";
 
-        //System.out.println("alleleRef query: " + query);
+        System.out.println("alleleRef query: " + query);
         List<ReferenceDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -243,6 +246,7 @@ public class ReferenceDAO {
                 referenceRow.setMeshJsonStr(resultSet.getString("meshtree"));
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setAuthor(resultSet.getString("author"));
+                referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
 
                 results.add(referenceRow);
             }
@@ -274,7 +278,7 @@ public class ReferenceDAO {
         return count;
     }
 
-    public List<ReferenceDTO> getReferenceRows(String filter) throws SQLException {
+    public List<ReferenceDTO> getReferenceRows(String filter, Boolean consortium) throws SQLException {
 
     	Connection connection = admintoolsDataSource.getConnection();
     	// need to set max length for group_concat() otherwise some values would get chopped off !!
@@ -326,17 +330,23 @@ public class ReferenceDAO {
             }
         }
 
-        String whereClause =
-                "WHERE\n"
-              + " reviewed = 'yes'\n"
-              + " AND falsepositive = 'no'"
-              + " AND symbol != ''\n"
+        String whereClause = "";
 
-             // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
-             // + " AND gacc != ''\n"
-             // + " AND acc != ''\n"
-              + notInClause
-              + searchClause;
+        if (consortium) {
+            whereClause = "WHERE consortium_paper='yes' ";
+        }
+        else {
+            whereClause = "WHERE\n"
+                    + " reviewed = 'yes'\n"
+                    + " AND falsepositive = 'no'"
+                    + " AND symbol != ''\n"
+
+                    // some paper are forced to be reviewed although no gacc and acc is known, but symbol will have been set as "Not available"
+                    // + " AND gacc != ''\n"
+                    // + " AND acc != ''\n"
+                    + notInClause
+                    + searchClause;
+        }
 
                     //    + " AND pmid=24652767 "; // for test
         String query =
@@ -358,6 +368,7 @@ public class ReferenceDAO {
               + ", paper_url AS paperUrls\n"
               + ", mesh\n"
               + ", meshtree\n"
+              + ", consortium_paper\n"
               + "FROM allele_ref AS ar\n"
               + whereClause
               //+ "GROUP BY pmid\n"
@@ -416,6 +427,7 @@ public class ReferenceDAO {
                 referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
                 referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
                 referenceRow.setMeshJsonStr(resultSet.getString("meshtree"));
+                referenceRow.setConsortiumPaper(resultSet.getString("consortium_paper"));
 
                 results.add(referenceRow);
             }

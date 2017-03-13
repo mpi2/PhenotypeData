@@ -2501,7 +2501,7 @@ public class DataTableController {
 		String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, datasource=?, falsepositive=?, mesh=?, meshtree=?, consortium_paper=? WHERE dbid=?";
 
 		// when symbol is set to be empty, reviewed should have been set to "yes" by curator
-		if (reviewed.equals("yes") && alleleSymbol.isEmpty()) {
+		if (reviewed.equals("yes") && (alleleSymbol.isEmpty() || alleleSymbol.equals("N/A"))) {
 			alleleSymbol = NA;
 			updatePaper(conn, updateSql, "", "", alleleSymbol, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
 			j.put("reviewed", "yes");
@@ -2765,7 +2765,7 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
-		//System.out.println("params: " + params);
+		System.out.println("params: " + params);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 
@@ -2774,8 +2774,9 @@ public class DataTableController {
 		String searchKw = jParams.getString("kw");
 		Boolean rowFormat = jParams.getBoolean("rowFormat");
 		String orderByStr = jParams.getString("orderBy");
+		Boolean consortium = jParams.containsKey("consortium") ? jParams.getBoolean("consortium") : false;
 
-		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr);
+		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr, consortium);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
@@ -2961,9 +2962,9 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr) throws SQLException, UnsupportedEncodingException {
+	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr, Boolean consortium) throws SQLException, UnsupportedEncodingException {
 		final int DISPLAY_THRESHOLD = 5;
-		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr);
+		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr, consortium);
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
@@ -3131,7 +3132,7 @@ public class DataTableController {
 
 	public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException, UnsupportedEncodingException {
 		final int DISPLAY_THRESHOLD = 4;
-		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
+		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, false);
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
