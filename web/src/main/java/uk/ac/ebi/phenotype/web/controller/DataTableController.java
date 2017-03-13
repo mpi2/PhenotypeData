@@ -2765,7 +2765,7 @@ public class DataTableController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
-		System.out.println("params: " + params);
+		//System.out.println("params: " + params);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
 
