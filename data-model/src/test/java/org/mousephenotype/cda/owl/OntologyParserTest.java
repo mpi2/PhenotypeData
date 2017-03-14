@@ -131,7 +131,7 @@ public class OntologyParserTest {
         for (File file : owlFiles) {
             prefix = file.getName().replace(".owl", "").toUpperCase();
             try {
-                ontologyParser = new OntologyParser(file.getPath(), prefix);
+                ontologyParser = new OntologyParser(file.getPath(), prefix, null);
             } catch (Exception e) {
                 message = "[FAIL - " + prefix + "] Exception in " + file.getPath() + "(" + prefix + "): " + e.getLocalizedMessage();
                 exception.add(e);
@@ -157,7 +157,7 @@ public class OntologyParserTest {
     @Test
     public void testEFO()  throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("efo").target, downloads.get("efo").name);
+        ontologyParser = new OntologyParser(downloads.get("efo").target, downloads.get("efo").name, null);
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Expected at least one term.", terms.isEmpty());
     }
@@ -168,7 +168,7 @@ public class OntologyParserTest {
 
         System.out.println("target: " + downloads.get("mphp").target);
         System.out.println("name:   " + downloads.get("mphp").name);
-        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name);
+        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
 
         Set<String> narrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
@@ -189,7 +189,7 @@ public class OntologyParserTest {
     @Test
     public void testEquivalent() throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name);
+        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null);
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Term list is empty!", terms.isEmpty());
 
@@ -210,7 +210,7 @@ public class OntologyParserTest {
     @Test
     public void testReplacementOptions() throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name);
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null);
 
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
@@ -247,11 +247,36 @@ public class OntologyParserTest {
     @Test
     public void testGetClassAncestors() throws Exception{
 
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name);
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null);
         Set<String> wantedIds = new HashSet<>();
         wantedIds.add("MP:0008901");
         Set<String> termsInSlim = ontologyParser.getTermsInSlim(wantedIds, null);
         Assert.assertTrue(termsInSlim.size() == 7);
 
     }
+
+
+    @Test
+    public void testParentInfo() throws Exception{
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null);
+        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
+        Assert.assertTrue(term.getParentIds().contains("MP:0000003"));
+        Assert.assertTrue(term.getParentIds().size() == 1);
+        Assert.assertTrue(term.getParentNames().size() == 1);
+
+    }
+
+    @Test
+    public void testChildInfo() throws Exception{
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null);
+        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
+        Assert.assertTrue(term.getChildIds().contains("MP:0010024"));
+        System.out.println("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
+        Assert.assertTrue(term.getChildIds().size() == 3);
+        Assert.assertTrue(term.getChildNames().size() == 3);
+
+    }
+
 }
