@@ -28,6 +28,7 @@ public class OntologyParser {
     ArrayList<OWLAnnotationProperty> SYNONYM_ANNOTATION;
     ArrayList<OWLAnnotationProperty> DEFINITION_ANNOTATION;
     Set<OWLPropertyExpression> PART_OF;
+    Map<String, Set<OWLClass>> ancestorsCache;
 
     private Map<String, OntologyTermDTO> termMap = new HashMap<>(); // OBO-style ids because that's what we index.
     private Set<String> termsInSlim; // <ids of classes on slim>
@@ -133,6 +134,7 @@ public class OntologyParser {
         TERM_REPLACED_BY = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001"));
 
         ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
+        ancestorsCache = new HashMap<>();
 
     }
 
@@ -288,6 +290,9 @@ public class OntologyParser {
         }
         term = addChildrenInfo(cls, term);
         term = addParentInfo(cls, term);
+        //TODO
+//        term = addIntermediateInfo(cls, term);
+//        term = addTopLevelInfo(cls, term);
         return term;
     }
 
@@ -351,7 +356,7 @@ public class OntologyParser {
             if (wantedIDs.contains(getIdentifierShortForm(cls))) {
                 if (startsWithPrefix(cls, prefix)) {
                     classesInSlim.add(getIdentifierShortForm(cls));
-                    classesInSlim.addAll(getClassAncestors(cls, null, classesInSlim));
+                    classesInSlim.addAll(getClassAncestors(cls, null).stream().map(item -> {return getIdentifierShortForm(item);}).collect(Collectors.toSet()));
                 }
             }
         }
@@ -363,13 +368,39 @@ public class OntologyParser {
     }
 
 
-    // TODO run reasoner on ontology first
-    private Set<String> getClassAncestors(OWLClass cls, Set<String> prefixes, Set<String> ancestorIds){
+    /**
+     *
+     * @param cls
+     * @param prefixes
+     * @return
+     */
+    private Set<OWLClass> getClassAncestors(OWLClass cls, Set<String> prefixes){
 
-       Collection<OWLClassExpression> superClasses = EntitySearcher.getSuperClasses(cls, ontology);
-       for(OWLClassExpression superClass : superClasses){
+        if( ancestorsCache.containsKey(getIdentifierShortForm(cls))){
+            return ancestorsCache.get(getIdentifierShortForm(cls));
+        }
+        Set<OWLClass> ancestorIds = new HashSet<>();
+        ancestorIds.addAll(getClassAncestors(cls, prefixes, ancestorIds));
+        ancestorsCache.put(getIdentifierShortForm(cls), ancestorIds);
+
+        return ancestorIds;
+    }
+
+
+    // TODO run reasoner on ontology first
+    /**
+     * This is the recursive method, use the other one as it caches results too
+     * @param cls
+     * @param prefixes
+     * @param ancestorIds
+     * @return
+     */
+    private Set<OWLClass> getClassAncestors(OWLClass cls, Set<String> prefixes, Set<OWLClass> ancestorIds){
+
+        Collection<OWLClassExpression> superClasses = EntitySearcher.getSuperClasses(cls, ontology);
+        for(OWLClassExpression superClass : superClasses){
             if (superClass.isClassExpressionLiteral()){
-                ancestorIds.add(getIdentifierShortForm(superClass.asOWLClass()));
+                ancestorIds.add(superClass.asOWLClass());
                 getClassAncestors (superClass.asOWLClass(), prefixes, ancestorIds);
             } else {
                 //TODO test part_of too
@@ -377,7 +408,7 @@ public class OntologyParser {
                     OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) superClass;
                     if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
                         if (svf.getFiller() instanceof OWLNamedObject){
-                            ancestorIds.add(getIdentifierShortForm(svf.getFiller().asOWLClass()));
+                            ancestorIds.add(svf.getFiller().asOWLClass());
                             getClassAncestors (svf.getFiller().asOWLClass(), prefixes, ancestorIds);
                         }
                     }
@@ -409,6 +440,22 @@ public class OntologyParser {
         }
         return  term;
     }
+
+    // TODO
+//    private OntologyTermDTO addTopLevelInfo (OWLClass cls, OntologyTermDTO term ){
+//
+//        Set<String> localTopLevelIs = new HashSet<>(topLevelIds); // make a copy so retainAll doesn't modify original
+//        localTopLevelIs.retainAll(ancestorsCache.get(getIdentifierShortForm(cls)));
+//        term.setToplevelIds(localTopLevelIs);
+//
+//        // Set terms too
+//        for (String id: localTopLevelIs){
+//            xsadasdef
+//        }
+//
+//        return term;
+//
+//    }
 
     /**
      * @param term
