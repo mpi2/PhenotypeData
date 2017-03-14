@@ -1706,5 +1706,20 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	public String getServiceName(){
 		return "statistical result service";
 	}
+	
+	public boolean allDocumentsHaveTopLevelMp() throws SolrServerException, IOException {
+		//q=-top_level_mp_term_id:*&fq=status:Success&fq=-procedure_stable_id:IMPC_VIA_001&fq=-procedure_stable_id:IMPC_FER*&fq=+statistical_method:"Reference%20Ranges%20Plus%20framework"&fq=mp_term_id_options:*
+		SolrQuery query = new SolrQuery();
+		query.setQuery("-top_level_mp_term_id:*").addFilterQuery("status:Success").addFilterQuery("-procedure_stable_id:IMPC_VIA_001").addFilterQuery("-procedure_stable_id:IMPC_FER*").addFilterQuery("mp_term_id_options:*").setRows(0);
+		QueryResponse response = solr.query(query);
+		System.out.println("query in allDocumentsHaveTopLevelmp="+query);
+		long numberFound=response.getResults().getNumFound();
+		System.out.println("number of documents in SR core without a top level mp="+numberFound);
+		if(response.getResults().getNumFound()>0){
+			return false;
+		}
+		return true;
+	
+	}
 
 }
