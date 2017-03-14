@@ -123,10 +123,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private static Connection ontoDbConnection;
 
     // Maps of supporting database content
-    Map<String, List<MPHPBean>> mphpBeans;
     Map<String, List<Integer>> termNodeIds;
 
-    Map<String, List<String>> ontologySubsets;
     Map<String, List<String>> goIds;
 
     // MA Term mappings
@@ -267,9 +265,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setSearchTermJson(searchTree.toString());
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
                 mp.setScrollNode(scrollNodeId);
-                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
-                mp.setChildrenJson(childrenTree.toString());
-
+                //TODO add child json back, from OntologyParser
+//                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
+//                mp.setChildrenJson(childrenTree.toString());
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
@@ -509,9 +507,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try {
             // Grab all the supporting database content
-            mphpBeans = getMPHPBeans();
             termNodeIds = getNodeIds();
-            ontologySubsets = getOntologySubsets();
             goIds = getGOIds();
 
             // MA Term mappings
@@ -537,37 +533,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    private Map<String, List<MPHPBean>> getMPHPBeans()
-    throws IndexerException {
-
-        Map<String, List<MPHPBean>> beans = new HashMap<>();
-        int count;
-
-        try {
-            SolrQuery query = new SolrQuery("*:*");
-            query.addFilterQuery("type:mp_hp");
-            //query.setFields("mp_id", "hp_id", "hp_term", "hp_synonym");
-            query.setFields("mp_id", "hp_id", "hp_term");
-            query.setRows(5000);
-
-            QueryResponse response = phenodigmCore.query(query);
-            List<MPHPBean> docs = response.getBeans(MPHPBean.class);
-            count = 0;
-            for (MPHPBean doc : docs) {
-                if ( ! beans.containsKey(doc.getMpId())) {
-                    beans.put(doc.getMpId(), new ArrayList<MPHPBean>());
-                }
-                beans.get(doc.getMpId()).add(doc);
-                count ++;
-            }
-        } catch (SolrServerException | IOException e) {
-            throw new IndexerException(e);
-        }
-
-        logger.debug(" Added {} mphp records", count);
-
-        return beans;
-    }
 
     private Map<String, List<Integer>> getNodeIds()
     throws SQLException {
