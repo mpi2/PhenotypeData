@@ -662,8 +662,10 @@ protected void addAbnormalEmapOntology(){
                 mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
             }
 
-            MPIndexer.addTopLevelNodes(mp, mpOntologyService);
-            MPIndexer.addIntermediateLevelNodes(mp, mpOntologyService);
+			//TODO use ontologyParser. Put null so it fails and I remember to fix it.
+            MPIndexer.addTopLevelTerms(mp,  null);
+            // TODO sort intermediate terms too with ontologyparser
+            //MPIndexer.add(mp, null);
 
             map.put(termId, mp);
 

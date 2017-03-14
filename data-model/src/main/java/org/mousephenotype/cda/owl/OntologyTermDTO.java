@@ -25,10 +25,11 @@ public class OntologyTermDTO {
     Set<String>          broadSynonyms;
     Set<String>          intermediateIds;
     Set<String>          intermediateNames;
-    Set<String>          topLevelNames;
-    Set<String> topLevelIds;
-    Set<String> topLevelSynonyms;
-    Set<String> topLevelMpTermIds; // concatenated for search/ autosuggest/ something CK does
+    Set<String>          intermediateSynonyms;
+    Set<String>         topLevelNames;
+    Set<String>         topLevelIds;
+    Set<String>         topLevelSynonyms;
+    Set<String>         topLevelMpTermIds; // concatenated for search/ autosuggest/ something CK does
     String               replacementAccessionId;
     String               definition;
     boolean              isObsolete;
@@ -62,6 +63,14 @@ public class OntologyTermDTO {
         isObsolete = obsolete;
     }
 
+    public Set<String> getIntermediateSynonyms() {
+        return intermediateSynonyms;
+    }
+
+    public void setIntermediateSynonyms(Set<String> intermediateSynonyms) {
+        this.intermediateSynonyms = intermediateSynonyms;
+    }
+
     public Set<String> getTopLevelMpTermIds() {
         return topLevelMpTermIds;
     }
@@ -83,12 +92,26 @@ public class OntologyTermDTO {
         this.intermediateIds = intermediateIds;
     }
 
+    public void addIntermediateIds(String intermediateId) {
+        if (this.intermediateIds == null){ this.intermediateIds = new HashSet<>();}
+        this.intermediateIds.add(intermediateId);
+    }
+
+    public void addIntermediateSynonyms(Collection<String> intermediateSyn) {
+        if (this.intermediateSynonyms == null){ this.intermediateSynonyms = new HashSet<>();}
+        this.intermediateSynonyms.addAll(intermediateSyn);
+    }
+
     public Set<String> getIntermediateNames() {
         return intermediateNames;
     }
 
     public void setIntermediateNames(Set<String> intermediateNames) {
         this.intermediateNames = intermediateNames;
+    }
+    public void addIntermediateNames(String intermediateName) {
+        if (this.intermediateNames == null){ this.intermediateNames = new HashSet<>();}
+        this.intermediateNames.add(intermediateName);
     }
 
     public Set<String> getTopLevelNames() {
