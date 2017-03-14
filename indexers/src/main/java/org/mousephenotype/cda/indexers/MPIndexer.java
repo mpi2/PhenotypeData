@@ -42,6 +42,7 @@ import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,12 +183,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         initializeDatabaseConnections();
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
-
+        Set<String> wantedIds = getWantedSlimIds();
+        System.out.println("Wanted Ids:: " + wantedIds);
 
         try {
             //TODO replace slim
-            OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS);
-            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null);
+            OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
+            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
         	// maps MP to number of phenotyping calls
         	populateMpCallMaps();
 
@@ -288,7 +290,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Send a final commit
             mpCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException e) {
+        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
             throw new IndexerException(e);
         }
 
@@ -296,8 +298,31 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return runStatus;
     }
 
+
+    private Set<String> getWantedSlimIds() throws SQLException {
+
+        // Select MP terms from images too
+        Set<String> wantedIds = new HashSet<>();
+
+        // Get mp terms from Sanger images
+        PreparedStatement statement = komp2DbConnection.prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID, (UPPER(TERM_NAME)) as TERM_NAME FROM  IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID");
+        ResultSet res = statement.executeQuery();
+        while (res.next()) {
+            String r = res.getString("TERM_ID");
+            if (r.startsWith("MP:")) {
+                wantedIds.add(r);
+            }
+        }
+
+        //All MP terms we can have annotations to (from IMPRESS)
+        wantedIds.addAll(getOntologyIds(5, komp2DataSource));
+
+        return wantedIds;
+    }
+
+
     public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
-            throws IOException, URISyntaxException, SolrServerException {
+    throws IOException, URISyntaxException, SolrServerException {
 
         PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
         PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
