@@ -22,10 +22,8 @@
            }
 
         </style>
-        <%--<script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>--%>
         <script type='text/javascript' src='${baseUrl}/js/vendor/jquery/jquery.highlight.js'></script>
         <script type='text/javascript' src='${baseUrl}/js/utils/dataTables.searchHighlight.min.js'></script>
-        <%--<script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>--%>
 
         <script type='text/javascript'>
             $(document).ready(function(){
@@ -61,9 +59,25 @@
     </jsp:attribute>
     <jsp:body>
 
-      <h1>Mapping of MESH headings to top level MESH terms</h1>
-      <h6>IKMC/ IMPC related publications</h6><p></p>
-      <div id="mesh"></div>
+        <div class="region region-content">
+            <div class="block block-system">
+                <div class='content'>
+                    <div class="node node-gene">
+                        <h1>Mapping of MESH headings to top level MESH terms</h1>
+
+                        <div class="section">
+
+                            <h6>IKMC/ IMPC related publications</h6><p></p>
+                            <div class="inner">
+
+                                <div id="mesh"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </jsp:body>
 
