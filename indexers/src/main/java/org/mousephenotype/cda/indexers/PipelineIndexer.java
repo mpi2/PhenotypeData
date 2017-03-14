@@ -664,7 +664,6 @@ protected void addAbnormalEmapOntology(){
 
             MPIndexer.addTopLevelNodes(mp, mpOntologyService);
             MPIndexer.addIntermediateLevelNodes(mp, mpOntologyService);
-            MPIndexer.addParentLevelNodes(mp, mpOntologyService);
 
             map.put(termId, mp);
 
