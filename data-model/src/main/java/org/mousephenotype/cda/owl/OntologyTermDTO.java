@@ -2,6 +2,7 @@ package org.mousephenotype.cda.owl;
 
 import org.semanticweb.owlapi.model.OWLClass;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +26,9 @@ public class OntologyTermDTO {
     Set<String>          intermediateIds;
     Set<String>          intermediateNames;
     Set<String>          topLevelNames;
-    Set<String>          toplevelIds;
+    Set<String> topLevelIds;
+    Set<String> topLevelSynonyms;
+    Set<String> topLevelMpTermIds; // concatenated for search/ autosuggest/ something CK does
     String               replacementAccessionId;
     String               definition;
     boolean              isObsolete;
@@ -59,6 +62,19 @@ public class OntologyTermDTO {
         isObsolete = obsolete;
     }
 
+    public Set<String> getTopLevelMpTermIds() {
+        return topLevelMpTermIds;
+    }
+
+    public void setTopLevelMpTermIds(Set<String> topLevelMpTermIds) {
+        this.topLevelMpTermIds = topLevelMpTermIds;
+    }
+
+    public void addTopLevelMpTermIds(String term, String id) {
+        if (this.topLevelMpTermIds == null) { this.topLevelMpTermIds = new HashSet<>();}
+        this.topLevelMpTermIds.add( concatForSearch(id,term));
+    }
+
     public Set<String> getIntermediateIds() {
         return intermediateIds;
     }
@@ -83,12 +99,30 @@ public class OntologyTermDTO {
         this.topLevelNames = topLevelNames;
     }
 
-    public Set<String> getToplevelIds() {
-        return toplevelIds;
+    public Set<String> getTopLevelSynonyms() {  return topLevelSynonyms;  }
+
+    public void setTopLevelSynonyms(Set<String> topLevelSynonyms) {  this.topLevelSynonyms = topLevelSynonyms; }
+
+    public void addTopLevelId(String topLevelId){
+        if (this.topLevelIds == null) { this.topLevelIds = new HashSet<>();}
+        this.topLevelIds.add(topLevelId);
+    }
+    public void addTopLevelName(String name){
+        if (this.topLevelNames == null) { this.topLevelNames = new HashSet<>();}
+        this.topLevelNames.add(name);
+    }
+    public void addTopLevelSynonym(Collection<String> synonyms){
+        if (this.topLevelSynonyms == null) { this.topLevelSynonyms = new HashSet<>();}
+        this.topLevelSynonyms.addAll(synonyms);
     }
 
-    public void setToplevelIds(Set<String> toplevelIds) {
-        this.toplevelIds = toplevelIds;
+
+    public Set<String> getTopLevelIds() {
+        return topLevelIds;
+    }
+
+    public void setTopLevelIds(Set<String> topLevelIds) {
+        this.topLevelIds = topLevelIds;
     }
 
     public String getAccessionId() {
@@ -220,6 +254,15 @@ public class OntologyTermDTO {
                 ", isObsolete=" + isObsolete +
                 ", cls=" + cls +
                 '}';
+    }
+
+
+    /**
+     * CK uses fields like this for the search/suggest/result display
+     * @return
+     */
+    private String concatForSearch(String id, String name){
+        return id + "___" + name;
     }
 
 }
