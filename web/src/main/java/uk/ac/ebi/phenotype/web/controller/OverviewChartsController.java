@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.hibernate.Hibernate;
 import org.json.JSONArray;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -160,6 +161,7 @@ public class OverviewChartsController {
 		String[] centerToFilter = center;
 
 		// Assuming that different versions of a procedure will keep the same name.
+		//Hibernate.initialize(p.getProcedures().iterator().next().getName());
 		String procedureName = p.getProcedures().iterator().next().getName();
 
 		if (p != null){
