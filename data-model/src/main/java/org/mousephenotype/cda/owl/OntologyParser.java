@@ -291,8 +291,8 @@ public class OntologyParser {
         term = addChildrenInfo(cls, term);
         term = addParentInfo(cls, term);
         //TODO
-//        term = addIntermediateInfo(cls, term);
-//        term = addTopLevelInfo(cls, term);
+        term = addIntermediateInfo(cls, term);
+        term = addTopLevelInfo(cls, term);
         return term;
     }
 
@@ -403,7 +403,6 @@ public class OntologyParser {
                 ancestorIds.add(superClass.asOWLClass());
                 getClassAncestors (superClass.asOWLClass(), prefixes, ancestorIds);
             } else {
-                //TODO test part_of too
                 if (superClass instanceof OWLObjectSomeValuesFrom){
                     OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) superClass;
                     if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
@@ -441,21 +440,57 @@ public class OntologyParser {
         return  term;
     }
 
-    // TODO
-//    private OntologyTermDTO addTopLevelInfo (OWLClass cls, OntologyTermDTO term ){
-//
-//        Set<String> localTopLevelIs = new HashSet<>(topLevelIds); // make a copy so retainAll doesn't modify original
-//        localTopLevelIs.retainAll(ancestorsCache.get(getIdentifierShortForm(cls)));
-//        term.setToplevelIds(localTopLevelIs);
-//
-//        // Set terms too
-//        for (String id: localTopLevelIs){
-//            xsadasdef
-//        }
-//
-//        return term;
-//
-//    }
+    private OntologyTermDTO addTopLevelInfo (OWLClass cls, OntologyTermDTO term ){
+
+        Set<OWLClass> classAncestors = getClassAncestors(cls, null);
+        if (classAncestors != null && topLevelIds != null) {
+            // Intersect list of ancestors with list of top Levels
+            Set<OWLClass> localTopLevels = classAncestors.stream()
+                    .filter(item -> {
+                        return topLevelIds.contains(getIdentifierShortForm(item));
+                    }).collect(Collectors.toSet());
+
+            for (OWLClass topLevel : localTopLevels) {
+                term.addTopLevelId(getIdentifierShortForm(topLevel));
+                term.addTopLevelName(getLabel(topLevel));
+                term.addTopLevelSynonym(getSynonyms(topLevel));
+                term.addTopLevelMpTermIds(getLabel(topLevel), getIdentifierShortForm(topLevel));
+            }
+        }
+        return term;
+
+    }
+
+    // TODO restrict
+    /**
+     * [!] At the moment this adds ancestors - topLevels . So it can adds terms on top of the higher level too.
+     * @param cls
+     * @param term
+     * @return
+     */
+    private OntologyTermDTO addIntermediateInfo(OWLClass cls, OntologyTermDTO term ){
+
+        Set<OWLClass> classAncestors = getClassAncestors(cls, null);
+        if (classAncestors != null) {
+            Set<OWLClass> intermediates = classAncestors;
+            if (topLevelIds != null){
+                // Remove top levels from ancestors list
+                // Intersect list of ancestors with list of top Levels
+                intermediates = classAncestors.stream()
+                        .filter(item -> {
+                            return !topLevelIds.contains(getIdentifierShortForm(item));
+                        }).collect(Collectors.toSet());
+            }
+
+            for (OWLClass intermediateTerm : intermediates) {
+                term.addIntermediateIds(getIdentifierShortForm(intermediateTerm));
+                term.addIntermediateNames(getLabel(intermediateTerm));
+                term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
+            }
+        }
+        return term;
+
+    }
 
     /**
      * @param term
