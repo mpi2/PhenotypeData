@@ -30,12 +30,22 @@ public class OntologyParser {
 
     private Map<String, OntologyTermDTO> termMap = new HashMap<>(); // OBO-style ids because that's what we index.
     private Map<Integer, Set<String>> termsInSlim; // <hash of wanted terms in slim, <ids of classes on slim>>
+    private Set<String> topLevelIds;
 
-    public OntologyParser(String pathToOwlFile, String prefix)
+
+    /**
+     *
+     * @param pathToOwlFile
+     * @param prefix
+     * @param topLevelIds ontology ids to be used as top level (selected top level); Only need to pass this if you want top levels or intermediate terms up to the top level;
+     * @throws OWLOntologyCreationException
+     */
+    public OntologyParser(String pathToOwlFile, String prefix, Set<String> topLevelIds)
     throws OWLOntologyCreationException{
 
         setUpParser(pathToOwlFile);
         terms = new ArrayList<>();
+        this.topLevelIds = topLevelIds;
 
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
