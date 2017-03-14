@@ -311,10 +311,6 @@ public class OntologyParser {
 
     //TODO  private Set<OntologyTermDTO> getTopLevelTerms(OWLClass cls, Set<String> topLevelTerms){
 
-
-    //TODO
-
-
     public Set<String> getTermsInSlim(){
 
         return termsInSlim;
