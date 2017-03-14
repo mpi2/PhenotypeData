@@ -687,8 +687,8 @@ public class PaperController {
 
 		// make sure do not insert duplicate pmid
 		PreparedStatement insertStatement = conn.prepareStatement("REPLACE INTO allele_ref "
-				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh, author) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
+				+ "(gacc, acc, symbol, name, pmid, date_of_publication, reviewed, grant_id, agency, acronym, title, journal, paper_url, datasource, timestamp, falsepositive, mesh, meshtree, author) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 		String status = "";
 		String failStatus = "";
@@ -733,6 +733,7 @@ public class PaperController {
 			List<String> goodAlleleSymbols = new ArrayList<>();
 
 			for (String allelename : alleles) {
+				allelename = allelename.trim();
 				//System.out.println("checking allele: " + allelename);
 				Map<String, String> ag = isImpcAllele(allelename, connkomp2);
 				if (ag.size() > 0) {
@@ -776,6 +777,10 @@ public class PaperController {
 
 					Pubmed pub = (Pubmed) pair.getValue();
 
+//					System.out.println("gene acc: " + geneAccStr);
+//					System.out.println("allele acc: " + alleleAccStr);
+//					System.out.println("allele symbol: " + alleleSymbols);
+
 					pub.setGeneAccs(geneAccStr);
 					pub.setAlleleAccs(alleleAccStr);
 					pub.setAlleleSymbols(alleleSymbols);
@@ -784,8 +789,8 @@ public class PaperController {
 					//System.out.println("found paper: "+pmidStr);
 
 					String msg = savePmidData(pub, insertStatement);
-
 					//System.out.println("insert status: "+msg);
+
 					if (msg.contains("duplicate ")) {
 						ignoreStatus += pub.getPmid() + "\n";
 						ignoredCount++;
@@ -867,7 +872,7 @@ public class PaperController {
 
 		// (1.gacc, 2.acc, 3.symbol, 4.name, 5.pmid, 6.date_of_publication,
 		// 7.reviewed, 8.grant_id, 9.agency, 10.acronym, 11.title,
-		// 12.journal, 13.paper_url, 14.datasource, 15.timestamp, 16.falsepositive, 17.mesh, 18 author) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
+		// 12.journal, 13.paper_url, 14.datasource, 15.timestamp, 16.falsepositive, 17.mesh, 18.meshtree, 19 author) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)");
 
 		final String delimiter = "|||";
 		int pmid = pub.getPmid();
@@ -933,6 +938,7 @@ public class PaperController {
 		insertStatement.setString(17, mterms.size() > 0 ? StringUtils.join(mterms, delimiter) : "");
 		insertStatement.setString(18, mterms.size() > 0 ? pub.getMeshJsonStr() : "");
 		insertStatement.setString(19, pub.getAuthor());
+		// add new pmid do not need consotium_paper column (default "no")
 
 		try {
 			int count = insertStatement.executeUpdate();

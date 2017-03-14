@@ -98,7 +98,7 @@ public class Parameter extends PipelineEntry {
 	 *		)
 	 *private Procedure procedure;
 	 */
-	@ManyToMany(mappedBy = "parameters")
+	@ManyToMany(fetch = FetchType.EAGER, mappedBy = "parameters")
     private Set<Procedure> procedures = new HashSet<>();
 
 	@OneToMany(cascade = CascadeType.ALL, fetch= FetchType.EAGER)
