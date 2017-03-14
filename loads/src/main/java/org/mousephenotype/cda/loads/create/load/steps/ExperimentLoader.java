@@ -727,8 +727,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                     insertSeriesParameter(dccExperiment, seriesParameter, experimentPk, dbId, biologicalSamplePk, missing);
                 }
             }
-
-            insertSeriesParameter(dccExperiment, seriesParameter, experimentPk, dbId, biologicalSamplePk, missing);
         }
 
 
@@ -1116,7 +1114,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
             // time_series_observation variables
             Float dataPoint     = null;
-            Date  timePoint     = dccExperiment.getDateOfExperiment();                                               // timePoint for all cases. Default is dateOfExperiment.
+            Date  timePoint     = dccExperiment.getDateOfExperiment();                                                  // timePoint for all cases. Default is dateOfExperiment.
             Float discretePoint = null;
 
             if (missing == 0) {
@@ -1138,7 +1136,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 // Time series (increment is a datetime or time) - e.g. IMPC_CAL_003_001
                 SeriesParameterObservationUtils utils = new SeriesParameterObservationUtils();
 
-                discretePoint = utils.convertTimepoint(incrementValue, dccExperiment, dccMetadataList);              // discretePoint if increment value represents a date.
+                discretePoint = utils.convertTimepoint(incrementValue, dccExperiment, dccMetadataList);                 // discretePoint if increment value represents a date.
 
                 // Parse value into correct format
                 String parsedIncrementValue = utils.getParsedIncrementValue(incrementValue);
