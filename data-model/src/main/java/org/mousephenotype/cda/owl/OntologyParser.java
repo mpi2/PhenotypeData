@@ -6,6 +6,7 @@ import org.semanticweb.owlapi.search.EntitySearcher;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class OntologyParser {
@@ -21,13 +22,14 @@ public class OntologyParser {
     OWLAnnotationProperty X_REF;
     OWLAnnotationProperty REPLACEMENT;
     OWLAnnotationProperty CONSIDER;
+    OWLAnnotationProperty TERM_REPLACED_BY;
     ArrayList<OWLAnnotationProperty> IS_OBSOLETE;
     ArrayList<OWLAnnotationProperty> SYNONYM_ANNOTATION;
     ArrayList<OWLAnnotationProperty> DEFINITION_ANNOTATION;
     Set<OWLPropertyExpression> PART_OF;
 
     private Map<String, OntologyTermDTO> termMap = new HashMap<>(); // OBO-style ids because that's what we index.
-
+    private Map<Integer, Set<String>> termsInSlim; // <hash of wanted terms in slim, <ids of classes on slim>>
 
     public OntologyParser(String pathToOwlFile, String prefix)
     throws OWLOntologyCreationException{
@@ -98,6 +100,8 @@ public class OntologyParser {
         PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/emap#part_of")));
         PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/part_of")));
         PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000050")));
+
+        TERM_REPLACED_BY = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001"));
 
         ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
 
@@ -275,16 +279,83 @@ public class OntologyParser {
         return  eqClasses;
     }
 
-    /**
-     *
-     * @param cls
-     * @param topLevelTerms set of top Level terms
-     * @return
-     */
+
     //TODO  private Set<OntologyTermDTO> getTopLevelTerms(OWLClass cls, Set<String> topLevelTerms){
 
 
-    //TODO public Set<OntologyTermDTO> getTermsInSlim(Set<String> idsToSeedSlim)
+    //TODO
+
+    /**
+     *
+     * @param wantedIDs
+     * @param prefixes
+     * @return Set of class ids that belond in the slim
+     * @throws IOException
+     * @throws OWLOntologyStorageException
+     */
+    public Set<String> getTermsInSlim(Set<String> wantedIDs, List<String> prefixes)
+            throws IOException, OWLOntologyStorageException {
+
+        // Cache it in termsInSlim so we don't have to re-compute this every time
+        if (termsInSlim != null){
+            if (termsInSlim.get(wantedIDs.hashCode()) != null){
+                return termsInSlim.get(wantedIDs.hashCode());
+            }
+        }
+
+        // Add replacement ids for deprecated classes to wanted ids
+        for (OWLClass cls : ontology.getClassesInSignature()) {
+            if (!cls.getIRI().isNothing() && EntitySearcher.getAnnotations(cls, ontology, TERM_REPLACED_BY) != null && wantedIDs.contains(getIdentifierShortForm(cls))) {
+                for (OWLAnnotation annotation : EntitySearcher.getAnnotations(cls, ontology, TERM_REPLACED_BY)) {
+                    if (annotation.getValue() instanceof OWLLiteral) {
+                        wantedIDs.add(((OWLLiteral) annotation.getValue()).getLiteral());
+                        wantedIDs.remove(getIdentifierShortForm(cls));
+                    }
+                }
+            }
+        }
+
+        // Add the "seed" terms and their ancestors to the slim set.
+        Set<String> classesInSlim = new HashSet<>();
+        for (OWLClass cls : ontology.getClassesInSignature()) {
+            if (wantedIDs.contains(getIdentifierShortForm(cls))) {
+                classesInSlim.add(getIdentifierShortForm(cls));
+                classesInSlim.addAll(getClassAncestors(cls, null, classesInSlim));
+            }
+        }
+
+        termsInSlim.put(wantedIDs.hashCode(), classesInSlim);
+
+        return classesInSlim;
+
+    }
+
+
+    // TODO run reasoner on ontology first
+    private Set<String> getClassAncestors(OWLClass cls, Set<String> prefixes, Set<String> ancestorIds){
+
+       Collection<OWLClassExpression> superClasses = EntitySearcher.getSuperClasses(cls, ontology);
+       for(OWLClassExpression superClass : superClasses){
+            if (superClass.isClassExpressionLiteral()){
+                ancestorIds.add(getIdentifierShortForm(superClass.asOWLClass()));
+                getClassAncestors (superClass.asOWLClass(), prefixes, ancestorIds);
+            } else {
+                //TODO test part_of too
+                if (superClass instanceof OWLObjectSomeValuesFrom){
+                    OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) superClass;
+                    if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
+                        if (svf.getFiller() instanceof OWLNamedObject){
+                            ancestorIds.add(getIdentifierShortForm(svf.getFiller().asOWLClass()));
+                            getClassAncestors (svf.getFiller().asOWLClass(), prefixes, ancestorIds);
+                        }
+                    }
+                }
+            }
+        }
+
+        return ancestorIds;
+
+    }
 
 
     /**
@@ -295,11 +366,10 @@ public class OntologyParser {
      */
     private OntologyTermDTO addChildrenInfo(OWLClass cls, OntologyTermDTO term){
 
-        for (OWLClassExpression classExpression : EntitySearcher.getSubClasses(cls, ontology)){
-            if (classExpression.isClassExpressionLiteral()){
-                term.addChildId(getIdentifierShortForm(classExpression.asOWLClass()));
-                term.addChildName(getLabel(classExpression.asOWLClass()));
-            }
+        Set<OWLClass> children = getChildrenPartOf(cls);
+        for (OWLClass child : children){
+            term.addChildId(getIdentifierShortForm(child.asOWLClass()));
+            term.addChildName(getLabel(child.asOWLClass()));
         }
         return  term;
     }
@@ -311,6 +381,7 @@ public class OntologyParser {
      */
     private OntologyTermDTO addParentInfo(OWLClass cls, OntologyTermDTO term){
 
+        // TODO add part_of
         for (OWLClassExpression classExpression : EntitySearcher.getSuperClasses(cls, ontology)){
             if (classExpression.isClassExpressionLiteral()){
                 term.addParentId(getIdentifierShortForm(classExpression.asOWLClass()));
