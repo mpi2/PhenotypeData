@@ -281,7 +281,7 @@ public class LoadValidateExperimentsQuery {
     private final String baseOmitParameterClause = "AND ob.parameter_stable_id NOT IN (PARAMETER_REPLACE_TEMPLATE)\n";
 
     private final String orderByClause =
-            "ORDER BY e_short_name,e_experiment_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
+            "ORDER BY e_short_name,e_phenotyping_center,e_experiment_id,e_sequence_id,e_procedure_stable_id,e_procedure_status,e_procedure_status_message,ob_observation_type,\n" +
             "ob_parameter_stable_id,ob_parameter_status,bs_external_id,cob_category,dob_datetime_point,irob_increment_value,irob_full_resolution_file_path,oob_parameter_id,\n" +
             "oob_sequence_id,tob.text,tsob_discrete_point,tsob_data_point,uob_data_point,ob_metadata_combined,ob_metadata_group,\n" +
             "pa_parameter_id,pa_sequence_id,pa_parameter_association_value\n";
