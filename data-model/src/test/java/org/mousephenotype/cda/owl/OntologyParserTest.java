@@ -42,6 +42,7 @@ public class OntologyParserTest {
     private final Logger                logger        = LoggerFactory.getLogger(this.getClass());
     private       OntologyParser        ontologyParser;
 
+
     @NotNull
     @Value("${owlpath}")
     protected String owlpath;
@@ -131,7 +132,7 @@ public class OntologyParserTest {
         for (File file : owlFiles) {
             prefix = file.getName().replace(".owl", "").toUpperCase();
             try {
-                ontologyParser = new OntologyParser(file.getPath(), prefix, null);
+                ontologyParser = new OntologyParser(file.getPath(), prefix, null, null);
             } catch (Exception e) {
                 message = "[FAIL - " + prefix + "] Exception in " + file.getPath() + "(" + prefix + "): " + e.getLocalizedMessage();
                 exception.add(e);
@@ -157,7 +158,7 @@ public class OntologyParserTest {
     @Test
     public void testEFO()  throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("efo").target, downloads.get("efo").name, null);
+        ontologyParser = new OntologyParser(downloads.get("efo").target, downloads.get("efo").name, null, null);
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Expected at least one term.", terms.isEmpty());
     }
@@ -168,7 +169,7 @@ public class OntologyParserTest {
 
         System.out.println("target: " + downloads.get("mphp").target);
         System.out.println("name:   " + downloads.get("mphp").name);
-        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null);
+        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
 
         Set<String> narrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
@@ -189,7 +190,7 @@ public class OntologyParserTest {
     @Test
     public void testEquivalent() throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null);
+        ontologyParser = new OntologyParser(downloads.get("mphp").target, downloads.get("mphp").name, null, null);
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         Assert.assertFalse("Term list is empty!", terms.isEmpty());
 
@@ -210,7 +211,7 @@ public class OntologyParserTest {
     @Test
     public void testReplacementOptions() throws Exception {
 
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null);
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
 
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
@@ -245,9 +246,9 @@ public class OntologyParserTest {
     }
 
     @Test
-    public void testGetClassAncestors() throws Exception{
+    public void testTermsInSlim() throws Exception{
 
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null);
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         Set<String> wantedIds = new HashSet<>();
         wantedIds.add("MP:0008901");
         Set<String> termsInSlim = ontologyParser.getTermsInSlim(wantedIds, null);
@@ -255,11 +256,10 @@ public class OntologyParserTest {
 
     }
 
-
     @Test
     public void testParentInfo() throws Exception{
 
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null);
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
         Assert.assertTrue(term.getParentIds().contains("MP:0000003"));
         Assert.assertTrue(term.getParentIds().size() == 1);
@@ -270,12 +270,18 @@ public class OntologyParserTest {
     @Test
     public void testChildInfo() throws Exception{
 
-        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null);
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0005452");  // abnormal adipose tissue amount
         Assert.assertTrue(term.getChildIds().contains("MP:0010024"));
         System.out.println("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
-        Assert.assertTrue(term.getChildIds().size() == 3);
-        Assert.assertTrue(term.getChildNames().size() == 3);
+        Assert.assertTrue(term.getChildIds().size() == 4); // 4 child terms in the ontology without reasoning
+        Assert.assertTrue(term.getChildNames().size() == 4);
+
+        term =ontologyParser.getOntologyTerm("MP:0000003");
+        System.out.println("term.getChildIds().size() " + term.getChildIds().size() + term.getChildIds());
+        Assert.assertTrue(term.getChildIds().size() == 11); // 11 child terms in the ontology without reasoning
+        Assert.assertTrue(term.getChildNames().size() == 11);
+
 
     }
 

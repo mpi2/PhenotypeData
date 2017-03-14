@@ -8,6 +8,7 @@ import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class OntologyParser {
 
@@ -29,7 +30,7 @@ public class OntologyParser {
     Set<OWLPropertyExpression> PART_OF;
 
     private Map<String, OntologyTermDTO> termMap = new HashMap<>(); // OBO-style ids because that's what we index.
-    private Map<Integer, Set<String>> termsInSlim; // <hash of wanted terms in slim, <ids of classes on slim>>
+    private Set<String> termsInSlim; // <ids of classes on slim>
     private Set<String> topLevelIds;
 
 
@@ -38,26 +39,44 @@ public class OntologyParser {
      * @param pathToOwlFile
      * @param prefix
      * @param topLevelIds ontology ids to be used as top level (selected top level); Only need to pass this if you want top levels or intermediate terms up to the top level;
+     * @param wantedIds ids to be used for the slim. If null whole ontology will be used.
      * @throws OWLOntologyCreationException
      */
-    public OntologyParser(String pathToOwlFile, String prefix, Set<String> topLevelIds)
-    throws OWLOntologyCreationException{
+    public OntologyParser(String pathToOwlFile, String prefix, Set<String> topLevelIds, Set<String> wantedIds)
+    throws OWLOntologyCreationException, IOException, OWLOntologyStorageException {
 
         setUpParser(pathToOwlFile);
+        if (wantedIds != null){
+            getTermsInSlim(wantedIds, prefix);
+        }
         terms = new ArrayList<>();
         this.topLevelIds = topLevelIds;
 
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
-            if (prefix == null || getIdentifierShortForm(cls).startsWith(prefix + ":")){
+            if (startsWithPrefix(cls, prefix)){
                 OntologyTermDTO term = getDTO(cls);
                 term.setEquivalentClasses(getEquivaletClasses(cls, prefix));
                 terms.add(term);
                 termMap.put(term.getAccessionId(), term);
             }
         }
+    }
 
+    private Boolean startsWithPrefix(OWLClass cls, Collection<String> prefix){
+        if (prefix == null){
+            return true; // when prefix is passed as null it means we don't care about it; take everything
+        }
+        for (String p: prefix) {
+            if (!getIdentifierShortForm(cls).startsWith(p + ":")) {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    private Boolean startsWithPrefix(OWLClass cls, String prefix){
+        return (prefix == null || getIdentifierShortForm(cls).startsWith(prefix + ":"));
     }
 
     public List<OntologyTermDTO> getTerms(){
@@ -298,19 +317,17 @@ public class OntologyParser {
     /**
      *
      * @param wantedIDs
-     * @param prefixes
+     * @param prefix
      * @return Set of class ids that belond in the slim
      * @throws IOException
      * @throws OWLOntologyStorageException
      */
-    public Set<String> getTermsInSlim(Set<String> wantedIDs, List<String> prefixes)
+    public Set<String> getTermsInSlim(Set<String> wantedIDs, String prefix)
             throws IOException, OWLOntologyStorageException {
 
         // Cache it in termsInSlim so we don't have to re-compute this every time
         if (termsInSlim != null){
-            if (termsInSlim.get(wantedIDs.hashCode()) != null){
-                return termsInSlim.get(wantedIDs.hashCode());
-            }
+            return termsInSlim;
         }
 
         // Add replacement ids for deprecated classes to wanted ids
@@ -329,13 +346,15 @@ public class OntologyParser {
         Set<String> classesInSlim = new HashSet<>();
         for (OWLClass cls : ontology.getClassesInSignature()) {
             if (wantedIDs.contains(getIdentifierShortForm(cls))) {
-                classesInSlim.add(getIdentifierShortForm(cls));
-                classesInSlim.addAll(getClassAncestors(cls, null, classesInSlim));
+                if (startsWithPrefix(cls, prefix)) {
+                    classesInSlim.add(getIdentifierShortForm(cls));
+                    classesInSlim.addAll(getClassAncestors(cls, null, classesInSlim));
+                }
             }
         }
 
-        termsInSlim.put(wantedIDs.hashCode(), classesInSlim);
-
+        termsInSlim = classesInSlim;
+        System.out.println("Set termsInSlim " + termsInSlim.size());
         return classesInSlim;
 
     }
@@ -372,11 +391,15 @@ public class OntologyParser {
      *
      * @param cls
      * @param term the ontology term dto where you want the child info to be added.
-     * @return Return the cls dto with added information about child classes: childIds and childTerms.
+     * @return Return the cls dto with added information about child classes: childIds and childTerms. If terms for slim were provided to the parser the results will be restricted to slim classes.
      */
     private OntologyTermDTO addChildrenInfo(OWLClass cls, OntologyTermDTO term){
 
         Set<OWLClass> children = getChildrenPartOf(cls);
+        if (termsInSlim != null){
+            // Filter out child terms not in slim
+            children = children.stream().filter(termCls -> { return termsInSlim.contains(getIdentifierShortForm(termCls));}).collect(Collectors.toSet());
+        }
         for (OWLClass child : children){
             term.addChildId(getIdentifierShortForm(child.asOWLClass()));
             term.addChildName(getLabel(child.asOWLClass()));

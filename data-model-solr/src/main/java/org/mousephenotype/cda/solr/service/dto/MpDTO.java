@@ -630,7 +630,9 @@ public class MpDTO {
 	public void setMpTermSynonym(Collection<String> mpTermSynonym) {
 
 		this.mpTermSynonym = new ArrayList<>();
-		this.mpTermSynonym.addAll(mpTermSynonym);
+		if (mpTermSynonym != null) {
+			this.mpTermSynonym.addAll(mpTermSynonym);
+		}
 
 	}
 
@@ -681,7 +683,9 @@ public class MpDTO {
 	public void setChildMpId(Collection<String> childMpId) {
 
 		this.childMpId = new ArrayList<>();
-		this.childMpId.addAll(childMpId);
+		if (childMpId != null) {
+			this.childMpId.addAll(childMpId);
+		}
 	}
 
 	public List<String> getChildMpTerm() {
@@ -698,7 +702,9 @@ public class MpDTO {
 	public void setChildMpTerm(Collection<String> childMpTerm) {
 
 		this.childMpTerm = new ArrayList<>();
-		this.childMpTerm.addAll(childMpTerm);
+		if (childMpTerm != null) {
+			this.childMpTerm.addAll(childMpTerm);
+		}
 	}
 
 	public List<String> getChildMpDefinition() {
@@ -759,7 +765,9 @@ public class MpDTO {
 	public void setParentMpId(Collection<String> parentMpId) {
 
 		this.parentMpId = new ArrayList<>();
-		this.parentMpId.addAll(parentMpId);
+		if (parentMpId != null) {
+			this.parentMpId.addAll(parentMpId);
+		}
 	}
 
 	public List<String> getParentMpTerm() {
@@ -776,7 +784,9 @@ public class MpDTO {
 	public void setParentMpTerm(Collection<String> parentMpTerm) {
 
 		this.parentMpTerm = new ArrayList<>();
-		this.parentMpId.addAll(parentMpTerm);
+		if (parentMpTerm != null) {
+			this.parentMpId.addAll(parentMpTerm);
+		}
 	}
 
 	public List<String> getParentMpDefinition() {

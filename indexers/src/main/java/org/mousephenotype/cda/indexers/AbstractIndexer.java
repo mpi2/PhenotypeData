@@ -376,4 +376,26 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         return stage;
     }
 
+
+
+    /**
+     * @author tudose
+     * @param ontologyId database id. [14=emap, 5=mp, 8=ma]
+     * @return
+     * @throws SQLException
+     */
+    public List<String> getOntologyIds(Integer ontologyId, DataSource ds) throws SQLException{
+
+        PreparedStatement statement = ds.getConnection().prepareStatement(
+                "SELECT DISTINCT(ontology_acc) FROM phenotype_parameter_ontology_annotation ppoa WHERE ppoa.ontology_db_id=" + ontologyId);
+        ResultSet res = statement.executeQuery();
+        List<String> terms = new ArrayList<>();
+
+        while (res.next()) {
+            terms.add(res.getString("ontology_acc"));
+        }
+
+        return terms;
+    }
+
 }
