@@ -314,6 +314,13 @@ public class OntologyParser {
 
     //TODO
 
+
+    public Set<String> getTermsInSlim(){
+
+        return termsInSlim;
+
+    }
+
     /**
      *
      * @param wantedIDs
@@ -322,7 +329,7 @@ public class OntologyParser {
      * @throws IOException
      * @throws OWLOntologyStorageException
      */
-    public Set<String> getTermsInSlim(Set<String> wantedIDs, String prefix)
+    protected Set<String> getTermsInSlim(Set<String> wantedIDs, String prefix)
             throws IOException, OWLOntologyStorageException {
 
         // Cache it in termsInSlim so we don't have to re-compute this every time

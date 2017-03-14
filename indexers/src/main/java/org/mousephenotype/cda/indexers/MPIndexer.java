@@ -153,7 +153,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     Map<String, Long> mpCalls = new HashMap<>();
     Map<String, Integer> mpGeneVariantCount = new HashMap<>();
 
-    private static final Set<String> TOP_LEVEL_MP_TERMS = new HashSet<String>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
+    private static final Set<String> TOP_LEVEL_MP_TERMS = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
             "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
             "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
             "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397"));
@@ -184,10 +184,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
         Set<String> wantedIds = getWantedSlimIds();
-        System.out.println("Wanted Ids:: " + wantedIds);
 
         try {
-            //TODO replace slim
             OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
         	// maps MP to number of phenotyping calls
@@ -197,16 +195,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
 
-            // Loop through the mp_term_infos
-            String q = " select distinct 'mp' as dataType, ti.term_id, ti.name, ti.definition, group_concat(distinct alt.alt_id) as alt_ids from mp_term_infos ti left join mp_alt_ids alt on ti.term_id=alt.term_id where ti.term_id != 'MP:0000001' group by ti.term_id";
-            PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) { //TODO iterate over terms in slim
-                OntologyTermDTO mpDTO = mpParser.getOntologyTerm(rs.getString("term_id"));
+            for (String mpId: mpParser.getTermsInSlim()) {
+
+                OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
                 String termId = mpDTO.getAccessionId();
 
                 MpDTO mp = new MpDTO();
-                mp.setDataType(rs.getString("dataType"));
+                mp.setDataType("mp");
                 mp.setMpId(termId);
                 mp.setMpTerm(mpDTO.getName());
                 mp.setMpDefinition(mpDTO.getDefinition());
