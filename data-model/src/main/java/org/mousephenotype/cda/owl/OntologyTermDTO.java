@@ -22,6 +22,10 @@ public class OntologyTermDTO {
     Set<String>          alternateIds;
     Set<String>          considerIds;
     Set<String>          broadSynonyms;
+    Set<String>          intermediateIds;
+    Set<String>          intermediateNames;
+    Set<String>          topLevelNames;
+    Set<String>          toplevelIds;
     String               replacementAccessionId;
     String               definition;
     boolean              isObsolete;
@@ -53,6 +57,38 @@ public class OntologyTermDTO {
 
     public void setObsolete(boolean obsolete) {
         isObsolete = obsolete;
+    }
+
+    public Set<String> getIntermediateIds() {
+        return intermediateIds;
+    }
+
+    public void setIntermediateIds(Set<String> intermediateIds) {
+        this.intermediateIds = intermediateIds;
+    }
+
+    public Set<String> getIntermediateNames() {
+        return intermediateNames;
+    }
+
+    public void setIntermediateNames(Set<String> intermediateNames) {
+        this.intermediateNames = intermediateNames;
+    }
+
+    public Set<String> getTopLevelNames() {
+        return topLevelNames;
+    }
+
+    public void setTopLevelNames(Set<String> topLevelNames) {
+        this.topLevelNames = topLevelNames;
+    }
+
+    public Set<String> getToplevelIds() {
+        return toplevelIds;
+    }
+
+    public void setToplevelIds(Set<String> toplevelIds) {
+        this.toplevelIds = toplevelIds;
     }
 
     public String getAccessionId() {
