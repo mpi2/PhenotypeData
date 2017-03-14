@@ -53,6 +53,20 @@ public class StatisticalResultTest {
 
 	@Autowired
 	StatisticalResultRepository statisticalResultRepository;
+	
+	
+	@Test
+	public void allDocumentsHaveATopLevelMpTermId(){
+		try {
+			assertTrue(statisticalResultService.allDocumentsHaveTopLevelMp());
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@Test
 	public void verifyDatabaseWiring() {
