@@ -243,4 +243,15 @@ public class OntologyParserTest {
         Assert.assertTrue("Expected consider id MP:0010464. Not found.", withConsiderIds.getConsiderIds().contains("MP:0010464"));
 
     }
+
+    @Test
+    public void testGetClassAncestors() throws Exception{
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name);
+        Set<String> wantedIds = new HashSet<>();
+        wantedIds.add("MP:0008901");
+        Set<String> termsInSlim = ontologyParser.getTermsInSlim(wantedIds, null);
+        Assert.assertTrue(termsInSlim.size() == 7);
+
+    }
 }
