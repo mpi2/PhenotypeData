@@ -971,10 +971,10 @@
                         alert(errMsg);
                         return false;
                     }
-                    else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && uppercaseId.indexOf(dataType.toUpperCase()) !== 0 ){
-                        alert(errMsg);
-                        return false;
-                    }
+//                    else if ( (dataType == 'mp' || dataType == 'ma' || dataType == 'hp' ) && uppercaseId.indexOf(dataType.toUpperCase()) !== 0 ){
+//                        alert(errMsg);
+//                        return false;
+//                    }
                     var thisId = dataType=="human_marker_symbol" ? uppercaseId : oriId;
                     aVals2.push('"' + thisId + '"');
                 }
