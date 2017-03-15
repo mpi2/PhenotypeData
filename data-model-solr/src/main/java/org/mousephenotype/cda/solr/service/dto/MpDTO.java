@@ -17,6 +17,8 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -268,9 +270,6 @@ public class MpDTO {
 
 	@Field(DATA_TYPE)
 	private String dataType;
-
-	@Field(ONTOLOGY_SUBSET)
-	private List<String> ontologySubset;
 
 	@Field(MA_ID)
 	private List<String> maId;
@@ -628,9 +627,13 @@ public class MpDTO {
 	}
 
 
-	public void setMpTermSynonym(List<String> mpTermSynonym) {
+	public void setMpTermSynonym(Collection<String> mpTermSynonym) {
 
-		this.mpTermSynonym = mpTermSynonym;
+		this.mpTermSynonym = new ArrayList<>();
+		if (mpTermSynonym != null) {
+			this.mpTermSynonym.addAll(mpTermSynonym);
+		}
+
 	}
 
     public List<String> getMpNarrowSynonym() {
@@ -659,9 +662,10 @@ public class MpDTO {
 	}
 
 
-	public void setAltMpIds(List<String> altMpId) {
+	public void setAltMpIds(Collection<String> altMpId) {
 
-		this.altMpId = altMpId;
+		this.altMpId = new ArrayList<>();
+		this.altMpId.addAll(altMpId);
 	}
 
 
@@ -676,6 +680,13 @@ public class MpDTO {
 		this.childMpId = childMpId;
 	}
 
+	public void setChildMpId(Collection<String> childMpId) {
+
+		this.childMpId = new ArrayList<>();
+		if (childMpId != null) {
+			this.childMpId.addAll(childMpId);
+		}
+	}
 
 	public List<String> getChildMpTerm() {
 
@@ -688,6 +699,13 @@ public class MpDTO {
 		this.childMpTerm = childMpTerm;
 	}
 
+	public void setChildMpTerm(Collection<String> childMpTerm) {
+
+		this.childMpTerm = new ArrayList<>();
+		if (childMpTerm != null) {
+			this.childMpTerm.addAll(childMpTerm);
+		}
+	}
 
 	public List<String> getChildMpDefinition() {
 
@@ -744,6 +762,13 @@ public class MpDTO {
 		this.parentMpId = parentMpId;
 	}
 
+	public void setParentMpId(Collection<String> parentMpId) {
+
+		this.parentMpId = new ArrayList<>();
+		if (parentMpId != null) {
+			this.parentMpId.addAll(parentMpId);
+		}
+	}
 
 	public List<String> getParentMpTerm() {
 
@@ -756,6 +781,13 @@ public class MpDTO {
 		this.parentMpTerm = parentMpTerm;
 	}
 
+	public void setParentMpTerm(Collection<String> parentMpTerm) {
+
+		this.parentMpTerm = new ArrayList<>();
+		if (parentMpTerm != null) {
+			this.parentMpId.addAll(parentMpTerm);
+		}
+	}
 
 	public List<String> getParentMpDefinition() {
 
@@ -792,6 +824,10 @@ public class MpDTO {
 		this.intermediateMpId = intermediateMpId;
 	}
 
+	public void addIntermediateMpId(Collection<String> intermediateMpId) {
+		if (this.intermediateMpId == null) { this.intermediateMpId = new ArrayList<>();}
+		this.intermediateMpId.addAll(intermediateMpId);
+	}
 
 	public List<String> getIntermediateMpTerm() {
 
@@ -802,6 +838,11 @@ public class MpDTO {
 	public void setIntermediateMpTerm(List<String> intermediateMpTerm) {
 
 		this.intermediateMpTerm = intermediateMpTerm;
+	}
+
+	public void addIntermediateMpTerm(Collection<String> intermediateMpTerm) {
+		if (this.intermediateMpTerm == null) { this.intermediateMpTerm = new ArrayList<>();}
+		this.intermediateMpTerm.addAll(intermediateMpTerm);
 	}
 
 
@@ -828,6 +869,11 @@ public class MpDTO {
 		this.intermediateMpTermSynonym = intermediateMpTermSynonym;
 	}
 
+	public void addIntermediateMpTermSynonym(Collection<String> intermediateMpTermSynonym) {
+
+		if (this.intermediateMpTermSynonym == null){ this.intermediateMpTermSynonym = new ArrayList<>();}
+		this.intermediateMpTermSynonym.addAll(intermediateMpTermSynonym);
+	}
 
 	public List<String> getTopLevelMpId() {
 
@@ -840,6 +886,10 @@ public class MpDTO {
 		this.topLevelMpId = topLevelMpId;
 	}
 
+	public void addTopLevelMpId(Collection<String> topLevelMpId) {
+		if (this.topLevelMpId == null){ this.topLevelMpId = new ArrayList<>();}
+		this.topLevelMpId.addAll(topLevelMpId);
+	}
 
 	public List<String> getTopLevelMpTerm() {
 
@@ -852,6 +902,11 @@ public class MpDTO {
 		this.topLevelMpTerm = topLevelMpTerm;
 	}
 
+	public void addTopLevelMpTerm(Collection<String> topLevelMpTerm) {
+		if (this.topLevelMpTerm == null) { this.topLevelMpTerm = new ArrayList<>();}
+		this.topLevelMpTerm.addAll(topLevelMpTerm);
+	}
+
 	public List<String> getTopLevelMpTermInclusive() {
 		return topLevelMpTermInclusive;
 	}
@@ -859,6 +914,27 @@ public class MpDTO {
 	public void setTopLevelMpTermInclusive(List<String> topLevelMpTermInclusive) {
 		this.topLevelMpTermInclusive = topLevelMpTermInclusive;
 	}
+
+	public void addTopLevelMpTermInclusive(String term){
+		if (this.topLevelMpTermInclusive == null){ this.topLevelMpTermInclusive = new ArrayList<>();}
+		this.topLevelMpTermInclusive.add(term);
+	}
+
+	public void addTopLevelMpTermInclusive(Collection<String> term){
+		if (this.topLevelMpTermInclusive == null){ this.topLevelMpTermInclusive = new ArrayList<>();}
+		this.topLevelMpTermInclusive.addAll(term);
+	}
+
+	public void addTopLevelMpIdInclusive(String id){
+		if (this.topLevelMpIdInclusive == null){ this.topLevelMpIdInclusive = new ArrayList<>();}
+		this.topLevelMpIdInclusive.add(id);
+	}
+
+	public void addTopLevelMpIdInclusive(Collection<String> id){
+		if (this.topLevelMpIdInclusive == null){ this.topLevelMpIdInclusive = new ArrayList<>();}
+		this.topLevelMpIdInclusive.addAll(id);
+	}
+
 
 	public List<String> getTopLevelMpIdInclusive() {
 		return topLevelMpIdInclusive;
@@ -891,6 +967,10 @@ public class MpDTO {
 		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
 	}
 
+	public void addTopLevelMpTermSynonym(Collection<String> topLevelMpTermSynonym) {
+		if (this.topLevelMpTermSynonym == null){ this.topLevelMpTermSynonym = new ArrayList<>();}
+		this.topLevelMpTermSynonym.addAll(topLevelMpTermSynonym);
+	}
 
 	public List<String> getTopLevelMpTermId() {
 
@@ -903,6 +983,11 @@ public class MpDTO {
 		this.topLevelMpTermId = topLevelMpTermId;
 	}
 
+	public void addTopLevelMpTermId(Collection<String> topLevelMpTermId) {
+
+		if (this.topLevelMpTermId == null){ this.topLevelMpTermId = new ArrayList<>();}
+		this.topLevelMpTermId.addAll(topLevelMpTermId);
+	}
 
 	public List<String> getHpId() {
 
@@ -955,19 +1040,6 @@ public class MpDTO {
 
 		this.dataType = dataType;
 	}
-
-
-	public List<String> getOntologySubset() {
-
-		return ontologySubset;
-	}
-
-
-	public void setOntologySubset(List<String> ontologySubset) {
-
-		this.ontologySubset = ontologySubset;
-	}
-
 
 	public List<String> getMaId() {
 
@@ -2147,8 +2219,6 @@ public class MpDTO {
 		if (hpTermSynonym != null ? !hpTermSynonym.equals(mpDTO.hpTermSynonym) : mpDTO.hpTermSynonym != null)
 			return false;
 		if (dataType != null ? !dataType.equals(mpDTO.dataType) : mpDTO.dataType != null) return false;
-		if (ontologySubset != null ? !ontologySubset.equals(mpDTO.ontologySubset) : mpDTO.ontologySubset != null)
-			return false;
 		if (maId != null ? !maId.equals(mpDTO.maId) : mpDTO.maId != null) return false;
 		if (maTerm != null ? !maTerm.equals(mpDTO.maTerm) : mpDTO.maTerm != null) return false;
 		if (maTermSynonym != null ? !maTermSynonym.equals(mpDTO.maTermSynonym) : mpDTO.maTermSynonym != null)
@@ -2325,7 +2395,6 @@ public class MpDTO {
 		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
 		result = 31 * result + (hpTermSynonym != null ? hpTermSynonym.hashCode() : 0);
 		result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
-		result = 31 * result + (ontologySubset != null ? ontologySubset.hashCode() : 0);
 		result = 31 * result + (maId != null ? maId.hashCode() : 0);
 		result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
 		result = 31 * result + (maTermSynonym != null ? maTermSynonym.hashCode() : 0);
@@ -2455,7 +2524,6 @@ public class MpDTO {
 				", hpTerm=" + hpTerm +
 				", hpTermSynonym=" + hpTermSynonym +
 				", dataType='" + dataType + '\'' +
-				", ontologySubset=" + ontologySubset +
 				", maId=" + maId +
 				", maTerm=" + maTerm +
 				", maTermSynonym=" + maTermSynonym +

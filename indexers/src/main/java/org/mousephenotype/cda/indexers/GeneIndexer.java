@@ -366,7 +366,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setMpTerm(new ArrayList<String>());
                 gene.setMpTermSynonym(new ArrayList<String>());
                 gene.setMpTermDefinition(new ArrayList<String>());
-                gene.setOntologySubset(new ArrayList<String>());
 
                 gene.setMaId(new ArrayList<String>());
                 gene.setMaTerm(new ArrayList<String>());
@@ -482,10 +481,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                                 gene.getMpTermSynonym().addAll(mp.getMpTermSynonym());
                             }
 
-                            if (mp.getOntologySubset() != null) {
-                                gene.getOntologySubset().addAll(mp.getOntologySubset());
-                            }
-
                             if (mp.getHpId() != null) {
                                 gene.getHpId().addAll(mp.getHpId());
                                 gene.getHpTerm().addAll(mp.getHpTerm());
@@ -544,7 +539,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setMpTerm(new ArrayList<>(new HashSet<>(gene.getMpTerm())));
                 gene.setMpTermSynonym(new ArrayList<>(new HashSet<>(gene.getMpTermSynonym())));
                 gene.setMpTermDefinition(new ArrayList<>(new HashSet<>(gene.getMpTermDefinition())));
-                gene.setOntologySubset(new ArrayList<>(new HashSet<>(gene.getOntologySubset())));
 
                 gene.setMaId(new ArrayList<>(new HashSet<>(gene.getMaId())));
                 gene.setMaTerm(new ArrayList<>(new HashSet<>(gene.getMaTerm())));
