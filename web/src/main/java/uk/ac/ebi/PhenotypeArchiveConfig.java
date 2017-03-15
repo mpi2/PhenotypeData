@@ -11,6 +11,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.support.ErrorPageFilter;
 import org.springframework.context.annotation.*;
+import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -41,6 +42,7 @@ import java.util.Properties;
         "uk.ac.ebi.phenotype.web.controller"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+@EnableNeo4jRepositories("uk.ac.ebi.phenotype.repository")
 public class PhenotypeArchiveConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
@@ -79,19 +81,6 @@ public class PhenotypeArchiveConfig {
 
     @Value("${live_site}")
     private String liveSite;
-
-
-    @Bean
-    public org.neo4j.ogm.config.Configuration getConfiguration() {
-
-        org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
-        config.driverConfiguration()
-                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-                //.setURI("http://ves-ebi-d0:7474/");
-                .setURI("http://localhost:7474/");
-
-        return config;
-    }
 
 
     @Bean
