@@ -143,10 +143,6 @@
                             var chartMonth = "chartMonth";
                             $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
                         }
-//                        if ( ui.newTab.index() == 2){
-//                            $('div#consortiumPapers .saveTable').html("");
-//                            $.fn.fetchAlleleRefDataTable2(oConf2);
-//                        }
                     }
                 });
 
