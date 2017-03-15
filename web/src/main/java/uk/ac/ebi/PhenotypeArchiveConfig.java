@@ -81,17 +81,17 @@ public class PhenotypeArchiveConfig {
     private String liveSite;
 
 
-    @Bean
-    public org.neo4j.ogm.config.Configuration getConfiguration() {
-
-        org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
-        config.driverConfiguration()
-                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-                //.setURI("http://ves-ebi-d0:7474/");
-                .setURI("http://localhost:7474/");
-
-        return config;
-    }
+//    @Bean
+//    public org.neo4j.ogm.config.Configuration getConfiguration() {
+//
+//        org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
+//        config.driverConfiguration()
+//                .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+//                //.setURI("http://ves-ebi-d0:7474/");
+//                .setURI("http://localhost:7474/");
+//
+//        return config;
+//    }
 
 
     @Bean
