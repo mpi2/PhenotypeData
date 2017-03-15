@@ -22,7 +22,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -31,7 +30,6 @@ import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
@@ -43,6 +41,7 @@ import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,12 +122,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private static Connection ontoDbConnection;
 
     // Maps of supporting database content
-    Map<String, List<MPHPBean>> mphpBeans;
     Map<String, List<Integer>> termNodeIds;
 
-    // Use single synonym hash
-    Map<String, List<String>> mpTermSynonyms;
-    Map<String, List<String>> ontologySubsets;
     Map<String, List<String>> goIds;
 
     // MA Term mappings
@@ -155,6 +150,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     Map<String, Long> mpCalls = new HashMap<>();
     Map<String, Integer> mpGeneVariantCount = new HashMap<>();
 
+    private static final Set<String> TOP_LEVEL_MP_TERMS = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
+            "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
+            "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
+            "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397"));
+
     private OntologyParser mpHpParser;
 
     public MPIndexer() {
@@ -180,10 +180,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         initializeDatabaseConnections();
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
+        Set<String> wantedIds = getWantedSlimIds();
 
         try {
-
-            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", null);
+            OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
+            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
         	// maps MP to number of phenotyping calls
         	populateMpCallMaps();
 
@@ -191,32 +192,32 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
 
-            // Loop through the mp_term_infos
-            //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
-            String q = " select distinct 'mp' as dataType, ti.term_id, ti.name, ti.definition, group_concat(distinct alt.alt_id) as alt_ids from mp_term_infos ti left join mp_alt_ids alt on ti.term_id=alt.term_id where ti.term_id != 'MP:0000001' group by ti.term_id";
-            PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                String termId = rs.getString("term_id");
+            for (String mpId: mpParser.getTermsInSlim()) {
+
+                OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
+                String termId = mpDTO.getAccessionId();
 
                 MpDTO mp = new MpDTO();
-                mp.setDataType(rs.getString("dataType"));
+                mp.setDataType("mp");
                 mp.setMpId(termId);
-                mp.setMpTerm(rs.getString("name"));
-                mp.setMpDefinition(rs.getString("definition"));
+                mp.setMpTerm(mpDTO.getName());
+                mp.setMpDefinition(mpDTO.getDefinition());
 
                 // alternative MP ID
-                String alt_ids = rs.getString("alt_ids");
-                if ( !rs.wasNull() ) {
-                    mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
+                if ( mpDTO.getAlternateIds() != null && !mpDTO.getAlternateIds().isEmpty() ) {
+                    mp.setAltMpIds(mpDTO.getAlternateIds());
                 }
 
                 mp.setMpNodeId(termNodeIds.get(termId));
 
-                addTopLevelNodes(mp, mpOntologyService);
-                addIntermediateLevelNodes(mp, mpOntologyService);
-                addChildLevelNodes(mp);
-                addParentLevelNodes(mp, mpOntologyService);
+                addTopLevelTerms(mp, mpDTO);
+                //TODO replace with OntologyParser
+                addIntermediateTerms(mp, mpDTO);
+
+                mp.setChildMpId(mpDTO.getChildIds());
+                mp.setChildMpTerm(mpDTO.getChildNames());
+                mp.setParentMpId(mpDTO.getParentIds());
+                mp.setParentMpTerm(mpDTO.getParentNames());
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
@@ -237,15 +238,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                             mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
                         }
                     }
-                    if ( isOKForNarrowSynonyms(mp)){
-                        // get the children of MP not in our slim (narrow synonyms)
+                    // get the children of MP not in our slim (narrow synonyms)
+                    if (isOKForNarrowSynonyms(mp)){
                         mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     } else  {
                         mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
                     }
                 }
-                mp.setOntologySubset(ontologySubsets.get(termId));
-                mp.setMpTermSynonym(mpTermSynonyms.get(termId));
+
+                mp.setMpTermSynonym(mpDTO.getSynonyms());
                 mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp, runStatus);
@@ -262,25 +263,25 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setSearchTermJson(searchTree.toString());
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
                 mp.setScrollNode(scrollNodeId);
-                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
-                mp.setChildrenJson(childrenTree.toString());
-
+                //TODO add child json back, from OntologyParser
+//                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
+//                mp.setChildrenJson(childrenTree.toString());
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
 
                 documentCount++;
                 mpCore.addBean(mp, 60000);
-//
-//                if (documentCount % 100 == 0){
-//                	mpCore.commit();
-//                }
+
+                if (documentCount % 100 == 0){
+                    System.out.println("Added " + documentCount);
+                }
             }
 
             // Send a final commit
             mpCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException e) {
+        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
             throw new IndexerException(e);
         }
 
@@ -288,8 +289,31 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return runStatus;
     }
 
+
+    private Set<String> getWantedSlimIds() throws SQLException {
+
+        // Select MP terms from images too
+        Set<String> wantedIds = new HashSet<>();
+
+        // Get mp terms from Sanger images
+        PreparedStatement statement = komp2DbConnection.prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID, (UPPER(TERM_NAME)) as TERM_NAME FROM  IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID");
+        ResultSet res = statement.executeQuery();
+        while (res.next()) {
+            String r = res.getString("TERM_ID");
+            if (r.startsWith("MP:")) {
+                wantedIds.add(r);
+            }
+        }
+
+        //All MP terms we can have annotations to (from IMPRESS)
+        wantedIds.addAll(getOntologyIds(5, komp2DataSource));
+
+        return wantedIds;
+    }
+
+
     public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId)
-            throws IOException, URISyntaxException, SolrServerException {
+    throws IOException, URISyntaxException, SolrServerException {
 
         PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
         PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
@@ -327,42 +351,28 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
 
         int sumCount = 0;
-        int maleCount = 0;
-        int femaleCount = 0;
         for(DataTableRow r : uniqGenes){
             // want all counts, even if sex field has no data
             sumCount += r.getSexes().size();
-            // sex values: female, male, no data
-//            for (String s : r.getSexes()){
-//                if (s.equals("female")){
-//                    femaleCount++;
-//                }
-//                else if (s.equals("male")){
-//                    maleCount++;
-//                }
-//            }
         }
 
         Map<String, Integer> kv = new HashMap<>();
         kv.put("sumCount", sumCount);
-//        kv.put("femaleCount", femaleCount);
-//        kv.put("maleCount", maleCount);
 
         return kv;
     }
 
 
-    private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {// Won't work with mp from slim!!
+    private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {
+        // Won't work with mp from slim file!!
 
         TreeSet<String> synonyms = new TreeSet<String>();
         long calls = sumPhenotypingCalls(mpFromFullOntology.getAccessionId());
 
         // get narrow synonyms from all children not in slim.
-        if (calls > 0 && mpFromFullOntology.getChildIds().size() > 0){
+        if (calls > 0 && mpFromFullOntology.getChildIds() != null && mpFromFullOntology.getChildIds().size() > 0){
 
             for (String childId : mpFromFullOntology.getChildIds()){
-//                System.out.println("CHILD ID " + childId);
-
                 if (!termNodeIds.containsKey(childId)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
@@ -379,7 +389,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
         }
 
-//        System.out.println("Restricted narrow syn for " + mpFromFullOntology.getAccessionId() + " " + synonyms);
         return  synonyms;
 
     }
@@ -387,13 +396,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private TreeSet<String> getNarrowSynonymsOutsideSlim(OntologyTermDTO mpFromFullOntology,  int levels, TreeSet<String> synonyms){
 
-//        System.out.println("-- outside NS " + mpFromFullOntology.getAccessionId());
         if (mpFromFullOntology != null &&  levels > 0) {
             if (!termNodeIds.containsKey(mpFromFullOntology.getAccessionId())) { // not in slim
                 synonyms.addAll(mpHpParser.getNarrowSynonyms(mpFromFullOntology, levels - 1));
                 synonyms.add(mpFromFullOntology.getName());
                 synonyms.addAll(mpFromFullOntology.getSynonyms());
-            } else {
+            } else if (mpFromFullOntology.getChildIds() != null){
                 for (String childId : mpFromFullOntology.getChildIds()) {
                     if (!termNodeIds.containsKey(childId) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
                         getNarrowSynonymsOutsideSlim(mpHpParser.getOntologyTerm(childId), levels - 1, synonyms);
@@ -463,7 +471,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
 
         }
-        //System.out.println("FINISHED");
     }
 
 
@@ -497,11 +504,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try {
             // Grab all the supporting database content
-            mphpBeans = getMPHPBeans();
             termNodeIds = getNodeIds();
-            // Use single synonym hash
-            mpTermSynonyms = getMPTermSynonyms();
-            ontologySubsets = getOntologySubsets();
             goIds = getGOIds();
 
             // MA Term mappings
@@ -527,37 +530,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    private Map<String, List<MPHPBean>> getMPHPBeans()
-    throws IndexerException {
-
-        Map<String, List<MPHPBean>> beans = new HashMap<>();
-        int count;
-
-        try {
-            SolrQuery query = new SolrQuery("*:*");
-            query.addFilterQuery("type:mp_hp");
-            //query.setFields("mp_id", "hp_id", "hp_term", "hp_synonym");
-            query.setFields("mp_id", "hp_id", "hp_term");
-            query.setRows(5000);
-
-            QueryResponse response = phenodigmCore.query(query);
-            List<MPHPBean> docs = response.getBeans(MPHPBean.class);
-            count = 0;
-            for (MPHPBean doc : docs) {
-                if ( ! beans.containsKey(doc.getMpId())) {
-                    beans.put(doc.getMpId(), new ArrayList<MPHPBean>());
-                }
-                beans.get(doc.getMpId()).add(doc);
-                count ++;
-            }
-        } catch (SolrServerException | IOException e) {
-            throw new IndexerException(e);
-        }
-
-        logger.debug(" Added {} mphp records", count);
-
-        return beans;
-    }
 
     private Map<String, List<Integer>> getNodeIds()
     throws SQLException {
@@ -578,167 +550,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             lookupTableByNodeId.put(nId, tId);
         }
         logger.debug(" Added {} node Ids", count);
-
-        return beans;
-    }
-
-    private Map<Integer, List<MPTopLevelTermBean>> getTopLevelTerms()
-    throws SQLException {
-
-        Map<Integer, List<MPTopLevelTermBean>> beans = new HashMap<>();
-        String q = "select lv.node_id as mp_node_id, ti.term_id, ti.name, ti.definition, concat(ti.name, '___', ti.term_id) as top_level_mp_term_id from mp_node_top_level lv inner join mp_node2term nt on lv.top_level_node_id=nt.node_id inner join mp_term_infos ti on nt.term_id=ti.term_id and ti.term_id!='MP:0000001'";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            int nId = rs.getInt("mp_node_id");
-
-            MPTopLevelTermBean bean = new MPTopLevelTermBean();
-            bean.setTermId(rs.getString("term_id"));
-            bean.setName(rs.getString("name"));
-            bean.setDefinition(rs.getString("definition"));
-            bean.setTopLevelMPTermId(rs.getString("top_level_mp_term_id"));
-
-            if ( ! beans.containsKey(nId)) {
-                beans.put(nId, new ArrayList<MPTopLevelTermBean>());
-            }
-            beans.get(nId).add(bean);
-            count ++;
-        }
-        logger.debug(" Added {} top level terms", count);
-
-        return beans;
-    }
-
-    /**
-     * Build a map of child node ID -> node IDs, to use to build the
-     * intermediate nodes.
-     *
-     * @return the map.
-     * @throws SQLException
-     */
-    private Map<Integer, List<Integer>> getIntermediateNodeIds()
-    throws SQLException {
-
-    	Map<Integer, List<Integer>> beans = new HashMap<>();
-
-        String q = "select node_id, child_node_id from mp_node_subsumption_fullpath";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            int childId = rs.getInt("child_node_id");
-            int nodeId = rs.getInt("node_id");
-            if ( ! beans.containsKey(childId)) {
-                beans.put(childId, new ArrayList<Integer>());
-            }
-            beans.get(childId).add(nodeId);
-            count ++;
-        }
-        logger.debug(" Added {} intermediate node Ids", count);
-
-        return beans;
-    }
-
-    /**
-     * Build a map of node ID -> child node IDs.
-     *
-     * @return the map.
-     * @throws SQLException
-     */
-    private Map<Integer, List<Integer>> getChildNodeIds()
-    throws SQLException {
-
-        Map<Integer, List<Integer>> beans = new HashMap<>();
-
-        String q = "select node_id, child_node_id from mp_node_subsumption_fullpath";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            int nId = rs.getInt("node_id");
-            int childId = rs.getInt("child_node_id");
-            if ( ! beans.containsKey(nId)) {
-                beans.put(nId, new ArrayList<Integer>());
-            }
-            beans.get(nId).add(childId);
-            count ++;
-        }
-        logger.debug(" Added {} child node Ids", count);
-
-        return beans;
-    }
-
-    private Map<Integer, List<MPTermNodeBean>> getIntermediateTerms()
-    throws SQLException {
-
-        Map<Integer, List<MPTermNodeBean>> beans = new HashMap<>();
-
-        String q = "select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            int nId = rs.getInt("node_id");
-
-            MPTermNodeBean bean = new MPTermNodeBean();
-            bean.setTermId(rs.getString("term_id"));
-            bean.setName(rs.getString("name"));
-            bean.setDefinition(rs.getString("definition"));
-
-            if ( ! beans.containsKey(nId)) {
-                beans.put(nId, new ArrayList<MPTermNodeBean>());
-            }
-            beans.get(nId).add(bean);
-            count ++;
-        }
-        logger.debug(" Added {} intermediate level terms", count);
-
-        return beans;
-    }
-
-    private Map<Integer, List<Integer>> getParentNodeIds()
-    throws SQLException {
-
-        Map<Integer, List<Integer>> beans = new HashMap<>();
-
-        String q = "select parent_node_id, child_node_id from mp_parent_children";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            int nId = rs.getInt("child_node_id");
-            int parentId = rs.getInt("parent_node_id");
-            if ( ! beans.containsKey(nId)) {
-                beans.put(nId, new ArrayList<Integer>());
-            }
-            beans.get(nId).add(parentId);
-            count ++;
-        }
-        logger.debug(" Added {} parent node Ids", count);
-
-        return beans;
-    }
-
-    private Map<String, List<String>> getMPTermSynonyms()
-    throws SQLException {
-
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select term_id, syn_name from mp_synonyms";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            String syn = rs.getString("syn_name");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(syn);
-            count ++;
-        }
-        logger.debug(" Added {} MP term synonyms", count);
 
         return beans;
     }
@@ -1066,115 +877,38 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private void addMpHpTerms(MpDTO mp, List<MPHPBean> hpBeans) {
+    protected static void addIntermediateTerms(MpDTO mp, OntologyTermDTO mpDTO) {
 
-    	if (hpBeans != null) {
-            List<String> hpIds = new ArrayList<>(hpBeans.size());
-            List<String> hpTerms = new ArrayList<>(hpBeans.size());
-
-            for (MPHPBean bean : hpBeans) {
-            	if (bean.getHpId() != null && bean.getHpTerm() != null && !bean.getHpId().equals("") && !bean.getHpTerm().equals("")){
-            		hpIds.add(bean.getHpId());
-                	hpTerms.add(bean.getHpTerm());
-            	}
-            }
-
-            if (mp.getHpId() == null) {
-                mp.setHpId(new ArrayList<String>());
-                mp.setHpTerm(new ArrayList<String>());
-            }
-            mp.getHpId().addAll(hpIds);
-            mp.getHpTerm().addAll(hpTerms);
+        if (mpDTO.getIntermediateIds() != null) {
+            mp.addIntermediateMpId(mpDTO.getIntermediateIds());
+            mp.addIntermediateMpTerm(mpDTO.getIntermediateNames());
+            mp.addIntermediateMpTermSynonym(mpDTO.getIntermediateSynonyms());
         }
+
     }
 
-    protected static void addTopLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
+    /**
+     * Decorate MpDTO with info for top levels
+     * @param mp
+     * @param mpDTO
+     */
+    protected static void addTopLevelTerms(MpDTO mp, OntologyTermDTO mpDTO) {
 
-    	List<String> ids = new ArrayList<>();
-      	List<String> names = new ArrayList<>();
-      	List<String> nameId = new ArrayList<>();
-      	Set<String> synonyms = new HashSet<>();
-
-        for (OntologyTermBean term : mpOntologyService.getTopLevel(mp.getMpId())) {
-			ids.add(term.getId());
-			names.add(term.getName());
-			synonyms.addAll(term.getSynonyms());
-			nameId.add(term.getTermIdTermName());
-		}
-
-      	if (ids.size() > 0){
-            mp.setTopLevelMpId(ids);
-            mp.setTopLevelMpTerm(names);
-            mp.setTopLevelMpTermId(nameId);
-            mp.setTopLevelMpTermSynonym(new ArrayList<>(synonyms));
-            mp.setTopLevelMpTermInclusive(names);
-            mp.setTopLevelMpIdInclusive(ids);
+      	if (mpDTO.getTopLevelIds() != null && mpDTO.getTopLevelIds().size() > 0){
+            mp.addTopLevelMpId(mpDTO.getTopLevelIds());
+            mp.addTopLevelMpTerm(mpDTO.getTopLevelNames());
+            mp.addTopLevelMpTermSynonym(mpDTO.getTopLevelSynonyms());
+            mp.addTopLevelMpTermId(mpDTO.getTopLevelMpTermIds());
+            mp.addTopLevelMpTermInclusive(mpDTO.getTopLevelNames());
+            mp.addTopLevelMpIdInclusive(mpDTO.getTopLevelIds());
 
         }
         else {
             // add self as top level
-            names.add(mp.getMpTerm());
-            ids.add(mp.getMpId());
-            mp.setTopLevelMpTermInclusive(names);
-            mp.setTopLevelMpIdInclusive(ids);
+            mp.addTopLevelMpTermInclusive(mpDTO.getAccessionId() + mpDTO.getName());
+            mp.addTopLevelMpIdInclusive(mpDTO.getAccessionId());
         }
 
-    }
-
-    protected static void addIntermediateLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
-
-
-    	List<String> ids = new ArrayList<>();
-      	List<String> names = new ArrayList<>();
-      	Set<String> synonyms = new HashSet<>();
-
-      	for (OntologyTermBean term : mpOntologyService.getIntermediates(mp.getMpId())) {
-			ids.add(term.getId());
-			names.add(term.getName());
-			synonyms.addAll(term.getSynonyms());
-		}
-
-      	if (ids.size() > 0){
-	        mp.setIntermediateMpId(ids);
-	        mp.setIntermediateMpTerm(names);
-	        mp.setIntermediateMpTermSynonym(new ArrayList<>(synonyms));
-      	}
-    }
-
-    private void addChildLevelNodes(MpDTO mp) {
-
-    	List<String> childTermIds = new ArrayList<>();
-      	List<String> childTermNames = new ArrayList<>();
-      	Set<String> childSynonyms = new HashSet<>();
-
-		for (OntologyTermBean child : mpOntologyService.getChildren(mp.getMpId())) {
-			childTermIds.add(child.getId());
-			childTermNames.add(child.getName());
-			childSynonyms.addAll(child.getSynonyms());
-		}
-
-
-		mp.setChildMpId(childTermIds);
-		mp.setChildMpTerm(childTermNames);
-		mp.setChildMpTermSynonym(new ArrayList<>(childSynonyms));
-
-    }
-
-    protected static void addParentLevelNodes(MpDTO mp, MpOntologyDAO mpOntologyService) {
-
-        List<String> parentTermIds = new ArrayList<>();
-        List<String> parentTermNames = new ArrayList<>();
-        Set<String> parentSynonyms = new HashSet<>();
-
-        for (OntologyTermBean parent : mpOntologyService.getParents(mp.getMpId())) {
-        	parentTermIds.add(parent.getId());
-        	parentTermNames.add(parent.getName());
-        	parentSynonyms.addAll(parent.getSynonyms());
-		}
-
-        mp.setParentMpId(parentTermIds);
-        mp.setParentMpTerm(parentTermNames);
-        mp.setParentMpTermSynonym(new ArrayList<>(parentSynonyms));
     }
 
     private void addMaRelationships(MpDTO mp, String termId) {
@@ -1456,8 +1190,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     // PROTECTED METHODS
-
-
     public static void main(String[] args) throws IndexerException {
         SpringApplication.run(MPIndexer.class, args);
     }
