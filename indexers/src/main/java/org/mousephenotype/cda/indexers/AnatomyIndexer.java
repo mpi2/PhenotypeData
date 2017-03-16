@@ -84,6 +84,11 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap<>();      // key = term_id.
     private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap<>();      // key = term_id.
 
+    protected static final Set<String> TOP_LEVEL_MA_TERMS = new HashSet<>(Arrays.asList("EMAP:31887", "EMAP:31902", "EMAP:33590",
+    "EMAP:33659", "EMAP:3981", "EMAP:3987", "EMAP:4011", "EMAP:4103", "EMAP:4109", "EMAP:4636", "EMAP:4651",
+    "MA:0000004", "MA:0000007", "MA:0000009", "MA:0000010", "MA:0000012", "MA:0000014", "MA:0000016", "MA:0000017",
+    "MA:0000325", "MA:0000326", "MA:0000327", "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711"));
+
     public AnatomyIndexer() {
 
     }

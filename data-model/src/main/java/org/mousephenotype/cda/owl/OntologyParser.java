@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 
 public class OntologyParser {
 
-    List<OntologyTermDTO> terms = new ArrayList<>();
-
     OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
     OWLDataFactory factory = manager.getOWLDataFactory();
     OWLOntology ontology;
@@ -28,9 +26,10 @@ public class OntologyParser {
     ArrayList<OWLAnnotationProperty> SYNONYM_ANNOTATION;
     ArrayList<OWLAnnotationProperty> DEFINITION_ANNOTATION;
     Set<OWLPropertyExpression> PART_OF;
-    Map<String, Set<OWLClass>> ancestorsCache;
 
+    private Map<String, Set<OWLClass>> ancestorsCache;
     private Map<String, OntologyTermDTO> termMap = new HashMap<>(); // OBO-style ids because that's what we index.
+    private Map<String, OWLClass> classMap = new HashMap<>(); // OBO id to OWLClass object. We need this to avoid pre-loading of referrenced classes (MAs from MP)
     private Set<String> termsInSlim; // <ids of classes on slim>
     private Set<String> topLevelIds;
 
@@ -50,16 +49,15 @@ public class OntologyParser {
         if (wantedIds != null){
             getTermsInSlim(wantedIds, prefix);
         }
-        terms = new ArrayList<>();
         this.topLevelIds = topLevelIds;
 
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
             if (startsWithPrefix(cls, prefix)){
                 OntologyTermDTO term = getDTO(cls);
-                term.setEquivalentClasses(getEquivaletClasses(cls, prefix));
-                terms.add(term);
+                term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
                 termMap.put(term.getAccessionId(), term);
+                classMap.put(term.getAccessionId(), cls);
             }
         }
     }
@@ -80,14 +78,15 @@ public class OntologyParser {
         return (prefix == null || getIdentifierShortForm(cls).startsWith(prefix + ":"));
     }
 
+
     public List<OntologyTermDTO> getTerms(){
-        return terms;
+        return termMap.values().stream().collect(Collectors.toList());
     }
+
 
     /**
      * The getters by id (below) are needed until we move to an OWL API indexer. Should get rid of them and use the getters on the objects directly after that.
      */
-
     public OntologyTermDTO getOntologyTerm (String accessionId){
 
         return termMap.get(accessionId);
@@ -288,11 +287,10 @@ public class OntologyParser {
         if ( altIds!= null && altIds.size() > 0){
             term.setAlternateIds(altIds);
         }
-        term = addChildrenInfo(cls, term);
-        term = addParentInfo(cls, term);
-        //TODO
-        term = addIntermediateInfo(cls, term);
-        term = addTopLevelInfo(cls, term);
+        addChildrenInfo(cls, term);
+        addParentInfo(cls, term);
+        addIntermediateInfo(cls, term);
+        addTopLevelInfo(cls, term);
         return term;
     }
 
@@ -302,7 +300,7 @@ public class OntologyParser {
      * @param cls
      * @return Set of equivalent *named* classes.
      */
-    private Set<OntologyTermDTO> getEquivaletClasses(OWLClass cls, String prefix){
+    private Set<OntologyTermDTO> getEquivaletNamedClasses(OWLClass cls, String prefix){
 
         Set<OntologyTermDTO> eqClasses = new HashSet<>();
         for (OWLClassExpression classExpression : EntitySearcher.getEquivalentClasses(cls, ontology)){
@@ -314,7 +312,44 @@ public class OntologyParser {
     }
 
 
-    //TODO  private Set<OntologyTermDTO> getTopLevelTerms(OWLClass cls, Set<String> topLevelTerms){
+    public Set<String> getReferencedClasses(String clsId, Set<OWLObjectPropertyImpl> viaProperties, String prefixOfReferrencedClass){
+
+        Set<OWLClass> res = new HashSet<>();
+
+        if (classMap.containsKey(clsId)) {
+            OWLClass cls = classMap.get(clsId);
+            // get both equivalent classes and subclass of
+            Collection<OWLClassExpression> expressions = EntitySearcher.getEquivalentClasses(cls, ontology);
+            expressions.addAll(EntitySearcher.getSuperClasses(cls, ontology));
+            Collection<OWLClassExpression> expressionsFromIntersection = new HashSet<>();
+
+            for (OWLClassExpression classExpression : expressions) {
+                // Most likely case, something like PATO_0000051 and ('inheres in' some MA_0000195) and (qualifier some PATO_0000460)
+                // Treat this case first as it adds new expressions to the list processed in the nex
+                if (classExpression instanceof OWLObjectIntersectionOf) {
+                    OWLObjectIntersectionOf intersection = (OWLObjectIntersectionOf) classExpression;
+                    // break down into simple class expressions and dd them to the set to be analysed
+                    expressionsFromIntersection.addAll(intersection.asConjunctSet());
+                }
+            }
+            expressions.addAll(expressionsFromIntersection);
+            for (OWLClassExpression classExpression : expressions) {
+                // Simplest case, something like ('inheres in' some MA_0000195)
+                if (classExpression instanceof OWLObjectSomeValuesFrom){
+                    OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) classExpression;
+                    if (viaProperties.contains(svf.getProperty().asOWLObjectProperty())){
+                        if (svf.getFiller() instanceof OWLNamedObject){
+                            res.add(svf.getFiller().asOWLClass());
+                        }
+                    }
+                }
+            }
+        }
+        // Return the ids, but filter for the right prefix
+        return  res.stream().filter(cls -> {return startsWithPrefix(cls, prefixOfReferrencedClass);})
+            .map(cls -> {return getIdentifierShortForm(cls);}).collect(Collectors.toSet());
+    }
+
 
     public Set<String> getTermsInSlim(){
 
@@ -426,7 +461,7 @@ public class OntologyParser {
      * @param term the ontology term dto where you want the child info to be added.
      * @return Return the cls dto with added information about child classes: childIds and childTerms. If terms for slim were provided to the parser the results will be restricted to slim classes.
      */
-    private OntologyTermDTO addChildrenInfo(OWLClass cls, OntologyTermDTO term){
+    private void addChildrenInfo(OWLClass cls, OntologyTermDTO term){
 
         Set<OWLClass> children = getChildrenPartOf(cls);
         if (termsInSlim != null){
@@ -437,10 +472,9 @@ public class OntologyParser {
             term.addChildId(getIdentifierShortForm(child.asOWLClass()));
             term.addChildName(getLabel(child.asOWLClass()));
         }
-        return  term;
     }
 
-    private OntologyTermDTO addTopLevelInfo (OWLClass cls, OntologyTermDTO term ){
+    private void addTopLevelInfo (OWLClass cls, OntologyTermDTO term ){
 
         Set<OWLClass> classAncestors = getClassAncestors(cls, null);
         if (classAncestors != null && topLevelIds != null) {
@@ -457,7 +491,6 @@ public class OntologyParser {
                 term.addTopLevelMpTermIds(getLabel(topLevel), getIdentifierShortForm(topLevel));
             }
         }
-        return term;
 
     }
 
@@ -468,7 +501,7 @@ public class OntologyParser {
      * @param term
      * @return
      */
-    private OntologyTermDTO addIntermediateInfo(OWLClass cls, OntologyTermDTO term ){
+    private void addIntermediateInfo(OWLClass cls, OntologyTermDTO term ){
 
         Set<OWLClass> classAncestors = getClassAncestors(cls, null);
         if (classAncestors != null) {
@@ -488,7 +521,6 @@ public class OntologyParser {
                 term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
             }
         }
-        return term;
 
     }
 
@@ -497,7 +529,7 @@ public class OntologyParser {
      * @param cls
      * @return Return the cls dto with added information about child classes: childIds and childTerms.
      */
-    private OntologyTermDTO addParentInfo(OWLClass cls, OntologyTermDTO term){
+    private void addParentInfo(OWLClass cls, OntologyTermDTO term){
 
         // TODO add part_of
         for (OWLClassExpression classExpression : EntitySearcher.getSuperClasses(cls, ontology)){
@@ -506,7 +538,6 @@ public class OntologyParser {
                 term.addParentName(getLabel(classExpression.asOWLClass()));
             }
         }
-        return  term;
     }
 
 
