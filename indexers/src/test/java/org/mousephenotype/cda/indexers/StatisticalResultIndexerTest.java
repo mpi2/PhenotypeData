@@ -264,6 +264,38 @@ public class StatisticalResultIndexerTest implements ApplicationContextAware {
 
     }
 
+
+    @Test
+    public void testRrPlusResultsForTopLevelMpExistence() throws Exception {
+
+        statisticalResultIndexer.setSAVE(Boolean.FALSE);
+        StatisticalResultsIndexer.ReferenceRangePlusResults r = statisticalResultIndexer.getReferenceRangePlusResults();
+
+        System.out.println("Assessing result of type " + r.getClass().getSimpleName());
+        List<StatisticalResultDTO> results = r.call();
+
+        List<StatisticalResultDTO> missing = new ArrayList<>();
+
+        for (StatisticalResultDTO result : results) {
+
+            if (result.getTopLevelMpTermId() == null) {
+                missing.add(result);
+            }
+
+            if (Math.random()<0.0001) {
+                System.out.println("Random result");
+                System.out.println(String.format("doc id: %s, colony:%s, top level ids: [%s], top level names: [%s]", result.getDocId(), result.getColonyId(), StringUtils.join(result.getTopLevelMpTermId(), ","), StringUtils.join(result.getTopLevelMpTermName(), ",")));
+            }
+
+        }
+
+        System.out.println("Missing top level terms " + missing.size());
+
+        assert missing.size() < 1;
+
+    }
+
+
     @Test
     @Ignore
     public void getSignificanceField() throws Exception {
