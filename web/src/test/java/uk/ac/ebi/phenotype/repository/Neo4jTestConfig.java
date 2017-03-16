@@ -41,9 +41,9 @@ public class Neo4jTestConfig {
         return new SessionFactory(getConfiguration(), "uk.ac.ebi.phenotype.repository");
     }
 
-//    @Bean
-//    public Neo4jTransactionManager transactionManager() {
-//        return new Neo4jTransactionManager(sessionFactory());
-//    }
+    @Bean
+    public Neo4jTransactionManager transactionManager() {
+        return new Neo4jTransactionManager(sessionFactory());
+    }
 
 }
