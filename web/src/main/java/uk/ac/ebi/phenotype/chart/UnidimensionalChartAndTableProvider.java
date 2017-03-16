@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
@@ -64,7 +65,7 @@ public class UnidimensionalChartAndTableProvider {
 	 *
 	 */
 	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, ParameterDTO parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle)
-	throws SQLException, IOException, URISyntaxException {
+			throws SQLException, IOException, URISyntaxException, JSONException {
 
 		ChartData chartAndTable = null;
 		List<UnidimensionalDataSet> unidimensionalDataSets = new ArrayList<>();
@@ -157,7 +158,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param chartsSeriesElementsList
 	 * @return
 	 */
-	private ChartData processChartData(String chartId, Float yMin, Float yMax, ParameterDTO parameter, ExperimentDTO experiment, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList) {
+	private ChartData processChartData(String chartId, Float yMin, Float yMax, ParameterDTO parameter, ExperimentDTO experiment, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList) throws JSONException {
 
 		String chartString = createContinuousBoxPlotChartsString(chartId, yMin, yMax, parameter, yAxisTitle, chartsSeriesElementsList, experiment);
 		ChartData cNTable = new ChartData();
@@ -178,7 +179,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @return
 	 */
 	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,ParameterDTO parameter, String yAxisTitle,
-		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
+		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) throws JSONException {
 
 		JSONArray categories = new JSONArray();
 		String boxPlotObject = "";

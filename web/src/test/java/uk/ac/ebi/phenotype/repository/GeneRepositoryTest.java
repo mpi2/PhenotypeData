@@ -25,9 +25,9 @@ public class GeneRepositoryTest {
     private final static Logger log = LoggerFactory.getLogger(GeneRepositoryTest.class);
 
     public static final String geneSymbol = "Akt2";
+
     @Autowired
     GeneRepository geneRepository;
-
 
     @Test
     public void testGeneRepository() {

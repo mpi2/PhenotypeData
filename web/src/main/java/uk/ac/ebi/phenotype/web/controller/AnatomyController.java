@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
+import org.json.JSONException;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
@@ -97,7 +98,7 @@ public class AnatomyController {
 	 */
 	@RequestMapping(value = "/anatomy/{anatomy}", method = RequestMethod.GET)
 	public String loadMaPage(@PathVariable String anatomy, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws SolrServerException, IOException , URISyntaxException {
+			throws SolrServerException, IOException, URISyntaxException, JSONException {
 
 		AnatomyDTO anatomyTerm = anatomyService.getTerm(anatomy);
 

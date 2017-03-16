@@ -25,6 +25,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
@@ -141,7 +142,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      * @param idgClass one of [GPCRs, Ion Channels, Ion Channels]
      * @return
      */
-    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException {
+    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, JSONException {
 
 
         try {
@@ -192,7 +193,14 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
                 }
             }
 
-            List<JSONObject> labelList = genesByTopLevelMp.entrySet().stream().map(entry -> new JSONObject().put("name", entry.getKey()).put("geneCount", entry.getValue().size())).collect(Collectors.toList());
+            List<JSONObject> labelList = genesByTopLevelMp.entrySet().stream().map(entry -> {
+                try {
+                    return new JSONObject().put("name", entry.getKey()).put("geneCount", entry.getValue().size());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).collect(Collectors.toList());
 
             JSONObject result = new JSONObject();
             result.put("matrix", new JSONArray(matrix));
@@ -302,7 +310,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     }
 
 
-    public JSONArray getTopLevelPhenotypeIntersection(String mpId){
+    public JSONArray getTopLevelPhenotypeIntersection(String mpId) throws JSONException {
 
         String pivot = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
         SolrQuery query = new SolrQuery();
@@ -339,7 +347,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         return null;
     }
 
-    private JSONObject addJitter(Double x, Double y, Set<String> existingPoints, JSONObject obj){
+    private JSONObject addJitter(Double x, Double y, Set<String> existingPoints, JSONObject obj) throws JSONException {
 
         String s = x + "_" + y;
         if (!existingPoints.contains(s)){
@@ -374,8 +382,8 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
      * @return Number of genes in g-p core for anatomy term given. 
      * @throws SolrServerException, IOException
      */
-    public Integer getGenesByAnatomy(String anatomyId) 
-    throws SolrServerException, IOException{
+    public Integer getGenesByAnatomy(String anatomyId)
+            throws SolrServerException, IOException, JSONException {
     	
     	 SolrQuery query = new SolrQuery();
          query.setQuery("(" + GenotypePhenotypeDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " + 
