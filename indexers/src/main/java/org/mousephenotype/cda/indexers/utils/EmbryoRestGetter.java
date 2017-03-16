@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.indexers.utils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class EmbryoRestGetter {
 	    this.embryoViewerFilename = embryoViewerFilename;
     }
 
-	public EmbryoRestData getEmbryoRestData() {
+	public EmbryoRestData getEmbryoRestData() throws JSONException {
 
         EmbryoRestData     data          = new EmbryoRestData();
         String             content       = readEmbryoViewerFile();

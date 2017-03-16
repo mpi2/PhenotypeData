@@ -1,15 +1,15 @@
 package uk.ac.ebi.phenotype.repository;
 
-import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.nio.file.Paths;
+
+//import org.springframework.context.annotation.ComponentScan;
 
 /**
  * Test configuration sets up the embedded Neo4J driver in memory mode
@@ -41,9 +41,9 @@ public class Neo4jTestConfig {
         return new SessionFactory(getConfiguration(), "uk.ac.ebi.phenotype.repository");
     }
 
-//    @Bean
-//    public Neo4jTransactionManager transactionManager() {
-//        return new Neo4jTransactionManager(sessionFactory());
-//    }
+    @Bean
+    public Neo4jTransactionManager transactionManager() {
+        return new Neo4jTransactionManager(sessionFactory());
+    }
 
 }
