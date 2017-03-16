@@ -260,22 +260,13 @@ public class MpDTO {
 	private List<String> inferredSelectedTopLevelMaTerm;
 
 	@Field(INFERRED_INTERMEDIATE_MA_ID)
-	private List<String> inferredChildMaId;
+	private List<String> inferredIntermediatedMaId;
 
 	@Field(INFERRED_INTERMEDIATE_MA_TERM)
-	private List<String> inferredChildMaTerm;
+	private List<String> inferredIntermediateMaTerm;
 
 	@Field(GO_ID)
 	private List<String> goId;
-
-	@Field(SIBLING_MP_ID)
-	private List<String> siblingMpId;
-
-	@Field(SIBLING_MP_TERM)
-	private List<String> siblingMpTerm;
-
-	@Field(SIBLING_MP_DEFINITION)
-	private List<String> siblingMpDefinition;
 
 	@Field(P_VALUE)
 	private List<Float> pValue;
@@ -958,8 +949,12 @@ public class MpDTO {
 
 
 	public void setInferredMaId(List<String> inferredMaId) {
-
 		this.inferredMaId = inferredMaId;
+	}
+
+	public void addInferredMaId(String inferredMaId) {
+		if (this.inferredMaId == null){ this.inferredMaId = new ArrayList<>();}
+		this.inferredMaId.add(inferredMaId);
 	}
 
 
@@ -974,6 +969,12 @@ public class MpDTO {
 		this.inferredMaTerm = inferredMaTerm;
 	}
 
+	public void addInferredMaTerm(String inferredMaTerm) {
+
+		if (this.inferredMaTerm == null){ this.inferredMaTerm = new ArrayList<>();}
+		this.inferredMaTerm.add(inferredMaTerm);
+	}
+
 	public List<String> getInferredSelectedTopLevelMaId() {
 
 		return inferredSelectedTopLevelMaId;
@@ -985,6 +986,11 @@ public class MpDTO {
 		this.inferredSelectedTopLevelMaId = inferredSelectedTopLevelMaId;
 	}
 
+	public void addInferredSelectedTopLevelMaId(Collection<String> inferredSelectedTopLevelMaId) {
+
+		if (this.inferredSelectedTopLevelMaId == null){ this.inferredSelectedTopLevelMaId = new ArrayList<>();}
+		this.inferredSelectedTopLevelMaId.addAll(inferredSelectedTopLevelMaId);
+	}
 
 	public List<String> getInferredSelectedTopLevelMaTerm() {
 
@@ -998,6 +1004,12 @@ public class MpDTO {
 	}
 
 
+	public void addInferredSelectedTopLevelMaTerm(Collection<String> inferredSelectedTopLevelMaTerm) {
+		if (this.inferredSelectedTopLevelMaTerm == null){ this.inferredSelectedTopLevelMaTerm = new ArrayList<>();}
+		this.inferredSelectedTopLevelMaTerm.addAll(inferredSelectedTopLevelMaTerm);
+	}
+
+
 	public List<String> getGoId() {
 
 		return goId;
@@ -1008,43 +1020,6 @@ public class MpDTO {
 
 		this.goId = goId;
 	}
-
-
-	public List<String> getSiblingMpId() {
-
-		return siblingMpId;
-	}
-
-
-	public void setSiblingMpId(List<String> siblingMpId) {
-
-		this.siblingMpId = siblingMpId;
-	}
-
-
-	public List<String> getSiblingMpTerm() {
-
-		return siblingMpTerm;
-	}
-
-
-	public void setSiblingMpTerm(List<String> siblingMpTerm) {
-
-		this.siblingMpTerm = siblingMpTerm;
-	}
-
-
-	public List<String> getSiblingMpDefinition() {
-
-		return siblingMpDefinition;
-	}
-
-
-	public void setSiblingMpDefinition(List<String> siblingMpDefinition) {
-
-		this.siblingMpDefinition = siblingMpDefinition;
-	}
-
 
 	public List<Float> getpValue() {
 
@@ -1774,20 +1749,29 @@ public class MpDTO {
 		this.parameterStableKey = parameterStableKey;
 	}
 
-	public List<String> getInferredChildMaId() {
-		return inferredChildMaId;
+	public List<String> getInferredIntermediatedMaId() {
+		return inferredIntermediatedMaId;
 	}
 
-	public void setInferredChildMaId(List<String> inferredChildMaId) {
-		this.inferredChildMaId = inferredChildMaId;
+	public void setInferredIntermediatedMaId(List<String> inferredIntermediatedMaId) {
+		this.inferredIntermediatedMaId = inferredIntermediatedMaId;
+	}
+	public void addInferredIntermediatedMaId(List<String> inferredIntermediatedMaId) {
+		if (this.inferredIntermediatedMaId == null){ this.inferredIntermediatedMaId = new ArrayList<>();}
+		this.inferredIntermediatedMaId.addAll(inferredIntermediatedMaId);
 	}
 
-	public List<String> getInferredChildMaTerm() {
-		return inferredChildMaTerm;
+	public List<String> getInferredIntermediateMaTerm() {
+		return inferredIntermediateMaTerm;
 	}
 
-	public void setInferredChildMaTerm(List<String> inferredChildMaTerm) {
-		this.inferredChildMaTerm = inferredChildMaTerm;
+	public void setInferredIntermediateMaTerm(List<String> inferredIntermediateMaTerm) {
+		this.inferredIntermediateMaTerm = inferredIntermediateMaTerm;
+	}
+
+	public void addInferredIntermediateMaTerm(List<String> inferredIntermediateMaTerm) {
+		if (this.inferredIntermediateMaTerm == null){ this.inferredIntermediateMaTerm = new ArrayList<>();}
+		this.inferredIntermediateMaTerm.addAll(inferredIntermediateMaTerm);
 	}
 
 	@Override
@@ -1862,11 +1846,6 @@ public class MpDTO {
 		if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(mpDTO.inferredSelectedTopLevelMaTerm) : mpDTO.inferredSelectedTopLevelMaTerm != null)
 			return false;
 		if (goId != null ? !goId.equals(mpDTO.goId) : mpDTO.goId != null) return false;
-		if (siblingMpId != null ? !siblingMpId.equals(mpDTO.siblingMpId) : mpDTO.siblingMpId != null) return false;
-		if (siblingMpTerm != null ? !siblingMpTerm.equals(mpDTO.siblingMpTerm) : mpDTO.siblingMpTerm != null)
-			return false;
-		if (siblingMpDefinition != null ? !siblingMpDefinition.equals(mpDTO.siblingMpDefinition) : mpDTO.siblingMpDefinition != null)
-			return false;
 		if (pValue != null ? !pValue.equals(mpDTO.pValue) : mpDTO.pValue != null) return false;
 		if (mgiAccessionId != null ? !mgiAccessionId.equals(mpDTO.mgiAccessionId) : mpDTO.mgiAccessionId != null)
 			return false;
@@ -2003,9 +1982,6 @@ public class MpDTO {
 		result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
 		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
 		result = 31 * result + (goId != null ? goId.hashCode() : 0);
-		result = 31 * result + (siblingMpId != null ? siblingMpId.hashCode() : 0);
-		result = 31 * result + (siblingMpTerm != null ? siblingMpTerm.hashCode() : 0);
-		result = 31 * result + (siblingMpDefinition != null ? siblingMpDefinition.hashCode() : 0);
 		result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
 		result = 31 * result + (phenoCalls != null ? phenoCalls.hashCode() : 0);
@@ -2113,12 +2089,9 @@ public class MpDTO {
 				", inferredMaTerm=" + inferredMaTerm +
 				", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId +
 				", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm +
-				", inferredChildMaId=" + inferredChildMaId +
-				", inferredChildMaTerm=" + inferredChildMaTerm +
+				", inferredIntermediatedMaId=" + inferredIntermediatedMaId +
+				", inferredIntermediateMaTerm=" + inferredIntermediateMaTerm +
 				", goId=" + goId +
-				", siblingMpId=" + siblingMpId +
-				", siblingMpTerm=" + siblingMpTerm +
-				", siblingMpDefinition=" + siblingMpDefinition +
 				", pValue=" + pValue +
 				", mgiAccessionId=" + mgiAccessionId +
 				", phenoCalls=" + phenoCalls +
