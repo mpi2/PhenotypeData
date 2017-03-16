@@ -197,10 +197,6 @@
 
         <field name="go_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-        <field name="sibling_mp_id" type="string" indexed="false" stored="true" required="false" multiValued="true" />
-        <field name="sibling_mp_term" type="text_general" indexed="false" stored="true" required="false" multiValued="true" />
-        <field name="sibling_mp_definition" type="string" indexed="false" stored="true" required="false" multiValued="true" />
-
         <!-- gene core stuff -->
         <field name="p_value" type="float" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
