@@ -10,11 +10,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.utilities.UrlUtils;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -313,6 +317,20 @@ public class OntologyParserTest {
         Assert.assertTrue(term.getTopLevelIds() == null || term.getTopLevelIds().size() == 0);
     }
 
+    @Test
+    public void testMpMaMapping() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
 
+        Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>();
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")));
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000070")));
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of")));
+
+        OntologyParser mpMaParser = new OntologyParser(Paths.get(owlpath)+ "/mp-ext-merged.owl", null, null, null);
+        // Should have only MA_0000009 = adipose tissue; MP:0000003 = abnormal adipose tissue morphology
+        Set<String> ma = mpMaParser.getReferencedClasses("MP:0000003", viaProperties, "MA");
+        Assert.assertTrue(ma.size() == 1);
+        Assert.assertTrue(ma.contains("MA:0000009"));
+
+    }
 
 }
