@@ -7,6 +7,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.json.JSONException;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
@@ -156,9 +157,13 @@ public class LandingPageController {
         procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
         Collections.sort(procedures, ImpressDTO.getComparatorByProcedureName());
 
-        model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",
-                "for genes with at least one " + pageTitle + " phenotype", "Number of associations to " + pageTitle, "Number of associations to other phenotypes",
-                "Other phenotype calls: ", pageTitle + " phenotype calls: "));
+        try {
+            model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId()), "Gene pleiotropy",
+                    "for genes with at least one " + pageTitle + " phenotype", "Number of associations to " + pageTitle, "Number of associations to other phenotypes",
+                    "Other phenotype calls: ", pageTitle + " phenotype calls: "));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         model.addAttribute("pageTitle", pageTitle);
         model.addAttribute("paramToNumber", paramToNumber);
         model.addAttribute("impcImageGroups", groups);
