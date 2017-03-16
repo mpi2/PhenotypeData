@@ -1,7 +1,9 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -24,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -53,19 +56,32 @@ public class StatisticalResultTest {
 
 	@Autowired
 	StatisticalResultRepository statisticalResultRepository;
-	
-	
+
+
 	@Test
-	public void allDocumentsHaveATopLevelMpTermId(){
-		try {
-			assertTrue(statisticalResultService.allDocumentsHaveTopLevelMp());
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public void allDocumentsHaveATopLevelMpTermId() throws IOException, SolrServerException {
+
+		//q=-top_level_mp_term_id:*&fq=status:Success&fq=-procedure_stable_id:IMPC_VIA_001&fq=-procedure_stable_id:IMPC_FER*&fq=+statistical_method:"Reference%20Ranges%20Plus%20framework"&fq=mp_term_id_options:*
+
+		SolrQuery query = new SolrQuery("-top_level_mp_term_id:*")
+				.addFilterQuery("status:Success")
+				.addFilterQuery("-procedure_stable_id:IMPC_VIA_001")
+				.addFilterQuery("-procedure_stable_id:IMPC_FER*")
+				.addFilterQuery("mp_term_id_options:*")
+				.setRows(1);
+
+		QueryResponse response = statisticalResultService.getSolrServer().query(query);
+		System.out.println("query in allDocumentsHaveTopLevelmp=" + query);
+
+		long numberFound = response.getResults().getNumFound();
+		System.out.println("number of documents in SR core without a top level mp=" + numberFound);
+		if(numberFound > 0) {
+			System.out.println(response.getBeans(StatisticalResultDTO.class).get(0));
+
 		}
+
+		assertFalse(numberFound > 0);
+
 	}
 
 	@Test
