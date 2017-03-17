@@ -548,9 +548,9 @@ public class MpDTO {
 	}
 
 
-	public void setMpNodeId(List<Integer> mpNodeId) {
+	public void setMpNodeId(Collection<Integer> mpNodeId) {
 
-		this.mpNodeId = mpNodeId;
+		this.mpNodeId = new ArrayList<>(mpNodeId);
 	}
 
 

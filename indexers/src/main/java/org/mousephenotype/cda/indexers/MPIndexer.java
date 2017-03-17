@@ -22,12 +22,12 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.*;
+import org.mousephenotype.cda.indexers.beans.MPStrainBean;
+import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
+import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
-import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
@@ -74,18 +74,16 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
     private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
 
-	@Autowired
-	@Qualifier("phenodigmCore")
-	private SolrClient phenodigmCore;
-
     @Autowired
     @Qualifier("alleleCore")
     private SolrClient alleleCore;
 
+    // TODO replace with service (imported below)
     @Autowired
     @Qualifier("preqcCore")
     private SolrClient preqcCore;
 
+    // TODO replace with service (imported below)
     @Autowired
     @Qualifier("genotypePhenotypeCore")
     private SolrClient genotypePhenotypeCore;
@@ -93,10 +91,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
-
-    @Autowired
-    @Qualifier("ontodbDataSource")
-    DataSource ontodbDataSource;
 
     @NotNull
     @Value("${owlpath}")
@@ -110,9 +104,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private SolrClient mpCore;
 
     @Autowired
-    MpOntologyDAO mpOntologyService;
-
-    @Autowired
     @Qualifier("postqcService")
     PostQcService postqcService;
 
@@ -121,27 +112,17 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     PreQcService preqcService;
 
     private static Connection komp2DbConnection;
-    private static Connection ontoDbConnection;
 
-    // Maps of supporting database content
-    Map<String, List<Integer>> termNodeIds;
-
-    Map<String, List<String>> goIds;
-
-    // Alleles
     Map<String, List<AlleleDTO>> alleles;
 
     // Phenotype call summaries (1)
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
     Map<String, List<String>> impcBeans;
     Map<String, List<String>> legacyBeans;
-
     // Phenotype call summaries (2)
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
     Map<String, List<MPStrainBean>> strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
-
-    Map<Integer, String> lookupTableByNodeId = new HashMap<>(); // <nodeId, mpOntologyId>
 
     Map<String, Long> mpCalls = new HashMap<>();
     Map<String, Integer> mpGeneVariantCount = new HashMap<>();
@@ -181,14 +162,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
-        OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
         initializeDatabaseConnections();
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
         Set<String> wantedIds = getWantedSlimIds();
+        OntologyBrowserGetter browser = new OntologyBrowserGetter();
 
         try {
             mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
+            mpParser.fillJsonTreePath("MP:0000001"); // call this if you want node ids from the objects
             System.out.println("Loaded mp parser");
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
             System.out.println("Loaded mp hp parser");
@@ -220,8 +202,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.setAltMpIds(mpDTO.getAlternateIds());
                 }
 
-                mp.setMpNodeId(termNodeIds.get(termId));
-                mp.setMpNodeId(termNodeIds.get(termId));
+                mp.setMpNodeId(mpDTO.getNodeIds());
 
                 addTopLevelTerms(mp, mpDTO);
                 addIntermediateTerms(mp, mpDTO);
@@ -259,7 +240,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
 
                 mp.setMpTermSynonym(mpDTO.getSynonyms());
-                mp.setGoId(goIds.get(termId));
+
                 getMaTermsForMp(mp);
 
                 // this sets the number of postqc/preqc phenotyping calls of this MP
@@ -267,14 +248,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
 
-                // Ontology browser stuff
-                TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId);
-
-                // for MP the root node id is 0 (MA is 1)
-                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, termId, mpGeneVariantCount);
+                List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser);
                 mp.setSearchTermJson(searchTree.toString());
-                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
-                mp.setScrollNode(scrollNodeId);
+                //TODO scrollTo with OntologyParser
+//                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
+//               mp.setScrollNode(scrollNodeId);
                 //TODO add child json back, from OntologyParser
 //                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
 //                mp.setChildrenJson(childrenTree.toString());
@@ -293,7 +271,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Send a final commit
             mpCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
+        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
             throw new IndexerException(e);
         }
 
@@ -379,6 +357,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return kv;
     }
 
+    private boolean isInSlim(String term, OntologyParser parser){
+        return parser.getTermsInSlim().contains(term);
+    }
 
     private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {
 
@@ -389,14 +370,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (calls > 0 && mpFromFullOntology.getChildIds() != null && mpFromFullOntology.getChildIds().size() > 0){
 
             for (String childId : mpFromFullOntology.getChildIds()){
-                if (!termNodeIds.containsKey(childId)) {// not in slim
+                if (!isInSlim(childId, mpParser)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
                         synonyms.addAll(mpHpParser.getNarrowSynonyms(child, levels));
                         synonyms.add(child.getName());
                         synonyms.addAll(child.getSynonyms());
                     }
-                } else if (termNodeIds.containsKey(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
+                } else if (isInSlim(childId, mpParser) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
                         synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels, synonyms));
@@ -413,13 +394,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private TreeSet<String> getNarrowSynonymsOutsideSlim(OntologyTermDTO mpFromFullOntology,  int levels, TreeSet<String> synonyms){
 
         if (mpFromFullOntology != null &&  levels > 0) {
-            if (!termNodeIds.containsKey(mpFromFullOntology.getAccessionId())) { // not in slim
+            if (!isInSlim(mpFromFullOntology.getAccessionId(), mpParser)) { // not in slim
                 synonyms.addAll(mpHpParser.getNarrowSynonyms(mpFromFullOntology, levels - 1));
                 synonyms.add(mpFromFullOntology.getName());
                 synonyms.addAll(mpFromFullOntology.getSynonyms());
             } else if (mpFromFullOntology.getChildIds() != null){
                 for (String childId : mpFromFullOntology.getChildIds()) {
-                    if (!termNodeIds.containsKey(childId) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
+                    if (!isInSlim(childId, mpParser) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
                         getNarrowSynonymsOutsideSlim(mpHpParser.getOntologyTerm(childId), levels - 1, synonyms);
                     }
                 }
@@ -507,7 +488,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try {
             komp2DbConnection = komp2DataSource.getConnection();
-            ontoDbConnection = ontodbDataSource.getConnection();
         } catch (SQLException e) {
             throw new IndexerException(e);
         }
@@ -519,10 +499,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     throws IndexerException {
 
         try {
-            // Grab all the supporting database content
-            termNodeIds = getNodeIds();
-            goIds = getGOIds();
-
             // Alleles
             alleles = IndexerMap.getGeneToAlleles(alleleCore);
 
@@ -540,52 +516,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-
-    private Map<String, List<Integer>> getNodeIds()
-    throws SQLException {
-
-        Map<String, List<Integer>> beans = new HashMap<>();
-        String q = "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            int nId = rs.getInt("node_id");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<Integer>());
-            }
-            beans.get(tId).add(nId);
-            count ++;
-            lookupTableByNodeId.put(nId, tId);
-        }
-        logger.debug(" Added {} node Ids", count);
-
-        return beans;
-    }
-
-    private Map<String, List<String>> getGOIds()
-    throws SQLException {
-
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select distinct x.xref_id, ti.term_id from mp_dbxrefs x inner join mp_term_infos ti on x.term_id=ti.term_id and x.xref_id like 'GO:%'";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            String xrefId = rs.getString("xref_id");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(xrefId);
-            count ++;
-        }
-        logger.debug(" Added {} xrefs", count);
-
-        return beans;
-    }
 
     private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1()
     throws SQLException {

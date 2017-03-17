@@ -32,7 +32,11 @@ public class OntologyTermDTO {
     String              definition;
     boolean             isObsolete;
     OWLClass            cls;
-    Map<Integer, List<Integer>> pathsToRoot; // <nodeId,
+    Map<Integer, List<Integer>> pathsToRoot; // <nodeId, <nodeids>>
+
+    public Set<Integer> getNodeIds(){
+        return pathsToRoot.keySet();
+    }
 
     public Set<OntologyTermDTO> getEquivalentClasses() {
         return equivalentClasses;
