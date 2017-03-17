@@ -54,7 +54,7 @@ public class OntologyParser {
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
             if (startsWithPrefix(cls, prefix)){
-                OntologyTermDTO term = getDTO(cls);
+                OntologyTermDTO term = getDTO(cls, prefix);
                 term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
@@ -264,7 +264,7 @@ public class OntologyParser {
     }
 
 
-    private OntologyTermDTO getDTO(OWLClass cls){
+    private OntologyTermDTO getDTO(OWLClass cls, String prefix){
 
         OntologyTermDTO term = new OntologyTermDTO();
         term.setAccessionId(getIdentifierShortForm(cls)); // i.e. MA:0100084
@@ -287,9 +287,9 @@ public class OntologyParser {
         if ( altIds!= null && altIds.size() > 0){
             term.setAlternateIds(altIds);
         }
-        addChildrenInfo(cls, term);
-        addParentInfo(cls, term);
-        addIntermediateInfo(cls, term);
+        addChildrenInfo(cls, term, prefix);
+        addParentInfo(cls, term, prefix);
+        addIntermediateInfo(cls, term, prefix);
         addTopLevelInfo(cls, term);
         return term;
     }
@@ -305,7 +305,7 @@ public class OntologyParser {
         Set<OntologyTermDTO> eqClasses = new HashSet<>();
         for (OWLClassExpression classExpression : EntitySearcher.getEquivalentClasses(cls, ontology)){
             if (classExpression.isClassExpressionLiteral() && !getIdentifierShortForm(classExpression.asOWLClass()).startsWith(prefix + ":")){
-                eqClasses.add(getDTO(classExpression.asOWLClass()));
+                eqClasses.add(getDTO(classExpression.asOWLClass(), prefix));
             }
         }
         return  eqClasses;
@@ -461,12 +461,12 @@ public class OntologyParser {
      * @param term the ontology term dto where you want the child info to be added.
      * @return Return the cls dto with added information about child classes: childIds and childTerms. If terms for slim were provided to the parser the results will be restricted to slim classes.
      */
-    private void addChildrenInfo(OWLClass cls, OntologyTermDTO term){
+    private void addChildrenInfo(OWLClass cls, OntologyTermDTO term, String prefix){
 
         Set<OWLClass> children = getChildrenPartOf(cls);
         if (termsInSlim != null){
-            // Filter out child terms not in slim
-            children = children.stream().filter(termCls -> { return termsInSlim.contains(getIdentifierShortForm(termCls));}).collect(Collectors.toSet());
+            // Filter out child terms not in slim or with another prefix
+            children = children.stream().filter(termCls -> { return termsInSlim.contains(getIdentifierShortForm(termCls)) || !startsWithPrefix(termCls, prefix);}).collect(Collectors.toSet());
         }
         for (OWLClass child : children){
             term.addChildId(getIdentifierShortForm(child.asOWLClass()));
@@ -494,24 +494,23 @@ public class OntologyParser {
 
     }
 
-    // TODO restrict
     /**
      * [!] At the moment this adds ancestors - topLevels . So it can adds terms on top of the higher level too.
      * @param cls
      * @param term
      * @return
      */
-    private void addIntermediateInfo(OWLClass cls, OntologyTermDTO term ){
+    private void addIntermediateInfo(OWLClass cls, OntologyTermDTO term, String prefix ){
 
         Set<OWLClass> classAncestors = getClassAncestors(cls, null);
         if (classAncestors != null) {
             Set<OWLClass> intermediates = classAncestors;
             if (topLevelIds != null){
-                // Remove top levels from ancestors list
+                // Remove top levels from ancestors list and terms with the wrong prefix
                 // Intersect list of ancestors with list of top Levels
                 intermediates = classAncestors.stream()
                         .filter(item -> {
-                            return !topLevelIds.contains(getIdentifierShortForm(item));
+                            return !topLevelIds.contains(getIdentifierShortForm(item)) || !startsWithPrefix(item, prefix);
                         }).collect(Collectors.toSet());
             }
 
@@ -529,13 +528,23 @@ public class OntologyParser {
      * @param cls
      * @return Return the cls dto with added information about child classes: childIds and childTerms.
      */
-    private void addParentInfo(OWLClass cls, OntologyTermDTO term){
+    private void addParentInfo(OWLClass cls, OntologyTermDTO term, String prefix){
 
-        // TODO add part_of
         for (OWLClassExpression classExpression : EntitySearcher.getSuperClasses(cls, ontology)){
-            if (classExpression.isClassExpressionLiteral()){
+            if (classExpression.isClassExpressionLiteral() && startsWithPrefix(classExpression.asOWLClass(), prefix)){
                 term.addParentId(getIdentifierShortForm(classExpression.asOWLClass()));
                 term.addParentName(getLabel(classExpression.asOWLClass()));
+            } else {
+                if (classExpression instanceof OWLObjectSomeValuesFrom){
+                    OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) classExpression;
+                    if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
+                        OWLClassExpression filler = svf.getFiller();
+                        if (filler instanceof OWLNamedObject && startsWithPrefix(filler.asOWLClass(), prefix)){
+                            term.addParentId(getIdentifierShortForm(filler.asOWLClass()));
+                            term.addParentName(getLabel(filler.asOWLClass()));
+                        }
+                    }
+                }
             }
         }
     }

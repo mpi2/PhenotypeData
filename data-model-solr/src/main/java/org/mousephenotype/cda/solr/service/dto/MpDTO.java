@@ -66,9 +66,6 @@ public class MpDTO {
 	public static final String INFERRED_INTERMEDIATE_MA_ID = "inferred_intermediate_ma_id";
 	public static final String INFERRED_INTERMEDIATE_MA_TERM = "inferred_intermediate_ma_term";
 	public static final String GO_ID = "go_id";
-	public static final String SIBLING_MP_ID = "sibling_mp_id";
-	public static final String SIBLING_MP_TERM = "sibling_mp_term";
-	public static final String SIBLING_MP_DEFINITION = "sibling_mp_definition";
 	public static final String P_VALUE = "p_value";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	public static final String PHENO_CALLS = "pheno_calls";
