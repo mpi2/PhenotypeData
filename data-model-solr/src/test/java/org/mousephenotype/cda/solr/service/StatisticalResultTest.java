@@ -63,11 +63,12 @@ public class StatisticalResultTest {
 
 		//q=-top_level_mp_term_id:*&fq=status:Success&fq=-procedure_stable_id:IMPC_VIA_001&fq=-procedure_stable_id:IMPC_FER*&fq=+statistical_method:"Reference%20Ranges%20Plus%20framework"&fq=mp_term_id_options:*
 
-		SolrQuery query = new SolrQuery("-top_level_mp_term_id:*")
+		SolrQuery query = new SolrQuery("-top_level_mp_term_id:* AND -female_top_level_mp_term_id:* AND -male_top_level_mp_term_id:*")
 				.addFilterQuery("status:Success")
 				.addFilterQuery("-procedure_stable_id:IMPC_VIA_001")
 				.addFilterQuery("-procedure_stable_id:IMPC_FER*")
 				.addFilterQuery("mp_term_id_options:*")
+				.addFilterQuery("data_type:unidimensional-ReferenceRange")
 				.setRows(1);
 
 		QueryResponse response = statisticalResultService.getSolrServer().query(query);
