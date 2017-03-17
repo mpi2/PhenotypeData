@@ -1,24 +1,24 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.*;
-import java.util.*;
-
-import javax.sql.DataSource;
-
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.indexers.MPIndexer;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
-import org.mousephenotype.cda.solr.web.dto.DataTableRow;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 @EnableAutoConfiguration
 public class OntologyBrowserGetter {
@@ -40,6 +40,7 @@ public class OntologyBrowserGetter {
 		this.ontodbDataSource = ontodbDataSource;
 	}
 
+	public OntologyBrowserGetter(){	}
 
 	public List<JSONObject> createTreeJson(TreeHelper helper, String rootNodeId, String childNodeId, String termId, Map<String, Integer> mpGeneVariantCount)
 			throws SQLException {
@@ -476,5 +477,66 @@ public class OntologyBrowserGetter {
 	}
 
 
+	public List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser){
+
+		List<JSONObject> tree = new ArrayList<>();
+		if (term.getPathsToRoot() != null) {
+			for (List<Integer> path : term.getPathsToRoot().values()) {
+				JSONObject subtree = getJson(path, baseUrl, parser);
+				tree.add(subtree);
+			}
+		} else {
+			System.out.println("No path to root for " + term.getAccessionId());
+		}
+		// TODO add json objects for other top levels ? ? ?
+		return tree;
+	}
+
+	/**
+	 *
+	 * @param baseUrl /data/phenotypes/ for mp links
+	 * @return
+	 */
+	JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser){
+
+		List<Integer> remainingPath = new ArrayList<>(path); // don't modify original
+		if (remainingPath.size() > 0) {
+			Integer id = remainingPath.get(0);
+			remainingPath.remove(0);
+			OntologyTermDTO term = parser.getOntologyTerm(id);
+			JSONObject current = new JSONObject();
+			current.put("text", "<a target='_blank' href='" + baseUrl + term.getAccessionId() + "'>" + term.getName() + "</a>");
+			current.put("id", id);
+			current.put("term_id", term.getAccessionId());
+			current.put("hrefTarget", "_blank");
+			current.put("state", getState(path.size() > 0));
+			if (path.size() > 0) {
+				JSONArray children = new JSONArray();
+				children.add(getJson(remainingPath, baseUrl, parser));
+				current.put("children", children);
+			}
+			return current;
+		/* {
+			"text":"<a target='_blank' href='/data/phenotypes/MP:0005375'>adipose tissue phenotype (<span class='gpAssoc'>535<\/span>)<\/a>",
+			"id":"402",
+			"term_id":"MP:0005375",
+			"href":"/data/phenotypes/MP:0005375",
+			"hrefTarget":"_blank",
+			"state":{"opened":true},
+			"children":[
+				{"text":"<a target='_blank' href='/data/phenotypes/MP:0000003'><span class='qryTerm'>abnormal adipose tissue morphology<\/span> (<span class='gpAssoc'>535<\/span>)<\/a>",
+				"id":"403",
+				"term_id":"MP:0000003",
+				"children":true,
+				"href":"/data/phenotypes/MP:0000003",
+				"hrefTarget":"_blank",
+				"state":{"opened":false},"type":"selected"}
+				]
+
+			}
+			*/
+		}
+		return null;
+	}
 
 }

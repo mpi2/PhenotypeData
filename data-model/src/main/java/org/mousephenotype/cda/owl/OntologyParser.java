@@ -90,6 +90,7 @@ public class OntologyParser {
             Set<OWLClass> childrenPartOf = getChildrenPartOf(node);
             ontDTO.addPathsToRoot(nodeId, new ArrayList<>(pathFromRoot));
             nodeTermMap.put(nodeId, ontDTO);
+
             if (childrenPartOf != null){
                 for (OWLClass child: childrenPartOf){
                     fillJsonTreePath(child, new ArrayList<>(pathFromRoot));
@@ -128,6 +129,17 @@ public class OntologyParser {
     public OntologyTermDTO getOntologyTerm (String accessionId){
 
         return termMap.get(accessionId);
+
+    }
+
+    /**
+     * Only works if you filled the nodes first
+     * @param nodeId
+     * @return
+     */
+    public OntologyTermDTO getOntologyTerm (Integer nodeId){
+
+        return nodeTermMap.get(nodeId);
 
     }
 
