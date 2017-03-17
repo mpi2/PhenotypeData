@@ -32,7 +32,7 @@ public class OntologyParser {
     private Map<String, OWLClass> classMap = new HashMap<>(); // OBO id to OWLClass object. We need this to avoid pre-loading of referrenced classes (MAs from MP)
     private Set<String> termsInSlim; // <ids of classes on slim>
     private Set<String> topLevelIds;
-
+    private Map<Integer, OntologyTermDTO> nodeTermMap = new HashMap<>(); // <nodeId, ontologyId>
 
     /**
      *
@@ -61,6 +61,44 @@ public class OntologyParser {
             }
         }
     }
+
+
+    /**
+     * Computes paths in the format needed for TreeJs, for the ontology browsers.
+     * [!] This is not computed by default. If you want the trees, call this method on the parser first.
+     */
+    public void fillJsonTreePath(String rootId){
+
+        OWLClass root = classMap.get(rootId);
+        fillJsonTreePath(root, new ArrayList<>());
+        // TODO Produce json obj
+        // TODO add all top levels to obj (we want them pen by default too)
+
+    }
+
+
+    /**
+     *
+     * @param node - start from root.
+     */
+    private void fillJsonTreePath (OWLClass node, List<Integer> pathFromRoot){
+
+        if (node != null){
+            int nodeId = nodeTermMap.size();
+            OntologyTermDTO ontDTO = getOntologyTerm(getIdentifierShortForm(node));
+            pathFromRoot.add(nodeId);
+            Set<OWLClass> childrenPartOf = getChildrenPartOf(node);
+            ontDTO.addPathsToRoot(nodeId, new ArrayList<>(pathFromRoot));
+            nodeTermMap.put(nodeId, ontDTO);
+            if (childrenPartOf != null){
+                for (OWLClass child: childrenPartOf){
+                    fillJsonTreePath(child, new ArrayList<>(pathFromRoot));
+                }
+            }
+        }
+
+    }
+
 
     private Boolean startsWithPrefix(OWLClass cls, Collection<String> prefix){
         if (prefix == null){
