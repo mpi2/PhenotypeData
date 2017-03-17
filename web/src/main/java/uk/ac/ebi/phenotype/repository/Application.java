@@ -28,8 +28,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
 @SpringBootApplication
-
-@Configuration
 @ComponentScan({ "uk.ac.ebi.phenotype" })
 @EnableJpaRepositories(basePackages = "uk.ac.ebi.phenotype")
 @EnableAutoConfiguration
