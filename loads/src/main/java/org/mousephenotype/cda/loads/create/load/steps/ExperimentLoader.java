@@ -1104,13 +1104,14 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
 
             // Get the parameter data type.
-            String          incrementValue         = seriesParameterValue.getIncrementValue();
-            String          simpleValue            = seriesParameterValue.getValue();
-            int             observationPk          = 0;
-            ObservationType observationType        = cdaSqlUtils.computeObservationType(parameterStableId, simpleValue);
-            int             parameterPk            = cdaParameter_idMap.get(parameterStableId);
-            String          sequenceId             = null;
-            int             populationId           = 0;
+            String          incrementStatus = seriesParameterValue.getIncrementStatus();
+            String          incrementValue  = seriesParameterValue.getIncrementValue();
+            String          simpleValue     = seriesParameterValue.getValue();
+            int             observationPk   = 0;
+            ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleValue);
+            int             parameterPk     = cdaParameter_idMap.get(parameterStableId);
+            String          sequenceId      = null;
+            int             populationId    = 0;
 
             // time_series_observation variables
             Float dataPoint     = null;
@@ -1126,7 +1127,12 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                         missing = 1;
                     }
                 } else {
-                    missing = 1;
+                    // If there is an increment status, set dataPoint to 0
+                    if ((incrementStatus != null) && ( ! incrementStatus.isEmpty())) {
+                        dataPoint = 0.0f;
+                    } else {
+                        missing = 1;
+                    }
                 }
             }
 
