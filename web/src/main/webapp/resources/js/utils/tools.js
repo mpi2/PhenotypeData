@@ -715,8 +715,9 @@
     $.fn.fetchAlleleRefDataTable2 = function(oConf) {
 
         var baseUrl = oConf.baseUrl;
-        //var aDataTblCols = [0,1,2,3,4,5,6];
-        var oTable = $('table#alleleRef').dataTable({
+        var id = oConf.id;
+
+        var oTable = $('table#' + id).dataTable({
             "bSort": false, // true is default
             "processing": true,
             "paging": true,
@@ -754,7 +755,7 @@
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
                 // // so that the event works with pagination
-                $('table#alleleRef').on("click", "div.meshTree", function(){
+                $('table#'+id).on("click", "div.meshTree", function(){
                     console.log("mesh: "+ $(this).next().text());
                     if ($(this).next().is(":visible")){
                         $(this).next().hide();
@@ -768,11 +769,13 @@
                 });
 
                 // download tool
-                oConf.fileName = 'impc_allele_references';
+                oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 5000;
                 oConf.dataType = "alleleRef";
                 oConf.rowFormat = true;
+
+                oConf.consortium = id == "consortiumPapers" ? true : false;
 
                 var paramStr = "mode=all";
                 $.each(oConf, function (i, val) {
@@ -791,20 +794,11 @@
                     + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
                 //+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
-                $("div.saveTable").html(toolBox);
+                $("div#"+id + " div.saveTable").html(toolBox);
 
 				// sort by date_of_publication and reload table with new content
-				$('.dataTable  > caption button').click(function(){
-					// var sortCols = [];
-					// $(this).siblings("input").each(function () {
-					// 	var thisChkbox = $(this);
-					// 	if (thisChkbox.is(':checked')) {
-					// 		sortCols.push(thisChkbox.val());
-					// 	}
-					// })
-					// var sortStr = sortCols.join();
-					//oConf.orderBy = "date_of_publication";
-
+				$('table#'+ id + ' > caption button').click(function(){
+                    oConf.consortium = id == "consortiumPapers" ? true : false;
 
 					if ($(this).siblings("i").hasClass("fa-caret-down")){
                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
@@ -833,7 +827,7 @@
 				});
 
 				// so that the event works with pagination
-                $('table#alleleRef').on("click", "div.alleleToggle", function(){
+                $('table#'+ id).on("click", "div.alleleToggle", function(){
 
                     if (!$(this).hasClass('showMe')) {
                         $(this).addClass('showMe').text('Show fewer alleles');

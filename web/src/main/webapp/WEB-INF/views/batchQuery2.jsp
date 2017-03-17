@@ -894,7 +894,7 @@
 
                             var oConf = {};
                             oConf.idlist = j.goodIdList;
-                            oConf.labelFllist = kv.labelFllist
+                            //oConf.labelFllist = kv.labelFllist
 
                             fetchBatchQueryDataTable(oConf);
                         },

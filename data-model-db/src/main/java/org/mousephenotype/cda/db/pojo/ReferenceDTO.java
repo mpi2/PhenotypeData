@@ -51,6 +51,7 @@ public class ReferenceDTO {
     private List<String> meshTerms;
     private String meshJsonStr;
     private String author;
+    private String consortiumPaper;
 
     public List<String> getAlleleSymbols() {
         return alleleSymbols;
@@ -178,6 +179,14 @@ public class ReferenceDTO {
         this.author = author;
     }
 
+    public String getConsortiumPaper() {
+        return consortiumPaper;
+    }
+
+    public void setConsortiumPaper(String consortiumPaper) {
+        this.consortiumPaper = consortiumPaper;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -207,7 +216,8 @@ public class ReferenceDTO {
         if (paperUrls != null ? !paperUrls.equals(that.paperUrls) : that.paperUrls != null) return false;
         if (meshTerms != null ? !meshTerms.equals(that.meshTerms) : that.meshTerms != null) return false;
         if (meshJsonStr != null ? !meshJsonStr.equals(that.meshJsonStr) : that.meshJsonStr != null) return false;
-        return author != null ? author.equals(that.author) : that.author == null;
+        if (author != null ? !author.equals(that.author) : that.author != null) return false;
+        return consortiumPaper != null ? consortiumPaper.equals(that.consortiumPaper) : that.consortiumPaper == null;
     }
 
     @Override
@@ -228,6 +238,7 @@ public class ReferenceDTO {
         result = 31 * result + (meshTerms != null ? meshTerms.hashCode() : 0);
         result = 31 * result + (meshJsonStr != null ? meshJsonStr.hashCode() : 0);
         result = 31 * result + (author != null ? author.hashCode() : 0);
+        result = 31 * result + (consortiumPaper != null ? consortiumPaper.hashCode() : 0);
         return result;
     }
 
@@ -250,6 +261,7 @@ public class ReferenceDTO {
                 ", meshTerms=" + meshTerms +
                 ", meshJsonStr='" + meshJsonStr + '\'' +
                 ", author='" + author + '\'' +
+                ", consortiumPaper='" + consortiumPaper + '\'' +
                 '}';
     }
 }
