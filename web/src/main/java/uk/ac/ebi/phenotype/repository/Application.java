@@ -1,57 +1,24 @@
 package uk.ac.ebi.phenotype.repository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Arrays;
-import java.util.List;
+/**
+ * Created by ckchen on 17/03/2017.
+ */
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
-
-@SpringBootApplication
-@ComponentScan({ "uk.ac.ebi.phenotype" })
-@EnableJpaRepositories(basePackages = "uk.ac.ebi.phenotype")
-@EnableAutoConfiguration
-@EnableNeo4jRepositories(basePackages = "uk.ac.ebi.phenotype.repository")
+@SpringBootApplication(exclude = {
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        WebMvcAutoConfiguration.class})
 public class Application {
 
-    private final static Logger log = LoggerFactory.getLogger(Application.class);
-
-    @Autowired
-    GeneRepository geneRepository;
-
-    public static final String geneSymbol = "Akt2";
-
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(Application.class, args);
+        new SpringApplicationBuilder(Application.class).web(false).run(args);
     }
-
-    @Bean
-    CommandLineRunner demo(GeneRepository geneRepository) {
-        return args -> {
-
-
-             geneRepository.findByMarkerSymbol(geneSymbol).toString();
-        };
-    }
-
 }
