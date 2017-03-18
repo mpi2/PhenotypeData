@@ -5,7 +5,9 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by ilinca on 02/02/2017.
+ * Test for the Pharos service
+ *
+ * @author Created by ilinca on 02/02/2017.
  */
 
 public class PharosServiceTest {
@@ -20,6 +22,7 @@ public class PharosServiceTest {
         assertTrue (pharosDTO.getIdg2() == 0 );
         assertTrue (pharosDTO.getTdl().equalsIgnoreCase("Tclin") );
 
+        System.out.println(pharosDTO);
     }
 
 
