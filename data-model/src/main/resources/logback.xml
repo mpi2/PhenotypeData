@@ -37,4 +37,6 @@
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
+    <logger name="org.neo4j.ogm.drivers"                       level="WARN" />
+
 </configuration>
