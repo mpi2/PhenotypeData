@@ -482,7 +482,7 @@ public class OntologyBrowserGetter {
 		List<JSONObject> tree = new ArrayList<>();
 		if (term.getPathsToRoot() != null) {
 			for (List<Integer> path : term.getPathsToRoot().values()) {
-				JSONObject subtree = getJson(path, baseUrl, parser);
+				JSONObject subtree = getJson(path, baseUrl, parser, term.getAccessionId());
 				tree.add(subtree);
 			}
 		} else {
@@ -497,7 +497,7 @@ public class OntologyBrowserGetter {
 	 * @param baseUrl /data/phenotypes/ for mp links
 	 * @return
 	 */
-	JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser){
+	JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser, String searchTermId){
 
 		List<Integer> remainingPath = new ArrayList<>(path); // don't modify original
 		if (remainingPath.size() > 0) {
@@ -505,19 +505,46 @@ public class OntologyBrowserGetter {
 			remainingPath.remove(0);
 			OntologyTermDTO term = parser.getOntologyTerm(id);
 			JSONObject current = new JSONObject();
-			current.put("text", "<a target='_blank' href='" + baseUrl + term.getAccessionId() + "'>" + term.getName() + "</a>");
+			current.put("text", getText(term, searchTermId, baseUrl));
 			current.put("id", id);
 			current.put("term_id", term.getAccessionId());
 			current.put("hrefTarget", "_blank");
-			current.put("state", getState(path.size() > 0));
-			if (path.size() > 0) {
+			if (remainingPath.size() > 0) {
 				JSONArray children = new JSONArray();
-				children.add(getJson(remainingPath, baseUrl, parser));
+				children.add(getJson(remainingPath, baseUrl, parser, searchTermId));
 				current.put("children", children);
+				current.put("state", getState(path.size() > 0));
+			} else {
+				current.put("children", hasChildren(term));
+			}
+
+			if (searchTermId.equals(term.getAccessionId())){
+				current.put("type", "selected"); // blue dot
 			}
 			return current;
 		}
 		return null;
+	}
+
+
+	private String getText (OntologyTermDTO term, String searchTermId, String baseUrl){
+
+		String text = "<a target='_blank' href='" + baseUrl + term.getAccessionId() + "'>";
+		if (searchTermId.equals(term.getAccessionId())){
+			text += "<span class='qryTerm'>" + term.getName() + "</span>";
+		} else {
+			text += term.getName();
+		}
+		text += "</a>";
+
+		return text;
+
+	}
+
+	private boolean hasChildren(OntologyTermDTO term){
+
+		return term.getChildIds() != null && term.getChildIds().size() > 0;
+
 	}
 
 }
