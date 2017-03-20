@@ -51,13 +51,13 @@
             $('div#alleleRef').append(dTable);
 
             var oConf = {};
+            oConf.id = "alleleRef";
             oConf.iDisplayLength = 10;
             oConf.iDisplayStart = 0;
             oConf.kw = kw;
             oConf.baseUrl = "${baseUrl}";
             oConf.rowFormat = true;
             oConf.orderBy = "date_of_publication DESC"; // default
-
             //$('span#kw').text(oConf.kw);
             $.fn.fetchAlleleRefDataTable2(oConf);
 
