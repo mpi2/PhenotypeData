@@ -1,16 +1,14 @@
 package uk.ac.ebi.phenotype.repository;
 
 import org.neo4j.ogm.session.SessionFactory;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
+import uk.ac.ebi.PhenotypeArchiveDatabaseConfig;
 
-import javax.sql.DataSource;
 import java.nio.file.Paths;
 
 /**
@@ -19,20 +17,8 @@ import java.nio.file.Paths;
 @Configuration
 @EnableNeo4jRepositories(basePackages = "uk.ac.ebi.phenotype.repository")
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+@Import(PhenotypeArchiveDatabaseConfig.class)
 public class Neo4jConfig {
-
-    @Bean
-    @Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
-    public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.admintools")
-    public DataSource admintoolsDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
 
     @Bean
     public org.neo4j.ogm.config.Configuration getConfiguration() {

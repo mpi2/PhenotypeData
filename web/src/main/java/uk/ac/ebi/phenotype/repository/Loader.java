@@ -21,10 +21,6 @@ public class Loader implements CommandLineRunner {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-//    @NotNull
-//    @Value("${allele2File}")
-//    private String pathToAlleleFile;
-
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -40,6 +36,9 @@ public class Loader implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
 
+        geneRepository.deleteAll();
+        ensemblGeneIdRepository.deleteAll();
+
         Connection connection = komp2DataSource.getConnection();
         try {
             String query = "SELECT acc, xref_acc FROM xref WHERE acc LIKE 'MGI:%' AND xref_acc LIKE 'ENSMUSG%'";
@@ -49,23 +48,22 @@ public class Loader implements CommandLineRunner {
             int count = 0;
             while (r.next()) {
 
-
                 count++;
                 String ensgId = r.getString("xref_acc");
-                EnsemblGeneId ensg = new EnsemblGeneId();
-                ensg.setEnsemblGeneId(ensgId);
-
                 String mgiAcc = r.getString("acc");
 
                 System.out.println(ensgId + " --- " + mgiAcc);
+
                 Gene gene = geneRepository.findByMgiAccessionId(mgiAcc);
                 if (gene == null) {
                     logger.debug("Gene {} not found. Creating Gene with ", mgiAcc);
                     gene = new Gene();
                     gene.setMgiAccessionId(mgiAcc);
-                    geneRepository.save(gene);
+//                    geneRepository.save(gene);
                 }
                 if (ensemblGeneIdRepository.findByEnsemblGeneId(gene.getMgiAccessionId())== null) {
+                    EnsemblGeneId ensg = new EnsemblGeneId();
+                    ensg.setEnsemblGeneId(ensgId);
                     ensg.setGene(gene);
                     ensemblGeneIdRepository.save(ensg);
                 }
