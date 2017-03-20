@@ -255,9 +255,10 @@ public class OntologyParserTest {
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         Set<String> wantedIds = new HashSet<>();
         wantedIds.add("MP:0008901");
+        wantedIds.add("MP:0005395"); // "other phenotype" -  obsolete and should not be in the sim
         Set<String> termsInSlim = ontologyParser.getTermsInSlim(wantedIds, null);
         Assert.assertTrue(termsInSlim.size() == 7);
-
+        Assert.assertTrue(!termsInSlim.contains("MP:0005395"));
     }
 
     @Test

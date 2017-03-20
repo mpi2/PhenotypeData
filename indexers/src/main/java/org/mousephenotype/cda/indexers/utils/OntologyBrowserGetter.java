@@ -516,25 +516,6 @@ public class OntologyBrowserGetter {
 				current.put("children", children);
 			}
 			return current;
-		/* {
-			"text":"<a target='_blank' href='/data/phenotypes/MP:0005375'>adipose tissue phenotype (<span class='gpAssoc'>535<\/span>)<\/a>",
-			"id":"402",
-			"term_id":"MP:0005375",
-			"href":"/data/phenotypes/MP:0005375",
-			"hrefTarget":"_blank",
-			"state":{"opened":true},
-			"children":[
-				{"text":"<a target='_blank' href='/data/phenotypes/MP:0000003'><span class='qryTerm'>abnormal adipose tissue morphology<\/span> (<span class='gpAssoc'>535<\/span>)<\/a>",
-				"id":"403",
-				"term_id":"MP:0000003",
-				"children":true,
-				"href":"/data/phenotypes/MP:0000003",
-				"hrefTarget":"_blank",
-				"state":{"opened":false},"type":"selected"}
-				]
-
-			}
-			*/
 		}
 		return null;
 	}
