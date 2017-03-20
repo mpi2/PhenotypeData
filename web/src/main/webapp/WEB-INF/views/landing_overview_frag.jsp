@@ -73,6 +73,9 @@
     $(document).ready(function() {
         $('#showMore').click(function () {
             $(".hideable").toggleClass("hidden");
+            var text = $('#showMore').text();
+            $(this).text(
+                    text == "Show more" ? "Show less" : "Show more");
         });
     });
 </script>
