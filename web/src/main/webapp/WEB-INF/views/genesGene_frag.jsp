@@ -84,7 +84,7 @@
 browser">Ensembl Orthologs</a>
     
     <c:if test="${gene.isIdgGene}">
-    	&nbsp;&nbsp;<a href="${baseUrl}/secondaryproject/idg" title="Illuminating the Draggable Genome mouse-human orthologue">IDG</a>
+    	&nbsp;&nbsp;<a href="${baseUrl}/secondaryproject/idg" title="Illuminating the Druggable Genome mouse-human orthologue">IDG</a>
     </c:if>
     
     

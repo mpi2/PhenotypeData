@@ -94,21 +94,7 @@
             $(document).ready(function () {
                 'use strict';
 
-                $( "#tabs" ).tabs({
-                    active: 0,
-                    activate: function(event, ui) {
 
-                        // get paper stats as highcharts
-
-                        // need to load highcharts after a tab is activated to ensure the width of charts
-                        // will stay inside the parent container
-                        if ( ui.newTab.index() == 1){
-                            var chartWeek = "chartWeek";
-                            var chartMonth = "chartMonth";
-                            $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
-                        }
-                    }
-                });
 
                 // test only
                 //var baseUrl = '//dev.mousephenotype.org/data';
@@ -124,6 +110,9 @@
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef", isAlleleRef);
                 $('div#alleleRef').append(dTable);
 
+                var dTableConsortium = $.fn.fetchEmptyTable(tableHeader, tableCols, "consortiumPapers", isAlleleRef);
+                $('div#consortiumPapers').append(dTableConsortium);
+
                 var oConf = {};
                 oConf.iDisplayLength = 10;
                 oConf.iDisplayStart = 0;
@@ -131,10 +120,36 @@
                 oConf.baseUrl = "${baseUrl}";
                 oConf.rowFormat = true;
                 oConf.orderBy = "date_of_publication DESC"; // default
+                oConf.id = "alleleRef";
 
                 $.fn.fetchAlleleRefDataTable2(oConf);
-            });
 
+                var oConf2 = oConf;
+                oConf2.consortium = true;
+                oConf2.id = "consortiumPapers";
+                $.fn.fetchAlleleRefDataTable2(oConf2);
+
+                // find out which tab to open from hash tag
+                var matches = window.location.hash.match(/(\d)$/);
+                var tabIndex = matches == null ? 0 : matches[0];
+
+                $( "#tabs" ).tabs({
+                    active: tabIndex,
+                    activate: function(event, ui) {
+
+                        // get paper stats as highcharts
+
+                        // need to load highcharts after a tab is activated to ensure the width of charts
+                        // will stay inside the parent container
+                        if ( ui.newTab.index() == 1){
+                            var chartWeek = "chartWeek";
+                            var chartMonth = "chartMonth";
+                            $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
+                        }
+                    }
+                });
+
+            });
 
         </script>
 
@@ -166,6 +181,7 @@
                                     <ul>
                                         <li><a href="#tabs-1">Browse publication</a></li>
                                         <li><a href="#tabs-2">Publication stats</a></li>
+                                        <li><a href="#tabs-3">Consortium publications</a></li>
                                     </ul>
                                     <div id="tabs-1">
                                         <!-- container to display dataTable -->
@@ -179,6 +195,11 @@
                                         <div id="chartMonthIncrease" class="chart"></div>
                                         <div id="chartGrantQuarter" class="chart"></div>
                                         <div class="clear"></div>
+
+                                    </div>
+                                    <div id="tabs-3">
+                                        <!-- container to display dataTable -->
+                                        <div id="consortiumPapers"></div>
 
                                     </div>
                                 </div>
