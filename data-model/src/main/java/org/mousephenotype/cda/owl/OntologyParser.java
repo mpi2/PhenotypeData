@@ -425,13 +425,18 @@ public class OntologyParser {
 
         // Add replacement ids for deprecated classes to wanted ids
         for (OWLClass cls : ontology.getClassesInSignature()) {
+
+            // add replacement terms for obslete terms
             if (!cls.getIRI().isNothing() && EntitySearcher.getAnnotations(cls, ontology, TERM_REPLACED_BY) != null && wantedIDs.contains(getIdentifierShortForm(cls))) {
                 for (OWLAnnotation annotation : EntitySearcher.getAnnotations(cls, ontology, TERM_REPLACED_BY)) {
                     if (annotation.getValue() instanceof OWLLiteral) {
                         wantedIDs.add(((OWLLiteral) annotation.getValue()).getLiteral());
-                        wantedIDs.remove(getIdentifierShortForm(cls));
                     }
                 }
+            }
+            // remove obseolete terms from slim
+            if (isObsolete(cls)) {
+                wantedIDs.remove(getIdentifierShortForm(cls));
             }
         }
 

@@ -35,7 +35,7 @@ public class OntologyTermDTO {
     Map<Integer, List<Integer>> pathsToRoot; // <nodeId, <nodeids>>
 
     public Set<Integer> getNodeIds(){
-        return pathsToRoot.keySet();
+        return pathsToRoot == null ? null : pathsToRoot.keySet();
     }
 
     public Set<OntologyTermDTO> getEquivalentClasses() {
