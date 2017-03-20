@@ -209,10 +209,10 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         return new JSONObject();
     }
 
-    public String getPleiotropyDownload(List<String> topLevelMpTerms, Boolean idg, String idgClass, String biologicalSystem) throws IOException, SolrServerException, SQLException {
+    public String getPleiotropyDownload(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, SQLException {
 
-        SolrQuery query = getBiologicalSystemPleiotropyDownloadQuery(topLevelMpTerms,idg, idgClass, biologicalSystem);
-        //SolrQuery query = getPleiotropyQuery(topLevelMpTerms,idg, idgClass);
+        //SolrQuery query = getBiologicalSystemPleiotropyDownloadQuery(topLevelMpTerms,idg, idgClass, biologicalSystem);
+        SolrQuery query = getPleiotropyQuery(topLevelMpTerms,idg, idgClass);
         query.add("wt", "xslt");
         query.add("tr", "pivot.xsl");
 
@@ -226,67 +226,67 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
     }
     
     
-    public SolrQuery getBiologicalSystemPleiotropyDownloadQuery(List<String> topLevelMpTerms, Boolean idg, String idgClass, String biologicalSystem) throws IOException, SolrServerException, SQLException {
-//    	String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
-//        SolrQuery query = new SolrQuery()
-//            .setQuery("top_level_mp_term_name:*ardiovascular*")
-//            .setFacet(true)
-//            .setFacetLimit(-1);
+//    public SolrQuery getBiologicalSystemPleiotropyDownloadQuery(List<String> topLevelMpTerms, Boolean idg, String idgClass, String biologicalSystem) throws IOException, SolrServerException, SQLException {
+////    	String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
+////        SolrQuery query = new SolrQuery()
+////            .setQuery("top_level_mp_term_name:*ardiovascular*")
+////            .setFacet(true)
+////            .setFacetLimit(-1);
+////        query.add("facet.pivot", pivot);
+////        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+////        return query;
+//        
+//
+//
+//        String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
+//        SolrQuery query = new SolrQuery();
+//        if(idg==null && biologicalSystem!=null){
+//            query.setQuery("top_level_mp_term_name:*"+biologicalSystem+"*");
+//        }else{
+//        	query.setQuery("*:*");
+//        }
+//            query.setFacet(true);
+//            query.setFacetLimit(-1);
 //        query.add("facet.pivot", pivot);
 //        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+//
+//        if ( idg != null && idg){
+//            Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg", idgClass);
+//            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + projectBeans.stream().map(gene -> {return gene.getAccession();}).collect(Collectors.joining("\" OR \"")) + "\")");
+//        }
+//
+//        if (topLevelMpTerms != null) {
+//
+//            // We want data for genes that have ALL top level phenotypes in the list
+//            String interimPivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+//            SolrQuery interimQuery = new SolrQuery()
+//                    .setFacet(true)
+//                    .setFacetLimit(-1)
+//                    .setQuery("*:*")
+//                    .addFilterQuery(topLevelMpTerms.stream().collect(Collectors.joining("\" OR \"", GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"", "\")")));
+//            interimQuery.add("facet.pivot", interimPivot);
+//
+//            // Filter out the pivot facets for un-wanted MP top level terms. We can get other top levels in the facets due to multiple parents.
+//            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(solr.query(interimQuery), interimPivot).entrySet().stream()
+//                    .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
+//                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
+//
+//            // Instantiate commonGenes with itself as it will work as identity on first set intersection (intersection of same sets)
+//            Set<String> commonGenes = genesByMpTopLevel.values().iterator().next();
+//            // Keep only genes that are present in all top level mp groups
+//            commonGenes = genesByMpTopLevel.values().stream()
+//                    .reduce(commonGenes, (a, b) -> {
+//                        a.retainAll(b);
+//                        return a;
+//                    });
+//
+//            query.addFilterQuery(commonGenes.stream().collect(Collectors.joining(" OR ", GenotypePhenotypeDTO.MARKER_SYMBOL + ":(", ")")));
+//
+//        }
+//
 //        return query;
-        
-
-
-        String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
-        SolrQuery query = new SolrQuery();
-        if(idg==null && biologicalSystem!=null){
-            query.setQuery("top_level_mp_term_name:*"+biologicalSystem+"*");
-        }else{
-        	query.setQuery("*:*");
-        }
-            query.setFacet(true);
-            query.setFacetLimit(-1);
-        query.add("facet.pivot", pivot);
-        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-
-        if ( idg != null && idg){
-            Set<SecondaryProjectBean> projectBeans = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg", idgClass);
-            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + projectBeans.stream().map(gene -> {return gene.getAccession();}).collect(Collectors.joining("\" OR \"")) + "\")");
-        }
-
-        if (topLevelMpTerms != null) {
-
-            // We want data for genes that have ALL top level phenotypes in the list
-            String interimPivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-            SolrQuery interimQuery = new SolrQuery()
-                    .setFacet(true)
-                    .setFacetLimit(-1)
-                    .setQuery("*:*")
-                    .addFilterQuery(topLevelMpTerms.stream().collect(Collectors.joining("\" OR \"", GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"", "\")")));
-            interimQuery.add("facet.pivot", interimPivot);
-
-            // Filter out the pivot facets for un-wanted MP top level terms. We can get other top levels in the facets due to multiple parents.
-            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(solr.query(interimQuery), interimPivot).entrySet().stream()
-                    .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
-
-            // Instantiate commonGenes with itself as it will work as identity on first set intersection (intersection of same sets)
-            Set<String> commonGenes = genesByMpTopLevel.values().iterator().next();
-            // Keep only genes that are present in all top level mp groups
-            commonGenes = genesByMpTopLevel.values().stream()
-                    .reduce(commonGenes, (a, b) -> {
-                        a.retainAll(b);
-                        return a;
-                    });
-
-            query.addFilterQuery(commonGenes.stream().collect(Collectors.joining(" OR ", GenotypePhenotypeDTO.MARKER_SYMBOL + ":(", ")")));
-
-        }
-
-        return query;
-    
-    }
+//    
+//    }
 
 
     /**
