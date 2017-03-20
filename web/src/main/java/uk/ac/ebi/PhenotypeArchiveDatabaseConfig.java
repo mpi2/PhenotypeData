@@ -1,5 +1,6 @@
 package uk.ac.ebi;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -20,6 +21,7 @@ import java.util.Properties;
  * Created by jmason on 20/03/2017.
  */
 @Configuration
+@EnableAutoConfiguration
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 public class PhenotypeArchiveDatabaseConfig {
 
@@ -81,4 +83,5 @@ public class PhenotypeArchiveDatabaseConfig {
         sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
         return sessionFactory;
     }
+
 }
