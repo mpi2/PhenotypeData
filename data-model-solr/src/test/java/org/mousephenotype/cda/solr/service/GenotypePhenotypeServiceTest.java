@@ -64,21 +64,21 @@ public class GenotypePhenotypeServiceTest {
     
     
     
-    @Test
-    public void testGetBiologicalSystemPleiotropyDownloadQuery(){
-    	try {
-			gpService.getBiologicalSystemPleiotropyDownloadQuery(null, false, null, "Cardiovascular");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
+//    @Test
+//    public void testGetBiologicalSystemPleiotropyDownloadQuery(){
+//    	try {
+//			gpService.getBiologicalSystemPleiotropyDownloadQuery(null, false, null, "Cardiovascular");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (SolrServerException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    }
     
 
     @Test
