@@ -1104,7 +1104,6 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
         for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
 
             // Get the parameter data type.
-            String          incrementStatus = seriesParameterValue.getIncrementStatus();
             String          incrementValue  = seriesParameterValue.getIncrementValue();
             String          simpleValue     = seriesParameterValue.getValue();
             int             observationPk   = 0;
@@ -1112,27 +1111,23 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
             int             parameterPk     = cdaParameter_idMap.get(parameterStableId);
             String          sequenceId      = null;
             int             populationId    = 0;
+            int             valueMissing    = missing;
 
             // time_series_observation variables
             Float dataPoint     = null;
             Date  timePoint     = dccExperiment.getDateOfExperiment();                                                  // timePoint for all cases. Default is dateOfExperiment.
             Float discretePoint = null;
 
-            if (missing == 0) {
+            if (valueMissing == 0) {
                 if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.trim().isEmpty())) {
                     try {
                         dataPoint = Float.parseFloat(simpleValue);                                                      // dataPoint for all cases.
-                        missing = 0;
+                        valueMissing = 0;
                     } catch (NumberFormatException e) {
-                        missing = 1;
+                        valueMissing = 1;
                     }
                 } else {
-                    // If there is an increment status, set dataPoint to 0
-                    if ((incrementStatus != null) && ( ! incrementStatus.isEmpty())) {
-                        dataPoint = 0.0f;
-                    } else {
-                        missing = 1;
-                    }
+                    valueMissing = 1;
                 }
             }
 
@@ -1162,13 +1157,13 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                 try {
                     discretePoint = Float.parseFloat(incrementValue);                                                   // discretePoint if increment value does not represent a date.
                 } catch (NumberFormatException e) {
-                    missing = 1;
+                    valueMissing = 1;
                 }
             }
 
             try {
                 observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
-                                                              sequenceId, populationId, observationType, missing,
+                                                              sequenceId, populationId, observationType, valueMissing,
                                                               parameterStatus, parameterStatusMessage,
                                                               seriesParameter, dataPoint, timePoint, discretePoint);
             } catch (Exception e) {
@@ -1177,7 +1172,7 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
                                     " parameterPk {}. observationType {}. missing {}. parameterStatus {}. parameterStatusMessage {}." +
                                     " dataPoint {}. timePoint {}. discretePoint {}. Reason: {}",
                             dccExperiment.getPhenotypingCenter(), biologicalSamplePk, parameterStableId, parameterPk,
-                            observationType, missing, parameterStatus, parameterStatusMessage, dataPoint, timePoint,
+                            observationType, valueMissing, parameterStatus, parameterStatusMessage, dataPoint, timePoint,
                             discretePoint, e.getLocalizedMessage());
                 return;
             }
