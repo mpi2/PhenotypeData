@@ -630,7 +630,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 	private Set<String> populateIdgGeneList() {
 
 		Set<String> idgGenes=new HashSet<>();
-		String queryString = "SELECT * FROM komp2.genes_secondary_project where secondary_project_id='idg'";
+		String queryString = "SELECT * FROM genes_secondary_project where secondary_project_id='idg'";
 
       try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
           ResultSet resultSet = p.executeQuery();
