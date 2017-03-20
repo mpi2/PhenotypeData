@@ -6,6 +6,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+import org.mousephenotype.cda.utilities.RunStatus;
 
 import java.util.List;
 
@@ -21,20 +22,21 @@ public class PhenotypeCallSummaryDTO {
 	protected BasicBean phenotypeTerm;
 	protected double pValue = 0;
 	protected double effectSize = 0;
-	protected Strain strain;
-	protected MarkerBean allele;
-	protected MarkerBean gene;
-	protected ImpressBaseDTO pipeline;
-	protected ImpressBaseDTO procedure;
-	protected ImpressBaseDTO parameter;
-	protected String phenotypingCenter;
-	protected double colorIndex;
+	protected Strain          strain;
+	protected MarkerBean      allele;
+	protected MarkerBean      gene;
+	protected ImpressBaseDTO  pipeline;
+	protected ImpressBaseDTO  procedure;
+	protected ImpressBaseDTO  parameter;
+	protected String          phenotypingCenter;
+	protected double          colorIndex;
 	protected List<BasicBean> topLevelPhenotypeTerms;
-	protected boolean isPreQC;
-	protected String gId; // preqc only, param needed for phenoview graph links
-	protected String lifeStageAcc;
-	protected String lifeStageName;
-	protected String colonyId;
+	protected boolean         isPreQC;
+	protected String          gId; // preqc only, param needed for phenoview graph links
+	protected String          lifeStageAcc;
+	protected String          lifeStageName;
+	protected String          colonyId;
+	protected RunStatus       status = new RunStatus();
 
 	/**
 	 * @return the gId
@@ -242,7 +244,7 @@ public class PhenotypeCallSummaryDTO {
 	}
 
 	/**
-	 * @param parameter the parameter to set
+	 * @param sex the sex
 	 */
 	public void setSex(SexType sex) {
 		this.sex = sex;
@@ -256,7 +258,7 @@ public class PhenotypeCallSummaryDTO {
 	}
 
 	/**
-	 * @param parameter the parameter to set
+	 * @param zygosity the sygosity to set
 	 */
 	public void setZygosity(ZygosityType zygosity) {
 		this.zygosity = zygosity;
@@ -377,6 +379,14 @@ public class PhenotypeCallSummaryDTO {
 		this.colonyId = colonyId;
 	}
 
+	public RunStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(RunStatus status) {
+		this.status = status;
+	}
+
 	@Override
 	public String toString() {
 		return "PhenotypeCallSummaryDTO{" +
@@ -403,6 +413,7 @@ public class PhenotypeCallSummaryDTO {
 				", lifeStageAcc='" + lifeStageAcc + '\'' +
 				", lifeStageName='" + lifeStageName + '\'' +
 				", colonyId='" + colonyId + '\'' +
+				", status='" + status.toString() +
 				'}';
 	}
 }

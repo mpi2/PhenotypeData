@@ -43,6 +43,7 @@ import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.*;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1111,7 +1112,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.set("wt", "json");
 		query.set("version", "2.2");
 
-		String solrUrl = SolrUtils.getBaseURL(solr) + "/select?" + query;
+		String    solrUrl = SolrUtils.getBaseURL(solr) + "/select?" + query;
 		return gpService.createPhenotypeResultFromSolrResponse(solrUrl, false);
 	}
 
