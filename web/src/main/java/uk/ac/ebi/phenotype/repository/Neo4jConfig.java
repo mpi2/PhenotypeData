@@ -36,7 +36,7 @@ public class Neo4jConfig {
         return config;
     }
 
-    @Bean
+    @Bean(name = "neo4jSessionFactory")
     public SessionFactory sessionFactory() {
         return new SessionFactory(getConfiguration(), "uk.ac.ebi.phenotype.repository");
     }
