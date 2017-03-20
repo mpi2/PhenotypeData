@@ -87,7 +87,7 @@
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">${systemName} </h1>
+                        <h1 class="title capitalize" id="top">${systemName} </h1>
 
                         <c:import url="landing_overview_frag.jsp"/>
                         <br/><br/>

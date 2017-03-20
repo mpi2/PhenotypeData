@@ -42,7 +42,7 @@
                         <tr <c:if test="${loop.index >= 10}"> class="hidden hideable" </c:if> >
                             <td class="capitalize"><a href="${baseUrl}/phenotypes/${row.getMpId()}">${row.getCategory()}</a></td>
                             <c:if test="${row.getMpId() != null}">
-                                <td><a href="${baseUrl}/phenotypes/${row.getMpId()}">${row.getCount()} </a></td>
+                                <td><a href="${baseUrl}/phenotypes/export/${row.getMpId()}?fileType=tsv&fileName=IMPC_${row.getCategory()}" target="_blank">${row.getCount()} </a></td>
                             </c:if>
                             <c:if test="${row.getMpId() == null}">
                                 <td><h4>${row.getCount()}</h4></td>
