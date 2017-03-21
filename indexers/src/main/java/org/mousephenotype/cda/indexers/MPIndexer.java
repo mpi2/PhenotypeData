@@ -250,9 +250,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
                 mp.setSearchTermJson(searchTree.toString());
-                //TODO scrollTo with OntologyParser
-//                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
-//               mp.setScrollNode(scrollNodeId);
+                String scrollNodeId = browser.getScrollTo(searchTree);
+                mp.setScrollNode(scrollNodeId);
                 //TODO add child json back, from OntologyParser
 //                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
 //                mp.setChildrenJson(childrenTree.toString());
