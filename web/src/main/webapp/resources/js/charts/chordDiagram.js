@@ -3,7 +3,7 @@
  */
 /** Initialize var mpTopLevelTerms if you want it filtered **/
 
-var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg, idgClass) {
+var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg, idgClass, clickableChords) {
 
     console.log(mpTopLevelTerms);
     console.log("containerId " + containerId);
@@ -80,14 +80,14 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                 .on("mouseover", fade(.02))
                 .on("mouseout", fade(.80))
                 .on("click", function (d) {
-                    if (mpTopLevelTerms.indexOf(labels[d.index].name) < 0) { // top level is not already selected
+                    if (clickableChords && mpTopLevelTerms.indexOf(labels[d.index].name) < 0) { // top level is not already selected
                         if (openNewPage) {
                             console.log("URL " + url);
                             window.open(url + "&phenotype_name=" + labels[d.index].name, "_self");
                         }
                         else {
                             mpTopLevelTerms.push(labels[d.index].name);
-                            drawChords(svgId, containerId, openNewPage, mpTopLevelTerms, idg, idgClass);
+                            drawChords(svgId, containerId, openNewPage, mpTopLevelTerms, idg, idgClass, clickableChords);
                         }
                     }
                 });
