@@ -474,9 +474,11 @@ public class GenotypePhenotypeDTO {
         return topLevelMpTermId;
     }
 
-    public void setTopLevelMpTermId(List<String> topLevelMpTermId) {
-
-        this.topLevelMpTermId = topLevelMpTermId;
+    public void setTopLevelMpTermId(Collection<String> topLevelMpTermId) {
+        if (topLevelMpTermId != null){
+            this.topLevelMpTermId = new ArrayList<>();
+            this.topLevelMpTermId.addAll(topLevelMpTermId);
+        }
     }
 
     public List<String> getTopLevelMpTermName() {
@@ -484,9 +486,11 @@ public class GenotypePhenotypeDTO {
         return topLevelMpTermName;
     }
 
-    public void setTopLevelMpTermName(List<String> topLevelMpTermName) {
-
-        this.topLevelMpTermName = topLevelMpTermName;
+    public void setTopLevelMpTermName(Collection<String> topLevelMpTermName) {
+        if (topLevelMpTermName != null){
+            this.topLevelMpTermName = new ArrayList<>();
+            this.topLevelMpTermName.addAll(topLevelMpTermName);
+        }
     }
 
 
@@ -495,9 +499,12 @@ public class GenotypePhenotypeDTO {
         return intermediateMpTermId;
     }
 
-    public void setIntermediateMpTermId(List<String> intermediateMpTermId) {
+    public void setIntermediateMpTermId(Collection<String> intermediateMpTermId) {
 
-        this.intermediateMpTermId = intermediateMpTermId;
+        if (intermediateMpTermId != null){
+            this.intermediateMpTermId = new ArrayList<>();
+            this.intermediateMpTermId.addAll(intermediateMpTermId);
+        }
     }
 
     public List<String> getIntermediateMpTermName() {
@@ -505,9 +512,11 @@ public class GenotypePhenotypeDTO {
         return intermediateMpTermName;
     }
 
-    public void setIntermediateMpTermName(List<String> intermediateMpTermName) {
-
-        this.intermediateMpTermName = intermediateMpTermName;
+    public void setIntermediateMpTermName(Collection<String> intermediateMpTermName) {
+        if (intermediateMpTermName != null){
+            this.intermediateMpTermName = new ArrayList<>();
+            this.intermediateMpTermName.addAll(intermediateMpTermName);
+        }
     }
 
     public String getMarkerSymbol() {

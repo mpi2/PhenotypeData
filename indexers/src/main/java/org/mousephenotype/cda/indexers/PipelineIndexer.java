@@ -637,41 +637,6 @@ protected void addAbnormalEmapOntology(){
 	}
 
 
-    protected Map<String, MpDTO> populateMpIdToMp()
-    throws IndexerException, SQLException {
-
-        Map<String, MpDTO> map = new HashMap<>();
-        String q = " select distinct 'mp' as dataType, ti.term_id, ti.name, ti.definition, group_concat(distinct alt.alt_id) as alt_ids from mp_term_infos ti left join mp_alt_ids alt on ti.term_id=alt.term_id where ti.term_id != 'MP:0000001' group by ti.term_id";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-
-            String termId = rs.getString("term_id");
-
-            MpDTO mp = new MpDTO();
-            mp.setDataType(rs.getString("dataType"));
-            mp.setMpId(termId);
-            mp.setMpTerm(rs.getString("name"));
-            mp.setMpDefinition(rs.getString("definition"));
-
-            // alternative MP ID
-            String alt_ids = rs.getString("alt_ids");
-            if (!rs.wasNull()) {
-                mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
-            }
-
-			//TODO use ontologyParser. Put null so it fails and I remember to fix it.
-            MPIndexer.addTopLevelTerms(mp,  null);
-            // TODO sort intermediate terms too with ontologyparser
-            //MPIndexer.add(mp, null);
-
-            map.put(termId, mp);
-
-        }
-        return map;
-    }
-
-
 	/**@since 2015
 	 * @author tudose
 	 * @param parameter

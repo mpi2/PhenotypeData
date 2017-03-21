@@ -17,10 +17,7 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class ImpressDTO {
 
@@ -682,7 +679,7 @@ public class ImpressDTO {
 		this.mpTermSynonym = new ArrayList<>(new HashSet<>(this.mpTermSynonym));
 	}
 
-	public void addTopLevelMpId(List<String> topLevelMpTermId) {
+	public void addTopLevelMpId(Collection<String> topLevelMpTermId) {
 		if (this.topLevelMpId == null) {
 			this.topLevelMpId = new ArrayList<>();
 		}
@@ -691,7 +688,7 @@ public class ImpressDTO {
 	}
 
 
-	public void addTopLevelMpTerm(List<String> topLevelMpTerm) {
+	public void addTopLevelMpTerm(Collection<String> topLevelMpTerm) {
 		if (this.topLevelMpTerm == null) {
 			this.topLevelMpTerm = new ArrayList<>();
 		}
@@ -709,7 +706,7 @@ public class ImpressDTO {
 	}
 
 
-	public void addIntermediateMpId(List<String> intermediateMpId) {
+	public void addIntermediateMpId(Collection<String> intermediateMpId) {
 		if (this.intermediateMpId == null) {
 			this.intermediateMpId = new ArrayList<>();
 		}
@@ -718,7 +715,7 @@ public class ImpressDTO {
 	}
 
 
-	public void addIntermediateMpTerm(List<String> intermediateMpTerm) {
+	public void addIntermediateMpTerm(Collection<String> intermediateMpTerm) {
 		if (this.intermediateMpTerm == null) {
 			this.intermediateMpTerm = new ArrayList<>();
 		}

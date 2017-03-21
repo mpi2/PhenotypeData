@@ -133,7 +133,7 @@ public class MpService extends BasicService implements WebStatus{
 			return parents;
 		}
 
-		if (mps.get(0).getParentMpId() != null && mps.get(0).getParentMpId().size() != mps.get(0).getParentMpTerm().size()){
+		if (mps.get(0).getParentMpId().size() != mps.get(0).getParentMpTerm().size()){
 			throw new Error("Length of parent id list and parent term list does not match for MP id: " + id);
 		}
 
