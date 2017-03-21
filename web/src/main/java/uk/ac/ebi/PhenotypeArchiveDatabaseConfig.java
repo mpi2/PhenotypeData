@@ -38,6 +38,13 @@ public class PhenotypeArchiveDatabaseConfig {
         return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
     }
 
+    @Bean
+    @ConfigurationProperties(prefix = "datasource.phenodigm")
+    public DataSource phenodigmDataSource() {
+        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+    }
+
+
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {

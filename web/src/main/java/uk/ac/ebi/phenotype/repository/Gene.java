@@ -19,35 +19,28 @@ public class Gene {
     private String mgiAccessionId;
     private String markerType;
     private String markerSymbol;
-    private List<String> markerSynonym;
-    private List<String> humanGeneSymbol;
     private String markerName;
-    private String latestPhenotypeStatus;
-    private String latestEsCellStatus;
-    private String latestMouseStatus;
-    private String latestPhenotypingCentre;
-    private String latestProductionCentre;
-    private String seqRegionId;
-    private String seqRegionStart;
-    private String seqRegionEnd;
-    private String embryoDataAvailable;
+    private String chrId;
+    private String chrStart;
+    private String chrEnd;
+    private String chrStrand;
 
-    @Relationship(type="IS_ENSEMBL_GENE_ID", direction=Relationship.OUTGOING)
+    @Relationship(type = "IS_ENSEMBL_GENE_ID", direction = Relationship.OUTGOING)
     private Set<EnsemblGeneId> ensemblGeneIds;
 
-    @Relationship(type="HAS_MARKER_SYNONYM", direction=Relationship.OUTGOING)
+    @Relationship(type = "HAS_MARKER_SYNONYM", direction = Relationship.OUTGOING)
     private Set<MarkerSynonym> markerSynonyms;
 
-    @Relationship(type="HUMAN_GENE_SYMBOL", direction=Relationship.OUTGOING)
+    @Relationship(type = "HUMAN_GENE_SYMBOL", direction = Relationship.OUTGOING)
     private Set<HumanGeneSymbol> humanGeneSymbols;
 
-    @Relationship(type="HAS_ALLELE", direction=Relationship.OUTGOING)
+    @Relationship(type = "HAS_ALLELE", direction = Relationship.OUTGOING)
     private Set<Allele> alleles;
 
-    @Relationship(type="HAS_DISEASE", direction=Relationship.OUTGOING)
+    @Relationship(type = "HAS_DISEASE", direction = Relationship.OUTGOING)
     private Set<DiseaseModelAssociation> diseases;
 
-    @Relationship(type="HAS_PHENOTYPE", direction=Relationship.OUTGOING)
+    @Relationship(type = "HAS_PHENOTYPE", direction = Relationship.OUTGOING)
     private Set<Phenotype> phenotypes;
 
     public Long getId() {
@@ -82,22 +75,6 @@ public class Gene {
         this.markerSymbol = markerSymbol;
     }
 
-    public List<String> getMarkerSynonym() {
-        return markerSynonym;
-    }
-
-    public void setMarkerSynonym(List<String> markerSynonym) {
-        this.markerSynonym = markerSynonym;
-    }
-
-    public List<String> getHumanGeneSymbol() {
-        return humanGeneSymbol;
-    }
-
-    public void setHumanGeneSymbol(List<String> humanGeneSymbol) {
-        this.humanGeneSymbol = humanGeneSymbol;
-    }
-
     public String getMarkerName() {
         return markerName;
     }
@@ -106,76 +83,36 @@ public class Gene {
         this.markerName = markerName;
     }
 
-    public String getLatestPhenotypeStatus() {
-        return latestPhenotypeStatus;
+    public String getChrId() {
+        return chrId;
     }
 
-    public void setLatestPhenotypeStatus(String latestPhenotypeStatus) {
-        this.latestPhenotypeStatus = latestPhenotypeStatus;
+    public void setChrId(String chrId) {
+        this.chrId = chrId;
     }
 
-    public String getLatestEsCellStatus() {
-        return latestEsCellStatus;
+    public String getChrStart() {
+        return chrStart;
     }
 
-    public void setLatestEsCellStatus(String latestEsCellStatus) {
-        this.latestEsCellStatus = latestEsCellStatus;
+    public void setChrStart(String chrStart) {
+        this.chrStart = chrStart;
     }
 
-    public String getLatestMouseStatus() {
-        return latestMouseStatus;
+    public String getChrEnd() {
+        return chrEnd;
     }
 
-    public void setLatestMouseStatus(String latestMouseStatus) {
-        this.latestMouseStatus = latestMouseStatus;
+    public void setChrEnd(String chrEnd) {
+        this.chrEnd = chrEnd;
     }
 
-    public String getLatestPhenotypingCentre() {
-        return latestPhenotypingCentre;
+    public String getChrStrand() {
+        return chrStrand;
     }
 
-    public void setLatestPhenotypingCentre(String latestPhenotypingCentre) {
-        this.latestPhenotypingCentre = latestPhenotypingCentre;
-    }
-
-    public String getLatestProductionCentre() {
-        return latestProductionCentre;
-    }
-
-    public void setLatestProductionCentre(String latestProductionCentre) {
-        this.latestProductionCentre = latestProductionCentre;
-    }
-
-    public String getSeqRegionId() {
-        return seqRegionId;
-    }
-
-    public void setSeqRegionId(String seqRegionId) {
-        this.seqRegionId = seqRegionId;
-    }
-
-    public String getSeqRegionStart() {
-        return seqRegionStart;
-    }
-
-    public void setSeqRegionStart(String seqRegionStart) {
-        this.seqRegionStart = seqRegionStart;
-    }
-
-    public String getSeqRegionEnd() {
-        return seqRegionEnd;
-    }
-
-    public void setSeqRegionEnd(String seqRegionEnd) {
-        this.seqRegionEnd = seqRegionEnd;
-    }
-
-    public String getEmbryoDataAvailable() {
-        return embryoDataAvailable;
-    }
-
-    public void setEmbryoDataAvailable(String embryoDataAvailable) {
-        this.embryoDataAvailable = embryoDataAvailable;
+    public void setChrStrand(String chrStrand) {
+        this.chrStrand = chrStrand;
     }
 
     public Set<EnsemblGeneId> getEnsemblGeneIds() {
@@ -224,5 +161,26 @@ public class Gene {
 
     public void setPhenotypes(Set<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
+    }
+
+    @Override
+    public String toString() {
+        return "Gene{" +
+                "id=" + id +
+                ", mgiAccessionId='" + mgiAccessionId + '\'' +
+                ", markerType='" + markerType + '\'' +
+                ", markerSymbol='" + markerSymbol + '\'' +
+                ", markerName='" + markerName + '\'' +
+                ", chrId='" + chrId + '\'' +
+                ", chrStart='" + chrStart + '\'' +
+                ", chrEnd='" + chrEnd + '\'' +
+                ", chrStrand='" + chrStrand + '\'' +
+                ", ensemblGeneIds=" + ensemblGeneIds +
+                ", markerSynonyms=" + markerSynonyms +
+                ", humanGeneSymbols=" + humanGeneSymbols +
+                ", alleles=" + alleles +
+                ", diseases=" + diseases +
+                ", phenotypes=" + phenotypes +
+                '}';
     }
 }
