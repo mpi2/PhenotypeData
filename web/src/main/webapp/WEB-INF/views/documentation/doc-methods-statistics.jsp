@@ -180,7 +180,7 @@ Additional information about the PhenStat package:
         <td>Multi-batch batch (2+)</td>
         <td>Mutant and control data are gathered over a few days.</td>
         <td>Possible batch effect.  The controls and mutants are analysed using <br /><strong><i>Y = Genotype + Sex + Genotype*Sex + (1|Batch)</i></strong>, the batch effect might be removed.</td>
-        <td>Baseline control strategy &mdash; Use all control data within the same .</td>
+        <td>Baseline control strategy &mdash; Use all control data within the same metadata group.</td>
     </tr>
     </tbody>
     <caption>Example work flows at IMPC centers.</caption>
