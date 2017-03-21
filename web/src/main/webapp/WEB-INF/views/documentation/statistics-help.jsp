@@ -133,7 +133,7 @@
 		                            	<dt>WT (wildtype or +/+)</dt><dd>The wild type allele.</dd>
 		                            	<dt>Heterozygous (het)</dt><dd>The mutation occurred in one copy of the allele.</dd>
 		                            	<dt>Homozygous (hom)</dt><dd>The mutation occurred in both copies of the allele.</dd>
-		                            	<dt>Hemizygous (hemi)</dt><dd>The mutation occurred in a sex linked allele where, normally, only a single copy exists in the WT.</dd>
+		                            	<dt>Hemizygous (hemi)</dt><dd>The mutation occurred in a sex-linked allele where, normally, only a single copy exists in the WT.</dd>
 		                            	</dl></td>
 	                            	</tr>
 	                            	<tr>
@@ -190,7 +190,7 @@
                             		<td>Multi-batch batch (2+)</td>
                             		<td>Mutant and control data are gathered over a few days.</td>
                             		<td>Possible batch effect.  The controls and mutants are analysed using <br /><strong><i>Y = Genotype + Sex + Genotype*Sex + (1|Batch)</i></strong>, the batch effect might be removed.</td>
-                            		<td>Baseline control strategy &mdash; Use all control data within the same .</td>
+                            		<td>Baseline control strategy &mdash; Use all control data within the same metadata group.</td>
                             	</tr>
                             </tbody>
                             <caption>Example work flows at IMPC centers.</caption>
