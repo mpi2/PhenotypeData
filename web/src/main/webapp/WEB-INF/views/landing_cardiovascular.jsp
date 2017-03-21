@@ -68,7 +68,7 @@
 						<%--</c:if>--%>
 
 						<%--<c:if test="${!countIKMCAllelesError}">--%>
-							<li><a href="#publicataions">Publicataions</a></li>
+							<li><a href="#publications">Publications</a></li>
 						<%--</c:if>--%>
 						</ul>
 
