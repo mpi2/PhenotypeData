@@ -20,8 +20,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.BiologicalSample;
 import org.mousephenotype.cda.db.pojo.Experiment;
+import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -40,7 +42,9 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
+
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -1199,7 +1203,17 @@ public class ExperimentLoader implements Step, Tasklet, InitializingBean {
 
         String parameterStableId = ontologyParameter.getParameterID();
         int parameterPk = cdaParameter_idMap.get(parameterStableId);
-        String sequenceId = null;
+
+        Integer sequenceId = null;
+        BigInteger bi = ontologyParameter.getSequenceID();
+        if (bi != null) {
+            try {
+                sequenceId = Integer.valueOf(bi.intValue());
+            } catch (Exception e) {
+
+            }
+        }
+
         ObservationType observationType = ObservationType.ontological;
         int populationId = 0;
 

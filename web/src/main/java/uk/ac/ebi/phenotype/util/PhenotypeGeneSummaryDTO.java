@@ -109,7 +109,7 @@ public class PhenotypeGeneSummaryDTO {
 			return  getPiechart(getMaleOnlyNumber(), getFemaleOnlyNumber(), getBothNumber(), getTotalGenesTested());
 		}
 	}
-	public void fillPieChartCode() {
+	public void fillPieChartCode(String noPhenotypeLabel) {
 		this.pieChartCode = getPiechart(getMaleOnlyNumber(), getFemaleOnlyNumber(), getBothNumber(), getTotalGenesTested());
 	}
 	public int getFemaleOnlyNumber() {
@@ -134,7 +134,7 @@ public class PhenotypeGeneSummaryDTO {
 	protected String getPiechart(int maleOnly, int femaleOnly, int both, int total){
 	
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
-			
+
 		
 		String chart = "$(function () { $('#pieChart').highcharts({ "
 				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "	
@@ -155,7 +155,7 @@ public class PhenotypeGeneSummaryDTO {
 				+ "data: [ { name: 'Female only', y: " + femaleOnly + ", sliced: true, selected: true }, "
 					+ "{ name: 'Male only', y: " + maleOnly + ", sliced: true, selected: true }, "
 					+ "{ name: 'Both sexes', y: " + both + ", sliced: true, selected: true }, "
-					+ "['Phenotype not present', " + (total- maleOnly - femaleOnly - both) + " ] ]  }]"
+					+ "[' Phenotype not present', " + (total- maleOnly - femaleOnly - both) + " ] ]  }]"
 		+" }); });";
 		
 		return chart;
