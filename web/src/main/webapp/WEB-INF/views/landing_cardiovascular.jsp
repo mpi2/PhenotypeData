@@ -43,7 +43,41 @@
     <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
     <jsp:attribute name="addToFooter">
+		
+		 <div class="region region-pinned">
 
+	            <div id="flyingnavi" class="block smoothScroll">
+
+		            <a href="#top"><i class="fa fa-chevron-up"
+		                              title="scroll to top"></i></a>
+
+		            <ul>
+			            <li><a href="#top">Cardiovascular System</a></li>
+			            <li><a href="#approach">Approach</a></li>
+			            <!--  always a section for this even if says no phenotypes found - do not putting in check here -->
+
+
+						<li><a href="#phenotypes-distribution">Phenotypes Distribution</a></li>
+
+						<%--<c:if test="${not empty impcImageFacets}">--%>
+							<li><a href="#gene-ko-effect">Gene KO Effect</a></li>
+						<%--</c:if>--%>
+
+						<%--<c:if test="${not empty orthologousDiseaseAssociations}">--%>
+							<li><a href="#disease-associations">Disease Associations</a></li>
+						<%--</c:if>--%>
+
+						<%--<c:if test="${!countIKMCAllelesError}">--%>
+							<li><a href="#publications">Publications</a></li>
+						<%--</c:if>--%>
+						</ul>
+
+						<div class="clear"></div>
+
+					</div>
+
+				</div>
+				<!--  end of floating menu for genes page -->
 
 
 	</jsp:attribute>
@@ -53,13 +87,13 @@
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">${systemName} </h1>
+                        <h1 class="title capitalize" id="top">${systemName} </h1>
 
                         <c:import url="landing_overview_frag.jsp"/>
                         <br/><br/>
 
                         <div class="section">
-                            <h2 class="title">Approach</h2>
+                            <h2 id="approach" class="title">Approach</h2>
                              <div class="inner">
 
                                 <p> To measure ${systemName} function in the mouse, IMPC uses a series of standardised protolcols. These protocols are described in <a href="${baseUrl}/../impress">IMPReSS</a> (International Mouse Phenotyping Resource of Standardised Screens). </p>
@@ -86,7 +120,7 @@
 
                         <div class="section">
 
-                            <h2 class="title">Phenotypes distribution</h2>
+                            <h2 id="phenotypes-distribution" class="title">Phenotypes distribution</h2>
                             <div class="inner">
                                 <p>The following graph represents the distribution of genes according to their phenotypes. Genes have at least one phenotype linked to cardiovascular system.
                                 </p>
@@ -95,23 +129,25 @@
                                     <script type="text/javascript"> $(function () {  ${phenotypeChart} }); </script>
                                 </div>
 
-                                <br/><br/>
+                               <br/>
+                                   <div class="inner-division">
                                     <p>The following diagram represents the various biological system phenotypes associations for genes linked to cardiovascular system phenotypes. The line thickness is correlated with the strength of the association.</p>
                                     <p>Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>
-                                <br/>
+                                
                                 <div id="chordContainer"></div>
                                 <svg id="chordDiagramSvg" width="960" height="960"></svg>
                                 <script>
                                     var mpTopLevelTerms = ["cardiovascular system phenotype"];
-                                    drawChords("chordDiagramSvg", "chordContainer", false, mpTopLevelTerms, false, null);
+                                    drawChords("chordDiagramSvg", "chordContainer", false, mpTopLevelTerms, false, null, false);
                                 </script>
+                                </div>
                             </div>
                         </div>
 
 
                         <div class="section">
 
-                            <h2 class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
+                            <h2 id="gene-ko-effect" class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
 
                             <div class="inner">
                                 <p>Visualize multiple strain across several continuous parameters used for ${systemName} phenotyping.
@@ -149,7 +185,7 @@
 
                         <div class="section">
 
-                            <h2 class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>
+                            <h2 id="disease-associations" class="title">Cardiovascular disease associations by orthology and phenotypic similarity</h2>
                             <div class="inner">
                             
                             <p>
