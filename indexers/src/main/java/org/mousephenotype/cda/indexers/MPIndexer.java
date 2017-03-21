@@ -187,7 +187,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpCore.commit();
 
             for (String mpId: mpParser.getTermsInSlim()) {
-                System.out.println("---=" + mpId);
 
                 OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
                 String termId = mpDTO.getAccessionId();
@@ -249,7 +248,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
 
-                List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser);
+                List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
                 mp.setSearchTermJson(searchTree.toString());
                 //TODO scrollTo with OntologyParser
 //                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
