@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.indexers;
 
-import net.sf.json.JSONObject;
+import org.json.JSONObject;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;

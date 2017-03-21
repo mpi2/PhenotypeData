@@ -1,8 +1,8 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.PostQcService;
@@ -130,7 +130,7 @@ public class OntologyBrowserGetter {
 	public String getScrollTo(List<JSONObject> tree){
 
 		for (JSONObject topLevel: tree){
-			if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
+			if (topLevel.has("state") && topLevel.getJSONObject("state").has("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
 				return topLevel.getString("id");
 			}
 		}
@@ -481,18 +481,16 @@ public class OntologyBrowserGetter {
 	public List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser){
 
 		List<JSONObject> tree = new ArrayList<>();
-		JSONObject obj = new JSONObject();
 		Map<Integer, JSONObject> nodes = new HashMap<>();
 		if (term.getPathsToRoot() != null) {
 			for (List<Integer> path : term.getPathsToRoot().values()) {
-				System.out.println("path " + path);
-				obj = getJson(path, baseUrl, parser, term.getAccessionId(), nodes);
+				getJson(path, baseUrl, parser, term.getAccessionId(), nodes);
 			}
 		} else {
 			System.out.println("No path to root for " + term.getAccessionId());
 		}
 
-		tree.add(nodes.get(0)); // mammalian phenotype, root is 0
+		tree.add(nodes.get(0)); // mammalian phenotype for MP, root is 0
 
 		// TODO add json objects for other top levels ? ? ?
 		return tree;
@@ -510,7 +508,6 @@ public class OntologyBrowserGetter {
 		for (int i = 0; i < path.size()-1 && nodes.containsKey(path.get(i+1)); i++){
 			remainingPath.remove(path.get(i));
 		}
-//		System.out.println("Remaining path " + remainingPath);
 
 		if (remainingPath.size() > 0) {
 
@@ -520,8 +517,8 @@ public class OntologyBrowserGetter {
 			JSONObject current = getJsonObjectWithBasicInfo(term, searchTermId, baseUrl, id, nodes);
 
 			if (remainingPath.size() > 0) {
-				JSONArray children = current.get("children") != null && ! (current.get("children") instanceof Boolean) ? current.getJSONArray("children") : new JSONArray();
-				children.add(getJson(remainingPath, baseUrl, parser, searchTermId, nodes));
+				JSONArray children = current.has("children") && ! (current.get("children") instanceof Boolean) ? current.getJSONArray("children") : new JSONArray();
+				children.put(getJson(remainingPath, baseUrl, parser, searchTermId, nodes));
 				current.put("children", children);
 				current.put("state", getState(path.size() > 0));
 			} else {
@@ -540,16 +537,16 @@ public class OntologyBrowserGetter {
 			current = nodes.get(id);
 		} else {
 			current = new JSONObject();
+			current.put("text", getText(term, searchTermId, baseUrl));
+			current.put("id", id);
+			current.put("term_id", term.getAccessionId());
+			current.put("hrefTarget", "_blank");
+			if (searchTermId.equals(term.getAccessionId())){
+				current.put("type", "selected"); // blue dot
+			}
 			nodes.put(id, current);
 		}
 
-		current.put("text", getText(term, searchTermId, baseUrl));
-		current.put("id", id);
-		current.put("term_id", term.getAccessionId());
-		current.put("hrefTarget", "_blank");
-		if (searchTermId.equals(term.getAccessionId())){
-			current.put("type", "selected"); // blue dot
-		}
 		return current;
 
 	}
