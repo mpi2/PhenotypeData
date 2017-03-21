@@ -14,7 +14,7 @@
                     <script type="text/javascript">${genePercentage.getPieChartCode()}</script>
                 </div>
 
-                <c:if test="${genePercentage.getTotalGenesTested() > 0}">
+               <%--  <c:if test="${genePercentage.getTotalGenesTested() > 0}">
                     <p><span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of the
                         tested genes with null mutations on a B6N genetic background have related phenotype
                         associations
@@ -28,7 +28,7 @@
                 </c:if>
                 <c:if test="${genePercentage.getMaleGenesTested() > 0}">
                     <p> <span class="padleft"><span  class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span> </p>
-                </c:if>
+                </c:if> --%>
             </div>
 
 
@@ -42,7 +42,7 @@
                         <tr <c:if test="${loop.index >= 10}"> class="hidden hideable" </c:if> >
                             <td class="capitalize"><a href="${baseUrl}/phenotypes/${row.getMpId()}">${row.getCategory()}</a></td>
                             <c:if test="${row.getMpId() != null}">
-                                <td><a href="${baseUrl}/phenotypes/${row.getMpId()}">${row.getCount()} </a></td>
+                                <td><a href="${baseUrl}/phenotypes/export/${row.getMpId()}?fileType=tsv&fileName=IMPC_${row.getCategory()}" target="_blank">${row.getCount()} </a></td>
                             </c:if>
                             <c:if test="${row.getMpId() == null}">
                                 <td><h4>${row.getCount()}</h4></td>
@@ -73,6 +73,9 @@
     $(document).ready(function() {
         $('#showMore').click(function () {
             $(".hideable").toggleClass("hidden");
+            var text = $('#showMore').text();
+            $(this).text(
+                    text == "Show more" ? "Show less" : "Show more");
         });
     });
 </script>
