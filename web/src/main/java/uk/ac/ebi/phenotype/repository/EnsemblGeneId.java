@@ -44,4 +44,14 @@ public class EnsemblGeneId {
     public void setGene(Gene gene) {
         this.gene = gene;
     }
+
+
+    @Override
+    public String toString() {
+        return "EnsemblGeneId{" +
+                "id=" + id +
+                ", ensemblGeneId='" + ensemblGeneId + '\'' +
+                ", gene=" + gene +
+                '}';
+    }
 }

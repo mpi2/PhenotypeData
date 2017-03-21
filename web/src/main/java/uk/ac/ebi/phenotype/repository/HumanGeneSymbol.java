@@ -13,7 +13,7 @@ public class HumanGeneSymbol {
     @GraphId
     Long id;
 
-    private String humanGeneSymbl;
+    private String humanGeneSymbol;
 
     @Relationship(type="OF_GENE", direction=Relationship.OUTGOING)
     private Gene gene;
@@ -26,12 +26,12 @@ public class HumanGeneSymbol {
         this.id = id;
     }
 
-    public String getHumanGeneSymbl() {
-        return humanGeneSymbl;
+    public String getHumanGeneSymbol() {
+        return humanGeneSymbol;
     }
 
-    public void setHumanGeneSymbl(String humanGeneSymbl) {
-        this.humanGeneSymbl = humanGeneSymbl;
+    public void setHumanGeneSymbol(String humanGeneSymbol) {
+        this.humanGeneSymbol = humanGeneSymbol;
     }
 
     public Gene getGene() {
@@ -40,6 +40,15 @@ public class HumanGeneSymbol {
 
     public void setGene(Gene gene) {
         this.gene = gene;
+    }
+
+    @Override
+    public String toString() {
+        return "HumanGeneSymbol{" +
+                "id=" + id +
+                ", humanGeneSymbol='" + humanGeneSymbol + '\'' +
+                ", gene=" + gene +
+                '}';
     }
 }
 

@@ -43,5 +43,14 @@ public class MarkerSynonym {
     public void setGene(Gene gene) {
         this.gene = gene;
     }
+
+    @Override
+    public String toString() {
+        return "MarkerSynonym{" +
+                "id=" + id +
+                ", markerSynonym='" + markerSynonym + '\'' +
+                ", gene=" + gene +
+                '}';
+    }
 }
 
