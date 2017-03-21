@@ -14,7 +14,7 @@ import java.util.Set;
  * Created by ckchen on 14/03/2017.
  */
 @NodeEntity
-public class DiseaseModelAssociation {
+public class Disease {
 
     @GraphId
     Long id;

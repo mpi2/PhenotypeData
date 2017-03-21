@@ -38,7 +38,7 @@ public class Gene {
     private Set<Allele> alleles;
 
     @Relationship(type = "HAS_DISEASE", direction = Relationship.OUTGOING)
-    private Set<DiseaseModelAssociation> diseases;
+    private Set<Disease> diseases;
 
     @Relationship(type = "HAS_PHENOTYPE", direction = Relationship.OUTGOING)
     private Set<Phenotype> phenotypes;
@@ -147,11 +147,11 @@ public class Gene {
         this.alleles = alleles;
     }
 
-    public Set<DiseaseModelAssociation> getDiseases() {
+    public Set<Disease> getDiseases() {
         return diseases;
     }
 
-    public void setDiseases(Set<DiseaseModelAssociation> diseases) {
+    public void setDiseases(Set<Disease> diseases) {
         this.diseases = diseases;
     }
 
