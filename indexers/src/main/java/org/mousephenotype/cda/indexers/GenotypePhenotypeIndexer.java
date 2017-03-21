@@ -22,12 +22,16 @@ import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +95,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
 
+    OntologyParser mpParser;
+
     public GenotypePhenotypeIndexer() {
     }
 
@@ -111,7 +117,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         long start = System.currentTimeMillis();
 
         try {
-
+            mpParser = getMpParser(null);
             connection = komp2DataSource.getConnection();
 
             pipelineMap = IndexerMap.getImpressPipelines(connection);
@@ -123,7 +129,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
             count = populateGenotypePhenotypeSolrCore(runStatus);
 
-        } catch (SQLException | IOException | SolrServerException ex) {
+        } catch (SQLException | IOException | SolrServerException | OWLOntologyCreationException | OWLOntologyStorageException ex) {
         	ex.printStackTrace();
             throw new IndexerException(ex);
         }
@@ -335,7 +341,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                         }
                     }
 
-                    if (mpOntologyService.getTopLevelDetail(mpId).getIds().size() == 0 ){
+                    OntologyTermDTO mpDto = mpParser.getOntologyTerm(mpId);
+
+                    if (mpDto.getTopLevelIds().size() == 0 ){
                         // if the mpId itself is a top level, add itself as a top level
                         List<String> ids = new ArrayList<>(); ids.add(mpId);
                         List<String> names = new ArrayList<>(); names.add(doc.getMpTermName());
@@ -344,11 +352,11 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                         doc.setTopLevelMpTermName(names);
                     }
                     else {
-                        doc.setTopLevelMpTermId(mpOntologyService.getTopLevelDetail(mpId).getIds());
-                        doc.setTopLevelMpTermName(mpOntologyService.getTopLevelDetail(mpId).getNames());
+                        doc.setTopLevelMpTermId(mpDto.getTopLevelIds());
+                        doc.setTopLevelMpTermName(mpDto.getTopLevelNames());
                     }
-                    doc.setIntermediateMpTermId(mpOntologyService.getIntermediatesDetail(mpId).getIds());
-                    doc.setIntermediateMpTermName(mpOntologyService.getIntermediatesDetail(mpId).getNames());
+                    doc.setIntermediateMpTermId(mpDto.getIntermediateIds());
+                    doc.setIntermediateMpTermName(mpDto.getIntermediateNames());
                 }
                 // MPATH association
                 else if (r.getString("ontology_term_id").startsWith("MPATH:")) {

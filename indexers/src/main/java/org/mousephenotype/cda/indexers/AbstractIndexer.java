@@ -23,18 +23,23 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -56,6 +61,18 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String EMBRYONIC_DAY_14_5 = "EFO:0002565";    // -> embryonic day 14.5
     public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
+
+
+    @NotNull
+    @Value("${owlpath}")
+    protected String owlpath;
+
+    protected static final Set<String> TOP_LEVEL_MP_TERMS = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
+            "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
+            "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
+            "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397", "MP:0010771"));
+
+
 
     @Autowired
     OntologyTermDAO ontologyTermDAO;
@@ -397,5 +414,13 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
         return terms;
     }
+
+    // These aprsers are used by several indexers so it makes sense to initialize them in one place, so that they don't get out of synch.
+    public OntologyParser getMpParser(Set<String> wantedIds) throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+        return  new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
+
+    }
+    //TODO getMaParser
+    //TODO getEMAPAparser
 
 }
