@@ -187,6 +187,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpCore.commit();
 
             for (String mpId: mpParser.getTermsInSlim()) {
+                System.out.println("---=" + mpId);
 
                 OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
                 String termId = mpDTO.getAccessionId();
