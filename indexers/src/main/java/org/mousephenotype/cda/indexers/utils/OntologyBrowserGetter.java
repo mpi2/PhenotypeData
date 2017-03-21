@@ -35,9 +35,10 @@ public class OntologyBrowserGetter {
     @Qualifier("preqcService")
     PreQcService preqcService;
 
-
 	public OntologyBrowserGetter(DataSource ontodbDataSource){
+
 		this.ontodbDataSource = ontodbDataSource;
+
 	}
 
 	public OntologyBrowserGetter(){	}
@@ -480,14 +481,19 @@ public class OntologyBrowserGetter {
 	public List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser){
 
 		List<JSONObject> tree = new ArrayList<>();
+		JSONObject obj = new JSONObject();
+		Map<Integer, JSONObject> nodes = new HashMap<>();
 		if (term.getPathsToRoot() != null) {
 			for (List<Integer> path : term.getPathsToRoot().values()) {
-				JSONObject subtree = getJson(path, baseUrl, parser, term.getAccessionId());
-				tree.add(subtree);
+				System.out.println("path " + path);
+				obj = getJson(path, baseUrl, parser, term.getAccessionId(), nodes);
 			}
 		} else {
 			System.out.println("No path to root for " + term.getAccessionId());
 		}
+
+		tree.add(nodes.get(0)); // mammalian phenotype, root is 0
+
 		// TODO add json objects for other top levels ? ? ?
 		return tree;
 	}
@@ -497,35 +503,56 @@ public class OntologyBrowserGetter {
 	 * @param baseUrl /data/phenotypes/ for mp links
 	 * @return
 	 */
-	JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser, String searchTermId){
+	JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser, String searchTermId, Map<Integer, JSONObject> nodes){
 
 		List<Integer> remainingPath = new ArrayList<>(path); // don't modify original
+		// remove the part of the path that was already added to the JSON object
+		for (int i = 0; i < path.size()-1 && nodes.containsKey(path.get(i+1)); i++){
+			remainingPath.remove(path.get(i));
+		}
+//		System.out.println("Remaining path " + remainingPath);
+
 		if (remainingPath.size() > 0) {
+
 			Integer id = remainingPath.get(0);
 			remainingPath.remove(0);
 			OntologyTermDTO term = parser.getOntologyTerm(id);
-			JSONObject current = new JSONObject();
-			current.put("text", getText(term, searchTermId, baseUrl));
-			current.put("id", id);
-			current.put("term_id", term.getAccessionId());
-			current.put("hrefTarget", "_blank");
+			JSONObject current = getJsonObjectWithBasicInfo(term, searchTermId, baseUrl, id, nodes);
+
 			if (remainingPath.size() > 0) {
-				JSONArray children = new JSONArray();
-				children.add(getJson(remainingPath, baseUrl, parser, searchTermId));
+				JSONArray children = current.get("children") != null && ! (current.get("children") instanceof Boolean) ? current.getJSONArray("children") : new JSONArray();
+				children.add(getJson(remainingPath, baseUrl, parser, searchTermId, nodes));
 				current.put("children", children);
 				current.put("state", getState(path.size() > 0));
 			} else {
 				current.put("children", hasChildren(term));
-			}
-
-			if (searchTermId.equals(term.getAccessionId())){
-				current.put("type", "selected"); // blue dot
 			}
 			return current;
 		}
 		return null;
 	}
 
+
+	private JSONObject getJsonObjectWithBasicInfo(OntologyTermDTO term, String searchTermId, String baseUrl, Integer id, Map<Integer, JSONObject> nodes){
+
+		JSONObject current;
+		if (nodes.containsKey(id)){
+			current = nodes.get(id);
+		} else {
+			current = new JSONObject();
+			nodes.put(id, current);
+		}
+
+		current.put("text", getText(term, searchTermId, baseUrl));
+		current.put("id", id);
+		current.put("term_id", term.getAccessionId());
+		current.put("hrefTarget", "_blank");
+		if (searchTermId.equals(term.getAccessionId())){
+			current.put("type", "selected"); // blue dot
+		}
+		return current;
+
+	}
 
 	private String getText (OntologyTermDTO term, String searchTermId, String baseUrl){
 
