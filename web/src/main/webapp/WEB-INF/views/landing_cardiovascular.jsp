@@ -208,18 +208,17 @@ The complete dataset can be downloaded using the download icon.
                                     <jsp:param name="divId" value="impcVenn"/>
                                 </jsp:include>
                             </div>
-                            <div class="half">
-                                <jsp:include page="gene_orthologs_frag.jsp" >
-                                    <jsp:param name="currentSet" value="mgiSets"/>
-                                    <jsp:param name="divId" value="mgiVenn"/>
-                                </jsp:include>
-                            </div>
+                            <%--<div class="half">--%>
+                                <%--<jsp:include page="gene_orthologs_frag.jsp" >--%>
+                                    <%--<jsp:param name="currentSet" value="mgiSets"/>--%>
+                                    <%--<jsp:param name="divId" value="mgiVenn"/>--%>
+                                <%--</jsp:include>--%>
+                            <%--</div>--%>
 
                             <div class="clear both"></div>
 
-                            <a id="tsvDownload" href="${baseUrl}/orthology.csv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
+                            <a id="tsvDownload" href="${baseUrl}/orthology.tsv?diseaseClasses=cardiac&diseaseClasses=circulatory system&diseaseClasses=cardiac malformations&mpId=MP:0005385&phenotypeShort=CV" download="diseases_${systemName}" target="_blank" class="button fa fa-download">Download</a>
 
-			
                             </div>
        
                         </div>
