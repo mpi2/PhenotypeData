@@ -27,6 +27,7 @@ import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
+import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
@@ -62,17 +64,24 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
 
+    // Properties we want to follow to get MA terms form MP
+    Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>(Arrays.asList(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")),
+            new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000070")),
+            new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of"))));
 
-    @NotNull
-    @Value("${owlpath}")
-    protected String owlpath;
 
     protected static final Set<String> TOP_LEVEL_MP_TERMS = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
             "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
             "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
             "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397", "MP:0010771"));
 
+    protected static final Set<String> TOP_LEVEL_MA_TERMS = new HashSet<>(Arrays.asList("MA:0000004", "MA:0000007", "MA:0000009", "MA:0000010",
+            "MA:0000012", "MA:0000014", "MA:0000016", "MA:0000017", "MA:0000325", "MA:0000326", "MA:0000327", "MA:0002411", "MA:0002418",
+            "MA:0002431", "MA:0002711"));
 
+    @NotNull
+    @Value("${owlpath}")
+    protected String owlpath;
 
     @Autowired
     OntologyTermDAO ontologyTermDAO;
@@ -415,11 +424,21 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         return terms;
     }
 
+
     // These aprsers are used by several indexers so it makes sense to initialize them in one place, so that they don't get out of synch.
     public OntologyParser getMpParser(Set<String> wantedIds) throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
         return  new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
 
     }
+
+    public OntologyParser getMpMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+        return new OntologyParser(owlpath + "/mp-ext-merged.owl", "MP", null, null);
+    }
+
+    public OntologyParser getMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+        return new OntologyParser(owlpath + "/ma.owl", "MA", AnatomyIndexer.TOP_LEVEL_MA_TERMS, null);
+    }
+
     //TODO getMaParser
     //TODO getEMAPAparser
 

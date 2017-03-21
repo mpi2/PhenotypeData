@@ -40,7 +40,6 @@ import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.RunStatus;
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
@@ -50,7 +49,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -120,12 +118,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     Map<String, Long> mpCalls = new HashMap<>();
     Map<String, Integer> mpGeneVariantCount = new HashMap<>();
-
-   // Properties we want to follow to get MA terms form MP
-    Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>(Arrays.asList(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")),
-            new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000070")),
-            new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of"))));
-
 
     private OntologyParser mpHpParser;
     private OntologyParser mpParser;
@@ -715,27 +707,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    private void getMaTermsForMp(MpDTO mp) {
-
-        // get MA ids referenced from MP
-        Set<String> maTerms = mpMaParser.getReferencedClasses(mp.getMpId(), viaProperties, "MA");
-        for (String maId : maTerms) {
-            // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
-            OntologyTermDTO ma = maParser.getOntologyTerm(maId);
-            if (ma != null) {
-                mp.addInferredMaId(ma.getAccessionId());
-                mp.addInferredMaTerm(ma.getName());
-                if (ma.getTopLevelIds() != null) {
-                    mp.addInferredSelectedTopLevelMaId(ma.getTopLevelIds());
-                    mp.addInferredSelectedTopLevelMaTerm(ma.getTopLevelNames());
-                }
-                //TODO intermediate terms - can't do this before merge to master as fields were not in schema
-            } else {
-                System.out.println("Term not found in MA : " + maId);
-            }
-        }
-
-    }
 
     private void addPhenotype1(MpDTO mp, RunStatus runStatus) {
         if (phenotypes1.containsKey(mp.getMpId())) {
@@ -967,6 +938,29 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.getPipelineStableKey().add(pppBean.getPipelineStableKey());
             }
         }
+    }
+
+
+    protected void getMaTermsForMp(MpDTO mp) {
+
+        // get MA ids referenced from MP
+        Set<String> maTerms = mpMaParser.getReferencedClasses(mp.getMpId(), viaProperties, "MA");
+        for (String maId : maTerms) {
+            // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
+            OntologyTermDTO ma = maParser.getOntologyTerm(maId);
+            if (ma != null) {
+                mp.addInferredMaId(ma.getAccessionId());
+                mp.addInferredMaTerm(ma.getName());
+                if (ma.getTopLevelIds() != null) {
+                    mp.addInferredSelectedTopLevelMaId(ma.getTopLevelIds());
+                    mp.addInferredSelectedTopLevelMaTerm(ma.getTopLevelNames());
+                }
+                //TODO intermediate terms - can't do this before merge to master as fields were not in schema
+            } else {
+                System.out.println("Term not found in MA : " + maId);
+            }
+        }
+
     }
 
     // PROTECTED METHODS
