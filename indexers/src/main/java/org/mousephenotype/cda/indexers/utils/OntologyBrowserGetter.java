@@ -519,6 +519,7 @@ public class OntologyBrowserGetter {
 				children.put(getJson(tlNodeId, baseUrl, parser, "", nodes, mpGeneVariantCount));
 			}
 		}
+		tree.put("children", children);
 	}
 
 	/**
@@ -585,7 +586,7 @@ public class OntologyBrowserGetter {
 			text.append(term.getName());
 		}
 		text.append("(<span class='gpAssoc'>")
-			.append(mpGeneVariantCount.get(term.getAccessionId()) != null ? mpGeneVariantCount.get(term.getAccessionId()) : 0)
+			.append(mpGeneVariantCount.get(term.getAccessionId()) != null ? mpGeneVariantCount.get(term.getAccessionId()) : "0")
 			.append("</span>)")
 			.append("</a>");
 
