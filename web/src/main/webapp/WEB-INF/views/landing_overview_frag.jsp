@@ -14,7 +14,7 @@
                     <script type="text/javascript">${genePercentage.getPieChartCode()}</script>
                 </div>
 
-                <c:if test="${genePercentage.getTotalGenesTested() > 0}">
+               <%--  <c:if test="${genePercentage.getTotalGenesTested() > 0}">
                     <p><span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of the
                         tested genes with null mutations on a B6N genetic background have related phenotype
                         associations
@@ -28,7 +28,7 @@
                 </c:if>
                 <c:if test="${genePercentage.getMaleGenesTested() > 0}">
                     <p> <span class="padleft"><span  class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span> </p>
-                </c:if>
+                </c:if> --%>
             </div>
 
 
