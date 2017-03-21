@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
  public interface MarkerSynonymRepository extends GraphRepository<MarkerSynonym> {
 
-    Allele findByMarkerSynonym(String markerSynonym);
+    MarkerSynonym findByMarkerSynonym(String markerSynonym);
 
 }

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
  * Created by ckchen on 14/03/2017.
  */
 @Repository
-public interface DiseaseRepository extends Neo4jRepository<DiseaseModelAssociation, Long> {
+public interface DiseaseRepository extends Neo4jRepository<Disease, Long> {
 
-    Gene findByDiseaseId(String diseaseId);
-    Gene findByDiseaseTerm(String diseaseTerm);
+    Disease findByDiseaseId(String diseaseId);
+    Disease findByDiseaseTerm(String diseaseTerm);
 
 }
