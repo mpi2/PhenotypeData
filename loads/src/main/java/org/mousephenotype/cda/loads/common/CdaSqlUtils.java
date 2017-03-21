@@ -1953,7 +1953,7 @@ private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new Concurren
             Integer biologicalSamplePk,
             String parameterStableId,
             int parameterPk,
-            String sequenceId,
+            Integer sequenceId,
             int populationId,
             ObservationType observationType,
             int missing,
