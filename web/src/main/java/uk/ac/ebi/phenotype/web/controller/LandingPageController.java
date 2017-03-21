@@ -102,7 +102,7 @@ public class LandingPageController {
 
 
     @RequestMapping(value = "/biological-system/{page}", method = RequestMethod.GET)
-    public String loadDeafnessPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)
+    public String loadBiologicalSystemPage(@PathVariable String page, Model model, HttpServletRequest request, RedirectAttributes attributes)
             throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException, ExecutionException, InterruptedException {
 
         String pageTitle = "";
