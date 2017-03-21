@@ -683,7 +683,7 @@ public class MpDTO {
 
 		this.parentMpTerm = new ArrayList<>();
 		if (parentMpTerm != null) {
-			this.parentMpId.addAll(parentMpTerm);
+			this.parentMpTerm.addAll(parentMpTerm);
 		}
 	}
 
