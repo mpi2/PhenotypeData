@@ -131,8 +131,8 @@ public class OntologyBrowserGetter {
 	public String getScrollTo(List<JSONObject> tree){
 
 		for (JSONObject topLevel: tree){
-			if (topLevel.has("state") && topLevel.getJSONObject("state").has("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
-				return topLevel.getString("id");
+			if (topLevel.has("state") && topLevel.getJSONObject("state").has("opened") && topLevel.getJSONObject("state").getBoolean("opened") == true){
+				return "" + topLevel.getInt("id");
 			}
 		}
 		return "";
@@ -479,9 +479,27 @@ public class OntologyBrowserGetter {
 	}
 
 
+	public List<JSONObject> getChildrenJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer>  mpGeneVariantCount){
+
+		List<JSONObject> children = new ArrayList<>();
+
+		if (term.getChildIds() != null){
+			for (String childId : term.getChildIds()){
+				OntologyTermDTO child = parser.getOntologyTerm(childId);
+				List<Integer> nodeIds = new ArrayList<>();
+				nodeIds.add(child.getNodeIds().iterator().next()); // For children it doesn't matter which node id we use.
+				children.add(getJson(nodeIds, baseUrl, parser, "", new HashMap<>(), mpGeneVariantCount));
+
+			}
+		}
+		System.out.println();
+
+		return children;
+	}
+
+
 	public List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount){
 
-		List<JSONObject> tree = new ArrayList<>();
 		Map<Integer, JSONObject> nodes = new HashMap<>();
 		if (term.getPathsToRoot() != null) {
 			for (List<Integer> path : term.getPathsToRoot().values()) {
@@ -491,35 +509,35 @@ public class OntologyBrowserGetter {
 			System.out.println("No path to root for " + term.getAccessionId());
 		}
 
-		// TODO add counts
-		addTopLevels(nodes.get(0), baseUrl, parser, nodes, mpGeneVariantCount);
-		tree.add(nodes.get(0)); // mammalian phenotype for MP, root is 0
-		return tree;
+		// root is 0, mammalian phenotype for MP
+		return addTopLevels(nodes.get(0), baseUrl, parser, nodes, mpGeneVariantCount);
 	}
 
 	/**
 	 * Add all top levels to tree, regardless if the term one searched for is in it or not. That's how we display it at the moment.
 	 * @param tree
 	 */
-	private void addTopLevels(JSONObject tree, String baseUrl, OntologyParser parser, Map<Integer, JSONObject> nodes,  Map<String, Integer> mpGeneVariantCount){
+	private List<JSONObject> addTopLevels(JSONObject tree, String baseUrl, OntologyParser parser, Map<Integer, JSONObject> nodes,  Map<String, Integer> mpGeneVariantCount){
 
 		List<OntologyTermDTO> topLevels = parser.getTopLevelTerms();
-		JSONArray children = tree.getJSONArray("children");
-		Map<String, JSONObject> topLevelsUsed = new HashMap<>();
-		for (int i = 0; i < children.length(); i++){
-			topLevelsUsed.put(children.getJSONObject(i).getString("term_id"), children.getJSONObject(i));
-		}
+		List<JSONObject> termsToDisplay =  new ArrayList<>();
+		if (tree.has("children") && tree.get("children") instanceof JSONArray) {
+			JSONArray children = tree.getJSONArray("children");
+			Map<String, JSONObject> topLevelsUsed = new HashMap<>();
+			for (int i = 0; i < children.length(); i++) {
+				topLevelsUsed.put(children.getJSONObject(i).getString("term_id"), children.getJSONObject(i));
+			}
 
-		children = new JSONArray();
-		for (OntologyTermDTO topLevel : topLevels){
-			if (topLevelsUsed.containsKey(topLevel.getAccessionId())){
-				children.put(topLevelsUsed.get(topLevel.getAccessionId()));
-			} else {
-				List<Integer> tlNodeId = topLevel.getNodeIds().stream().collect(Collectors.toList());
-				children.put(getJson(tlNodeId, baseUrl, parser, "", nodes, mpGeneVariantCount));
+			for (OntologyTermDTO topLevel : topLevels) {
+				if (topLevelsUsed.containsKey(topLevel.getAccessionId())) {
+					termsToDisplay.add(topLevelsUsed.get(topLevel.getAccessionId()));
+				} else {
+					List<Integer> tlNodeId = topLevel.getNodeIds().stream().collect(Collectors.toList());
+					termsToDisplay.add(getJson(tlNodeId, baseUrl, parser, "", nodes, mpGeneVariantCount));
+				}
 			}
 		}
-		tree.put("children", children);
+		return termsToDisplay;
 	}
 
 	/**

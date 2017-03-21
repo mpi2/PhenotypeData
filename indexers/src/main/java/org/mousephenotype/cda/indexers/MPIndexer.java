@@ -47,14 +47,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -92,10 +90,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
-    @NotNull
-    @Value("${owlpath}")
-    protected String owlpath;
-
     /**
      * Destination Solr core
      */
@@ -127,12 +121,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     Map<String, Long> mpCalls = new HashMap<>();
     Map<String, Integer> mpGeneVariantCount = new HashMap<>();
 
-    protected static final Set<String> TOP_LEVEL_MP_TERMS = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
-            "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
-            "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
-            "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397", "MP:0010771"));
-
-    // Properties we want to follow to get MA terms form MP
+   // Properties we want to follow to get MA terms form MP
     Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>(Arrays.asList(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")),
             new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000070")),
             new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of"))));
@@ -169,7 +158,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         OntologyBrowserGetter browser = new OntologyBrowserGetter();
 
         try {
-            mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
+            mpParser = getMpParser(wantedIds);
             mpParser.fillJsonTreePath("MP:0000001"); // call this if you want node ids from the objects
             System.out.println("Loaded mp parser");
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
@@ -252,9 +241,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setSearchTermJson(searchTree.toString());
                 String scrollNodeId = browser.getScrollTo(searchTree);
                 mp.setScrollNode(scrollNodeId);
-                //TODO add child json back, from OntologyParser
-//                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
-//                mp.setChildrenJson(childrenTree.toString());
+                List<JSONObject> childrenTree = browser.getChildrenJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
+                mp.setChildrenJson(childrenTree.toString());
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
