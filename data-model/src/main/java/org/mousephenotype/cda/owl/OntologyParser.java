@@ -31,7 +31,8 @@ public class OntologyParser {
     private Map<String, OntologyTermDTO> termMap = new HashMap<>(); // OBO-style ids because that's what we index.
     private Map<String, OWLClass> classMap = new HashMap<>(); // OBO id to OWLClass object. We need this to avoid pre-loading of referrenced classes (MAs from MP)
     private Set<String> termsInSlim; // <ids of classes on slim>
-    private Set<String> topLevelIds;
+    private TreeSet<String> topLevelIds;
+    private List<OntologyTermDTO> toplevelterms;
     private Map<Integer, OntologyTermDTO> nodeTermMap = new HashMap<>(); // <nodeId, ontologyId>
 
     /**
@@ -49,7 +50,11 @@ public class OntologyParser {
         if (wantedIds != null){
             getTermsInSlim(wantedIds, prefix);
         }
-        this.topLevelIds = topLevelIds;
+
+        if (topLevelIds != null) {
+            this.topLevelIds = new TreeSet<>(); // sort alphabetically
+            this.topLevelIds.addAll(topLevelIds);
+        }
 
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses){
@@ -62,6 +67,16 @@ public class OntologyParser {
         }
     }
 
+    public List<OntologyTermDTO> getTopLevelTerms(){
+        if (toplevelterms == null){
+            toplevelterms = new ArrayList<>();
+            for (String topLevelId : topLevelIds){
+                toplevelterms.add(termMap.get(topLevelId));
+            }
+        }
+        return toplevelterms;
+
+    }
 
     /**
      * Computes paths in the format needed for TreeJs, for the ontology browsers.
@@ -577,6 +592,7 @@ public class OntologyParser {
         }
 
     }
+
 
     /**
      * @param term

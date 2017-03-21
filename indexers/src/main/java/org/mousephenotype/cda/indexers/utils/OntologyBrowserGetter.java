@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @EnableAutoConfiguration
 public class OntologyBrowserGetter {
@@ -478,22 +479,47 @@ public class OntologyBrowserGetter {
 	}
 
 
-	public List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser){
+	public List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount){
 
 		List<JSONObject> tree = new ArrayList<>();
 		Map<Integer, JSONObject> nodes = new HashMap<>();
 		if (term.getPathsToRoot() != null) {
 			for (List<Integer> path : term.getPathsToRoot().values()) {
-				getJson(path, baseUrl, parser, term.getAccessionId(), nodes);
+				getJson(path, baseUrl, parser, term.getAccessionId(), nodes, mpGeneVariantCount);
 			}
 		} else {
 			System.out.println("No path to root for " + term.getAccessionId());
 		}
 
+		// TODO add counts
+		addTopLevels(nodes.get(0), baseUrl, parser, nodes, mpGeneVariantCount);
 		tree.add(nodes.get(0)); // mammalian phenotype for MP, root is 0
-
-		// TODO add json objects for other top levels ? ? ?
 		return tree;
+	}
+
+	/**
+	 * Add all top levels to tree, regardless if the term one searched for is in it or not. That's how we display it at the moment.
+	 * @param tree
+	 */
+	private void addTopLevels(JSONObject tree, String baseUrl, OntologyParser parser, Map<Integer, JSONObject> nodes,  Map<String, Integer> mpGeneVariantCount){
+
+		List<OntologyTermDTO> topLevels = parser.getTopLevelTerms();
+		JSONArray children = tree.getJSONArray("children");
+		Map<String, JSONObject> topLevelsUsed = new HashMap<>();
+		for (int i = 0; i < children.length(); i++){
+			topLevelsUsed.put(children.getJSONObject(i).getString("term_id"), children.getJSONObject(i));
+		}
+
+		children = new JSONArray();
+		for (OntologyTermDTO topLevel : topLevels){
+			if (topLevelsUsed.containsKey(topLevel.getAccessionId())){
+				children.put(topLevelsUsed.get(topLevel.getAccessionId()));
+			} else {
+				List<Integer> tlNodeId = topLevel.getNodeIds().stream().collect(Collectors.toList());
+				children.put(getJson(tlNodeId, baseUrl, parser, "", nodes, mpGeneVariantCount));
+			}
+		}
+
 	}
 
 	/**
@@ -501,7 +527,7 @@ public class OntologyBrowserGetter {
 	 * @param baseUrl /data/phenotypes/ for mp links
 	 * @return
 	 */
-	JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser, String searchTermId, Map<Integer, JSONObject> nodes){
+	JSONObject getJson( List<Integer> path,  String baseUrl, OntologyParser parser, String searchTermId, Map<Integer, JSONObject> nodes, Map<String, Integer> mpGeneVariantCount){
 
 		List<Integer> remainingPath = new ArrayList<>(path); // don't modify original
 		// remove the part of the path that was already added to the JSON object
@@ -514,11 +540,11 @@ public class OntologyBrowserGetter {
 			Integer id = remainingPath.get(0);
 			remainingPath.remove(0);
 			OntologyTermDTO term = parser.getOntologyTerm(id);
-			JSONObject current = getJsonObjectWithBasicInfo(term, searchTermId, baseUrl, id, nodes);
+			JSONObject current = getJsonObjectWithBasicInfo(term, searchTermId, baseUrl, id, nodes, mpGeneVariantCount);
 
 			if (remainingPath.size() > 0) {
 				JSONArray children = current.has("children") && ! (current.get("children") instanceof Boolean) ? current.getJSONArray("children") : new JSONArray();
-				children.put(getJson(remainingPath, baseUrl, parser, searchTermId, nodes));
+				children.put(getJson(remainingPath, baseUrl, parser, searchTermId, nodes, mpGeneVariantCount));
 				current.put("children", children);
 				current.put("state", getState(path.size() > 0));
 			} else {
@@ -530,14 +556,14 @@ public class OntologyBrowserGetter {
 	}
 
 
-	private JSONObject getJsonObjectWithBasicInfo(OntologyTermDTO term, String searchTermId, String baseUrl, Integer id, Map<Integer, JSONObject> nodes){
+	private JSONObject getJsonObjectWithBasicInfo(OntologyTermDTO term, String searchTermId, String baseUrl, Integer id, Map<Integer, JSONObject> nodes, Map<String, Integer> mpGeneVariantCount){
 
 		JSONObject current;
 		if (nodes.containsKey(id)){
 			current = nodes.get(id);
 		} else {
 			current = new JSONObject();
-			current.put("text", getText(term, searchTermId, baseUrl));
+			current.put("text", getText(term, searchTermId, baseUrl, mpGeneVariantCount));
 			current.put("id", id);
 			current.put("term_id", term.getAccessionId());
 			current.put("hrefTarget", "_blank");
@@ -551,17 +577,18 @@ public class OntologyBrowserGetter {
 
 	}
 
-	private String getText (OntologyTermDTO term, String searchTermId, String baseUrl){
+	private String getText(OntologyTermDTO term, String searchTermId, String baseUrl, Map<String, Integer> mpGeneVariantCount){
 
-		String text = "<a target='_blank' href='" + baseUrl + term.getAccessionId() + "'>";
+		StringBuffer text = new StringBuffer("<a target='_blank' href='").append(baseUrl).append(term.getAccessionId()).append( "'>");
 		if (searchTermId.equals(term.getAccessionId())){
-			text += "<span class='qryTerm'>" + term.getName() + "</span>";
+			text.append("<span class='qryTerm'>").append(term.getName()).append("</span>");
 		} else {
-			text += term.getName();
+			text.append(term.getName());
 		}
-		text += "</a>";
+		text.append("(<span class='gpAssoc'>").append(mpGeneVariantCount.get(term.getAccessionId())).append("</span>)");
+		text.append("</a>");
 
-		return text;
+		return text.toString();
 
 	}
 
