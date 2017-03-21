@@ -189,19 +189,15 @@
                             <div class="inner">
                             
                             <p>
-									<b>These Venn diagrams represent different sets of mouse genes potentially associated to ${systemName} diseases using different methodologies.</b>
-									</p>
-									<p> 
-The human curated gene set contains mouse gene orthologs to known genes causing ${systemName} diseases in humans.
-The <span class="ven_phenotype">IMPC phenotype</span> set contains all genes displaying ${systemName} phenotypes.
-Finally, the IMPC predicted or MGI predicted set contains predicted mouse gene candidates for ${systemName} diseases based on the phenotypic similarity of the disease clinical symptoms
-and the mouse phenotype annotations. As stated, the source of the mouse model phenotype is either <a href="http://www.informatics.jax.org/">Mouse Genome Informatics</a>, which is a curated set of mouse models
- from the literature, or IMPC produced mice. The phenotypic similarity is calculated using the <a target="_blank" href="http://www.sanger.ac.uk/science/tools/phenodigm">PhenoDigm</a>
-  algorithm developed by the Monarch Initiative which allows integration of data from model organisms to identify gene candidates for human genetic diseases.
-The complete dataset can be downloaded using the download icon.
+                                <b>These Venn diagrams represent different sets of mouse genes potentially associated to ${systemName} system diseases using different methodologies.</b>
+                            </p>
+                            <ul>
+                                <li>The <b>Human curated (orthology) in CVD orthologs set</b> contains mouse gene orthologs to known genes causing cardiovascular system diseases in humans.</li>
+                                <li>The <b>IMPC CV phenotypes set</b> contains all genes displaying cardiovascular system phenotypes.</li>
+                                <li>The <b>IMPC CVD predicted set</b> contains predicted mouse gene candidates for cardiovascular system diseases based on the phenotypic similarity of the disease clinical symptoms compared to the mouse phenotype annotations from IMPC. The phenotypic similarity is calculated using the PhenoDigm algorithm which allows integration of data from model organisms to identify gene candidates for human genetic diseases.</li>
+                            </ul>
 
-									</p>
-
+                            <p>The dataset intersections can be downloaded using the download icon.</p>
                             <div class="half">
                                 <jsp:include page="gene_orthologs_frag.jsp" >
                                     <jsp:param name="currentSet" value="impcSets"/>
