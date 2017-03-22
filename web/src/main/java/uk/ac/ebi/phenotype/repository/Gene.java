@@ -25,22 +25,22 @@ public class Gene {
     private String chrEnd;
     private String chrStrand;
 
-    @Relationship(type = "IS_ENSEMBL_GENE_ID", direction = Relationship.OUTGOING)
+    @Relationship(type = "ENSEMBL_GENE_ID", direction = Relationship.OUTGOING)
     private Set<EnsemblGeneId> ensemblGeneIds;
 
-    @Relationship(type = "HAS_MARKER_SYNONYM", direction = Relationship.OUTGOING)
+    @Relationship(type = "MARKER_SYNONYM", direction = Relationship.OUTGOING)
     private Set<MarkerSynonym> markerSynonyms;
 
     @Relationship(type = "HUMAN_GENE_SYMBOL", direction = Relationship.OUTGOING)
     private Set<HumanGeneSymbol> humanGeneSymbols;
 
-    @Relationship(type = "HAS_ALLELE", direction = Relationship.OUTGOING)
+    @Relationship(type = "ALLELE", direction = Relationship.OUTGOING)
     private Set<Allele> alleles;
 
-    @Relationship(type = "HAS_DISEASE", direction = Relationship.OUTGOING)
+    @Relationship(type = "DISEASE", direction = Relationship.OUTGOING)
     private Set<Disease> diseases;
 
-    @Relationship(type = "HAS_PHENOTYPE", direction = Relationship.OUTGOING)
+    @Relationship(type = "PHENOTYPE", direction = Relationship.OUTGOING)
     private Set<Phenotype> phenotypes;
 
     public Long getId() {

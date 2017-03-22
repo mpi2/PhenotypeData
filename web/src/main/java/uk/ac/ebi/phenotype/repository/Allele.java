@@ -26,7 +26,7 @@ public class Allele {
     private String mouseStatus;
     private String phenotypeStatus;
 
-    @Relationship(type="OF_GENE", direction=Relationship.OUTGOING)
+    @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
 
 

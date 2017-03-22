@@ -40,7 +40,7 @@ public class Disease {
 //                pnode.createRelationshipTo(n, RelationshipType.withName("HAS_DISEASE"));
 //            n.createRelationshipTo(modelIdNode.get(doc.getModelID()), RelationshipType.withName("HAS_MOUSE_MODEL"));
 
-    @Relationship(type="OF_GENE", direction=Relationship.OUTGOING)
+    @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Set<Gene> genes;
 
 

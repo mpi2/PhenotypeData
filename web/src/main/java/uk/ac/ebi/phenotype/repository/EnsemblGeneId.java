@@ -17,7 +17,7 @@ public class EnsemblGeneId {
 
     private String ensemblGeneId;
 
-    @Relationship(type="OF_GENE", direction=Relationship.OUTGOING)
+    @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
 
 
