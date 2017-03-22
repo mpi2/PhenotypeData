@@ -44,6 +44,7 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -626,7 +627,7 @@ public class PaperController {
 
 				Pubmed pub = (Pubmed) pair.getValue();
 
-				String msg = savePmidData(pub, insertStatement);
+				String msg = savePmidData(pub, insertStatement, conn);
 
 				if (msg.contains("duplicate ")){
 					ignoreStatus += pub.getPmid() + "\n";
@@ -788,7 +789,7 @@ public class PaperController {
 
 					//System.out.println("found paper: "+pmidStr);
 
-					String msg = savePmidData(pub, insertStatement);
+					String msg = savePmidData(pub, insertStatement, conn);
 					//System.out.println("insert status: "+msg);
 
 					if (msg.contains("duplicate ")) {
@@ -868,7 +869,7 @@ public class PaperController {
 		return msg;
 	}
 
-	public String savePmidData(Pubmed pub, PreparedStatement insertStatement) throws SQLException{
+	public String savePmidData(Pubmed pub, PreparedStatement insertStatement, Connection conn) throws SQLException{
 
 		// (1.gacc, 2.acc, 3.symbol, 4.name, 5.pmid, 6.date_of_publication,
 		// 7.reviewed, 8.grant_id, 9.agency, 10.acronym, 11.title,
@@ -945,12 +946,49 @@ public class PaperController {
 			if (count==0){
 				return "duplicate " + pmid;
 			}
+
+			updateTableDatasourceByYearWeeklyIncrease(pub.dateOfPublication, conn);
 			return "success";
 		}
 		catch(SQLException se){
 			return se.getMessage();
 		}
 
+	}
+
+	public void updateTableDatasourceByYearWeeklyIncrease(String dateOfPublication, Connection conn) throws SQLException {
+
+		String[] dateparts = StringUtils.split(dateOfPublication,"-");
+		String year = dateparts[0];
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String yyyymmdd =sdf.format(Calendar.getInstance().getTime());
+
+		int rowsupdated = 0;
+
+		try {
+			PreparedStatement updtStatement = conn.prepareStatement(
+					"UPDATE datasource_by_year_weekly_increase SET count = count+1 "
+					+ " WHERE date='" + yyyymmdd + "'"
+					+ " AND year='" + year + "'"
+					+ " AND datasource='manual'");
+
+			rowsupdated = updtStatement.executeUpdate();
+			logger.info("rowsupdated: " + rowsupdated);
+			if (rowsupdated == 0){
+				PreparedStatement insertStatement = conn.prepareStatement("INSERT INTO datasource_by_year_weekly_increase (date, year, datasource, count) VALUES (?,?,?,?)");
+				insertStatement.setString(1, yyyymmdd);
+				insertStatement.setString(2, year);
+				insertStatement.setString(3, "manual");
+				insertStatement.setInt(4, 1);
+
+				insertStatement.executeUpdate();
+			}
+
+		} catch (Exception e) {
+			logger.error("Failed to include manually added paper for counting: " + rowsupdated);
+
+
+		}
 	}
 
 	public String fetchTopLevelMesh(String mesh) throws SQLException {
