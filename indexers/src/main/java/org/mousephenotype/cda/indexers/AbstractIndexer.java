@@ -75,9 +75,13 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
             "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397", "MP:0010771"));
 
-    protected static final Set<String> TOP_LEVEL_MA_TERMS = new HashSet<>(Arrays.asList("MA:0000004", "MA:0000007", "MA:0000009", "MA:0000010",
-            "MA:0000012", "MA:0000014", "MA:0000016", "MA:0000017", "MA:0000325", "MA:0000326", "MA:0000327", "MA:0002411", "MA:0002418",
-            "MA:0002431", "MA:0002711"));
+    protected static final Set<String> TOP_LEVEL_MA_TERMS = new HashSet<>(Arrays.asList("MA:0000004", "MA:0000007", "MA:0000009",
+            "MA:0000010", "MA:0000012", "MA:0000014", "MA:0000016", "MA:0000017", "MA:0000325", "MA:0000326", "MA:0000327",
+            "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711", "MA:0002887"));
+
+    protected static final Set<String> TOP_LEVEL_EMAPA_TERMS = new HashSet<>(Arrays.asList("EMAPA:16104", "EMAPA:16192", "EMAPA:16246",
+            "EMAPA:16405", "EMAPA:16469", "EMAPA:16727", "EMAPA:16748", "EMAPA:16840", "EMAPA:17524", "EMAPA:31858"));
+
 
     @NotNull
     @Value("${owlpath}")
@@ -426,8 +430,8 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
 
     // These aprsers are used by several indexers so it makes sense to initialize them in one place, so that they don't get out of synch.
-    public OntologyParser getMpParser(Set<String> wantedIds) throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
-        return  new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
+    public OntologyParser getMpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return  new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, getWantedMPIds());
 
     }
 
@@ -435,11 +439,111 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         return new OntologyParser(owlpath + "/mp-ext-merged.owl", "MP", null, null);
     }
 
-    public OntologyParser getMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
-        return new OntologyParser(owlpath + "/ma.owl", "MA", AnatomyIndexer.TOP_LEVEL_MA_TERMS, null);
+    public OntologyParser getMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return new OntologyParser(owlpath + "/ma.owl", "MA", AnatomyIndexer.TOP_LEVEL_MA_TERMS, getMaWantedIds());
     }
 
-    //TODO getMaParser
-    //TODO getEMAPAparser
+    public OntologyParser getEmapaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+        return new OntologyParser(owlpath + "/emapa.owl", "EMAPA", AnatomyIndexer.TOP_LEVEL_EMAPA_TERMS, getEmapaWantedIds());
+    }
+
+    protected Set<String> getMaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+
+        Set<String> wantedIds = new HashSet<>();
+
+        // Get MA terms from Sanger images
+        PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID FROM ANN_ANNOTATION");
+        ResultSet res = statement.executeQuery();
+        while (res.next()) {
+            String r= res.getString("TERM_ID");
+            if (r != null && r.startsWith("MA:")){
+                wantedIds.add(r);
+            }
+        }
+        // Add MA ids from IMPRESS
+        wantedIds.addAll(getOntologyIds(8, komp2DataSource));
+
+        // Get MA terms referenced by MP terms in the slim
+        Set<String> wantedMp = getWantedMPIds();
+        OntologyParser mpMaParser = getMpMaParser();
+
+        for (String mpId: wantedMp){
+            wantedIds.addAll( mpMaParser.getReferencedClasses(mpId, viaProperties, "MA"));
+        }
+
+        return wantedIds;
+
+    }
+
+
+    protected Set<String> getEmapaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+
+        Set<String> wantedIds = new HashSet<>();
+        Set<String> emapIds = new HashSet<>();
+
+        // In IMPRESS we have only EMAP ids
+        emapIds.addAll(getOntologyIds(14, komp2DataSource));
+
+
+        // Add EMAP terms from image annotations
+        PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT(UPPER(ontology_acc)) as TERM_ID FROM phenotype_parameter_ontology_annotation ppoa WHERE ppoa.ontology_db_id=?");
+        statement.setInt(1, 14);
+        ResultSet res = statement.executeQuery();
+        while (res.next()) {
+            String r = res.getString("TERM_ID");
+            if (r.startsWith("EMAP:")){
+                emapIds.add(r);
+            }
+        }
+        emapIds.addAll(getOntologyIds(14, komp2DataSource));
+
+
+        //Get EMAPA list by parsing EMAP list and check mapping txt ftp://ftp.hgu.mrc.ac.uk/pub/MouseAtlas/Anatomy/EMAP-EMAPA.txt
+        Map<String,String> emapMap = getEmapToEmapaMap();
+        for (String emapTerm: emapIds){
+            wantedIds.add(emapMap.get(emapTerm));
+        }
+
+        // Get EMAPA terms from Sanger images
+        statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID FROM ANN_ANNOTATION");
+        res = statement.executeQuery();
+        while (res.next()) {
+            String r= res.getString("TERM_ID");
+            if (r != null && r.startsWith("EMAPA:")){
+                wantedIds.add(r);
+            }
+        }
+
+        // We have no EMAPA terms referenced by MP terms in the slim
+
+        return wantedIds;
+
+    }
+
+    /**
+     *
+     * @return all MP ids that we want in the slim
+     * @throws SQLException
+     */
+    protected Set<String> getWantedMPIds() throws SQLException {
+
+        // Select MP terms from images too
+        Set<String> wantedIds = new HashSet<>();
+
+        // Get mp terms from Sanger images
+        PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID, (UPPER(TERM_NAME)) as TERM_NAME FROM  IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID");
+        ResultSet res = statement.executeQuery();
+        while (res.next()) {
+            String r = res.getString("TERM_ID");
+            if (r.startsWith("MP:")) {
+                wantedIds.add(r);
+            }
+        }
+
+        //All MP terms we can have annotations to (from IMPRESS)
+        wantedIds.addAll(getOntologyIds(5, komp2DataSource));
+
+        return wantedIds;
+    }
 
 }
