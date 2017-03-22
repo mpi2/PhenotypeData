@@ -155,7 +155,7 @@ public class PhenotypeGeneSummaryDTO {
 				+ "data: [ { name: 'Female only', y: " + femaleOnly + ", sliced: true, selected: true }, "
 					+ "{ name: 'Male only', y: " + maleOnly + ", sliced: true, selected: true }, "
 					+ "{ name: 'Both sexes', y: " + both + ", sliced: true, selected: true }, "
-					+ "[' Phenotype not present', " + (total- maleOnly - femaleOnly - both) + " ] ]  }]"
+					+ "['Cardiovascular phenotype not present', " + (total- maleOnly - femaleOnly - both) + " ] ]  }]"
 		+" }); });";
 		
 		return chart;
