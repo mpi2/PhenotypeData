@@ -146,18 +146,17 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         initializeDatabaseConnections();
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
-        Set<String> wantedIds = getWantedSlimIds();
         OntologyBrowserGetter browser = new OntologyBrowserGetter();
 
         try {
-            mpParser = getMpParser(wantedIds);
+            mpParser = getMpParser();
             mpParser.fillJsonTreePath("MP:0000001"); // call this if you want node ids from the objects
             System.out.println("Loaded mp parser");
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
             System.out.println("Loaded mp hp parser");
-            mpMaParser = new OntologyParser(owlpath + "/mp-ext-merged.owl", "MP", null, null);
+            mpMaParser = getMpMaParser();
             System.out.println("Loaded mp ma parser");
-            maParser = new OntologyParser(owlpath + "/ma.owl", "MA", AnatomyIndexer.TOP_LEVEL_MA_TERMS, null);
+            maParser = getMaParser();
             System.out.println("Loaded ma parser");
 
         	// maps MP to number of phenotyping calls
@@ -256,33 +255,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
-    }
-
-
-    /**
-     *
-     * @return all MP ids that we want in the slim
-     * @throws SQLException
-     */
-    private Set<String> getWantedSlimIds() throws SQLException {
-
-        // Select MP terms from images too
-        Set<String> wantedIds = new HashSet<>();
-
-        // Get mp terms from Sanger images
-        PreparedStatement statement = komp2DbConnection.prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID, (UPPER(TERM_NAME)) as TERM_NAME FROM  IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID");
-        ResultSet res = statement.executeQuery();
-        while (res.next()) {
-            String r = res.getString("TERM_ID");
-            if (r.startsWith("MP:")) {
-                wantedIds.add(r);
-            }
-        }
-
-        //All MP terms we can have annotations to (from IMPRESS)
-        wantedIds.addAll(getOntologyIds(5, komp2DataSource));
-
-        return wantedIds;
     }
 
 
