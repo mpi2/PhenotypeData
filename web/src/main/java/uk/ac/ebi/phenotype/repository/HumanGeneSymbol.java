@@ -15,7 +15,7 @@ public class HumanGeneSymbol {
 
     private String humanGeneSymbol;
 
-    @Relationship(type="OF_GENE", direction=Relationship.OUTGOING)
+    @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Gene gene;
 
     public Long getId() {

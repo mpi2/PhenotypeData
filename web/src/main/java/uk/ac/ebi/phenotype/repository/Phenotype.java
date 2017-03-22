@@ -43,7 +43,7 @@ public class Phenotype {
     private List<String> childMpDefinition;
 
 
-    @Relationship(type="OF_GENE", direction=Relationship.OUTGOING)
+    @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Set<Gene> genes;
 
     public Long getId() {

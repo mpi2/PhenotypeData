@@ -43,6 +43,10 @@ public class Loader implements CommandLineRunner {
     @Value("${human2mouseFilename}")
     private String pathToHuman2mouseFilename;
 
+    @NotNull
+    @Value("${mpListPath}")
+    private String mpListPath;
+
 
 //    @Autowired
 //    @Qualifier("allele2Core")
@@ -75,10 +79,10 @@ public class Loader implements CommandLineRunner {
 
         Map<String, Gene> loadedGenes = new HashMap<>();
 
-        //geneRepository.deleteAll();
-        //alleleRepository.deleteAll();
-        //ensemblGeneIdRepository.deleteAll();
-        //markerSynonymRepository.deleteAll();
+        geneRepository.deleteAll();
+        alleleRepository.deleteAll();
+        ensemblGeneIdRepository.deleteAll();
+        markerSynonymRepository.deleteAll();
         humanGeneSymbolRepository.deleteAll();
 
         Connection komp2Conn = komp2DataSource.getConnection();
@@ -86,8 +90,8 @@ public class Loader implements CommandLineRunner {
 
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym
         // based on Peter's allele2 flatfile
-        //loadGene1();
-        loadHumanOrtholog();
+        loadGene1();
+        //loadHumanOrtholog();
 
 
 
@@ -121,7 +125,9 @@ public class Loader implements CommandLineRunner {
                     Set<HumanGeneSymbol> hgset = new HashSet<>();
                     HumanGeneSymbol hgs = new HumanGeneSymbol();
                     hgs.setHumanGeneSymbol(humanSym);
+                    hgs.setGene(gene);
                     humanGeneSymbolRepository.save(hgs);
+
 
                    // Gene gene = loadedGeneSymbols.get(mouseSym);
                     if (gene.getHumanGeneSymbols() == null) {

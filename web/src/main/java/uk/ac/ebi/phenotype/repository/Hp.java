@@ -19,10 +19,10 @@ public class Hp {
     private String hpTerm;
 
 
-    @Relationship(type="OF_GENE", direction=Relationship.OUTGOING)
+    @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Set<Gene> genes;
 
-    @Relationship(type="OF_DISEASE", direction=Relationship.OUTGOING)
+    @Relationship(type="DISEASE", direction=Relationship.OUTGOING)
     private Set<Disease> diseases;
 
 
