@@ -69,6 +69,9 @@
 			form#pmidbox legend {
 				font-size: 14px;
 			}
+			[type='button'] {
+				cursor: pointer;
+			}
 			[type='button'], span.updt {
 				background-color: rgb(9, 120, 161);
 				color: white;
