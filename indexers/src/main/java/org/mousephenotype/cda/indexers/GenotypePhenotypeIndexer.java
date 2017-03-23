@@ -113,7 +113,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         long start = System.currentTimeMillis();
 
         try {
-            mpParser = getMpParser(null);
+            mpParser = getMpParser();
             maParser = getMaParser();
             mpMaParser = getMpMaParser();
 
