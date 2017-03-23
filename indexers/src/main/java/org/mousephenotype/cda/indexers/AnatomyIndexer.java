@@ -40,7 +40,6 @@ import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -62,10 +61,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     Resource anatomogramResource;
 
     @Autowired
-    @Qualifier("ontodbDataSource")
-    DataSource ontodbDataSource;
-
-    @Autowired
     @Qualifier("anatomyCore")
     SolrClient anatomyCore;
 
@@ -73,7 +68,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
-    private static Connection komp2DbConnection;
 
     private OntologyParser maParser;
     private OntologyParser emapaParser;
@@ -235,13 +229,10 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
     }
 
-    private final Integer MAX_ITERATIONS = 2;                                   // Set to non-null value > 0 to limit max_iterations.
-
     private void initialiseSupportingBeans() throws IndexerException, SQLException, IOException {
 
         try {
             maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
-            komp2DbConnection = komp2DataSource.getConnection();
             maParser = getMaParser();
             emapaParser = getEmapaParser();
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
