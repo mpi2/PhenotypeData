@@ -97,7 +97,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	private void initialiseSupportingBeans(RunStatus runStatus)
 			throws IndexerException, SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
 
-		mpParser = getMpParser(null);
+		mpParser = getMpParser();
 		parameterToObservationTypeMap = getObservationTypeMap(runStatus);
 		paramIdToParameter = populateParamIdToParameterMap(runStatus);
 		addUnits();

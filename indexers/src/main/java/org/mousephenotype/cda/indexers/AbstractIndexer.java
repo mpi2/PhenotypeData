@@ -42,6 +42,7 @@ import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -266,7 +267,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             try {
 				return new Integer(el);
 			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
 				System.err.println("field not string is ="+el);
 				e.printStackTrace();
 				return null;
@@ -315,17 +315,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                     + "FROM specimen_life_stage o, live_sample ls, ontology_term ot "
                     + "WHERE ot.acc=ls.developmental_stage_acc "
                     + "AND ls.id=o.biological_sample_id";
-
-
-//         String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
-//                 + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
-//               + "FROM observation o, experiment_observation eo, experiment e "
-//                  + "WHERE o.id=eo.observation_id "
-//                  + "AND eo.experiment_id=e.id )";
-
-//              try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-//              p1.executeUpdate();
-            //            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
             try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
                 ResultSet r = p.executeQuery();
@@ -545,5 +534,27 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
         return wantedIds;
     }
+
+
+    // EMAP to EMAPA mapping obtained by CK. Richard Baldock confirmed this is not maintained any more so we maintain it in our repo. Can add terms as needed.
+    // Another way would be to use UBERON and get the EMAP and EMAPA cross refs from there.
+    private Map<String,String> getEmapToEmapaMap()
+            throws IOException {
+
+
+        File emapEmapa = new File (owlpath + "/EMAP-EMAPA.txt") ;
+        Scanner scan = new Scanner(emapEmapa);
+        String line="";
+        Map<String,String> emapMap = new HashMap<>();
+
+        while (scan.hasNextLine())		{
+            line = scan.nextLine();
+            String[] split=line.split("\t");
+            emapMap.put(split[0], split[2]);
+        }
+
+        return emapMap;
+    }
+
 
 }
