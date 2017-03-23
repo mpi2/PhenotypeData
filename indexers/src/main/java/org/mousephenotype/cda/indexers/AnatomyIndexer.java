@@ -18,7 +18,6 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
@@ -114,42 +113,41 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 anatomyTerm.setStage("adult");
 
                 // Set fields in common with EMAPA documents
-                addBasicFields(anatomyTerm, maTerm, browser);
+                addBasicFields(anatomyTerm, maTerm, browser, maParser);
 
                 // index UBERON/EFO id for MA id
                 //TODO replace file for uberon mapping, use OntologyParser directly
-                if (maUberonEfoMap.containsKey(maId)) {
-                    if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
-                        anatomyTerm.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
-                    }
-                    if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
-                        anatomyTerm.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
-                    }
-                }
-
-
-                // also index all UBERON/EFO ids for intermediate MA ids
-                Set<String> all_ae_mapped_uberonIds = new HashSet<>();
-                Set<String> all_ae_mapped_efoIds = new HashSet<>();
-
-                for (String intermediateId : anatomyTerm.getIntermediateAnatomyId()) {
-
-                    if (maUberonEfoMap.containsKey(intermediateId) && maUberonEfoMap.get(intermediateId).containsKey("uberon_id")) {
-                        all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateId).get("uberon_id"));
-                    }
-                    if (maUberonEfoMap.containsKey(intermediateId) && maUberonEfoMap.get(intermediateId).containsKey("efo_id")) {
-                        all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateId).get("efo_id"));
-                    }
-                }
-
-                if (anatomyTerm.getUberonIds() != null) {
-                    all_ae_mapped_uberonIds.addAll(anatomyTerm.getUberonIds());
-                    anatomyTerm.setAll_ae_mapped_uberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
-                }
-                if (anatomyTerm.getEfoIds() != null) {
-                    all_ae_mapped_efoIds.addAll(anatomyTerm.getEfoIds());
-                    anatomyTerm.setAll_ae_mapped_efoIds(new ArrayList<String>(all_ae_mapped_efoIds));
-                }
+//                if (maUberonEfoMap.containsKey(maId)) {
+//                    if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
+//                        anatomyTerm.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
+//                    }
+//                    if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
+//                        anatomyTerm.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
+//                    }
+//                }
+//
+//
+//                // also index all UBERON/EFO ids for intermediate MA ids
+//                Set<String> all_ae_mapped_uberonIds = new HashSet<>();
+//                Set<String> all_ae_mapped_efoIds = new HashSet<>();
+//
+//                for (String intermediateId : anatomyTerm.getIntermediateAnatomyId()) {
+//                    if (maUberonEfoMap.containsKey(intermediateId) && maUberonEfoMap.get(intermediateId).containsKey("uberon_id")) {
+//                        all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateId).get("uberon_id"));
+//                    }
+//                    if (maUberonEfoMap.containsKey(intermediateId) && maUberonEfoMap.get(intermediateId).containsKey("efo_id")) {
+//                        all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateId).get("efo_id"));
+//                    }
+//                }
+//
+//                if (anatomyTerm.getUberonIds() != null) {
+//                    all_ae_mapped_uberonIds.addAll(anatomyTerm.getUberonIds());
+//                    anatomyTerm.setAll_ae_mapped_uberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
+//                }
+//                if (anatomyTerm.getEfoIds() != null) {
+//                    all_ae_mapped_efoIds.addAll(anatomyTerm.getEfoIds());
+//                    anatomyTerm.setAll_ae_mapped_efoIds(new ArrayList<String>(all_ae_mapped_efoIds));
+//                }
 
                 documentCount++;
                 anatomyCore.addBean(anatomyTerm, 60000);
@@ -165,7 +163,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 emapa.setDataType("emapa");
                 emapa.setStage("embryo");
 
-                addBasicFields(emapa, emapaDTO, browser);
+                addBasicFields(emapa, emapaDTO, browser, emapaParser);
 
                 documentCount++;
                 anatomyCore.addBean(emapa, 60000);
@@ -185,13 +183,13 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     }
 
 
-    private void addBasicFields(AnatomyDTO anatomyDTO, OntologyTermDTO termDTO, OntologyBrowserGetter browser){
+    private void addBasicFields(AnatomyDTO anatomyDTO, OntologyTermDTO termDTO, OntologyBrowserGetter browser, OntologyParser parser){
 
 
         anatomyDTO.setAnatomyId(termDTO.getAccessionId());
         anatomyDTO.setAnatomyTerm(termDTO.getName());
 
-        if (termDTO.getAlternateIds().size() > 0) {
+        if (termDTO.getAlternateIds() != null && termDTO.getAlternateIds().size() > 0) {
             anatomyDTO.setAltAnatomyIds(termDTO.getAlternateIds());
         }
 
@@ -219,12 +217,13 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         anatomyDTO.setAnatomyNodeId(termDTO.getNodeIds());
 
-        List<JSONObject> searchTree = browser.createTreeJson(termDTO, "/data/anatomy/", maParser, null);
-        anatomyDTO.setSearchTermJson(searchTree.toString());
-        String scrollNodeId = browser.getScrollTo(searchTree);
-        anatomyDTO.setScrollNode(scrollNodeId);
-        List<JSONObject> childrenTree = browser.getChildrenJson(termDTO, "/data/anatomy/", maParser, null);
-        anatomyDTO.setChildrenJson(childrenTree.toString());
+        //TODO
+//        List<JSONObject> searchTree = browser.createTreeJson(termDTO, "/data/anatomy/", parser, null);
+//        anatomyDTO.setSearchTermJson(searchTree.toString());
+//        String scrollNodeId = browser.getScrollTo(searchTree);
+//        anatomyDTO.setScrollNode(scrollNodeId);
+//        List<JSONObject> childrenTree = browser.getChildrenJson(termDTO, "/data/anatomy/", parser, null);
+//        anatomyDTO.setChildrenJson(childrenTree.toString());
 
 
     }
@@ -234,7 +233,9 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
         try {
             maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
             maParser = getMaParser();
+            maParser.fillJsonTreePath("MA:0000001");
             emapaParser = getEmapaParser();
+            emapaParser.fillJsonTreePath("EMAPA:0000001");
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
             e1.printStackTrace();
         }

@@ -510,7 +510,9 @@ public class OntologyBrowserGetter {
 		}
 
 		// root is 0, mammalian phenotype for MP
+		//TODO fix this, it's not working the same with MA.
 		return addTopLevels(nodes.get(0), baseUrl, parser, nodes, mpGeneVariantCount);
+
 	}
 
 	/**
