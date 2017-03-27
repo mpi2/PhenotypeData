@@ -50,7 +50,7 @@ public class OntologyBrowserGetter {
 	}
 
 
-	public List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount){
+	public List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount, List<String> treeBrowserTopLevels){
 
 		Map<Integer, JSONObject> nodes = new HashMap<>();
 		if (term.getPathsToRoot() != null) {
@@ -58,12 +58,12 @@ public class OntologyBrowserGetter {
 				getJson(path, baseUrl, parser, term.getAccessionId(), nodes, mpGeneVariantCount);
 			}
 		} else {
-			System.out.println("No path to root for " + term.getAccessionId());
+			System.out.println("No path to root for " + term.getAccessionId() + ". It's OK to have some terms outside, i.e. EMAPA:0, but if you see lots investigate the issue.");
 		}
 
 		// root is 0, mammalian phenotype for MP
 		//TODO fix this, it's not working the same with MA.
-		return addTopLevels(nodes.get(0), baseUrl, parser, nodes, mpGeneVariantCount);
+		return addTopLevels(nodes.get(0), baseUrl, parser, nodes, mpGeneVariantCount, treeBrowserTopLevels);
 
 	}
 
@@ -71,11 +71,14 @@ public class OntologyBrowserGetter {
 	 * Add all top levels to tree, regardless if the term one searched for is in it or not. That's how we display it at the moment.
 	 * @param tree
 	 */
-	private List<JSONObject> addTopLevels(JSONObject tree, String baseUrl, OntologyParser parser, Map<Integer, JSONObject> nodes,  Map<String, Integer> mpGeneVariantCount){
+	private List<JSONObject> addTopLevels(JSONObject tree, String baseUrl, OntologyParser parser, Map<Integer, JSONObject> nodes,  Map<String, Integer> mpGeneVariantCount, List<String> treeBrowserTopLevels){
 
-		List<OntologyTermDTO> topLevels = parser.getTopLevelTerms();
+		List<OntologyTermDTO> topLevels = new ArrayList<>();
+		for (String id: treeBrowserTopLevels){
+			topLevels.add(parser.getOntologyTerm(id));
+		}
 		List<JSONObject> termsToDisplay =  new ArrayList<>();
-		if (tree.has("children") && tree.get("children") instanceof JSONArray) {
+		if (tree != null && tree.has("children") && tree.get("children") instanceof JSONArray) {
 			JSONArray children = tree.getJSONArray("children");
 			Map<String, JSONObject> topLevelsUsed = new HashMap<>();
 			for (int i = 0; i < children.length(); i++) {
@@ -157,10 +160,12 @@ public class OntologyBrowserGetter {
 		} else {
 			text.append(term.getName());
 		}
-		text.append("(<span class='gpAssoc'>")
-			.append(mpGeneVariantCount.get(term.getAccessionId()) != null ? mpGeneVariantCount.get(term.getAccessionId()) : "0")
-			.append("</span>)")
-			.append("</a>");
+		if (mpGeneVariantCount != null) {
+			text.append("(<span class='gpAssoc'>")
+					.append(mpGeneVariantCount.get(term.getAccessionId()) != null ? mpGeneVariantCount.get(term.getAccessionId()) : "0")
+					.append("</span>)");
+		}
+		text.append("</a>");
 
 		return text.toString();
 

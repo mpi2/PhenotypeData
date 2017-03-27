@@ -1,8 +1,17 @@
 package org.mousephenotype.cda.owl;
 
+import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.io.StringDocumentTarget;
 import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.reasoner.InferenceType;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.search.EntitySearcher;
+import org.semanticweb.owlapi.util.InferredAxiomGenerator;
+import org.semanticweb.owlapi.util.InferredClassAssertionAxiomGenerator;
+import org.semanticweb.owlapi.util.InferredOntologyGenerator;
+import org.semanticweb.owlapi.util.InferredSubClassAxiomGenerator;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import java.io.File;
@@ -43,10 +52,11 @@ public class OntologyParser {
      * @param wantedIds ids to be used for the slim. If null whole ontology will be used.
      * @throws OWLOntologyCreationException
      */
-    public OntologyParser(String pathToOwlFile, String prefix, Set<String> topLevelIds, Set<String> wantedIds)
+    public OntologyParser(String pathToOwlFile, String prefix, Collection<String> topLevelIds, Set<String> wantedIds)
     throws OWLOntologyCreationException, IOException, OWLOntologyStorageException {
 
-        setUpParser(pathToOwlFile);
+        setUpParser(pathToOwlFile, false);
+
         if (wantedIds != null){
             getTermsInSlim(wantedIds, prefix);
         }
@@ -99,6 +109,7 @@ public class OntologyParser {
     private void fillJsonTreePath (OWLClass node, List<Integer> pathFromRoot){
 
         if (node != null){
+
             int nodeId = nodeTermMap.size();
             OntologyTermDTO ontDTO = getOntologyTerm(getIdentifierShortForm(node));
             pathFromRoot.add(nodeId);
@@ -163,8 +174,8 @@ public class OntologyParser {
      * Set up properties for parsing ontology.
      * @throws OWLOntologyCreationException
      */
-    private void setUpParser(String pathToOwlFile)
-            throws OWLOntologyCreationException{
+    private void setUpParser(String pathToOwlFile, Boolean useReasoner)
+            throws OWLOntologyCreationException, OWLOntologyStorageException {
 
         LABEL_ANNOTATION = factory.getRDFSLabel();
 
@@ -192,12 +203,28 @@ public class OntologyParser {
         PART_OF = new HashSet<>();
         PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/ma#part_of")));
         PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/emap#part_of")));
+        PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/emapa#part_of")));
         PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/part_of")));
         PART_OF.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000050")));
 
         TERM_REPLACED_BY = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001"));
 
         ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
+
+        if (useReasoner){
+
+            OWLReasonerFactory reasonerFactory = new ElkReasonerFactory();
+            OWLReasoner reasoner = reasonerFactory.createReasoner(ontology);
+            reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
+            List<InferredAxiomGenerator<? extends OWLAxiom>> axiomGenerators = new ArrayList<InferredAxiomGenerator<? extends OWLAxiom>>();
+            axiomGenerators.add(new InferredSubClassAxiomGenerator());
+            axiomGenerators.add(new InferredClassAssertionAxiomGenerator());
+            InferredOntologyGenerator iog = new InferredOntologyGenerator(reasoner, axiomGenerators);
+            iog.fillOntology(manager.getOWLDataFactory(), ontology);
+            manager.saveOntology(ontology, new StringDocumentTarget());
+
+        }
+
         ancestorsCache = new HashMap<>();
 
     }
@@ -356,6 +383,7 @@ public class OntologyParser {
         addParentInfo(cls, term, prefix);
         addIntermediateInfo(cls, term, prefix);
         addTopLevelInfo(cls, term);
+
         return term;
     }
 
@@ -689,19 +717,31 @@ public class OntologyParser {
 
         Set<OWLClass> children = new HashSet<>();
 
-        for ( OWLClassExpression classExpression: EntitySearcher.getSubClasses(cls, ontology)){
-            if (classExpression.isClassExpressionLiteral()){
-                children.add(classExpression.asOWLClass());
-            } else if (classExpression instanceof OWLObjectSomeValuesFrom){
-                OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) classExpression;
-                if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
-                    if (svf.getFiller() instanceof OWLNamedObject){
-                        children.add(svf.getFiller().asOWLClass());
+        Collection<OWLAxiom> referencingAxioms = EntitySearcher.getReferencingAxioms(cls, ontology);
+
+        // add part of
+        for (OWLAxiom axiom : referencingAxioms){
+            if(axiom.getAxiomType().equals(AxiomType.SUBCLASS_OF)){
+                OWLSubClassOfAxiom ax = (OWLSubClassOfAxiom) axiom;
+                if (ax.getSubClass() instanceof OWLClass &&
+                        !getIdentifierShortForm((OWLClass)ax.getSubClass()).equals(getIdentifierShortForm(cls)) &&
+                        ax.getSuperClass() instanceof OWLObjectSomeValuesFrom){
+                    OWLObjectSomeValuesFrom svf = (OWLObjectSomeValuesFrom) ax.getSuperClass();
+                    if (PART_OF.contains(svf.getProperty().asOWLObjectProperty())){
+                        if (svf.getFiller() instanceof OWLNamedObject && getIdentifierShortForm(svf.getFiller().asOWLClass()).equals(getIdentifierShortForm(cls))){
+                            children.add((OWLClass)ax.getSubClass());
+                        }
                     }
                 }
             }
         }
 
+        // add simple parents (is-a)
+        for ( OWLClassExpression classExpression: EntitySearcher.getSubClasses(cls, ontology)){
+            if (classExpression.isClassExpressionLiteral()){
+                children.add(classExpression.asOWLClass());
+            }
+        }
         return children;
 
     }
