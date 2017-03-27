@@ -302,7 +302,8 @@ public class PreqcIndexer extends AbstractIndexer implements CommandLineRunner {
                         }
 
                         if (allele == null || allele.isEmpty()){
-                            logger.warn("Empty allele symbol for  {} {} {} {}", id, colonyId, parameter, phenotypingCenter);
+                            // 27-Mar-2017 (mrelac) Make this an info. See MPII-2527.
+                            logger.info("Empty allele symbol for id::colonyId::parameter::phenotypingCenter {}::{}::{}::{}", id, colonyId, parameter, phenotypingCenter);
                             continue;
                         }
 
