@@ -114,6 +114,86 @@ public class ReferenceDAO {
      *
      */
 
+    public List<ReferenceDTO> getReferenceRows(String filter, String orderBy) throws SQLException {
+        Connection connection = admintoolsDataSource.getConnection();
+
+        String impcGeneBaseUrl = "http://www.mousephenotype.org/data/genes/";
+
+        String sql =  "SELECT\n"
+                + "  symbol AS alleleSymbols\n"
+                + ", acc AS alleleAccessionIds\n"
+                + ", gacc AS geneAccessionIds\n"
+                + ", title\n"
+                + ", journal\n"
+                + ", pmid\n"
+                + ", date_of_publication\n"
+                + ", agency AS grantAgencies\n"
+                + ", paper_url AS paperUrls\n"
+                + ", mesh\n"
+                + ", author\n"
+                + " FROM allele_ref\n"
+                + " WHERE agency LIKE '%" + filter + "%'\n"
+                + " ORDER BY " + orderBy + "\n";
+
+        //System.out.println("alleleRef query: " + sql);
+        List<ReferenceDTO> results = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                final String delimeter = "\\|\\|\\|";
+                ReferenceDTO referenceRow = new ReferenceDTO();
+
+                referenceRow.setAlleleSymbols(Arrays.asList(resultSet.getString("alleleSymbols").split(delimeter)));
+                referenceRow.setAlleleAccessionIds(Arrays.asList(resultSet.getString("alleleAccessionIds").split(delimeter)));
+                String geneAccessionIds = resultSet.getString("geneAccessionIds").trim();
+                List<String> geneLinks = new ArrayList();
+                if ( ! geneAccessionIds.isEmpty()) {
+                    referenceRow.setGeneAccessionIds(Arrays.asList(geneAccessionIds.split(delimeter)));
+                    String[] parts = geneAccessionIds.split(delimeter);
+                    for (String part : parts) {
+                        geneLinks.add(impcGeneBaseUrl + part.trim());
+                    }
+                    referenceRow.setImpcGeneLinks(geneLinks);
+                }
+                referenceRow.setTitle(resultSet.getString("title"));
+                referenceRow.setJournal(resultSet.getString("journal"));
+                referenceRow.setPmid(resultSet.getInt("pmid"));
+                referenceRow.setDateOfPublication(resultSet.getString("date_of_publication"));
+                referenceRow.setGrantAgencies(Arrays.asList(resultSet.getString("grantAgencies").split(delimeter)));
+                referenceRow.setPaperUrls(Arrays.asList(resultSet.getString("paperUrls").split(delimeter)));
+                referenceRow.setMeshTerms(Arrays.asList(resultSet.getString("mesh").split(delimeter)));
+                referenceRow.setAuthor(resultSet.getString("author"));
+
+                results.add(referenceRow);
+            }
+            resultSet.close();
+            ps.close();
+            connection.close();
+
+        } catch (Exception e) {
+            log.error("Fetching agency related papers failed: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    /**
+     * Fetch the reference rows, optionally filtered.
+     *
+     * @param filter Filter string, which may be null or empty, indicating no
+     * filtering is desired. If supplied, a WHERE clause of the form "LIKE
+     * '%<i>filter</i>%' is used in the query to query all fields for
+     * <code>filter</code>.
+     *
+     * @return the reference rows, optionally filtered.
+     *
+     * @throws SQLException
+     *
+     */
+
     public List<ReferenceDTO> getReferenceRows(String filter, String orderBy, Boolean consortium) throws SQLException {
         Connection connection = admintoolsDataSource.getConnection();
         // need to set max length for group_concat() otherwise some values would get chopped off !!
