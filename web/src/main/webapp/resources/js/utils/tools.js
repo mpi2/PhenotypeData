@@ -353,7 +353,7 @@
                 });
 
                 //-----------------------------------------------
-                // agency funded papers with drilldown to year
+                // agency funded papers w/o drilldown to year
                 //------------------------------------------------
 
                 var agencyNumPaperSeries = [];
@@ -408,16 +408,17 @@
                             yo.data.push(yodrill);
                         }
 
-                        console.log(agencyPapers.name + " -- " + agencyPapers.y + " --> ");
-                        console.log(yo);
+                        //console.log(agencyPapers.name + " -- " + agencyPapers.y + " --> ");
+                        //console.log(yo);
                         drillDownSeriesDataAgency.push(yo);
                     }
                 }
-                console.log("a")
-                console.log(agencyNumPaperSeries);
-                console.log("b")
-                console.log(drillDownSeriesDataAgency);
+                // console.log("a")
+                // console.log(agencyNumPaperSeries);
+                // console.log("b")
+                // console.log(drillDownSeriesDataAgency);
                 var divHeight = 22 * agencyNames.length;
+                var numTabs = null;
 
                 var grantChart = Highcharts.chart(chartGrantQuarter, {
                     chart: {
@@ -432,11 +433,11 @@
                         text: 'Grant agency funded IKMC/IMPC related publications'
                     },
                     subtitle: {
-                        // text: 'Click the agency columns for yearly breakdown'
+                         text: 'Click the agency columns to view the list of publications'
                     },
                     xAxis: {
-                        //categories: agencyNames
-                        type: 'category',
+                        categories: agencyNames,
+                        //type: 'category',
                         labels: {
                             enabled: true
                         }
@@ -459,6 +460,143 @@
                                 // formatter:function() {
                                 //     return this.value;
                                 // }
+                            },
+                            point: {
+                                events: {
+                                    click: function () {
+
+                                        var agencyName = this.name;
+
+                                        var tableHeader = "<thead><th></th></thead>";
+                                        var tableCols = 1;
+                                        var isAlleleRef = true;
+
+                                        var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "agency", isAlleleRef);
+                                        $('div#agency').html("").append(dTable);
+                                        $('div#agencyName').text("Publications funded by " + agencyName);
+
+                                        var oConf = {};
+                                        oConf.id = "agency";
+                                        oConf.kw = agencyName;
+                                        oConf.orderBy = "date_of_publication DESC";
+                                        var id = oConf.id;
+
+                                        $.ajax({
+                                            'url': baseUrl + '/fetchAgencyPapers?doAlleleRef=' + JSON.stringify(oConf),
+                                            'async': true,
+                                            'jsonp': 'json.wrf',
+                                            'success': function (json) {
+
+                                                var oTable = $('table#agency').dataTable({
+                                                    "bSort": false, // true is default
+                                                    "processing": true,
+                                                    "paging": true,
+                                                    //"serverSide": false,  // do not want sorting to be processed from server, false by default
+                                                    "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
+                                                    "sPaginationType": "bootstrap",
+                                                    "searchHighlight": true,
+                                                    "iDisplayLength": 10,
+                                                    "oLanguage": {
+                                                        "sSearch": "Filter: "
+                                                    },
+                                                    "aaData" : json.aaData,  // array of objects
+                                                    "iTotalRecords" : json.iTotalRecords
+
+                                                });
+
+                                                $('table#agency').on("click", "div.meshTree", function(){
+                                                    //console.log("mesh: "+ $(this).next().text());
+                                                    if ($(this).next().is(":visible")){
+                                                        $(this).next().hide();
+                                                        $(this).text("Show mesh terms");
+                                                    }
+                                                    else {
+                                                        $(this).next().show();
+                                                        $(this).text("Hide mesh terms");
+                                                        //showMeshTree($(this).next().text());
+                                                    }
+                                                });
+
+                                                // so that the event works with pagination
+                                                $('table#agency').on("click", "div.alleleToggle", function(){
+
+                                                    if (!$(this).hasClass('showMe')) {
+                                                        $(this).addClass('showMe').text('Show fewer alleles');
+                                                        //console.log($(this).siblings("div.hideMe").html());
+                                                        $(this).siblings('span.hideMe').addClass('showMe');
+                                                    }
+                                                    else {
+                                                        var num = $(this).attr('rel');
+                                                        $(this).removeClass('showMe').text('Show all ' + num + ' alleles');
+                                                        $(this).siblings('span').removeClass('showMe');
+                                                    }
+                                                });
+
+                                                // download tool
+                                                oConf.fileName = 'impc_publications';
+                                                oConf.iDisplayStart = 0;
+                                                oConf.iDisplayLength = 5000;
+                                                oConf.dataType = "alleleRef";
+                                                oConf.rowFormat = true;
+
+                                                oConf.consortium = id == "consortiumPapers" ? true : false;
+
+                                                var paramStr = "mode=all";
+                                                $.each(oConf, function (i, val) {
+                                                    paramStr += "&" + i + "=" + val;
+                                                });
+
+                                                var fileTypeTsv = "fileType=tsv";
+                                                var fileTypeXls = "fileType=xls";
+
+                                                var urltsvA = baseUrl+"/export2?" + paramStr + "&" + fileTypeTsv;
+                                                var urlxlsA = baseUrl+"/export2?" + paramStr + "&" + fileTypeXls;
+
+                                                var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
+                                                    + '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
+                                                    + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
+
+                                                $("div#"+id + " div.saveTable").html(toolBox);
+
+                                                // sort by date_of_publication and reload table with new content
+                                                $('table#'+ id + ' > caption button').click(function(){
+                                                    oConf.consortium = id == "consortiumPapers" ? true : false;
+
+                                                    if ($(this).siblings("i").hasClass("fa-caret-down")){
+                                                        $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
+                                                        oConf.orderBy = "date_of_publication ASC";
+                                                    }
+                                                    else {
+                                                        $(this).siblings("i").removeClass("fa-caret-up").addClass("fa-caret-down");
+                                                        oConf.orderBy = "date_of_publication DESC";
+                                                    }
+
+                                                    $.ajax({
+                                                        'url': baseUrl + '/fetchAgencyPapers?doAlleleRef=' + JSON.stringify(oConf),
+                                                        'async': true,
+                                                        'jsonp': 'json.wrf',
+                                                        'success': function (json) {
+                                                            oTable.fnClearTable();
+                                                            oTable.fnAddData(json.aaData)
+                                                        },
+                                                        'error' : function(jqXHR, textStatus, errorThrown) {
+                                                            alert("error: " + errorThrown);
+                                                        }
+                                                    });
+                                                });
+
+                                                // scroll here after dataTable is loaded
+                                                $('html, body').animate({
+                                                    scrollTop: $("#agencyName").offset().top
+                                                }, 500);
+
+                                            },
+                                            'error': function (jqXHR, textStatus, errorThrown) {
+                                                alert("error: " + errorThrown);
+                                            }
+                                        });
+                                    }
+                                }
                             }
                         }
                     },
@@ -712,6 +850,7 @@
             }
         });
     }
+
     $.fn.fetchAlleleRefDataTable2 = function(oConf) {
 
         var baseUrl = oConf.baseUrl;
@@ -751,12 +890,11 @@
             "aoColumns": [
                {"bSearchable": true, "sType": "html", "bSortable": true}
             ],
-            //"fnDrawCallback": function (oSettings) {  // when dataTable is loaded
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
                 // // so that the event works with pagination
                 $('table#'+id).on("click", "div.meshTree", function(){
-                    console.log("mesh: "+ $(this).next().text());
+                    //console.log("mesh: "+ $(this).next().text());
                     if ($(this).next().is(":visible")){
                         $(this).next().hide();
                         $(this).text("Show mesh terms");
@@ -781,7 +919,6 @@
                 $.each(oConf, function (i, val) {
                     paramStr += "&" + i + "=" + val;
                 });
-                //console.log(paramStr)
 
                 var fileTypeTsv = "fileType=tsv";
                 var fileTypeXls = "fileType=xls";
@@ -808,6 +945,7 @@
                         $(this).siblings("i").removeClass("fa-caret-up").addClass("fa-caret-down");
                         oConf.orderBy = "date_of_publication DESC";
 					}
+
 
 					$.ajax({
 						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + JSON.stringify(oConf),
@@ -848,33 +986,12 @@
                 aoData.push(
                     {
                         "name": "doAlleleRef",
-                        "value": JSON.stringify(oConf, null, 2)
+                        "value": JSON.stringify(oConf)
                     }
                 );
             }
         });
     }
-
-    // function showMeshTree(meshJsonStr){
-	 //    console.log("mesh str :"+ meshJsonStr);
-    //     var mt = $('.meshTreeDiv').jstree({
-    //         core:{
-    //             data: meshJsonStr
-    //         },
-    //         "types" : {
-    //             "default" : {
-    //                 "icon" : "img/jstree/jstree-node.png"
-    //             },
-    //             "selected" : {
-    //                 "icon" : "img/jstree/jstree-node-selected.png"
-    //             }
-    //         },
-    //         "plugins" : [
-    //             "types"
-    //         ]
-    //     });
-    //
-    // }
 
 	function _facetRefresh(json, selectorBase) {
 

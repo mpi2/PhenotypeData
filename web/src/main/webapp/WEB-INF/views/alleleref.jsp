@@ -74,6 +74,11 @@
             div.clear {
                 clear: both;
             }
+            div#agencyName {
+                font-weight: bold;
+                font-size: 20px;
+                margin: 10px 0;
+            }
 
 
          </style>
@@ -185,7 +190,7 @@
                                     </ul>
                                     <div id="tabs-1">
                                         <!-- container to display dataTable -->
-                                        <div class="HomepageTable" id="alleleRef"></div>
+                                        <div id="alleleRef"></div>
 
                                     </div>
                                     <div class="clear"></div>
@@ -203,6 +208,8 @@
 
                                     </div>
                                 </div>
+                                <div id="agencyName"></div>
+                                <div id="agency"></div>
 
 
                             </div>

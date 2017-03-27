@@ -17,16 +17,20 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,6 +77,27 @@ public class PaperController {
     @Autowired
     private GenomicFeatureDAO genesDao;
 
+    @Autowired
+    private DataTableController dataTableController;
+
+
+    @RequestMapping(value = "/fetchAgencyPapers", method = RequestMethod.GET)
+    public ResponseEntity<String> dataTableAlleleRefJson(
+           @RequestParam(value = "doAlleleRef", required = false) String params,
+           //@RequestParam(value = "kw", required = false) String searchKw,
+           HttpServletRequest request,
+           HttpServletResponse response,
+           Model model) throws IOException, URISyntaxException, SQLException {
+
+        JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+        String searchKw = jParams.getString("kw");
+        String orderByStr = jParams.getString("orderBy");
+
+        String content = fetchAgencyPapers(searchKw, orderByStr);
+
+        return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+    }
+
 
     @RequestMapping(value = "/fetchMeshMapping", method = RequestMethod.GET)
     public @ResponseBody
@@ -96,6 +121,169 @@ public class PaperController {
             Model model) throws IOException, URISyntaxException, SQLException {
 
         return fetchPaperStats(); // json string
+    }
+
+    public String  fetchAgencyPapers(String kw, String orderByStr) throws SQLException {
+
+        final int DISPLAY_THRESHOLD = 5;
+        List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(kw, orderByStr);
+
+        JSONObject j = new JSONObject();
+        j.put("aaData", new Object[0]);
+        j.put("iTotalRecords", references.size());
+        j.put("iTotalDisplayRecords", references.size());
+
+        for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
+
+            List<String> rowData = new ArrayList<>();
+            List<String> alleleSymbolinks = new ArrayList<>();
+
+            int totalAlleleCount = 0;
+
+            if (reference.getAlleleAccessionIds() != null) {
+
+                totalAlleleCount = reference.getAlleleAccessionIds().size();
+                // show max of 10 alleles for a paper
+                int showCount = totalAlleleCount > DISPLAY_THRESHOLD ? DISPLAY_THRESHOLD : totalAlleleCount;
+
+                for (int i = 0; i < totalAlleleCount; i++) {
+                    String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
+
+                    if (symbol.equals("N/A")) {
+                        continue;
+                    }
+
+                    String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
+
+                    if (reference.getImpcGeneLinks() != null && reference.getImpcGeneLinks().size() != 0) {
+
+                        String alleleLink = null;
+                        if (i < reference.getImpcGeneLinks().size()) {
+                            alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></span>";
+                        } else {
+                            if (i > 0) {
+                                alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></span>";
+                            } else {
+                                alleleLink = "<span " + cssClass + ">" + symbol + "</span>";
+                            }
+                        }
+
+                        alleleSymbolinks.add(alleleLink);
+                    }
+                    else {
+                        // some allele id does not associate with a gene id in database yet
+                        alleleSymbolinks.add("<span " + cssClass + ">" + symbol + "</span>");
+                    }
+                }
+            }
+
+            int pmid = reference.getPmid();
+            List<String> paperLinks = new ArrayList<>();
+            List<String> paperLinksOther = new ArrayList<>();
+            List<String> paperLinksPubmed = new ArrayList<>();
+            List<String> paperLinksEuroPubmed = new ArrayList<>();
+            String[] urlList = (reference.getPaperUrls() != null) ? reference.getPaperUrls().toArray(new String[0]) : new String[0];
+
+            for (int i = 0; i < urlList.length; i ++) {
+                String[] urls = urlList[i].split(",");
+
+                int pubmedSeen = 0;
+                int eupubmedSeen = 0;
+                int otherSeen = 0;
+
+                for (int k = 0; k < urls.length; k ++) {
+                    String url = urls[k];
+
+                    if (pubmedSeen != 1) {
+                        if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith("pdf")) {
+                            paperLinksPubmed.add(url);
+
+                            pubmedSeen ++;
+                        } else if (url.startsWith("http://www.pubmedcentral.nih.gov") && url.endsWith(Integer.toString(pmid))) {
+                            paperLinksPubmed.add(url);
+                            pubmedSeen ++;
+                        }
+                    }
+                    if (eupubmedSeen != 1) {
+                        if (url.startsWith("http://europepmc.org/") && url.endsWith("pdf=render")) {
+                            paperLinksEuroPubmed.add(url);
+                            eupubmedSeen ++;
+                        } else if (url.startsWith("http://europepmc.org/")) {
+                            paperLinksEuroPubmed.add(url);
+                            eupubmedSeen ++;
+                        }
+                    }
+                    if (otherSeen != 1 &&  ! url.startsWith("http://www.pubmedcentral.nih.gov") &&  ! url.startsWith("http://europepmc.org/")) {
+                        paperLinksOther.add(url);
+                        otherSeen ++;
+                    }
+                }
+            }
+
+
+            // for now show only one paper link even if there is multiple sources
+            String paperLink = null;
+            if (paperLinksEuroPubmed.size()>0){
+                paperLink = paperLinksEuroPubmed.get(0);
+            }
+            else if (paperLinksPubmed.size()>0){
+                paperLink = paperLinksPubmed.get(0);
+            }
+            else {
+                paperLink = paperLinksOther.get(0);
+            }
+
+            rowData.add("<p><a href='" + paperLink + "'>" + reference.getTitle() + "</a></p>");
+            rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
+            rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
+            rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
+
+            if (alleleSymbolinks.size() > 0){
+                if (totalAlleleCount > DISPLAY_THRESHOLD) {
+                    alleleSymbolinks.add("<div class='alleleToggle' rel=" + alleleSymbolinks.size() + ">Show all " + alleleSymbolinks.size() + " alleles</div>");
+                }
+                rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alleleSymbolinks, "&nbsp;&nbsp;&nbsp;&nbsp;") + "</div>");
+            }
+
+            List<String> agencyList = new ArrayList();
+            int agencyCount = reference.getGrantAgencies().size();
+
+            // unique agency
+            for (int i = 0; i < agencyCount; i++) {
+                String grantAgency = reference.getGrantAgencies().get(i);
+                if ( ! grantAgency.isEmpty()) {
+                    if ( ! agencyList.contains(grantAgency)) {
+                        agencyList.add(grantAgency);
+                    }
+                }
+            }
+
+            if (agencyList.size() >0) {
+                rowData.add("<p>Grant agency: " + StringUtils.join(agencyList, ", ") + "</p>");
+            }
+
+            // hidden in datatable: mesh terms
+            if (! (reference.getMeshTerms().size() == 1 && reference.getMeshTerms().get(0).isEmpty())) {
+                String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
+                rowData.add("<div class='meshTree'>Show mesh terms</div><div class='meshTerms'>" + meshTerms + "</div>");
+                //rowData.add("<span class='meshTree'>Show mesh tree</span><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div>");
+                //rowData.add("<div class='meshTree'>Show mesh tree</div><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div><div class='meshTreeDiv'></div>");
+            }
+
+            // single column
+            String inOneRow = "<tr>" + StringUtils.join(rowData, "") + "</tr>";
+
+            List<String> rowData2 = new ArrayList<>();
+            rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
+            rowData = rowData2;
+
+            j.getJSONArray("aaData").add(rowData);
+
+        }
+
+//		System.out.println(j.toString());
+        return j.toString();
+
     }
 
     public String fetchMeshToTopMeshMapping() throws SQLException {
@@ -152,7 +340,7 @@ public class PaperController {
         try {
 
             //----------------------------------------------------
-            // line data: yearly paper increase over the years
+            // line chart: yearly paper increase over the years
             //----------------------------------------------------
 
             String qry = "select left(date_of_publication,4) as year, count(*) as count " +
@@ -297,240 +485,6 @@ public class PaperController {
 
             dataJson.put("agencyPmidYear", agencyPmidYear);
             dataJson.put("numAgency", numAgency);
-
-            //-----------------------------------------------------------
-            // line data: monthly paper increase by year of publication
-            //-----------------------------------------------------------
-
-//			String query = "select * from paper_by_year_monthly_increase order by year";
-//			PreparedStatement p = conn.prepareStatement(query);
-//			ResultSet resultSet = p.executeQuery();
-//
-//			JSONObject dj = new JSONObject();
-//
-//			while (resultSet.next()) {
-//				String timeTaken = resultSet.getString("date");
-//				String year = resultSet.getString("year");
-//				int count = resultSet.getInt("count");
-//
-//				uniqYears.add(year);
-//
-//				if (!dm.containsKey(timeTaken)) {
-//					dm.put(timeTaken, new ArrayList<Map<String, Integer>>());
-//				}
-//				Map<String, Integer> dobj = new HashMap<>();
-//				dobj.put(year, count);
-//				dm.get(timeTaken).add(dobj);
-//			}
-//
-//
-//			List sorrtedYearList = new ArrayList(uniqYears);
-//			Collections.sort(sorrtedYearList);
-//
-//			Map<String, List<Integer>> timeVallist = new HashMap<>();
-//
-//			//System.out.println(sorrtedYearList);
-//
-//			Iterator it = dm.entrySet().iterator();
-//			while (it.hasNext()) {
-//				Map.Entry pair = (Map.Entry) it.next();
-//				String timeTaken2 = pair.getKey().toString();
-//
-//				List<String> thisYlist = new ArrayList<>();
-//
-//				List<Map<String, Integer>> yc = (ArrayList<Map<String, Integer>>) pair.getValue();
-//				for (Map<String, Integer> yco : yc) {
-//					thisYlist.add(yco.keySet().toArray()[0].toString());
-//				}
-//
-//				ArrayList missingYears = (java.util.ArrayList) CollectionUtils.disjunction(sorrtedYearList, new ArrayList(thisYlist));
-//
-//				for (Object my : missingYears) {
-//					Map<String, Integer> ob = new HashMap<>();
-//					ob.put(my.toString(), 0);
-//					dm.get(timeTaken2).add(ob);
-//
-//					//System.out.println(timeTaken2 + " ----- missing year: " + my + " ====> " + dm.get(timeTaken2));
-//				}
-//
-//				List<Integer> counts = new ArrayList<>();
-//
-//				for (Object year : sorrtedYearList) {
-//					//System.out.println("doing " + year.toString());
-//
-//					for (Map<String, Integer> ob : dm.get(timeTaken2)) {
-//						String yr = ob.keySet().toArray()[0].toString();
-//						if (yr.equals(year)) {
-//							counts.add(ob.get(yr));
-//							break;
-//						}
-//					}
-//				}
-//
-//				timeVallist.put(timeTaken2, counts); // counts ordered by year
-//				//System.out.println(timeTaken2 + " --> " + counts);
-//
-//				it.remove(); // avoids a ConcurrentModificationException
-//			}
-//
-//			dataJson.put("years", sorrtedYearList);
-//			dataJson.put("monthlyPaperIncreaseByYearOfPublication", timeVallist);
-
-//			//--------------------------------------
-//			// bar chart: datasource by year
-//			//--------------------------------------
-//			String query2 = "select curdate() as date, " +
-//					"left(date_of_publication,4) as year, " +
-//					"datasource, count(*) as count " +
-//					"from allele_ref where falsepositive='no' " +
-//					"group by left(date_of_publication,4), datasource";
-//
-//			Map<String, List<Map<String, Integer>>> dm2 = new HashMap<>();
-//
-//			PreparedStatement p2 = conn.prepareStatement(query2);
-//			ResultSet resultSet2 = p2.executeQuery();
-//
-//			Map<String, Map<String, Datasource>> dby = new HashMap<>();
-//
-//			while (resultSet2.next()) {
-//				String timeTaken = resultSet2.getString("date");
-//				String year = resultSet2.getString("year");
-//				String ds = resultSet2.getString("datasource");
-//				Integer count = resultSet2.getInt("count");
-//
-//				if (!dby.containsKey(timeTaken)) {
-//					dby.put(timeTaken, new HashMap<String, Datasource>());
-//				}
-//				if (!dby.get(timeTaken).containsKey(year)) {
-//					Datasource dso = new Datasource();
-//					dby.get(timeTaken).put(year, dso);
-//				}
-//				Datasource dso = dby.get(timeTaken).get(year);
-//
-//				if (ds.equals(MOUSEMiNE)) {
-//					dso.setMousemine(count);
-//				} else if (ds.equals(MANUAL)) {
-//					dso.setManual(count);
-//				} else if (ds.equals(EUROPUBMED)) {
-//					dso.setEuropubmed(count);
-//				}
-//			}
-//
-//			// String: timeTaken, String: datasource, List<Integer>: [data points across the years]
-//			Map<String, Map<String, List<Integer>>> dsby = new HashMap<>();
-//
-//			// put counts by year and datasource in order
-//			Iterator it2 = dby.entrySet().iterator();
-//			while (it2.hasNext()) {
-//
-//				Map.Entry pair = (Map.Entry) it2.next();
-//				String timeTaken2 = pair.getKey().toString();
-//
-//				Map<String, List<Integer>> barDs = new HashMap<>();
-//				barDs.put(MOUSEMiNE, new ArrayList<Integer>());
-//				barDs.put(MANUAL, new ArrayList<Integer>());
-//				barDs.put(EUROPUBMED, new ArrayList<Integer>());
-//
-//				Map<String, Datasource> yds = (Map<String, Datasource>) pair.getValue();
-//
-//				List<Integer> yrc = new ArrayList<>();
-//				for (Object yr : sorrtedYearList) {
-//					String year = yr.toString();
-//					if (dby.get(timeTaken2).containsKey(year)) {
-//						Datasource ds = dby.get(timeTaken2).get(year);
-//
-//						barDs.get(MOUSEMiNE).add(ds.getMousemine());
-//						barDs.get(MANUAL).add(ds.getManual());
-//						barDs.get(EUROPUBMED).add(ds.getEuropubmed());
-//					} else {
-//						barDs.get(MOUSEMiNE).add(0);
-//						barDs.get(MANUAL).add(0);
-//						barDs.get(EUROPUBMED).add(0);
-//					}
-//				}
-//
-//				dsby.put(timeTaken2, barDs);
-//			}
-//
-//			//System.out.println("datasourceByYear" + dsby.toString());
-//			dataJson.put("datasourceByYear", dsby);
-
-            //--------------------------------------------
-            // bar chart: weekly increments by datasource
-            //--------------------------------------------
-//			String querySum = "select date, datasource, sum(count) as sum " +
-//					"from datasource_by_year_weekly_increase " +
-//					"where date > '2017-02-09' " +  // where we started to collect weekly data
-//					"group by date, datasource order by date desc";
-//
-//			PreparedStatement p4 = conn.prepareStatement(querySum);
-//			ResultSet resultSet4 = p4.executeQuery();
-//
-//			// String: datasource, String: date, Integer: sum count
-//			Map<String, Map<String, Integer>> dsSum = new HashMap<>();
-//			//Map<String, List<Object>> increment = new HashMap<>();
-//
-//			LinkedHashSet<String> dates = new LinkedHashSet<>();
-//			while (resultSet4.next()) {
-//				String date = resultSet4.getString("date");
-//				String ds = resultSet4.getString("datasource");
-//				Integer sum = resultSet4.getInt("sum");
-//
-//				dates.add(date);
-//
-//				if ( ! dsSum.containsKey(ds)) {
-//					dsSum.put(ds, new HashMap<String, Integer>());
-//				}
-//				dsSum.get(ds).put(date, sum);
-//			}
-//
-//			Map<String, Map<String, List<Integer>>> ddc = new HashMap<>();
-//			List<String> dsnames = new ArrayList<>(Arrays.asList(MOUSEMiNE, EUROPUBMED, MANUAL));
-//			for (String date : dates){
-//				for (String dsname : dsnames){
-//					int sum = 0;
-//					if (dsSum.containsKey(dsname)) {
-//						if ( dsSum.get(dsname).containsKey(date)) {
-//							sum = dsSum.get(dsname).get(date);
-//						}
-//					}
-//					if ( !ddc.containsKey(date)){
-//						ddc.put(date, new HashMap<String, List<Integer>>());
-//					}
-//
-//					if ( ! ddc.get(date).containsKey(dsname)){
-//						List<Integer> listCount = new ArrayList<>();
-//						listCount.add(sum);
-//						ddc.get(date).put(dsname, listCount);
-//					}
-//					else {
-//						ddc.get(date).get(dsname).add(sum);
-//					}
-//				}
-//			}
-//
-//			//System.out.println("ddc: "+ ddc);
-//			dataJson.put("datasourceWeeklyIncrement", ddc);
-
-
-
-            //-----------------------------------------------
-            // pie chart: current datasource distribution
-            //-----------------------------------------------
-//			String query3 = "select datasource, count(*) as count from allele_ref where falsepositive = 'no'  group by datasource";
-//
-//			PreparedStatement p3 = conn.prepareStatement(query3);
-//			ResultSet resultSet3 = p3.executeQuery();
-//
-//			Map<String, Integer> pie = new HashMap<>();
-//
-//			while (resultSet3.next()) {
-//				String ds = resultSet3.getString("datasource");
-//				Integer count = resultSet3.getInt("count");
-//				pie.put(ds, count);
-//			}
-//
-//			dataJson.put("pie", pie);
 
         }
         catch (Exception e) {
