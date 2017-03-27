@@ -126,7 +126,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
         List<OntologyTerm> terms;
 
         try {
-            dtoTerms = new OntologyParser(sourceFilename, prefix).getTerms();
+            dtoTerms = new OntologyParser(sourceFilename, prefix, null, null).getTerms();
             terms = ontologyDTOTermsToOntologyTerms(dtoTerms);
 
             logger.info("FILENAME: {}. PREFIX: {}. TERMS COUNT: {}.",

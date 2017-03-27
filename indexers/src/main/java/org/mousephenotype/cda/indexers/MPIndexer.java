@@ -228,7 +228,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
 
-                List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
+                List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount, TOP_LEVEL_MP_TERMS);
                 mp.setSearchTermJson(searchTree.toString());
                 String scrollNodeId = browser.getScrollTo(searchTree);
                 mp.setScrollNode(scrollNodeId);

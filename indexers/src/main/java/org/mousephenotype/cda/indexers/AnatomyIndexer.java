@@ -18,6 +18,7 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONObject;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
@@ -40,7 +41,10 @@ import org.springframework.core.io.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Populate the Anatomy core
@@ -113,7 +117,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 anatomyTerm.setStage("adult");
 
                 // Set fields in common with EMAPA documents
-                addBasicFields(anatomyTerm, maTerm, browser, maParser);
+                addBasicFields(anatomyTerm, maTerm, browser, maParser, TREE_TOP_LEVEL_MA_TERMS);
 
                 // index UBERON/EFO id for MA id
                 //TODO replace file for uberon mapping, use OntologyParser directly
@@ -163,7 +167,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                 emapa.setDataType("emapa");
                 emapa.setStage("embryo");
 
-                addBasicFields(emapa, emapaDTO, browser, emapaParser);
+                addBasicFields(emapa, emapaDTO, browser, emapaParser, TREE_TOP_LEVEL_EMAPA_TERMS);
 
                 documentCount++;
                 anatomyCore.addBean(emapa, 60000);
@@ -183,8 +187,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     }
 
 
-    private void addBasicFields(AnatomyDTO anatomyDTO, OntologyTermDTO termDTO, OntologyBrowserGetter browser, OntologyParser parser){
-
+    private void addBasicFields(AnatomyDTO anatomyDTO, OntologyTermDTO termDTO, OntologyBrowserGetter browser, OntologyParser parser, List<String> topLevelsForTree){
 
         anatomyDTO.setAnatomyId(termDTO.getAccessionId());
         anatomyDTO.setAnatomyTerm(termDTO.getName());
@@ -217,13 +220,13 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         anatomyDTO.setAnatomyNodeId(termDTO.getNodeIds());
 
-        //TODO
-//        List<JSONObject> searchTree = browser.createTreeJson(termDTO, "/data/anatomy/", parser, null);
-//        anatomyDTO.setSearchTermJson(searchTree.toString());
-//        String scrollNodeId = browser.getScrollTo(searchTree);
-//        anatomyDTO.setScrollNode(scrollNodeId);
-//        List<JSONObject> childrenTree = browser.getChildrenJson(termDTO, "/data/anatomy/", parser, null);
-//        anatomyDTO.setChildrenJson(childrenTree.toString());
+        System.out.println("----- " + termDTO.getAccessionId() + "  " + termDTO.getChildIds() + " " + termDTO.getPathsToRoot());
+        List<JSONObject> searchTree = browser.createTreeJson(termDTO, "/data/anatomy/", parser, null, topLevelsForTree);
+        anatomyDTO.setSearchTermJson(searchTree.toString());
+        String scrollNodeId = browser.getScrollTo(searchTree);
+        anatomyDTO.setScrollNode(scrollNodeId);
+        List<JSONObject> childrenTree = browser.getChildrenJson(termDTO, "/data/anatomy/", parser, null);
+        anatomyDTO.setChildrenJson(childrenTree.toString());
 
 
     }
@@ -232,10 +235,10 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         try {
             maUberonEfoMap = IndexerMap.mapMaToUberronOrEfoForAnatomogram(anatomogramResource);
+            emapaParser = getEmapaParser();
+            emapaParser.fillJsonTreePath("EMAPA:25765"); // mouse
             maParser = getMaParser();
             maParser.fillJsonTreePath("MA:0000001");
-            emapaParser = getEmapaParser();
-            emapaParser.fillJsonTreePath("EMAPA:0000001");
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
             e1.printStackTrace();
         }
