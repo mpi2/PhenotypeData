@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.owl;
 
+import org.json.JSONObject;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.StringDocumentTarget;
@@ -92,13 +93,19 @@ public class OntologyParser {
      * Computes paths in the format needed for TreeJs, for the ontology browsers.
      * [!] This is not computed by default. If you want the trees, call this method on the parser first.
      */
-    public void fillJsonTreePath(String rootId){
+    public void fillJsonTreePath(String rootId, String pathToPage,  Map<String, Integer>  countsMap, List<String> treeBrowserTopLevels){
 
         OWLClass root = classMap.get(rootId);
         fillJsonTreePath(root, new ArrayList<>());
-        // TODO Produce json obj
-        // TODO add all top levels to obj (we want them pen by default too)
-
+        for ( String id : getTermsInSlim()) {
+            OntologyTermDTO term = getOntologyTerm(id);
+            List<JSONObject> searchTree = TreeJsHelper.createTreeJson(term, pathToPage, this, countsMap, treeBrowserTopLevels);
+            term.setSeachJson(searchTree.toString());
+            String scrollNodeId = TreeJsHelper.getScrollTo(searchTree);
+            term.setScrollToNode(scrollNodeId);
+            List<JSONObject> childrenTree = TreeJsHelper.getChildrenJson(term, pathToPage, this, countsMap);
+            term.setChildrenJson(childrenTree.toString());
+        }
     }
 
 
@@ -586,7 +593,7 @@ public class OntologyParser {
                 term.addTopLevelId(getIdentifierShortForm(topLevel));
                 term.addTopLevelName(getLabel(topLevel));
                 term.addTopLevelSynonym(getSynonyms(topLevel));
-                term.addTopLevelMpTermIds(getLabel(topLevel), getIdentifierShortForm(topLevel));
+                term.addTopLevelTermIdsConcatenated(getLabel(topLevel), getIdentifierShortForm(topLevel));
             }
         }
 
