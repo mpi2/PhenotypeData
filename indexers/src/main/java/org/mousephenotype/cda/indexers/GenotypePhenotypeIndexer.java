@@ -68,19 +68,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     DataSource komp2DataSource;
 
     @Autowired
-    @Qualifier("ontodbDataSource")
-    DataSource ontodbDataSource;
-
-    @Autowired
     @Qualifier("genotypePhenotypeCore")
     SolrClient genotypePhenotypeCore;
-
-    @Autowired
-    MaOntologyDAO maOntologyService;
-
-    @Autowired
-    EmapaOntologyDAO emapaOntologyService;
-
 
     @Autowired
     DatasourceDAO dsDAO;
