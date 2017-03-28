@@ -39,6 +39,5 @@
             from one machine to the other.
             If you notice the tool becoming too slow, please consider selecting fewer procedures.</p>
 
-
-</body>
+    </body>
 </html>
