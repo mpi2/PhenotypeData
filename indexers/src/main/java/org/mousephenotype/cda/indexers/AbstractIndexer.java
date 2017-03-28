@@ -81,7 +81,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711", "MA:0002887"));
 
     protected static final List<String> TREE_TOP_LEVEL_MA_TERMS = new ArrayList<>(Arrays.asList("MA:0002433", "MA:0002450", "MA:0000003",
-            "MA:0003001", "MA:0002405", "MA:0003002"));
+            "MA:0003001", "MA:0003002"));
 
     protected static final Set<String> TOP_LEVEL_EMAPA_TERMS = new HashSet<>(Arrays.asList("EMAPA:16104", "EMAPA:16192", "EMAPA:16246",
             "EMAPA:16405", "EMAPA:16469", "EMAPA:16727", "EMAPA:16748", "EMAPA:16840", "EMAPA:17524", "EMAPA:31858"));
