@@ -217,7 +217,8 @@
 									${histRow.zygosity}
 									</td>
 									<td>
-									${histRow.sampleId}
+									${histRow.sampleId}/ ${histRow.sequenceId}
+									
 									</td>
 									
 									<%-- <td>

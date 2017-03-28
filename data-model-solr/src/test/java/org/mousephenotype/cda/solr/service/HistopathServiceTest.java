@@ -2,20 +2,29 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 
-//@ContextConfiguration( locations={ "classpath:test-Observations.xml" })
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 public class HistopathServiceTest {
 
 
     //TODO: Fix this test case
 
-    //	@Test
+    @Test
     public void getTableDataTest() throws IOException, SolrServerException {
         //gene_accession_id:"MGI:2449119"
         //HistoPath_1481
@@ -29,14 +38,18 @@ public class HistopathServiceTest {
         HistopathService histopathService = new HistopathService(observationService);
 
 
-        String geneAccession = "MGI:2449119";
+        //String geneAccession = "MGI:2449119";
+        String geneAccession="MGI:1891341";
         List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
 
         for (ObservationDTO obs : allObservations) {
             System.out.println(obs);
         }
+        
+        Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
+				.getUniqueInfo(allObservations);
 
-        List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(allObservations);
+        List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName);
         for (HistopathPageTableRow row : filteredObservations) {
             //System.out.println("row="+row);
         }
