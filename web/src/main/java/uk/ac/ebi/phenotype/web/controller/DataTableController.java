@@ -2964,6 +2964,7 @@ public class DataTableController {
 
 	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr, Boolean consortium) throws SQLException, UnsupportedEncodingException {
 		final int DISPLAY_THRESHOLD = 5;
+
 		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr, consortium);
 
 		JSONObject j = new JSONObject();
