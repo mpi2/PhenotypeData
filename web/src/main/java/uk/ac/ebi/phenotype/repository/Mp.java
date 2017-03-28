@@ -24,8 +24,14 @@ public class Mp {
     @Relationship(type="GENE", direction=Relationship.OUTGOING)
     private Set<Gene> genes;
 
+    @Relationship(type="HUMAN", direction=Relationship.OUTGOING)
+    private Set<Hp> humanPhenotypes;
+
     @Relationship(type="MP_SYNONYM", direction=Relationship.OUTGOING)
     private Set<OntoSynonym> ontoSynonyms;
+
+    @Relationship(type="MP_NARROW_SYNONYM", direction=Relationship.OUTGOING)
+    private Set<OntoSynonym> mpNarrowSynonyms;
 
     @Relationship(type="MP_TOP_LEVEL_ID", direction=Relationship.OUTGOING)
     private Set<Mp> mpTopLevelIds;
@@ -87,6 +93,14 @@ public class Mp {
         this.genes = genes;
     }
 
+    public Set<Hp> getHumanPhenotypes() {
+        return humanPhenotypes;
+    }
+
+    public void setHumanPhenotypes(Set<Hp> humanPhenotypes) {
+        this.humanPhenotypes = humanPhenotypes;
+    }
+
     public Set<OntoSynonym> getOntoSynonyms() {
         return ontoSynonyms;
     }
@@ -127,6 +141,14 @@ public class Mp {
         this.mpChildIds = mpChildIds;
     }
 
+    public Set<OntoSynonym> getMpNarrowSynonyms() {
+        return mpNarrowSynonyms;
+    }
+
+    public void setMpNarrowSynonyms(Set<OntoSynonym> mpNarrowSynonyms) {
+        this.mpNarrowSynonyms = mpNarrowSynonyms;
+    }
+
     @Override
     public String toString() {
         return "Mp{" +
@@ -136,7 +158,9 @@ public class Mp {
                 ", mpDefinition='" + mpDefinition + '\'' +
                 ", topLevelStatus=" + topLevelStatus +
                 ", genes=" + genes +
+                ", humanPhenotypes=" + humanPhenotypes +
                 ", ontoSynonyms=" + ontoSynonyms +
+                ", mpNarrowSynonyms=" + mpNarrowSynonyms +
                 ", mpTopLevelIds=" + mpTopLevelIds +
                 ", mpIntermediateIds=" + mpIntermediateIds +
                 ", mpParentIds=" + mpParentIds +

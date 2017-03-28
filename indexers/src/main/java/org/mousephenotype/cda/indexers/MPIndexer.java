@@ -386,7 +386,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    private void populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException {
+    public void populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException {
 
         List<SolrClient> ss = new ArrayList<>();
         ss.add(preqcCore);
