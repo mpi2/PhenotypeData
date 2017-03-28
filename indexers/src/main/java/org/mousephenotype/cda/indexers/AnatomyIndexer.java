@@ -239,7 +239,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             emapaParser = getEmapaParser();
             emapaParser.fillJsonTreePath("EMAPA:25765"); // mouse
             maParser = getMaParser();
-            maParser.fillJsonTreePath("MA:0000001");
+            maParser.fillJsonTreePath("MA:0002405"); // postnatal mouse
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
             e1.printStackTrace();
         }
