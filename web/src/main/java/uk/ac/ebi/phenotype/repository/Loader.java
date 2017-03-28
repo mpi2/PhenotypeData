@@ -79,23 +79,44 @@ public class Loader implements CommandLineRunner {
 
         Map<String, Gene> loadedGenes = new HashMap<>();
 
-        geneRepository.deleteAll();
-        alleleRepository.deleteAll();
-        ensemblGeneIdRepository.deleteAll();
-        markerSynonymRepository.deleteAll();
-        humanGeneSymbolRepository.deleteAll();
+//        geneRepository.deleteAll();
+//        alleleRepository.deleteAll();
+//        ensemblGeneIdRepository.deleteAll();
+//        markerSynonymRepository.deleteAll();
+//        humanGeneSymbolRepository.deleteAll();
 
         Connection komp2Conn = komp2DataSource.getConnection();
         Connection diseaseConn = phenodigmDataSource.getConnection();
 
         // loading Gene, Allele, EnsemblGeneId, MarkerSynonym
         // based on Peter's allele2 flatfile
-        loadGene1();
+       // loadGene1();
         //loadHumanOrtholog();
 
+        loadPhenotypes();
 
 
 
+
+    }
+
+
+    public void loadPhenotypes() throws IOException {
+        long begin = System.currentTimeMillis();
+
+        BufferedReader in = new BufferedReader(new FileReader(new File(mpListPath)));
+        String line = in.readLine();
+
+        while (line != null) {
+            //System.out.println(line);
+            String mpid = line.trim();
+            System.out.println(mpid);
+
+
+
+
+            line = in.readLine();
+        }
     }
 
     public void loadHumanOrtholog() throws IOException {
