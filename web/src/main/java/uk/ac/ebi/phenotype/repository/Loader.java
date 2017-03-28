@@ -2,6 +2,12 @@ package uk.ac.ebi.phenotype.repository;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONObject;
+import org.mousephenotype.cda.indexers.MPIndexer;
+import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +20,7 @@ import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -47,11 +52,14 @@ public class Loader implements CommandLineRunner {
     @Value("${mpListPath}")
     private String mpListPath;
 
+    @NotNull
+    @Value("${owlpath}")
+    protected String owlpath;
+
 
 //    @Autowired
 //    @Qualifier("allele2Core")
 //    private SolrClient allele2Core;
-
 
 
     @Autowired
@@ -69,8 +77,20 @@ public class Loader implements CommandLineRunner {
     @Autowired
     HumanGeneSymbolRepository humanGeneSymbolRepository;
 
+    @Autowired
+    MpRepository mpRepository;
+
+    @Autowired
+    MPIndexer mpIndexer;
+
+
+
     Map<String, Gene> loadedGenes = new HashMap<>();
     Map<String, Gene> loadedGeneSymbols = new HashMap<>();
+
+    private OntologyParser mpHpParser;
+    private OntologyParser mpParser;
+
 
     public Loader() {}
 
@@ -101,22 +121,236 @@ public class Loader implements CommandLineRunner {
     }
 
 
-    public void loadPhenotypes() throws IOException {
+    public void loadPhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException {
         long begin = System.currentTimeMillis();
 
-        BufferedReader in = new BufferedReader(new FileReader(new File(mpListPath)));
-        String line = in.readLine();
+        mpParser = mpIndexer.getMpParser();
+        System.out.println("Loaded mp parser");
 
-        while (line != null) {
-            //System.out.println(line);
-            String mpid = line.trim();
-            System.out.println(mpid);
+        mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
+        System.out.println("Loaded mp hp parser");
 
+        for (String mpId: mpParser.getTermsInSlim()) {
 
+            OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
+            String termId = mpDTO.getAccessionId();
 
+            Mp ph = mpRepository.findByMpId(termId);
+            if (ph == null){
+                ph = new Mp();
+                ph.setMpId(termId);
+            }
+            if (ph.getMpTerm() == null) {
+                ph.setMpTerm(mpDTO.getName());
+            }
+            if (ph.getMpDefinition() == null) {
+                ph.setMpDefinition(mpDTO.getDefinition());
+            }
 
-            line = in.readLine();
+            if (ph.getOntoSynonyms() == null) {
+                for (String mpsym : mpDTO.getSynonyms()) {
+                    OntoSynonym ms = new OntoSynonym();
+                    ms.setOntoSynonym(mpsym);
+                    ms.setMousePhenotype(ph);
+                    if (ph.getOntoSynonyms() == null) {
+                        ph.setOntoSynonyms(new HashSet<OntoSynonym>());
+                    }
+                    ph.getOntoSynonyms().add(ms);
+                }
+            }
+
+            if (ph.getMpTopLevelIds() == null) {
+                addTopLevelTerms(ph, mpDTO);
+            }
+            if (ph.getMpIntermediateIds() == null) {
+                addIntermediateTerms(ph, mpDTO);
+            }
+
+            // PARENT
+
+            if (ph.getMpParentIds() == null) {
+                for (String parId : mpDTO.getParentIds()) {
+                    Phenotype thisPh = mpRepository.findByMpId(parId);
+                    if (thisPh == null) {
+                        thisPh = new Phenotype();
+                    }
+                    thisPh.setMpId(parId);
+                    mpRepository.save(thisPh);
+
+                    if (ph.getMpParentIds() == null) {
+                        ph.setMpParentIds(new HashSet<Phenotype>());
+                    }
+                    ph.getMpParentIds().add(thisPh);
+                }
+            }
+
+            // CHILD
+            if (ph.getMpChildIds() == null) {
+                for (String childId : mpDTO.getChildIds()) {
+                    Phenotype thisPh = mpRepository.findByMpId(childId);
+                    if (thisPh == null) {
+                        thisPh = new Phenotype();
+                    }
+                    thisPh.setMpId(childId);
+                    mpRepository.save(thisPh);
+
+                    if (ph.getMpChildIds() == null) {
+                        ph.setMpChildIds(new HashSet<Phenotype>());
+                    }
+                    ph.getMpChildIds().add(thisPh);
+                }
+            }
+
+//            ph.setChildMpId(mpDTO.getChildIds());
+//            mp.setChildMpTerm(mpDTO.getChildNames());
+//            mp.setParentMpId(mpDTO.getParentIds());
+//            mp.setParentMpTerm(mpDTO.getParentNames());
+
+            //------------
+
+//            MpDTO mp = new MpDTO();
+//            mp.setDataType("mp");
+//            mp.setMpId(termId);
+//            mp.setMpTerm(mpDTO.getName());
+//            mp.setMpDefinition(mpDTO.getDefinition());
+//
+//            // alternative MP ID
+//            if (mpDTO.getAlternateIds() != null && !mpDTO.getAlternateIds().isEmpty()) {
+//                mp.setAltMpIds(mpDTO.getAlternateIds());
+//            }
+//
+//            mp.setMpNodeId(mpDTO.getNodeIds());
+//
+//            addTopLevelTerms(mp, mpDTO);
+//            addIntermediateTerms(mp, mpDTO);
+//
+//            mp.setChildMpId(mpDTO.getChildIds());
+//            mp.setChildMpTerm(mpDTO.getChildNames());
+//            mp.setParentMpId(mpDTO.getParentIds());
+//            mp.setParentMpTerm(mpDTO.getParentNames());
+
+            // add mp-hp mapping using Monarch's mp-hp hybrid ontology
+            OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
+            if (mpTerm == null) {
+                logger.error("MP term not found using mpHpParser.getOntologyTerm(termId); where termId={}", termId);
+            } else {
+                Set<OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
+                for (OntologyTermDTO hpTerm : hpTerms) {
+                    Set<String> hpIds = new HashSet<>();
+                    hpIds.add(hpTerm.getAccessionId());
+
+                    for(String hpid : hpIds){
+
+                    }
+
+                    mp.setHpId(new ArrayList(hpIds));
+                    if (hpTerm.getName() != null) {
+                        Set<String> hpNames = new HashSet<>();
+                        hpNames.add(hpTerm.getName());
+                        mp.setHpTerm(new ArrayList(hpNames));
+                    }
+                    if (hpTerm.getSynonyms() != null) {
+                        mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
+                    }
+                }
+                // get the children of MP not in our slim (narrow synonyms)
+                if (isOKForNarrowSynonyms(mp)) {
+                    mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
+                } else {
+                    mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
+                }
+            }
+
+            mp.setMpTermSynonym(mpDTO.getSynonyms());
+
+            getMaTermsForMp(mp);
+
+            // this sets the number of postqc/preqc phenotyping calls of this MP
+            addPhenotype1(mp, runStatus);
+            mp.setPhenoCalls(sumPhenotypingCalls(termId));
+            addPhenotype2(mp);
+
+            List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount, TOP_LEVEL_MP_TERMS);
+            mp.setSearchTermJson(searchTree.toString());
+            String scrollNodeId = browser.getScrollTo(searchTree);
+            mp.setScrollNode(scrollNodeId);
+            List<JSONObject> childrenTree = browser.getChildrenJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
+            mp.setChildrenJson(childrenTree.toString());
+
+            logger.debug(" Added {} records for termId {}", count, termId);
+            count++;
+
+            documentCount++;
+            mpCore.addBean(mp, 60000);
+
+            if (documentCount % 100 == 0) {
+                System.out.println("Added " + documentCount);
+            }
         }
+
+
+    }
+
+
+    private void addTopLevelTerms(Phenotype ph, OntologyTermDTO mpDTO) {
+
+        if (mpDTO.getTopLevelIds() != null && mpDTO.getTopLevelIds().size() > 0){
+
+            for (String topid : mpDTO.getTopLevelIds()){
+                Phenotype thisPh = mpRepository.findByMpId(topid);
+                if ( thisPh == null ){
+                    thisPh = new Phenotype();
+                }
+                thisPh.setMpId(topid);
+                thisPh.setTopLevelStatus(true);
+                mpRepository.save(thisPh);
+
+                if ( ph.getMpTopLevelIds() == null){
+                    ph.setMpTopLevelIds(new HashSet<Phenotype>());
+                }
+                ph.getMpTopLevelIds().add(thisPh);
+            }
+
+//
+//            mp.addTopLevelMpId(mpDTO.getTopLevelIds());
+//            mp.addTopLevelMpTerm(mpDTO.getTopLevelNames());
+//            mp.addTopLevelMpTermSynonym(mpDTO.getTopLevelSynonyms());
+//            mp.addTopLevelMpTermId(mpDTO.getTopLevelMpTermIds());
+//            mp.addTopLevelMpTermInclusive(mpDTO.getTopLevelNames());
+//            mp.addTopLevelMpIdInclusive(mpDTO.getTopLevelIds());
+
+        }
+        else {
+            // add self as top level
+//            mp.addTopLevelMpTermInclusive(mpDTO.getName());
+//            mp.addTopLevelMpIdInclusive(mpDTO.getAccessionId());
+            ph.setTopLevelStatus(true);
+        }
+
+    }
+
+    private void addIntermediateTerms(Phenotype ph, OntologyTermDTO mpDTO {
+
+        if (mpDTO.getIntermediateIds() != null) {
+            for (String intermId : mpDTO.getIntermediateIds()){
+                Phenotype thisPh = mpRepository.findByMpId(intermId);
+                if ( thisPh == null ){
+                    thisPh = new Phenotype();
+                }
+                thisPh.setMpId(intermId);
+                mpRepository.save(thisPh);
+
+                if ( ph.getMpIntermediateIds() == null){
+                    ph.setMpIntermediateIds(new HashSet<Phenotype>());
+                }
+                ph.getMpIntermediateIds().add(thisPh);
+            }
+
+            //mp.addIntermediateMpId(mpDTO.getIntermediateIds());
+//            mp.addIntermediateMpTerm(mpDTO.getIntermediateNames());
+//            mp.addIntermediateMpTermSynonym(mpDTO.getIntermediateSynonyms());
+        }
+
     }
 
     public void loadHumanOrtholog() throws IOException {
