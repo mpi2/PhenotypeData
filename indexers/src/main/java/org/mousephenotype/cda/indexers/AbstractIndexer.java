@@ -432,6 +432,10 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         return new OntologyParser(owlpath + "/mp-ext-merged.owl", "MP", null, null);
     }
 
+    public OntologyParser getMpHpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+        return new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
+    }
+
     public OntologyParser getMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return new OntologyParser(owlpath + "/ma.owl", "MA", AnatomyIndexer.TOP_LEVEL_MA_TERMS, getMaWantedIds());
     }
