@@ -17,16 +17,14 @@ public class Hp {
 
     private String hpId;
     private String hpTerm;
+    private String hpDefinition;
 
+    @Relationship(type="MOUSE", direction=Relationship.OUTGOING)
+    private Set<Mp> mousePhenotypes;
 
-    @Relationship(type="GENE", direction=Relationship.OUTGOING)
-    private Set<Gene> genes;
-
-    @Relationship(type="DISEASE", direction=Relationship.OUTGOING)
-    private Set<Disease> diseases;
-
-
-
+    @Relationship(type="HP_SYNONYM", direction=Relationship.OUTGOING)
+    private Set<OntoSynonym> hpSynonyms;
 
 
 }
+
