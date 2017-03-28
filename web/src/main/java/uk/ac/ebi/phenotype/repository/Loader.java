@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.mousephenotype.cda.indexers.MPIndexer;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.*;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -81,6 +83,13 @@ public class Loader implements CommandLineRunner {
     MpRepository mpRepository;
 
     @Autowired
+    HpRepository hpRepository;
+
+    @Autowired
+    OntoSynonymRepository ontoSynonymRepository;
+
+
+    @Autowired
     MPIndexer mpIndexer;
 
 
@@ -91,6 +100,9 @@ public class Loader implements CommandLineRunner {
     private OntologyParser mpHpParser;
     private OntologyParser mpParser;
 
+    private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
+
+    Map<String, Long> mpCalls = new HashMap<>();
 
     public Loader() {}
 
@@ -121,8 +133,11 @@ public class Loader implements CommandLineRunner {
     }
 
 
-    public void loadPhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException {
+    public void loadPhenotypes() throws IOException, OWLOntologyCreationException, OWLOntologyStorageException, SQLException, URISyntaxException, SolrServerException {
         long begin = System.currentTimeMillis();
+
+//        mpCalls = mpIndexer.populateMpCallMaps();
+
 
         mpParser = mpIndexer.getMpParser();
         System.out.println("Loaded mp parser");
@@ -130,6 +145,7 @@ public class Loader implements CommandLineRunner {
         mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
         System.out.println("Loaded mp hp parser");
 
+        int mpCount = 0;
         for (String mpId: mpParser.getTermsInSlim()) {
 
             OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
@@ -152,6 +168,8 @@ public class Loader implements CommandLineRunner {
                     OntoSynonym ms = new OntoSynonym();
                     ms.setOntoSynonym(mpsym);
                     ms.setMousePhenotype(ph);
+                    ontoSynonymRepository.save(ms);
+
                     if (ph.getOntoSynonyms() == null) {
                         ph.setOntoSynonyms(new HashSet<OntoSynonym>());
                     }
@@ -167,18 +185,17 @@ public class Loader implements CommandLineRunner {
             }
 
             // PARENT
-
             if (ph.getMpParentIds() == null) {
                 for (String parId : mpDTO.getParentIds()) {
-                    Phenotype thisPh = mpRepository.findByMpId(parId);
+                    Mp thisPh = mpRepository.findByMpId(parId);
                     if (thisPh == null) {
-                        thisPh = new Phenotype();
+                        thisPh = new Mp();
                     }
                     thisPh.setMpId(parId);
                     mpRepository.save(thisPh);
 
                     if (ph.getMpParentIds() == null) {
-                        ph.setMpParentIds(new HashSet<Phenotype>());
+                        ph.setMpParentIds(new HashSet<Mp>());
                     }
                     ph.getMpParentIds().add(thisPh);
                 }
@@ -187,15 +204,15 @@ public class Loader implements CommandLineRunner {
             // CHILD
             if (ph.getMpChildIds() == null) {
                 for (String childId : mpDTO.getChildIds()) {
-                    Phenotype thisPh = mpRepository.findByMpId(childId);
+                    Mp thisPh = mpRepository.findByMpId(childId);
                     if (thisPh == null) {
-                        thisPh = new Phenotype();
+                        thisPh = new Mp();
                     }
                     thisPh.setMpId(childId);
                     mpRepository.save(thisPh);
 
                     if (ph.getMpChildIds() == null) {
-                        ph.setMpChildIds(new HashSet<Phenotype>());
+                        ph.setMpChildIds(new HashSet<Mp>());
                     }
                     ph.getMpChildIds().add(thisPh);
                 }
@@ -230,6 +247,7 @@ public class Loader implements CommandLineRunner {
 //            mp.setParentMpTerm(mpDTO.getParentNames());
 
             // add mp-hp mapping using Monarch's mp-hp hybrid ontology
+            MpDTO mpn = new MpDTO();
             OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
             if (mpTerm == null) {
                 logger.error("MP term not found using mpHpParser.getOntologyTerm(termId); where termId={}", termId);
@@ -240,51 +258,54 @@ public class Loader implements CommandLineRunner {
                     hpIds.add(hpTerm.getAccessionId());
 
                     for(String hpid : hpIds){
-
+                        Hp hp = hpRepository.findByHpId(hpid);
+                        if (hp == null){
+                            hp = new Hp();
+                            hp.setHpId(hpid);
+                        }
+                        hpRepository.save(hp);
+                        // term and synonym will be populated via phenodigm
                     }
-
-                    mp.setHpId(new ArrayList(hpIds));
-                    if (hpTerm.getName() != null) {
-                        Set<String> hpNames = new HashSet<>();
-                        hpNames.add(hpTerm.getName());
-                        mp.setHpTerm(new ArrayList(hpNames));
-                    }
-                    if (hpTerm.getSynonyms() != null) {
-                        mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
-                    }
+//
+//                    mp.setHpId(new ArrayList(hpIds));
+//                    if (hpTerm.getName() != null) {
+//                        Set<String> hpNames = new HashSet<>();
+//                        hpNames.add(hpTerm.getName());
+//                        mp.setHpTerm(new ArrayList(hpNames));
+//                    }
+//                    if (hpTerm.getSynonyms() != null) {
+//                        mp.setHpTermSynonym(new ArrayList(hpTerm.getSynonyms()));
+//                    }
                 }
                 // get the children of MP not in our slim (narrow synonyms)
-                if (isOKForNarrowSynonyms(mp)) {
-                    mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
-                } else {
-                    mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
-                }
+//                if (isOKForNarrowSynonyms(mpn)) {
+//                    mpn.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
+//                } else {
+//                    mpn.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
+//                }
             }
 
-            mp.setMpTermSynonym(mpDTO.getSynonyms());
+//            mp.setMpTermSynonym(mpDTO.getSynonyms());
+//
+//            getMaTermsForMp(mp);
+//
+//            // this sets the number of postqc/preqc phenotyping calls of this MP
+//            addPhenotype1(mp, runStatus);
+//            mp.setPhenoCalls(sumPhenotypingCalls(termId));
+//            addPhenotype2(mp);
+//
+//            List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount, TOP_LEVEL_MP_TERMS);
+//            mp.setSearchTermJson(searchTree.toString());
+//            String scrollNodeId = browser.getScrollTo(searchTree);
+//            mp.setScrollNode(scrollNodeId);
+//            List<JSONObject> childrenTree = browser.getChildrenJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
+//            mp.setChildrenJson(childrenTree.toString());
 
-            getMaTermsForMp(mp);
 
-            // this sets the number of postqc/preqc phenotyping calls of this MP
-            addPhenotype1(mp, runStatus);
-            mp.setPhenoCalls(sumPhenotypingCalls(termId));
-            addPhenotype2(mp);
+            mpCount++;
 
-            List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount, TOP_LEVEL_MP_TERMS);
-            mp.setSearchTermJson(searchTree.toString());
-            String scrollNodeId = browser.getScrollTo(searchTree);
-            mp.setScrollNode(scrollNodeId);
-            List<JSONObject> childrenTree = browser.getChildrenJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
-            mp.setChildrenJson(childrenTree.toString());
-
-            logger.debug(" Added {} records for termId {}", count, termId);
-            count++;
-
-            documentCount++;
-            mpCore.addBean(mp, 60000);
-
-            if (documentCount % 100 == 0) {
-                System.out.println("Added " + documentCount);
+            if (mpCount % 1000 == 0) {
+                logger.info("Added {} mp nodes",  mpCount);
             }
         }
 
@@ -292,21 +313,21 @@ public class Loader implements CommandLineRunner {
     }
 
 
-    private void addTopLevelTerms(Phenotype ph, OntologyTermDTO mpDTO) {
+    private void addTopLevelTerms(Mp ph, OntologyTermDTO mpDTO) {
 
         if (mpDTO.getTopLevelIds() != null && mpDTO.getTopLevelIds().size() > 0){
 
             for (String topid : mpDTO.getTopLevelIds()){
-                Phenotype thisPh = mpRepository.findByMpId(topid);
+                Mp thisPh = mpRepository.findByMpId(topid);
                 if ( thisPh == null ){
-                    thisPh = new Phenotype();
+                    thisPh = new Mp();
                 }
                 thisPh.setMpId(topid);
                 thisPh.setTopLevelStatus(true);
                 mpRepository.save(thisPh);
 
                 if ( ph.getMpTopLevelIds() == null){
-                    ph.setMpTopLevelIds(new HashSet<Phenotype>());
+                    ph.setMpTopLevelIds(new HashSet<Mp>());
                 }
                 ph.getMpTopLevelIds().add(thisPh);
             }
@@ -329,19 +350,19 @@ public class Loader implements CommandLineRunner {
 
     }
 
-    private void addIntermediateTerms(Phenotype ph, OntologyTermDTO mpDTO {
+    private void addIntermediateTerms(Mp ph, OntologyTermDTO mpDTO) {
 
         if (mpDTO.getIntermediateIds() != null) {
             for (String intermId : mpDTO.getIntermediateIds()){
-                Phenotype thisPh = mpRepository.findByMpId(intermId);
+                Mp thisPh = mpRepository.findByMpId(intermId);
                 if ( thisPh == null ){
-                    thisPh = new Phenotype();
+                    thisPh = new Mp();
                 }
                 thisPh.setMpId(intermId);
                 mpRepository.save(thisPh);
 
                 if ( ph.getMpIntermediateIds() == null){
-                    ph.setMpIntermediateIds(new HashSet<Phenotype>());
+                    ph.setMpIntermediateIds(new HashSet<Mp>());
                 }
                 ph.getMpIntermediateIds().add(thisPh);
             }
