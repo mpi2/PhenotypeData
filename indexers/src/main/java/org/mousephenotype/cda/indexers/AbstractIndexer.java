@@ -66,7 +66,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
 
     // Properties we want to follow to get MA terms form MP
-    Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>(Arrays.asList(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")),
+    protected static final Set<OWLObjectPropertyImpl> VIA_PROPERTIES = new HashSet<>(Arrays.asList(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")),
             new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000070")),
             new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of"))));
 
@@ -461,7 +461,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         OntologyParser mpMaParser = getMpMaParser();
 
         for (String mpId: wantedMp){
-            wantedIds.addAll( mpMaParser.getReferencedClasses(mpId, viaProperties, "MA"));
+            wantedIds.addAll( mpMaParser.getReferencedClasses(mpId, VIA_PROPERTIES, "MA"));
         }
 
         return wantedIds;
