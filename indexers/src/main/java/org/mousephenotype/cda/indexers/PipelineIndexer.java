@@ -85,18 +85,22 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 
 	private void initialiseSupportingBeans(RunStatus runStatus)
-			throws IndexerException, SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+			throws IndexerException{
 
-		mpParser = getMpParser();
-		emapaParser = getEmapaParser();
-		emapToEmapa = getEmapToEmapaMap();
-		parameterToObservationTypeMap = getObservationTypeMap(runStatus);
-		paramIdToParameter = populateParamIdToParameterMap(runStatus);
-		addUnits();
-		procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
-		pipelines = populatePipelineList();
-		addAbnormalMaOntology();
-		addAbnormalEmapOntology();
+		try {
+			mpParser = getMpParser();
+			emapaParser = getEmapaParser();
+			emapToEmapa = getEmapToEmapaMap();
+			parameterToObservationTypeMap = getObservationTypeMap(runStatus);
+			paramIdToParameter = populateParamIdToParameterMap(runStatus);
+			addUnits();
+			procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
+			pipelines = populatePipelineList();
+			addAbnormalMaOntology();
+			addAbnormalEmapOntology();
+		} catch (SQLException | OWLOntologyCreationException | OWLOntologyStorageException | IOException e){
+			throw new IndexerException(e);
+		}
 	}
 
 
@@ -256,7 +260,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 			pipelineCore.commit();
 
-		} catch (IOException | SolrServerException | OWLOntologyCreationException | NullPointerException | OWLOntologyStorageException e) {
+		} catch (IOException | SolrServerException | NullPointerException e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
 		}
