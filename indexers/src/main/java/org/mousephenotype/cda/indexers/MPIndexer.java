@@ -149,7 +149,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpParser = getMpParser();
 
             System.out.println("Loaded mp parser");
-            mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
+            mpHpParser = getMpHpParser();
             System.out.println("Loaded mp hp parser");
             mpMaParser = getMpMaParser();
             System.out.println("Loaded mp ma parser");
