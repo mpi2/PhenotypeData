@@ -11,6 +11,7 @@
         <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
         <%--<link href="${baseUrl}/css/default.css" rel="stylesheet" />--%>
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
+        <link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jstree.min.css"/>
 
         <style>
 
@@ -74,6 +75,7 @@
                 clear: both;
             }
 
+
          </style>
 
         <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>--%>
@@ -84,6 +86,7 @@
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/data.js"></script>
         <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+        <script type="text/javascript" src='${baseUrl}/js/vendor/jstree/jstree.min.js'></script>
 
 
         <script type='text/javascript'>
@@ -91,21 +94,7 @@
             $(document).ready(function () {
                 'use strict';
 
-                $( "#tabs" ).tabs({
-                    active: 0,
-                    activate: function(event, ui) {
 
-                        // get paper stats as highcharts
-
-                        // need to load highcharts after a tab is activated to ensure the width of charts
-                        // will stay inside the parent container
-                        if ( ui.newTab.index() == 1){
-                            var chartWeek = "chartWeek";
-                            var chartMonth = "chartMonth";
-                            $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
-                        }
-                    }
-                });
 
                 // test only
                 //var baseUrl = '//dev.mousephenotype.org/data';
@@ -121,6 +110,9 @@
                 var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, "alleleRef", isAlleleRef);
                 $('div#alleleRef').append(dTable);
 
+                var dTableConsortium = $.fn.fetchEmptyTable(tableHeader, tableCols, "consortiumPapers", isAlleleRef);
+                $('div#consortiumPapers').append(dTableConsortium);
+
                 var oConf = {};
                 oConf.iDisplayLength = 10;
                 oConf.iDisplayStart = 0;
@@ -128,15 +120,43 @@
                 oConf.baseUrl = "${baseUrl}";
                 oConf.rowFormat = true;
                 oConf.orderBy = "date_of_publication DESC"; // default
+                oConf.id = "alleleRef";
 
                 $.fn.fetchAlleleRefDataTable2(oConf);
+
+                var oConf2 = oConf;
+                oConf2.consortium = true;
+                oConf2.id = "consortiumPapers";
+                $.fn.fetchAlleleRefDataTable2(oConf2);
+
+
+                $( "#tabs" ).tabs({
+                    active: 0,
+                    activate: function(event, ui) {
+
+                        // get paper stats as highcharts
+
+                        // need to load highcharts after a tab is activated to ensure the width of charts
+                        // will stay inside the parent container
+                        if ( ui.newTab.index() == 1){
+                            var chartWeek = "chartWeek";
+                            var chartMonth = "chartMonth";
+                            $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
+                        }
+//                        if ( ui.newTab.index() == 2){
+//                            $('div#consortiumPapers .saveTable').html("");
+//                            $.fn.fetchAlleleRefDataTable2(oConf2);
+//                        }
+                    }
+                });
+
             });
 
 
         </script>
 
-        <script type='text/javascript' src='https://bartaz.github.io/sandbox.js/jquery.highlight.js'></script>
-        <script type='text/javascript' src='https://cdn.datatables.net/plug-ins/f2c75b7247b/features/searchHighlight/dataTables.searchHighlight.min.js'></script>
+        <script type='text/javascript' src='${baseUrl}/js/vendor/jquery/jquery.highlight.js'></script>
+        <script type='text/javascript' src='${baseUrl}/js/utils/dataTables.searchHighlight.min.js'></script>
         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
 
     </jsp:attribute>
@@ -163,6 +183,7 @@
                                     <ul>
                                         <li><a href="#tabs-1">Browse publication</a></li>
                                         <li><a href="#tabs-2">Publication stats</a></li>
+                                        <li><a href="#tabs-3">Consortium publications</a></li>
                                     </ul>
                                     <div id="tabs-1">
                                         <!-- container to display dataTable -->
@@ -176,6 +197,11 @@
                                         <div id="chartMonthIncrease" class="chart"></div>
                                         <div id="chartGrantQuarter" class="chart"></div>
                                         <div class="clear"></div>
+
+                                    </div>
+                                    <div id="tabs-3">
+                                        <!-- container to display dataTable -->
+                                        <div id="consortiumPapers"></div>
 
                                     </div>
                                 </div>

@@ -64,7 +64,6 @@ import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -2432,6 +2431,7 @@ public class DataTableController {
 			@RequestParam(value = "pmid", required = true) String pmidStr,
 			@RequestParam(value = "falsepositive", required = true) String falsepositive,
 			@RequestParam(value = "reviewed", required = true) String reviewed,
+			@RequestParam(value = "consortium_paper", required = true) String consortium_paper,
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException {
@@ -2441,7 +2441,7 @@ public class DataTableController {
 		Integer dbid = Integer.parseInt(dbidStr);
 		Integer pmid = Integer.parseInt(pmidStr);
 
-		return setAlleleSymbol(dbid, pmid, alleleSymbol, falsepositive, reviewed);
+		return setAlleleSymbol(dbid, pmid, alleleSymbol, falsepositive, reviewed, consortium_paper);
 	}
 
 	@RequestMapping(value = "/fetchAlleleRefPmidData", method = RequestMethod.POST)
@@ -2456,12 +2456,19 @@ public class DataTableController {
 		return new ObjectMapper().writeValueAsString(fetchPmidData(pmid));
 	}
 
-	private String fetchMeshTermsByPmid(Integer pmid) {
+	private  PaperController.Pubmed fetchPubmedByPmid(Integer pmid) throws SQLException {
 
 		List<String> pmidQryStr = new ArrayList<>();
 		pmidQryStr.add("ext_id:" + pmid);
 		Map<Integer, PaperController.Pubmed> pd = paperController.fetchEuropePubmedData(pmidQryStr);
 		PaperController.Pubmed pub = pd.get(pmid);
+
+		return pub;
+	}
+
+	public String setAlleleSymbol(Integer dbid, Integer pmid, String alleleSymbol, String falsepositive, String reviewed, String consortium_paper) throws SQLException {
+
+		PaperController.Pubmed pub = fetchPubmedByPmid(pmid);
 
 		// fetch mesh terms: heading pulus mesh heading+mesh qualifier
 		List<String> mterms = new ArrayList<>();
@@ -2472,12 +2479,9 @@ public class DataTableController {
 				mterms.add(mt.meshHeading + " " + mq);
 			}
 		}
-		return mterms.size() > 0 ? StringUtils.join(mterms, "|||") : "";
+		String meshTerms = mterms.size() > 0 ? StringUtils.join(mterms, "|||") : "";
 
-	}
-	public String setAlleleSymbol(Integer dbid, Integer pmid, String alleleSymbol, String falsepositive, String reviewed) throws SQLException {
-
-		String meshTerms = fetchMeshTermsByPmid(pmid);
+		String meshTree = mterms.size() > 0 ? pub.getMeshJsonStr() : "";
 
 		final String NA = "Not available";
 		// convert "<sup>" to "<" and "</sup>" to ">"
@@ -2493,15 +2497,16 @@ public class DataTableController {
 
 		String sqla = "SELECT acc, gf_acc FROM allele WHERE symbol=?";
 		//String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, timestamp=?, falsepositive=?, mesh=? WHERE dbid=?";
-		String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, datasource=?, falsepositive=?, mesh=? WHERE dbid=?";
+		String updateSql = "UPDATE allele_ref SET acc=?, gacc=?, symbol=?, reviewed=?, datasource=?, falsepositive=?, mesh=?, meshtree=?, consortium_paper=? WHERE dbid=?";
 
 		// when symbol is set to be empty, reviewed should have been set to "yes" by curator
-		if (reviewed.equals("yes") && alleleSymbol.isEmpty()) {
+		if (reviewed.equals("yes") && (alleleSymbol.isEmpty() || alleleSymbol.equals("N/A"))) {
 			alleleSymbol = NA;
-			updatePaper(conn, updateSql, "", "", alleleSymbol, falsepositive, dbid, meshTerms);
+			updatePaper(conn, updateSql, "", "", alleleSymbol, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
 			j.put("reviewed", "yes");
 			j.put("falsepositive", falsepositive.equals("yes") ? "yes" : "no");
 			j.put("symbol", NA);
+			j.put("consortium_paper", consortium_paper);
 		}
 
 		else if (! alleleSymbol.contains(",")) { // single symbol
@@ -2526,11 +2531,12 @@ public class DataTableController {
 
 			try {
 				if (alleleAcc != null && geneAcc != null) {
-					updatePaper(conn, updateSql, alleleAcc, geneAcc, alleleSymbol, falsepositive, dbid, meshTerms);
+					updatePaper(conn, updateSql, alleleAcc, geneAcc, alleleSymbol, falsepositive, dbid, meshTerms, meshTree, consortium_paper);
 
 					j.put("reviewed", "yes");
 					j.put("falsepositive", "no");
 					j.put("symbol", alleleSymbol);
+					j.put("consortium_paper", consortium_paper);
 				}
 				else {
 					// revert info in the db
@@ -2540,6 +2546,7 @@ public class DataTableController {
 					j.put("error", "ERROR: setting symbol failed: could not find matching accession id");
 					j.put("allAllelesNotFound", true);
 					j.put("symbol", info.get("symbol"));
+					j.put("consortium_paper", info.get("consortium_paper"));
 				}
 
 			} catch (SQLException se) {
@@ -2552,6 +2559,7 @@ public class DataTableController {
 				j.put("falsepositive", info.get("falsepositive"));
 				j.put("error", "ERROR: setting symbol failed");
 				j.put("symbol", info.get("symbol"));
+				j.put("consortium_paper", info.get("consortium_paper"));
 			}
 
 		}
@@ -2607,7 +2615,7 @@ public class DataTableController {
 			String geneAccsStr = StringUtils.join(geneAccs, delimiter);
 
 			try{
-				updatePaper(conn, updateSql, alleleAccsStr, geneAccsStr, StringUtils.join(matchedAlleleSymbols, delimiter), falsepositive, dbid, meshTerms);
+				updatePaper(conn, updateSql, alleleAccsStr, geneAccsStr, StringUtils.join(matchedAlleleSymbols, delimiter), falsepositive, dbid, meshTerms, meshTree, consortium_paper);
 			}
 			catch (SQLException se) {
 				//Handle errors for JDBC
@@ -2619,6 +2627,7 @@ public class DataTableController {
 				j.put("falsepositive", info.get("falsepositive"));
 				j.put("error", "ERROR: setting symbol failed");
 				j.put("symbol", info.get("symbol"));
+				j.put("consortium_paper", info.get("consortium_paper"));
 			}
 
 			if ( nonMatchedAlleleSymbols.size() == alleleSymbols.size() ) {
@@ -2633,6 +2642,7 @@ public class DataTableController {
 				j.put("error", "ERROR: setting symbol failed");
 				j.put("allAllelesNotFound", true);
 				j.put("symbol", info.get("symbol"));
+				j.put("consortium_paper", info.get("consortium_paper"));
 			}
 			else {
 				if ( matchedAlleleSymbols.size() == alleleSymbols.size() ){
@@ -2640,6 +2650,7 @@ public class DataTableController {
 					j.put("reviewed", "yes");
 					j.put("falsepositive", "no");
 					j.put("symbol", alleleSymbol);
+					j.put("consortium_paper", consortium_paper);
 				}
 				else {
 					// displays only the matched ones
@@ -2647,6 +2658,7 @@ public class DataTableController {
 					j.put("falsepositive", "no");
 					j.put("symbol", StringUtils.join(matchedAlleleSymbols, ","));
 					j.put("someAllelesNotFound", StringUtils.join(nonMatchedAlleleSymbols, ","));
+					j.put("consortium_paper", consortium_paper);
 				}
 			}
 		}
@@ -2670,6 +2682,7 @@ public class DataTableController {
 				info.put("symbol", resultSet.getString("symbol"));
 				info.put("reviewed", resultSet.getString("reviewed"));
 				info.put("falsepositive", resultSet.getString("falsepositive"));
+				info.put("consortium_paper", resultSet.getString("consortium_paper"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2682,7 +2695,7 @@ public class DataTableController {
 			Connection conn, String updateSql,
 			String alleleAccsStr, String geneAccsStr,
 			String alleleSymbol, String falsepositive, Integer dbid,
-			String meshTerms) throws SQLException {
+			String meshTerms, String meshTree, String consortium_paper) throws SQLException {
 		//System.out.println(updateSql + " 1: " + alleleAccsStr + " 2: " + geneAccsStr + " 3: " + alleleSymbol + " 6: "  + falsepositive + " 7: " + meshTerms  + " 8: " +  dbid);
 		//String updateSql = "UPDATE allele_ref SET 1. acc=?, 2. gacc=?, 3. symbol=?, 4. reviewed=?, 5. datasource=?, 6. falsepositive=?, 7. mesh=? WHERE 8. dbid=?";
 
@@ -2695,7 +2708,9 @@ public class DataTableController {
 		stmt.setString(5, "manual");
 		stmt.setString(6, falsepositive);
 		stmt.setString(7, meshTerms);
-		stmt.setInt(8, dbid);
+		stmt.setString(8, meshTree);
+		stmt.setString(9, consortium_paper);
+		stmt.setInt(10, dbid);
 
 		stmt.executeUpdate();
 	}
@@ -2758,9 +2773,9 @@ public class DataTableController {
 		String searchKw = jParams.getString("kw");
 		Boolean rowFormat = jParams.getBoolean("rowFormat");
 		String orderByStr = jParams.getString("orderBy");
+		Boolean consortium = jParams.containsKey("consortium") ? jParams.getBoolean("consortium") : false;
 
-		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr);
-		//System.out.println("content: " + content);
+		String content = fetch_allele_ref2(iDisplayLength, iDisplayStart, searchKw, rowFormat, orderByStr, consortium);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 
 	}
@@ -2780,9 +2795,9 @@ public class DataTableController {
 					+ "OR symbol like ? "
 					+ "OR pmid like ? "
 					+ "OR date_of_publication like ? "
-					+ "OR grant_id like ? "
-					+ "OR agency like ?)";
-			//  + " OR acronym like ?";
+//					+ "OR grant_id like ? "
+//					+ "OR agency like ? "
+			  		+ "OR title like ?)";
 		} else {
 			query = "SELECT count(*) AS count FROM allele_ref WHERE falsepositive='no'";
 		}
@@ -2791,7 +2806,7 @@ public class DataTableController {
 		try (PreparedStatement p1 = conn.prepareStatement(query)) {
 
 			if (sSearch != "") {
-				for (int i = 1; i < 7; i++) {
+				for (int i = 1; i < 6; i++) {
 					p1.setString(i, like);
 				}
 			}
@@ -2818,17 +2833,20 @@ public class DataTableController {
 					+ "symbol AS symbol,"
 					+ "pmid,"
 					+ "date_of_publication,"
-					+ "grant_id AS grant_id,"
-					+ "agency AS agency,"
-					+ "acronym AS acronym,"
-					+ "paper_url "
+//					+ "grant_id AS grant_id,"
+//					+ "agency AS agency,"
+//					+ "acronym AS acronym,"
+					+ "title,"
+					+ "paper_url, "
+					+ "consortium_paper "
 					+ "FROM allele_ref "
 					+ "WHERE falsepositive='no' "
 					+ "AND (symbol LIKE ? "
 					+ "OR pmid LIKE ? "
 					+ "OR date_of_publication LIKE ? "
-					+ "OR grant_id LIKE ? "
-					+ "OR agency LIKE ? ) "
+					+ "OR title LIKE ? ) "
+//					+ "OR grant_id LIKE ? "
+//					+ "OR agency LIKE ? ) "
 					+ "ORDER BY reviewed DESC "
 					+ "LIMIT ?, ?";
 		} else {
@@ -2838,9 +2856,11 @@ public class DataTableController {
 					+ "symbol AS symbol,"
 					+ "pmid,"
 					+ "date_of_publication,"
-					+ "grant_id AS grant_id,"
-					+ "agency AS agency,"
-					+ "paper_url "
+//					+ "grant_id AS grant_id,"
+//					+ "agency AS agency,"
+					+ "title,"
+					+ "paper_url, "
+					+ "consortium_paper "
 					+ "FROM allele_ref "
 					+ "WHERE falsepositive='no' "
 					+ "ORDER BY reviewed DESC limit ?,?";
@@ -2853,11 +2873,11 @@ public class DataTableController {
 
 		try (PreparedStatement p2 = conn.prepareStatement(query2)) {
 			if (sSearch != "") {
-				for (int i = 1; i < 8; i ++) {
+				for (int i = 1; i < 7; i ++) {
 					p2.setString(i, like);
-					if (i == 6) {
+					if (i == 5) {
 						p2.setInt(i, iDisplayStart);
-					} else if (i == 7) {
+					} else if (i == 6) {
 						p2.setInt(i, iDisplayLength);
 					}
 				}
@@ -2881,11 +2901,13 @@ public class DataTableController {
 
 				if (editMode){
 					String falsePositive = "<input type='checkbox' name='falsepositive'>False positive<br>";
-					String reviewed = resultSet.getString("reviewed").equals("yes") ? "<input type='checkbox' checked name='reviewed'>Reviewed<br><br>" : "<input type='checkbox' name='reviewed'>Reviewed<br><br>";
+					String reviewed = resultSet.getString("reviewed").equals("yes") ? "<input type='checkbox' checked name='reviewed'>Reviewed<br>" : "<input type='checkbox' name='reviewed'>Reviewed<br>";
+					String consortiumPaper = resultSet.getString("consortium_paper").equals("yes") ? "<input type='checkbox' checked name='consortium_paper'>Consortium paper<br><br>" : "<input type='checkbox' name='consortium_paper'>Consortium paper<br><br>";
 
 					alleleSymbol = "<form class='alleleSub'>"
 							+ falsePositive
 							+ reviewed
+							+ consortiumPaper
 							+ "<textarea name='asymbolForm'>" + alleleSymbol + "</textarea><br><br>"
 							+ "<input class='update' type='button' value='Update'>"
 							+ "<a><i class='fa fa-question-circle fa-1x howto'></i></a>"
@@ -2898,17 +2920,17 @@ public class DataTableController {
 				String pmid = "<span class='pmid' id=" + dbidStr + ">" + resultSet.getInt("pmid") + "</span>";
 				rowData.add(pmid);
 
-				String[] grantIds = resultSet.getString("grant_id").split(delimeter);
-				String[] grantAgencies = resultSet.getString("agency").split(delimeter);
-				Set<String> gIdsAgencies = new HashSet<>();
-
-				for( int i=0; i<grantIds.length; i++ ) {
-					if (!grantIds[i].equals("")){
-						gIdsAgencies.add(grantIds[i] + " (" + grantAgencies[i] + ")");
-					}
-				}
-				rowData.add(gIdsAgencies.size()>0 ? StringUtils.join(gIdsAgencies, ", ") : "No information available");
-
+//				String[] grantIds = resultSet.getString("grant_id").split(delimeter);
+//				String[] grantAgencies = resultSet.getString("agency").split(delimeter);
+//				Set<String> gIdsAgencies = new HashSet<>();
+//
+//				for( int i=0; i<grantIds.length; i++ ) {
+//					if (!grantIds[i].equals("")){
+//						gIdsAgencies.add(grantIds[i] + " (" + grantAgencies[i] + ")");
+//					}
+//				}
+//				rowData.add(gIdsAgencies.size()>0 ? StringUtils.join(gIdsAgencies, ", ") : "No information available");
+				rowData.add(resultSet.getString("title"));
 
 				String[] urls = resultSet.getString("paper_url").split(delimeter);
 				List<String> links = new ArrayList<>();
@@ -2939,9 +2961,9 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr) throws SQLException, UnsupportedEncodingException {
-		final int DISPLAY_THRESHOLD = 4;
-		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr);
+	public String fetch_allele_ref2(int iDisplayLength, int iDisplayStart, String sSearch, Boolean rowFormat, String orderByStr, Boolean consortium) throws SQLException, UnsupportedEncodingException {
+		final int DISPLAY_THRESHOLD = 5;
+		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, orderByStr, consortium);
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
@@ -2951,65 +2973,46 @@ public class DataTableController {
 		for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
 
 			List<String> rowData = new ArrayList<>();
-			Map<String,String> alleleSymbolinks = new LinkedHashMap<String,String>();
-			List<String> alLinks = new ArrayList<>();
+			List<String> alleleSymbolinks = new ArrayList<>();
+
+			int totalAlleleCount = 0;
 
 			if (reference.getAlleleAccessionIds() != null) {
 
-				// show max of 50 alleles for a paper
-				int alleleAccessionIdCount = reference.getAlleleAccessionIds().size() > 50 ? 50 : reference.getAlleleAccessionIds().size();
+				totalAlleleCount = reference.getAlleleAccessionIds().size();
+				// show max of 10 alleles for a paper
+				int showCount = totalAlleleCount > DISPLAY_THRESHOLD ? DISPLAY_THRESHOLD : totalAlleleCount;
 
-				for (int i = 0; i < alleleAccessionIdCount; i++) {
+				for (int i = 0; i < totalAlleleCount; i++) {
 					String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
 
-					if (symbol.equals("N/A")){
+					if (symbol.equals("N/A")) {
 						continue;
 					}
 
-					String alleleLink;
-					//String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 					String cssClass = "class='" + (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
 
 					if (reference.getImpcGeneLinks() != null && reference.getImpcGeneLinks().size() != 0) {
 
+						String alleleLink = null;
 						if (i < reference.getImpcGeneLinks().size()) {
-							alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
+							alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></span>";
 						} else {
 							if (i > 0) {
-								alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></div>";
+								alleleLink = "<span " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(0) + "'>" + symbol + "</a></span>";
 							} else {
-								alleleLink = alleleLink = "<div " + cssClass + ">" + symbol + "</div>";
+								alleleLink = "<span " + cssClass + ">" + symbol + "</span>";
 							}
 						}
 
-						alleleSymbolinks.put(symbol, alleleLink);
+						alleleSymbolinks.add(alleleLink);
 					}
 					else {
 						// some allele id does not associate with a gene id in database yet
-						alleleSymbolinks.put(symbol, symbol);
+						alleleSymbolinks.add("<span " + cssClass + ">" + symbol + "</span>");
 					}
-				}
-
-				if (alleleSymbolinks.size() > 5) {
-					int num = alleleSymbolinks.size();
-					int totalNum = reference.getAlleleAccessionIds().size();
-					if (totalNum > num) {
-						alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show " + num + " of " + totalNum + " alleles...</div>");
-					} else {
-						alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
-					}
-				}
-
-				Iterator it = alleleSymbolinks.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry pair = (Map.Entry) it.next();
-					alLinks.add(pair.getValue().toString());
-					it.remove(); // avoids a ConcurrentModificationException
 				}
 			}
-//			else {
-//				alLinks.add("Not available");
-//			}
 
 			int pmid = reference.getPmid();
 			List<String> paperLinks = new ArrayList<>();
@@ -3076,8 +3079,12 @@ public class DataTableController {
 			rowData.add("<p class='author'>" + reference.getAuthor() + "</p>");
 			rowData.add("<p><i>" + reference.getJournal() + "</i>, " + reference.getDateOfPublication() + "</p>");
 			rowData.add("<p>PMID: " + Integer.toString(reference.getPmid()) + "</p>");
-			if ( alLinks.size() > 0) {
-				rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alLinks, ", ") + "</div>");
+
+			if (alleleSymbolinks.size() > 0){
+				if (totalAlleleCount > DISPLAY_THRESHOLD) {
+					alleleSymbolinks.add("<div class='alleleToggle' rel=" + alleleSymbolinks.size() + ">Show all " + alleleSymbolinks.size() + " alleles</div>");
+				}
+				rowData.add("<div class='alleles'>IMPC allele: " + StringUtils.join(alleleSymbolinks, "&nbsp;&nbsp;&nbsp;&nbsp;") + "</div>");
 			}
 
 			List<String> agencyList = new ArrayList();
@@ -3097,9 +3104,15 @@ public class DataTableController {
 			if (agencyList.size() >0) {
 				rowData.add("<p>Grant agency: " + StringUtils.join(agencyList, ", ") + "</p>");
 			}
+
+
 			// hidden in datatable: mesh terms
-			String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
-			rowData.add("<p class='meshTerms'>" + meshTerms + "</p>");
+			if (! (reference.getMeshTerms().size() == 1 && reference.getMeshTerms().get(0).isEmpty())) {
+				String meshTerms = StringUtils.join(reference.getMeshTerms(), ", ");
+				rowData.add("<div class='meshTree'>Show mesh terms</div><div class='meshTerms'>" + meshTerms + "</div>");
+				//rowData.add("<span class='meshTree'>Show mesh tree</span><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div>");
+				//rowData.add("<div class='meshTree'>Show mesh tree</div><div class='meshTerms'>" + reference.getMeshJsonStr() + "</div><div class='meshTreeDiv'></div>");
+			}
 
 			if (rowFormat){
 				// single column
@@ -3112,12 +3125,13 @@ public class DataTableController {
 
 		}
 
+//		System.out.println(j.toString());
 		return j.toString();
 	}
 
 	public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException, UnsupportedEncodingException {
 		final int DISPLAY_THRESHOLD = 4;
-		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
+		List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, false);
 
 		JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);

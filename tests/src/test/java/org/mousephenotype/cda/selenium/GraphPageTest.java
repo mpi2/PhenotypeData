@@ -206,16 +206,10 @@ public class GraphPageTest {
         for (GraphTestDTO geneGraph : geneGraphs) {
             RunStatus status = new RunStatus();
 
-
-
-//geneGraph.setMgiAccessionId("MGI:1921527");
-//geneGraph.setMgiAccessionId("MGI:1927073");
-
-
-
-
-
             genePageTarget = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
+
+//genePageTarget = baseUrl + "/genes/MGI:2652819";
+
             message = "";
 
             try {

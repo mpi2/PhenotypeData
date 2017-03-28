@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,14 +76,49 @@ public class ToolsPageController {
 		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("impcTools.json").getFile()));
 		if (in != null) {
 			String json = in.lines().collect(Collectors.joining(" "));
-			JSONArray tools = new JSONArray(json);
+			JSONArray tools = null;
+			try {
+				tools = new JSONArray(json);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 			for (int i = 0; i < tools.length(); i++) {
-				JSONObject jsonObj = tools.getJSONObject(i);
-				String urlPath = jsonObj.getString("urlPath");
-				String toolName = jsonObj.getString("toolName");
-				String imagePath = jsonObj.getString("imagePath");
-				String description = jsonObj.getString("description");
-				String site = jsonObj.getString("site");
+				JSONObject jsonObj = null;
+				try {
+					jsonObj = tools.getJSONObject(i);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				String urlPath = null;
+				try {
+					urlPath = jsonObj.getString("urlPath");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				String toolName = null;
+				try {
+					toolName = jsonObj.getString("toolName");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				String imagePath = null;
+				try {
+					imagePath = jsonObj.getString("imagePath");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				String description = null;
+				try {
+					description = jsonObj.getString("description");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				String site = null;
+				try {
+					site = jsonObj.getString("site");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 
 				String trs = "";
 
