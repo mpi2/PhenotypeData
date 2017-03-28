@@ -17,7 +17,6 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.EmapaOntologyDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.owl.OntologyParser;
@@ -58,22 +57,13 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	@Qualifier("pipelineCore")
 	SolrClient pipelineCore;
 
-	@Autowired
-	@Qualifier("ontodbDataSource")
-	DataSource ontodbDataSource;
-
-	@Autowired
-	EmapaOntologyDAO emapaService;
-
 	private Map<String, ParameterDTO> paramIdToParameter;
 	private Map<String, ProcedureDTO> procedureIdToProcedure;
 	private Map<String, PipelineDTO> pipelines;
 	private Map<String, ObservationType> parameterToObservationTypeMap;
-	private Map<String, EmapaOntologyDAO.Emapa> emap2EmapaMap;
-
+	private Map<String, String> emapToEmapa;
 	private OntologyParser mpParser;
-
-	private static Connection ontoDbConnection;
+	private OntologyParser emapaParser;
 
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
@@ -98,14 +88,13 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			throws IndexerException, SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
 
 		mpParser = getMpParser();
+		emapaParser = getEmapaParser();
+		emapToEmapa = getEmapToEmapaMap();
 		parameterToObservationTypeMap = getObservationTypeMap(runStatus);
 		paramIdToParameter = populateParamIdToParameterMap(runStatus);
 		addUnits();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
 		pipelines = populatePipelineList();
-		emap2EmapaMap = emapaService.populateEmap2EmapaMap();
-
-        ontoDbConnection = ontodbDataSource.getConnection();
 		addAbnormalMaOntology();
 		addAbnormalEmapOntology();
 	}
@@ -238,17 +227,16 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 						if (doc.getProcedureId() == null){
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
+
 						if(param.getEmapId()!=null){
+
 							String emapId = param.getEmapId();
 							doc.setEmapId(emapId);
 
-							if ( emap2EmapaMap.get(emapId) != null) {
-								doc.setAnatomyId(emap2EmapaMap.get(emapId).getEmapaId());
-								if (param.getEmapName() != null) {
-									String emapName = param.getEmapName();
-									doc.setEmapTerm(emapName);
-									doc.setAnatomyTerm(emap2EmapaMap.get(emapId).getEmapaTerm());
-								}
+							if ( emapToEmapa.containsKey(emapId)) {
+								OntologyTermDTO emapaTerm = emapaParser.getOntologyTerm(emapToEmapa.get(emapId));
+								doc.setAnatomyId(emapaTerm.getAccessionId());
+								doc.setAnatomyTerm(emapaTerm.getName());
 							}
 							else {
 								logger.debug(" EMAP Id {} is not mapped to an EMAPA Id", emapId);

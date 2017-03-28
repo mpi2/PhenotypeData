@@ -542,7 +542,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
     // EMAP to EMAPA mapping obtained by CK. Richard Baldock confirmed this is not maintained any more so we maintain it in our repo. Can add terms as needed.
     // Another way would be to use UBERON and get the EMAP and EMAPA cross refs from there.
-    private Map<String,String> getEmapToEmapaMap()
+    protected Map<String,String> getEmapToEmapaMap()
             throws IOException {
 
 
