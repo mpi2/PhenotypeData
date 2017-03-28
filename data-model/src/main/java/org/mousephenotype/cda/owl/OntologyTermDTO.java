@@ -2,9 +2,7 @@ package org.mousephenotype.cda.owl;
 
 import org.semanticweb.owlapi.model.OWLClass;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by ilinca on 10/08/2016.
@@ -30,10 +28,15 @@ public class OntologyTermDTO {
     Set<String>         topLevelIds;
     Set<String>         topLevelSynonyms;
     Set<String>         topLevelMpTermIds; // concatenated for search/ autosuggest/ something CK does
-    String               replacementAccessionId;
-    String               definition;
-    boolean              isObsolete;
-    OWLClass             cls;
+    String              replacementAccessionId;
+    String              definition;
+    boolean             isObsolete;
+    OWLClass            cls;
+    Map<Integer, List<Integer>> pathsToRoot; // <nodeId, <nodeids>>
+
+    public Set<Integer> getNodeIds(){
+        return pathsToRoot == null ? null : pathsToRoot.keySet();
+    }
 
     public Set<OntologyTermDTO> getEquivalentClasses() {
         return equivalentClasses;
@@ -69,6 +72,21 @@ public class OntologyTermDTO {
 
     public void setIntermediateSynonyms(Set<String> intermediateSynonyms) {
         this.intermediateSynonyms = intermediateSynonyms;
+    }
+
+    public Map<Integer, List<Integer>> getPathsToRoot() {
+        return pathsToRoot;
+    }
+
+    public void setPathsToRoot(Map<Integer, List<Integer>> pathsToRoot) {
+        this.pathsToRoot = pathsToRoot;
+    }
+
+    public void addPathsToRoot(Integer nodeId, List<Integer> pathToRoot) {
+        if (this.pathsToRoot == null){
+            this.pathsToRoot = new HashMap<>();
+        }
+        this.pathsToRoot.put(nodeId, pathToRoot);
     }
 
     public Set<String> getTopLevelMpTermIds() {
