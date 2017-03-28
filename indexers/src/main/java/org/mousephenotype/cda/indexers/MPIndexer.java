@@ -21,13 +21,11 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.json.JSONObject;
 import org.mousephenotype.cda.indexers.beans.MPStrainBean;
 import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
 import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
@@ -146,11 +144,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         initializeDatabaseConnections();
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
-        OntologyBrowserGetter browser = new OntologyBrowserGetter();
 
         try {
             mpParser = getMpParser();
-            mpParser.fillJsonTreePath("MP:0000001"); // call this if you want node ids from the objects
+
             System.out.println("Loaded mp parser");
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
             System.out.println("Loaded mp hp parser");
@@ -228,12 +225,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
 
-                List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount, TOP_LEVEL_MP_TERMS);
-                mp.setSearchTermJson(searchTree.toString());
-                String scrollNodeId = browser.getScrollTo(searchTree);
-                mp.setScrollNode(scrollNodeId);
-                List<JSONObject> childrenTree = browser.getChildrenJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
-                mp.setChildrenJson(childrenTree.toString());
+                mp.setSearchTermJson(mpDTO.getSeachJson());
+                mp.setScrollNode(mpDTO.getScrollToNode());
+                mp.setChildrenJson(mpDTO.getChildrenJson());
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
@@ -244,6 +238,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 if (documentCount % 100 == 0){
                     System.out.println("Added " + documentCount);
                 }
+
+                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotype/", mpGeneVariantCount, TOP_LEVEL_MP_TERMS ); // call this if you want node ids from the objects
             }
 
             // Send a final commit
@@ -666,7 +662,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.addTopLevelMpId(mpDTO.getTopLevelIds());
             mp.addTopLevelMpTerm(mpDTO.getTopLevelNames());
             mp.addTopLevelMpTermSynonym(mpDTO.getTopLevelSynonyms());
-            mp.addTopLevelMpTermId(mpDTO.getTopLevelMpTermIds());
+            mp.addTopLevelMpTermId(mpDTO.getTopLevelTermIdsConcatenated());
             mp.addTopLevelMpTermInclusive(mpDTO.getTopLevelNames());
             mp.addTopLevelMpIdInclusive(mpDTO.getTopLevelIds());
 
