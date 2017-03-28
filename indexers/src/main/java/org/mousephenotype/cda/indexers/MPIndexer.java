@@ -181,6 +181,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
         Set<String> wantedIds = getWantedSlimIds();
+        System.out.println("Got wanted ids: " + wantedIds.size());
+
 
         try {
             OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
