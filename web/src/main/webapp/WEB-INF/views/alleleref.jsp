@@ -147,9 +147,13 @@
                         // need to load highcharts after a tab is activated to ensure the width of charts
                         // will stay inside the parent container
                         if ( ui.newTab.index() == 1){
+                            $('div#agencyBox').show();
                             var chartWeek = "chartWeek";
                             var chartMonth = "chartMonth";
                             $.fn.fetchAllelePaperDataPointsIncrement(chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
+                        }
+                        else {
+                            $('div#agencyBox').hide();  // container for agency funded papers
                         }
                     }
                 });
@@ -208,9 +212,10 @@
 
                                     </div>
                                 </div>
-                                <div id="agencyName"></div>
-                                <div id="agency"></div>
-
+                                <div id='agencyBox'>
+                                    <div id="agencyName"></div>
+                                    <div id="agency"></div>
+                                </div>
 
                             </div>
                         </div>
