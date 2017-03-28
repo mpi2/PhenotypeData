@@ -40,10 +40,11 @@ public class OntologyBrowserGetter {
 		if (term.getChildIds() != null){
 			for (String childId : term.getChildIds()){
 				OntologyTermDTO child = parser.getOntologyTerm(childId);
-				List<Integer> nodeIds = new ArrayList<>();
-				nodeIds.add(child.getNodeIds().iterator().next()); // For children it doesn't matter which node id we use.
-				children.add(getJson(nodeIds, baseUrl, parser, "", new HashMap<>(), mpGeneVariantCount));
-
+				if (child.getNodeIds() != null) { // terms higher than our "root" will be null, for example MA_0003000, because the root is MA_
+					List<Integer> nodeIds = new ArrayList<>();
+					nodeIds.add(child.getNodeIds().iterator().next()); // For children it doesn't matter which node id we use.
+					children.add(getJson(nodeIds, baseUrl, parser, "", new HashMap<>(), mpGeneVariantCount));
+				}
 			}
 		}
 		System.out.println();

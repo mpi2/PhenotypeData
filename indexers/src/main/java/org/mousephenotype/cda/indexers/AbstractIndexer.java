@@ -426,7 +426,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     // These aprsers are used by several indexers so it makes sense to initialize them in one place, so that they don't get out of synch.
     public OntologyParser getMpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return  new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, getWantedMPIds());
-
     }
 
     public OntologyParser getMpMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
