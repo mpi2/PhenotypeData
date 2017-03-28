@@ -72,22 +72,22 @@
 							
 							</tr>
 							</thead>
-								<c:forEach var="histRow" items="${histopathRows}">
+								<c:forEach var="pathRow" items="${pathRows}">
 								
 								<tr>
-									<td id="${histRow.sampleId}_${histRow.anatomyName}">
-										${histRow.anatomyName}
+									<td id="${pathRow.sampleId}_${pathRow.anatomyName}">
+										${pathRow.anatomyName}
 									</td>
 									<td>
-										${histRow.sampleId}
+										${pathRow.sampleId}
 									</td>
 									<c:choose>
-									<c:when test="${fn:length(histRow.subOntologyBeans) == 0}">
+									<c:when test="${fn:length(pathRow.subOntologyBeans) == 0}">
 										<td>
 										</td>
 									</c:when>
 									<c:otherwise>
-									<c:forEach var="parameter" items="${histRow.subOntologyBeans }">
+									<c:forEach var="parameter" items="${pathRow.subOntologyBeans }">
 										<td >
 											<%-- subOntologyParam: ${parameter.key} gives anatomy term which should match the anatomy in the row --%>
 											
@@ -103,7 +103,7 @@
 									
 									<td>
 										
-										${histRow.textValue}
+										${pathRow.textValue}
 										
 									</td>
 									
@@ -167,7 +167,7 @@
       <script> 
         $(document).ready(function() {
     $('#histopath').DataTable(
-    		{"paging":   false, "searching": false, "order": [[ 2, "asc" ]]});
+    		{"paging":   false, "searching": false, "order": [[ 0, "asc" ]]});
 } );
         </script> 
     </jsp:body>
