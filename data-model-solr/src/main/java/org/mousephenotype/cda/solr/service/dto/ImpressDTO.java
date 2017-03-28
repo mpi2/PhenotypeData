@@ -17,10 +17,7 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class ImpressDTO {
 
@@ -74,10 +71,8 @@ public class ImpressDTO {
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
 	public static final String INFERRED_MA_ID = MpDTO.INFERRED_MA_ID;
-	public static final String INFERRED_MA_TERM_SYNONYM = MpDTO.INFERRED_MA_TERM_SYNONYM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM;
-	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
 
 	public static final String EMAP_ID = "emap_id";
 	public static final String EMAP_TERM = "emap_term";
@@ -214,17 +209,11 @@ public class ImpressDTO {
 	@Field(INFERRED_MA_ID)
 	private List<String> inferredMaId;
 
-	@Field(INFERRED_MA_TERM_SYNONYM)
-	private List<String> inferredMaTermSynonym;
-
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> selectedTopLevelMaId;
 
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_TERM)
 	private List<String> inferredSelectedTopLevelMaTerm;
-
-	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
-	private List<String> inferredSelectedToLevelMaTermSynonym;
 
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> inferredSelectedTopLevelMaId;
@@ -560,18 +549,6 @@ public class ImpressDTO {
 		this.inferredMaId = inferredMaId;
 	}
 
-	public List<String> getInferredMaTermSynonym() {
-
-		return inferredMaTermSynonym;
-	}
-
-
-	public void setInferredMaTermSynonym(List<String> inferredMaTermSynonym) {
-
-		this.inferredMaTermSynonym = inferredMaTermSynonym;
-	}
-
-
 	public List<String> getSelectedTopLevelMaId() {
 
 		return selectedTopLevelMaId;
@@ -595,17 +572,6 @@ public class ImpressDTO {
 		this.inferredSelectedTopLevelMaTerm = inferredSelectedTopLevelMaTerm;
 	}
 
-
-	public List<String> getInferredSelectedToLevelMaTermSynonym() {
-
-		return inferredSelectedToLevelMaTermSynonym;
-	}
-
-
-	public void setInferredSelectedToLevelMaTermSynonym(List<String> inferredSelectedToLevelMaTermSynonym) {
-
-		this.inferredSelectedToLevelMaTermSynonym = inferredSelectedToLevelMaTermSynonym;
-	}
 
 	public String getIdidid() {
 
@@ -713,7 +679,7 @@ public class ImpressDTO {
 		this.mpTermSynonym = new ArrayList<>(new HashSet<>(this.mpTermSynonym));
 	}
 
-	public void addTopLevelMpId(List<String> topLevelMpTermId) {
+	public void addTopLevelMpId(Collection<String> topLevelMpTermId) {
 		if (this.topLevelMpId == null) {
 			this.topLevelMpId = new ArrayList<>();
 		}
@@ -722,7 +688,7 @@ public class ImpressDTO {
 	}
 
 
-	public void addTopLevelMpTerm(List<String> topLevelMpTerm) {
+	public void addTopLevelMpTerm(Collection<String> topLevelMpTerm) {
 		if (this.topLevelMpTerm == null) {
 			this.topLevelMpTerm = new ArrayList<>();
 		}
@@ -740,7 +706,7 @@ public class ImpressDTO {
 	}
 
 
-	public void addIntermediateMpId(List<String> intermediateMpId) {
+	public void addIntermediateMpId(Collection<String> intermediateMpId) {
 		if (this.intermediateMpId == null) {
 			this.intermediateMpId = new ArrayList<>();
 		}
@@ -749,7 +715,7 @@ public class ImpressDTO {
 	}
 
 
-	public void addIntermediateMpTerm(List<String> intermediateMpTerm) {
+	public void addIntermediateMpTerm(Collection<String> intermediateMpTerm) {
 		if (this.intermediateMpTerm == null) {
 			this.intermediateMpTerm = new ArrayList<>();
 		}
@@ -785,16 +751,6 @@ public class ImpressDTO {
 			this.inferredSelectedTopLevelMaTerm = new ArrayList<>();
 		}
 		this.inferredSelectedTopLevelMaTerm.addAll(inferredSelectedTopLevelMaTerm);
-
-	}
-
-
-	public void addInferredSelectedToLevelMaTermSynonym(List<String> inferredSelectedTopLevelMaTermSynonym) {
-
-		if (this.inferredSelectedToLevelMaTermSynonym== null) {
-			this.inferredSelectedToLevelMaTermSynonym = new ArrayList<>();
-		}
-		this.inferredSelectedToLevelMaTermSynonym.addAll(inferredSelectedTopLevelMaTermSynonym);
 
 	}
 
@@ -1051,13 +1007,9 @@ public class ImpressDTO {
 		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(that.intermediateMpTermSynonym) : that.intermediateMpTermSynonym != null)
 			return false;
 		if (inferredMaId != null ? !inferredMaId.equals(that.inferredMaId) : that.inferredMaId != null) return false;
-		if (inferredMaTermSynonym != null ? !inferredMaTermSynonym.equals(that.inferredMaTermSynonym) : that.inferredMaTermSynonym != null)
-			return false;
 		if (selectedTopLevelMaId != null ? !selectedTopLevelMaId.equals(that.selectedTopLevelMaId) : that.selectedTopLevelMaId != null)
 			return false;
 		if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(that.inferredSelectedTopLevelMaTerm) : that.inferredSelectedTopLevelMaTerm != null)
-			return false;
-		if (inferredSelectedToLevelMaTermSynonym != null ? !inferredSelectedToLevelMaTermSynonym.equals(that.inferredSelectedToLevelMaTermSynonym) : that.inferredSelectedToLevelMaTermSynonym != null)
 			return false;
 		if (inferredSelectedTopLevelMaId != null ? !inferredSelectedTopLevelMaId.equals(that.inferredSelectedTopLevelMaId) : that.inferredSelectedTopLevelMaId != null)
 			return false;
@@ -1113,10 +1065,8 @@ public class ImpressDTO {
 		result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
 		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
-		result = 31 * result + (inferredMaTermSynonym != null ? inferredMaTermSynonym.hashCode() : 0);
 		result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
 		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
-		result = 31 * result + (inferredSelectedToLevelMaTermSynonym != null ? inferredSelectedToLevelMaTermSynonym.hashCode() : 0);
 		result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
 		result = 31 * result + (maId != null ? maId.hashCode() : 0);
 		result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
@@ -1165,10 +1115,8 @@ public class ImpressDTO {
 				", intermediateMpTerm=" + intermediateMpTerm +
 				", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
 				", inferredMaId=" + inferredMaId +
-				", inferredMaTermSynonym=" + inferredMaTermSynonym +
 				", selectedTopLevelMaId=" + selectedTopLevelMaId +
 				", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm +
-				", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym +
 				", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId +
 				", maId='" + maId + '\'' +
 				", maTerm='" + maTerm + '\'' +

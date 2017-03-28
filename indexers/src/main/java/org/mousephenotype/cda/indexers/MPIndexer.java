@@ -15,19 +15,19 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.*;
+import org.json.JSONObject;
+import org.mousephenotype.cda.indexers.beans.MPStrainBean;
+import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
+import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
-import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
@@ -46,13 +46,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -72,18 +70,16 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 	private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
     private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
 
-	@Autowired
-	@Qualifier("phenodigmCore")
-	private SolrClient phenodigmCore;
-
     @Autowired
     @Qualifier("alleleCore")
     private SolrClient alleleCore;
 
+    // TODO replace with service (imported below)
     @Autowired
     @Qualifier("preqcCore")
     private SolrClient preqcCore;
 
+    // TODO replace with service (imported below)
     @Autowired
     @Qualifier("genotypePhenotypeCore")
     private SolrClient genotypePhenotypeCore;
@@ -92,23 +88,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
-    @Autowired
-    @Qualifier("ontodbDataSource")
-    DataSource ontodbDataSource;
-
-    @NotNull
-    @Value("${owlpath}")
-    protected String owlpath;
-
     /**
      * Destination Solr core
      */
     @Autowired
     @Qualifier("mpCore")
     private SolrClient mpCore;
-
-    @Autowired
-    MpOntologyDAO mpOntologyService;
 
     @Autowired
     @Qualifier("postqcService")
@@ -119,43 +104,25 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     PreQcService preqcService;
 
     private static Connection komp2DbConnection;
-    private static Connection ontoDbConnection;
 
-    // Maps of supporting database content
-    Map<String, List<Integer>> termNodeIds;
-
-    Map<String, List<String>> goIds;
-
-    // MA Term mappings
-    Map<String, List<MPTermNodeBean>> maTermNodes;
-    Map<String, List<String>> maTopLevelNodes;
-    Map<String, List<MPTermNodeBean>> maChildLevelNodes;
-    Map<String, List<String>> maTermSynonyms;
-
-    // Alleles
     Map<String, List<AlleleDTO>> alleles;
 
     // Phenotype call summaries (1)
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
     Map<String, List<String>> impcBeans;
     Map<String, List<String>> legacyBeans;
-
     // Phenotype call summaries (2)
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
     Map<String, List<MPStrainBean>> strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
 
-    Map<Integer, String> lookupTableByNodeId = new HashMap<>(); // <nodeId, mpOntologyId>
-
     Map<String, Long> mpCalls = new HashMap<>();
     Map<String, Integer> mpGeneVariantCount = new HashMap<>();
 
-    private static final Set<String> TOP_LEVEL_MP_TERMS = new HashSet<>(Arrays.asList("MP:0010768", "MP:0002873", "MP:0001186", "MP:0003631",
-            "MP:0003012", "MP:0005367",  "MP:0005369", "MP:0005370", "MP:0005371", "MP:0005377", "MP:0005378", "MP:0005375", "MP:0005376",
-            "MP:0005379", "MP:0005380",  "MP:0005381", "MP:0005384", "MP:0005385", "MP:0005382", "MP:0005388", "MP:0005389", "MP:0005386",
-            "MP:0005387", "MP:0005391",  "MP:0005390", "MP:0005394", "MP:0005397"));
-
     private OntologyParser mpHpParser;
+    private OntologyParser mpParser;
+    private OntologyParser mpMaParser;
+    private OntologyParser maParser;
 
     public MPIndexer() {
 
@@ -176,15 +143,22 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
-        OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
         initializeDatabaseConnections();
         System.out.println("Started supporting beans");
         initialiseSupportingBeans();
-        Set<String> wantedIds = getWantedSlimIds();
+        OntologyBrowserGetter browser = new OntologyBrowserGetter();
 
         try {
-            OntologyParser mpParser = new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, wantedIds);
+            mpParser = getMpParser();
+            mpParser.fillJsonTreePath("MP:0000001"); // call this if you want node ids from the objects
+            System.out.println("Loaded mp parser");
             mpHpParser = new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
+            System.out.println("Loaded mp hp parser");
+            mpMaParser = getMpMaParser();
+            System.out.println("Loaded mp ma parser");
+            maParser = getMaParser();
+            System.out.println("Loaded ma parser");
+
         	// maps MP to number of phenotyping calls
         	populateMpCallMaps();
 
@@ -208,10 +182,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.setAltMpIds(mpDTO.getAlternateIds());
                 }
 
-                mp.setMpNodeId(termNodeIds.get(termId));
+                mp.setMpNodeId(mpDTO.getNodeIds());
 
                 addTopLevelTerms(mp, mpDTO);
-                //TODO replace with OntologyParser
                 addIntermediateTerms(mp, mpDTO);
 
                 mp.setChildMpId(mpDTO.getChildIds());
@@ -247,25 +220,20 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
 
                 mp.setMpTermSynonym(mpDTO.getSynonyms());
-                mp.setGoId(goIds.get(termId));
-                addMaRelationships(mp, termId);
-                addPhenotype1(mp, runStatus);
+
+                getMaTermsForMp(mp);
 
                 // this sets the number of postqc/preqc phenotyping calls of this MP
+                addPhenotype1(mp, runStatus);
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
 
-                // Ontology browser stuff
-                TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId);
-
-                // for MP the root node id is 0 (MA is 1)
-                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, termId, mpGeneVariantCount);
+                List<JSONObject> searchTree = browser.createTreeJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount, TOP_LEVEL_MP_TERMS);
                 mp.setSearchTermJson(searchTree.toString());
-                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
+                String scrollNodeId = browser.getScrollTo(searchTree);
                 mp.setScrollNode(scrollNodeId);
-                //TODO add child json back, from OntologyParser
-//                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId, mpGeneVariantCount);
-//                mp.setChildrenJson(childrenTree.toString());
+                List<JSONObject> childrenTree = browser.getChildrenJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
+                mp.setChildrenJson(childrenTree.toString());
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
@@ -281,34 +249,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Send a final commit
             mpCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
+        } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
             throw new IndexerException(e);
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
-    }
-
-
-    private Set<String> getWantedSlimIds() throws SQLException {
-
-        // Select MP terms from images too
-        Set<String> wantedIds = new HashSet<>();
-
-        // Get mp terms from Sanger images
-        PreparedStatement statement = komp2DbConnection.prepareStatement("SELECT DISTINCT (UPPER(TERM_ID)) AS TERM_ID, (UPPER(TERM_NAME)) as TERM_NAME FROM  IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID");
-        ResultSet res = statement.executeQuery();
-        while (res.next()) {
-            String r = res.getString("TERM_ID");
-            if (r.startsWith("MP:")) {
-                wantedIds.add(r);
-            }
-        }
-
-        //All MP terms we can have annotations to (from IMPRESS)
-        wantedIds.addAll(getOntologyIds(5, komp2DataSource));
-
-        return wantedIds;
     }
 
 
@@ -362,9 +308,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return kv;
     }
 
+    private boolean isInSlim(String term, OntologyParser parser){
+        return parser.getTermsInSlim().contains(term);
+    }
 
     private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {
-        // Won't work with mp from slim file!!
 
         TreeSet<String> synonyms = new TreeSet<String>();
         long calls = sumPhenotypingCalls(mpFromFullOntology.getAccessionId());
@@ -373,14 +321,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (calls > 0 && mpFromFullOntology.getChildIds() != null && mpFromFullOntology.getChildIds().size() > 0){
 
             for (String childId : mpFromFullOntology.getChildIds()){
-                if (!termNodeIds.containsKey(childId)) {// not in slim
+                if (!isInSlim(childId, mpParser)) {// not in slim
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
                         synonyms.addAll(mpHpParser.getNarrowSynonyms(child, levels));
                         synonyms.add(child.getName());
                         synonyms.addAll(child.getSynonyms());
                     }
-                } else if (termNodeIds.containsKey(childId) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
+                } else if (isInSlim(childId, mpParser) && sumPhenotypingCalls(childId) == 0) { //in slim but no calls
                     OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
                     if (child != null) {
                         synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels, synonyms));
@@ -397,13 +345,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private TreeSet<String> getNarrowSynonymsOutsideSlim(OntologyTermDTO mpFromFullOntology,  int levels, TreeSet<String> synonyms){
 
         if (mpFromFullOntology != null &&  levels > 0) {
-            if (!termNodeIds.containsKey(mpFromFullOntology.getAccessionId())) { // not in slim
+            if (!isInSlim(mpFromFullOntology.getAccessionId(), mpParser)) { // not in slim
                 synonyms.addAll(mpHpParser.getNarrowSynonyms(mpFromFullOntology, levels - 1));
                 synonyms.add(mpFromFullOntology.getName());
                 synonyms.addAll(mpFromFullOntology.getSynonyms());
             } else if (mpFromFullOntology.getChildIds() != null){
                 for (String childId : mpFromFullOntology.getChildIds()) {
-                    if (!termNodeIds.containsKey(childId) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
+                    if (!isInSlim(childId, mpParser) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
                         getNarrowSynonymsOutsideSlim(mpHpParser.getOntologyTerm(childId), levels - 1, synonyms);
                     }
                 }
@@ -491,7 +439,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try {
             komp2DbConnection = komp2DataSource.getConnection();
-            ontoDbConnection = ontodbDataSource.getConnection();
         } catch (SQLException e) {
             throw new IndexerException(e);
         }
@@ -503,16 +450,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     throws IndexerException {
 
         try {
-            // Grab all the supporting database content
-            termNodeIds = getNodeIds();
-            goIds = getGOIds();
-
-            // MA Term mappings
-            maTermNodes = getMATermNodes();
-            maTopLevelNodes = getMaTopLevelNodes();
-            maChildLevelNodes = getMAChildLevelNodes();
-            maTermSynonyms = getMATermSynonyms();
-
             // Alleles
             alleles = IndexerMap.getGeneToAlleles(alleleCore);
 
@@ -530,175 +467,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-
-    private Map<String, List<Integer>> getNodeIds()
-    throws SQLException {
-
-        Map<String, List<Integer>> beans = new HashMap<>();
-        String q = "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            int nId = rs.getInt("node_id");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<Integer>());
-            }
-            beans.get(tId).add(nId);
-            count ++;
-            lookupTableByNodeId.put(nId, tId);
-        }
-        logger.debug(" Added {} node Ids", count);
-
-        return beans;
-    }
-
-    private Map<String, List<MPTermNodeBean>> getMATermNodes()
-    throws SQLException {
-
-        Map<String, List<MPTermNodeBean>> beans = new HashMap<>();
-
-        String q = "select mp.term_id, ti.term_id as ma_term_id, ti.name as ma_term_name from mp_mappings mp inner join ma_term_infos ti on mp.mapped_term_id=ti.term_id and mp.ontology='MA'";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            String maTermId = rs.getString("ma_term_id");
-            String maTermName = rs.getString("ma_term_name");
-            MPTermNodeBean bean = new MPTermNodeBean();
-            bean.setTermId(maTermId);
-            bean.setName(maTermName);
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<MPTermNodeBean>());
-            }
-            beans.get(tId).add(bean);
-            count ++;
-        }
-        logger.debug(" Added {} MA term nodes", count);
-
-        return beans;
-    }
-
-    public Map<String, List<String>> getMaTopLevelNodes()
-    throws SQLException {
-
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            String name = rs.getString("name");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(name);
-            count ++;
-        }
-        logger.debug(" Added {} inferred selected MA term nodes", count);
-
-        return beans;
-    }
-
-    private Map<String, List<MPTermNodeBean>> getMAChildLevelNodes()
-    throws SQLException {
-
-        Map<String, List<MPTermNodeBean>> beans = new HashMap<>();
-
-        String q = "select ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term from ma_term_infos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("parent_ma_id");
-            String maTermId = rs.getString("child_ma_id");
-            String maTermName = rs.getString("child_ma_term");
-            MPTermNodeBean bean = new MPTermNodeBean();
-            bean.setTermId(maTermId);
-            bean.setName(maTermName);
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<MPTermNodeBean>());
-            }
-            beans.get(tId).add(bean);
-            count ++;
-        }
-        logger.debug(" Added {} MA child term nodes", count);
-
-        return beans;
-    }
-
-    private Map<String, List<String>> getMATermSynonyms()
-    throws SQLException {
-
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select term_id, syn_name from ma_synonyms";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            String syn = rs.getString("syn_name");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(syn);
-            count ++;
-        }
-        logger.debug(" Added {} MA term synonyms", count);
-
-        return beans;
-    }
-
-    private Map<String, List<String>> getOntologySubsets()
-    throws SQLException {
-
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select term_id, subset from mp_term_subsets";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            String subset = rs.getString("subset");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(subset);
-            count ++;
-        }
-        logger.debug(" Added {} subsets", count);
-
-        return beans;
-    }
-
-    private Map<String, List<String>> getGOIds()
-    throws SQLException {
-
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select distinct x.xref_id, ti.term_id from mp_dbxrefs x inner join mp_term_infos ti on x.term_id=ti.term_id and x.xref_id like 'GO:%'";
-        PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("term_id");
-            String xrefId = rs.getString("xref_id");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(xrefId);
-            count ++;
-        }
-        logger.debug(" Added {} xrefs", count);
-
-        return beans;
-    }
 
     private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1()
     throws SQLException {
@@ -905,57 +673,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
         else {
             // add self as top level
-            mp.addTopLevelMpTermInclusive(mpDTO.getAccessionId() + mpDTO.getName());
+            mp.addTopLevelMpTermInclusive(mpDTO.getName());
             mp.addTopLevelMpIdInclusive(mpDTO.getAccessionId());
         }
 
     }
 
-    private void addMaRelationships(MpDTO mp, String termId) {
-        if (maTermNodes.containsKey(termId)) {
-            List<String> maInferredIds = new ArrayList<>();
-            List<String> maInferredTerms = new ArrayList<>();
-            Set<String> maInferredSynonyms = new HashSet<>();
-            List<String> maTopLevelTermIds = new ArrayList<>();
-            List<String> maTopLevelTerms = new ArrayList<>();
-            Set<String> maTopLevelSynonyms = new HashSet<>();
-
-            for (MPTermNodeBean maNode : maTermNodes.get(termId)) {
-                String maNodeTermId = maNode.getTermId();
-                maInferredIds.add(maNodeTermId);
-                maInferredTerms.add(maNode.getName());
-
-                // Look up the synonyms
-                maInferredSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
-
-                // Look up the top level mappings
-                if (maTopLevelNodes.containsKey(maNodeTermId)) {
-                    for (String maTopLevelNodeTerm : maTopLevelNodes.get(maNodeTermId)) {
-                        maTopLevelTermIds.add(maNodeTermId);
-                        maTopLevelTerms.add(maTopLevelNodeTerm);
-                    }
-                    maTopLevelSynonyms.addAll(lookupMaSynonyms(maNodeTermId));
-                }
-            }
-
-            mp.setInferredMaTermId(maInferredIds);
-            mp.setInferredMaTerm(maInferredTerms);
-            mp.setInferredMaTermSynonym(new ArrayList<>(maInferredSynonyms));
-            mp.setInferredSelectedTopLevelMaId(maTopLevelTermIds);
-            mp.setInferredSelectedTopLevelMaTerm(maTopLevelTerms);
-            mp.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(maTopLevelSynonyms));
-        }
-    }
-
-    private Set<String> lookupMaSynonyms(String maTermId) {
-        Set<String> synonyms = new HashSet<>();
-
-        if (maTermSynonyms.containsKey(maTermId)) {
-            synonyms.addAll(maTermSynonyms.get(maTermId));
-        }
-
-        return synonyms;
-    }
 
     private void addPhenotype1(MpDTO mp, RunStatus runStatus) {
         if (phenotypes1.containsKey(mp.getMpId())) {
@@ -1013,7 +736,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 if (allele.getDiseaseId() != null) {
                     mp.getDiseaseId().addAll(allele.getDiseaseId());
-                    mp.setDiseaseId(new ArrayList<>(new HashSet<>(mp.getDiseaseId())));
+                    mp.setDiseaseId(new ArrayList<String>(new HashSet<>(mp.getDiseaseId())));
                 }
                 if (allele.getDiseaseTerm() != null) {
                     mp.getDiseaseTerm().addAll(allele.getDiseaseTerm());
@@ -1187,6 +910,29 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.getPipelineStableKey().add(pppBean.getPipelineStableKey());
             }
         }
+    }
+
+
+    protected void getMaTermsForMp(MpDTO mp) {
+
+        // get MA ids referenced from MP
+        Set<String> maTerms = mpMaParser.getReferencedClasses(mp.getMpId(), viaProperties, "MA");
+        for (String maId : maTerms) {
+            // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
+            OntologyTermDTO ma = maParser.getOntologyTerm(maId);
+            if (ma != null) {
+                mp.addInferredMaId(ma.getAccessionId());
+                mp.addInferredMaTerm(ma.getName());
+                if (ma.getTopLevelIds() != null) {
+                    mp.addInferredSelectedTopLevelMaId(ma.getTopLevelIds());
+                    mp.addInferredSelectedTopLevelMaTerm(ma.getTopLevelNames());
+                }
+                //TODO intermediate terms - can't do this before merge to master as fields were not in schema
+            } else {
+                System.out.println("Term not found in MA : " + maId);
+            }
+        }
+
     }
 
     // PROTECTED METHODS

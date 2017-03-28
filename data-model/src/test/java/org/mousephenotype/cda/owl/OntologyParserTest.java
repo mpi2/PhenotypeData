@@ -10,11 +10,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.utilities.UrlUtils;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -251,9 +255,10 @@ public class OntologyParserTest {
         ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
         Set<String> wantedIds = new HashSet<>();
         wantedIds.add("MP:0008901");
+        wantedIds.add("MP:0005395"); // "other phenotype" -  obsolete and should not be in the sim
         Set<String> termsInSlim = ontologyParser.getTermsInSlim(wantedIds, null);
         Assert.assertTrue(termsInSlim.size() == 7);
-
+        Assert.assertTrue(!termsInSlim.contains("MP:0005395"));
     }
 
     @Test
@@ -313,6 +318,38 @@ public class OntologyParserTest {
         Assert.assertTrue(term.getTopLevelIds() == null || term.getTopLevelIds().size() == 0);
     }
 
+    @Test
+    public void testMpMaMapping() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+
+        Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>();
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")));
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000070")));
+        viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of")));
+
+        OntologyParser mpMaParser = new OntologyParser(Paths.get(owlpath)+ "/mp-ext-merged.owl", null, null, null);
+        // Should have only MA_0000009 = adipose tissue; MP:0000003 = abnormal adipose tissue morphology
+        Set<String> ma = mpMaParser.getReferencedClasses("MP:0000003", viaProperties, "MA");
+        Assert.assertTrue(ma.size() == 1);
+        Assert.assertTrue(ma.contains("MA:0000009"));
+
+    }
+
+
+    @Test
+    public void testNodePath() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+
+        ontologyParser = new OntologyParser(downloads.get("mp").target, downloads.get("mp").name, null, null);
+        ontologyParser.fillJsonTreePath("MP:0000001");
+        OntologyTermDTO mp = ontologyParser.getOntologyTerm("MP:0000003");
+        Assert.assertTrue(mp.getPathsToRoot().size() == 1); // only 1 way possible
+        Integer nodeId = mp.getPathsToRoot().keySet().iterator().next();
+        Assert.assertTrue(mp.getPathsToRoot().get(nodeId).size() == 3); // 3 nodes on the path to root
+
+        // test multiple paths to root
+        mp = ontologyParser.getOntologyTerm("MP:0001926");
+        Assert.assertTrue(mp.getPathsToRoot().size() == 2);
+
+    }
 
 
 }
