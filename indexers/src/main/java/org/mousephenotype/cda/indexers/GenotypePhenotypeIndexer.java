@@ -373,7 +373,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     protected void getMaTermsForMp(GenotypePhenotypeDTO dto, String mpId, Boolean direct) {
 
         // get MA ids referenced from MP
-        Set<String> maTerms = mpMaParser.getReferencedClasses(mpId, viaProperties, "MA");
+        Set<String> maTerms = mpMaParser.getReferencedClasses(mpId, VIA_PROPERTIES, "MA");
         for (String maId : maTerms) {
             // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
             OntologyTermDTO ma = maParser.getOntologyTerm(maId);

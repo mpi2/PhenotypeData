@@ -220,8 +220,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         anatomyDTO.setAnatomyNodeId(termDTO.getNodeIds());
 
-        System.out.println("----- " + termDTO.getAccessionId() + "  " + termDTO.getChildIds() + " " + termDTO.getPathsToRoot());
-
         List<JSONObject> searchTree = browser.createTreeJson(termDTO, "/data/anatomy/", parser, null, topLevelsForTree);
         anatomyDTO.setSearchTermJson(searchTree.toString());
         String scrollNodeId = browser.getScrollTo(searchTree);

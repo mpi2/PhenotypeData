@@ -626,6 +626,20 @@ public class StatisticalResultDTO {
 		this.mpTermIdOptions = mpTermIdOptions;
 	}
 
+    public void addMpTermIdOptions(Collection<String> mpTermIdOptions) {
+        if (this.mpTermIdOptions == null) {
+            this.mpTermIdOptions = new ArrayList<>();
+        }
+        this.mpTermIdOptions.addAll(mpTermIdOptions);
+    }
+
+    public void addMpTermIdOptions(String mpTermIdOption) {
+        if (this.mpTermIdOptions == null) {
+            this.mpTermIdOptions = new ArrayList<>();
+        }
+        this.mpTermIdOptions.add(mpTermIdOption);
+    }
+
 	public List<String> getMpTermNameOptions() {
 		return mpTermNameOptions;
 	}
@@ -633,6 +647,20 @@ public class StatisticalResultDTO {
 	public void setMpTermNameOptions(List<String> mpTermNameOptions) {
 		this.mpTermNameOptions = mpTermNameOptions;
 	}
+
+    public void addMpTermNameOptions(Collection<String> mpTermNameOptions) {
+        if (this.mpTermNameOptions == null) {
+            this.mpTermNameOptions = new ArrayList<>();
+        }
+        this.mpTermNameOptions.addAll(mpTermNameOptions);
+    }
+
+    public void addMpTermNameOptions(String mpTermNameOptions) {
+        if (this.mpTermNameOptions == null) {
+            this.mpTermNameOptions = new ArrayList<>();
+        }
+        this.mpTermNameOptions.add(mpTermNameOptions);
+    }
 
 	public String getMpTermId() {
 
@@ -669,6 +697,19 @@ public class StatisticalResultDTO {
         this.topLevelMpTermId = topLevelMpTermId;
     }
 
+    public void addTopLevelMpTermId(Collection<String> topLevelMpTermId) {
+        if (this.topLevelMpTermId ==  null){
+            this.topLevelMpTermId = new ArrayList<>();
+        }
+        this.topLevelMpTermId.addAll(topLevelMpTermId);
+    }
+
+    public void addTopLevelMpTermId(String topLevelMpTermId) {
+        if (this.topLevelMpTermId ==  null){
+            this.topLevelMpTermId = new ArrayList<>();
+        }
+        this.topLevelMpTermId.add(topLevelMpTermId);
+    }
 
     public List<String> getTopLevelMpTermName() {
 
@@ -679,6 +720,21 @@ public class StatisticalResultDTO {
 
         this.topLevelMpTermName = topLevelMpTermName;
     }
+
+    public void addTopLevelMpTermName(String topLevelMpTermName) {
+        if (this.topLevelMpTermName ==  null){
+            this.topLevelMpTermName = new ArrayList<>();
+        }
+        this.topLevelMpTermName.add(topLevelMpTermName);
+    }
+
+    public void addTopLevelMpTermName(Collection<String> topLevelMpTermName) {
+        if (this.topLevelMpTermName ==  null){
+            this.topLevelMpTermName = new ArrayList<>();
+        }
+        this.topLevelMpTermName.addAll(topLevelMpTermName);
+    }
+
 
     public String getLifeStageAcc() {
 
@@ -711,6 +767,14 @@ public class StatisticalResultDTO {
         this.intermediateMpTermId = intermediateMpTermId;
     }
 
+    public void addIntermediateMpTermId(Collection<String> intermediateMpTermId) {
+        if ( intermediateMpTermId != null) {
+            if (this.intermediateMpTermId == null) {
+                this.intermediateMpTermId = new ArrayList<>();
+            }
+            this.intermediateMpTermId.addAll(intermediateMpTermId);
+        }
+    }
 
     public List<String> getIntermediateMpTermName() {
 
@@ -723,6 +787,14 @@ public class StatisticalResultDTO {
         this.intermediateMpTermName = intermediateMpTermName;
     }
 
+    public void addIntermediateMpTermName(Collection<String> intermediateMpTermName) {
+        if ( intermediateMpTermName != null) {
+            if (this.intermediateMpTermName == null) {
+                this.intermediateMpTermName = new ArrayList<>();
+            }
+            this.intermediateMpTermName.addAll(intermediateMpTermName);
+        }
+    }
 
     public String getMaleMpTermId() {
 
@@ -734,6 +806,8 @@ public class StatisticalResultDTO {
 
         this.maleMpTermId = maleMpTermId;
     }
+
+
 
 
     public String getMaleMpTermName() {
@@ -759,6 +833,15 @@ public class StatisticalResultDTO {
         this.maleTopLevelMpTermId = maleTopLevelMpTermId;
     }
 
+    public void addMaleTopLevelMpTermId(Collection<String> maleTopLevelMpTermId) {
+        if (maleTopLevelMpTermId != null) {
+            if (this.maleTopLevelMpTermId == null){
+                this.maleTopLevelMpTermId = new ArrayList<>();
+            }
+            this.maleTopLevelMpTermId.addAll(maleTopLevelMpTermId);
+        }
+    }
+
 
     public List<String> getMaleTopLevelMpTermName() {
 
@@ -770,6 +853,16 @@ public class StatisticalResultDTO {
 
         this.maleTopLevelMpTermName = maleTopLevelMpTermName;
     }
+
+    public void addMaleTopLevelMpTermName(Collection<String> maleTopLevelMpTermName) {
+        if (maleTopLevelMpTermName != null) {
+            if (this.maleTopLevelMpTermName == null){
+                this.maleTopLevelMpTermName = new ArrayList<>();
+            }
+            this.maleTopLevelMpTermName.addAll(maleTopLevelMpTermName);
+        }
+    }
+
 
 
     public List<String> getMaleIntermediateMpTermId() {
@@ -783,6 +876,14 @@ public class StatisticalResultDTO {
         this.maleIntermediateMpTermId = maleIntermediateMpTermId;
     }
 
+    public void addMaleIntermediateMpTermId(Collection<String> maleIntermediateMpTermId) {
+        if (maleIntermediateMpTermId != null) {
+            if (this.maleIntermediateMpTermId == null){
+                this.maleIntermediateMpTermId = new ArrayList<>();
+            }
+            this.maleIntermediateMpTermId.addAll(maleIntermediateMpTermId);
+        }
+    }
 
     public List<String> getMaleIntermediateMpTermName() {
 
@@ -795,6 +896,15 @@ public class StatisticalResultDTO {
         this.maleIntermediateMpTermName = maleIntermediateMpTermName;
     }
 
+    public void addMaleIntermediateMpTermName(Collection<String> maleIntermediateMpTermName) {
+
+        if (maleIntermediateMpTermName != null) {
+            if (this.maleIntermediateMpTermName == null){
+                this.maleIntermediateMpTermName = new ArrayList<>();
+            }
+            this.maleIntermediateMpTermName.addAll(maleIntermediateMpTermName);
+        }
+    }
 
     public String getFemaleMpTermId() {
 
@@ -826,9 +936,14 @@ public class StatisticalResultDTO {
     }
 
 
-    public void setFemaleTopLevelMpTermId(List<String> femaleTopLevelMpTermId) {
+    public void addFemaleTopLevelMpTermId(Collection<String> femaleTopLevelMpTermId) {
 
-        this.femaleTopLevelMpTermId = femaleTopLevelMpTermId;
+        if (femaleTopLevelMpTermId != null) {
+            if (this.femaleTopLevelMpTermId == null) {
+                this.femaleTopLevelMpTermId = new ArrayList<>();
+            }
+            this.femaleTopLevelMpTermId.addAll(femaleTopLevelMpTermId);
+        }
     }
 
 
@@ -843,6 +958,15 @@ public class StatisticalResultDTO {
         this.femaleTopLevelMpTermName = femaleTopLevelMpTermName;
     }
 
+    public void addFemaleTopLevelMpTermName(Collection<String> femaleTopLevelMpTermName) {
+
+        if (femaleTopLevelMpTermName != null) {
+            if (this.femaleTopLevelMpTermName == null) {
+                this.femaleTopLevelMpTermName = new ArrayList<>();
+            }
+            this.femaleTopLevelMpTermName.addAll(femaleTopLevelMpTermName);
+        }
+    }
 
     public List<String> getFemaleIntermediateMpTermId() {
 
@@ -855,6 +979,15 @@ public class StatisticalResultDTO {
         this.femaleIntermediateMpTermId = femaleIntermediateMpTermId;
     }
 
+    public void addFemaleIntermediateMpTermId(Collection<String> femaleIntermediateMpTermId) {
+
+        if (femaleIntermediateMpTermId != null) {
+            if (this.femaleIntermediateMpTermId == null){
+                this.femaleIntermediateMpTermId = new ArrayList<>();
+            }
+            this.femaleIntermediateMpTermId.addAll(femaleIntermediateMpTermId);
+        }
+    }
 
     public List<String> getFemaleIntermediateMpTermName() {
 
@@ -865,6 +998,16 @@ public class StatisticalResultDTO {
     public void setFemaleIntermediateMpTermName(List<String> femaleIntermediateMpTermName) {
 
         this.femaleIntermediateMpTermName = femaleIntermediateMpTermName;
+    }
+
+    public void addFemaleIntermediateMpTermName(Collection<String> femaleIntermediateMpTermName) {
+
+        if (femaleIntermediateMpTermName != null) {
+            if (this.femaleIntermediateMpTermName == null){
+                this.femaleIntermediateMpTermName = new ArrayList<>();
+            }
+            this.femaleIntermediateMpTermName.addAll(femaleIntermediateMpTermName);
+        }
     }
 
 
