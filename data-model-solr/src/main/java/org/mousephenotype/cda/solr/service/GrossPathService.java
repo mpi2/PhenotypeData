@@ -210,4 +210,16 @@ public class GrossPathService {
 			
 	}
 
+	public List<ObservationDTO> getAbnormalObservations(List<ObservationDTO> allObservations) {
+		List<ObservationDTO> abnormalObservations=new ArrayList<>();
+		for(ObservationDTO obs: allObservations){
+			if(obs.getSubTermId()!=null && !obs.getSubTermId().isEmpty()){
+				if(!obs.getSubTermId().get(0).equals("MP:0002169")){
+					abnormalObservations.add(obs);
+				}
+			}
+		}
+		return abnormalObservations;
+	}
+
 }
