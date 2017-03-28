@@ -6,8 +6,10 @@ import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @EnableAutoConfiguration
 public class OntologyBrowserGetter {
@@ -89,7 +91,8 @@ public class OntologyBrowserGetter {
 				if (topLevelsUsed.containsKey(topLevel.getAccessionId())) {
 					termsToDisplay.add(topLevelsUsed.get(topLevel.getAccessionId()));
 				} else {
-					List<Integer> tlNodeId = topLevel.getNodeIds().stream().collect(Collectors.toList());
+					List<Integer> tlNodeId = new ArrayList<>();
+					tlNodeId.add(topLevel.getNodeIds().iterator().next());
 					termsToDisplay.add(getJson(tlNodeId, baseUrl, parser, "", nodes, mpGeneVariantCount));
 				}
 			}
