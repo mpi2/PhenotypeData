@@ -301,7 +301,7 @@ public class Loader implements CommandLineRunner {
 //            List<JSONObject> childrenTree = browser.getChildrenJson(mpDTO, "/data/phenotype/", mpParser, mpGeneVariantCount);
 //            mp.setChildrenJson(childrenTree.toString());
 
-
+            mpRepository.save(ph);
             mpCount++;
 
             if (mpCount % 1000 == 0) {
