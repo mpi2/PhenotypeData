@@ -28,7 +28,6 @@ public class GrossPathService {
 
 	private String delimeter = " - ";
 
-	private Map<String, SolrDocument> downloadToImgMap;
 
 	public GrossPathService(ObservationService observationService, ImageService imageService) {
 		super();
@@ -39,10 +38,128 @@ public class GrossPathService {
 	public GrossPathService() {
 
 	}
+	
+	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations) throws SolrServerException, IOException {
+		List<GrossPathPageTableRow> rows = new ArrayList<>();
+		
+		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
+
+		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
+		Set<String> anatomyNames = this.getAnatomyNamesFromObservations(abnormaObservations);//only look at abnormal anatomies now as summary view
+
+		Map<String, List<ObservationDTO>> sampleToObservations = this.getSampleToObservationMap(allObservations);
+		Map<String, List<SolrDocument>> sampleToImages = this.getSampleToImagesMap(images);
+		
+		
+		for (String sampleId : sampleToObservations.keySet()) {
+			TreeSet<String> abnormalAnatomyMapPerSampleId = new TreeSet<>();
+			ArrayList<String> textValuesForSampleId = new ArrayList<String>();
+
+			for (String anatomyName : anatomyNames) {
+				
+				GrossPathPageTableRow row = new GrossPathPageTableRow();
+				row.setAnatomyName(anatomyName);
+				row.setSampleId(sampleId);
+				
+				Set<String> parameterNames = new TreeSet<>();
+
+				for (ObservationDTO obs : sampleToObservations.get(sampleId)) {
+					// a row is a unique sampleId and anatomy combination
+					if (this.getAnatomyStringFromObservation(obs) != null
+							&& this.getAnatomyStringFromObservation(obs).equals(anatomyName)) {
+						row.setZygosity(obs.getZygosity().substring(0, 3).toUpperCase());
+
+						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
+								obs.getParameterName());
+						parameterNames.add(obs.getParameterName());
+						
+						if (obs.getObservationType().equalsIgnoreCase("ontological")) {
+
+							if (obs.getSubTermName() != null) {
+								for (int i = 0; i < obs.getSubTermId().size(); i++) {
+									if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
+									
+									abnormalAnatomyMapPerSampleId.add(anatomyName);
+									}
+									if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
+									OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
+											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
+									row.addOntologicalParam(parameter, subOntologyBean);
+									}
+								}
+							}else{
+								System.out.println("subterms are null for ontological data="+obs);
+							}
+						}
+						
+						
+
+					} else {
+						// should be image here
+						
+						
+					}
+					if (obs.getObservationType().equalsIgnoreCase("text")) {
+						//System.out.println("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
+						textValuesForSampleId.add(obs.getTextValue());
+					}
+
+					
+				}
+
+				if (parameterNames.size() != 0) {
+					row.setParameterNames(parameterNames);
+					rows.add(row);
+				}
+				
+				
+				
+
+			}
+			if (!abnormalAnatomyMapPerSampleId.isEmpty()) {// only bother
+															// checking if we
+															// have abnormal
+															// phenotypes for
+															// this sampleId
+				for (GrossPathPageTableRow row : rows) {
+					if (row.getSampleId().equals(sampleId)) {// filter by sample
+																// id as well
+						// System.out.println("checking rows with
+						// size="+rows.size()+" abnormal phenotypes with
+						// size="+abnormalAnatomyMapPerSampleId.size());
+						if (abnormalAnatomyMapPerSampleId.contains(row.getAnatomyName())) {
+							for (String text : textValuesForSampleId) {
+								// System.out.println("Text="+text);
+								String[] words = text.split(" ");
+								for (String word : words) {
+									// System.out.println("word="+word);
+									for (String anatomyWord : row.getAnatomyName().split(" ")) {
+										if (anatomyWord.equalsIgnoreCase(word)) {
+											// System.out.println("Text matches
+											// row!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+											row.setTextValue(text);
+											
+										}
+									}
+								}
+							}
+							
+							if(sampleToImages.containsKey(sampleId)){
+								row.addImages(sampleToImages.get(sampleId));
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return rows;
+
+	}
 
 	public List<GrossPathPageTableRow> getTableData(List<ObservationDTO> allObservations, List<SolrDocument> images) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
-		downloadToImgMap = new HashMap<String, SolrDocument>();
+		
 		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
 
 		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
@@ -182,7 +299,7 @@ public class GrossPathService {
 				sampleToImagesMap.put((String)image.get(ObservationDTO.EXTERNAL_SAMPLE_ID), tmpImageList);
 			}
 		}
-		System.out.println("sampleToImagesMap size="+sampleToImagesMap.size());
+//		System.out.println("sampleToImagesMap size="+sampleToImagesMap.size());
 		return sampleToImagesMap;
 	}
 
