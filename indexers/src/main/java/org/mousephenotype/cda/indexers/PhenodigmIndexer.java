@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -55,6 +56,9 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
     @Autowired
     @Qualifier("phenodigmCore")
     private SolrClient phenodigmCore;
+
+    @Autowired
+    OntologyParserFactory ontologyParserFactory;
 
     @Autowired
     @Qualifier("phenodigmDataSource")
@@ -99,7 +103,7 @@ public class PhenodigmIndexer extends AbstractIndexer implements CommandLineRunn
 
         try {
 
-            mpParser = getMpParser();
+            mpParser = ontologyParserFactory.getMpParser();
 
             diseasePhenotypeMap = getDiseasePhenotypeMap();
             logger.info("Populated disease phenotype map");

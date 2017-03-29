@@ -21,6 +21,7 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.owl.OntologyParser;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -111,6 +112,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private OntologyParser maParser;
 	private OntologyParser mpParser;
 	private OntologyParser emapaParser;
+	OntologyParserFactory ontologyParserFactory;
 
 	public ImpcImagesIndexer() {
 		super();
@@ -133,9 +135,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		long start = System.currentTimeMillis();
 
 		try {
-			mpParser = getMpParser();
-			maParser = getMaParser();
-			emapaParser = getEmapaParser();
+			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+			mpParser = ontologyParserFactory.getMpParser();
+			maParser = ontologyParserFactory.getMaParser();
+			emapaParser = ontologyParserFactory.getEmapaParser();
 		} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
 			e.printStackTrace();
 		}
@@ -157,7 +160,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 		try {
 			logger.info("  Started emap mapping...");
-			emap2EmapaMap = getEmapToEmapaMap();
+			emap2EmapaMap = ontologyParserFactory.getEmapToEmapaMap();
 			logger.info("  Done {} EMAP to EMAPA mappings", emap2EmapaMap.size());
 			parameterStableIdToEmapaTermIdMap = this.populateParameterStableIdToEmapaIdMap();
 		} catch (SQLException e) {
