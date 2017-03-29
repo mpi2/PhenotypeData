@@ -337,10 +337,10 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				if (stableIdToTermIdMap.containsKey(paramString)) {
 					String thisTermId = stableIdToTermIdMap.get(paramString);
 					if (thisTermId.startsWith("MA:")) {
-						imageDTO = addAnatomyValues(maParser.getOntologyTerm(thisTermId), imageDTO, runStatus);
+						imageDTO = addAnatomyValues(maParser.getOntologyTerm(thisTermId), imageDTO);
 					}
 					if (thisTermId.startsWith("EMAPA:")) {
-						imageDTO = addAnatomyValues(emapaParser.getOntologyTerm(thisTermId), imageDTO, runStatus);
+						imageDTO = addAnatomyValues(emapaParser.getOntologyTerm(thisTermId), imageDTO);
 					}
 					if (thisTermId.startsWith("MP:")) {
 						imageDTO = addMpValues(mpParser.getOntologyTerm(thisTermId), imageDTO, thisTermId, runStatus);
