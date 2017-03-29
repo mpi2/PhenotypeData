@@ -553,7 +553,7 @@
 
                                                 $("div#"+id + " div.saveTable").html(toolBox);
 
-                                                $("div#"+id + " div.saveTable").on('click', 'a.gridDump', function(){
+                                                $('a.gridDump').on('click', function(){
 
                                                     oConf.id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
                                                     oConf.consortium = false;
