@@ -627,17 +627,21 @@ public class StatisticalResultDTO {
 	}
 
     public void addMpTermIdOptions(Collection<String> mpTermIdOptions) {
-        if (this.mpTermIdOptions == null) {
-            this.mpTermIdOptions = new ArrayList<>();
+        if (mpTermIdOptions != null) {
+            if (this.mpTermIdOptions == null) {
+                this.mpTermIdOptions = new ArrayList<>();
+            }
+            this.mpTermIdOptions.addAll(mpTermIdOptions);
         }
-        this.mpTermIdOptions.addAll(mpTermIdOptions);
     }
 
     public void addMpTermIdOptions(String mpTermIdOption) {
-        if (this.mpTermIdOptions == null) {
-            this.mpTermIdOptions = new ArrayList<>();
+        if (mpTermIdOption != null) {
+            if (this.mpTermIdOptions == null) {
+                this.mpTermIdOptions = new ArrayList<>();
+            }
+            this.mpTermIdOptions.add(mpTermIdOption);
         }
-        this.mpTermIdOptions.add(mpTermIdOption);
     }
 
 	public List<String> getMpTermNameOptions() {
@@ -649,17 +653,21 @@ public class StatisticalResultDTO {
 	}
 
     public void addMpTermNameOptions(Collection<String> mpTermNameOptions) {
-        if (this.mpTermNameOptions == null) {
-            this.mpTermNameOptions = new ArrayList<>();
+        if (mpTermNameOptions != null) {
+            if (this.mpTermNameOptions == null) {
+                this.mpTermNameOptions = new ArrayList<>();
+            }
+            this.mpTermNameOptions.addAll(mpTermNameOptions);
         }
-        this.mpTermNameOptions.addAll(mpTermNameOptions);
     }
 
     public void addMpTermNameOptions(String mpTermNameOptions) {
-        if (this.mpTermNameOptions == null) {
-            this.mpTermNameOptions = new ArrayList<>();
+        if (mpTermNameOptions != null) {
+            if (this.mpTermNameOptions == null) {
+                this.mpTermNameOptions = new ArrayList<>();
+            }
+            this.mpTermNameOptions.add(mpTermNameOptions);
         }
-        this.mpTermNameOptions.add(mpTermNameOptions);
     }
 
 	public String getMpTermId() {
@@ -698,10 +706,12 @@ public class StatisticalResultDTO {
     }
 
     public void addTopLevelMpTermId(Collection<String> topLevelMpTermId) {
-        if (this.topLevelMpTermId ==  null){
-            this.topLevelMpTermId = new ArrayList<>();
+        if (topLevelMpTermId!= null){
+            if (this.topLevelMpTermId == null) {
+                this.topLevelMpTermId = new ArrayList<>();
+            }
+            this.topLevelMpTermId.addAll(topLevelMpTermId);
         }
-        this.topLevelMpTermId.addAll(topLevelMpTermId);
     }
 
     public List<String> getTopLevelMpTermName() {
@@ -715,10 +725,12 @@ public class StatisticalResultDTO {
     }
 
     public void addTopLevelMpTermName(Collection<String> topLevelMpTermName) {
-        if (this.topLevelMpTermName ==  null){
-            this.topLevelMpTermName = new ArrayList<>();
+        if (topLevelMpTermName != null) {
+            if (this.topLevelMpTermName == null) {
+                this.topLevelMpTermName = new ArrayList<>();
+            }
+            this.topLevelMpTermName.addAll(topLevelMpTermName);
         }
-        this.topLevelMpTermName.addAll(topLevelMpTermName);
     }
 
 

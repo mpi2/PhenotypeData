@@ -938,7 +938,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         String query = "SELECT stable_id, ontology_acc FROM phenotype_parameter p " +
                 "INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
-                "INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id " ;
+                "INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id WHERE ontology_acc like 'MP:%'" ;
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -1385,12 +1385,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
 
             // If not already set, ensure that the document has all possible top level MP terms defined
-            if (doc.getTopLevelMpTermId() == null) {
+            if (doc.getTopLevelMpTermId() == null && mpParser.getOntologyTerm(doc.getMpTermId()) != null) {
                 OntologyTermDTO term = mpParser.getOntologyTerm(doc.getMpTermId());
                 doc.addTopLevelMpTermIds(term.getTopLevelIds());
                 doc.addTopLevelMpTermNames(term.getTopLevelNames());
             }
-
 
             doc.setClassificationTag(r.getString("classification_tag"));
             doc.setAdditionalInformation(r.getString("additional_information"));
