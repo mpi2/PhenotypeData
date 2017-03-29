@@ -227,6 +227,7 @@ public class FileExportController {
 		@RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
 		@RequestParam(value = "iDisplayStart", required = true) Integer iDisplayStart,
 		@RequestParam(value = "iDisplayLength", required = true) Integer iDisplayLength,
+		@RequestParam(value = "consortium", required = false) Boolean consortium,
 		HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
 		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
@@ -238,7 +239,7 @@ public class FileExportController {
 
 		if ( dataType.equals("alleleRef") ){
 			// query is * by default
-			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode);
+			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode, consortium);
 		}
 		else {
 
@@ -392,7 +393,7 @@ public class FileExportController {
 						length, showImgView);
 				dataRows = composeGene2PfamClansDataRows(json, request);
 			} else if (doAlleleRef) {
-				dataRows = composeAlleleRefExportRows(length, rowStart, filterStr, dumpMode);
+				dataRows = composeAlleleRefExportRows(length, rowStart, filterStr, dumpMode, false);
 			} else {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -1252,11 +1253,11 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode) throws SQLException {
+	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode, Boolean consortium) throws SQLException {
 		List<String> rowData = new ArrayList<>();
 		rowData.add(referenceDAO.heading);
 
-        List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
+        List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch, consortium);
 		for (ReferenceDTO reference : references) {
 			List<String> row = new ArrayList<>();
 			row.add(StringUtils.join(reference.getAlleleSymbols(), "|")); //1
@@ -1270,6 +1271,14 @@ public class FileExportController {
 			row.add(StringUtils.join(reference.getGrantIds(), "|")); //9
 			row.add(StringUtils.join(reference.getGrantAgencies(), "|"));  //10
 			row.add(StringUtils.join(reference.getPaperUrls(), "|")); //11
+
+			if (reference.getMeshTerms() == null || reference.getMeshJsonStr().isEmpty() ){
+				row.add("not available"); //11
+			}
+			else {
+				row.add(StringUtils.join(reference.getMeshTerms(), "|")); //12
+			}
+			row.add(reference.getConsortiumPaper()); //13
 
 			rowData.add(StringUtils.join(row, "\t"));
 		}

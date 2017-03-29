@@ -512,13 +512,13 @@ public class Tools {
 		//		String htmlStrAnatomy = getCheckBoxes(anatomyAttrs, friendlyNameMap, "Anatomy");
 //		htmlStr += "<fieldset><legend>Mouse anatomy attributes</legend>" + htmlStrAnatomy + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrHumanGene = getCheckBoxes(humanGeneAttrs, friendlyHumanNameMap, "Gene");
+		String htmlStrHumanGene = getCheckBoxes(humanGeneAttrs, friendlyHumanNameMap, "HumanGeneSymbol");
 		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human gene attributes</legend>" + htmlStrHumanGene + checkAlltheseAtt+ "</fieldset>";
 
 		String htmlStrHuman = getCheckBoxes(humanAttrs, friendlyNameMap, "Hp");
 		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human phenotype attributes</legend>" + htmlStrHuman + checkAlltheseAtt+ "</fieldset>";
 
-		String htmlStrDisease = getCheckBoxes(diseaseAttrs, friendlyNameMap, "DiseaseModdelAssociation");
+		String htmlStrDisease = getCheckBoxes(diseaseAttrs, friendlyNameMap, "DiseaseModelAssociation");
 		htmlStr += "<fieldset class='human'><legend class='human'><i class='icon icon-species'>H</i>Human disease attributes</legend>" + htmlStrDisease + checkAlltheseAtt+ "</fieldset>";
 
 		String hrStr = "<hr>";
@@ -528,7 +528,7 @@ public class Tools {
 		return htmlStr + hrStr + checkAllBoxStr;
 	}
 
-	public static String getCheckBoxes(Map<String, String> map, Map<String, String> friendlyNameMap, String corename) {
+	public static String getCheckBoxes(Map<String, String> map, Map<String, String> friendlyNameMap, String label) {
 
 		String htmlStr = "";
 
@@ -542,102 +542,12 @@ public class Tools {
 			String checked = val.equals("default") ? "checked" : "";
 
 			String friendlyFieldName = friendlyNameMap.get(field) != null ? friendlyNameMap.get(field) : field.replaceAll("_", " ");
-			htmlStr += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + field+ "'" + checked + ">" + friendlyFieldName;
+			htmlStr += "<input type='checkbox' class='" + checkedClass + "' name='" + label + "' value='" + field+ "'" + checked + ">" + friendlyFieldName;
 
 			it.remove(); // avoids a ConcurrentModificationException
 		}
 
 		return htmlStr;
-	}
-
-	public static String  buildCypherQueries(String dataType, String idlist, List<String> cypherCols, JSONObject jLabelFieldsParam, Map<String, String> dataTypeCol ){
-
-
-		Set<String> labels = jLabelFieldsParam.keySet();
-		System.out.println("Labels: "+ labels);
-
-		String whereField = "lower(" + dataTypeCol.get(dataType) + ")";
-
-		List<String> cypherCols2 = new ArrayList<>();
-		for(String col : cypherCols){
-			if (!col.startsWith("g.")){
-				cypherCols2.add("collect(distinct " + col + ") as " + col.replaceAll("^\\w*\\.", ""));
-			}
-			else {
-				cypherCols2.add(col + " as " + col.replaceAll("^\\w*\\.", ""));
-			}
-		}
-		String matchWhere = null;
-		String optionalMatch = null;
-
-		// match where
-		if (dataType.equals("mouse_marker_symbol") || dataType.equals("geneId") || dataType.equals("ensembl_gene_id") || dataType.equals("geneChr")){
-			matchWhere = "MATCH (g:Gene) WHERE ";
-			optionalMatch = fetchOptionalMatch(dataType, labels);
-		}
-		else if (dataType.equals("mp")){
-			matchWhere = "MATCH (p:Phenotype) WHERE ";
-		}
-		else if (dataType.equals("disease")){
-			matchWhere = "MATCH (dma:DiseaseModelAssociation) WHERE ";
-		}
-		else if (dataType.equals("hp")){
-			matchWhere = "MATCH (hp:Hp) WHERE ";
-		}
-
-		String cols = StringUtils.join(cypherCols2, ", ");
-		System.out.println("cols: " + cols);
-
-		String qry = null;
-
-		qry = matchWhere
-				+ whereField
-				+ " IN ["
-				+ idlist + "] "
-
-		//if (dataType.equals("geneID") || dataType)
-
-				+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
-				+ "RETURN distinct "
-				+ cols;
-
-
-
-		//if (! labels.contains("DiseaseModelAssociation")){
-//			if (labels.contains("Allele") && labels.contains("Phenotype")){
-//				qry = "MATCH (g:Gene) WHERE "
-//					+ whereField
-//					+ "IN ["
-//					+ idlist + "]"
-//					+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
-//					+ "RETURN "
-//					+ cols;
-//			}
-//			else if (labels.contains("Allele")){
-//				qry = "MATCH (g:Gene) WHERE "
-//						+ whereField
-//						+ "IN ["
-//						+ idlist + "]"
-//						+ "OPTIONAL MATCH (a:Allele)-[OF_GENE]->(g:Gene) "
-//						+ "RETURN "
-//						+ cols;
-//			}
-//			else if (labels.contains("Phenotype")){
-//				qry = "MATCH (g:Gene) WHERE "
-//						+ whereField
-//						+ "IN ["
-//						+ idlist + "]"
-//						+ "OPTIONAL MATCH (g:Gene)-[HAS_PHENOTYPE]->(p:Phenotype) "
-//						+ "RETURN "
-//						+ cols;
-//			}
-		//}
-		qry += " LIMIT 10"; // for batchQuery interface, only show max of 10; complete result needs to be exported
-
-		System.out.println(qry);
-
-
-		return qry;
 	}
 
 	private static String fetchOptionalMatch(String dataType, Set<String>labels){

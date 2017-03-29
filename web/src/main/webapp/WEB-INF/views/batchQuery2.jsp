@@ -894,7 +894,7 @@
 
                             var oConf = {};
                             oConf.idlist = j.goodIdList;
-                            oConf.labelFllist = kv.labelFllist
+                            //oConf.labelFllist = kv.labelFllist
 
                             fetchBatchQueryDataTable(oConf);
                         },
@@ -919,6 +919,7 @@
                     //console.log(dbLabel + " -- " + $(this).val());
                 });
                 kv.labelFllist = JSON.stringify(labelList);
+                console.log("fields: "+ kv.labelFllist);
                 kv.fllist = fllist;
 
                 return kv;
@@ -995,7 +996,7 @@
                 // deals with duplicates and take a max of first 10 records to show the users
                 oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
                 //oConf.idlist = getUniqIdsStr(oConf.idlist);
-
+                console.log(oConf);
                 //var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
                     "bSort": false, // true is default

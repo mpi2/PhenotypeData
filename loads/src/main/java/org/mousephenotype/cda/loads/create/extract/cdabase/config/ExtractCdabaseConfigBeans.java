@@ -154,10 +154,12 @@ public class ExtractCdabaseConfigBeans {
             , new DownloadFilename(DownloadFileEnum.MRK_VEGA,               "http://www.informatics.jax.org/downloads/reports/MRK_VEGA.rpt", cdabaseWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
             , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele,         "http://www.informatics.jax.org/downloads/reports/NorCOMM_Allele.rpt", cdabaseWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
 
-          // iMits phenotyped colony report
+          // iMits phenotyped colony report (public URL - preferable to use this one)
             , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "https://i-dcc.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
+          // iMits phenotyped colony report (internal URL)
+//            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "http://ves-ebi-d6:8089/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
 
-            // OWL ontologies
+          // OWL ontologies
             , new DownloadOntologyFilename(DownloadFileEnum.eco,    "http://purl.obolibrary.org/obo/eco.owl", cdabaseWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
             , new DownloadOntologyFilename(DownloadFileEnum.efo,    "http://www.ebi.ac.uk/efo/efo.owl", cdabaseWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
             , new DownloadOntologyFilename(DownloadFileEnum.emap,   "http://purl.obolibrary.org/obo/emap.owl", cdabaseWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())

@@ -100,7 +100,7 @@
         this.grid.onClick.subscribe(function(e,args) {
           selected = self.grid.getCellFromEvent(e).row;
           self.selector.select(selected);
-          d3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;     <a href='genes/" + self.grid.getData().getItem(selected).gene.split("(")[1].replace(/\)/g, "") + "'> " + self.grid.getData().getItem(selected).gene.split("(")[0] + "</a>");
+          d3_v3.select("#geneHover").html("Genotype effect for gene: &nbsp; &nbsp;&nbsp;     <a href='" + baseUrl + "/genes/" + self.grid.getData().getItem(selected).gene.split("(")[1].replace(/\)/g, "") + "'> " + self.grid.getData().getItem(selected).gene.split("(")[0] + "</a>");
         });
       }
     },
