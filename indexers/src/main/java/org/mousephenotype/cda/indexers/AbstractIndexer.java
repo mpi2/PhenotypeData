@@ -66,7 +66,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
 
     // Properties we want to follow to get MA terms form MP
-    Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>(Arrays.asList(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")),
+    protected static final Set<OWLObjectPropertyImpl> VIA_PROPERTIES = new HashSet<>(Arrays.asList(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")),
             new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000070")),
             new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of"))));
 
@@ -81,7 +81,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711", "MA:0002887"));
 
     protected static final List<String> TREE_TOP_LEVEL_MA_TERMS = new ArrayList<>(Arrays.asList("MA:0002433", "MA:0002450", "MA:0000003",
-            "MA:0003001", "MA:0002405", "MA:0003002"));
+            "MA:0003001", "MA:0003002"));
 
     protected static final Set<String> TOP_LEVEL_EMAPA_TERMS = new HashSet<>(Arrays.asList("EMAPA:16104", "EMAPA:16192", "EMAPA:16246",
             "EMAPA:16405", "EMAPA:16469", "EMAPA:16727", "EMAPA:16748", "EMAPA:16840", "EMAPA:17524", "EMAPA:31858"));
@@ -426,11 +426,14 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     // These aprsers are used by several indexers so it makes sense to initialize them in one place, so that they don't get out of synch.
     public OntologyParser getMpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return  new OntologyParser(owlpath + "/mp.owl", "MP", TOP_LEVEL_MP_TERMS, getWantedMPIds());
-
     }
 
     public OntologyParser getMpMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
         return new OntologyParser(owlpath + "/mp-ext-merged.owl", "MP", null, null);
+    }
+
+    public OntologyParser getMpHpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+        return new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
     }
 
     public OntologyParser getMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
@@ -462,7 +465,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
         OntologyParser mpMaParser = getMpMaParser();
 
         for (String mpId: wantedMp){
-            wantedIds.addAll( mpMaParser.getReferencedClasses(mpId, viaProperties, "MA"));
+            wantedIds.addAll( mpMaParser.getReferencedClasses(mpId, VIA_PROPERTIES, "MA"));
         }
 
         return wantedIds;
@@ -543,7 +546,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
     // EMAP to EMAPA mapping obtained by CK. Richard Baldock confirmed this is not maintained any more so we maintain it in our repo. Can add terms as needed.
     // Another way would be to use UBERON and get the EMAP and EMAPA cross refs from there.
-    private Map<String,String> getEmapToEmapaMap()
+    protected Map<String,String> getEmapToEmapaMap()
             throws IOException {
 
 
