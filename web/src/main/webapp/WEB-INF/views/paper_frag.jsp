@@ -10,12 +10,15 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<h2 class="title">IKMC/IMPC related publications</h2>
+<h2 id="publications" class="title capitalize">${systemName} IKMC/IMPC related publications</h2>
 <div class="inner">
     <%--<p>These papers shown have MESH terms containing "<span id='kw'></span>".--%>
     </p>
     <br/> <br/>
     <div class="HomepageTable" id="alleleRef"></div>
+
+    <script type='text/javascript' src='${baseUrl}/js/vendor/jquery/jquery.highlight.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/utils/dataTables.searchHighlight.min.js'></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -48,13 +51,13 @@
             $('div#alleleRef').append(dTable);
 
             var oConf = {};
+            oConf.id = "alleleRef";
             oConf.iDisplayLength = 10;
             oConf.iDisplayStart = 0;
             oConf.kw = kw;
             oConf.baseUrl = "${baseUrl}";
             oConf.rowFormat = true;
             oConf.orderBy = "date_of_publication DESC"; // default
-
             //$('span#kw').text(oConf.kw);
             $.fn.fetchAlleleRefDataTable2(oConf);
 

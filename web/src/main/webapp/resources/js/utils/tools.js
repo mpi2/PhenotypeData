@@ -139,7 +139,7 @@
                 tc.type = 'line';
                 tc.name = 'year';
                 tc.showInLegend = false;
-                    Object.keys(j.yearlyIncrease).sort().forEach(function (year, index) {
+                Object.keys(j.yearlyIncrease).sort().forEach(function (year, index) {
                     dp.push(j.yearlyIncrease[year]);
                     cat.push(year);
                     // tc.color = Highcharts.getOptions().colors[3];
@@ -190,19 +190,21 @@
                 var monthSeriesData = [];
                 var weekDrillDownSeriesData = [];
                 var monthTotal = 0;
-                Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function(yearmm, index) {
+                Object.keys(j.paperMonthlyIncrementWeekDrilldown).sort().forEach(function (yearmm, index) {
                     var ymo = {};
                     var wo = {};
                     wo.name = yearmm;
+                    var parts = yearmm.split("-");
+                    var year = parts[0];
                     wo.id = yearmm;
                     wo.data = [];
                     var sum = 0;
-                    Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function(mmdd, index) {
+                    Object.keys(j.paperMonthlyIncrementWeekDrilldown[yearmm]).sort().forEach(function (mmdd, index) {
                         var wc = [];
                         var weekCnt = j.paperMonthlyIncrementWeekDrilldown[yearmm][mmdd];
                         sum += weekCnt;
                         monthTotal += weekCnt;
-                        wc.push(mmdd);
+                        wc.push(year + "-" + mmdd);
                         wc.push(weekCnt)
                         wo.data.push(wc);
                     });
@@ -260,32 +262,32 @@
                     series: [{
                         name: 'month column',
                         colorByPoint: true,
-                        data : monthSeriesData
+                        data: monthSeriesData
                     }],
                     drilldown: {
-                        series : weekDrillDownSeriesData
+                        series: weekDrillDownSeriesData
                     }
                 });
 
-                //---------------------------------------
+                // ---------------------------------------
                 // chart quarter by year of publication
-                //---------------------------------------
+                // ---------------------------------------
                 var yearSeriesData = [];
                 var drillDownSeriesData = [];
                 var totalPapers = 0;
-                Object.keys(j.yearQuarterSum).sort().forEach(function(year, index) {
+                Object.keys(j.yearQuarterSum).sort().forEach(function (year, index) {
                     var yo = {};
                     var qo = {};
                     qo.name = year;
                     qo.id = year;
                     qo.data = [];
                     var sum = 0;
-                    Object.keys(j.yearQuarterSum[year]).sort().forEach(function(quarter, index) {
+                    Object.keys(j.yearQuarterSum[year]).sort().forEach(function (quarter, index) {
                         var qc = [];
                         var quarterCnt = j.yearQuarterSum[year][quarter];
                         sum += quarterCnt;
                         totalPapers += quarterCnt;
-                        qc.push(quarter);
+                        qc.push(year + " " + quarter);
                         qc.push(quarterCnt)
                         qo.data.push(qc);
                     });
@@ -343,10 +345,10 @@
                     series: [{
                         name: 'year column',
                         colorByPoint: true,
-                        data : yearSeriesData
+                        data: yearSeriesData
                     }],
                     drilldown: {
-                        series : drillDownSeriesData
+                        series: drillDownSeriesData
                     }
                 });
 
@@ -358,77 +360,86 @@
                 var drillDownSeriesDataAgency = [];
                 var agencyNames = [];
 
+                //console.log(j.numAgency);
 
-                Object.keys(j.agencyPmidYear).sort().forEach(function (agency, index) {
-                    console.log(agency)
-                    agencyNames.push(agency);
-
-                    var agencyPapers = {};
-                    var yo = {};
-
-                    var pmidYear = j.agencyPmidYear[agency];
-                    var pmidNum = Object.keys(pmidYear).length;
-                    agencyPapers.y = pmidNum;
-                    agencyPapers.name = agency;
-                    agencyPapers.drilldown = agency;
-                    agencyNumPaperSeries.push(agencyPapers);
-
-                    yo.name = agency;  // as drilldown legend
-                    yo.id = agency;  // so that click on column will drilldown
-                    yo.data = [];
-
-                    var yearPapercount = {};
-
-                    Object.keys(pmidYear).forEach(function (pmid, index) {
-                        var year = pmidYear[pmid];
-                        if (! yearPapercount.hasOwnProperty(year)) {
-                            yearPapercount[year] = [];
-                        }
-                        yearPapercount[year].push(pmid);
-
-                        // console.log(agency + " ---- " + pmid + " - " + year);
-                    });
-
-                    for (var yr in yearPapercount) {
-                        var yodrill = [];
-                        yodrill.push(yr);
-                        yodrill.push(yearPapercount[yr].length);
-                        yo.data.push(yodrill);
-                    }
-
-                    console.log(agencyPapers.name + " -- " + agencyPapers.y + " --> ");
-                    console.log( yo);
-                    drillDownSeriesDataAgency.push(yo);
+                var paperCountList = Object.keys(j.numAgency).sort(function(a, b) {
+                    return +/\d+/.exec(b)[0] - +/\d+/.exec(a)[0];
                 });
+
+                //Object.keys(j.numAgency).sort().reverse().forEach(function (paperCount, index) {
+                for(var i=0; i<paperCountList.length; i++){
+                    var paperCount = paperCountList[i];
+                    var agencies = j.numAgency[paperCount];
+
+                    for(var a=0; a<agencies.length; a++) {
+                        var agency = agencies[a];
+                        agencyNames.push(agency);
+
+                        var agencyPapers = {};
+                        var yo = {};
+
+                        var pmidYear = j.agencyPmidYear[agency];
+                        var pmidNum = Object.keys(pmidYear).length;
+                        agencyPapers.y = pmidNum;
+                        agencyPapers.name = agency;
+                        agencyPapers.drilldown = agency;
+                        agencyNumPaperSeries.push(agencyPapers);
+
+                        yo.name = agency;  // as drilldown legend
+                        yo.id = agency;  // so that click on column will drilldown
+                        yo.data = [];
+
+                        var yearPapercount = {};
+
+                        Object.keys(pmidYear).forEach(function (pmid, index) {
+                            var year = pmidYear[pmid];
+                            if (!yearPapercount.hasOwnProperty(year)) {
+                                yearPapercount[year] = [];
+                            }
+                            yearPapercount[year].push(pmid);
+
+                            // console.log(agency + " ---- " + pmid + " - " + year);
+                        });
+
+                        for (var yr in yearPapercount) {
+                            var yodrill = [];
+                            yodrill.push(yr);
+                            yodrill.push(yearPapercount[yr].length);
+                            yo.data.push(yodrill);
+                        }
+
+                        console.log(agencyPapers.name + " -- " + agencyPapers.y + " --> ");
+                        console.log(yo);
+                        drillDownSeriesDataAgency.push(yo);
+                    }
+                }
                 console.log("a")
                 console.log(agencyNumPaperSeries);
                 console.log("b")
                 console.log(drillDownSeriesDataAgency);
-                var divHeight = 20 * agencyNames.length;
+                var divHeight = 22 * agencyNames.length;
 
-                var thisChart = Highcharts.chart(chartGrantQuarter, {
+                var grantChart = Highcharts.chart(chartGrantQuarter, {
                     chart: {
                         type: 'column',
                         inverted: true,
                         height: divHeight,
                         events: {
-                            drilldown: function(e) {
 
-                            },
-                            drillup: function(e) {
-
-                            }
                         }
                     },
                     title: {
                         text: 'Grant agency funded IKMC/IMPC related publications'
                     },
                     subtitle: {
-                        text: 'Click the agency columns for yearly breakdown'
+                        // text: 'Click the agency columns for yearly breakdown'
                     },
                     xAxis: {
-                       categories: agencyNames
-                       //type: 'category'
+                        //categories: agencyNames
+                        type: 'category',
+                        labels: {
+                            enabled: true
+                        }
                     },
                     yAxis: {
                         title: {
@@ -446,8 +457,7 @@
                                 enabled: true,
                                 format: '{point.y}'
                                 // formatter:function() {
-                                //     var pcnt = (this.y / total) * 100;
-                                //     return Highcharts.numberFormat(pcnt) + '%';
+                                //     return this.value;
                                 // }
                             }
                         }
@@ -463,14 +473,23 @@
                         name: 'agency column',
                         colorByPoint: true,
                         data : agencyNumPaperSeries
-                    }],
-                    drilldown: {
-                        series : drillDownSeriesDataAgency
-                    }
+                    }]
+                    // drilldown: {
+                    // got problem with drill up xAxis lable being wrong
+                    //     series : drillDownSeriesDataAgency,
+                    //
+                    // }
                 });
+
             }
+
         });
     }
+
+    function grantAgencyChart(j,totalPapers, chartGrantQuarter ){
+
+    }
+
 
 
 	// fetch paper data points for highCharts
@@ -696,8 +715,9 @@
     $.fn.fetchAlleleRefDataTable2 = function(oConf) {
 
         var baseUrl = oConf.baseUrl;
-        //var aDataTblCols = [0,1,2,3,4,5,6];
-        var oTable = $('table#alleleRef').dataTable({
+        var id = oConf.id;
+
+        var oTable = $('table#' + id).dataTable({
             "bSort": false, // true is default
             "processing": true,
             "paging": true,
@@ -734,13 +754,28 @@
             //"fnDrawCallback": function (oSettings) {  // when dataTable is loaded
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
+                // // so that the event works with pagination
+                $('table#'+id).on("click", "div.meshTree", function(){
+                    console.log("mesh: "+ $(this).next().text());
+                    if ($(this).next().is(":visible")){
+                        $(this).next().hide();
+                        $(this).text("Show mesh terms");
+                    }
+                    else {
+                        $(this).next().show();
+                        $(this).text("Hide mesh terms");
+                        //showMeshTree($(this).next().text());
+                    }
+                });
 
                 // download tool
-                oConf.fileName = 'impc_allele_references';
+                oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 5000;
                 oConf.dataType = "alleleRef";
                 oConf.rowFormat = true;
+
+                oConf.consortium = id == "consortiumPapers" ? true : false;
 
                 var paramStr = "mode=all";
                 $.each(oConf, function (i, val) {
@@ -759,20 +794,11 @@
                     + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
                 //+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
-                $("div.saveTable").html(toolBox);
+                $("div#"+id + " div.saveTable").html(toolBox);
 
 				// sort by date_of_publication and reload table with new content
-				$('.dataTable  > caption button').click(function(){
-					// var sortCols = [];
-					// $(this).siblings("input").each(function () {
-					// 	var thisChkbox = $(this);
-					// 	if (thisChkbox.is(':checked')) {
-					// 		sortCols.push(thisChkbox.val());
-					// 	}
-					// })
-					// var sortStr = sortCols.join();
-					//oConf.orderBy = "date_of_publication";
-
+				$('table#'+ id + ' > caption button').click(function(){
+                    oConf.consortium = id == "consortiumPapers" ? true : false;
 
 					if ($(this).siblings("i").hasClass("fa-caret-down")){
                         $(this).siblings("i").removeClass("fa-caret-down").addClass("fa-caret-up");
@@ -800,16 +826,18 @@
 					});
 				});
 
-                $('.alleleToggle', this).click(function () {
+				// so that the event works with pagination
+                $('table#'+ id).on("click", "div.alleleToggle", function(){
+
                     if (!$(this).hasClass('showMe')) {
-                        $(this).addClass('showMe').text('Show fewer alleles ...');
+                        $(this).addClass('showMe').text('Show fewer alleles');
                         //console.log($(this).siblings("div.hideMe").html());
-                        $(this).siblings().addClass('showMe');
+                        $(this).siblings('span.hideMe').addClass('showMe');
                     }
                     else {
                         var num = $(this).attr('rel');
-                        $(this).removeClass('showMe').text('Show all ' + num + ' alleles ...');
-                        $(this).siblings().removeClass('showMe');
+                        $(this).removeClass('showMe').text('Show all ' + num + ' alleles');
+                        $(this).siblings('span').removeClass('showMe');
                     }
                 });
 
@@ -826,6 +854,27 @@
             }
         });
     }
+
+    // function showMeshTree(meshJsonStr){
+	 //    console.log("mesh str :"+ meshJsonStr);
+    //     var mt = $('.meshTreeDiv').jstree({
+    //         core:{
+    //             data: meshJsonStr
+    //         },
+    //         "types" : {
+    //             "default" : {
+    //                 "icon" : "img/jstree/jstree-node.png"
+    //             },
+    //             "selected" : {
+    //                 "icon" : "img/jstree/jstree-node-selected.png"
+    //             }
+    //         },
+    //         "plugins" : [
+    //             "types"
+    //         ]
+    //     });
+    //
+    // }
 
 	function _facetRefresh(json, selectorBase) {
 

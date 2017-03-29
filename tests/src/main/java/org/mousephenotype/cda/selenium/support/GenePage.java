@@ -511,7 +511,7 @@ public class GenePage {
     private void load() throws TestException {
         try {
             driver.get(target);
-            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[@id='summaryMgiId']/following-sibling::a")));
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[@id='summaryLinks']/following-sibling::a")));
             if (isOopsPage()) {
                 throw new TestException("GenePage: Found 'Oops...' page. URL: " + target);
             }

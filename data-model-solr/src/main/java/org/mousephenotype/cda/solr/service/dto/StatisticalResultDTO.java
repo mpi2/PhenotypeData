@@ -2264,7 +2264,50 @@ public class StatisticalResultDTO {
 		}
 	}
 
-	@Override
+
+
+    public void addTopLevelMpTermId(String topLevelMpTermId){
+        if (this.topLevelMpTermId == null){
+            this.topLevelMpTermId = new ArrayList<>();
+        }
+        this.topLevelMpTermId.add(topLevelMpTermId);
+    }
+
+    public void addTopLevelMpTermIds(Collection<String> topLevelMpTermIds){
+        if (this.topLevelMpTermId == null){
+            this.topLevelMpTermId = new ArrayList<>();
+        }
+        for (String term : topLevelMpTermIds){
+            if (!this.topLevelMpTermId.contains(term)){
+                this.topLevelMpTermId.add(term);
+            }
+        }
+    }
+
+    public void addTopLevelMpTermName(String topLevelMpTermName){
+        if (this.topLevelMpTermName == null){
+            this.topLevelMpTermName = new ArrayList<>();
+        }
+        if (!this.topLevelMpTermName.contains(topLevelMpTermName)) {
+            this.topLevelMpTermName.add(topLevelMpTermName);
+        }
+    }
+
+    public void addTopLevelMpTermNames(Collection<String> topLevelAnatomyTermNames){
+        if (this.topLevelMpTermName == null){
+            this.topLevelMpTermName = new ArrayList<>();
+        }
+        for (String term : topLevelAnatomyTermNames){
+            if (!this.topLevelMpTermName.contains(term)){
+                this.topLevelMpTermName.add(term);
+            }
+        }
+    }
+
+
+
+
+    @Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;

@@ -11,7 +11,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <script type="text/javascript" src="${baseUrl}/js/vendor/venn.js?v=${version}"></script>
-<script src="${baseUrl}/orthology.jsonp?mpId=MP:0005385"></script>
+<script src="${baseUrl}/orthology.jsonp?mpId=MP:0005385&phenotypeShort=CV"></script>
 
 
 

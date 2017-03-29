@@ -1386,6 +1386,17 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             doc.setpValue(minimumPvalue);
             setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
 
+            // If not already set, ensure that the document has all possible top level MP terms defined
+            if (doc.getTopLevelMpTermId() == null) {
+
+                for (String mpTermId : doc.getMpTermIdOptions()) {
+                    List<OntologyTermBean> tops = mpOntologyService.getTopLevel(mpTermId);
+                    doc.addTopLevelMpTermIds(tops.stream().map(OntologyTermBean::getId).collect(Collectors.toSet()));
+                    doc.addTopLevelMpTermNames(tops.stream().map(OntologyTermBean::getName).collect(Collectors.toSet()));
+                }
+            }
+
+
             doc.setClassificationTag(r.getString("classification_tag"));
             doc.setAdditionalInformation(r.getString("additional_information"));
             return doc;

@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.create.extract.dcc;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.config.ExtractDccConfigBeans;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -180,6 +181,24 @@ public class ExtractDccSpecimens implements CommandLineRunner {
         }
 
         // specimen
+        // For EuroPhenome specimens only, the dcc appends the center name to the specimen id. We remove it here
+        // because 1)it is not useful, and 2)moreso, it would be confusing when the centers tried to look up their specimens
+        // and couldn't find them because the specimen ids had the trailing center
+        if ((datasourceShortName.equals(CdaSqlUtils.EUROPHENOME)) && (specimen.getSpecimenID() != null)) {
+            String truncatedSpecimen = specimen.getSpecimenID();
+            int    idx               = -1;
+            if (truncatedSpecimen.endsWith("_MRC_Harwell")) {
+                idx = truncatedSpecimen.lastIndexOf(("_MRC_Harwell"));
+            } else {
+                idx = truncatedSpecimen.lastIndexOf("_");
+            }
+
+            if (idx >= 0) {
+                truncatedSpecimen = truncatedSpecimen.substring(0, idx);
+                specimen.setSpecimenID(truncatedSpecimen);
+            }
+        }
+
         specimen = dccSqlUtils.insertSpecimen(specimen, datasourceShortName);
         specimenPk = specimen.getHjid();
 

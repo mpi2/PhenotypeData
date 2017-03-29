@@ -32,8 +32,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
@@ -59,6 +61,25 @@ public class GenotypePhenotypeServiceTest {
 
     @Autowired
     private MpService mpService;
+    
+    
+    
+//    @Test
+//    public void testGetBiologicalSystemPleiotropyDownloadQuery(){
+//    	try {
+//			gpService.getBiologicalSystemPleiotropyDownloadQuery(null, false, null, "Cardiovascular");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (SolrServerException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    }
+    
 
     @Test
     public void testAllGPGenesInGeneCore()
