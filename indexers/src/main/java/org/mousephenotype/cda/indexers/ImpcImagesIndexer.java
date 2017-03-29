@@ -337,13 +337,13 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				if (stableIdToTermIdMap.containsKey(paramString)) {
 					String thisTermId = stableIdToTermIdMap.get(paramString);
 					if (thisTermId.startsWith("MA:")) {
-						imageDTO = addAnatomyValues(maParser.getOntologyTerm(thisTermId), imageDTO);
+						imageDTO = addAnatomyValues(maParser.getOntologyTerm(thisTermId), imageDTO, runStatus);
 					}
 					if (thisTermId.startsWith("EMAPA:")) {
-						imageDTO = addAnatomyValues(emapaParser.getOntologyTerm(thisTermId), imageDTO);
+						imageDTO = addAnatomyValues(emapaParser.getOntologyTerm(thisTermId), imageDTO, runStatus);
 					}
 					if (thisTermId.startsWith("MP:")) {
-						imageDTO = addMpValues(mpParser.getOntologyTerm(thisTermId), imageDTO, thisTermId);
+						imageDTO = addMpValues(mpParser.getOntologyTerm(thisTermId), imageDTO, thisTermId, runStatus);
 					}
 
 				}
@@ -353,10 +353,11 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 
 	// Since the fields are separate, we have to methods to add ontology info - one for mp and one for anatomy
-	private ImageDTO addMpValues(OntologyTermDTO term, ImageDTO imageDTO, String termId){
+	private ImageDTO addMpValues(OntologyTermDTO term, ImageDTO imageDTO, String termId, RunStatus runStatus){
 
 		if (term == null) {
-			logger.warn(" Cannot find MP ontology term for ID \"{}\",\n   OMERO ID: {},\n   URL: {}", termId, imageDTO.getOmeroId(), imageDTO.getFullResolutionFilePath());
+			String message = "Cannot find MP ontology term for ID " + termId + ",\n   OMERO ID " + imageDTO.getOmeroId() + ",\n   URL " + imageDTO.getFullResolutionFilePath();
+			runStatus.addWarning(message);
 			return imageDTO;
 		}
 
